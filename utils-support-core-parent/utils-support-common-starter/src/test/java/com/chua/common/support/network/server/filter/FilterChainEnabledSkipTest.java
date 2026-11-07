@@ -89,14 +89,17 @@ class FilterChainEnabledSkipTest {
         assertEquals(3, handled.get());
     }
 
+    /** await 方法 */
     private static void await(CompletionStage<Void> stage) {
         stage.toCompletableFuture().join();
     }
 
+    /** req 方法 */
     private static ServerRequest req(String path) {
         return new StubRequest(path);
     }
 
+    /** resp 方法 */
     private static ServerResponse resp() {
         return new StubResponse();
     }

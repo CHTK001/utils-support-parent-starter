@@ -1811,6 +1811,7 @@ public boolean tRNS_present;
     }
 
         // Get a float-valued attribute
+    /** getFloatAttribute 方法 */
     private static float getFloatAttribute(Node node, String name,
                                     float defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1913,6 +1914,7 @@ public boolean tRNS_present;
     }
 
         // Get a required enumerated attribute as an index into a String array
+    /** getEnumeratedAttribute 方法 */
     private static int getEnumeratedAttribute(Node node,
                                        String name, String[] legalNames)
         throws IIOInvalidTreeException {
@@ -1920,6 +1922,7 @@ public boolean tRNS_present;
     }
 
         // Get a String-valued attribute
+    /** getAttribute 方法 */
     private static String getAttribute(Node node, String name,
                                 String defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1989,6 +1992,7 @@ public boolean tRNS_present;
     }
 
         // Get an integer-valued attribute
+    /** getIntAttribute 方法 */
     private static int getIntAttribute(Node node, String name,
                                        int defaultValue, boolean required,
                                        boolean bounded, int min, int max)

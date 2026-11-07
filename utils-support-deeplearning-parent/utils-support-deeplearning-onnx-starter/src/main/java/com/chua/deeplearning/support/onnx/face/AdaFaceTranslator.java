@@ -33,6 +33,19 @@ import ai.djl.translate.TranslatorContext;
 public class AdaFaceTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸
+     */
+    private static final int FACE_SIZE = 112;
+    /**
+     * 归一化均值
+     */
+    private static final float MEAN = 127.5f;
+    /**
+     * 归一化缩放
+     */
+    private static final float STD = 128.0f;
+
+    /**
      * 处理输入
     */
     @Override
@@ -40,7 +53,7 @@ public class AdaFaceTranslator implements Translator<Image, float[]> {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
         // Resize 到 112x112
-        array = NDImageUtils.resize(array, 112, 112);
+        array = NDImageUtils.resize(array, FACE_SIZE, FACE_SIZE);
 
         // 转为 FLOAT32
         if (!array.getDataType().equals(DataType.FLOAT32)) {
@@ -51,7 +64,7 @@ public class AdaFaceTranslator implements Translator<Image, float[]> {
         array = array.transpose(2, 0, 1);
 
         // 归一化：(pixel - 127.5) / 128.0
-        array = array.sub(127.5f).div(128.0f);
+        array = array.sub(MEAN).div(STD);
 
         return new NDList(array);
     }

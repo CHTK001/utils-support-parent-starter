@@ -192,6 +192,7 @@ class EngineParityTest {
         return p;
     }
 
+    /** rd 方法 */
     private static Object rd(Engine.ResponseData r) {
         if (r == null) {
             return null;
@@ -202,10 +203,12 @@ class EngineParityTest {
         return m;
     }
 
+    /** sel 方法 */
     private static String sel(String id) {
         return "[data-clickable][data-id='" + id + "']";
     }
 
+    /** bool 方法 */
     private static Boolean bool(Object v) {
         return (Boolean) v;
     }
@@ -720,6 +723,7 @@ class EngineParityTest {
         }
     }
 
+    /** assertPng 方法 */
     private static void assertPng(byte[] bytes, String label) {
         assertTrue(bytes.length > 8, label + " 应非空");
         assertEquals((byte) 0x89, bytes[0], label + " 魔数");
@@ -728,6 +732,7 @@ class EngineParityTest {
         assertEquals((byte) 0x47, bytes[3], label + " 魔数");
     }
 
+    /** assertPdf 方法 */
     private static void assertPdf(String base64, String label) {
         byte[] pdf = Base64.getDecoder().decode(base64);
         assertTrue(pdf.length > 500, label + " 应有实质内容");

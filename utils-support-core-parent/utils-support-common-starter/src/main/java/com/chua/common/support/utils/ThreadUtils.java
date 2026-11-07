@@ -112,30 +112,7 @@ public class ThreadUtils {
         }
     }
 
-    /**
-     * 新建单线程线程池并立即执行任务。
-     * <p>
-     * 创建后自动执行一次给定的 Runnable。
-     * </p>
-     *
-     * @param runnable 待执行的任务
-     */
-    public static void newAndRunThread(final Runnable runnable) {
-        var executorService = newSingleThreadExecutor();
-        executorService.execute(runnable);
-    }
 
-    /**
-     * 创建默认缓存线程池。
-     * <p>
-     * 核心线程 0，最大 Integer.最大_值，空闲 60s 回收。
-     * </p>
-     *
-     * @return 缓存线程池
-     */
-    public static ExecutorService newCachedThreadPool() {
-        return newCachedThreadPool("global-" + DEFAULT + "-cached-pool");
-    }
 
     /**
      * 创建带名称的缓存线程池。
@@ -183,32 +160,7 @@ public class ThreadUtils {
                 new SynchronousQueue<>(), threadFactory);
     }
 
-    /**
-     * 创建新的 completable期货 实例。
-     * <p>
-     * 返回尚未完成的 completable期货，可用于异步结果传递。
-     * </p>
-     *
-     * @param <T> 结果类型
-     * @return 新的 completable期货 实例
-     */
-    public static <T> CompletableFuture<T> newCompletableFuture() {
-        return new CompletableFuture<>();
-    }
 
-    /**
-     * 获取执行器，若传入的 执行器 为 空 则创建默认大小的固定线程池。
-     * <p>
-     * 默认线程数由 处理器() 决定（CPU 核心数 × 2 - 1）。
-     * </p>
-     *
-     * @param threadFactory 线程工厂
-     * @param executor      现有执行器（可为 空）
-     * @return 执行器实例
-     */
-    public static Executor newExecutor(ThreadFactory threadFactory, Executor executor) {
-        return newExecutor(threadFactory, executor, processor());
-    }
 
     /**
      * 获取指定大小的执行器，若传入的 执行器 为 空 则创建固定线程池。
@@ -225,12 +177,6 @@ public class ThreadUtils {
         return Optional.ofNullable(executor).orElse(newFixedThreadExecutor(size, threadFactory));
     }
 
-    /**
-     * 创建固定大小的线程池（默认名称）。
-     * <p>
-     * 使用全局默认的线程名称模板。
-     * </p>
-     *
      * @param max 最大线程数
      * @return 固定大小线程池
      */
@@ -238,26 +184,7 @@ public class ThreadUtils {
         return newFixedThreadExecutor(max, "com-ch-global-" + DEFAULT + "-fixed-{" + max + "}-pool");
     }
 
-    /**
-     * 创建虚拟线程池。
-     * <p>
-     * 使用 Java 虚拟线程（虚拟 Thread），每个任务启动一条新虚拟线程。
-     * </p>
-     *
-     * @return 虚拟线程池
-     */
-    public static ExecutorService newVirtualThreadExecutor() {
-        return newThreadPerTaskExecutor(Thread.ofVirtual()
-                .name("com-ch-virtual-" + DEFAULT + "-virtual-{1000}-pool")
-                .factory());
-    }
 
-    /**
-     * 创建指定名称的固定大小线程池。
-     * <p>
-     * 使用 执行器.新固定线程池 实现。
-     * </p>
-     *
      * @param thread 线程数
      * @param name   线程名称前缀
      * @return 固定大小线程池
@@ -289,15 +216,6 @@ public class ThreadUtils {
         return executorService;
     }
 
-    /**
-     * 使用指定线程工厂创建固定大小线程池。
-     * <p>
-     * 委托给 执行器.新固定线程池。
-     * </p>
-     *
-     * @param thread        线程数
-     * @param threadFactory 线程工厂
-     * @return 固定大小线程池
      */
     public static ExecutorService newFixedThreadExecutor(int thread, ThreadFactory threadFactory) {
 // [P3C C1 豁免] 场景化创建线程，需文档化
@@ -356,31 +274,7 @@ public class ThreadUtils {
                 threadFactory);
     }
 
-    /**
-     * 获取 分叉连接 公共线程池。
-     * <p>
-     * 返回 fork连接游泳池.通用游泳池()，适用于并行计算。
-     * </p>
-     *
-     * @return ForkJoin 公共线程池
-     */
-    public static ExecutorService newForkJoinPool() {
-        return ForkJoinPool.commonPool();
-    }
 
-    /**
-     * 创建取较大值的线程池。
-     * <p>
-     * 线程数为 值1 和 值2 中的较大值。
-     * </p>
-     *
-     * @param value1 候选值 1
-     * @param value2 候选值 2
-     * @return 固定大小线程池
-     */
-    public static ExecutorService newMaxThreadExecutor(final int value1, final int value2) {
-        return newFixedThreadExecutor(Math.max(value1, value2));
-    }
 
     /**
      * 创建取较大值且带名称的线程池。
@@ -397,19 +291,6 @@ public class ThreadUtils {
         return newFixedThreadExecutor(Math.max(value1, value2), name);
     }
 
-    /**
-     * 创建取较小值的线程池。
-     * <p>
-     * 线程数为 值1 和 值2 中的较小值。
-     * </p>
-     *
-     * @param value1 候选值 1
-     * @param value2 候选值 2
-     * @return 固定大小线程池
-     */
-    public static ExecutorService newMinThreadExecutor(final int value1, final int value2) {
-        return newFixedThreadExecutor(Math.min(value1, value2));
-    }
 
     /**
      * 创建取较小值且带名称的线程池。
@@ -451,8 +332,6 @@ public class ThreadUtils {
         return newFixedThreadExecutor(Math.min(core, PROCESSOR));
     }
 
-    /**
-     * 创建带名称的处理器核心数线程池。
      * <p>
      * 线程数由 处理器() 决定，使用指定名称。
      * </p>
@@ -464,9 +343,6 @@ public class ThreadUtils {
         return newFixedThreadExecutor(PROCESSOR, name);
     }
 
-    /**
-     * 创建定时任务线程池。
-     * <p>
      * 使用 调度thread游泳池执行器 实现，默认名称 全局-调度-游泳池。
      * </p>
      *
@@ -478,23 +354,6 @@ public class ThreadUtils {
         return new ScheduledThreadPoolExecutor(thread, newThreadFactory("GLOBAL-" + DEFAULT + "-SCHEDULE-POOL"));
     }
 
-    /**
-     * 创建固定延迟的定时任务（默认线程池）。
-     * <p>
-     * 任务完成后，等待指定延迟再执行下一次。
-     * </p>
-     *
-     * @param runnable     待执行的任务
-     * @param initialDelay 初始延迟
-     * @param delay        每次执行后的延迟
-     * @param unit         时间单位
-     * @return 调度结果 期货
-     */
-    public static ScheduledFuture<?> newScheduleWithFixedDelay(final Runnable runnable, long initialDelay,
-                                                                long delay, TimeUnit unit) {
-        return newScheduleWithFixedDelay("GLOBAL-" + DEFAULT + "-SCHEDULED-2-POOL", runnable, initialDelay, delay,
-                                         unit);
-    }
 
     /**
      * 创建指定线程名称的固定延迟定时任务。
@@ -511,8 +370,6 @@ public class ThreadUtils {
      */
     public static ScheduledFuture<?> newScheduleWithFixedDelay(final String threadName, final Runnable runnable,
                                                                 long initialDelay, long delay, TimeUnit unit) {
-        return newScheduledThreadPoolExecutor(1, newThreadFactory(threadName))
-                .scheduleWithFixedDelay(runnable, initialDelay, delay, unit);
     }
 
     /**
@@ -572,17 +429,6 @@ public class ThreadUtils {
         return newSingleThreadExecutor("global-" + DEFAULT + "-single-pool");
     }
 
-    /**
-     * 创建单工作线程执行器（别名）。
-     * <p>
-     * 此方法实际调用 新单个thread执行器。
-     * </p>
-     *
-     * @return 单线程执行器
-     */
-    public static ExecutorService newSingleWorkThreadExecutor() {
-        return newSingleThreadExecutor("global-" + DEFAULT + "-single-pool");
-    }
 
     /**
      * 创建指定名称的单工作线程执行器。
@@ -597,26 +443,6 @@ public class ThreadUtils {
         return newSingleThreadExecutor(name);
     }
 
-    /**
-     * 创建指定名称的单线程执行器。
-     * <p>
-     * 核心线程 1，最大线程 1，空闲不回收，无界队列。
-     * </p>
-     *
-     * @param name 线程名称前缀
-     * @return 单线程执行器
-     */
-    public static ExecutorService newSingleThreadExecutor(String name) {
-// [P3C C1 豁免] 场景化创建线程，需文档化
-        return new ThreadPoolExecutor(
-                SINGLETON,
-                SINGLETON,
-                KEEP_ALIVE_TIME,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(),
-                newThreadFactory(name)
-        );
-    }
 
 
     /**
@@ -695,20 +521,8 @@ public class ThreadUtils {
      * @return 虚拟线程构建器
      */
     public static Thread.Builder.OfVirtual ofVirtual() {
-        return Thread.ofVirtual();
     }
 
-    /**
-     * 获取平台线程构建器。
-     * <p>
-     * 返回 Thread.的platform() 以便自定义创建平台线程。
-     * </p>
-     *
-     * @return 平台线程构建器
-     */
-    public static Thread.Builder.OfPlatform ofPlatform() {
-        return Thread.ofPlatform();
-    }
     /**
      * 启动指定名称的虚拟线程。
      * <p>
@@ -791,18 +605,6 @@ public class ThreadUtils {
         return new NamedThreadFactory(name, true);
     }
 
-    /**
-     * 创建带名称的缓存线程池（守护线程）。
-     * <p>
-     * 核心线程 0，最大 Integer.最大_值，空闲 60s 回收，线程为守护线程。
-     * </p>
-     *
-     * @param name 线程名称前缀
-     * @return 守护型缓存线程池
-     */
-    public static ExecutorService newDaemonCachedThreadPool(final String name) {
-        return newCachedThreadPool(newDaemonThreadFactory(name));
-    }
 
     /**
      * 创建固定大小线程池（守护线程）。
@@ -844,19 +646,6 @@ public class ThreadUtils {
         return newSingleThreadScheduledExecutor(newDaemonThreadFactory(name));
     }
 
-    /**
-     * 获取推荐处理器线程数。
-     * <p>
-     * 计算公式：可用处理器 × 2 - 1，用于 I/O 密集型场景。
-     * </p>
-     *
-     * @return 推荐线程数
-     */
-    public static int processor() {
-        return Runtime.getRuntime().availableProcessors() * 2 - 1;
-    }
-
-    /**
      * 立即关闭线程池。
      * <p>
      * 调用 执行器服务.关闭now() 尝试停止所有正在执行的任务。
@@ -870,18 +659,6 @@ public class ThreadUtils {
         }
     }
 
-    /**
-     * 线程休眠（不捕获异常）。
-     * <p>
-     * 可能会抛出 interrupted异常，由调用方处理。
-     * </p>
-     *
-     * @param millis 休眠毫秒数
-     * @throws InterruptedException 线程被中断
-     */
-    public static void sleepOfUnSafe(long millis) throws InterruptedException {
-        Thread.sleep(millis);
-    }
 
     /**
      * 线程休眠（安静模式）。
@@ -899,23 +676,6 @@ public class ThreadUtils {
         }
     }
 
-    /**
-     * 线程休眠（中断时抛运行时异常）。
-     * <p>
-     * 捕获 interrupted异常 后恢复中断状态并抛出 runtime异常。
-     * </p>
-     *
-     * @param millis 休眠毫秒数
-     * @throws RuntimeException 线程被中断
-     */
-    public static void sleepOfInterrupt(int millis) {
-        try {
-            sleepOfUnSafe(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("线程休眠被中断: " + e.getMessage(), e);
-        }
-    }
 
     /**
      * 线程休眠（指定时间单位，不捕获异常）。
@@ -944,50 +704,8 @@ public class ThreadUtils {
         sleepQuietly(millis, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * 安静休眠指定时间。
-     * <p>
-     * 时间为负数时直接返回，不抛出异常。
-     * </p>
-     *
-     * @param time     休眠时长
-     * @param timeUnit 时间单位
-     */
-    public static void sleepQuietly(long time, TimeUnit timeUnit) {
-        if (time < 0L) {
-            return;
-        }
-        try {
-            var unit = timeUnit.toMillis(time);
-            Thread.sleep(unit);
-        } catch (InterruptedException ignored) {
-            // 忽略中断异常
-        }
-    }
 
-    /**
-     * 安静休眠指定秒数。
-     * <p>
-     * 委托给 sleepquietly。
-     * </p>
-     *
-     * @param time 休眠秒数
-     */
-    public static void sleepSecondsQuietly(long time) {
-        sleepQuietly(time, TimeUnit.SECONDS);
-    }
 
-    /**
-     * 安静休眠指定分钟数。
-     * <p>
-     * 委托给 sleepquietly。
-     * </p>
-     *
-     * @param time 休眠分钟数
-     */
-    public static void sleepMinutesQuietly(long time) {
-        sleepQuietly(time, TimeUnit.MINUTES);
-    }
 
     /**
      * 获取全局静态默认线程池。
@@ -1001,17 +719,6 @@ public class ThreadUtils {
         return THREAD_POOL;
     }
 
-    /**
-     * 获取全局静态定时任务线程池。
-     * <p>
-     * 返回类级别的 调度_执行器_服务。
-     * </p>
-     *
-     * @return 全局定时任务线程池
-     */
-    public static ScheduledExecutorService newStaticScheduledThreadPoolExecutor() {
-        return SCHEDULED_EXECUTOR_SERVICE;
-    }
 
     /**
      * 创建单线程定时任务执行器（委托模式）。
@@ -1027,29 +734,12 @@ public class ThreadUtils {
         return new DelegatedScheduledExecutorServiceImpl(new ScheduledThreadPoolExecutor(1, threadFactory));
     }
 
-    /**
-     * 创建默认单线程定时任务执行器。
-     * <p>
-     * 使用 名称thread工厂("调度") 作为线程工厂。
-     * </p>
-     *
      * @return 单线程定时任务执行器
      */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
         return newSingleThreadScheduledExecutor(new NamedThreadFactory("schedule"));
     }
 
-    /**
-     * 获取默认全局线程池。
-     * <p>
-     * 返回 新静态thread游泳池() 的结果。
-     * </p>
-     *
-     * @return 默认线程池
-     */
-    public static Executor getDefaultThreadPool() {
-        return newStaticThreadPool();
-    }
 
     /**
      * 在默认线程池中执行任务。
@@ -1063,23 +753,6 @@ public class ThreadUtils {
         newStaticThreadPool().execute(runnable);
     }
 
-    /**
-     * 同步等待对象。
-     * <p>
-     * 在 同步 块中调用 obj.wait() 等待，忽略中断。
-     * </p>
-     *
-     * @param obj 要等待的对象
-     */
-    public static void sync(Object obj) {
-        synchronized (obj) {
-            try {
-                obj.wait();
-            } catch (InterruptedException ignored) {
-                // 忽略中断异常
-            }
-        }
-    }
 
     /**
      * 创建定时任务线程池（使用 名称thread工厂）。
@@ -1111,8 +784,6 @@ public class ThreadUtils {
 
 
 
-    /**
-     * 委托模式的定时任务执行器，将 调度执行器服务 的方法委托给内部实例。
      * @author CH
      * @since 4.0.0
      */
@@ -1137,9 +808,6 @@ public class ThreadUtils {
         public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
             return e.schedule(command, delay, unit);
         }
-        /**
-         * 调度
-         */
         @Override
         public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
             return e.schedule(callable, delay, unit);
@@ -1166,9 +834,6 @@ public class ThreadUtils {
          * E
          */
         private final ExecutorService e;
-        /**
-         * Delegated Executor Service
-         * @param executor 执行器
          * @return 返回值
         */
         DelegatedExecutorService(ExecutorService executor) {
@@ -1209,11 +874,6 @@ public class ThreadUtils {
         public boolean isTerminated() {
             return e.isTerminated();
         }
-        /**
-         * await终止
-         */
-        @Override
-        public boolean awaitTermination(long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.awaitTermination(timeout, unit);
         }
@@ -1229,13 +889,6 @@ public class ThreadUtils {
             return e.submit(task);
         }
         /**
-         * 提交
-         */
-        @Override
-        public <T> Future<T> submit(Runnable task, T result) {
-            return e.submit(task, result);
-        }
-        /**
          * 调用全部
          */
         @Override
@@ -1243,9 +896,6 @@ public class ThreadUtils {
                 throws InterruptedException {
             return e.invokeAll(tasks);
         }
-        /**
-         * 调用全部
-         * @param tasks 任务
          * @param timeout 超时
          * @param unit unit
          */
@@ -1263,13 +913,6 @@ public class ThreadUtils {
                 throws InterruptedException, ExecutionException {
             return e.invokeAny(tasks);
         }
-        /**
-         * 调用任意
-         * @param tasks 任务
-         * @param timeout 超时
-         * @param unit unit
-         */
-        @Override
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -1306,8 +949,6 @@ public class ThreadUtils {
             group = Thread.currentThread().getThreadGroup();
             namePrefix = "pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
         }
-
-        /**
          * 创建 默认thread工厂 实例
          * @param name 名称
          * @return 默认thread工厂的结果
@@ -1329,9 +970,6 @@ public class ThreadUtils {
             namePrefix = name + "-" + POOL_NUMBER.getAndIncrement() + "-";
         }
 
-        /**
-         * 新thread
-         */
         @Override
         public Thread newThread(Runnable r) {
 // [P3C C1 豁免] 工具方法返回 Thread，由调用者组建线程池/线程组

@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>{@link MemorySqlLex.RowAccessor} 同时服务 Map 行与 Bean 行两种行模型，
  * 读取需忽略列名大小写、写入需按 setter 形参类型收敛。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class MemorySqlLexTest {
 

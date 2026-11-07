@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>{@code UPDATE} 的 SET 子句解析不依赖空格和 comma 间距</li>
  * </ul>
  * </p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class InMemoryEngineTest {
 
@@ -334,22 +336,27 @@ class InMemoryEngineTest {
             return name;
         }
 
+        /** setName 方法 */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** getAge 方法 */
         public Integer getAge() {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

@@ -139,36 +139,6 @@ public class MatchUtils {
         }
     }
 
-    /**
-     * 通配符匹配（便捷方法）
-     *
-     * @param pattern 通配符模式
-     * @param text 待匹配文本
-     * @return true 如果匹配成功
-     */
-    public static boolean isWildcardMatch(String pattern, String text) {
-        return isMatch(pattern, text, MatchType.WILDCARD);
-    }
 
-    /**
-     * 正则匹配（便捷方法）
-     *
-     * @param regex 正则表达式
-     * @param text 待匹配文本
-     * @return true 如果匹配成功
-     */
-    public static boolean isRegexMatch(String regex, String text) {
-        return isMatch(regex, text, MatchType.REGEX);
-    }
 
-    /**
-     * 自动匹配（便捷方法）
-     *
-     * @param pattern 匹配模式
-     * @param text 待匹配文本
-     * @return true 如果匹配成功
-     */
-    public static boolean isAutoMatch(String pattern, String text) {
-        return isMatch(pattern, text, MatchType.AUTO);
-    }
 }

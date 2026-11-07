@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 不触发 harness——目标循环的推进语义已由 goal 包的单元测试覆盖。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class AgentScopeGoalWiringTest {
 

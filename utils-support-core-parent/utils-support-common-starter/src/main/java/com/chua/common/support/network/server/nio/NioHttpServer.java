@@ -156,7 +156,7 @@ public class NioHttpServer extends AbstractServer {
                 && header.remaining() + body.remaining() <= COMBINE_THRESHOLD) {
             // 小响应:头体合并为单缓冲,一次 write 完成(对齐 AioHttpServer 的极限优化)
             int total = header.remaining() + body.remaining();
-            ByteBuffer combined = ByteBuffer.allocate(total);
+            ByteBuffer combined = st.takeCombineBuffer(total);
             combined.put(header).put(body);
             combined.flip();
             st.writeQueue.add(combined);
@@ -597,19 +597,30 @@ public class NioHttpServer extends AbstractServer {
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
-            NioServerResponse response = new NioServerResponse(st.channel);
-            // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
-            response.setAsyncWriter((header, body) -> {
-                synchronized (st.writeQueue) {
-                    appendResponseBuffers(st, header, body);
-                }
-                flushInlineWrite(st, key);
-            });
+            NioServerResponse response = st.response();
+            // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写。
+            // 回调按连接缓存:捕获项只有 st 与 key(连接内不变),每请求重建纯属浪费
+            java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter = st.inlineAsyncWriter;
+            if (asyncWriter == null) {
+                asyncWriter = (header, body) -> {
+                    synchronized (st.writeQueue) {
+                        appendResponseBuffers(st, header, body);
+                    }
+                    flushInlineWrite(st, key);
+                };
+                st.inlineAsyncWriter = asyncWriter;
+            }
+            response.setAsyncWriter(asyncWriter);
             // 流式直写(SSE):入待写队列并受背压门限约束,不再在事件循环里忙等非阻塞通道
-            response.setStreamWriter(bytes -> {
-                enqueueStream(st, key, bytes);
-                flushInlineWrite(st, key);
-            });
+            java.util.function.Consumer<byte[]> streamWriter = st.inlineStreamWriter;
+            if (streamWriter == null) {
+                streamWriter = bytes -> {
+                    enqueueStream(st, key, bytes);
+                    flushInlineWrite(st, key);
+                };
+                st.inlineStreamWriter = streamWriter;
+            }
+            response.setStreamWriter(streamWriter);
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
@@ -622,6 +633,7 @@ public class NioHttpServer extends AbstractServer {
             }
             st.keepAlive = shouldKeepAlive(st.request, response);
             st.request.resetForNextRequest();
+            recycle(st, response);
             // 同步写出已尝试,若队列仍有残留则回退事件循环 OP_WRITE 续写
             boolean hasPending;
             synchronized (st.writeQueue) {
@@ -636,6 +648,21 @@ public class NioHttpServer extends AbstractServer {
         } catch (Exception e) {
             log.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
+        }
+    }
+
+    /**
+     * 把响应对象归位以复用于下一条请求。
+     *
+     * <p>SSE 响应的生命周期会延续到 handler 返回之后（由 {@code sseClose} 收尾），
+     * 此时重置会破坏仍在推送的流，因此直接丢弃缓存，让下一条请求取新实例。</p>
+     *
+     * @param st       连接状态
+     * @param response 刚处理完的响应
+     */
+    private static void recycle(ConnectionState st, NioServerResponse response) {
+        if (!response.resetForNextRequest()) {
+            st.response = null;
         }
     }
 
@@ -684,6 +711,7 @@ public class NioHttpServer extends AbstractServer {
                     return;
                 }
                 st.writeQueue.poll();
+                st.recycleCombineBuffer(bb);
             }
         }
     }
@@ -706,7 +734,7 @@ public class NioHttpServer extends AbstractServer {
                 closeConn(key, st);
                 return;
             }
-            NioServerResponse response = new NioServerResponse(st.channel);
+            NioServerResponse response = st.response();
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
                     appendResponseBuffers(st, header, body);
@@ -733,6 +761,7 @@ public class NioHttpServer extends AbstractServer {
             }
             st.keepAlive = shouldKeepAlive(st.request, response);
             st.request.resetForNextRequest();
+            recycle(st, response);
             // 触发写:入队待写 key,由所属分片事件循环线程统一注册 OP_WRITE
             boolean hasPending;
             synchronized (st.writeQueue) {
@@ -767,7 +796,7 @@ public class NioHttpServer extends AbstractServer {
                 closeConn(key, st);
                 return;
             }
-            NioServerResponse response = new NioServerResponse(st.channel);
+            NioServerResponse response = st.response();
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
                     appendResponseBuffers(st, header, body);
@@ -806,6 +835,8 @@ public class NioHttpServer extends AbstractServer {
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
             }
+            // 响应字节已入队(队列持有各自的 byte[]),此刻归位实例供下一条请求复用
+            recycle(st, response);
         } catch (Exception e) {
             log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
@@ -844,6 +875,7 @@ public class NioHttpServer extends AbstractServer {
                 return true;
             }
             st.writeQueue.poll();
+            st.recycleCombineBuffer(bb);
         }
     }
 
@@ -878,6 +910,7 @@ public class NioHttpServer extends AbstractServer {
                     return;
                 }
                 st.writeQueue.poll();
+                st.recycleCombineBuffer(bb);
             }
         }
         // 写完:Keep-Alive 则重新注册 OP_READ,否则关闭
@@ -951,6 +984,50 @@ public class NioHttpServer extends AbstractServer {
         int shard = 0;
 
         /**
+         * 每连接复用的响应对象。
+         *
+         * <p>keep-alive 下同一连接会连续处理成千上万条请求，原先每条请求都新建一个
+         * {@link NioServerResponse}（实测占全部申请的 5.4%）。响应对象只承载「一条响应
+         * 的可变状态」，处理完即由 {@link NioServerResponse#resetForNextRequest()} 归位，
+         * 所以按连接持有是安全且零共享的。</p>
+         *
+         * <p>懒创建：只处理过一次请求的连接才分配。</p>
+         */
+        NioServerResponse response;
+
+        /**
+         * 内联路径的异步写出回调（连接级复用）。
+         *
+         * <p>原先每条请求都新建两个 lambda（实测合计占全部申请的 5.3%）。它们的捕获项
+         * 只有本连接状态与所属 SelectionKey，两者在连接生命周期内都不变，因此可以
+         * 在首次使用时创建一次。</p>
+         */
+        java.util.function.BiConsumer<ByteBuffer, ByteBuffer> inlineAsyncWriter;
+
+        /**
+         * 内联路径的流式直写回调（连接级复用）。
+         */
+        java.util.function.Consumer<byte[]> inlineStreamWriter;
+
+        /**
+         * 头体合并缓冲（连接级复用）。
+         *
+         * <p>echo 类小响应每请求都要一个「头+体」合并缓冲，原先每次 {@code ByteBuffer.allocate}
+         * 新建（实测占全部申请的 6.8%）。这里按连接保留一块，用完后归还。</p>
+         *
+         * <p><b>安全前提</b>：入队的 {@code ByteBuffer} 在 {@code flip()} 之后只被
+         * {@code channel.write} 读取，不会再写入；只有该缓冲彻底出队（写尽）后才会归还，
+         * 因此同一块内存不会被两条待写响应同时使用。归还点见
+         * {@code flushInlineWrite}/{@code drainWriteQueue} 的 poll 分支。</p>
+         */
+        ByteBuffer combineBuffer;
+
+        /**
+         * 当前已借出、仍在待写队列中的合并缓冲（归还判定用）。
+         */
+        ByteBuffer borrowedCombine;
+
+        /**
          * Connection State
          * @param channel 参数
          * @param charset 字符串
@@ -960,6 +1037,58 @@ public class NioHttpServer extends AbstractServer {
         ConnectionState(SocketChannel channel, long maxRequestSize, String charset) {
             this.channel = channel;
             this.request = new NioServerRequest(channel, maxRequestSize, charset);
+        }
+
+        /**
+         * 取得本连接复用的响应对象（首次调用时创建）。
+         *
+         * @return 已归位的响应对象
+         */
+        NioServerResponse response() {
+            NioServerResponse r = response;
+            if (r == null) {
+                r = new NioServerResponse(channel);
+                response = r;
+            }
+            return r;
+        }
+
+        /**
+         * 取得一块可容纳 {@code total} 字节的合并缓冲（优先复用连接上的那块）。
+         *
+         * <p>复用的前提是这块缓冲此刻不在待写队列里——归还点保证它写尽之后才回到
+         * {@link #combineBuffer}，因此这里拿到的一定是空闲缓冲。容量不足时按需扩容，
+         * 旧缓冲交由 GC。</p>
+         *
+         * @param total 需要的字节数
+         * @return 已 {@code clear()} 的缓冲
+         */
+        ByteBuffer takeCombineBuffer(int total) {
+            ByteBuffer buf = combineBuffer;
+            if (buf == null || buf.capacity() < total) {
+                buf = ByteBuffer.allocate(total);
+            } else {
+                // 从空闲位取出：置空表示「已借出」，避免下一条响应拿到仍在队列里的同一块
+                combineBuffer = null;
+            }
+            borrowedCombine = buf;
+            buf.clear();
+            return buf;
+        }
+
+        /**
+         * 出队的缓冲若是刚借出的那块合并缓冲，就归还到空闲位以便下一条响应复用。
+         *
+         * <p>用引用相等判定：只有 {@link #takeCombineBuffer} 返回的实例才会命中，
+         * 响应头/体各自的 {@code ByteBuffer}（由 {@code wrap} 产生）不会误归还。</p>
+         *
+         * @param drained 刚从待写队列出队的缓冲
+         */
+        void recycleCombineBuffer(ByteBuffer drained) {
+            if (drained == borrowedCombine) {
+                combineBuffer = borrowedCombine;
+                borrowedCombine = null;
+            }
         }
     }
 
@@ -972,6 +1101,8 @@ public class NioHttpServer extends AbstractServer {
         try {
             NioServerRequest request = new NioServerRequest(channel,
                     setting.getMaxRequestSize(), setting.getCharset());
+            // 每条连接复用一个响应对象(阻塞路径串行处理,复用无并发风险)
+            NioServerResponse response = new NioServerResponse(channel);
             // 懒分配:首次读到数据才分配 16KB,避免空闲连接预占内存
             ByteBuffer readBuf = null;
             while (running && channel.isConnected()) {
@@ -999,7 +1130,6 @@ public class NioHttpServer extends AbstractServer {
                     handleWebSocketUpgrade(channel, request);
                     break;
                 }
-                NioServerResponse response = new NioServerResponse(channel);
                 try {
                     handleRequest(request, response);
                 } catch (Exception e) {
@@ -1015,6 +1145,10 @@ public class NioHttpServer extends AbstractServer {
                     break;
                 }
                 request.resetForNextRequest();
+                if (!response.resetForNextRequest()) {
+                    // SSE 等长生命周期响应：不复用，下次循环取新实例
+                    response = new NioServerResponse(channel);
+                }
             }
         } catch (Exception e) {
             log.debug("Connection handling failed: {}", e.getMessage());

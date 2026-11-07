@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 而且是静默丢失——不会报错，事后极难发现。</p>
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class JdbcIncrementalWatermarkTest {
 

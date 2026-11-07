@@ -315,6 +315,17 @@ public abstract class AbstractServer implements ConfigServer {
             metrics.decrementActive();
             throw e;
         }
+        // 快路径：同步过滤器链 + 同步 handler 是常态，stage 在返回时就已完成。
+        // 此时 whenComplete 只会白白新建一个 CompletableFuture（JFR 显示它是
+        // 事件循环线程上最大的单项分配），直接在调用线程做完收尾即可。
+        if (stage instanceof CompletableFuture<Void> future && future.isDone()) {
+            if (sampleLatency) {
+                metrics.recordLatency(System.nanoTime() - start);
+            }
+            metrics.decrementActive();
+            releaseConcurrency();
+            return future;
+        }
         return stage.whenComplete((v, ex) -> {
             if (sampleLatency) {
                 metrics.recordLatency(System.nanoTime() - start);
@@ -363,7 +374,18 @@ public abstract class AbstractServer implements ConfigServer {
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
                 filterManager.getMergedReactiveFilters(), DEFAULT_404_HANDLER);
-        return reactiveChain.doFilter(request, response).whenComplete((result, ex) -> {
+        CompletionStage<Void> stage = reactiveChain.doFilter(request, response);
+        // 快路径：链已同步完成（无异步过滤器）时直接收尾，避免 whenComplete 再分配一个
+        // CompletableFuture——这是事件循环线程上占比最高的应用侧分配。
+        if (stage instanceof CompletableFuture<Void> future && future.isDone()) {
+            // isDone 且无异常才走快路径；异常交给下面的 whenComplete 分支统一处理，
+            // 保证「同步失败也记录错误并回 500」的既有语义不变
+            if (!future.isCompletedExceptionally()) {
+                finishReactive(response);
+                return future;
+            }
+        }
+        return stage.whenComplete((result, ex) -> {
             if (ex != null) {
                 metrics.incrementErrors();
                 log.warn("响应式请求处理异常: {}", ex.getMessage(), ex);
@@ -374,18 +396,32 @@ public abstract class AbstractServer implements ConfigServer {
                         log.warn("发送 500 错误失败: {}", e.getMessage(), e);
                     }
                 }
-            } else if (!response.isEnded()) {
-                // 路径变量 / 查询参数尚未在此处理，交由具体 Handler 负责
-                if (response.getResult() != null) {
-                    convertResult(response);
-                }
-                try {
-                    response.end();
-                } catch (Exception e) {
-                    log.warn("响应 end() 失败: {}", e.getMessage(), e);
-                }
+            } else {
+                finishReactive(response);
             }
         });
+    }
+
+    /**
+     * 响应式链正常完成后的收尾：按需转换 result 并 end()。
+     *
+     * <p>抽出来供「同步已完成」的快路径与异步完成回调共用，保证两条路径语义一致。</p>
+     *
+     * @param response 响应
+     */
+    private void finishReactive(ServerResponse response) {
+        if (response.isEnded()) {
+            return;
+        }
+        // 路径变量 / 查询参数尚未在此处理，交由具体 Handler 负责
+        if (response.getResult() != null) {
+            convertResult(response);
+        }
+        try {
+            response.end();
+        } catch (Exception e) {
+            log.warn("响应 end() 失败: {}", e.getMessage(), e);
+        }
     }
 
     /**
@@ -459,6 +495,34 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
+     * 服务发现注册器：非空时，服务端启动后自动注册、停止前自动注销。
+     *
+     * <p>放在基类而不是各 {@code SyncServer} 实现里，是因为启动/停止的顺序与端口绑定
+     * 由基类统一控制；注册必须发生在端口真正可连接之后，注销必须发生在端口关闭之前。</p>
+     */
+    private volatile com.chua.common.support.network.sync.SyncServerRegistrar discoveryRegistrar;
+
+    /**
+     * 设置服务发现注册器。
+     *
+     * <p>必须在 {@link #start()} 之前调用，否则本次启动不会注册。</p>
+     *
+     * @param registrar 注册器，null 表示不使用服务发现
+     */
+    public void setDiscoveryRegistrar(com.chua.common.support.network.sync.SyncServerRegistrar registrar) {
+        this.discoveryRegistrar = registrar;
+    }
+
+    /**
+     * 获取服务发现注册器。
+     *
+     * @return 注册器，未配置时返回 null
+     */
+    public com.chua.common.support.network.sync.SyncServerRegistrar getDiscoveryRegistrar() {
+        return discoveryRegistrar;
+    }
+
+    /**
      * 开始
      */
     @Override
@@ -489,6 +553,10 @@ public abstract class AbstractServer implements ConfigServer {
             PortBindRetry.retry(describeEndpoint(), bindRetryPolicy, this::doStart);
             running = true;
             log.info("服务器启动成功：{}://{}:{}", setting.getProtocol(), setting.getHost(), setting.getPort());
+            // 端口已经可连接，此时注册才能保证客户端拿到的是活地址
+            if (discoveryRegistrar != null) {
+                discoveryRegistrar.register(this);
+            }
         } catch (RuntimeException e) {
             filterManager.destroyFilters();
             throw e;
@@ -566,6 +634,11 @@ public abstract class AbstractServer implements ConfigServer {
         // 若直接置 running=false，各事件循环会立刻退出，正在处理的请求被腰斩。
         accepting = false;
         doStopAccepting();
+        // 端口已不再接纳新连接，此时从发现中心摘除，新客户端不会轮到本实例；
+        // 放在 doStop 之前，保证优雅关闭排空期间现有连接仍然可用。
+        if (discoveryRegistrar != null) {
+            discoveryRegistrar.unregister(this);
+        }
         int quietPeriod = setting.getShutdownQuietPeriod();
         if (quietPeriod > 0) {
             log.info("服务器开始优雅关闭，等待活跃请求完成（最长 {}s）...", quietPeriod);

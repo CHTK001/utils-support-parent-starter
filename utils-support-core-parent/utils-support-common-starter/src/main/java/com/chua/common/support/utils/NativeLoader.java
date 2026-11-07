@@ -232,63 +232,7 @@ public class NativeLoader {
         }
     }
 
-    /**
-     * 返回目标目录（绝对路径字符串），便于 faceengine(lib路径) 使用。
-     * @return 获取Targetdir的结果
-     */
-    public String getTargetDir() {
-        if (targetDir == null) {
-            return null;
-        }
-        return targetDir.toAbsolutePath().toString();
-    }
 
-    /**
-     * 执行加载
-     */
-    private void doLoad() {
-        if (targetDir == null) {
-            throw new IllegalStateException("targetDir 未设置，请先调用 toTarget()");
-        }
-        try {
-            Files.createDirectories(targetDir);
- // 基础路径 优先：支持任意 类路径 路径（如模型目录）；否则使用默认的 NAT/{platformdir}/
-            String resourceBase = basePath != null
-                    ? basePath
-                    : ("native/" + NativeUtils.getPlatformDir() + "/");
-            List<ResourceItem> matched = listClasspathResources(resourceBase);
-            if (matched.isEmpty()) {
-                throw new UnsatisfiedLinkError("未在 classpath 找到匹配 " + glob + " 的文件: " + resourceBase);
-            }
-
-            String md5Hex = computeResourcesMd5(matched);
-            Path marker = targetDir.resolve(".md5_" + md5Hex);
-            boolean skipCopy = md5 && Files.exists(marker);
-            if (!skipCopy) {
-                for (ResourceItem item : matched) {
-                    Path dest = targetDir.resolve(item.name);
-                    if (Files.notExists(dest) || Files.size(dest) != item.size) {
-                        try (InputStream in = item.open()) {
-                            Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
-                        }
-                    }
-                }
-                Files.writeString(marker, md5Hex);
-            }
-
-            if (!extractOnly) {
-                java.io.File[] toLoad = targetDir.toFile().listFiles((d, name) -> match(name, glob));
-                if (toLoad != null && toLoad.length > 0) {
-                    Arrays.sort(toLoad, (a, b) -> a.getName().compareTo(b.getName()));
-                    for (java.io.File f : toLoad) {
-                        NativeUtils.loadFromPathInternal(null, f.getAbsolutePath());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("NativeLoader 加载失败: taskId=" + taskId, e);
-        }
-    }
 
     /**
      * 列表类路径resources

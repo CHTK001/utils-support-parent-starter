@@ -33,6 +33,27 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
     /**
+     * 候选框数量上限（NMS 取前 TOP_K 高分候选）。
+     */
+    private static final int TOP_K = 200;
+    /**
+     * 先验框缩放系数（4 层，对应 320x240 锚栓）。
+     */
+    private static final int[][] PRIOR_SCALES = {{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
+    /**
+     * 先验框步长系数（4 层）。
+     */
+    private static final int[] PRIOR_STEPS = {8, 16, 32, 64};
+    /**
+     * 标准输入宽度。
+     */
+    private static final int INPUT_WIDTH_320 = 320;
+    /**
+     * 标准输入高度。
+     */
+    private static final int INPUT_HEIGHT_240 = 240;
+
+    /**
      * 置信度阈值。
      */
     private final double confThresh;
@@ -87,12 +108,12 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
         this.nmsThresh = nmsThresh;
-        this.topK = 200;
-        this.inputWidth = 320;
-        this.inputHeight = 240;
+        this.topK = TOP_K;
+        this.inputWidth = INPUT_WIDTH_320;
+        this.inputHeight = INPUT_HEIGHT_240;
         this.variance = DEFAULT_VARIANCE;
-        this.scales = new int[][]{{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
-        this.steps = new int[]{8, 16, 32, 64};
+        this.scales = PRIOR_SCALES;
+        this.steps = PRIOR_STEPS;
     }
 
     /**

@@ -46,7 +46,7 @@ public class RSocketSyncServer extends AbstractServer implements SyncServer, Syn
     */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = "rsocket://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
+        String url = com.chua.common.support.network.sync.SyncAddressResolver.resolveAddress(setting, "rsocket://127.0.0.1:19380");
         return new RSocketSyncClient(url);
     }
 

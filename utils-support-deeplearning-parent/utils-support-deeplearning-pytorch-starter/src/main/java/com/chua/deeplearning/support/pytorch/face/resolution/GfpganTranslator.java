@@ -42,6 +42,11 @@ public class GfpganTranslator implements Translator<Image, Image> {
     private static final int INPUT_SIZE = 512;
 
     /**
+     * 像素归一化除数
+     */
+    private static final float MAX_PIXEL = 255.0f;
+
+    /**
      * 处理输入
     */
     @Override
@@ -49,7 +54,7 @@ public class GfpganTranslator implements Translator<Image, Image> {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
-        array = array.transpose(2, 0, 1).div(255.0f);
+        array = array.transpose(2, 0, 1).div(MAX_PIXEL);
         NDArray mean = manager.create(MEAN, new Shape(3, 1, 1));
         NDArray std = manager.create(STD, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
@@ -67,7 +72,7 @@ public class GfpganTranslator implements Translator<Image, Image> {
             array = array.squeeze(0);
         }
         array = array.clip(MIN_MAX[0], MIN_MAX[1]);
-        array = array.sub(MIN_MAX[0]).div(MIN_MAX[1] - MIN_MAX[0]).mul(255.0f);
+        array = array.sub(MIN_MAX[0]).div(MIN_MAX[1] - MIN_MAX[0]).mul(MAX_PIXEL);
         array = array.round().toType(DataType.UINT8, false);
         return ImageFactory.getInstance().fromNDArray(array);
     }

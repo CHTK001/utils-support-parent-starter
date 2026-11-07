@@ -88,22 +88,6 @@ public class ClassUtils {
      */
     private static final Map<Integer, Method> CACHE_METHOD = new ConcurrentReferenceHashMap<>(512);
     /**
-     * 反射实例化彻底失败的原因摘要。
-     *
-     * <p>记录的是最内层异常而不是最外层：反射调用构造器时抛出的
-     * {@code InvocationTargetException} 只是包装层，构造器体内真正失败的异常在它的 cause 上。
-     * 直接报外层只会得到「构造器抛了异常」这种没有信息量的描述，
-     * 这正是实例化失败长期无法定位的直接原因。</p>
-     *
-     * @param typeName         目标类全名
-     * @param constructorCount 目标类声明的构造器数量
-     * @param reason           最内层异常描述，形如「异常类型名: 消息」；
-     *                         没有任何构造器体抛过异常时为 {@code null}
-     *                         （属合法业务状态，故不加非空约束）
-     */
-    public record NewInstanceFailure(String typeName, int constructorCount, String reason) {
-    }
-    /**
      * 最近一次「所有构造器都试完仍然失败」的原因，按线程隔离保存。
      *
      * <p>刻意用 {@link ThreadLocal} 而不是静态字段：本类在多线程下被并发调用，
@@ -114,11 +98,6 @@ public class ClassUtils {
      * 不会被上一次失败残留的值掩盖一次成功。</p>
      */
     private static final ThreadLocal<NewInstanceFailure> LAST_INSTANTIATION_FAILURE = new ThreadLocal<>();
-    /**
-     *                   : {@code '$' == {@value}}.
-     * 外部$内部        $
-     */
-    public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
     /**
      *                : {@code '&#x2e;' == {@value}}.
      * com.example.工具        .
@@ -437,20 +416,6 @@ public class ClassUtils {
     private static final java.util.Set<java.lang.ref.WeakReference<ClassLoader>> REGISTERED_CLASS_LOADERS =
             java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
     /**
-     * 将 类加载 注册到全局弱引用集合中，便于后续清理时遍历释放。
-     * <p>主要用于脚本引擎（Groovy/JS/Python 等）动态编译产生的 ClassLoader，
-     * 它们持有大量已编译类可能引发 Metaspace 泄漏。
-     * 调用方应自行保证 类加载 唯一，否则该方法会被相同 类加载 重复注册。</p>
-     *
-     * @param classLoader 待注册的 类加载，空 时不处理
-     */
-    public static void registerClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return;
-        }
-        REGISTERED_CLASS_LOADERS.add(new java.lang.ref.WeakReference<>(classLoader));
-    }
-    /**
      * 注销（清理）指定的 类加载。
      *
      * <p>按以下顺序尝试释放：</p>
@@ -473,171 +438,12 @@ public class ClassUtils {
             ClassLoader cl = ref.get();
             return cl == null || cl == classLoader;
         });
-        // 释放资源
-        try {
-            if (classLoader instanceof AutoCloseable) {
-                ((AutoCloseable) classLoader).close();
-                return;
-            }
-        } catch (Exception e) {
-            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
-        }
         try {
             if (classLoader instanceof URLClassLoader) {
                 ((URLClassLoader) classLoader).close();
             }
         } catch (Exception e) {
             log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
-        }
-    }
-    /**
-     * 清理并注销所有已注册的 类加载。
-     * <p>遍历 {@link #REGISTERED_CLASS_LOADERS} 中所有仍然存活（未被 GC）的 ClassLoader，
-     * 逐一调用 {@link #unregisterClassLoader(ClassLoader)}。
-     * 已被 GC 回收的弱引用直接移除。</p>
-     *
-     * @return 实际注销的 类加载 数量
-     */
-    public static int clearAllClassLoaders() {
-        int count = 0;
-        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
-        while (it.hasNext()) {
-            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
-            ClassLoader cl = ref.get();
-            if (cl == null) {
-                it.remove();
-                continue;
-            }
-            try {
-                unregisterClassLoader(cl);
-                count++;
-            } catch (Exception e) {
-                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
-            }
-        }
-        return count;
-    }
-    /**
-     * 精确清理指定的 类加载 实例（从全局注册表移除并释放资源）。
-     *
-     * <p>与 {@link #unregisterClassLoader(ClassLoader)} 功能相同，但语义更明确：
-     * 强调「精确清理单个 类加载」而非「注销」。适用于热重载场景中
-     * 主动清理旧 类加载 的场景。</p>
-     *
-     * @param classLoader 待清理的 类加载，空 时不处理
-     * @return true 表示成功清理，false 表示 类加载 不在注册表中或为 空
-     */
-    public static boolean clearClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return false;
-        }
-        boolean found = REGISTERED_CLASS_LOADERS.removeIf(ref -> {
-            ClassLoader cl = ref.get();
-            return cl != null && cl == classLoader;
-        });
-        if (!found) {
-            return false;
-        }
-        try {
-            if (classLoader instanceof AutoCloseable) {
-                ((AutoCloseable) classLoader).close();
-                return true;
-            }
-        } catch (Exception e) {
-            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
-        }
-        try {
-            if (classLoader instanceof URLClassLoader) {
-                ((URLClassLoader) classLoader).close();
-            }
-        } catch (Exception e) {
-            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
-        }
-        return true;
-    }
-    /**
-     * 清理所有满足条件的已注册 类加载。
-     *
-     * @param predicate 过滤条件，返回 true 表示需要清理；空 时等同于 {@link #clearAllClassLoaders()}
-     * @return 实际清理的 类加载 数量
-     */
-    public static int clearClassLoaders(Predicate<ClassLoader> predicate) {
-        if (predicate == null) {
-            return clearAllClassLoaders();
-        }
-        int count = 0;
-        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
-        while (it.hasNext()) {
-            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
-            ClassLoader cl = ref.get();
-            if (cl == null) {
-                it.remove();
-                continue;
-            }
-            if (predicate.test(cl)) {
-                try {
-                    unregisterClassLoader(cl);
-                    count++;
-                } catch (Exception e) {
-                    log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
-                }
-            }
-        }
-        return count;
-    }
-    /**
-     * 判断指定的 类加载 是否已注册到全局弱引用集合中。
-     *
-     * @param classLoader 待检查的 类加载，空 时返回 false
-     * @return true 表示该 类加载 已注册
-     */
-    public static boolean isRegisteredClassLoader(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return false;
-        }
-        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
-        while (it.hasNext()) {
-            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
-            ClassLoader cl = ref.get();
-            if (cl == null) {
-                it.remove();
-                continue;
-            }
-            if (cl == classLoader) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * 获取当前已注册的存活 类加载 数量。
-     *
-     * @return 当前已注册的存活 类加载 数量
-     */
-    public static int getRegisteredClassLoaderCount() {
-        int count = 0;
-        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
-        while (it.hasNext()) {
-            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
-            ClassLoader cl = ref.get();
-            if (cl == null) {
-                it.remove();
-                continue;
-            }
-            count++;
-        }
-        return count;
-    }
-    /**
-     * 当指定类名存在并可解析时，执行回调函数。
-     *
-     * @param className 待检查的类名
-     * @param consumer 解析成功后的回调，接收 {@link Class} 对象
-     * @since 1.0
-     */
-    public static void ifPresent(String className, Consumer<Class<?>> consumer) {
-        if (ClassUtils.isPresent(className)) {
-            consumer.accept(ClassUtils.forName(className));
         }
     }
     /**
@@ -678,8 +484,6 @@ public class ClassUtils {
      */
     public static boolean isPresent(Class<?> clazz) {
         return clazz != null;
-    }
-    /**
      * 判断给定的 {@link Class} 对象是否为空（为 {@code null}）。
      *
      * @param clazz 待检查的类对象
@@ -702,13 +506,6 @@ public class ClassUtils {
         }
         return isPresent(className, getDefaultClassLoader());
     }
-    /**
-     *                                                                            .
-     *
-     *
-     *
-     * @param className
-     * @param classLoader
      * @return                          true                false
      * @since 1.0
      */
@@ -741,8 +538,6 @@ public class ClassUtils {
         }
         return forName(name, getDefaultClassLoader());
     }
-    /**
-     * 按候选类名顺序解析，返回第一个可解析的 {@link Class}。
      *
      * <p>典型用途：同一能力存在多个可选实现依赖时，按优先级探测哪一个在
      * classpath 上，例如数据源探测里 {@code DruidDataSource} 与
@@ -766,41 +561,6 @@ public class ClassUtils {
         }
         return null;
     }
-    /**
-     * 类                                           .
-     *
-     *
-     *
-     *
-     * @param name
-     * @param classLoader
-     * @return              Class
-     * @throws ClassNotFoundException
-     * @throws RuntimeException     类notfound异常
-     * @since 1.0
-     */
-    public static Class<?> toClassConfident(String name, ClassLoader classLoader) {
-        try {
-            return Class.forName(name, true, classLoader); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体
-        } catch (ClassNotFoundException e) {
-            try {
-                return Class.forName(name); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体
-            } catch (ClassNotFoundException ex) {
-                try {
-                    throw new ClassNotFoundException("无法加载类: " + name, e);
-                } catch (ClassNotFoundException exc) {
-                    throw new RuntimeException(exc);
-                }
-            }
-        }
-    }
-    /**
-     * 使用默认类加载器解析类名并返回强制解析后的 {@link Class} 对象。
-     *
-     * @param name 待解析的类名
-     * @return 解析得到的 {@link Class} 对象
-     * @throws RuntimeException 如果解析失败，则抛出包装后的运行时异常
-     * @since 1.0
      */
     public static Class<?> toClassConfident(String name) {
         return toClassConfident(name, getDefaultClassLoader());
@@ -817,12 +577,6 @@ public class ClassUtils {
     public static <T> Class<T> forName(String name, Class<T> returnType) {
         return ReflectUtils.forName(name, returnType);
     }
-    /**
-     * 类       .
-     *
-     *
-     * -                      com.example.用户
-     * -                Java.lang.字符串[]   [[Ljava.lang.字符串;
      * -                int   布尔值
      * -             Java.util.映射.Entry                      Java.util.映射$Entry
      *
@@ -843,7 +597,6 @@ public class ClassUtils {
         //
         clazz = resolvePrimitiveClassName(name);
         if (clazz != null) {
-            CLASS_NAME_CACHE.put(name, clazz);
             return clazz;
         }
         //
@@ -915,20 +668,6 @@ public class ClassUtils {
         }
     }
     /**
-     * 安全版本 {@link #forName(String)}，类不存在时返回 {@link Void#CLASS} 而非 {@code null}。
-     *
-     * @param name 类名
-     * @return 解析到的 {@link Class}，找不到时返回 {@code void.class}
-     * @since 4.0.0.43
-     */
-    public static Class<?> forNameSafe(String name) {
-        if (null == name) {
-            return void.class;
-        }
-        Class<?> clazz = forName(name);
-        return clazz != null ? clazz : void.class;
-    }
-    /**
      * 安全版本 {@link #forName(String, ClassLoader)}，类不存在时返回 {@link Void#CLASS} 而非 {@code null}。
      *
      * @param name        类名
@@ -960,20 +699,6 @@ public class ClassUtils {
         return (Class<T>) clazz;
     }
     /**
-     * 根据基本类型名称解析对应的 {@link Class} 对象。
-     *
-     * @param name 基本类型名称，如 {@code int}、{@code boolean} 等
-     * @return 如果名称对应基本类型则返回对应 {@link Class}，否则返回 {@code null}
-     * @since 1.0
-     */
-    public static Class<?> resolvePrimitiveClassName(String name) {
-        Class<?> result = null;
-        if (name != null && name.length() <= 7) {
-            result = PRIMITIVE_TYPE_NAME_MAP.get(name);
-        }
-        return result;
-    }
-    /**
      *                                     .
      *
      * @param name
@@ -985,27 +710,6 @@ public class ClassUtils {
     public static <T> T forObject(String name, Object... params) {
         try {
             return (T) forObject(forName(name), getDefaultClassLoader(), params);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    /**
-     *                                                                   .
-     *
-     * @param typeName
-     * @param type
-     * @param params
-     * @param <T>
-     * @return                                                                             null
-     * @since 1.0
-     */
-    public static <T> T forObjectWithType(String typeName, Class<T> type, Object... params) {
-        try {
-            T forObject = (T) forObject(forName(typeName, type.getClassLoader()), params);
-            if (null == forObject || !type.isAssignableFrom(forObject.getClass())) {
-                return null;
-            }
-            return forObject;
         } catch (Exception e) {
             return null;
         }
@@ -1026,18 +730,6 @@ public class ClassUtils {
             return null;
         }
     }
-    /**
-     * 类                                              .
-     *
-     *
-     * 1.                       列表   集合     设置
-     * 2.
-     * 3.
-     * 4.
-     *
-     *       /
-     * 1.                          空
-     *
      * @param tClass
      * @param classLoader
      * @param params
@@ -1178,8 +870,6 @@ public class ClassUtils {
                     lastError = ex;
                 }
             }
-        }
-        // 所有构造器都试完仍然失败：记录最内层原因。控制流与返回值保持原样，
         // 仅补可观测性——此前此处直接返回 null，调用方拿不到任何线索。
         recordInstantiationFailure(tClass, declaredConstructors.length, lastError);
         return null;
@@ -1223,8 +913,6 @@ public class ClassUtils {
         LAST_INSTANTIATION_FAILURE.set(
                 new NewInstanceFailure(type.getName(), constructorCount, describeRootCause(error)));
     }
-    /**
-     * 沿 cause 链取最内层异常并格式化为可读描述。
      *
      * <p>反射调用构造器失败时抛出的 {@code InvocationTargetException} 只是包装层，
      * 真正的原因在它的 cause 上，因此必须下钻，否则只会得到
@@ -1254,10 +942,6 @@ public class ClassUtils {
         String message = root.getMessage();
         return null == message ? root.getClass().getName() : root.getClass().getName() + ": " + message;
     }
-    /**
-     * 尝试用给定构造器和参数集合创建实例，并记录无法完全匹配的构造器。
-     *
-     * @param declaredConstructor 待尝试的构造器
      * @param params 参数类型与参数值映射
      * @param loss 记录参数不完整但可尝试匹配的构造器
      * @param allNull 记录参数全为空的构造器
@@ -1358,22 +1042,6 @@ public class ClassUtils {
         return null == fallback ? void.class : fallback;
     }
     /**
-     * 将类对象或类名输入转换为可直接实例化的对象表示，便于后续构造逻辑使用。
-     *
-     * @param object 输入对象，支持 {@link Class} 或类名字符串
-     * @return 适配后的对象，若无法处理则返回原始对象
-     */
-    public static Object asObject(Object object) {
-        if (object instanceof Class) {
-            Class<?> type = fromPrimitive((Class<?>) object);
-            return ClassUtils.forObject(type);
-        }
-        if (object instanceof String) {
-            return ClassUtils.forObject(object.toString());
-        }
-        return object;
-    }
-    /**
      * 将原始类型转换为对应的包装类型，若输入本身不为原始类型则直接返回原值。
      *
      * @param target 待转换的类型对象
@@ -1430,24 +1098,6 @@ public class ClassUtils {
      * 转换为TypeName。
      *
      *
-     * @param annotations
-     * @return
-     */
-    public static String[] toTypeName(Annotation[] annotations) {
-        if (null == annotations || annotations.length == 0) {
-            return SYMBOL_EMPTY_STRING_ARRAY;
-        }
-        String[] result = new String[annotations.length];
-        for (int i = 0; i < annotations.length; i++) {
-            Annotation parameterType = annotations[i];
-            result[i] = parameterType.annotationType().getTypeName();
-        }
-        return result;
-    }
-    /**
-     * 转换为TypeName。
-     *
-     *
      * @param parameterTypes
      * @return
      */
@@ -1461,41 +1111,6 @@ public class ClassUtils {
             result[i] = parameterType.getTypeName();
         }
         return result;
-    }
-    /**
-     * 获取 ActualTypeArguments。
-     * <p>1.                     </p>
-     * <p>2.                  </p>
-     *
-     * @param value
-     * @return
-     * @param includes includes
-     */
-    public static Type[] getActualTypeArguments(final Class<?> value, final Class<?>... includes) {
-        return ACTUAL.computeIfAbsent(value, it -> {
-            Type type = value.getGenericSuperclass();
-            List<Type> types = Wraps.list();
-            if (type instanceof ParameterizedType && container(type, includes)) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                types.addAll(Arrays.asList(actualTypeArguments));
-            }
-            Type[] genericInterfaces = value.getGenericInterfaces();
-            for (Type anInterface : genericInterfaces) {
-                if (anInterface instanceof ParameterizedType && container(anInterface, includes)) {
-                    ParameterizedType parameterizedType = (ParameterizedType) anInterface;
-                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                    for (Type actualTypeArgument : actualTypeArguments) {
-                        if (actualTypeArgument instanceof ParameterizedType) {
-                            types.add(((ParameterizedType) actualTypeArgument).getRawType());
-                        } else {
-                            types.add(actualTypeArgument);
-                        }
-                    }
-                }
-            }
-            return types.toArray(new Type[0]);
-        });
     }
     /**
      * 获取底层容器。
@@ -1522,15 +1137,6 @@ public class ClassUtils {
         return false;
     }
     /**
-     * 类路径                                                <br>
-     * 类路径
-     *
-     * @return ClassPath
-     */
-    public static String getClassPath() {
-        return getClassPath(false);
-    }
-    /**
      * 类路径         类路径
      *
      * @param isEncoded
@@ -1541,14 +1147,6 @@ public class ClassUtils {
         final URL url1 = getClassPathUrl();
         String url = isEncoded ? url1.getPath() : UrlUtils.getDecodedPath(url1);
         return FileUtils.normalize(url);
-    }
-    /**
-     * 类路径 URL
-     *
-     * @return ClassPath URL
-     */
-    public static URL getClassPathUrl() {
-        return getResourceUrl(SYMBOL_EMPTY);
     }
     /**
      *                URL<br>
@@ -1586,39 +1184,6 @@ public class ClassUtils {
         return type.getTypeName().startsWith("java.") ||
                 type.isPrimitive()
                 ;
-    }
-    /**
-     * spring
-     *
-     * @param type
-     * @return java
-     */
-    public static boolean isSpringType(Class<?> type) {
-        return type.getTypeName().startsWith("org.springframework.") ||
-                type.isPrimitive()
-                ;
-    }
-    /**
-     *                                           .
-     *
-     *
-     *
-     * @param aClass
-     * @param callback
-     * @since 1.0
-     */
-    public static void doWithFields(final Class<?> aClass, final Consumer<Field> callback) {
-        try {
-            for (Field field : getFields(aClass)) {
-                try {
-                    callback.accept(field);
-                } catch (Throwable ex) {
-                    throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
-                }
-            }
-        } catch (Throwable e) {
-            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
-        }
     }
     /**
      *                                     .
@@ -1672,41 +1237,6 @@ public class ClassUtils {
         });
     }
     /**
-     *                                                             .
-     *
-     *
-     *
-     * @param aClass
-     * @param callback
-     * @since 1.0
-     */
-    public static void doWithLocalFields(final Class<?> aClass, final Consumer<Field> callback) {
-        for (Field field : getLocalFields(aClass)) {
-            try {
-                callback.accept(field);
-            } catch (Throwable ex) {
-                throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
-            }
-        }
-    }
-    /**
-     *                                                             .
-     *
-     * @param obj
-     * @return                                   List
-     * @since 1.0
-     */
-    public static List<Field> getLocalFields(final Object obj) {
-        if (null == obj) {
-            return Collections.emptyList();
-        }
-        final Class<?> aClass = ClassUtils.toType(obj);
-        return MapUtils.getComputeIfFunction(CLASS_FIELD, aClass, it -> {
-            Field[] fields = aClass.getDeclaredFields();
-            return Arrays.asList(fields);
-        });
-    }
-    /**
      *                                                                   .
      *
      * @param aClass
@@ -1750,26 +1280,6 @@ public class ClassUtils {
         return null;
     }
     /**
-     * 遍历并处理本地方法。
-     *
-     *
-     * @param aClass
-     * @param callback
-     */
-    public static void doWithLocalMethods(final Class<?> aClass, final Consumer<Method> callback) {
-        if (null == aClass || null == callback) {
-            return;
-        }
-        for (Method method : getLocalMethods(aClass)) {
-            try {
-                callback.accept(method);
-            } catch (Throwable throwable) {
-                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " +
-                        throwable);
-            }
-        }
-    }
-    /**
      * 遍历并处理类中的方法。
      *
      *
@@ -1794,7 +1304,6 @@ public class ClassUtils {
             try {
                 callback.accept(method);
             } catch (Throwable throwable) {
-                log.warn("Not allowed to access method '{}'", method.getName(), throwable);
             }
         }
     }
@@ -1864,7 +1373,6 @@ public class ClassUtils {
         }
         final Class<?> aClass = ClassUtils.toType(obj);
         return MapUtils.getComputeIfFunction(CLASS_METHOD_LOCAL, aClass, it -> {
-            Method[] methods = aClass.getDeclaredMethods();
             return Arrays.asList(methods);
         });
     }
@@ -1902,7 +1410,6 @@ public class ClassUtils {
                 if (assignable) {
                     if (i == parameterTypes.length - 1) {
                         item = declaredConstructor;
-                        break root;
                     }
                     continue;
                 }
@@ -1951,23 +1458,6 @@ public class ClassUtils {
         return true;
     }
     /**
-     * 获取 Args。
-     *
-     *
-     * @param parameterTypes
-     * @param params
-     * @return
-     */
-    private static Object[] getArgs(Class<?>[] parameterTypes, Map<Class<?>, Object> params) {
-        Object[] rs = new Object[parameterTypes.length];
-        int index = 0;
-        for (Class<?> aClass : parameterTypes) {
-            Object o = params.get(aClass);
-            rs[index++] = createValue(o, aClass, params);
-        }
-        return rs;
-    }
-    /**
      * 创建实例。
      *
      *
@@ -1978,7 +1468,6 @@ public class ClassUtils {
      */
     private static Object createValue(Object o, Class<?> aClass, Map<Class<?>, Object> params) {
         if (null != o) {
-            return o;
         }
         for (Map.Entry<Class<?>, Object> entry : params.entrySet()) {
             if (void.class == entry.getKey()) {
@@ -2015,52 +1504,6 @@ public class ClassUtils {
         }
         return rs;
     }
-    /**
-     * 执行 MethodChain。
-     *
-     *
-     * @param object
-     * @param type
-     * @param methodName
-     * @param args
-     * @return
-     */
-    public static Object invokeMethodChain(Object object, Class<?> type, String methodName, Object... args) {
-        if (null == type) {
-            return null;
-        }
-        Method method = findMethod(type, methodName, toType(args));
-        if (null == method) {
-            return null;
-        }
-        setAccessible(method);
-        return invokeMethod(method, object, args);
-    }
-    /**
-     * 执行 Bean。
-     *
-     *
-     * @param bean
-     * @param methodName
-     * @param methodParameterType
-     * @param args
-     * @return
-     */
-    public static Object invokeBean(Object bean, String methodName, Class<?>[] methodParameterType, Object... args) {
-        if (null == bean) {
-            return null;
-        }
-        Class<?> type = toType(bean);
-        Method method = findMethod(type, methodName, methodParameterType);
-        if (null == method) {
-            return null;
-        }
-        setAccessible(method);
-        return invokeMethod(method, bean, args);
-    }
-    /**
-     * 执行 Bean。
-     *
      *
      * @param bean
      * @param methodName
@@ -2123,17 +1566,6 @@ public class ClassUtils {
         }
         return invoke(methodHandle, bean, args);
     }
-    /**
-     * 通过 {@link Method} 对象调用方法（支持 {@link MethodInvoker} 委托和 {@link MethodHandle} 回退）。
-     *
-     * <p>调用策略：若目标对象为 {@link Callable} 则短路调用；若方法为接口默认方法则走
-     * {@link MethodHandles} 私有路径；其余委托 {@link MethodInvoker} 执行，失败时回退
-     * {@link ClassUtils#invokeBean} 按名称重新查找调用。</p>
-     *
-     * @param method 目标方法对象，为 null 时返回 null
-     * @param bean   目标对象
-     * @param args   方法参数
-     * @return 方法返回值，方法为 null 或调用失败时返回 null
      */
     public static Object invokeMethod(Method method, Object bean, Object... args) {
         if (null == method) {
@@ -2147,10 +1579,6 @@ public class ClassUtils {
                 log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
             return null;
-        }
-        // 接口默认方法走 MethodHandles 私有路径
-        if (method.isDefault()) {
-            return invokeDefaultMethod(method, bean, args);
         }
         // 普通方法委托 MethodInvoker 执行
         try {
@@ -2207,8 +1635,6 @@ public class ClassUtils {
                         .getDeclaredConstructor(Class.class, Class.class, int.class);
             } catch (NoSuchMethodException e) {
                 constructor = MethodHandles.Lookup.class
-                        // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
-                        .getDeclaredConstructor(Class.class, int.class);
             }
             setAccessible(constructor);
             Class<?> declaringClass = method.getDeclaringClass();
@@ -2477,7 +1903,6 @@ public class ClassUtils {
             return null;
         }
         try {
-            return field.get(bean);
         } catch (IllegalAccessException e) {
             return null;
         }
@@ -2494,27 +1919,6 @@ public class ClassUtils {
             return;
         }
         setFieldValue(fieldName, bean.getClass(), value, bean);
-    }
-    /**
-     * 按名称（忽略大小写）设置 Bean 中的字段值。
-     *
-     * @param fieldName 字段名称（忽略大小写匹配），任一参数为 null/空时直接返回
-     * @param value     待设置的值
-     * @param bean      目标对象
-     * @since 1.0
-     */
-    public static void setIgnoreNameValue(String fieldName, Object value, Object bean) {
-        if (ObjectUtils.isAnyEmpty(fieldName, value, bean)) {
-            return;
-        }
-         List<Field> fields = getFields(bean.getClass());
-        for (Field field : fields) {
-            if (fieldName.equalsIgnoreCase(field.getName())) {
-                value = Converter.convertIfNecessary(value, field.getType());
-                setFieldValue(field, value, bean);
-                break;
-            }
-        }
     }
     /**
      * 按名称在指定类型中查找字段并设置值（类型自动转换）。
@@ -2628,58 +2032,6 @@ public class ClassUtils {
         }
     }
     /**
-     * 设置字段值（public setter 方法优先，回退直接字段访问）。
-     *
-     * @param field 目标字段
-     * @param value 待设置的值（按字段类型自动转换）
-     * @param type  字段所属类型
-     * @param bean  目标对象
-     * @param <T>   目标对象泛型
-     *
-     * <p>豁免说明：本类为反射基础设施，"setter 优先、字段访问回退"的赋值策略是工具类核心职责，
-     * 允许在内部实现中直接使用 java.lang.reflect API。</p>
-     */
-    public static <T> void setAllFieldValue(Field field, Object value, Class<T> type, T bean) {
-        Class<?> type1 = field.getType();
-        value = Converter.convertIfNecessary(value, type1);
-        String name = field.getName();
-        try {
-            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setter 方法定位）
-            Method method = type.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), type1);
-            if (null != method) {
-                setAccessible(method);
-                method.invoke(bean, value);
-                return;
-            }
-        } catch (Exception e) {
-            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
-        }
-        try {
-            setAccessible(field);
-            field.set(bean, value);
-        } catch (IllegalAccessException e) {
-            log.debug("[ClassUtils] 无访问权限，已忽略: {}", e.getMessage());
-        }
-    }
-    /**
-     * 判断源对象是否可赋值到目标类型（直接赋值或经转换）。
-     *
-     * @param targetType 目标类型
-     * @param source     源对象，为 null 时返回 true
-     * @return 目标类型可赋值或可转换时返回 true
-     */
-    public static boolean isEquals(Class<?> targetType, Object source) {
-        if (null == source) {
-            return true;
-        }
-        Class<?> aClass = source.getClass();
-        if (targetType.isAssignableFrom(aClass)) {
-            return true;
-        }
-        Object convertIfNecessary = Converter.convertIfNecessary(source, targetType);
-        return null != convertIfNecessary;
-    }
-    /**
      * 读取字段值（通过 {@link InvocationHandler} 对象和字段引用）。
      *
      * @param object 目标对象（通常为代理对象）
@@ -2754,31 +2106,6 @@ public class ClassUtils {
         return target.isAssignableFrom(value.getClass());
     }
     /**
-     * 按目标类型转换并返回可赋值的值。
-     *
-     * @param value  待判断的值
-     * @param target 目标类型
-     * @param <T>    目标类型泛型
-     * @return 值可赋值到目标类型时返回该值，否则返回 null
-     */
-    public static <T> T withAssignableFrom(Object value, Class<T> target) {
-        if (null == value && isVoid(target)) {
-            return null;
-        }
-        return target.isAssignableFrom(value.getClass()) ? (T) value : null;
-    }
-    /**
-     * 获取类型的所有父类型（沿继承链向上收集父类和接口）。
-     *
-     * @param type 目标类型
-     * @return 父类型集合（含所有父类和直接接口）
-     */
-    public static Set<Class<?>> getSuperType(Class<?> type) {
-        Set<Class<?>> result = Wraps.set(16);
-        getSuperType(type, result);
-        return result;
-    }
-    /**
      * 递归收集类型的父类与接口到结果集合（沿继承链向上）。
      *
      * @param type   当前类型，为 null 时直接返回
@@ -2798,19 +2125,6 @@ public class ClassUtils {
         }
         result.add(superclass);
         getSuperType(superclass, result);
-    }
-    /**
-     * 对类型实现的所有接口逐一执行回调（沿接口继承链收集）。
-     *
-     * @param type     目标类型
-     * @param consumer 接口回调
-     */
-    public static void withInterface(Class<?> type, Consumer<Class<?>> consumer) {
-        Set<Class<?>> result = Wraps.set(16);
-        loopInterfaces(type, result);
-        for (Class<?> aClass : result) {
-            consumer.accept(aClass);
-        }
     }
     /**
      * 获取类型实现的所有接口集合（沿接口继承链收集）。
@@ -2835,70 +2149,6 @@ public class ClassUtils {
             result.add(anInterface);
             loopInterfaces(anInterface, result);
         }
-    }
-    /**
-     * 对类型的所有父类型（沿继承链向上）逐一执行回调。
-     *
-     * @param type     目标类型
-     * @param consumer 父类型回调
-     */
-    public static void withSuperType(Class<?> type, Consumer<Class<?>> consumer) {
-        Set<Class<?>> result = Wraps.set(16);
-        getSuperType(type, result);
-        for (Class<?> aClass : result) {
-            consumer.accept(aClass);
-        }
-    }
-    /**
-     * 获取类加载器对应的 JAR 包根路径列表（含 classpath 与模块系统资源）。
-     *
-     * <p>仅对 {@link URLClassLoader} 生效：收集 getResources("") 资源、
-     * getURLs() 声明的 JAR 路径，以及（系统类加载器时）java.class.path 属性路径。
-     * 非 URLClassLoader 返回空列表。</p>
-     *
-     * @param classLoader 目标类加载器
-     * @return 类加载器资源 URL 列表，非 URLClassLoader 时返回空列表
-     */
-    public static List<URL> classLoaderJarRoots(ClassLoader classLoader) {
-        if (!(classLoader instanceof URLClassLoader)) {
-            return Collections.emptyList();
-        }
-        // 收集类加载器资源
-        Enumeration<URL> enumeration = null;
-        try {
-            enumeration = classLoader.getResources("");
-        } catch (IOException e) {
-            log.error("获取类加载器资源失败", e);
-        }
-        List<URL> rs = Wraps.list();
-        while (enumeration.hasMoreElements()) {
-            rs.add(enumeration.nextElement());
-        }
-        URL[] urls = ((URLClassLoader) classLoader).getURLs();
-        rs.addAll(Arrays.asList(urls));
-        // 系统类加载器时额外收集 java.class.path 属性中的路径
-        if (classLoader == ClassLoader.getSystemClassLoader()) {
-            String javaClassPathProperty = System.getProperty("java.class.path");
-            for (String path : StringUtils.delimitedListToStringArray(javaClassPathProperty,
-                    System.getProperty(SYMBOL_LEFT_SLASH))) {
-                try {
-                    rs.add(new File(path).toURI().toURL());
-                } catch (Exception e) {
-                    log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
-                }
-            }
-        }
-        return rs;
-    }
-    /**
-     * 从对象集合中查找可赋值到指定类型的唯一值。
-     *
-     * @param args   对象集合
-     * @param aClass 目标类型
-     * @return 匹配的唯一值，无匹配时返回 null
-     */
-    public static Object findOnlyOneValue(Collection<Object> args, Class<?> aClass) {
-        return findOnlyOneValue(args.toArray(new Object[0]), aClass, 0);
     }
     /**
      * 从对象数组中查找可赋值到指定类型的唯一值（支持按索引定位）。
@@ -2949,27 +2199,6 @@ public class ClassUtils {
         return null;
     }
     /**
-     * 获取指定类的类加载器（调用者类加载器）。
-     *
-     * @param caller 调用者类，不能为 null（null 时抛出 NullPointerException）
-     * @return 调用者类的类加载器，为 null 时返回系统类加载器
-     */
-    public static ClassLoader getCallerClassLoader(Class<?> caller) {
-        Preconditions.checkNotNull(caller);
-        ClassLoader classLoader = caller.getClassLoader();
-        return null == classLoader ? ClassLoader.getSystemClassLoader() : classLoader;
-    }
-    /**
-     * 判断值是否可以赋值到指定类型（值可为 null）。
-     *
-     * @param type  目标类型
-     * @param value 待判断的值，为 null 时判断目标类型是否非基本类型
-     * @return 可赋值时返回 true
-     */
-    public static boolean isAssignableValue(Class<?> type, Object value) {
-        return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
-    }
-    /**
      * 判断右侧类型是否可赋值到左侧类型（含基本类型/包装类型互转）。
      *
      * @param lhsType 左侧类型（目标类型）
@@ -2986,52 +2215,6 @@ public class ClassUtils {
         }
         Class<?> resolvedWrapper = convertIfPrimitive(rhsType);
         return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
-    }
-    /**
-     * 按名称获取类的所有方法（支持原始名与驼峰名双映射）。
-     *
-     * <p>对每个方法，同时按原始名称和下划线转驼峰名称各注册一条映射，
-     * 便于通过不同命名风格查找同一方法。结果顺序与 {@link #getMethods} 一致。</p>
-     *
-     * @param type      目标类型
-     * @param predicate 方法过滤条件，为 null 时不过滤
-     * @return 方法名称到 Method 的映射（含驼峰名变体）
-     */
-    public static Map<String, Method> getMethodsByName(Class<?> type, Predicate<Method> predicate) {
-            Map<String, Method> rs = Wraps.linkedMap(64);
-        /**
-         * do With Methods
-         * @param SafeConsumer<Method>( 参数
-         * @param type 参数
-         * @return 返回值
-        */
-        doWithMethods(type, new SafeConsumer<Method>() {
-            /**
-             * 安全回调：注册方法的原始名与驼峰名映射
-             */
-            @Override
-            public void safeAccept(Method method) throws Throwable {
-                if (!predicate.test(method)) {
-                    return;
-                }
-                rs.put(method.getName(), method);
-                String name = method.getName();
-                StringBuilder camel = new StringBuilder(name.length());
-                boolean nextUpper = false;
-                for (char c : name.toCharArray()) {
-                    if (c == '_') {
-                        nextUpper = true;
-                    } else if (nextUpper) {
-                        camel.append(Character.toUpperCase(c));
-                        nextUpper = false;
-                    } else {
-                        camel.append(c);
-                    }
-                }
-                rs.put(camel.toString(), method);
-            }
-        });
-        return rs;
     }
     /**
      * 获取指定类的所有泛型类型参数（解析泛型父类或接口，结果缓存于 {@link #ACTUAL}）。
@@ -3064,22 +2247,6 @@ public class ClassUtils {
      */
     public static <T> Class<T> resolveGenericType(Class<?> declaredClass) {
         return resolveGenericType(declaredClass, 0);
-    }
-    /**
-     * 将方法的实参数组按形参类型做必要转换（{@link Converter#convertIfNecessary}）。
-     *
-     * @param method    目标方法
-     * @param arguments 实参数组
-     * @return 转换后的实参数组
-     */
-    public static Object[] toArgs(Method method, Object[] arguments) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        Object[] rs = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            Class<?> parameterType = parameterTypes[i];
-            rs[i] = Converter.convertIfNecessary(arguments[i], parameterType);
-        }
-        return rs;
     }
     /**
      * 获取类型的所有父类型与接口类型集合（保持插入顺序）。
@@ -3137,67 +2304,6 @@ public class ClassUtils {
         return void.class;
     }
     /**
-     * 使用默认类加载器读取资源流。
-     *
-     * @param s 资源路径（类路径形式）
-     * @return 资源流，资源不存在时返回 null
-     * @since 1.0
-     */
-    public static InputStream getResourceAsStream(String s) {
-        return getDefaultClassLoader().getResourceAsStream(s);
-    }
-    /**
-     * 获取基本类型的成员默认值。
-     *
-     * <ul>
-     *   <li>{@code int} → 0</li>
-     *   <li>{@code long} → 0L</li>
-     *   <li>{@code float} → 0f</li>
-     *   <li>{@code double} → 0d</li>
-     *   <li>{@code boolean} → false</li>
-     *   <li>{@code char} → 空格</li>
-     *   <li>{@code short} → (short) 0</li>
-     *   <li>{@code byte} → (byte) 0</li>
-     * </ul>
-     *
-     * @param targetType 目标基本类型
-     * @return 该基本类型的成员默认值
-     * @since 1.0
-     */
-    public static Object memberDefault(Class<?> targetType) {
-        if (targetType == int.class) {
-            return 0;
-        }
-        if (targetType == long.class) {
-            return 0L;
-        }
-        if (targetType == float.class) {
-            return 0f;
-        }
-        if (targetType == double.class) {
-            return 0d;
-        }
-        if (targetType == boolean.class) {
-            return false;
-        }
-        if (targetType == char.class) {
-            return ' ';
-        }
-        if (targetType == short.class) {
-            return (short) 0;
-        }
-        return (byte) 0;
-    }
-    /**
-     * 判断类型是否为基本类型的包装类。
-     *
-     * @param cls 待判断的类型，可以为 null（null 时返回 false）
-     * @return 是基本类型包装类时返回 true，否则返回 false
-     */
-    public static boolean isPrimitiveWrapper(final Class<?> cls) {
-        return null != primitiveToWrapper(cls);
-    }
-    /**
      * 将基本类型（primitive）转换为对应的包装器类型（wrapper）。
      *
      * <p>例如 {@code int.class} 转为 {@code Integer.class}，{@code void.class} 转为 {@code Void.class}；
@@ -3219,44 +2325,6 @@ public class ClassUtils {
             }
         }
         return convertedClass;
-    }
-    /**
-     * 将基本类型包装类字段值转换为 int 值。
-     *
-     * <p>按字段实际类型（经 {@link #primitiveToWrapper} 解析）分别处理：
-     * 包装数字类型取 {@code intValue()}，字符取 {@link Character#getNumericValue}，
-     * 布尔类型 true 返回 1、false 返回 0，未知类型返回 0。</p>
-     *
-     * @param fieldValue 字段值，不能为 null（其 {@code getClass()} 必须可解析）
-     * @return 对应的 int 值，未知类型时返回 0
-     */
-    public static int primitiveInt(Object fieldValue) {
-        Class<?> aClass = primitiveToWrapper(fieldValue.getClass());
-        if (aClass == Integer.class) {
-            return (int) fieldValue;
-        }
-        if (aClass == Long.class) {
-            return ((Long) fieldValue).intValue();
-        }
-        if (aClass == Float.class) {
-            return ((Float) fieldValue).intValue();
-        }
-        if (aClass == Double.class) {
-            return ((Double) fieldValue).intValue();
-        }
-        if (aClass == Byte.class) {
-            return ((Byte) fieldValue).intValue();
-        }
-        if (aClass == Short.class) {
-            return ((Short) fieldValue).intValue();
-        }
-        if (aClass == Character.class) {
-            return Character.getNumericValue((Character) fieldValue);
-        }
-        if (aClass == Boolean.class) {
-            return ((Boolean) fieldValue) ? 1 : 0;
-        }
-        return 0;
     }
     /**
      * 通过 {@link Constructor} 反射实例化对象。
@@ -3312,8 +2380,6 @@ public class ClassUtils {
                         lastError = e;
                     }
                 }
-            }
-            if (args.length == 0) {
                 T built = staticBuilderMethod(protoMapClass);
                 if (null == built) {
                     recordInstantiationFailure(protoMapClass, declaredConstructors.length, lastError);
@@ -3350,58 +2416,6 @@ public class ClassUtils {
             return (T) ClassUtils.invokeBean(ClassUtils.invokeMethod(builder, null), "build");
         }
         throw new RuntimeException(String.format("无法构建目标类型实例: %s", protoMapClass.getName()));
-    }
-    /**
-     * 将 Map 数据映射到目标类型对象（先实例化目标对象，再复制属性）。
-     *
-     * @param item      源 Map 数据
-     * @param targetType 目标类型
-     * @param <T>       目标类型泛型
-     * @return 填充完成的目标对象
-     * @since 1.0
-     */
-    public static <T> T mapToObject(Map<String, Object> item, Class<T> targetType) {
-        T t = forObject(targetType);
-        BeanUtils.copyProperties(item, t);
-        return t;
-    }
-    /**
-     * 将 Map 数据映射到目标类型对象（按构造器参数名匹配 Map 键，反射实例化）。
-     *
-     * <p>先尝试无参或带参构造器直接创建；失败时遍历目标类所有已声明构造器，
-     * 按 {@link Parameter#getName()} 与 Map 键匹配生成实参并反射调用。</p>
-     *
-     * <p>豁免说明：本类为反射基础设施，构造器反射调用属其核心职责，
-     * 未收敛到 {@link com.chua.common.support.reflection.ReflectUtils}。</p>
-     *
-     * @param target 目标类型
-     * @param map    源 Map 数据（键为参数名）
-     * @param args   附加参数
-     * @param <T>    目标类型泛型
-     * @return 实例化成功的对象，无法匹配构造器时返回 null
-     */
-    public static <T> T forObjectOfMap(Class<T> target, Map map, Object... args) {
-        T t = forObject(target, args);
-        if (null != t) {
-            return t;
-        }
-        Constructor<?>[] declaredConstructors =
-                target.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器枚举匹配）
-        for (Constructor<?> declaredConstructor : declaredConstructors) {
-            Parameter[] parameters = declaredConstructor.getParameters();
-            Object[] newArgs = createArgs(parameters, map);
-            if (null == newArgs) {
-                continue;
-            }
-            setAccessible(declaredConstructor);
-            try {
-                // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器反射实例化）
-                return (T) declaredConstructor.newInstance(newArgs);
-            } catch (Exception e) {
-                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
-            }
-        }
-        return null;
     }
     /**
      * 按构造器参数名从 Map 中提取实参（null 占比超过 60% 时放弃匹配）。
@@ -3454,21 +2468,6 @@ public class ClassUtils {
             return obj;
         }
     }
- // 简类名工具
-    // ----------------------------------------------------------------------
-    /**
-     * 获取对象的简类名（不含包名），对象为 null 时返回指定默认值。
-     *
-     * @param object      目标对象，可以为 null
-     * @param valueIfNull 对象为 null 时返回的值
-     * @return 对象类名的简名，对象为 null 时返回 valueIfNull
-     */
-    public static String getShortClassName(final Object object, final String valueIfNull) {
-        if (object == null) {
-            return valueIfNull;
-        }
-        return getShortClassName(object.getClass());
-    }
     /**
      * 获取类的简类名（不含包名），类为 null 时返回空字符串。
      *
@@ -3515,8 +2514,6 @@ public class ClassUtils {
             if (REVERSE_ABBREVIATION_MAP.containsKey(className)) {
                 className = REVERSE_ABBREVIATION_MAP.get(className);
             }
-        }
-        final int lastDotIdx = className.lastIndexOf(PACKAGE_SEPARATOR_CHAR);
         final int innerIdx = className.indexOf(
                 INNER_CLASS_SEPARATOR_CHAR, lastDotIdx == -1 ? 0 : lastDotIdx + 1);
         String out = className.substring(lastDotIdx + 1);
@@ -3524,83 +2521,6 @@ public class ClassUtils {
             out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
         }
         return out + arrayPrefix;
-    }
- // Generics 类型 resolution
-    // -----------------------------------------------------------------------
-    /**
-     * 获取指定索引位置的泛型实际类型参数。
-     *
-     * <p>例如 {@code List<String>} 的 {@code getGenericType(clazz, 0)} 返回 {@code String.class}。</p>
-     *
-     * @param clazz 目标类
-     * @param index 泛型参数索引（0-based），负数时抛出异常
-     * @return 该索引位置的 {@link Class}，非 Class/ParameterizedType 时返回 null
-     * @throws IllegalArgumentException 当 index 为负数时
-     * @since 2024/12/21
-     */
-    public static Class<?> getGenericType(Class<?> clazz, int index) {
-        if (clazz == null || index < 0) {
-            if (index < 0) {
-                throw new IllegalArgumentException("index 不能为负数: " + index);
-            }
-            return null;
-        }
-        try {
-            Type[] genericTypes = getGenericTypes(clazz);
-            if (genericTypes != null && index < genericTypes.length) {
-                Type type = genericTypes[index];
-                if (type instanceof Class) {
-                    return (Class<?>) type;
-                } else if (type instanceof ParameterizedType) {
-                    // 参数化类型取原始类型
-                    return (Class<?>) ((ParameterizedType) type).getRawType();
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-            log.debug("[getGenericType] 解析泛型类型失败: class={}, index={}", clazz.getName(), index, e);
-            }
-            return null;
-        }
-    }
-    /**
-     * 获取类的所有泛型实际类型参数（沿父类和接口解析，结果缓存于 {@link #ACTUAL}）。
-     *
-     * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
-     * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
-     *
-     * @param clazz 目标类，为 null 时返回空数组
-     * @return 泛型实际类型参数数组（非 Class 类型回退为 Object.class），无泛型信息时返回空数组
-     * @since 2024/12/21
-     */
-    public static Class<?>[] getGenericTypes(Class<?> clazz) {
-        if (clazz == null) {
-            return new Class<?>[0];
-        }
-        // 命中缓存直接返回
-        Type[] cachedTypes = ACTUAL.get(clazz);
-        if (cachedTypes != null) {
-            return convertToClassArray(cachedTypes);
-        }
-        try {
-            Type[] types = resolveGenericTypes(clazz);
-            // 缓存解析结果
-            if (types != null && types.length > 0) {
-                ACTUAL.put(clazz, types);
-            } else {
-                // 无泛型信息也缓存空数组避免重复解析
-                ACTUAL.put(clazz, new Type[0]);
-            }
-            return convertToClassArray(types);
-        } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug("[getGenericTypes] 解析泛型类型失败: class={}", clazz.getName(), e);
-            }
-            // 解析失败缓存空数组并返回
-            ACTUAL.put(clazz, new Type[0]);
-            return new Class<?>[0];
-        }
     }
     /**
      * 解析类的泛型实际类型参数（先查接口，再查父类）。
@@ -3620,8 +2540,6 @@ public class ClassUtils {
                 return types;
             }
         }
-        // 回退到泛型父类
-        Type genericSuperclass = clazz.getGenericSuperclass();
         Type[] types = extractGenericTypes(genericSuperclass);
         if (types != null && types.length > 0) {
             return types;
@@ -3674,16 +2592,5 @@ public class ClassUtils {
             }
         }
         return classes;
-    }
-    /**
-     * 清空泛型类型参数缓存（{@link #ACTUAL}）。
-     *
-     * @since 2024/12/21
-     */
-    public static void clearGenericTypeCache() {
-        ACTUAL.clear();
-        if (log.isDebugEnabled()) {
-            log.debug("[clearGenericTypeCache] 泛型类型缓存已清空");
-        }
     }
 }

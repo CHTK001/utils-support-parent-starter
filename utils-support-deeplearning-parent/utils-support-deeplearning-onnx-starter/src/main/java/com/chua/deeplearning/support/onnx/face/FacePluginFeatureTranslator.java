@@ -28,6 +28,14 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
      * 输入尺寸
     */
     private static final int INPUT_SIZE = 128;
+    /**
+     * 归一化均值
+     */
+    private static final float MEAN = 0.0f;
+    /**
+     * 归一化缩放
+     */
+    private static final float STD = 256.0f;
 
     /**
      * 创建 faceplugin特征translator 实例
@@ -46,7 +54,7 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
         // RGB CHW + /256 归一化
         return OnnxImageProcessor.toModelInput(
                 input, INPUT_SIZE, INPUT_SIZE,
-                3, false, 0.0f, 1.0f / 256.0f,
+                3, false, MEAN, 1.0f / STD,
                 ctx.getNDManager());
     }
 

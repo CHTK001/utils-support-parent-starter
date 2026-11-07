@@ -92,7 +92,7 @@ public class ClusterAutoConfiguration {
         setting.setNodeId(props.getNodeId());
         setting.setHost(props.getHost());
         setting.setScatterId(props.getScatterId());
-        setting.setClusterId(props.getClusterId());
+
         setting.setSeeds(props.getSeeds());
         setting.setServicePaths(props.getServicePaths());
         setting.setPort(props.getPort());
@@ -120,7 +120,6 @@ public class ClusterAutoConfiguration {
                 .host(props.getHost())
                 .port(props.getPort())
                 .scatterId(props.getScatterId())
-                .clusterId(props.getClusterId())
                 .seeds(props.getSeeds().toArray(new String[0]))
                 .servicePaths(props.getServicePaths())
                 .httpEnabled(props.isHttpEnabled())

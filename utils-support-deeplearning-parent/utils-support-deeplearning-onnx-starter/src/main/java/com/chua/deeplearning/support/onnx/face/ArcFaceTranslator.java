@@ -29,6 +29,14 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
      * 输入尺寸
     */
     private static final int INPUT_SIZE = 112;
+    /**
+     * 归一化均值
+     */
+    private static final float MEAN = 127.5f;
+    /**
+     * 归一化缩放
+     */
+    private static final float STD = 128.0f;
 
     /**
      * 处理输入
@@ -37,7 +45,7 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(
                 input, INPUT_SIZE, INPUT_SIZE,
-                3, false, 127.5f, 1.0f / 128.0f,
+                3, false, MEAN, 1.0f / STD,
                 ctx.getNDManager());
     }
 

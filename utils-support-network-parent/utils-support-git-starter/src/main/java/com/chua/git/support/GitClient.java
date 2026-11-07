@@ -11,6 +11,7 @@ import com.chua.git.support.operation.DeployOperation;
 import com.chua.git.support.operation.FetchOperation;
 import com.chua.git.support.operation.LogOperation;
 import com.chua.git.support.operation.PushOperation;
+import com.chua.git.support.operation.RemoteOperation;
 import com.chua.git.support.operation.StatusOperation;
 import com.chua.git.support.operation.TagOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -243,6 +244,32 @@ public class GitClient implements AutoCloseable {
     }
 
     /**
+     * 当前 HEAD 概况（分支名 / 本地提交 / 远端同名分支提交 / 是否落后）。
+     *
+     * <p>业务侧要展示「当前在哪个分支、和远端差多少」时用这个，
+     * 不必自己 import jgit 的 {@code ObjectId} 与 refs 路径 ——
+     * 那些属于本 SDK 的实现细节，泄漏出去会让调用方跟着 jgit 版本走。</p>
+     *
+     * @return HEAD 概况
+     */
+    public com.chua.git.support.model.HeadInfo head() {
+        try {
+            Repository repo = getRepository();
+            String branch = repo.getBranch();
+            org.eclipse.jgit.lib.ObjectId local = repo.resolve("HEAD");
+            org.eclipse.jgit.lib.ObjectId remote = repo.resolve("refs/remotes/origin/" + branch);
+            return new com.chua.git.support.model.HeadInfo(
+                    branch,
+                    local == null ? null : local.getName(),
+                    local == null ? null : local.abbreviate(8).name(),
+                    remote == null ? null : remote.getName(),
+                    local != null && remote != null && !local.equals(remote));
+        } catch (Exception e) {
+            throw new GitClientException("读取 HEAD 失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 构造 HTTPS 凭据提供者。
      *
      * @return {@link 用户名密码凭证提供者}，若未设置凭据则返回 空
@@ -298,6 +325,20 @@ public class GitClient implements AutoCloseable {
      */
     public FetchOperation pull() {
         return new FetchOperation(this);
+    }
+
+    /**
+     * 准备远端同步检查操作（Git fetch + 本地/远端比对，不合并工作区）。
+     *
+     * <pre>{@code
+     * FetchResult r = client.remote().fetch("main");
+     * if (r.updated()) { 有更新 }
+     * }</pre>
+     *
+     * @return RemoteOperation 链式构建器
+     */
+    public RemoteOperation remote() {
+        return new RemoteOperation(this);
     }
 
     /**

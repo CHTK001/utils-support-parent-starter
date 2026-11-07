@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link GoalRegistry} 的绑定、状态代理与容量保护测试。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class GoalRegistryTest {
 

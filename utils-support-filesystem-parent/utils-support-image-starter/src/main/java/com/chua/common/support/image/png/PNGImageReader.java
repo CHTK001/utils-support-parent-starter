@@ -1178,6 +1178,7 @@ public class PNGImageReader extends ImageReader {
 
     // Data filtering methods
 
+    /** decodeSubFilter 方法 */
     private static void decodeSubFilter(byte[] curr, int coff, int count,
                                         int bpp) {
         for (int i = bpp; i < count; i++) {
@@ -1190,6 +1191,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** decodeUpFilter 方法 */
     private static void decodeUpFilter(byte[] curr, int coff,
                                        byte[] prev, int poff,
                                        int count) {
@@ -1201,6 +1203,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** decodeAverageFilter 方法 */
     private static void decodeAverageFilter(byte[] curr, int coff,
                                             byte[] prev, int poff,
                                             int count, int bpp) {

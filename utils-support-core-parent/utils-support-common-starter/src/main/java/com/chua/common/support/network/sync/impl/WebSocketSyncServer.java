@@ -7,6 +7,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
@@ -53,7 +54,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = "ws://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
+        String url = SyncAddressResolver.resolveAddress(setting, "ws://127.0.0.1:19380");
         return new WebSocketSyncClient(url);
     }
 

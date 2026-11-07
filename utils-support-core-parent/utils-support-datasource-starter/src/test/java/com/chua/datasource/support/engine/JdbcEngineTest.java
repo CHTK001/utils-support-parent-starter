@@ -39,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>{@code store()} 过的实体会回退内存链路，不得混读数据库</li>
  *   <li>无数据源时返回空列表/空结果，而不是抛 NPE</li>
  * </ul>
+ * @author CH
+ * @since 4.0.0.50
  */
 class JdbcEngineTest {
 
@@ -608,22 +610,27 @@ class JdbcEngineTest {
             return name;
         }
 
+        /** setName 方法 */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** getAge 方法 */
         public Integer getAge() {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

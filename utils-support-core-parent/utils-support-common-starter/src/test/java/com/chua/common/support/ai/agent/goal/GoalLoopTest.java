@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link GoalLoop} 的推进、判定、轮次上限与暂停/取消语义测试。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class GoalLoopTest {
 

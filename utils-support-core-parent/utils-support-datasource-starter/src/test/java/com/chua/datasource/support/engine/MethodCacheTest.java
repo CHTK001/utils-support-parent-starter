@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>setter 写入必须把 {@link Long} 这类 SQL 字面量收窄到目标形参类型</li>
  *   <li>缺失属性走负缓存并返回 {@code null} / 静默无操作，不抛异常</li>
  * </ul>
+ * @author CH
+ * @since 4.0.0.50
  */
 class MethodCacheTest {
 
@@ -182,14 +184,17 @@ class MethodCacheTest {
             return active;
         }
 
+        /** setActive 方法 */
         public void setActive(boolean active) {
             this.active = active;
         }
 
+        /** getUserName 方法 */
         public String getUserName() {
             return userName;
         }
 
+        /** setUserName 方法 */
         public void setUserName(String userName) {
             this.userName = userName;
         }
@@ -198,6 +203,7 @@ class MethodCacheTest {
             return tags;
         }
 
+        /** setTags 方法 */
         public void setTags(java.util.List<String> tags) {
             this.tags = tags;
         }
@@ -232,50 +238,62 @@ class MethodCacheTest {
             this.longValue = longValue;
         }
 
+        /** getDoubleValue 方法 */
         public double getDoubleValue() {
             return doubleValue;
         }
 
+        /** setDoubleValue 方法 */
         public void setDoubleValue(double doubleValue) {
             this.doubleValue = doubleValue;
         }
 
+        /** getFloatValue 方法 */
         public float getFloatValue() {
             return floatValue;
         }
 
+        /** setFloatValue 方法 */
         public void setFloatValue(float floatValue) {
             this.floatValue = floatValue;
         }
 
+        /** getShortValue 方法 */
         public short getShortValue() {
             return shortValue;
         }
 
+        /** setShortValue 方法 */
         public void setShortValue(short shortValue) {
             this.shortValue = shortValue;
         }
 
+        /** getByteValue 方法 */
         public byte getByteValue() {
             return byteValue;
         }
 
+        /** setByteValue 方法 */
         public void setByteValue(byte byteValue) {
             this.byteValue = byteValue;
         }
 
+        /** isBooleanValue 方法 */
         public boolean isBooleanValue() {
             return booleanValue;
         }
 
+        /** setBooleanValue 方法 */
         public void setBooleanValue(boolean booleanValue) {
             this.booleanValue = booleanValue;
         }
 
+        /** getCharValue 方法 */
         public char getCharValue() {
             return charValue;
         }
 
+        /** setCharValue 方法 */
         public void setCharValue(char charValue) {
             this.charValue = charValue;
         }

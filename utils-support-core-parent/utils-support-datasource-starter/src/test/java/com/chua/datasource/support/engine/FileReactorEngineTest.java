@@ -35,6 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * </ul>
  *
  * <p>此外还验证包装器平移：{@code limit}/{@code offset}/分页不能因为「只是包了一层」而丢失。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class FileReactorEngineTest {
 
@@ -360,14 +362,17 @@ class FileReactorEngineTest {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

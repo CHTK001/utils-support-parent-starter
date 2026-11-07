@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
  * Bearer 通道，不会让请求直接失败。</p>
  *
  * @author CHUA
+ * @since 4.0.0.50
  */
 @Slf4j
 public final class OpenAiProviderAuth {

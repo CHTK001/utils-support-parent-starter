@@ -81,6 +81,16 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     private static final float MIN_FACE_RATIO = 0.08f;
 
     /**
+     * soft-NMS 合并半径比例（相对矩形对角线）。
+     */
+    private static final double NMS_SOFT_RADIUS_RATIO = 0.25;
+
+    /**
+     * 判定重复框的直接覆盖 IOU 阈值。
+     */
+    private static final double NMS_REMOVE_IOU = 0.95;
+
+    /**
      * letterbox 缩放比例。
      */
     private float scaleR = 1f;
@@ -277,7 +287,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 double cyJ = rj.getY() + rj.getHeight() / 2.0;
                 double dist = Math.sqrt((cxI - cxJ) * (cxI - cxJ) + (cyI - cyJ) * (cyI - cyJ));
                 double diagJ = Math.sqrt(rj.getWidth() * rj.getWidth() + rj.getHeight() * rj.getHeight());
-                if (dist < Math.max(diagI, diagJ) * 0.25) {
+                if (dist < Math.max(diagI, diagJ) * NMS_SOFT_RADIUS_RATIO) {
                     suppressed[probs.get(j) >= probs.get(i) ? j : i] = true;
                     if (probs.get(j) >= probs.get(i)) {
                         cxI = cxJ;
@@ -298,7 +308,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                     finalKeep.remove(Integer.valueOf(i));
                     break;
                 }
-                if (areaJ > 0 && inter / areaJ > 0.95 && areaI > areaJ) {
+                if (areaJ > 0 && inter / areaJ > NMS_REMOVE_IOU && areaI > areaJ) {
                     suppressed[j] = true;
                 }
             }

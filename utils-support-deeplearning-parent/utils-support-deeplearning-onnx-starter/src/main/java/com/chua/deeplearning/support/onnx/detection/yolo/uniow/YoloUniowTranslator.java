@@ -330,6 +330,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probs, boxes);
     }
 
+    /** iou 方法 */
     private static float iou(float ax0, float ay0, float ax1, float ay1,
                              float bx0, float by0, float bx1, float by1) {
         float ix0 = Math.max(ax0, bx0);

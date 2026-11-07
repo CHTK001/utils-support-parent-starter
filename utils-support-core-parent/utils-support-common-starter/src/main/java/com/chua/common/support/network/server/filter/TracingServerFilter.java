@@ -49,11 +49,21 @@ public class TracingServerFilter implements ServerFilter {
     private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
 
     /**
+     * 排序最小值：{@code Integer.MIN_VALUE + 60}，排在全局最前
+     */
+    private static final int ORDER_MIN = Integer.MIN_VALUE + 60;
+
+    /**
+     * 日志行预估字符间距
+     */
+    private static final int ESTIMATED_BYTES = 32;
+
+    /**
      * 获取Order
      */
     @Override
     public int getOrder() {
-        return Integer.MIN_VALUE + 60;
+        return ORDER_MIN;
     }
 
     /**
@@ -176,7 +186,7 @@ public class TracingServerFilter implements ServerFilter {
          * @return 形如 {@code GzipFilter start -> 0ms | Handler start -> 1ms}
          */
         String render() {
-            StringBuilder sb = new StringBuilder(size * 32);
+            StringBuilder sb = new StringBuilder(size * ESTIMATED_BYTES);
             for (int i = 0; i < size; i++) {
                 if (i > 0) {
                     sb.append(" | ");

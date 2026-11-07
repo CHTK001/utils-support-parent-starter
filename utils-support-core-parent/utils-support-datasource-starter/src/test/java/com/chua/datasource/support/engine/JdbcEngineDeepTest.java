@@ -55,6 +55,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>触发器与存储过程用 H2 的<b>真实对象</b>（{@code CREATE TRIGGER} + {@code CREATE ALIAS}）验证，
  * 断言的是元数据内容确实被解析出来，而不是「抛了个异常就算过」。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class JdbcEngineDeepTest {
 
@@ -887,14 +889,17 @@ class JdbcEngineDeepTest {
             return name;
         }
 
+        /** setName 方法 */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** getAge 方法 */
         public Integer getAge() {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }

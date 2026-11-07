@@ -749,6 +749,7 @@ public final class WechatMemoryKeyScanner {
             }
         }
 
+        /** ofPage 方法 */
         static Ctx ofPage(byte[] page) {
             return new Ctx(page, false);
         }

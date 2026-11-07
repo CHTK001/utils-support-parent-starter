@@ -20,6 +20,11 @@ import ai.djl.translate.TranslatorContext;
 public class VggFaceTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸
+     */
+    private static final int INPUT_SIZE = 224;
+
+    /**
      * 处理输入
     */
     @Override
@@ -27,7 +32,7 @@ public class VggFaceTranslator implements Translator<Image, float[]> {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
         pipeline
-                .add(new Resize(224, 224))
+                .add(new Resize(INPUT_SIZE, INPUT_SIZE))
                 .add(new ToTensor())
                 .add(new Normalize(
                         new float[]{0.485f, 0.456f, 0.406f},

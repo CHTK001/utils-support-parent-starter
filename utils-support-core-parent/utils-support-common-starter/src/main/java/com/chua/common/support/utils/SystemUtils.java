@@ -60,90 +60,18 @@ public final class SystemUtils {
 
     // ==================== 主机信息 ====================
 
-    /**
-     * 获取当前主机的完整信息快照（含一级与易变项）。
-     *
-     * <p>结果在进程内缓存，重复调用没有采集开销；需要重新读取时先调
-     * {@link #refreshHostFacts()}（例如换了网卡或热插拔硬盘后）。</p>
-     *
-     * @return 快照，永不为 null
-     */
-    public static HostFacts hostFacts() {
-        return HostInfoRouter.current();
-    }
 
-    /**
-     * 强制重新采集主机信息并刷新缓存。
-     *
-     * @return 新采集的快照
-     */
-    public static HostFacts refreshHostFacts() {
-        return HostInfoRouter.refresh();
-    }
 
-    /**
-     * 清空主机信息缓存，下次调用 {@link #hostFacts()} 时重新采集。
-     */
-    public static void clearHostFacts() {
-        HostInfoRouter.invalidate();
-    }
 
-    /**
-     * 显式指定主机信息，用于测试或容器化部署时固定指纹源。
-     *
-     * <p>容器场景必须用：Docker 镜像里的 {@code /etc/machine-id} 通常是构建期常量，
-     * 同镜像派生的多个实例会拿到同一个值，不覆盖就无法区分实例。</p>
-     *
-     * @param facts 快照；传 null 等于清空缓存
-     */
-    public static void overrideHostFacts(HostFacts facts) {
-        HostInfoRouter.override(facts);
-    }
 
-    /**
-     * 获取当前主机信息来自哪个采集通道（如 {@code windows-cim}）。
-     *
-     * @return 通道名；尚未采集时为空串
-     */
-    public static String hostInfoChannel() {
-        return HostInfoRouter.channel();
-    }
 
-    /**
-     * 获取一级不可变信息（只含出厂/装机固化的锚点）。
-     *
-     * @return 锚点 → 取值，保持枚举顺序；取不到的锚点不出现
-     */
-    public static Map<String, String> immutableInfo() {
-        return export(true);
-    }
 
-    /**
-     * 获取易变信息（主机名、MAC、卷序列号等，不参与 ID 判定）。
-     *
-     * @return 锚点 → 取值；取不到的锚点不出现
      */
     public static Map<String, String> mutableInfo() {
         return export(false);
     }
 
-    /**
-     * 获取全部锚点的取值。
-     *
-     * @return 锚点 → 取值；取不到的锚点不出现
-     */
-    public static Map<String, String> allInfo() {
-        Map<String, String> all = export(true);
-        all.putAll(export(false));
-        return all;
-    }
 
-    /**
-     * 按层级导出锚点取值。
-     *
-     * @param strong true 导出不可变项，false 导出易变项
-     * @return 字段名 → 归一化取值
-     */
     private static Map<String, String> export(boolean strong) {
         HostFacts facts = hostFacts();
         Map<String, String> result = new LinkedHashMap<>();
@@ -171,22 +99,9 @@ public final class SystemUtils {
         return hostFacts().strongCount() > 0;
     }
 
-    /**
-     * 获取当前操作系统族。
-     *
-     * @return 操作系统族，不为 null
-     */
-    public static OsFamily osFamily() {
-        return OsFamily.current();
-    }
 
     // ==================== 唯一 ID ====================
 
-    /**
-     * 采集一级不可变信息并生成主机唯一 ID。
-     *
-     * <p>返回值可直接存放（授权文件、数据库、配置中心），格式固定为
-     * {@code CH1-XXXX-XXXX-...}，共 43 个字符，含校验位，可识别抄写错误。</p>
      *
      * @return 唯一 ID
      * @throws IllegalStateException 当前环境取不到任何一级不可变信息时抛出
@@ -230,8 +145,6 @@ public final class SystemUtils {
         return HostIdentity.match(id, facts);
     }
 
-    /**
-     * 用自定义阈值校验唯一 ID。
      *
      * @param id       待校验的 ID
      * @param ratio    匹配率下限，取值范围 (0, 1]
@@ -267,86 +180,13 @@ public final class SystemUtils {
         return HostIdentity.parse(id);
     }
 
-    /**
-     * 归一化单个锚点取值（去空白、转大写、剔除 OEM 占位串）。
-     *
-     * <p>{@code To be filled by O.E.M.} 这类占位值在同一批机器上完全一致，
-     * 必须当作「取不到」，否则整批机器会算出同一个 ID。</p>
-     *
-     * @param raw 原始取值
-     * @return 归一值；为占位串或空时返回空串
-     */
-    public static String normalizeAnchor(String raw) {
-        return HostIdentity.normalize(raw);
-    }
 
     // ==================== 通用信息 ====================
 
-    /**
-     * 获取本机主机名。
-     *
-     * @return 主机名；取不到时返回空串
-     */
-    public static String hostname() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (Exception e) {
-            log.debug("[system] 获取主机名失败: {}", e.getMessage());
-            return "";
-        }
-    }
 
-    /**
-     * 获取 JVM 运行时版本。
-     *
-     * @return 如 {@code 25.0.3}
-     */
-    public static String javaVersion() {
-        return System.getProperty("java.version", "");
-    }
 
-    /**
-     * 获取操作系统名称。
-     *
-     * @return 如 {@code Windows 11}
-     */
-    public static String osName() {
-        return System.getProperty("os.name", "");
-    }
 
-    /**
-     * 获取操作系统版本。
-     *
-     * @return 版本串，取不到返回空串
-     */
-    public static String osVersion() {
-        return System.getProperty("os.version", "");
-    }
 
-    /**
-     * 获取处理器架构。
-     *
-     * @return 如 {@code amd64}
-     */
-    public static String osArch() {
-        return System.getProperty("os.arch", "");
-    }
 
-    /**
-     * 获取可用处理器核数。
-     *
-     * @return 核数
-     */
-    public static int availableProcessors() {
-        return Runtime.getRuntime().availableProcessors();
-    }
 
-    /**
-     * 获取进程启动以来的运行秒数。
-     *
-     * @return 运行秒数
-     */
-    public static long uptimeSeconds() {
-        return java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime() / 1000L;
-    }
 }

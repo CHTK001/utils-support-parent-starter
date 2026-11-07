@@ -179,17 +179,6 @@ public class ClusterServer implements AutoCloseable {
         }
 
         /**
-         * 集群标识（为空回落 scatterid）
-         *
-         * @param clusterId clusterid
-         * @return clusterId的结果
-         */
-        public Builder clusterId(String clusterId) {
-            setting.setClusterId(clusterId);
-            return this;
-        }
-
-        /**
          * 种子节点地址（主机:端口）
          *
          * @param seeds seeds

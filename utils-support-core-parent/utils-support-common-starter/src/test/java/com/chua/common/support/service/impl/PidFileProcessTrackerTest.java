@@ -41,10 +41,12 @@ public class PidFileProcessTrackerTest {
         }
     }
 
+    /** isWindows 方法 */
     private static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             passed++;

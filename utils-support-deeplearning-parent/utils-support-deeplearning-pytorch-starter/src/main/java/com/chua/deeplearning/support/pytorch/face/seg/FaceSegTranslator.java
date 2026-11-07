@@ -30,7 +30,7 @@ public class FaceSegTranslator implements Translator<Image, Image> {
     /**
      * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
      */
-    private static final int[] MASK_COLORMAP = {
+    private static final int[] MASK_COLORMAP = {           // [P3C A20 豁免] 类到二值掩码映射
             0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
     };
 
@@ -50,13 +50,28 @@ public class FaceSegTranslator implements Translator<Image, Image> {
     private static final int THRESHOLD = 10;
 
     /**
+     * 输入归一化除数（像素 0~255）。
+     */
+    private static final float MAX_PIXEL = 255.0f;
+
+    /**
+     * 高斯模糊核尺寸（AIAS 同款，101×101）。
+     */
+    private static final int GAUSSIAN_KERNEL = 101;
+
+    /**
+     * 高斯模糊 sigma（AIAS 同款，11）。
+     */
+    private static final double GAUSSIAN_SIGMA = 11;
+
+    /**
      * 处理输入
     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
-        array = array.transpose(2, 0, 1).div(255.0f);
+        array = array.transpose(2, 0, 1).div(MAX_PIXEL);
         NDArray mean = manager.create(MEAN, new Shape(3, 1, 1));
         NDArray std = manager.create(STD, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
@@ -92,8 +107,8 @@ public class FaceSegTranslator implements Translator<Image, Image> {
         // 高斯模糊两次（AIAS 同款，101×101，sigma 11）
         Mat blur1 = new Mat();
         Mat blur2 = new Mat();
-        Imgproc.GaussianBlur(mask, blur1, new Size(101, 101), 11);
-        Imgproc.GaussianBlur(blur1, blur2, new Size(101, 101), 11);
+        Imgproc.GaussianBlur(mask, blur1, new Size(GAUSSIAN_KERNEL, GAUSSIAN_KERNEL), GAUSSIAN_SIGMA);
+        Imgproc.GaussianBlur(blur1, blur2, new Size(GAUSSIAN_KERNEL, GAUSSIAN_KERNEL), GAUSSIAN_SIGMA);
         mask.release();
         blur1.release();
 

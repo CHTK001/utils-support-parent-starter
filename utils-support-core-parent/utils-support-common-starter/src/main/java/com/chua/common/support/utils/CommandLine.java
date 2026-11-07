@@ -232,20 +232,11 @@ public class CommandLine {
  return options;
  }
 
- /**
-  * 获取位置参数列表。
-  *
-  * @return 位置参数
-  */
- public List<String> getPositional() {
- return positional;
- }
 
  /**
   * 解析
   */
  private void parse() {
- int index = 0;
  while (index < args.length) {
  String token = args[index];
  if (token.startsWith("--")) {

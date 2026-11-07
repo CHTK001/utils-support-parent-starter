@@ -261,6 +261,34 @@ public class FacePipeline {
     private static final long MAX_PAD_CANVAS_AREA = 64_000_000L;
 
     /**
+     * 小图补边最长边上限（1024，超出让大图只试 0.5 档，见 {@link #PAD_FACTORS_SMALL}）。
+     */
+    private static final int MAX_PAD_WORK_DIM = 1024;
+    /**
+     * FFHQ 512×512 标准输出尺寸。
+     */
+    private static final int SIZE_512 = 512;
+    /**
+     * 5 点仿射对齐背景填充色（R=135,G=133,B=132）。
+     */
+    private static final Scalar FACE_PAD_COLOR = new Scalar(135, 133, 132);
+
+    /**
+     * 左/右眼：68 点模型关键点索引段 [36, 41]、[42, 47]。
+     */
+    private static final int LEFT_EYE_68_START = 36;
+    private static final int LEFT_EYE_68_END = 41;
+    private static final int RIGHT_EYE_68_START = 42;
+    private static final int RIGHT_EYE_68_END = 47;
+    /**
+     * 左/右眼：106 点模型关键点索引段 [74, 75]、[77, 78]。
+     */
+    private static final int LEFT_EYE_106_START = 74;
+    private static final int LEFT_EYE_106_END = 75;
+    private static final int RIGHT_EYE_106_START = 77;
+    private static final int RIGHT_EYE_106_END = 78;
+
+    /**
      * 检测框四扩展像素数
      */
     private final int cropPadding;
@@ -1244,7 +1272,7 @@ public class FacePipeline {
             int imgH = src.rows();
             // 补边阶梯：见 PAD_FACTORS_SMALL / PAD_FACTORS_LARGE / MAX_PAD_CANVAS_AREA
             int maxdim = Math.max(imgW, imgH);
-            double[] factors = maxdim <= 1024 ? PAD_FACTORS_SMALL : PAD_FACTORS_LARGE;
+            double[] factors = maxdim <= MAX_PAD_WORK_DIM ? PAD_FACTORS_SMALL : PAD_FACTORS_LARGE;
             for (double factor : factors) {
                 int pad = (int) (maxdim * factor);
                 if (pad <= 0) {
@@ -1641,10 +1669,10 @@ public class FacePipeline {
                 Mat affine = ImageUtils.estimateFaceAffine512(kps);
                 aligned = new Mat();
                 org.opencv.imgproc.Imgproc.warpAffine(src, aligned, affine,
-                        new Size(512, 512),
+                        new Size(SIZE_512, SIZE_512),
                         org.opencv.imgproc.Imgproc.INTER_CUBIC,
                         org.opencv.core.Core.BORDER_REPLICATE,
-                        new Scalar(135, 133, 132));
+                        FACE_PAD_COLOR);
                 affine.release();
             } catch (Exception e) {
                 log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage(), e);
@@ -2026,8 +2054,8 @@ public class FacePipeline {
             if (landmark == null || landmark.length < 4) {
                 return face;
             }
-            Point leftEye = eyeCenter(landmark, 36, 41, 74, 75);
-            Point rightEye = eyeCenter(landmark, 42, 47, 77, 78);
+            Point leftEye = eyeCenter(landmark, LEFT_EYE_68_START, LEFT_EYE_68_END, LEFT_EYE_106_START, LEFT_EYE_106_END);
+            Point rightEye = eyeCenter(landmark, RIGHT_EYE_68_START, RIGHT_EYE_68_END, RIGHT_EYE_106_START, RIGHT_EYE_106_END);
             if (leftEye == null || rightEye == null || leftEye.x == rightEye.x) {
                 return face;
             }

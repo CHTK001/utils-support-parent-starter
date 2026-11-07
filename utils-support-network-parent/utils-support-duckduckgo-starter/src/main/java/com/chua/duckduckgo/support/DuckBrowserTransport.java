@@ -33,6 +33,7 @@ import java.util.UUID;
  * </ol>
  *
  * @author CHUA
+ * @since 4.0.0.50
  */
 @Slf4j
 public class DuckBrowserTransport implements AutoCloseable {

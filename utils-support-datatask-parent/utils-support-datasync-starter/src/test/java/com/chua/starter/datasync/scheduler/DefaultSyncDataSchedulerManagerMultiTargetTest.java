@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 这里用计数器把「源读取次数」和「每个目标写入行数」锁死成断言。</p>
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class DefaultSyncDataSchedulerManagerMultiTargetTest {
 

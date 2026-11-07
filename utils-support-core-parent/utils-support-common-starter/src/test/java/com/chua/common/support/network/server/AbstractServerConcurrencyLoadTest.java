@@ -150,6 +150,7 @@ class AbstractServerConcurrencyLoadTest {
             }
         }
 
+        /** handleClient 方法 */
         private void handleClient(Socket client) {
             int current = activeConnections.incrementAndGet();
             peakConnections.accumulateAndGet(current, Math::max);
@@ -176,6 +177,7 @@ class AbstractServerConcurrencyLoadTest {
             }
         }
 
+        /** closeQuietly 方法 */
         private static void closeQuietly(Socket socket) {
             try {
                 socket.close();

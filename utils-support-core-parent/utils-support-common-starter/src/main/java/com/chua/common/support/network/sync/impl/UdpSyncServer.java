@@ -5,6 +5,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
@@ -94,7 +95,7 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
      */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = setting instanceof String ? (String) setting : "udp://127.0.0.1:19391";
+        String url = SyncAddressResolver.resolveAddress(setting, "udp://127.0.0.1:19391");
         return new UdpSyncClient(url);
     }
 

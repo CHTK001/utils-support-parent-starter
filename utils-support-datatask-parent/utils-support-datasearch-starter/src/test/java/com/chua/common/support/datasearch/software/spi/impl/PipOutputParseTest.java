@@ -111,16 +111,19 @@ public class PipOutputParseTest {
         }
     }
 
+    /** versionOf 方法 */
     private static String versionOf(List<SoftwareInfo> list, String name) {
         return list.stream().filter(s -> name.equals(s.getName())).map(SoftwareInfo::getVersion)
                 .findFirst().orElse("<missing>");
     }
 
+    /** nameOf 方法 */
     private static String nameOf(List<SoftwareInfo> list, String prefix) {
         return list.stream().map(SoftwareInfo::getName)
                 .filter(n -> n.startsWith(prefix)).findFirst().orElse("<missing>");
     }
 
+    /** dump 方法 */
     private static String dump(List<SoftwareInfo> list) {
         StringBuilder sb = new StringBuilder();
         for (SoftwareInfo s : list) {
@@ -131,6 +134,7 @@ public class PipOutputParseTest {
         return sb.toString();
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;

@@ -170,14 +170,16 @@ public class H2ScriptConverter extends DefaultScriptConverter {
         // INSERT IGNORE -> INSERT（仅剥离 H2 不支持的 IGNORE，依据与代价见 INSERT_IGNORE 注释）
         converted = INSERT_IGNORE.matcher(converted).replaceFirst("INSERT");
         // 类型映射；TINYINT 去掉显示宽度（H2 2.x 拒绝 TINYINT(1)），ADD COLUMN IF NOT EXISTS 保持原样（H2 原生支持）
-        converted = DATETIME_TYPE.matcher(converted).replaceAll("TIMESTAMP");
-        converted = TEXT_TYPE.matcher(converted).replaceAll("CLOB");
-        converted = TINYINT_DISPLAY_WIDTH.matcher(converted).replaceAll("TINYINT");
-        converted = DOUBLE_TYPE.matcher(converted).replaceAll("DOUBLE PRECISION");
+        // 全部走 replaceOutsideLiterals：字面量里常见 `.json` / `.text` / `NOW()` 之类文本，
+        // 整句 replaceAll 会把种子数据改坏（事故：ci.json -> ci.CLOB，采集流程全 404）
+        converted = replaceOutsideLiterals(converted, DATETIME_TYPE, "TIMESTAMP");
+        converted = replaceOutsideLiterals(converted, TEXT_TYPE, "CLOB");
+        converted = replaceOutsideLiterals(converted, TINYINT_DISPLAY_WIDTH, "TINYINT");
+        converted = replaceOutsideLiterals(converted, DOUBLE_TYPE, "DOUBLE PRECISION");
         // 函数映射
-        converted = NOW_FUNCTION.matcher(converted).replaceAll("CURRENT_TIMESTAMP");
-        converted = IFNULL_FUNCTION.matcher(converted).replaceAll("COALESCE(");
-        converted = RAND_FUNCTION.matcher(converted).replaceAll("RANDOM()");
+        converted = replaceOutsideLiterals(converted, NOW_FUNCTION, "CURRENT_TIMESTAMP");
+        converted = replaceOutsideLiterals(converted, IFNULL_FUNCTION, "COALESCE(");
+        converted = replaceOutsideLiterals(converted, RAND_FUNCTION, "RANDOM()");
         return converted;
     }
 }

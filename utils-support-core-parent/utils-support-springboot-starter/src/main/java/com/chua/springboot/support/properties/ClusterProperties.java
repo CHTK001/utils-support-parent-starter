@@ -56,12 +56,7 @@ public class ClusterProperties {
     private String scatterId = "default";
 
     /**
-     * 集群标识（为空回落到 scatterid）
-    */
-    private String clusterId;
-
-    /**
-     * 种子节点列表（主机:端口）
+     * 集群种子节点列表（主机:端口）
     */
     private List<String> seeds = Wraps.list();
 
@@ -141,7 +136,7 @@ public class ClusterProperties {
         private String protocol = "http";
 
         /**
-         * 业务分组（空 时回落 clusterid/scatterid）
+         * 业务分组（为空时不按分组过滤）
         */
         private String scatterId;
     }

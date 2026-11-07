@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>这条链路是内存/文件引擎「没有 JDBC 执行器却声明 supportsSql()」的全部依据：
  * SQL 被编译成 AST，再在表行引用上求值 / 变更。断言覆盖投影、聚合、
  * 排序截断、WHERE 全部算子、参数绑定，以及 插入/更新/删除 的影响行数语义。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class MemorySqlChainTest {
 

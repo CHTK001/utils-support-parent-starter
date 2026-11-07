@@ -63,6 +63,7 @@ import java.util.Map;
  * 频率有限制（超限会返回 {@code image_generation_limit} 错误）。</p>
  *
  * @author CHUA
+ * @since 4.0.0.50
  */
 @Slf4j
 @Spi({"duck", "duckduckgo"})

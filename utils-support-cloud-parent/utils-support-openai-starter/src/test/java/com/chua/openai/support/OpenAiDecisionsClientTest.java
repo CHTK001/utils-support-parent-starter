@@ -38,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * 用本机 HttpServer 模拟 OpenAI /v1/decisions + SystemOne /v1/systemone 响应：
  * 断言发送给对方的请求体（model/input/questions/state）以及
  * 从标准 OpenAI 格式返回的 DecisionsResult。
+ * @author CH
+ * @since 4.0.0.50
  */
 @Slf4j
 class OpenAiDecisionsClientTest {

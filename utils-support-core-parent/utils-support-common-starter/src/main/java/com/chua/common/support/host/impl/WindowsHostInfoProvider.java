@@ -38,6 +38,11 @@ public class WindowsHostInfoProvider implements HostInfoProvider {
     private static final String NAME = "windows-cim";
 
     /**
+     * 默认权重：优先级 300
+     */
+    private static final int DEFAULT_PRIORITY = 300;
+
+    /**
      * 采集超时（毫秒）：CIM 查询涉及 WMI，冷启动较慢，给足余量
      */
     private static final long TIMEOUT_MS = 15_000L;
@@ -64,7 +69,8 @@ public class WindowsHostInfoProvider implements HostInfoProvider {
             "$guid=(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Cryptography').MachineGuid",
             "$diskSerial=''",
             "try{ $d=Get-Partition -DriveLetter $sys.TrimEnd(':') | Get-Disk; $diskSerial=[string]$d.SerialNumber }catch{}",
-            "if([string]::IsNullOrWhiteSpace($diskSerial)){ $diskSerial=[string](Get-CimInstance Win32_DiskDrive | Where-Object { $_.Index -eq 0 }).SerialNumber }",
+            "if([string]::IsNullOrWhiteSpace($diskSerial)){ $diskSerial=[string](Get-CimInstance Win32_DiskDrive | Where-Object { $_.Index -" +
+                "eq 0 }).SerialNumber }",
             "$vol=Get-CimInstance Win32_LogicalDisk -Filter \"DeviceID='$sys'\"",
             "$nic=Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and -not $_.Virtual } | Sort-Object ifIndex | Select-Object -First 1",
             "$mac=''",
@@ -108,7 +114,7 @@ public class WindowsHostInfoProvider implements HostInfoProvider {
 
     @Override
     public int priority() {
-        return 300;
+        return DEFAULT_PRIORITY;
     }
 
     @Override

@@ -33,6 +33,11 @@ public class CmdResult {
     public static final int EXIT_CODE_ERROR = -2;
 
     /**
+     * 字符串截断最大长度（toString 不输出过长的 stdout/stderr）
+     */
+    private static final int MAX_TRUNCATE_LENGTH = 100;
+
+    /**
      * 退出码
      */
     private final int exitCode;
@@ -186,8 +191,8 @@ public class CmdResult {
                 ", exitCode=" + exitCode +
                 ", duration=" + getDuration() + "ms" +
                 ", timeout=" + timeout +
-                ", stdout='" + truncate(stdout, 100) + '\'' +
-                ", stderr='" + truncate(stderr, 100) + '\'' +
+                ", stdout='" + truncate(stdout, MAX_TRUNCATE_LENGTH) + '\'' +
+                ", stderr='" + truncate(stderr, MAX_TRUNCATE_LENGTH) + '\'' +
                 '}';
     }
 

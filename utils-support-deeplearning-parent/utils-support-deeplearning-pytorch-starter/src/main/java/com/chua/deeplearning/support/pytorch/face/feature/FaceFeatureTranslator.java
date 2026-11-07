@@ -20,6 +20,31 @@ import ai.djl.translate.TranslatorContext;
 public class FaceFeatureTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸。
+     */
+    private static final int INPUT_SIZE = 160;
+
+    /**
+     * 均值（像素）。
+     */
+    private static final float MEAN = 127.5f;
+
+    /**
+     * 标准差（像素）。
+     */
+    private static final float STD = 128.0f;
+
+    /**
+     * 归一化除数（像素）。
+     */
+    private static final float MAX_PIXEL = 255.0f;
+
+    /**
+     * 防除零噪点。
+     */
+    private static final float EPSILON = 1e-12f;
+
+    /**
      * 处理输入
     */
     @Override
@@ -27,11 +52,11 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
         pipeline
-                .add(new Resize(160))
+                .add(new Resize(INPUT_SIZE))
                 .add(new ToTensor())
                 .add(new Normalize(
-                        new float[]{127.5f / 255.0f, 127.5f / 255.0f, 127.5f / 255.0f},
-                        new float[]{128.0f / 255.0f, 128.0f / 255.0f, 128.0f / 255.0f}));
+                        new float[]{MEAN / MAX_PIXEL, MEAN / MAX_PIXEL, MEAN / MAX_PIXEL},
+                        new float[]{STD / MAX_PIXEL, STD / MAX_PIXEL, STD / MAX_PIXEL}));
         return pipeline.transform(new NDList(array));
     }
 
@@ -72,7 +97,7 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
             sum += v * v;
         }
         double norm = Math.sqrt(sum);
-        if (norm < 1e-12) {
+        if (norm < EPSILON) {
             return feature;
         }
         float[] result = new float[feature.length];

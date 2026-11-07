@@ -13,6 +13,7 @@ import java.util.Map;
  * 出错时返回 {@code {"action":"error","status":418,"type":"ERR_BN_LIMIT"}}。</p>
  *
  * @author CHUA
+ * @since 4.0.0.50
  */
 final class DuckStreamParser {
 

@@ -57,6 +57,7 @@ public class JdkCertificateProviderTest {
         }
     }
 
+    /** parse 方法 */
     private static X509Certificate parse(String pem) throws Exception {
         String body = pem.replaceAll("-----[A-Z ]+-----", "").replaceAll("\\s", "");
         byte[] der = Base64.getDecoder().decode(body.getBytes(StandardCharsets.US_ASCII));
@@ -64,12 +65,14 @@ public class JdkCertificateProviderTest {
                 .generateCertificate(new ByteArrayInputStream(der));
     }
 
+    /** hasSan 方法 */
     private static boolean hasSan(X509Certificate cert, String domain) throws Exception {
         Collection<List<?>> names = cert.getSubjectAlternativeNames();
         return names != null && names.stream()
                 .anyMatch(entry -> entry.size() > 1 && domain.equals(entry.get(1)));
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             passed++;

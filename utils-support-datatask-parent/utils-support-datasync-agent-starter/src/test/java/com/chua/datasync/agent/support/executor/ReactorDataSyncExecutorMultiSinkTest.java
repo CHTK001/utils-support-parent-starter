@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 这里把「多 sink 各自收到数据」「改配置后旧 sink 不再收到」锁死成用例。</p>
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class ReactorDataSyncExecutorMultiSinkTest {
 

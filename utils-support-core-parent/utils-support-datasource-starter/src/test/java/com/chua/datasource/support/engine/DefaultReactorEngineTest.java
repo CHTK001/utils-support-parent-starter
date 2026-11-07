@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li><b>能力缺失要给错误信号</b> — 底层引擎没有 {@link SqlExecutor} 时，
  *       返回 {@link reactor.core.publisher.Flux#error} 而不是 {@link NullPointerException}</li>
  * </ul>
+ * @author CH
+ * @since 4.0.0.50
  */
 class DefaultReactorEngineTest {
 
@@ -254,22 +256,27 @@ class DefaultReactorEngineTest {
             return name;
         }
 
+        /** setName 方法 */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** getAge 方法 */
         public Integer getAge() {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

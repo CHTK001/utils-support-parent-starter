@@ -241,39 +241,7 @@ public final class TreeUtils {
 
     // ==================== 子节点 / 后代 ====================
 
-    /**
-     * 获取直接子节点（空安全）。
-     *
-     * @param node           目标节点
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
-     * @return 直接子节点列表；无子节点返回空列表
-     */
-    public static <T> List<T> getDirectChildren(T node, Function<T, List<T>> childrenGetter) {
-        Objects.requireNonNull(node, "node must not be null");
-        return childrenOf(node, childrenGetter);
-    }
 
-    /**
-     * 获取全部后代节点（不含自身，DFS 前序，迭代实现不受树深限制）。
-     *
-     * @param node           目标节点
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
-     * @return 后代节点列表；叶子节点返回空列表
-     */
-    public static <T> List<T> getAllChildren(T node, Function<T, List<T>> childrenGetter) {
-        Objects.requireNonNull(node, "node must not be null");
-        var descendants = Wraps.<T>list();
-        Deque<T> stack = Wraps.deque();
-        pushReversed(stack, childrenOf(node, childrenGetter));
-        while (!stack.isEmpty()) {
-            var current = stack.pop();
-            descendants.add(current);
-            pushReversed(stack, childrenOf(current, childrenGetter));
-        }
-        return descendants;
-    }
 
     /**
      * 逆序压栈以保持 DFS 前序顺序。
@@ -281,36 +249,11 @@ public final class TreeUtils {
      * @param children children
      */
     private static <T> void pushReversed(Deque<T> stack, List<T> children) {
-        for (var i = children.size() - 1; i >= 0; i--) {
-            stack.push(children.get(i));
-        }
     }
 
     // ==================== 路径 / 父链 / 兄弟 ====================
 
-    /**
-     * 获取从根到目标节点的完整路径（含根与目标自身）。
-     *
-     * <p>目标按<strong>引用（==）</strong>定位。</p>
-     *
-     * @param roots          根节点集合
-     * @param target         目标节点（须为树中实际节点实例）
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
-     * @return 路径列表 [根, ..., 直接父, 目标]；未找到返回空列表
-     */
-    public static <T> List<T> getParentChain(Collection<T> roots, T target,
-                                             Function<T, List<T>> childrenGetter) {
-        return locatePath(roots, target, childrenGetter);
-    }
 
-    /**
-     * 获取父节点列表：从直接父到根（不含自身）。
-     *
-     * @param roots          根节点集合
-     * @param target         目标节点
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
      * @return 父节点列表 [直接父, ..., 根]；目标为根时返回空列表
      */
     public static <T> List<T> getParents(Collection<T> roots, T target,
@@ -323,35 +266,6 @@ public final class TreeUtils {
         return parents;
     }
 
-    /**
-     * 获取兄弟节点：同层中除自身外的其他节点。
-     *
-     * <p>目标为根节点时，兄弟即其余根节点。</p>
-     *
-     * @param roots          根节点集合
-     * @param target         目标节点
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
-     * @return 兄弟节点列表（保持原顺序）
-     */
-    public static <T> List<T> getSiblings(Collection<T> roots, T target,
-                                          Function<T, List<T>> childrenGetter) {
-        Objects.requireNonNull(target, "target must not be null");
-        var path = locatePath(roots, target, childrenGetter);
-        if (path.isEmpty()) {
-            return List.of();
-        }
-        List<T> sameLevel = path.size() == 1
-                ? List.copyOf(roots)
-                : childrenOf(path.get(path.size() - 2), childrenGetter);
-        var siblings = Wraps.<T>list(sameLevel.size());
-        for (var candidate : sameLevel) {
-            if (candidate != target) {
-                siblings.add(candidate);
-            }
-        }
-        return siblings;
-    }
 
     /**
      * 获取目标节点深度：根为 0，每下一层加 1。
@@ -375,7 +289,6 @@ public final class TreeUtils {
     private static <T> List<T> locatePath(Collection<T> roots, T target,
                                           Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
-        Objects.requireNonNull(target, "target must not be null");
         var path = Wraps.<T>list();
         Deque<Frame<T>> stack = Wraps.deque();
         for (var root : roots) {
@@ -408,34 +321,7 @@ public final class TreeUtils {
 
     // ==================== 排序 / 扁平化 ====================
 
-    /**
-     * 递归排序整棵树：每一层子列表按比较器就地排序（含根层）。
-     *
-     * <p>要求各层 children 为可变列表（{@link #build} 产出的即为可变列表）；
-     * 不可变列表将抛出 {@link UnsupportedOperationException}。</p>
-     *
-     * @param roots          根节点列表（就地排序）
-     * @param comparator     同层比较器
-     * @param childrenGetter 子节点访问器
-     * @param <T>            节点类型
-     */
-    public static <T> void sortTree(List<T> roots, Comparator<? super T> comparator,
-                                    Function<T, List<T>> childrenGetter) {
-        Objects.requireNonNull(roots, "roots must not be null");
-        Objects.requireNonNull(comparator, "comparator must not be null");
-        roots.sort(comparator);
-        Deque<T> stack = Wraps.deque(roots);
-        while (!stack.isEmpty()) {
-            var current = stack.pop();
-            var children = childrenOf(current, childrenGetter);
-            children.sort(comparator);
-            pushReversed(stack, children);
-        }
-    }
 
-    /**
-     * 扁平化为平铺列表（DFS 前序：根 → 其全部后代 → 下一个根）。
-     *
      * @param roots          根节点集合
      * @param childrenGetter 子节点访问器
      * @param <T>            节点类型

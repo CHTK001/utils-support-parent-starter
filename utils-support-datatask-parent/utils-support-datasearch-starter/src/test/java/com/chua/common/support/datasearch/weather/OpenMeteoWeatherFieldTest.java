@@ -81,6 +81,7 @@ public class OpenMeteoWeatherFieldTest {
         summary();
     }
 
+    /** summary 方法 */
     private static void summary() {
         System.out.println("[OpenMeteoWeatherFieldTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
@@ -88,10 +89,12 @@ public class OpenMeteoWeatherFieldTest {
         }
     }
 
+    /** notBlank 方法 */
     private static boolean notBlank(String value) {
         return value != null && !value.isBlank();
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;

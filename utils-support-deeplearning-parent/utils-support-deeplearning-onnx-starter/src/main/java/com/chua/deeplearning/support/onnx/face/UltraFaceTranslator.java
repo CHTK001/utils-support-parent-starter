@@ -40,6 +40,43 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
     /**
+     * 候选框数量上限（NMS 取前 TOP_K 高分候选）。
+     */
+    private static final int TOP_K = 200;
+    /**
+     * 先验框缩放系数（默认/大模型：4 层，对应 640x640 / 320x240 锚栓）。
+     */
+    private static final int[][] PRIOR_SCALES = {{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
+    /**
+     * 先验框步长系数（默认/大模型：4 层）。
+     */
+    private static final int[] PRIOR_STEPS = {8, 16, 32, 64};
+    /**
+     * 先验框缩放系数（中模型：3 层，对应 320x240 锚栓）。
+     */
+    private static final int[][] PRIOR_SCALES_MIDDLE = {{16, 32}, {64, 128}, {256, 512}};
+    /**
+     * 先验框步长系数（中模型：3 层）。
+     */
+    private static final int[] PRIOR_STEPS_MIDDLE = {8, 16, 32};
+    /**
+     * 大模型标准输入宽度。
+     */
+    private static final int INPUT_WIDTH_640 = 640;
+    /**
+     * 大模型标准输入高度。
+     */
+    private static final int INPUT_HEIGHT_640 = 640;
+    /**
+     * 中模型标准输入宽度。
+     */
+    private static final int INPUT_WIDTH_320 = 320;
+    /**
+     * 中模型标准输入高度。
+     */
+    private static final int INPUT_HEIGHT_240 = 240;
+
+    /**
      * 置信度阈值
     */
     private final double confThresh;
@@ -104,8 +141,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh, int[] inputSize) {
         this(confThresh, nmsThresh, inputSize[0], inputSize[1], DEFAULT_VARIANCE,
-                new int[][]{{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}},
-                new int[]{8, 16, 32, 64}, 200);
+                PRIOR_SCALES, PRIOR_STEPS, TOP_K);
     }
 
     /**
@@ -129,34 +165,34 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
                 || "scrfd_1g_bnkps".equals(normalized) || "scrfd_1g".equals(normalized)) {
             this.confThresh = confThresh;
             this.nmsThresh = nmsThresh;
-            this.topK = 200;
-            this.inputWidth = 640;
-            this.inputHeight = 640;
+            this.topK = TOP_K;
+            this.inputWidth = INPUT_WIDTH_640;
+            this.inputHeight = INPUT_HEIGHT_640;
             this.variance = DEFAULT_VARIANCE;
-            this.scales = new int[][]{{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
-            this.steps = new int[]{8, 16, 32, 64};
+            this.scales = PRIOR_SCALES;
+            this.steps = PRIOR_STEPS;
             return;
         }
         if ("mobilenet".equals(normalized)) {
             this.confThresh = confThresh;
             this.nmsThresh = nmsThresh;
-            this.topK = 200;
-            this.inputWidth = 320;
-            this.inputHeight = 240;
+            this.topK = TOP_K;
+            this.inputWidth = INPUT_WIDTH_320;
+            this.inputHeight = INPUT_HEIGHT_240;
             this.variance = DEFAULT_VARIANCE;
-            this.scales = new int[][]{{16, 32}, {64, 128}, {256, 512}};
-            this.steps = new int[]{8, 16, 32};
+            this.scales = PRIOR_SCALES_MIDDLE;
+            this.steps = PRIOR_STEPS_MIDDLE;
             return;
         }
 
         this.confThresh = confThresh;
         this.nmsThresh = nmsThresh;
-        this.topK = 200;
-        this.inputWidth = 320;
-        this.inputHeight = 240;
+        this.topK = TOP_K;
+        this.inputWidth = INPUT_WIDTH_320;
+        this.inputHeight = INPUT_HEIGHT_240;
         this.variance = DEFAULT_VARIANCE;
-        this.scales = new int[][]{{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
-        this.steps = new int[]{8, 16, 32, 64};
+        this.scales = PRIOR_SCALES;
+        this.steps = PRIOR_STEPS;
     }
 
     /**
@@ -220,8 +256,8 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         }
 
         // 直读 flat float[]，避免 ORT 引擎不支持的 squeeze（会递归 StackOverflow）
-        NDArray rawScores = list.getFirst();   // scores [1,4420,2]
-        NDArray rawBoxes = list.get(1);    // boxes  [1,4420,4]
+        NDArray rawScores = list.getFirst();   // scores 每锚点 2 通道
+        NDArray rawBoxes = list.get(1);    // boxes 每锚点 4 维
         float[] boxArray = rawBoxes.toFloatArray();
         float[] scoreArray = rawScores.toFloatArray();
 

@@ -74,7 +74,7 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = setting instanceof String ? (String) setting : DEFAULT_URL;
+        String url = com.chua.common.support.network.sync.SyncAddressResolver.resolveAddress(setting, DEFAULT_URL);
         return new KcpSyncClient(url);
     }
 

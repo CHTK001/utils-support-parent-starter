@@ -143,32 +143,9 @@ public class IoUtils {
         }
     }
 
-    /**
-     * 打开缓冲
-     *
-     * @param bytes bytes
-     * @return 打开缓冲的结果
-     */
-    public static ByteBuffer openBuffer(final byte[] bytes) {
-        return ByteBuffer.wrap(bytes);
-    }
 
 
-    /**
-     * 打开流
-     * @param url url
-     * @return 打开流的结果
-     * @throws IOException 异常
-    */
-    public static InputStream openStream(final URL url) throws IOException {
-        return null != url ? url.openStream() : null;
-    }
 
-    /**
-     * 打开流
-     * @param file 文件
-     * @return 打开流的结果
-     * @throws IOException 异常
     */
     public static InputStream openStream(final File file) throws IOException {
         if (null == file) {
@@ -177,10 +154,6 @@ public class IoUtils {
 
         if (!file.exists()) {
             throw new FileNotFoundException(file.getAbsolutePath());
-        }
-
-        if (!file.canRead()) {
-            throw new IOException("File cannot be read: " + file.getAbsolutePath());
         }
         return Files.newInputStream(file.toPath());
     }
@@ -284,16 +257,6 @@ public class IoUtils {
         return (int) count;
     }
 
-    /**
-     * 复制Large
-     * @param input 输入
-     * @param output 输出
-     * @return 副本large的结果
-     * @throws IOException 异常
-    */
-    public static long copyLarge(final Reader input, final Writer output) throws IOException {
-        return copyLarge(input, output, new char[DEFAULT_BUFFER_SIZE]);
-    }
 
     /**
      * 复制Large
@@ -313,14 +276,6 @@ public class IoUtils {
         return count;
     }
 
-    /**
-     * 复制Large
-     *
-     * @param input 输入
-     * @param output 输出
-     * @param buffer 缓冲
-     * @return 副本large的结果
-     */
     public static long copyLarge(final InputStream input, final OutputStream output,
                                  final byte[] buffer) throws IOException {
         try (InputStream is = input;

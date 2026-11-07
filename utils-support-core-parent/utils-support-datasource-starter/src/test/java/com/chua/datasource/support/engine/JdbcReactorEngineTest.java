@@ -53,6 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>H2 内存库必须带 {@code DB_CLOSE_DELAY=-1}：r2dbc-h2 每条语句都新建连接，
  * 默认配置下最后一个连接关闭即销毁库，第二句 SQL 就会报表不存在。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class JdbcReactorEngineTest {
 
@@ -468,14 +470,17 @@ class JdbcReactorEngineTest {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

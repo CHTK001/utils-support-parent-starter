@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 以及「不支持的能力必须显式失败」，不触发模型调用。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class LangChain4jGoalWiringTest {
 

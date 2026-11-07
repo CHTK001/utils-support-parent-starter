@@ -70,6 +70,27 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     private static final float IMAGE_STD = 128.0f;
 
     /**
+     * 先验框特征映射宽度（40/20/10/5）。
+     */
+    private static final int[] FEATURE_W = {40, 20, 10, 5};
+    /**
+     * 先验框特征映射高度（30/15/8/4）。
+     */
+    private static final int[] FEATURE_H = {30, 15, 8, 4};
+    /**
+     * 先验框 shrink 宽度（特征图步长 8/16/32/64）。
+     */
+    private static final int[] SHRINK_W = {8, 16, 32, 64};
+    /**
+     * 先验框 shrink 高度（特征图步长 8/16/30/60）。
+     */
+    private static final int[] SHRINK_H = {8, 16, 30, 60};
+    /**
+     * 先验框最小尺寸（320x240 输入时各层提案框宽度）。
+     */
+    private static final int[][] MIN_BOXES = {{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}};
+
+    /**
      * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
     */
     private float thresholdOverride = -1f;
@@ -215,26 +236,15 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
      * @return generatePriors的结果
      */
     private float[] generatePriors() {
-        int[] featureW = {40, 20, 10, 5};
-        int[] featureH = {30, 15, 8, 4};
-        int[] shrinkW = {8, 16, 32, 64};
-        int[] shrinkH = {8, 16, 30, 60};
-        int[][] minBoxes = {
-            {10, 16, 24},
-            {32, 48},
-            {64, 96},
-            {128, 192, 256}
-        };
-
         List<Float> priors = Wraps.list();
-        for (int level = 0; level < featureW.length; level++) {
-            float scaleW = (float) INPUT_WIDTH / shrinkW[level];
-            float scaleH = (float) INPUT_HEIGHT / shrinkH[level];
-            for (int y = 0; y < featureH[level]; y++) {
-                for (int x = 0; x < featureW[level]; x++) {
+        for (int level = 0; level < FEATURE_W.length; level++) {
+            float scaleW = (float) INPUT_WIDTH / SHRINK_W[level];
+            float scaleH = (float) INPUT_HEIGHT / SHRINK_H[level];
+            for (int y = 0; y < FEATURE_H[level]; y++) {
+                for (int x = 0; x < FEATURE_W[level]; x++) {
                     float cx = (x + 0.5f) / scaleW;
                     float cy = (y + 0.5f) / scaleH;
-                    for (int box : minBoxes[level]) {
+                    for (int box : MIN_BOXES[level]) {
                         float w = (float) box / INPUT_WIDTH;
                         float h = (float) box / INPUT_HEIGHT;
                         priors.add(cx);

@@ -32,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>查询：Lambda 条件、原生 SQL、类型化映射</li>
  *   <li>变更：UPDATE/DELETE/INSERT 在 autoPersist 下必须真正写回文件（重新加载可见）</li>
  * </ul>
+ * @author CH
+ * @since 4.0.0.50
  */
 class FileEngineTest {
 
@@ -280,22 +282,27 @@ class FileEngineTest {
             return name;
         }
 
+        /** setName 方法 */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** getAge 方法 */
         public Integer getAge() {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }
@@ -331,14 +338,17 @@ class FileEngineTest {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

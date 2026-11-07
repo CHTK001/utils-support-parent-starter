@@ -51,6 +51,7 @@ public class AlibabaRegionParentTest {
         }
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;

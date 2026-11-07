@@ -38,6 +38,15 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     */
     private static final int INPUT_SIZE = 512;
     /**
+     * RGB 分量位移：R 占 16 位，G 占 8 位
+     */
+    private static final int R_SHIFT = 16;
+    private static final int G_SHIFT = 8;
+    /**
+     * 像素最大值
+     */
+    private static final int MAX_RGB = 255;
+    /**
      * 均值数组
     */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
@@ -125,7 +134,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
                 float r = clamp255(out[0][y][x]);
                 float g = clamp255(out[1][y][x]);
                 float b = clamp255(out[2][y][x]);
-                image.setRGB(x, y, ((int) r << 16) | ((int) g << 8) | (int) b);
+                image.setRGB(x, y, ((int) r << R_SHIFT) | ((int) g << G_SHIFT) | (int) b);
             }
         }
         return ImageFactory.getInstance().fromImage(image);
@@ -142,8 +151,8 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         if (val < 0) {
             val = 0;
         }
-        if (val > 255) {
-            val = 255;
+        if (val > MAX_RGB) {
+            val = MAX_RGB;
         }
         return Math.round(val);
     }

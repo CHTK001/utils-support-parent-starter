@@ -54,6 +54,26 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private float thresholdOverride = -1f;
 
     /**
+     * 归一化均值（像素 0~255 中间值）。
+     */
+    private static final float MEAN = 127.5f;
+
+    /**
+     * 归一化标准差（像素 0~255 半宽）。
+     */
+    private static final float STD = 128f;
+
+    /**
+     * 关键点坐标维度（每候选 5 关键点 × 2 坐标 = 10 维）。
+     */
+    private static final int KP_D = 10;
+
+    /**
+     * 单关键点坐标对步长（2 维）。
+     */
+    private static final int KP_P = 2;
+
+    /**
      * 取生效阈值。
      *
      * @param def def
@@ -114,9 +134,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
             int r = (pixel >> 16) & 0xff;
             int g = (pixel >> 8) & 0xff;
             int b = pixel & 0xff;
-            data[i] = (r - 127.5f) / 128f;
-            data[i + INPUT_SIZE * INPUT_SIZE] = (g - 127.5f) / 128f;
-            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (b - 127.5f) / 128f;
+            data[i] = (r - MEAN) / STD;
+            data[i + INPUT_SIZE * INPUT_SIZE] = (g - MEAN) / STD;
+            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (b - MEAN) / STD;
         }
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
@@ -210,8 +230,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
             if (kps != null && idx < kpsLength) {
                 for (int p = 0; p < 5; p++) {
                     points.add(new Point(
-                            meta.normX(clamp(cx + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f)),
-                            meta.normY(clamp(cy + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f))));
+                            meta.normX(clamp(cx + kps[idx * KP_D + p * KP_P] * stride, 0f, INPUT_SIZE - 1f)),
+                            meta.normY(clamp(cy + kps[idx * KP_D + p * KP_P + 1] * stride, 0f, INPUT_SIZE - 1f))));
                 }
             }
             float nX1 = meta.normX(x1);

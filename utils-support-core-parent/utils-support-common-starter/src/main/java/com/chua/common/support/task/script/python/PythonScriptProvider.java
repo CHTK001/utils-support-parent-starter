@@ -50,6 +50,15 @@ public class PythonScriptProvider implements ScriptProvider {
     private static final String ENGINE_NAME = "python";
 
     /**
+     * JSON {\\uXXXX} 转义的四位十六进制长度
+     */
+    private static final int UNICODE_ESCAPE_LEN = 4;
+    /**
+     * 十六进制解析基址
+     */
+    private static final int HEX_RADIX = 16;
+
+    /**
      * 上下文里脚本宿主的键（与其它引擎同名）
      */
     private static final String SCRIPT_HOST_KEY = "scriptHost";
@@ -74,6 +83,10 @@ public class PythonScriptProvider implements ScriptProvider {
      *
      * <p>刻意内嵌成字符串而不是独立资源文件：部署形态是薄 jar + lib/，
      * 多一个需要随包分发的资源就多一处可能漏拷的地方。</p>
+     *
+     * <p>全链路只走 ASCII：{@code ensure_ascii=True} 让中文以 {@code \\uXXXX} 转义输出。
+     * 子进程的 stdout 由 {@code CmdExecutors} 按 JVM 默认字符集解码，Windows 上默认是 GBK，
+     * 若让 Python 直接输出 UTF-8 中文，中文返回值必然乱码——转义成 ASCII 就与字符集无关了。</p>
      */
     private static final String BOOTSTRAP = String.join("\n",
             "import sys, json, traceback",
@@ -92,9 +105,26 @@ public class PythonScriptProvider implements ScriptProvider {
             "        value = ns['main'](ctx)",
             "    else:",
             "        value = ns.get('result')",
-            "    sys.stdout.write('__JOB_RESULT__' + json.dumps(value, ensure_ascii=False, default=str))",
+            "    sys.stdout.write('__JOB_RESULT__' + json.dumps(value, ensure_ascii=True, default=str))",
             "except Exception:",
-            "    sys.stderr.write(traceback.format_exc())",
+            "    sys.stderr.write(traceback.format_exc().encode('ascii', 'backslashreplace').decode('ascii'))",
+            "    sys.exit(1)");
+
+    /**
+     * 语法检查引导程序：只编译不落盘。
+     *
+     * <p>不用 {@code python -m py_compile}：那条路会在脚本旁边留下 {@code __pycache__}
+     * 与 {@code .pyc}，而调度侧的脚本文件是临时产物、编译成功后就会删掉，残留的
+     * {@code __pycache__} 会永远没人回收。</p>
+     */
+    private static final String SYNTAX_CHECK = String.join("\n",
+            "import sys",
+            "script_path = sys.argv[1]",
+            "source = open(script_path, 'r', encoding='utf-8').read()",
+            "try:",
+            "    compile(source, script_path, 'exec')",
+            "except SyntaxError as e:",
+            "    sys.stderr.write(str(e).encode('ascii', 'backslashreplace').decode('ascii'))",
             "    sys.exit(1)");
 
     /**
@@ -111,20 +141,29 @@ public class PythonScriptProvider implements ScriptProvider {
      * 加载脚本：做一次语法检查，不执行。
      *
      * <p>Python 没有可复用的编译产物，能提前发现的问题只有语法错误，因此这里用
-     * {@code python -m py_compile} 校验。解释器不存在时抛可读异常——那是部署缺项，
-     * 不该等到派发时才暴露。</p>
+     * {@code compile()} 校验（不落盘、不产生 {@code __pycache__}）。</p>
+     *
+     * <p>解释器不存在时**跳过**而不是报错：调度中心不一定装了所有脚本引擎，
+     * 装不装是部署问题，不该让保存失败——与 {@code ScriptGlueHandlers.validate}
+     * 对其它引擎的口径一致。真正语法不过才是要挡住的问题。</p>
      *
      * @param scriptPath 脚本路径
-     * @return 校验通过返回 true
+     * @return 校验通过（或本机无解释器而跳过）返回 true
      */
     @Override
     public boolean loadScript(Path scriptPath) {
         if (scriptPath == null) {
             throw new IllegalArgumentException("Python 脚本路径不能为 null");
         }
-        String python = resolvePython();
+        String python;
+        try {
+            python = resolvePython();
+        } catch (IllegalStateException missing) {
+            // 本机没装 Python：保存期校验跳过，执行时再给出可读失败
+            return true;
+        }
         CmdResult result = CmdExecutors.execute(
-                new String[]{python, "-m", "py_compile", scriptPath.toString()},
+                new String[]{python, "-c", SYNTAX_CHECK, scriptPath.toString()},
                 DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         if (result.isTimeout()) {
             throw new IllegalStateException("Python 脚本语法检查超时: " + scriptPath);
@@ -223,7 +262,7 @@ public class PythonScriptProvider implements ScriptProvider {
         StringBuilder tried = new StringBuilder();
         for (String candidate : candidates) {
             CmdResult probe = CmdExecutors.execute(
-                    new String[]{candidate, "--version"}, 5_000L, TimeUnit.SECONDS);
+                    new String[]{candidate, "--version"}, 5_000L, TimeUnit.MILLISECONDS);
             if (probe.isSuccess()) {
                 return candidate;
             }
@@ -576,8 +615,8 @@ public class PythonScriptProvider implements ScriptProvider {
                     case 'r' -> builder.append('\r');
                     case 't' -> builder.append('\t');
                     case 'u' -> {
-                        builder.append((char) Integer.parseInt(text.substring(pos, pos + 4), 16));
-                        pos += 4;
+                        builder.append((char) Integer.parseInt(text.substring(pos, pos + UNICODE_ESCAPE_LEN), HEX_RADIX));
+                        pos += UNICODE_ESCAPE_LEN;
                     }
                     default -> throw new IllegalStateException("非法转义: \\" + esc);
                 }

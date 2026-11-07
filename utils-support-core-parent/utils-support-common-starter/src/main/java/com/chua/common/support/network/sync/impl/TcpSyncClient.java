@@ -4,6 +4,8 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
+import com.chua.common.support.network.sync.SyncAddressResolver;
+import com.chua.common.support.network.sync.SyncSetting;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,6 +95,17 @@ public class TcpSyncClient implements SyncClient {
     public TcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl;
+    }
+
+    /**
+     * 创建 TCP 同步客户端，服务端地址由服务发现解析。
+     * <p>发现不到时回落到 {@link SyncSetting#getServerUrl()}。</p>
+     *
+     * @param clientId 客户端标识
+     * @param setting  同步通道配置
+     */
+    public TcpSyncClient(String clientId, SyncSetting setting) {
+        this(clientId, SyncAddressResolver.resolve(setting));
     }
 
     /**

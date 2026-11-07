@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link InputOptimizer} 的改写、回退与提示词组装测试。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class InputOptimizerTest {
 

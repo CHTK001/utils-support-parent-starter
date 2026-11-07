@@ -7,6 +7,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
@@ -60,7 +61,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = setting instanceof String ? (String) setting : "http://127.0.0.1:19380";
+        String url = SyncAddressResolver.resolveAddress(setting, "http://127.0.0.1:19380");
         return new HttpSyncClient(url);
     }
 

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link GoalTracker} 的状态迁移、暂停/恢复与计账测试。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class GoalTrackerTest {
 

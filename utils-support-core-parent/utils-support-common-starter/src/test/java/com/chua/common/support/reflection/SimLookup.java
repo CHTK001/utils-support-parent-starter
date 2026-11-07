@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 
 /**
  * 临时：逐条验证 ReflectUtils 对跨包包级私有嵌套类（InMemoryEngineTest$User）的访问能力。
+ * @author CH
+ * @since 4.0.0.50
  */
 public class SimLookup {
 

@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>配合 HttpBench client0 的 [dbg2] (逐轮 client 侧读开始+耗时) 做时间对齐,
  * 从而拆分 "server 写完" 与 "client 读到" 之间的间隙。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 public final class WriteProbe {
 

@@ -136,6 +136,7 @@ public class QwenUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /** toAiUsage 方法 */
     private AiUsage toAiUsage(String model, Map<?, ?> stats,
             String sessionId, long startedAt, long durationMs) {
         int inputTokens = asInt(stats.get("inputTokens"));

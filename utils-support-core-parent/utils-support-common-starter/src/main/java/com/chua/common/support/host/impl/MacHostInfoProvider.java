@@ -46,6 +46,16 @@ public class MacHostInfoProvider implements HostInfoProvider {
     private static final String NAME = "macos-ioreg";
 
     /**
+     * 默认权重：优先级 300
+     */
+    private static final int DEFAULT_PRIORITY = 300;
+
+    /**
+     * 输出 StringBuilder 默认容量
+     */
+    private static final int SB_DEFAULT_CAPACITY = 17;
+
+    /**
      * 采集超时（毫秒）：ioreg 与 diskutil 都是本地查询，2~3 秒足够
      */
     private static final long TIMEOUT_MS = 10_000L;
@@ -80,7 +90,7 @@ public class MacHostInfoProvider implements HostInfoProvider {
 
     @Override
     public int priority() {
-        return 300;
+        return DEFAULT_PRIORITY;
     }
 
     @Override
@@ -178,7 +188,7 @@ public class MacHostInfoProvider implements HostInfoProvider {
                 if (hardware == null || hardware.length != 6) {
                     continue;
                 }
-                StringBuilder sb = new StringBuilder(17);
+                StringBuilder sb = new StringBuilder(SB_DEFAULT_CAPACITY);
                 for (int i = 0; i < hardware.length; i++) {
                     if (i > 0) {
                         sb.append(':');

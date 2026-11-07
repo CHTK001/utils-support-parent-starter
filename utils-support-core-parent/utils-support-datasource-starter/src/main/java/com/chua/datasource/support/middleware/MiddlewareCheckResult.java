@@ -31,7 +31,7 @@ public final class MiddlewareCheckResult {
      * @param detail    附加信息
      * @param message   失败原因
      */
-    public MiddlewareTestResult(boolean connected, String version, String detail, String message) {
+    public MiddlewareCheckResult(boolean connected, String version, String detail, String message) {
         this.connected = connected;
         this.version = version;
         this.detail = detail;
@@ -45,8 +45,8 @@ public final class MiddlewareCheckResult {
      * @param detail  附加信息
      * @return 结果对象
      */
-    public static MiddlewareTestResult ok(String version, String detail) {
-        return new MiddlewareTestResult(true, version, detail, "");
+    public static MiddlewareCheckResult ok(String version, String detail) {
+        return new MiddlewareCheckResult(true, version, detail, "");
     }
 
     /**
@@ -55,8 +55,8 @@ public final class MiddlewareCheckResult {
      * @param message 失败原因
      * @return 结果对象
      */
-    public static MiddlewareTestResult fail(String message) {
-        return new MiddlewareTestResult(false, "", "", message == null ? "未知原因" : message);
+    public static MiddlewareCheckResult fail(String message) {
+        return new MiddlewareCheckResult(false, "", "", message == null ? "未知原因" : message);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class MiddlewareCheckResult {
 
     @Override
     public String toString() {
-        return "MiddlewareTestResult{connected=" + connected + ", version=" + version()
+        return "MiddlewareCheckResult{connected=" + connected + ", version=" + version()
                 + ", message=" + message() + '}';
     }
 

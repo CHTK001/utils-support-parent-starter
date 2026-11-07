@@ -46,7 +46,7 @@ public class SocketIOSyncServer extends AbstractServer implements SyncServer, Sy
     */
     @Override
     public SyncClient createClient(Object setting) {
-        String url = "http://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
+        String url = com.chua.common.support.network.sync.SyncAddressResolver.resolveAddress(setting, "http://127.0.0.1:19380");
         return new SocketIOSyncClient(url);
     }
 

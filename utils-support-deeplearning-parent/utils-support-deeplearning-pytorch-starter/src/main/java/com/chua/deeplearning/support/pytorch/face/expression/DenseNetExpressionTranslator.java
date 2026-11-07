@@ -23,6 +23,16 @@ import java.util.List;
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 
     /**
+     * 默认图像尺寸
+     */
+    private static final int DEFAULT_IMAGE_SIZE = 224;
+
+    /**
+     * 归一化除数
+     */
+    private static final float MAX_PIXEL = 255.0f;
+
+    /**
      * 标签列表
     */
     private static final List<String> LABELS = List.of(
@@ -38,7 +48,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
      * 创建 densenetexpressiontranslator 实例
     */
     public DenseNetExpressionTranslator() {
-        this(224);
+        this(DEFAULT_IMAGE_SIZE);
     }
 
     /**
@@ -65,7 +75,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
         if (!DataType.FLOAT32.equals(array.getDataType())) {
             array = array.toType(DataType.FLOAT32, false);
         }
-        array = array.div(255.0f);
+        array = array.div(MAX_PIXEL);
         return new NDList(array);
     }
 

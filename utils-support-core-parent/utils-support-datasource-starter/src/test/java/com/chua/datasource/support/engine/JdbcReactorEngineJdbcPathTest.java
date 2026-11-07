@@ -53,6 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>测试通过「注册数据源后清空 r2dbc 工厂表」构造第一种场景：这等价于运行环境缺少
  * r2dbc 驱动（生产上 sqlite 就是这个状态），但保留了真实可用的 H2 JDBC 连接，
  * 因此断言的是真实读写结果，而不是异常文案。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class JdbcReactorEngineJdbcPathTest {
 
@@ -653,14 +655,17 @@ class JdbcReactorEngineJdbcPathTest {
             return age;
         }
 
+        /** setAge 方法 */
         public void setAge(Integer age) {
             this.age = age;
         }
 
+        /** getEmail 方法 */
         public String getEmail() {
             return email;
         }
 
+        /** setEmail 方法 */
         public void setEmail(String email) {
             this.email = email;
         }

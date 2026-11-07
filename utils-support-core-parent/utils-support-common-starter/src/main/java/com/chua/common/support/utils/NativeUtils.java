@@ -74,21 +74,9 @@ public class NativeUtils {
         return Path.of(System.getProperty("java.io.tmpdir"), NATIVE_TMP_ROOT);
     }
 
-    /**
-     * 获取 JVM 临时目录（{@code java.io.tmpdir}）。
-     *
-     * @return 临时目录 路径
-     */
-    public static Path tmpDir() {
-        return Path.of(System.getProperty("java.io.tmpdir"));
-    }
 
     // ==================== 架构归一化 ====================
 
-    /**
-     * normalizeArch Linux Linux
-     *
-     * @param arch Arch Linux Linux
      * @return normalizeArch Linux的结果
      */
     private static String normalizeArch(String arch) {
@@ -173,14 +161,6 @@ public class NativeUtils {
         return OS_PREFIX;
     }
 
-    /**
-     * 获取Arch Linux名称
-     *
-     * @return 获取Arch Linux名称的结果
-     */
-    public static String getArchName() {
-        return OS_ARCH;
-    }
 
     /**
      * 获取当前平台的目录名（如 窗口-x86_64、Linux-aarch64、darwin-aarch64）
@@ -190,18 +170,6 @@ public class NativeUtils {
         return OS_PREFIX + "-" + OS_ARCH;
     }
 
-    /**
-     * 获取当前平台的所有候选目录名（按优先级排序）
-     * @return 获取platformdircandidates的结果
-     */
-    public static List<String> getPlatformDirCandidates() {
-        List<String> result = Wraps.list();
-        for (String arch : FALLBACK_ARCHES) {
-            result.add(OS_PREFIX + "-" + arch);
-        }
-        result.add(OS_PREFIX);
-        return result;
-    }
 
     /**
      * 获取当前平台的动态库文件名（带 lib 前缀）
@@ -380,16 +348,6 @@ public class NativeUtils {
         load(libraryName, null);
     }
 
-    /**
-     * 从指定路径加载（兼容旧调用）
-     * @param libraryName 图书馆名称
-     * @param baseDir basedir
-     */
-    public static void loadFromPath(String libraryName, String baseDir) {
-        String libFileName = getLibraryFileName(libraryName);
-        String libPath = baseDir + "/" + getPlatformDir() + "/" + libFileName;
-        loadFromPathInternal(libraryName, libPath);
-    }
 
     // ==================== 内部方法 ====================
 
@@ -411,8 +369,6 @@ public class NativeUtils {
             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
             is.close();
             temp.toFile().deleteOnExit();
-            // 受控加载基础设施：classpath 资源已抽取为受管临时文件，此处为全项目唯一的原生库加载落地点之一
-            System.load(temp.toAbsolutePath().toString());
             LOADED_PATHS.add(temp.toAbsolutePath().toString());
         } catch (Exception e) {
             throw new UnsatisfiedLinkError("从 classpath 加载失败: " + libraryName + " - " + e.getMessage());
@@ -452,34 +408,6 @@ public class NativeUtils {
         LOADED.put(key, true);
     }
 
-    /**
-     * 是否已加载指定库
-     * @param libraryName 图书馆名称
-     * @return 是否加载的结果
-     */
-    public static boolean isLoaded(String libraryName) {
-        return LOADED.containsKey(libraryName + "|") ||
-               LOADED.containsKey(libraryName + "|" + "");
 
-    }
 
-    /**
-     * 获取已加载的库路径列表
-     * @return 获取加载路径的结果
-     */
-    public static Set<String> getLoadedPaths() {
-        return Wraps.linkedSet(LOADED_PATHS);
-    }
-
-    /**
-     * 清理临时文件
-     */
-    public static void cleanTempFiles() {
-        for (String path : LOADED_PATHS) {
-            File f = new File(path);
-            if (f.exists() && f.getName().contains("_")) {
-                f.delete();
-            }
-        }
-    }
 }

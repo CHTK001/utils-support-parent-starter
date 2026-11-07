@@ -5,6 +5,8 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
+import com.chua.common.support.network.sync.SyncAddressResolver;
+import com.chua.common.support.network.sync.SyncSetting;
 import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.*;
@@ -105,6 +107,17 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     public WebSocketSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;
+    }
+
+    /**
+     * 创建 WebSocket 同步客户端，服务端地址由服务发现解析。
+     * <p>发现不到时回落到 {@link SyncSetting#getServerUrl()}。</p>
+     *
+     * @param clientId 客户端标识
+     * @param setting  同步通道配置
+     */
+    public WebSocketSyncClient(String clientId, SyncSetting setting) {
+        this(clientId, SyncAddressResolver.resolve(setting));
     }
 
     /**

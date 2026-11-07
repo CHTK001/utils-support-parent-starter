@@ -285,352 +285,30 @@ public class DateUtils {
      */
     private static final int INDEX_NOT_FOUND = -1;
     /**
-     * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。
-     *
-     * @param time ISO-8601 时长格式字符串，不含前缀
-     * @return 解析后的 持续时间
-     * @throws java.time.format.DateTimeParseException 格式不正确时抛出
-     */
-    public static Duration toDuration(String time) {
-        return Duration.parse("PT" + time);
-    }
-    /**
-     * 将 ISO-8601 周期字符串（如 "P30D"）解析为 {@link Period}。
-     *
-     * @param time ISO-8601 周期格式字符串，不含前缀
-     * @return 解析后的 周期
-     * @throws java.time.format.DateTimeParseException 格式不正确时抛出
-     */
-    public static Period toPeriod(String time) {
-        return Period.parse("P" + time);
-    }
-    /**
-     * 将两个 日期 之间的时间差（绝对值）按指定单位换算。
-     *
-     * @param date      第一个日期
-     * @param date1     第二个日期
-     * @param dateUnit  时间单位，决定返回值的时间粒度
-     * @return 两日期之间的时间单位数（绝对值）
-     */
-    public static long between(Date date, Date date1, DateUnit dateUnit) {
-        return Math.abs(date.getTime() - date1.getTime()) / dateUnit.getMillis();
-    }
-    /**
-     * 判断当前是否处于白天时段（6:00 ~ 18:00）。
-     *
-     * @return 当前小时在 6~18 之间返回 true
-     */
-    public static boolean isDay() {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        return hour >= 6 && hour < 18;
-    }
-    /**
-     * 判断 日期1 是否在 日期2 之后。
-     *
-     * @param date1 待比较日期
-     * @param date2 比较基准日期
-     * @return date1 在 日期2 之后返回 true；任一参数为 空 返回 false
-     */
-    public static Boolean after(Date date1, Date date2) {
-        if (null == date1 || null == date2) {
-            return false;
-        }
-        LocalDateTime localDateTime1 = LocalDateTime.ofInstant(date1.toInstant(), DEFAULT_ZONE_ID);
-        LocalDateTime localDateTime2 = LocalDateTime.ofInstant(date2.toInstant(), DEFAULT_ZONE_ID);
-        return localDateTime1.isAfter(localDateTime2);
-    }
-    /**
-     * 判断 日期1 是否在 日期2 之前。
-     *
-     * @param date1 待比较日期
-     * @param date2 比较基准日期
-     * @return date1 在 日期2 之前返回 true；任一参数为 空 返回 false
-     */
-    public static Boolean before(Date date1, Date date2) {
-        if (null == date1 || null == date2) {
-            return false;
-        }
-        LocalDateTime localDateTime1 = LocalDateTime.ofInstant(date1.toInstant(), DEFAULT_ZONE_ID);
-        LocalDateTime localDateTime2 = LocalDateTime.ofInstant(date2.toInstant(), DEFAULT_ZONE_ID);
-        return localDateTime1.isBefore(localDateTime2);
-    }
-    /**
-     * 判断两个 日期 是否相等。
-     *
-     * @param date1 待比较日期
-     * @param date2 比较基准日期
-     * @return 两日期相等返回 true；任一参数为 空 返回 false
-     */
-    public static Boolean equal(Date date1, Date date2) {
-        if (null == date1 || null == date2) {
-            return false;
-        }
-        LocalDateTime localDateTime1 = LocalDateTime.ofInstant(date1.toInstant(), DEFAULT_ZONE_ID);
-        LocalDateTime localDateTime2 = LocalDateTime.ofInstant(date2.toInstant(), DEFAULT_ZONE_ID);
-        return localDateTime1.isEqual(localDateTime2);
-    }
-    /**
-     * 获取指定日期之前或之后的日期。
-     *
-     * @param date 基准日期，为 空 时使用当前时间
-     * @param beforeOrAfter 偏移天数，负数表示之前，正数表示之后
-     * @return 偏移后的日期
-     */
-    public static Date getDayOfBeforeOrAfter(Date date, int beforeOrAfter) {
-        if (null == date) {
-            date = new Date();
-        }
-        // LocalDateTime 不可变，plusDays(...) 的返回值必须接住，否则偏移会被丢弃
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
-                .plusDays(beforeOrAfter);
-        return toDate(localDateTime, DEFAULT_ZONE_ID);
-    }
-    /**
-     * {日期}
-     *
-     * @param date the 日期
-     * @return the 结果
-     */
-    public static Date getDayOfYearday(Date date) {
-        return getDayOfBeforeOrAfter(date, -1);
-    }
-    /**
-     * 获取指定日期对应月份的第一天。
-     *
-     * @param date 基准日期，为 空 时使用当前时间
-     * @return 该月第一天的 日期（时间设为 00:00:00）
-     */
-    public static Date getFirstDayOfMonth(Date date) {
-        if (null == date) {
-            date = new Date();
-        }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID);
-        //                     0   0   0
-        localDateTime = localDateTime.with(TemporalAdjusters.firstDayOfMonth())
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
-        return toDate(localDateTime, DEFAULT_ZONE_ID);
-    }
-    /**
-     * 获取指定日期对应星期的第一天（周一）。
-     *
-     * @param date 基准日期，为 空 时使用当前时间
-     * @return 该周第一天的 日期（时间设为 00:00:00）
-     */
-    public static Date getFirstDayOfWeek(Date date) {
-        if (null == date) {
-            date = new Date();
-        }
-        // LocalDateTime 不可变，with(...) 的返回值必须接住，否则结果会被丢弃
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .with(ChronoField.MILLI_OF_SECOND, 0)
-                .withNano(0);
-        return toDate(localDateTime, DEFAULT_ZONE_ID);
-    }
-    /**
-     * 获取指定日期当天的起始时刻（00:00:00.000）。
-     *
-     * @param date 基准日期，为 空 时返回 空
-     * @return 当天起始时刻的 日期
-     */
-    public static Date getFirstTimeOfDay(Date date) {
-        if (null == date) {
-            return null;
-        }
-        Instant instant = date.toInstant();
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, DEFAULT_ZONE_ID);
-        localDateTime = localDateTime
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .with(ChronoField.MILLI_OF_SECOND, 0)
-                .withNano(0);
-        return toDate(localDateTime);
-    }
-    /**
-     * 获取指定日期对应月份的最后一天的结束时刻（23:59:59.999）。
-     *
-     * @param date 基准日期，为 空 时使用当前时间
-     * @return 该月最后一天的 日期（时间设为 23:59:59.999）
-     */
-    public static Date getLastDayOfMonth(Date date) {
-        if (null == date) {
-            date = new Date();
-        }
-        // 毫秒与纳秒一并归零/置满，否则会残留基准日期的毫秒部分
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
-                .with(TemporalAdjusters.lastDayOfMonth())
-                .withHour(23)
-                .withMinute(59)
-                .withSecond(59)
-                .with(ChronoField.MILLI_OF_SECOND, 999)
-                .withNano(999_000_000);
-        return toDate(localDateTime, DEFAULT_ZONE_ID);
-    }
-    /**
-     * 获取指定日期对应星期的最后一天（周日）的结束时刻（23:59:59.999）。
-     *
-     * @param date 基准日期，为 空 时使用当前时间
-     * @return 该周最后一天的 日期
-     */
-    public static Date getLastDayOfWeek(Date date) {
-        if (null == date) {
-            date = new Date();
-        }
-        // LocalDateTime 不可变，with(...) 的返回值必须接住，否则结果会被丢弃
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
-                .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                .withHour(23)
-                .withMinute(59)
-                .withSecond(59)
-                .with(ChronoField.MILLI_OF_SECOND, 999);
-        return toDate(localDateTime, DEFAULT_ZONE_ID);
-    }
-    /**
-     * 获取指定日期当天的结束时刻（23:59:59.999）。
-     *
-     * @param date 基准日期，为 空 时返回 空
-     * @return 当天结束时刻的 日期
-     */
-    public static Date getLastTimeOfDay(Date date) {
-        if (null == date) {
-            return null;
-        }
-        Instant instant = date.toInstant();
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, DEFAULT_ZONE_ID);
-        localDateTime = localDateTime
-                .withHour(23)
-                .withMinute(59)
-                .withSecond(59)
-                .with(ChronoField.MILLI_OF_SECOND, 999);
-        return toDate(localDateTime);
-    }
-    /**
-     * 获取当前星期（0=周日，1=周一，...，6=周六）。
-     *
-     * @return 当前星期的整数表示
-     */
-    public static int getWeek() {
-        Date today = new Date();
-        Calendar c = getInstance();
-        c.setTime(today);
-        return c.get(DAY_OF_WEEK) - 1;
-    }
-    /**
      * 获取指定日期的星期（0=周日，1=周一，...，6=周六）。
      *
      * @param date 基准日期
      * @return 星期的整数表示
      */
     public static int getWeek(Date date) {
-        Calendar c = getInstance();
         c.setTime(date);
         return c.get(DAY_OF_WEEK) - 1;
     }
-    /**
-     * 获取两个日期之间的所有日期（含起止两天），按时间升序排列。
-     *
-     * <p>返回的元素为每天的零点（00:00:00.000）；若起始日期本身正好是零点，
-     * 则直接复用调用方传入的 {@code Date} 实例，其余按 {@link #toDate(LocalDate)}
-     * 归一化。起始日期晚于结束日期时返回空列表。</p>
-     *
-     * @param before 起始日期，不允许为 null
-     * @param after  结束日期，不允许为 null
-     * @return 包含起止日期的日期列表（升序）；起止颠倒时返回空列表
-     * @throws IllegalArgumentException 任一参数为 null 时抛出
-     */
-    public static List<Date> asRange(Date before, Date after) {
-        if (before == null || after == null) {
-            throw new IllegalArgumentException("起始日期与结束日期不能为空");
-        }
-        LocalDate beforeLocalDate = toLocalDate(before);
-        LocalDate afterLocalDate = toLocalDate(after);
-        if (beforeLocalDate.isAfter(afterLocalDate)) {
-            return Wraps.list(0);
-        }
-        List<Date> result = Wraps.list();
-        long beforeEpochMilli = beforeLocalDate.atStartOfDay(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
-        for (LocalDate day = beforeLocalDate; !day.isAfter(afterLocalDate); day = day.plusDays(1)) {
-            // 起始日若恰为零点则保留原实例，其余统一取当天零点
-            boolean isFirstDay = day.equals(beforeLocalDate);
-            result.add(isFirstDay && beforeEpochMilli == before.getTime()
-                    ? before
-                    : toDate(day, DEFAULT_ZONE_ID));
-        }
-        // Comparator 必须能返回 0，否则违反 TimSort 契约（大列表会抛 IllegalArgumentException）
-        result.sort(Comparator.comparingLong(Date::getTime));
-        return result;
-    }
-    /**
-     * 获取当前时间的毫秒时间戳。
-     *
-     * @return 当前毫秒时间戳
-     */
-    public static long current() {
-        return System.currentTimeMillis();
-    }
-    /**
-     * 获取当前时间格式化字符串（格式：yyyy-MM-dd HH:mm:ss）。
-     *
-     * @return 当前时间字符串
-     */
-    public static String currentString() {
-        return format(current(), DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
-    }
-    /**
-     * 获取当前日期字符串（格式：yyyy-MM-dd）。
-     *
-     * @return 当前日期字符串
-     */
-    public static String currentDateString() {
-        return format(current(), DateFormatConstant.YYYY_MM_DD);
-    }
-    /**
-     * 将字符串按指定格式解析为 日期。
-     *
-     * @param str     日期时间字符串
-     * @param pattern 日期格式，如 "yyyy-MM-dd HH:mm:ss"
-     * @return 解析后的 日期
-     * @throws ParseException 解析失败时抛出
-     */
     public static Date format(String str, String pattern) throws ParseException {
         // [P3C-1.2 B2] 公共 API，必须保持 String→Date 动态模式解析，Per-Call 新建
         DateFormat df = new SimpleDateFormat(pattern);
         return df.parse(str);
     }
-    /**
-     * 将 zoned日期时间 按指定格式字符串转换为日期字符串。
-     * @param pattern 日期格式字符串，如 "yyyy-MM-dd HH:mm:ss"
-     * @param zonedDateTime 带时区的时间对象
-     * @return 格式化后的字符串
-     * @throws ParseException 异常
     */
     public static String format(ZonedDateTime zonedDateTime, String pattern) throws ParseException {
         return format(zonedDateTime, DateTimeFormatter.ofPattern(pattern));
     }
-    /**
-     * 将 zoned日期时间 按指定 {@link DateTimeFormatter} 转换为日期字符串。
-     * @param df 日期时间格式化器
-     * @param zonedDateTime 带时区的时间对象
      * @return 格式化后的字符串
      * @throws ParseException 异常
     */
     public static String format(ZonedDateTime zonedDateTime, DateTimeFormatter df) throws ParseException {
         return zonedDateTime.format(df);
     }
-    /**
-     * 将 temporalaccessor 转为格式化字符串，根据类型自动选用默认格式。
-     *
-     * @param date 本地日期时间/本地日期/本地时间，其他类型返回 空
-     * @return 格式化后的字符串
-     */
     public static String format(TemporalAccessor date) {
         if (date instanceof LocalDateTime) {
             return format((LocalDateTime) date, DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
@@ -643,9 +321,6 @@ public class DateUtils {
         }
         return null;
     }
-    /**
-     * <br />                 yyyy-MM-dd HH:mm:ss
-     * {@link #format(Date, String)}
      * <pre>
      *   DateHelper.format(new Date()) =           2020-05-23 17:06:30
      * </pre>
@@ -657,10 +332,6 @@ public class DateUtils {
     public static String format(Date date) {
         return format(date, DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
     }
-    /**
-     * <p>
-     * 日期助手.格式化(新 日期(), "yyyy-MM-dd") =
-     * </p>
      *
      * @param localDateTime the 本地日期时间
      * @param pattern the 模式
@@ -669,37 +340,11 @@ public class DateUtils {
     public static String format(LocalDateTime localDateTime, String pattern) {
         return DateTimeFormatter.ofPattern(pattern).format(localDateTime);
     }
-    /**
-     * <p>
-     * 日期助手.格式化(新 日期(), "yyyy-MM-dd") =
-     * </p>
-     *
-     * @param localTime the 本地时间
-     * @param pattern the 模式
      * @return the 结果
      */
     public static String format(LocalTime localTime, String pattern) {
         return DateTimeFormatter.ofPattern(pattern).format(localTime);
     }
-    /**
-     * <p>
-     * 日期助手.格式化(新 日期(), "yyyy-MM-dd") =
-     * </p>
-     *
-     * @param localDate the 本地日期
-     * @param pattern the 模式
-     * @return the 结果
-     */
-    public static String format(LocalDate localDate, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(localDate);
-    }
-    /**
-     * <p>
-     * 日期助手.格式化(新 日期(), "yyyy-MM-dd") =
-     * </p>
-     *
-     * @param date the 日期
-     * @param pattern the 模式
      * @return the 结果
      */
     public static String format(Date date, String pattern) {
@@ -707,23 +352,6 @@ public class DateUtils {
             return null;
         }
         DateFormat df = createDefaultDateFormat(pattern);
-        return df.format(date);
-    }
-    /**
-     * 格式化日期时间。
-     *
-     *
-     * @param date the 日期
-     * @param dateFormat the 日期格式化
-     * @return the 结果
-     */
-    public static String format(Date date, DateFormat dateFormat) {
-        if (null == date) {
-            return null;
-        }
-        DateFormat df = null == dateFormat
-                ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)
-                : dateFormat;
         return df.format(date);
     }
     /**
@@ -735,10 +363,6 @@ public class DateUtils {
     public static String format(long time) {
         return format(time, DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
     }
-    /**
-     * 将毫秒时间戳按指定格式转换为日期字符串。
-     *
-     * @param time    毫秒时间戳
      * @param pattern 日期格式，如 "yyyy-MM-dd"
      * @return 格式化后的字符串
      */
@@ -757,19 +381,6 @@ public class DateUtils {
         DateFormat df = null == dateFormat
                 ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)
                 : dateFormat;
-        return df.format(time);
-    }
-    /**
-     * 获取指定节点（年/月/日/时/分/秒/周）相对当前时间的偏移结果。
-     *
-     * <p>num 为正数表示未来，为负数表示过去。</p>
-     *
-     * @param node  时间节点：{@code year/month/week/day/hour/minute/second}
-     * @param num   偏移量（单位由 节点 决定）
-     * @return 格式化后的时间字符串
-     */
-    public static String getAfterOrPreNowTime(final String node, final Long num) {
-        return getAfterOrPreNowTime(node, num, DateFormatConstant.YYYY_MM_DD_HH_MM_SS_FMT);
     }
     /**
      *                                                    <br>
@@ -789,7 +400,6 @@ public class DateUtils {
         LocalDateTime now = LocalDateTime.now();
         if (HOUR.equals(node)) {
             return now.plusHours(num).format(dateTimeFormatter);
-        } else if (DAY.equals(node)) {
             return now.plusDays(num).format(dateTimeFormatter);
         } else if (WEEK.equals(node)) {
             return now.plusWeeks(num).format(dateTimeFormatter);
@@ -805,83 +415,6 @@ public class DateUtils {
             return "Node is Error!";
         }
     }
-    /**
-     * 获取指定时间前 num 天的日期列表（从当天往前推，含当天）。
-     *
-     * @param num 天数，必须大于 0
-     * @return 日期列表
-     */
-    public static List<Date> getBeforeDate(final int num) {
-        assert num > 0 : "num            1";
-        LocalDate localDate = LocalDate.now();
-        List<Date> dateList = Wraps.list();
-        for (int i = 0; i < num; i++) {
-            dateList.add(Date.from(localDate.minusDays(i).atStartOfDay().atZone(DEFAULT_ZONE_ID).toInstant()));
-        }
-        return dateList;
-    }
-    /**
-     * 获取当前日期（格式：yyyy-MM-dd）。
-     *
-     * @return 当前日期字符串
-     */
-    public static String getCurrentDate() {
-        return currentString();
-    }
-    /**
-     * 计算指定时间距下一个整分钟还有多少毫秒。
-     *
-     * @param rightNow 当前时间戳（毫秒）
-     * @return 距下一分钟的毫秒数
-     */
-    public static int getDelayToNextMinute(long rightNow) {
-        return (int) (MILLISECONDS_PER_MINUTE - (rightNow % MILLISECONDS_PER_MINUTE));
-    }
-    /**
-     * 计算指定时间上一个个完整分钟的毫秒时间戳。
-     *
-     * @param rightNow 当前时间戳（毫秒）
-     * @return 上一个整分钟的毫秒时间戳
-     */
-    public static long getPreMinuteMills(long rightNow) {
-        return rightNow - (rightNow % MILLISECONDS_PER_MINUTE) - 1;
-    }
-    /**
-     * 获取当前系统时间毫秒数。
-     *
-     * @return 当前毫秒时间戳
-     */
-    public static long getTimeMillis() {
-        return System.currentTimeMillis();
-    }
-    /**
-     * 获取当前系统纳秒数。
-     *
-     * @return 当前纳秒时间戳
-     */
-    public static long getTimeNanos() {
-        return System.nanoTime();
-    }
-    /**
-     * 从多个候选日期字符串中解析，并找出最接近目标 本地日期时间 的那个。
-     *
-     * @param localTime      目标时间
-     * @param localTimeStirs 候选时间字符串列表
-     * @return 最接近的 本地日期时间
-     */
-    public static LocalDateTime nearLocalDateTime(LocalDateTime localTime, String... localTimeStirs) {
-        LocalDateTime[] localTimes = new LocalDateTime[localTimeStirs.length];
-        int index = 0;
-        for (String timeStir : localTimeStirs) {
-            localTimes[index] = LocalDateTime.parse(timeStir);
-        }
-        return nearLocalDateTime(localTime, localTimes);
-    }
-    /**
-     * 取就近的本地日期时间。
-     *
-     *
-     * @param localDateTime the 本地日期时间
      * @param localDateTimes the 本地日期时间
      * @return the 结果
      */
@@ -898,24 +431,7 @@ public class DateUtils {
             if (key < min) {
                 min = key;
                 minLocalTime = entry.getValue();
-            }
-        }
         return minLocalTime;
-    }
-    /**
-     * 找到与目标 本地时间 最接近的时间。
-     *
-     * @param localTime      目标时间
-     * @param localTimeStirs 候选时间字符串列表
-     * @return 最接近的 本地时间
-     */
-    public static LocalTime nearLocalTime(LocalTime localTime, String... localTimeStirs) {
-        LocalTime[] localTimes = new LocalTime[localTimeStirs.length];
-        int index = 0;
-        for (String timeStir : localTimeStirs) {
-            localTimes[index++] = LocalTime.parse(timeStir);
-        }
-        return nearLocalTime(localTime, localTimes);
     }
     /**
      * 取就近的本地时间。
@@ -942,20 +458,6 @@ public class DateUtils {
         }
         return minLocalTime;
     }
-    /**
-     * 以宽松模式从候选格式列表中解析日期字符串，返回 Calendar。
-     *
-     * @param str 日期时间字符串
-     * @return 解析后的 Calendar
-     * @throws ParseException 解析失败时抛出
-     */
-    public static Calendar parseCalendar(String str) throws ParseException {
-        Calendar calendar = getInstance();
-        calendar.setTime(parseDateWithLeniency(str, DATE_FORMATS, true));
-        return calendar;
-    }
-    /**
-     * 按多个候选日期格式解析字符串，首个匹配成功则返回，解析失败时抛出 {@link ParseException}。
      *
      * @param str             日期时间字符串
      * @param parsePatterns   候选日期格式数组，如 {"yyyy-MM-dd", "yyyymmdd"}
@@ -981,42 +483,17 @@ public class DateUtils {
         }
         Date date = null;
         try {
-            date = parseDateWithLeniency(str, DATE_FORMATS, false);
         } catch (ParseException e) {
             log.debug("[date] 解析日期失败，已忽略: {}", e.getMessage());
         }
         return null == date ? parseDateWithLeniency(str, DATE_FORMATS, Locale.US) : date;
     }
-    /**
-     * 安全解析日期时间字符串，失败时返回 空。
-     *
-     * @param str 日期时间字符串
-     * @return 解析后的 日期，解析失败返回 空
-     */
-    public static Date parseDateSafe(String str)  {
-        Date date = null;
-        try {
-            date = parseDate(str);
-        } catch (ParseException e) {
-            return null;
-        }
-        if (null == date) {
-            return null;
-        }
-        return date;
-    }
-    /**
-     * 安全解析日期时间字符串，返回对应的 本地日期时间，失败时返回 空。
-     *
-     * @param str 日期时间字符串
      * @return 解析后的 本地日期时间，解析失败返回 空
      */
     public static LocalDateTime parseLocalDateTimeSafe(String str)  {
         Date date = parseDateSafe(str);
         if (null == date) {
             return null;
-        }
-        return toLocalDateTime(date);
     }
     /**
      * 按指定单格式解析日期时间字符串。
@@ -1146,32 +623,6 @@ public class DateUtils {
         return Date.from(instant);
     }
     /**
-     * 以宽松模式解析日期时间字符串，支持多格式候选。
-     *
-     * @param str          日期时间字符串
-     * @param parsePatterns 候选日期格式数组
-     * @param loc           地区设置（区域），影响月份名等解析
-     * @return 解析后的 日期，无法解析返回 空
-     * @throws IllegalArgumentException 若 str 或 解析模式 为 空
-     * @throws ParseException
-     */
-    public static Date parseDateWithLeniency(String str, String[] parsePatterns, Locale loc) throws ParseException {
-        // [P3C-1.2 B2] 必须为每个候选模式分别新建实例（applyPattern 不线程安全），Per-Call 创建
-        for (String dateFormat : parsePatterns) {
-            SimpleDateFormat sdf2 = new SimpleDateFormat(dateFormat, loc);
-            Date parse = null;
-            try {
-                parse = sdf2.parse(str);
-            } catch (ParseException e) {
-                log.debug("[date] 解析日期失败，已忽略: {}", e.getMessage());
-            }
-            if (null != parse) {
-                return parse;
-            }
-        }
-        return null;
-    }
-    /**
      * <p>                                                                        </ p>
      * <p>
      *
@@ -1220,8 +671,6 @@ public class DateUtils {
             // LANG-530 - need to make sure 'ZZ' output doesn't get passed to SimpleDateFormat
             if (parsePattern.endsWith("ZZ")) {
                 pattern = pattern.substring(0, pattern.length() - 1);
-            }
-            parser.applyPattern(pattern);
             pos.setIndex(0);
             String str2 = str;
             // LANG-530 - need to make sure 'ZZ' output doesn't hit SimpleDateFormat as it will ParseException
@@ -1263,7 +712,6 @@ public class DateUtils {
                             localDateTime = localDateTime.plusSeconds(secondsOfPt);
                             return toDate(localDateTime);
                         }
-                    } catch (ArithmeticException ex) {
                         throw new DateTimeParseException("Text cannot be parsed to a Duration: overflow", str, 0, ex);
                     }
                 }
@@ -1271,35 +719,11 @@ public class DateUtils {
         }
         throw new ParseException("Unable to parse the date: " + str, -1);
     }
-    /**
-     * yearmonth   日期
-     * day的month         1   31                                                      2         29            28
-     * 转为日期结束的month(yearmonth)
-     *
-     * @param yearMonth yearmonth
-     * @return Date
-     */
-    public static Date parserDate(YearMonth yearMonth) {
-        Objects.requireNonNull(yearMonth, "yearMonth");
-        return toDate(yearMonth.atDay(1));
-    }
-    /**
-     * yearmonth   日期
-     * day的month         1   31                                                      2         29            28
-     * 转为日期结束的month(yearmonth)
-     *
-     * @param yearMonth  yearmonth
-     * @param dayOfMonth the day的month
-     * @return Date
      */
     public static Date parserDate(YearMonth yearMonth, int dayOfMonth) {
         Objects.requireNonNull(yearMonth, "yearMonth");
         return toDate(yearMonth.atDay(dayOfMonth));
     }
-    /**
-     * zoned日期时间   日期
-     *
-     *
      * @param zonedDateTime zoned日期时间
      * @return Date
      */
@@ -1307,15 +731,12 @@ public class DateUtils {
         Objects.requireNonNull(zonedDateTime, "zonedDateTime");
         return Date.from(zonedDateTime.toInstant());
     }
-    /**
-     * temporalaccessor（本地日期/本地日期时间）转为 日期。
      *
      * @param temporalAccessor 时间访问器
      * @return 对应的 日期，不支持的类型返回 空
      */
     public static Date toDate(TemporalAccessor temporalAccessor) {
         if (null == temporalAccessor) {
-            return null;
         }
         if (temporalAccessor instanceof LocalDateTime) {
             return toDate((LocalDateTime)temporalAccessor);
@@ -1323,7 +744,6 @@ public class DateUtils {
         if (temporalAccessor instanceof LocalDate) {
             return toDate((LocalDate)temporalAccessor);
         }
-        return null;
     }
     /**
      * 本地时间 转为 日期（取当天对应时刻，日期部分为 轮次）。
@@ -1333,7 +753,6 @@ public class DateUtils {
      */
     public static Date toDate(LocalTime localTime) {
         if (null == localTime) {
-            return null;
         }
         return toDate(Instant.ofEpochSecond(localTime.getSecond(), localTime.getNano()));
     }
@@ -1373,8 +792,6 @@ public class DateUtils {
         }
         return Date.from(localDateTime.atZone(Optional.ofNullable(zoneId).orElse(DEFAULT_ZONE_ID)).toInstant());
     }
-    /**
-     * 本地日期 在指定时区下转为 日期（日期部分取当天 00:00:00）。
      *
      * @param localDate 日期
      * @param zoneId    时区，为 空 时使用系统默认时区
@@ -1413,9 +830,6 @@ public class DateUtils {
      * @return 对应的 日期
      */
     public static Date toDate(Instant instant) {
-        if (null == instant) {
-            return null;
-        }
         return Date.from(instant);
     }
     /**
@@ -1437,17 +851,6 @@ public class DateUtils {
         return Date.from(Instant.ofEpochMilli(complementMilliseconds(time)));
     }
     /**
-     * 日期 转为 轮次 毫秒时间戳。
-     *
-     * @param date 日期
-     * @return epoch 毫秒数
-     * @throws NullPointerException 若 日期 为 空
-     */
-    public static long toEpochMilli(Date date) {
-        Objects.requireNonNull(date, "date");
-        return date.getTime();
-    }
-    /**
      * 时间戳
      *    1970-01-01T00:00:00Z
      *
@@ -1467,9 +870,6 @@ public class DateUtils {
     public static long toEpochMilli(LocalDateTime localDateTime) {
         return toInstant(localDateTime).toEpochMilli();
     }
-    /**
-     * 本地日期 转为 轮次 毫秒时间戳（使用系统默认时区，日期部分为当天 00:00:00）。
-     *
      * @param localDate 日期
      * @return epoch 毫秒数
      */
@@ -1630,8 +1030,6 @@ public class DateUtils {
     public static LocalDate toLocalDate(LocalDateTime localDateTime) {
         Objects.requireNonNull(localDateTime, "localDateTime");
         return localDateTime.toLocalDate();
-    }
-    /**
      * Instant   本地日期
      *
      * @param instant Instant
@@ -1681,26 +1079,6 @@ public class DateUtils {
     public static LocalDate toLocalDate(YearMonth yearMonth, int dayOfMonth) {
         Objects.requireNonNull(yearMonth, "yearMonth");
         return yearMonth.atDay(dayOfMonth);
-    }
-    /**
-     * yearmonth 转为当月最后一天的 本地日期。
-     *
-     * @param yearMonth 年月对象
-     * @return 对应月的最后一天
-     * @throws NullPointerException 若 yearmonth 为 空
-     */
-    public static LocalDate toLocalDateEndOfMonth(YearMonth yearMonth) {
-        Objects.requireNonNull(yearMonth, "yearMonth");
-        return yearMonth.atEndOfMonth();
-    }
-    /**
-     * yearmonth 转为当月的第一天（即 1 号）。
-     *
-     * @param yearMonth 年月对象
-     * @return 对应月的第一天
-     */
-    public static LocalDate toLocalDateStartOfMonth(YearMonth yearMonth) {
-        return toLocalDate(yearMonth, 1);
     }
     /**
      * 日期 转为 本地日期时间（使用系统默认时区）。
@@ -1774,8 +1152,6 @@ public class DateUtils {
     public static LocalDateTime toLocalDateTime(LocalDate localDate) {
         Objects.requireNonNull(localDate, "localDate");
         return localDate.atStartOfDay();
-    }
-    /**
      * 本地日期 与 本地时间 组合为 本地日期时间。
      *
      * @param localDate 日期
@@ -1934,12 +1310,6 @@ public class DateUtils {
     public static LocalTime toLocalTime(Instant instant) {
         return toLocalDateTime(instant).toLocalTime();
     }
-    /**
-     * temporal   本地时间
-     *
-     * @param temporal temporalaccessor
-     * @return LocalTime
-     */
     public static LocalTime toLocalTime(TemporalAccessor temporal) {
         return LocalTime.from(temporal);
     }
@@ -1955,17 +1325,6 @@ public class DateUtils {
         return zonedDateTime.toLocalTime();
     }
     /**
-     * 日期 转为 Java.SQL.时间。
-     *
-     * @param date 日期
-     * @return 对应的 时间，丢弃日期部分
-     * @throws NullPointerException 若 日期 为 空
-     */
-    public static Time toTime(Date date) {
-        Objects.requireNonNull(date, "date");
-        return new Time(date.getTime());
-    }
-    /**
      * 本地时间 转为 Java.SQL.时间。
      *
      * @param localTime 时间
@@ -1975,17 +1334,6 @@ public class DateUtils {
     public static Time toTime(LocalTime localTime) {
         Objects.requireNonNull(localTime, "date");
         return new Time(toDate(localTime).getTime());
-    }
-    /**
-     * 日期 转为 时间戳。
-     *
-     * @param date 日期
-     * @return 对应的 时间戳
-     * @throws NullPointerException 若 日期 为 空
-     */
-    public static Timestamp toTimestamp(Date date) {
-        Objects.requireNonNull(date, "date");
-        return new Timestamp(date.getTime());
     }
     /**
      * 本地日期时间 转为 时间戳。
@@ -2016,16 +1364,6 @@ public class DateUtils {
      */
     public static Timestamp toTimestamp(long epochMilli) {
         return new Timestamp(epochMilli);
-    }
-    /**
-     * 日期 转为 yearmonth。
-     *
-     * @param date 日期
-     * @return 对应的 yearmonth
-     */
-    public static YearMonth toYearMonth(Date date) {
-        LocalDate localDate = toLocalDate(date);
-        return YearMonth.of(localDate.getYear(), localDate.getMonthValue());
     }
     /**
      * 本地日期时间 转为 yearmonth。
@@ -2067,17 +1405,6 @@ public class DateUtils {
     public static YearMonth toYearMonth(ZonedDateTime zonedDateTime) {
         LocalDate localDate = toLocalDate(zonedDateTime);
         return YearMonth.of(localDate.getYear(), localDate.getMonthValue());
-    }
-    /**
-     * 日期 转为 zoned日期时间（使用系统默认时区）。
-     *
-     * @param date 日期
-     * @return 对应的 zoned日期时间
-     * @throws NullPointerException 若 日期 为 空
-     */
-    public static ZonedDateTime toZonedDateTime(Date date) {
-        Objects.requireNonNull(date, "date");
-        return Instant.ofEpochMilli(date.getTime()).atZone(DEFAULT_ZONE_ID);
     }
     /**
      * 日期 在指定时区字符串下转为 zoned日期时间。
@@ -2227,8 +1554,6 @@ public class DateUtils {
             return Math.multiplyExact(val, multiplier);
         } catch (NumberFormatException | ArithmeticException ex) {
             throw new DateTimeParseException("Text cannot be parsed to a Duration: " + errorText, text, 0, ex);
-        }
-    }
     /**
      * 索引 的 标志 charaters (i.e. '+' 或 '-').
      *
@@ -2237,7 +1562,6 @@ public class DateUtils {
      * @return                                                             -1
      */
     private static int indexOfSignChars(String str, int startPos) {
-        int idx = indexOf(str, '+', startPos);
         if (idx < 0) {
             idx = indexOf(str, '-', startPos);
         }
@@ -2316,24 +1640,6 @@ public class DateUtils {
             return bigDecimal.multiply(BigDecimal.TEN.pow(MILLISECOND - length)).longValue();
         }
         return bigDecimal.subtract(BigDecimal.TEN.pow(length - MILLISECOND)).longValue();
-    }
-    /**
-     * 以指定参数创建 Calendar（月份从 0 开始）。
-     *
-     * @param year     年份
-     * @param month    月份（1-12，内部减 1）
-     * @param day      日期
-     * @param hour     小时
-     * @param minute   分钟
-     * @param second   秒
-     * @param milli    毫秒
-     * @return 对应的 Calendar
-     */
-    public static Calendar toCalendar(int year, int month, int day, int hour, int minute, int second, int milli) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone(DEFAULT_ZONE_ID));
-        c.set(year, month - 1, day, hour, minute, second);
-        c.set(Calendar.MILLISECOND, 0);
-        return c;
     }
     /**
      * 转换为Calendar。
@@ -2485,234 +1791,6 @@ public class DateUtils {
         return INDEX_NOT_FOUND;
     }
     /**
-     * 获取 ShotName。
-     *
-     *
-     * @param unit the unit
-     * @return the 结果
-     */
-    public static String getShotName(TimeUnit unit) {
-        switch (unit) {
-            case NANOSECONDS:
-                return "ns";
-            case MICROSECONDS:
-                return "  s";
-            case MILLISECONDS:
-                return "ms";
-            case SECONDS:
-                return "s";
-            case MINUTES:
-                return "min";
-            case HOURS:
-                return "h";
-            default:
-                return unit.name().toLowerCase();
-        }
-    }
-    /**
-     * 是否为 LeapYear。
-     *
-     *
-     * @param year the year
-     * @return the 结果
-     */
-    public static boolean isLeapYear(int year) {
-        return Year.isLeap(year);
-    }
-    /**
-     * 获取当前日期。
-     *
-     * @return the 结果
-     */
-    public static Date currentDate() {
-        return new Date();
-    }
-    /**
-     * 获取今年年份。
-     *
-     * @return the 结果
-     */
-    public static int thisYear() {
-        return year(currentDate());
-    }
-    /**
-     * 获取年份。
-     *
-     *
-     * @param date the 日期
-     * @return the 结果
-     */
-    public static int year(Date date) {
-        Instant instant = date.toInstant();
-        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
-        return zonedDateTime.getYear();
-    }
-    /**
-     * formatter          zoned日期时间
-     *
-     * @param text the 文本
-     * @param formatter 日期时间formatter
-     * @return ZonedDateTime
-     */
-    public static ZonedDateTime parseToZonedDateTime(String text, DateTimeFormatter formatter) {
-        return ZonedDateTime.parse(text, formatter);
-    }
-    /**
-     * 格式化时间
-     *
-     * @param inputTime 输入时间
-     * @return 格式化时间的结果
-     */
-    public static String formatTime(LocalDateTime inputTime) {
-        if (inputTime == null) {
-            throw new IllegalArgumentException("Input time cannot be null");
-        }
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(inputTime, now);
-        if (duration.isNegative()) {
-            return "      ";
-        }
-        long seconds = duration.getSeconds();
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = ChronoUnit.DAYS.between(inputTime, now);
-        long months = ChronoUnit.MONTHS.between(inputTime, now);
-        long years = ChronoUnit.YEARS.between(inputTime, now);
-        if (years > 0) {
-            return inputTime.format(DateFormatConstant.YYYY_MM_DD_FMT);
-        }
-        if (months > 0 || days > 0) {
-            return inputTime.format(DateFormatConstant.MM_DD_EN_FMT);
-        }
-        if (hours > 0) {
-            return hours + "小时前";
-        }
-        if (minutes > 0) {
-            return minutes + "分钟前";
-        }
-        return seconds + "秒前";
-    }
-    /**
-     * 向日期添加指定天数，支持 日期 / 本地日期 / 本地日期时间。
-     *
-     * @param date 基准日期，为 空 时返回 空
-     * @param days 偏移天数，正数向后，负数向前
-     * @param <T>  日期类型
-     * @return 偏移后的日期对象
-     */
-    public static <T> T plusDay(T date, int days) {
-        if (date == null) {
-            return null;
-        }
-        try {
-            if (date instanceof Date utilDate) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(utilDate);
-                calendar.add(Calendar.DAY_OF_YEAR, days);
-                return (T) calendar.getTime();
-            } else if (date instanceof LocalDate localDate) {
-                return (T) localDate.plusDays(days);
-            } else if (date instanceof LocalDateTime localDateTime) {
-                return (T) localDateTime.plusDays(days);
-            } else {
-                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
-                return date;
-            }
-        } catch (Exception e) {
-            log.error("日期按天偏移失败", e);
-            return date;
-        }
-    }
-    /**
-     * 向日期添加指定小时数，支持 日期 / 本地日期时间 / 本地时间。
-     *
-     * @param date  基准日期，为 空 时返回 空
-     * @param hours 偏移小时数，正数向后，负数向前
-     * @param <T>   日期类型
-     * @return 偏移后的日期对象
-     */
-    public static <T> T plusHour(T date, int hours) {
-        if (date == null) {
-            return null;
-        }
-        try {
-            if (date instanceof Date utilDate) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(utilDate);
-                calendar.add(Calendar.HOUR_OF_DAY, hours);
-                return (T) calendar.getTime();
-            } else if (date instanceof LocalDateTime localDateTime) {
-                return (T) localDateTime.plusHours(hours);
-            } else if (date instanceof LocalTime localTime) {
-                return (T) localTime.plusHours(hours);
-            } else {
-                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
-                return date;
-            }
-        } catch (Exception e) {
-            log.error("日期按时间单位偏移失败", e);
-            return date;
-        }
-    }
-    /**
-     * 向日期添加指定分钟数，支持 日期 / 本地日期时间 / 本地时间。
-     *
-     * @param date    基准日期，为 空 时返回 空
-     * @param minutes 偏移分钟数，正数向后，负数向前
-     * @param <T>     日期类型
-     * @return 偏移后的日期对象
-     */
-    public static <T> T plusMinute(T date, int minutes) {
-        if (date == null) {
-            return null;
-        }
-        try {
-            if (date instanceof Date utilDate) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(utilDate);
-                calendar.add(Calendar.MINUTE, minutes);
-                return (T) calendar.getTime();
-            } else if (date instanceof LocalDateTime localDateTime) {
-                return (T) localDateTime.plusMinutes(minutes);
-            } else if (date instanceof LocalTime localTime) {
-                return (T) localTime.plusMinutes(minutes);
-            } else {
-                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
-                return date;
-            }
-        } catch (Exception e) {
-            log.error("日期按时间单位偏移失败", e);
-            return date;
-        }
-    }
-    /**
-     * 判断给定日期是否落在指定日期区间内。
-     *
-     * <p>支持 Date / LocalDate / LocalDateTime / 字符串等可解析类型。</p>
-     *
-     * @param date      待判断的日期
-     * @param startDate 区间起始日期
-     * @param endDate   区间结束日期
-     * @return 日期在区间内返回 true
-     */
-    public static boolean inDateRange(Object date, Object startDate, Object endDate) {
-        if (date == null || startDate == null || endDate == null) {
-            return false;
-        }
-        try {
-            LocalDateTime checkDateTime = Converter.parseLocalDateTimeSafe(date);
-            LocalDateTime start = Converter.parseLocalDateTimeSafe(startDate);
-            LocalDateTime end = Converter.parseLocalDateTimeSafe(endDate);
-            if (checkDateTime == null || start == null || end == null) {
-                return false;
-            }
-            return !checkDateTime.isBefore(start) && !checkDateTime.isAfter(end);
-        } catch (Exception e) {
-            log.warn("日期区间判断失败", e);
-            return false;
-        }
-    }
-    /**
      * 时间格式化器（ISO："HH:mm:ss"）
      */
     private static final DateTimeFormatter PARSE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -2720,63 +1798,4 @@ public class DateUtils {
      * 日期格式化器（ISO："yyyy-MM-dd"）
      */
     private static final DateTimeFormatter PARSE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    /**
-     * 宽松解析时间字符串为 {@link LocalTime}，解析失败返回 {@code null}。
-     * <p>支持 ISO 格式（"10:15:30"）以及中文习惯格式（"10时15分30秒"、"10点15分"等）。</p>
-     *
-     * @param time 时间字符串
-     * @return 本地时间，解析失败或参数为 空 时返回 {@code null}
-     */
-    public static LocalTime parseLocalTimeSafe(String time) {
-        if (time == null) {
-            return null;
-        }
-        String trimmed = time.trim();
-        try {
-            return LocalTime.parse(trimmed, DateTimeFormatter.ISO_LOCAL_TIME);
-        } catch (DateTimeParseException e) {
-            try {
-                return LocalTime.parse(trimmed, PARSE_TIME_FORMATTER);
-            } catch (DateTimeParseException ex) {
-                String normalized = trimmed.replace("时", ":")
-                        .replace("点", ":")
-                        .replace("分", ":")
-                        .replace("秒", "");
-                try {
-                    return LocalTime.parse(normalized, PARSE_TIME_FORMATTER);
-                } catch (DateTimeParseException px) {
-                    return null;
-                }
-            }
-        }
-    }
-    /**
-     * 宽松解析日期字符串为 {@link LocalDate}，解析失败返回 {@code null}。
-     * <p>支持 ISO 格式（"2025-07-25"）以及中文习惯格式（"2025年07月25日"）。</p>
-     *
-     * @param date 日期字符串
-     * @return 本地日期，解析失败或参数为 空 时返回 {@code null}
-     */
-    public static LocalDate parseLocalDateSafe(String date) {
-        if (date == null) {
-            return null;
-        }
-        String trimmed = date.trim();
-        try {
-            return LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (DateTimeParseException e) {
-            try {
-                return LocalDate.parse(trimmed, PARSE_DATE_FORMATTER);
-            } catch (DateTimeParseException ex) {
-                String normalized = trimmed.replace("年", "-")
-                        .replace("月", "-")
-                        .replace("日", "");
-                try {
-                    return LocalDate.parse(normalized, PARSE_DATE_FORMATTER);
-                } catch (DateTimeParseException px) {
-                    return null;
-                }
-            }
-        }
-    }
 }

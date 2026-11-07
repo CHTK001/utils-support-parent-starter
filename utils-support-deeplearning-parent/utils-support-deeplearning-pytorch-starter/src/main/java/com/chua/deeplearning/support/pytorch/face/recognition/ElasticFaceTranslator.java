@@ -20,6 +20,11 @@ import ai.djl.translate.TranslatorContext;
 public class ElasticFaceTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸
+     */
+    private static final int INPUT_SIZE = 112;
+
+    /**
      * 处理输入
     */
     @Override
@@ -27,7 +32,7 @@ public class ElasticFaceTranslator implements Translator<Image, float[]> {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
         pipeline
-                .add(new Resize(112, 112))
+                .add(new Resize(INPUT_SIZE, INPUT_SIZE))
                 .add(new ToTensor())
                 .add(new Normalize(
                         new float[]{0.5f, 0.5f, 0.5f},

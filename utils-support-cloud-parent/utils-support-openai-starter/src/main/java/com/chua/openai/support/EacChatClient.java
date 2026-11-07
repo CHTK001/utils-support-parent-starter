@@ -32,6 +32,8 @@ import java.util.HexFormat;
  *
  * <p>{@code httpRequestAuthenticator} 带 ACC_SYNTHETIC 标志（Kotlin @JvmSynthetic），
  * 需通过反射调用——与 {@link OpenAiProviderAuth} 一致。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 @Slf4j
 @Spi({"eac"})

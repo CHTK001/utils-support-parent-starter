@@ -53,6 +53,16 @@ public class LinuxHostInfoProvider implements HostInfoProvider {
     private static final String NAME = "linux-sysfs";
 
     /**
+     * 默认权重：优先级 300
+     */
+    private static final int DEFAULT_PRIORITY = 300;
+
+    /**
+     * 输出 StringBuilder 默认容量
+     */
+    private static final int SB_DEFAULT_CAPACITY = 17;
+
+    /**
      * DMI 标识目录
      */
     private static final String DMI_ROOT = "/sys/class/dmi/id/";
@@ -101,7 +111,7 @@ public class LinuxHostInfoProvider implements HostInfoProvider {
 
     @Override
     public int priority() {
-        return 300;
+        return DEFAULT_PRIORITY;
     }
 
     @Override
@@ -287,7 +297,7 @@ public class LinuxHostInfoProvider implements HostInfoProvider {
                 if (hardware == null || hardware.length != 6) {
                     continue;
                 }
-                StringBuilder sb = new StringBuilder(17);
+                StringBuilder sb = new StringBuilder(SB_DEFAULT_CAPACITY);
                 for (int i = 0; i < hardware.length; i++) {
                     if (i > 0) {
                         sb.append(':');

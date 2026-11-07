@@ -1,18 +1,19 @@
 package com.chua.common.support.ai.generation;
 
-import com.chua.common.support.ai.chat.ChatClient;
-
 /**
  * 3D 模型生成参数构建器（链式调用）。
  *
  * <p>用法：</p>
  * <pre>{@code
- * Model3DGenerationResult result = client.generate3D()
+ * Model3DGenerationResult result = generator.generate3D()
  *     .prompt("一把木椅")
  *     .refImageUrl("https://example.com/chair.png")
  *     .format("glb")
  *     .generate();
  * }</pre>
+ *
+ * <p>依赖的是 {@link Model3DGenerator} 能力接口而不是对话客户端：3D 生成与对话/图像/视频
+ * 不是同一类能力，能力归属见该接口的说明。</p>
  *
  * @author CH
  * @since 4.0.0.52
@@ -20,9 +21,9 @@ import com.chua.common.support.ai.chat.ChatClient;
 public class Model3DGenerationSpec {
 
     /**
-     * 底层对话客户端
+     * 底层 3D 生成能力
      */
-    private final ChatClient client;
+    private final Model3DGenerator generator;
 
     /**
      * 生成提示词
@@ -47,10 +48,10 @@ public class Model3DGenerationSpec {
     /**
      * 创建参数构建器。
      *
-     * @param client 底层对话客户端
+     * @param generator 底层 3D 生成能力
      */
-    public Model3DGenerationSpec(ChatClient client) {
-        this.client = client;
+    public Model3DGenerationSpec(Model3DGenerator generator) {
+        this.generator = generator;
     }
 
     /**
@@ -103,7 +104,7 @@ public class Model3DGenerationSpec {
      * @return 3D 模型生成结果
      */
     public Model3DGenerationResult generate() {
-        return client.generate3D(prompt, refImageUrl, format, timeoutSeconds);
+        return generator.generate3D(prompt, refImageUrl, format, timeoutSeconds);
     }
 
     /**

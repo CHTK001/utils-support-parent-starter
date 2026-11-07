@@ -38,105 +38,11 @@ public class CollectionUtils {
     private CollectionUtils() {
     }
 
-    /**
-     * 遍历集合中的每个元素并执行回调。
-     *
-     * <p>安全遍历：如果集合或回调为 {@code null}，则直接返回而不执行任何操作。</p>
-     *
-     * @param collection 待遍历的集合，可能为 空
-     * @param consumer   每个元素执行的回调，可能为 空
-     * @param <T>        集合元素类型
-     */
-    public static <T> void forEach(@Nullable Collection<T> collection, @Nullable Consumer<T> consumer) {
-        if (isEmpty(collection) || ObjectUtils.isNull(consumer)) {
-            return;
-        }
-        collection.forEach(consumer);
-    }
 
-    /**
-     * 将 空 的 设置 替换为空 设置，避免空指针。
-     *
-     * @param set 待检查的 设置，可能为 空
-     * @param <T> 元素类型
-     * @return 非空 设置，空 时返回空 设置
-     */
-    @Nonnull
-    public static <T> Set<T> emptyIfNull(@Nullable Set<T> set) {
-        return (null == set) ? Collections.emptySet() : set;
-    }
 
-    /**
-     * 将 空 的 列表 替换为空 列表，避免空指针。
-     *
-     * @param list 待检查的 列表，可能为 空
-     * @param <T>  元素类型
-     * @return 非空 列表，空 时返回空 列表
-     */
-    @Nonnull
-    public static <T> List<T> emptyIfNull(@Nullable List<T> list) {
-        return (null == list) ? Collections.emptyList() : list;
-    }
 
-    /**
-     * 从集合中按多个索引批量获取元素，支持负数索引（从末尾计数）。
-     *
-     * <p>索引越界时抛出 {@link IndexOutOfBoundsException}，并在消息中标明集合大小与
-     * 越界索引，便于定位；负索引小于等于集合长度的负数时同样视为越界。</p>
-     *
-     * @param collection 源集合，不允许为 null
-     * @param indexes    要获取的元素索引数组，不允许为 null
-     * @param <T>        元素类型
-     * @return 对应索引的元素列表，顺序与 indexes 一致
-     * @throws IllegalArgumentException  collection 为 null 时抛出
-     * @throws IndexOutOfBoundsException 任一索引越界时抛出
-     */
-    public static <T> List<T> getAny(Collection<T> collection, int... indexes) {
-        if (collection == null) {
-            throw new IllegalArgumentException("源集合不能为空");
-        }
-        if (indexes == null) {
-            throw new IllegalArgumentException("索引数组不能为空");
-        }
-        final int size = collection.size();
-        final List<T> result = Wraps.list(indexes.length);
-        for (int index : indexes) {
-            // 负索引从末尾计数，越界时给出可定位的消息
-            int real = index < 0 ? index + size : index;
-            if (real < 0 || real >= size) {
-                throw new IndexOutOfBoundsException("索引 " + index + " 越界，集合大小: " + size);
-            }
-            result.add(find(collection, real));
-        }
-        return result;
-    }
 
-    /**
-     * 从集合中随机选取一个元素（使用 {@link SecureRandom}）。
-     *
-     * @param source 源集合，可能为 空
-     * @param <T>    元素类型
-     * @return 随机选中的元素，集合为空或 空 返回 空
-     */
-    public static <T> T getRandom(final Collection<T> source) {
-        if (isEmpty(source)) {
-            return null;
-        }
-        SecureRandom random = new SecureRandom();
-        int i = random.nextInt(source.size());
-        return CollectionUtils.find(source, i);
-    }
 
-    /**
-     * 将 列表 按每组最大元素个数平均分配为多个子列表。
-     *
-     * <p>分组规则：先按上限 {@code limit} 算出最少需要的组数
-     * {@code ceil(size / limit)}，再把元素尽量均分到这些组里，前面的组多 1 个元素。
-     * 返回的子列表为 {@link List#subList(int, int)} 视图，随源列表变化。</p>
-     *
-     * <p>例如 {@code size=5, limit=2} 得到 3 组，大小分别为 {@code 2, 2, 1}。</p>
-     *
-     * @param source 源列表，为 空 时返回空列表
      * @param limit  每组最大元素数，必须大于 0
      * @param <T>    元素类型
      * @return 分组后的列表集合
@@ -164,7 +70,6 @@ public class CollectionUtils {
             if (remainder > 0) {
                 to = (i + 1) * number + offset + 1;
                 remainder--;
-                offset++;
             } else {
                 to = (i + 1) * number + offset;
             }
@@ -184,27 +89,7 @@ public class CollectionUtils {
         return null == it || !it.iterator().hasNext();
     }
 
-    /**
-     * 如果集合为空则返回空列表，否则返回原集合。
-     *
-     * @param collection 待检查的集合，可能为 空
-     * @param <E>        元素类型
-     * @return 非空时返回原集合，否则返回空列表
-     */
-    public static <E> List<E> ifEmpty(List<E> collection) {
-        return isEmpty(collection) ? Collections.emptyList() : collection;
-    }
 
-    /**
-     * 判断集合是否为空（空 或无元素）。
-     *
-     * @param collection 待检查的集合，可能为 空
-     * @param <E>        元素类型
-     * @return 如果为 空 或无元素返回 true
-     */
-    public static <E> boolean isEmpty(Collection<E> collection) {
-        return null == collection || collection.isEmpty();
-    }
     /**
      * 判断数组是否为空（空 或无元素）。
      *
@@ -269,20 +154,6 @@ public class CollectionUtils {
         return null == collection ? 0 : collection.size();
     }
 
-    /**
-     * 将对象安全地转为 列表；若不是 列表 则返回空列表。
-     *
-     * @param value 待转换的对象
-     * @return 如果对象是 列表 则强转返回，否则返回空列表
-     */
-    public static List<Object> ifList(Object value) {
-        if (value instanceof List<?> rawList) {
-            @SuppressWarnings("unchecked")
-            List<Object> list = (List<Object>) (List<?>) rawList;
-            return list.stream().toList();
-        }
-        return Collections.emptyList();
-    }
 
     /**
      * 判断对象是否为 列表 类型。
@@ -444,67 +315,10 @@ public class CollectionUtils {
         return source.stream().skip(index).findFirst().orElse(defaultValue);
     }
 
-    /**
-     * 判断集合是否有元素（非 空 且 大小 > 0）。
-     *
-     * @param collection 待检查的集合
-     * @return 如果有元素返回 true
-     */
-    public static boolean hasElement(Collection<?> collection) {
-        return size(collection) > 0;
-    }
 
 
  // ------------------------------------------------------------------------------------------------- 排序
 
-    /**
-     * 对 列表 进行分页，返回指定页码的数据子集。
-     *
-     * @param pageNo   页码（从 1 开始）。小于 {@link PageUtils#getFirstPageNo()} 时按首页处理
-     *                  （与 {@link PageUtils#getStart(int, int)} 的钳制口径一致）
-     * @param pageSize 每页大小，小于 1 时视为无有效分页，返回空列表
-     * @param list     源列表
-     * @param <T>      元素类型
-     * @return 指定页的元素列表，越界返回空列表
-     */
-    public static <T> List<T> page(int pageNo, int pageSize, List<T> list) {
-        if (isEmpty(list)) {
-            return Wraps.list(0);
-        }
-
-        // 每页大小小于 1 时分页无意义（与 PageUtils.totalPage 的口径保持一致：总页数为 0）
-        if (pageSize < 1) {
-            return Wraps.list(0);
-        }
-
-        pageNo = pageNo - 1;
-
-        int resultSize = list.size();
-        //
-        if (resultSize <= pageSize) {
-            if (pageNo < (PageUtils.getFirstPageNo() + 1)) {
-                return unmodifiable(list);
-            } else {
-                //
-                return Wraps.list(0);
-            }
-        }
-        //                                      long
-        if (((long) (pageNo - PageUtils.getFirstPageNo()) * pageSize) > resultSize) {
-            //
-            return Wraps.list(0);
-        }
-
-        final int[] startEnd = PageUtils.transToStartEnd(pageNo, pageSize);
-        if (startEnd[1] > resultSize) {
-            startEnd[1] = resultSize;
-            if (startEnd[0] > startEnd[1]) {
-                return Wraps.list(0);
-            }
-        }
-
-        return sub(list, startEnd[0], startEnd[1]);
-    }
 
     /**
      * 将 列表 转为不可修改视图，空 时返回 空。
@@ -547,33 +361,8 @@ public class CollectionUtils {
         }
     }
 
-    /**
-     * 对集合按给定 Comparator 排序后返回新 列表。
-     *
-     * @param collection 源集合
-     * @param comparator 比较器
-     * @param <T>        元素类型
-     * @return 排序后的 列表
-     */
-    public static <T> List<T> sort(Collection<T> collection, Comparator<? super T> comparator) {
-        List<T> list = Wraps.list(collection);
-        list.sort(comparator);
-        return list;
-    }
 
 
-    /**
-     * 截取 列表 的子列表（启动 包含，结束 不包含，支持负数索引）。
-     *
-     * @param list  源列表
-     * @param start 起始索引（负数从末尾计数）
-     * @param end   结束索引（负数从末尾计数）
-     * @param <T>   元素类型
-     * @return 截取后的不可变子列表
-     */
-    public static <T> List<T> sub(List<T> list, int start, int end) {
-        return sub(list, start, end, 1);
-    }
 
     /**
      * 截取 列表 子列表，支持指定步长（启动/结束 均支持负数索引）。
@@ -616,10 +405,6 @@ public class CollectionUtils {
             end = size;
         }
 
-        if (step < 1) {
-            step = 1;
-        }
-
         final List<T> result = Wraps.list();
         for (int i = start; i < end; i += step) {
             result.add(list.get(i));
@@ -628,44 +413,7 @@ public class CollectionUtils {
     }
 
 
-    /**
-     * 从列表中随机选取指定数量的不重复元素。
-     *
-     * @param elementList 源列表
-     * @param number      要选取的元素个数，必须大于 0
-     * @param <T>         元素类型
-     * @return 随机选取的元素列表，source 为空或 数字 无效时返回空列表
-     */
-    public static <T> List<T> getRandomElement(List<T> elementList, int number) {
-        if (CollectionUtils.isEmpty(elementList) || number < 1) {
-            return Collections.emptyList();
-        }
-        //                                                       ,                               ,
-        if (number >= elementList.size()) {
-            List<T> result = Wraps.list(elementList);
-            Collections.shuffle(result);
-            return result;
-        } else {
-            List<T> result = Wraps.list(number);
-            for (int i = 0; i < number; i++) {
-                int index = ThreadLocalRandom.current().nextInt(0, elementList.size());
-                T t = elementList.get(index);
-                if (result.contains(t)) {
-                    i--;
-                } else {
-                    result.add(t);
-                }
-            }
-            Collections.shuffle(result);
-            return result;
-        }
-    }
 
-    /**
-     * 将指定元素添加到 列表 中（跳过 空 元素）。
-     *
-     * @param elements 目标列表
-     * @param element  待添加的元素数组
      * @param <E>      元素类型
      * @return 添加后的列表，输入为 空 返回空列表
      */
@@ -752,122 +500,16 @@ public class CollectionUtils {
         List<E> rs = Wraps.list();
         rs.add(first);
 
-        while (elements.hasNext()) {
-            rs.add(elements.next());
-        }
         return Collections.unmodifiableList(rs);
     }
 
-    /**
-     * 将数组转为 链接列表。
-     *
-     * @param list 源数组
-     * @param <T>  元素类型
-     * @return 包含数组元素的 链接列表，数组为 空 返回空列表
-     */
-    public static <T> List<T> newLinkedList(T... list) {
-        return null == list ? Collections.emptyList() : Wraps.list(Arrays.asList(list));
-    }
-
-    /**
-     * 将数组转为 哈希设置。
-     *
-     * @param list 源数组
-     * @param <T>  元素类型
-     * @return 包含数组元素的 哈希设置，数组为 空 返回空 设置
-     */
-    public static <T> Set<T> newHashSet(T... list) {
-        return null == list ? Collections.emptySet() : Wraps.set(Arrays.asList(list));
-    }
-
-    /**
-     * 计算多个列表的笛卡尔积。
-     *
-     * <p>将第一个列表与后续所有列表做笛卡尔积运算，返回所有组合的列表集合。</p>
-     *
-     * @param first 第一个列表
-     * @param more  更多列表（可选）
-     * @param <T>   元素类型
-     * @return 所有组合的列表集合
-     */
-    public static <T> List<List<T>> descartes(List<T> first, List<T>... more) {
-        List<List<T>> lists = Wraps.list();
-        lists.add(first);
-        lists.addAll(Arrays.asList(more));
-        List<List<T>> result = Wraps.list();
-        descartesRecursive(lists, 0, Wraps.list(), result);
-        return result;
-    }
-
-    /**
-     * descartesrecursive
-     *
-     * @param lists 列表
-     * @param depth 深度
-     * @param current 当前
-     * @param result 结果
-     */
-    private static <T> void descartesRecursive(List<List<T>> lists, int depth, List<T> current, List<List<T>> result) {
-        if (depth == lists.size()) {
-            result.add(Wraps.list(current));
-            return;
-        }
-        for (T item : lists.get(depth)) {
-            current.addLast(item);
-            descartesRecursive(lists, depth + 1, current, result);
-            current.removeLast();
-        }
-    }
 
 
-    /**
-     * 计算 coll1 与 coll2 的差集，返回仅在 coll1 中的元素列表。
-     *
-     * <p>示例：subtractToList([1,2,3,4], [2,3,4,5]) → [1]</p>
-     *
-     * @param coll1 被减集合
-     * @param coll2 减集合
-     * @param <T>   元素类型
-     * @return 差集列表
-     */
-    public static <T> List<T> subtractToList(Collection<T> coll1, Collection<T> coll2) {
-
-        if (isEmpty(coll1)) {
-            return Collections.emptyList();
-        }
-        if (isEmpty(coll2)) {
-            return list(true, coll1);
-        }
-
-        //
-        final List<T> result = Wraps.list();
-        Set<T> set = Wraps.set(coll2);
-        for (T t : coll1) {
-            if (!set.contains(t)) {
-                result.add(t);
-            }
-        }
-        return result;
-    }
 
 
-    /**
-     * 将 集合 转为指定类型的 列表。
-     *
-     * <p>{@code isLinked} 参数自 4.0.0.42 起保留仅为兼容旧签名，两种取值均返回
-     * {@code Wraps} 分装列表。</p>
-     *
-     * @param isLinked   是否使用 链接列表（兼容参数，现无差异）
-     * @param collection 源集合，为 空 时返回空 列表
-     * @param <T>        元素类型
-     * @return 转换后的 列表
-     */
-    public static <T> List<T> list(boolean isLinked, Collection<T> collection) {
-        if (null == collection) {
-            return list(isLinked);
-        }
-        return Wraps.list(collection);
-    }
+
+
+
 
     /**
      * 创建指定类型的空 列表（链接列表 或 array列表）。
@@ -917,47 +559,9 @@ public class CollectionUtils {
 
         for (String s : target) {
             if (s.equalsIgnoreCase(source)) {
-                return true;
             }
         }
 
-        return false;
-    }
-    /**
-     * 判断目标集合是否包含所有源字符串（忽略大小写）。
-     *
-     * @param target 目标集合
-     * @param source 待查找的字符串数组
-     * @return 全部包含返回 true
-     */
-    public static boolean containsAllIgnoreCase(Collection<String> target, String... source) {
-        if (ArrayUtils.isEmpty(source)) {
-            return true;
-        }
-
-        for (String s : target) {
-            for (String s1 : source) {
-                if (!s.equalsIgnoreCase(s1)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-    /**
-     * 判断目标集合中是否有元素不在源列表中（即检查是否存在差异）。
-     *
-     * @param source 源列表
-     * @param target 目标集合
-     * @return 存在不在 源 中的 Target 元素时返回 true
-     */
-    public static boolean notContains(List<String> source, Collection<String> target) {
-        for (String s : target) {
-            if (!source.contains(s)) {
-                return true;
-            }
-        }
         return false;
     }
     /**
@@ -1083,7 +687,6 @@ public class CollectionUtils {
 
             if (arg instanceof Collection) {
                 rs.add(toArray((Collection)arg, names));
-                continue;
             }
 
             rs.add(toArray(BeanUtils.objectToMap(arg), names));
@@ -1094,8 +697,6 @@ public class CollectionUtils {
         return rs.toArray(new Object[0][]);
     }
 
-    /**
-     * 转换为Array。
      *
      *
      * @param arg
@@ -1108,7 +709,6 @@ public class CollectionUtils {
             return rs;
         }
         for (int i = 0; i < names.size(); i++) {
-            rs[i] = null;
             if (arg.size() < i) {
                 rs[i] = CollectionUtils.find(arg, i);
             }
@@ -1140,74 +740,7 @@ public class CollectionUtils {
     }
 
 
-    /**
-     * 将 列表 按 标识 函数转为 映射（键 = function 返回值，值 = 元素本身）。
-     *
-     * <p>如果列表中有重复 ID，后面的值会覆盖前面的。</p>
-     *
-     * @param list     源列表
-     * @param function 标识 提取函数，用于生成 映射 的 键
-     * @param <R>      键 类型
-     * @param <T>      元素类型
-     * @return Map 结果
-     */
-    public static <R, T>Map<R, T> convertMap(List<T> list, Function<T, R> function) {
-        if (isEmpty(list) || null == function) {
-            return Collections.emptyMap();
-        }
-        Map<R, T> rs = Wraps.map(list.size());
-        for (T t : list) {
-            rs.put(function.apply(t), t);
-        }
 
-        return rs;
-    }
-    /**
-     * 将 列表 按 标识 函数分组转为 映射（键 = function 返回值，值 = 元素列表）。
-     *
-     * <p>相同的 ID 会被归入同一个列表。</p>
-     *
-     * @param list     源列表
-     * @param function 标识 提取函数，用于分组的 键
-     * @param <R>      键 类型
-     * @param <T>      元素类型
-     * @return 分组后的 映射 结果
-     */
-    public static <R, T>Map<R, List<T>> convertMaps(List<T> list, Function<T, R> function) {
-        if (isEmpty(list) || null == function) {
-            return Collections.emptyMap();
-        }
-        Map<R, List<T>> rs = Wraps.map(list.size());
-        for (T t : list) {
-            rs.computeIfAbsent(function.apply(t), it -> Wraps.list()).add(t);
-        }
-
-        return rs;
-    }
-
-    /**
-     * 将 列表 包装为非 空 版本（空 转为空列表）。
-     *
-     * @param elements 源列表，可能为 空
-     * @param <T>      元素类型
-     * @return 非 空 的列表
-     */
-    public static <T>List<T> wrapper(List<T> elements) {
-        return Optional.ofNullable(elements).orElse(Collections.emptyList());
-    }
-    /**
-     * 将单个元素包装为单元素 列表。
-     *
-     * @param element 待包装的元素，可能为 空
-     * @param <T>     元素类型
-     * @return 包含该元素的单例列表，null 返回空列表
-     */
-    public static <T>List<T> wrapper(T element) {
-        if (null == element) {
-            return Collections.emptyList();
-        }
-        return Collections.singletonList(element);
-    }
 
     /**
      * 将 设置 包装为非 空 版本（空 转为空 设置）。
@@ -1232,52 +765,7 @@ public class CollectionUtils {
     }
 
 
-    /**
-     * 将参数数组解析为 映射，支持 ":" 或 "=" 分隔的键值对格式。
-     *
-     * <p>自动处理空格、多值分割等情况。</p>
-     *
-     * @param parameters 参数字符串数组
-     * @return 解析后的 映射
-     */
-    public static Map<String, String> convertParameters(String[] parameters) {
-        if (ArrayUtils.isEmpty(parameters)) {
-            return Wraps.map(DEFAULT_SIZE);
-        }
 
-        List<String> compatibleParameterArray = Arrays.stream(parameters)
-                .map(String::trim)
-                .reduce(
-                        Wraps.list(parameters.length),
-                        (list, parameter) -> {
-                            if (list.size() % 2 == 1) {
-                                // value doesn't split
-                                list.add(parameter);
-                                return list;
-                            }
-
-                            String[] sp1 = parameter.split(":");
-                            if (sp1.length > 0 && sp1.length % 2 == 0) {
- // 键 分割
-                                list.addAll(Arrays.stream(sp1).map(String::trim).toList());
-                                return list;
-                            }
-                            sp1 = parameter.split("=");
-                            if (sp1.length > 0 && sp1.length % 2 == 0) {
-                                list.addAll(Arrays.stream(sp1).map(String::trim).toList());
-                                return list;
-                            }
-                            list.add(parameter);
-                            return list;
-                        },
-                        (a, b) -> a);
-
-        return CollectionUtils.toStringMap(compatibleParameterArray.toArray(new String[0]));
-    }
-
-    /**
-     * 将交替排列的键值对字符串数组转为 映射（[键1, val1, 键2, val2, ...]）。
-     *
      * <p>数组长度必须为偶数，否则抛出 {@link IllegalArgumentException}。</p>
      *
      * @param pairs 键值对字符串数组
@@ -1327,19 +815,6 @@ public class CollectionUtils {
         //
         return Collections.unmodifiableList(keys);
     }
-    /**
-     * 对列表中每个元素应用函数，返回第一个非 空 结果。
-     *
-     * @param s        源列表
-     * @param function 转换函数
-     * @param <T>      元素类型
-     * @param <R>      返回值类型
-     * @return 第一个非 空 转换结果，不存在则返回 空
-     */
-    public static <T, R> R firstValidate(List<T> s, Function<T, R> function) {
-        T t = firstValidate(s);
-        return null == t ? null : function.apply(t);
-    }
 
     /**
      * 获取列表中第一个非 空 且非空的元素。
@@ -1357,7 +832,6 @@ public class CollectionUtils {
         //
         for (T t : s) {
             if (ObjectUtils.isNotEmpty(t)) {
-                return t;
             }
         }
 
@@ -1365,174 +839,14 @@ public class CollectionUtils {
         return null;
     }
 
-    /**
-     * 将可变参数数组转为 列表。
-     *
-     * @param t 元素数组
-     * @param <T> 元素类型
-     * @return 包含元素的 列表，空 时返回空列表
-     */
-    @SafeVarargs
-    public static <T> List<T> toList(T... t) {
-        if (t != null) {
-            return Arrays.asList(t);
-        }
-        return Collections.emptyList();
-    }
-
-    /**
-     * JDK 8 并发哈希映射#computeifabsent 的性能修复版本。
-     *
-     * <p>规避 JDK-8161372 bug：在多线程并发场景下避免死循环。</p>
-     *
-     * @param concurrentHashMap 并发 映射
-     * @param key               键
-     * @param mappingFunction   映射函数
-     * @param <K>               键 类型
-     * @param <V>               值 类型
-     * @return 映射结果
-     */
-    public static <K, V> V computeIfAbsent(Map<K, V> concurrentHashMap, K key, Function<? super K,
-            ? extends V> mappingFunction) {
-        Objects.requireNonNull(mappingFunction);
-        if (Projects.JDK_8) {
-            V v = concurrentHashMap.get(key);
-            if (null == v) {
-                v = mappingFunction.apply(key);
-                if (null == v) {
-                    return null;
-                }
-                final V res = concurrentHashMap.putIfAbsent(key, v);
-                if (null != res) {
-                    return res;
-                }
-            }
-            return v;
-        } else {
-            return concurrentHashMap.computeIfAbsent(key, mappingFunction);
-        }
-
-    }
-
-    /**
-     * 查找字符串列表中第一个包含指定子串的元素索引。
-     *
-     * @param list 字符串列表
-     * @param ele  要查找的子串
-     * @return 第一个包含子串的元素索引，未找到返回 -1
-     */
-    public static int getIndexByContains(List<String> list, String ele) {
-        for (int i = 0; i < list.size(); i++) {
-            String s = list.get(i);
-            if (s.contains(ele)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * 按步长间隔插入分隔符连接字符串列表。
-     *
-     * <p>每隔 step 个元素插入一次 seq 分隔符。</p>
-     *
-     * @param eles 字符串列表
-     * @param step 步长间隔
-     * @param seq  分隔符
-     * @return 连接后的字符串
-     */
-    public static String join(List<String> eles, int step, String seq) {
-        if (isEmpty(eles)) {
-            return SYMBOL_EMPTY;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < eles.size(); i++) {
-            if (i > 0 && i % step == 0) {
-                sb.append(seq);
-            }
-            sb.append(eles.get(i));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 将列表按指定步长分组为子列表。
-     *
-     * <p>分组结果为 {@link List#subList(int, int)} 视图，随源列表变化；需要独立快照时
-     * 请自行复制。步长必须为正数且能整除列表长度，否则抛出
-     * {@link IllegalArgumentException}。</p>
-     *
-     * @param originalList 源列表，不允许为 null
-     * @param step         每组元素个数，必须大于 0 且能整除列表长度
-     * @return 分组后的列表集合
-     * @throws IllegalArgumentException 源列表为 null、步长不为正数或不能整除列表长度时抛出
-     */
-    public static List<List<Integer>> generateGroupList(List<Integer> originalList, int step) {
-        if (originalList == null) {
-            throw new IllegalArgumentException("源列表不能为空");
-        }
-        if (step <= 0) {
-            throw new IllegalArgumentException("每组元素个数 step 必须大于 0，实际: " + step);
-        }
-        int size = originalList.size();
-        if (size % step != 0) {
-            throw new IllegalArgumentException("列表长度 " + size + " 不能被 step " + step + " 整除");
-        }
-
-        List<List<Integer>> newList = Wraps.list(size / step);
-        for (int i = 0; i < size; i += step) {
-            newList.add(originalList.subList(i, i + step));
-        }
-
-        return newList;
-    }
-
-    /**
-     * 获取列表中的唯一元素，如果列表为空则抛出异常。
-     *
-     * @param elements 列表
-     * @param <E>      元素类型
-     * @return 唯一的元素
-     * @throws IllegalArgumentException 如果列表为空
-     */
-    public static <E>E singletonOrThrow(List<E> elements) {
-        if (isEmpty(elements)) {
-            throw new IllegalArgumentException("列表为空，无法取唯一元素");
-        }
-        return elements.getFirst();
-    }
-
-    /**
-     * 限制 列表 的大小，返回从头到指定长度的子列表。
-     *
-     * <p>返回 {@link List#subList(int, int)} 视图，随源列表变化。{@code limit}
-     * 为负数时按 0 处理（返回空列表），大于源列表长度时截断到源列表长度。</p>
-     *
-     * @param source 源列表，不允许为 null
-     * @param limit  最大长度，小于 0 视为 0
-     * @param <T>    元素类型
-     * @return 截取后的子列表
-     * @throws IllegalArgumentException 源列表为 null 时抛出
-     */
-    public static <T>List<T> limit(List<T> source, int limit) {
-        if (source == null) {
-            throw new IllegalArgumentException("源列表不能为空");
-        }
-        if (limit <= 0) {
-            return Collections.emptyList();
-        }
-        return source.subList(0, Math.min(limit, source.size()));
-    }
 
 
-    /**
-     * 从指定偏移量开始限制 列表 的大小。
-     *
-     * @param source 源列表，不允许为 null
-     * @param offset 起始偏移量，小于 0 视为 0
-     * @param limit  最大长度，小于 0 视为 0
-     * @param <T>    元素类型
-     * @return 截取后的子列表；偏移量超出源列表长度时返回空列表
+
+
+
+
+
+
      * @throws IllegalArgumentException 源列表为 null 时抛出
      */
     public static <T>List<T> limit(List<T> source, int offset, int limit) {
@@ -1551,63 +865,7 @@ public class CollectionUtils {
         return source.subList(offset, end);
     }
 
-    /**
-     * 将 列表 中每个元素通过函数转换为字符串后打印到日志。
-     *
-     * @param list     源列表，为空时直接返回
-     * @param function 元素到字符串的转换函数
-     * @param <T>      元素类型
-     */
-    public static <T> void print(List<T> list, Function<T, String> function) {
-        if (isEmpty(list) || null == function) {
-            log.info("list is empty");
-            return;
-        }
 
-        StringBuffer sb = new StringBuffer();
-        for (T t : list) {
-            sb.append("         ").append(function.apply(t)).append("\n");
-        }
-        log.info("list: \n{}", sb);
-    }
-
-    /**
-     * 以表格格式打印 列表，最多显示 最大线 行，超出显示省略信息。
-     *
-     * @param title    标题
-     * @param list     源列表
-     * @param maxLines 最大显示行数
-     * @param function 元素到字符串的转换函数
-     * @param <T>      元素类型
-     */
-    public static <T> void printTableFormat(String title, List<T> list, int maxLines, Function<T, String> function) {
-        if (isEmpty(list) || null == function) {
-            log.info("{}: [empty list]", title);
-            return;
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        //
-        sb.append(title).append("\n");
-
-        //
-        int totalSize = list.size();
-        int displaySize = Math.min(maxLines, totalSize);
-
-        //          N
-        for (int i = 0; i < displaySize; i++) {
-            sb.append("           ").append(function.apply(list.get(i))).append("\n");
-        }
-
-        //                                  "      X   "
-        if (totalSize > displaySize) {
-            int remainingCount = totalSize - displaySize;
-            sb.append("           ...        ").append(remainingCount).append("          \n");
-        }
-
-        log.info("{}", sb);
-    }
 
     /**
      * 以表格格式打印 列表，默认最多显示 5 行。

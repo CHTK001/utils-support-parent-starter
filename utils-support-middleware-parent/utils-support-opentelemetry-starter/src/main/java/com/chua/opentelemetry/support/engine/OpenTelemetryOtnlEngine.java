@@ -457,14 +457,17 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             return statistics;
         }
 
+        /** avgMs 方法 */
         private double avgMs() {
             return calls == 0 ? 0D : (double) totalMs / calls;
         }
 
+        /** errorRate 方法 */
         private double errorRate() {
             return calls == 0 ? 0D : (double) errors / calls * 100D;
         }
 
+        /** percentile 方法 */
         private double percentile(double percentile) {
             if (durations.isEmpty()) {
                 return 0D;
@@ -475,10 +478,12 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             return sorted.get(Math.max(0, Math.min(index, sorted.size() - 1)));
         }
 
+        /** p95 方法 */
         private double p95() {
             return percentile(95);
         }
 
+        /** p99 方法 */
         private double p99() {
             return percentile(99);
         }

@@ -181,6 +181,52 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @param sql SQL
      * @return 改写后的 SQL
      */
+    /**
+     * 只在「字符串字面量之外」做正则替换。
+     *
+     * <p>为什么必须有这个方法（线上踩到的真实事故）：类型映射用的是整条语句级别的
+     * {at code replaceAll}，而 MySQL 脚本里大量种子数据是字符串字面量 ——
+     * 比如采集流程 DSL 里的 {at code ".../data/ci.json"}、{at code "poet.tang.0.json"}。
+     * H2 的 {at code (?i)\bJSON\b -> CLOB} 与 {at code (?i)\bTEXT\b -> CLOB}
+     * 会把这些文件名一起改写，落库后变成 {at code ci.CLOB}、{at code poet.tang.0.CLOB}，
+     * 于是采集流程执行时必然 404/502，而报错信息里完全看不出是迁移器改坏的。</p>
+     *
+     * <p>字面量的判定与 {at link #rewriteBackticks(String)} 一致：单/双引号按
+     * {at link #skipQuoted(String, int)} 跳过（含反斜杠转义与成对引号转义）。</p>
+     *
+     * at param sql         待处理的 SQL
+     * at param pattern     要匹配的模式
+     * at param replacement 替换文本（支持分组引用）
+     * at return 仅在字面量外做了替换的 SQL
+     */
+    protected String replaceOutsideLiterals(String sql, Pattern pattern, String replacement) {
+        if (sql == null || sql.isEmpty() || !pattern.matcher(sql).find()) {
+            return sql;
+        }
+        StringBuilder out = new StringBuilder(sql.length());
+        int i = 0;
+        int segmentStart = 0;
+        while (i < sql.length()) {
+            char c = sql.charAt(i);
+            if (c == '\'' || c == '"') {
+                if (segmentStart < i) {
+                    out.append(pattern.matcher(sql.substring(segmentStart, i)).replaceAll(replacement));
+                }
+                int end = skipQuoted(sql, i);
+                out.append(sql, i, end);
+                i = end;
+                segmentStart = i;
+                continue;
+            }
+            i++;
+        }
+        if (segmentStart < sql.length()) {
+            out.append(pattern.matcher(sql.substring(segmentStart)).replaceAll(replacement));
+        }
+        return out.toString();
+    }
+
+    /** rewriteBackticks 方法 */
     private String rewriteBackticks(String sql) {
         if (sql == null || sql.indexOf('`') < 0) {
             return sql;
@@ -1523,52 +1569,66 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @param protocol 方法入参 protocol
      * @return 结果字符串
      */
+    private static final Pattern TEXT_TYPE_FAMILY = Pattern.compile(
+            "(?i)\\b(?:MEDIUMTEXT|LONGTEXT|TINYTEXT|TEXT)\\b");
+
     private String applyTypeAndFunctionMapping(String sql, String protocol) {
         switch (protocol) {
             case "postgresql" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "COALESCE(");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bMEDIUMTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bLONGTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bTINYTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, NOW_FUNCTION_PATTERN, "CURRENT_TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, IFNULL_FUNCTION_PATTERN, "COALESCE(");
             }
             case "oracle" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bTINYINT\\b", "NUMBER(3)");
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "SYSDATE");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "NVL(");
+                sql = replaceOutsideLiterals(sql, TEXT_TYPE_FAMILY, "CLOB");
+                sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, TINYINT_TYPE_PATTERN, "NUMBER(3)");
+                sql = replaceOutsideLiterals(sql, NOW_FUNCTION_PATTERN, "SYSDATE");
+                sql = replaceOutsideLiterals(sql, IFNULL_FUNCTION_PATTERN, "NVL(");
             }
             case "sqlserver" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "DATETIME2");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "ISNULL(");
+                sql = replaceOutsideLiterals(sql, TEXT_TYPE_FAMILY, "VARCHAR(MAX)");
+                sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "DATETIME2");
+                sql = replaceOutsideLiterals(sql, IFNULL_FUNCTION_PATTERN, "ISNULL(");
             }
             case "h2" -> {
                 // H2（非 MySQL 模式）：JSON 类型映射为 CLOB（H2 1.x 无 JSON 类型）
-                sql = sql.replaceAll("(?i)\\bJSON\\b", "CLOB");
+                // 必须跳过字面量：种子数据里的 `.json` 文件名不能被当成类型名改写
+                // （踩坑记录：ci.json -> ci.CLOB，导致采集流程全 404）
+                sql = replaceOutsideLiterals(sql, JSON_TYPE_PATTERN, "CLOB");
             }
             case "sqlite" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bJSON\\b", "TEXT");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bMEDIUMTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bLONGTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bTINYTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, JSON_TYPE_PATTERN, "TEXT");
                 // SQLite 无 NOW() 函数，MySQL 风格脚本需映射到标准 CURRENT_TIMESTAMP
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, NOW_FUNCTION_PATTERN, "CURRENT_TIMESTAMP");
             }
             default -> {
                 // duckdb/hive/其他协议：仅通用函数映射
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
+                sql = replaceOutsideLiterals(sql, NOW_FUNCTION_PATTERN, "CURRENT_TIMESTAMP");
             }
         }
         return sql;
     }
+
+    /** DATETIME 类型名（只应改写字面量之外的部分） */
+    private static final Pattern DATETIME_TYPE_PATTERN = Pattern.compile("(?i)\\bDATETIME\\b");
+
+    /** JSON 类型名：字面量里常见 `.json` 文件名，必须跳过 */
+    private static final Pattern JSON_TYPE_PATTERN = Pattern.compile("(?i)\\bJSON\\b");
+
+    /** TINYINT 类型名（Oracle 映射为 NUMBER(3)） */
+    private static final Pattern TINYINT_TYPE_PATTERN = Pattern.compile("(?i)\\bTINYINT\\b");
+
+    /** NOW() 函数（字面量里可能出现，例如脚本示例文本） */
+    private static final Pattern NOW_FUNCTION_PATTERN = Pattern.compile("(?i)\\bNOW\\s*\\(\\s*\\)");
+
+    /** IFNULL( 函数 */
+    private static final Pattern IFNULL_FUNCTION_PATTERN = Pattern.compile("(?i)\\bIFNULL\\s*\\(");
 }

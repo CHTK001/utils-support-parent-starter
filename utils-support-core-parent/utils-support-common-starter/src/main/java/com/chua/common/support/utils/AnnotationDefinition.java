@@ -89,26 +89,7 @@ public final class AnnotationDefinition<A extends Annotation> {
         return new AnnotationDefinition<>(annotation, Source.INHERITED, annotationClass, false);
     }
 
-    /**
-     * ofAliasResolved。
-     *
-     * @param annotation 方法入参 annotation
-     * @param annotationClass 方法入参 annotationClass
-     * @return AnnotationDefinition 对象
-     */
-    public static <A extends Annotation> AnnotationDefinition<A> ofAliasResolved(A annotation,
-            Class<A> annotationClass) {
-        return new AnnotationDefinition<>(annotation, Source.ALIAS_RESOLVED, annotationClass, false);
-    }
 
-    /**
-     * ofOverridden方法。
-     *
-     * @param annotation 方法入参 annotation
-     * @param annotationClass 方法入参 annotationClass
-     * @return AnnotationDefinition 对象
-     */
-    public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation,
             Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.OVERRIDDEN_METHOD, annotationClass, false);
     }
@@ -124,48 +105,8 @@ public final class AnnotationDefinition<A extends Annotation> {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, true);
     }
 
-    /**
-     * 获取Annotation。
-     *
-     * @return A 对象
-     */
-    public A getAnnotation() {
-        return annotation;
-    }
 
-    /**
-     * 获取来源。
-     *
-     * @return 来源 对象
-     */
-    public Source getSource() {
-        return source;
-    }
 
-    /**
-     * 获取AnnotationClass。
-     *
-     * @return Class 对象
-     */
-    public Class<A> getAnnotationClass() {
-        return annotationClass;
-    }
 
-    /**
-     * 是否被子类覆盖（子类优先级高于父类）。
-     * @return 是否subclassoverrides的结果
-     */
-    public boolean isSubclassOverrides() {
-        return subclassOverridesParent;
-    }
 
-    @Override
-    public String toString() {
-        return "AnnotationDefinition{" +
-                "annotation=" + annotation +
-                ", source=" + source +
-                ", annotationClass=" + annotationClass.getSimpleName() +
-                ", subclassOverrides=" + subclassOverridesParent +
-                '}';
-    }
 }

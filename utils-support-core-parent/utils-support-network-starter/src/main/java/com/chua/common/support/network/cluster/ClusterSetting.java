@@ -38,11 +38,6 @@ public class ClusterSetting {
     private String scatterId = "default";
 
     /**
-     * 集群标识：为空时回落到 scatterid
-    */
-    private String clusterId;
-
-    /**
      * 集群种子节点（主机:端口 列表，引导无中心化发现）
     */
     private List<String> seeds = Wraps.list();
@@ -101,11 +96,11 @@ public class ClusterSetting {
     private String master;
 
     /**
-     * 获取有效业务分组：clusterid 为空时回落到 scatterid。
+     * 获取有效业务分组：直接取 scatterid。
      * @return effective群体id的结果
      */
     public String effectiveGroupId() {
-        return clusterId != null && !clusterId.isBlank() ? clusterId : scatterId;
+        return scatterId;
     }
 
     /**

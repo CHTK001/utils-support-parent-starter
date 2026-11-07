@@ -5,6 +5,14 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * 反射探测工具测试。
+ *
+ * <p>验证按属性名/类型从实体方法反查字段的探测口径，供引擎层做元数据推断使用。</p>
+ *
+ * @author CH
+ * @since 4.0.0.50
+ */
 public class ProbeTest {
 
     static class User {

@@ -19,12 +19,17 @@ import ai.djl.translate.TranslatorContext;
 public class PaddleFaceFeatureTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸
+     */
+    private static final int INPUT_SIZE = 112;
+
+    /**
      * 处理输入
     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        array = NDImageUtils.resize(array, 112, 112);
+        array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
         if (!array.getDataType().equals(DataType.FLOAT32)) {
             array = array.toType(DataType.FLOAT32, false);
         }

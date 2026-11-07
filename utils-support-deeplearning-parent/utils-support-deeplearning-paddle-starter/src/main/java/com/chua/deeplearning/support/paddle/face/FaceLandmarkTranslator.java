@@ -17,6 +17,11 @@ import ai.djl.translate.TranslatorContext;
 public class FaceLandmarkTranslator implements Translator<Image, float[]> {
 
     /**
+     * 输入尺寸
+     */
+    private static final int INPUT_SIZE = 60;
+
+    /**
      * 处理输出
     */
     @Override
@@ -35,7 +40,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.GRAYSCALE);
-        array = NDImageUtils.resize(array, 60, 60, Image.Interpolation.BICUBIC);
+        array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE, Image.Interpolation.BICUBIC);
         NDArray mean = array.mean();
         float std = std(array);
         array = array.transpose(2, 0, 1).sub(mean).div(Math.max(std, 1e-6f)).expandDims(0);

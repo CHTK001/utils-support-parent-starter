@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>覆盖 SQL 风格 WHERE 子句的全部算子、连接符优先级、
  * 括号分组、占位符消费顺序与非法输入的异常语义。</p>
+ * @author CH
+ * @since 4.0.0.50
  */
 class MemoryWhereParserTest {
 

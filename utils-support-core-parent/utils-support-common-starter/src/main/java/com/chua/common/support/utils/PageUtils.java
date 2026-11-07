@@ -26,59 +26,9 @@ public class PageUtils {
     @Getter
     private static volatile int firstPageNo = 0;
 
-    /**
-     * 设置首页页码
-     *
-     * @param firstPageNo 首页页码（如 0 或 1）
-     */
-    public static void setFirstPageNo(int firstPageNo) {
-        PageUtils.firstPageNo = firstPageNo;
-    }
 
-    /**
-     * 计算分页的起始索引（偏移量）
-     *
-     * @param pageNo   当前页码
-     * @param pageSize 每页大小
-     * @return 起始索引
-     */
-    public static int getStart(int pageNo, int pageSize) {
-        if (pageNo < firstPageNo) {
-            pageNo = firstPageNo;
-        }
-        if (pageSize < 1) {
-            return 0;
-        }
-        // 使用 long 防止计算过程中 int 溢出
-        long start = ((long) pageNo - firstPageNo) * pageSize;
-        if (start < 0) {
-            start = 0;
-        } else if (start > Integer.MAX_VALUE) {
-            start = Integer.MAX_VALUE;
-        }
-        return (int) start;
-    }
 
-    /**
-     * 计算分页的结束索引
-     *
-     * @param pageNo   当前页码
-     * @param pageSize 每页大小
-     * @return 结束索引
-     */
-    public static int getEnd(int pageNo, int pageSize) {
-        long start = getStart(pageNo, pageSize);
-        long end = start + pageSize;
-        if (end > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
-        return (int) end;
-    }
 
-    /**
-     * 将页码和每页大小转换为起始和结束索引数组
-     *
-     * @param pageNo   当前页码
      * @param pageSize 每页大小
      * @return 包含起始索引和结束索引的数组，格式为 [启动, 结束]
      */
@@ -88,7 +38,6 @@ public class PageUtils {
         if (end > Integer.MAX_VALUE) {
             end = Integer.MAX_VALUE;
         }
-        return new int[]{start, (int) end};
     }
 
     /**

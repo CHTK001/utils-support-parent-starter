@@ -44,11 +44,13 @@ public class WindowsServiceManagerArgvTest {
         }
     }
 
+    /** queryOk 方法 */
     private static boolean queryOk(WindowsServiceManager manager, String serviceName) {
         CmdResult result = manager.status(serviceName);
         return result.isSuccess() && !result.getStdout().isBlank();
     }
 
+    /** check 方法 */
     private static void check(String name, boolean ok) {
         if (ok) {
             passed++;

@@ -60,6 +60,12 @@ public class NioServerResponse implements ServerResponse {
     private static final java.util.Map<Integer, byte[]> ECHO_HEADER_CACHE = new ConcurrentHashMap<>();
 
     /**
+     * 复用 rawOutput 缓冲的上限：超过该字节数说明这条响应写过大批量数据，
+     * 不值得长期挂在连接上占内存，直接丢弃交给 GC。
+     */
+    private static final int RAW_OUTPUT_KEEP_BYTES = 8 * 1024;
+
+    /**
      * 通道
      */
     private final SocketChannel channel;
@@ -358,6 +364,49 @@ public class NioServerResponse implements ServerResponse {
     @Override
     public void end() {
         ended = true;
+    }
+
+    /**
+     * 重置为「尚未处理任何响应」的初始状态，供 keep-alive 连接复用同一实例。
+     *
+     * <p>与 {@link #reset()} 的区别：{@code reset()} 是面向业务的「撤销已写内容」，
+     * 遇到 {@code ended} 会直接返回；本方法是传输层内部的重置，语义是「下一条请求
+     * 从全新的响应对象开始」，必须无条件把所有可变状态清回去。</p>
+     *
+     * <p>不重置的只有两样：{@link #channel}（同一连接固定不变）与已经建立的
+     * {@code headers} map / {@code rawOutput} 缓冲（保留实例即复用，正是本方法的目的）。</p>
+     *
+     * <p>复用安全性依赖调用顺序：调用方必须保证上一条响应的字节已经交付给待写队列
+     * 或被完整写出之后才调用本方法——此时残留的 {@code ByteBuffer} 持有的是各自的
+     * {@code byte[]}，与本实例字段无关，重置不会改写它们。</p>
+     *
+     * @return true 表示实例已归位、可继续复用于下一条请求；false 表示调用方必须丢弃该实例
+     *         （{@code sse()} 开启过的响应生命周期会延续到 handler 返回之后，
+     *         重置会破坏正在推送的流，因此不复用）
+     */
+    public boolean resetForNextRequest() {
+        boolean reusable = !sseMode;
+        statusCode = 200;
+        if (headers != null) {
+            headers.clear();
+        }
+        body = null;
+        ended = false;
+        committed = false;
+        sent = false;
+        sseMode = false;
+        channelClosed = false;
+        result = null;
+        if (rawOutput != null) {
+            // 保留小缓冲以复用（这是复用的主要收益），但一次性写过大批量数据后
+            // 不应把大数组长期挂在连接上，超过阈值直接丢弃，交给 GC
+            if (rawOutput.size() > RAW_OUTPUT_KEEP_BYTES) {
+                rawOutput = null;
+            } else {
+                rawOutput.reset();
+            }
+        }
+        return reusable;
     }
 
     /**

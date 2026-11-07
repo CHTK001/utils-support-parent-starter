@@ -741,6 +741,7 @@ public class MossTtsTranslator implements AutoCloseable {
         return audioTokens;
     }
 
+    /** runLocalFixedSampledFrame 方法 */
     private LocalFrame runLocalFixedSampledFrame(OnnxTensor globalHidden,
                                                  Set<Integer>[] seen,
                                                  Random random) throws OrtException {

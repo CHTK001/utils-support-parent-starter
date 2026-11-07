@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>覆盖所有 AgentMode、多 ChatClient 路由追踪、系统提示词生成、架构图输出。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 class AgentSubAgentRoutingTest {
 
