@@ -27,6 +27,8 @@ import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.memory.MemoryConfig;
+import com.chua.common.support.ai.memory.MemoryEntry;
+import com.chua.common.support.ai.memory.MemoryManager;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
 import com.chua.common.support.ai.agent.goal.GoalStatus;
 import com.chua.common.support.ai.agent.goal.GoalTracker;
@@ -139,6 +141,14 @@ public class AgentScopeAgent implements Agent {
      * 记忆配置
     */
     private MemoryConfig memoryConfig;
+    /**
+     * 记忆管理器（懒创建，memoryConfig 为空时返回 null）
+     */
+    private volatile MemoryManager memoryManager;
+    /**
+     * 记忆检索条数上限：注入系统提示词的长期记忆条目数
+     */
+    private static final int MEMORY_SEARCH_LIMIT = 5;
     /**
      * 压缩配置
     */
@@ -474,6 +484,160 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 获取记忆管理器
+     *
+     * <p>与 langchain4j 实现同口径：{@code memoryConfig} 未显式设置时回落到
+     * {@link AgentDefinition#getMemoryConfig()}；definition 声明了 {@code memory=true}
+     * 但未给配置时使用默认配置。都没有则返回 {@code null}（未启用长期记忆）。</p>
+     *
+     * @return 记忆管理器；未启用时返回 null
+     */
+    @Override
+    public MemoryManager getMemoryManager() {
+        return resolveMemoryManager();
+    }
+
+    /**
+     * 解析记忆管理器（懒创建）
+     *
+     * @return 记忆管理器；未启用时返回 null
+     */
+    private MemoryManager resolveMemoryManager() {
+        MemoryConfig config = resolveMemoryConfig();
+        if (config == null) {
+            return null;
+        }
+        MemoryManager current = this.memoryManager;
+        if (current == null) {
+            synchronized (this) {
+                current = this.memoryManager;
+                if (current == null) {
+                    current = new MemoryManager(config);
+                    this.memoryManager = current;
+                }
+            }
+        }
+        return current;
+    }
+
+    /**
+     * 解析记忆配置，并把存储目录落到 workspace 下
+     *
+     * @return 记忆配置；未启用记忆时返回 null
+     */
+    private MemoryConfig resolveMemoryConfig() {
+        MemoryConfig config = memoryConfig;
+        if (config == null && definition != null) {
+            config = definition.getMemoryConfig();
+        }
+        if (config == null) {
+            if (definition == null || !definition.isMemory()) {
+                return null;
+            }
+            config = MemoryConfig.builder().build();
+        }
+        String workspace = config.getWorkspace();
+        if (workspacePath != null && !workspacePath.isBlank()
+                && (workspace == null || workspace.isBlank() || ".agent/memory".equals(workspace))) {
+            return MemoryConfig.builder()
+                    .storeType(config.getStoreType())
+                    .engine(config.getEngine())
+                    .workspace(workspacePath + "/.agent/memory")
+                    .maxContentLength(config.getMaxContentLength())
+                    .maxEntries(config.getMaxEntries())
+                    .summarizerClient(config.getSummarizerClient())
+                    .summarizerModel(config.getSummarizerModel())
+                    .summarizerPrompt(config.getSummarizerPrompt())
+                    .autoSummarize(config.isAutoSummarize())
+                    .build();
+        }
+        return config;
+    }
+
+    /**
+     * 检索长期记忆并注入系统提示词
+     *
+     * @param systemPrompt 原系统提示词
+     * @param input        用户输入
+     * @return 注入后的系统提示词
+     */
+    private String injectMemory(String systemPrompt, String input) {
+        MemoryManager manager = resolveMemoryManager();
+        if (manager == null || input == null || input.isBlank()) {
+            return systemPrompt;
+        }
+        try {
+            List<MemoryEntry> entries = manager.search(input, MEMORY_SEARCH_LIMIT);
+            if (entries == null || entries.isEmpty()) {
+                return systemPrompt;
+            }
+            StringBuilder sb = new StringBuilder(systemPrompt);
+            sb.append("\n\n【相关长期记忆】\n");
+            for (MemoryEntry entry : entries) {
+                if (entry != null && entry.getContent() != null && !entry.getContent().isBlank()) {
+                    sb.append("- ").append(entry.getContent()).append('\n');
+                }
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            log.warn("[AgentScope] 记忆检索失败，跳过注入: {}", e.getMessage());
+            return systemPrompt;
+        }
+    }
+
+    /**
+     * 保存本轮对话到记忆体
+     *
+     * @param input  用户输入
+     * @param output 助手输出
+     */
+    private void autoSaveMemory(String input, String output) {
+        MemoryManager manager = resolveMemoryManager();
+        if (manager == null || output == null || output.isBlank() || input == null) {
+            return;
+        }
+        try {
+            manager.saveFromConversation("用户: " + input + "\n助手: " + output,
+                    sessionKey(), agentId());
+        } catch (Exception e) {
+            log.warn("[AgentScope] 记忆保存失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 关闭并清空记忆管理器
+     */
+    private void closeMemoryManager() {
+        MemoryManager current = this.memoryManager;
+        this.memoryManager = null;
+        if (current != null) {
+            try {
+                current.close();
+            } catch (Exception e) {
+                log.debug("[AgentScope] 关闭记忆管理器失败: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Agent 标识
+     *
+     * @return 标识
+     */
+    private String agentId() {
+        return definition != null && definition.getId() != null ? definition.getId() : "agent";
+    }
+
+    /**
+     * 会话键
+     *
+     * @return 会话标识
+     */
+    private String sessionKey() {
+        return defaultSessionId != null ? defaultSessionId : agentId();
+    }
+
+    /**
      * compression配置
     */
     @Override
@@ -743,6 +907,7 @@ public class AgentScopeAgent implements Agent {
                 }
                 Msg resultMsg = harnessAgent.call(plan.userMsg, ctx).block();
                 String output = resultMsg != null ? resultMsg.getTextContent() : "";
+                autoSaveMemory(input, output);
                 result = AgentResponse.builder()
                         .output(output)
                         .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
@@ -1054,6 +1219,8 @@ public class AgentScopeAgent implements Agent {
             // 记录每个 agent 是否已通过 delta 流式输出过正文；
             // 非流式模型适配器不产生 TextBlockDeltaEvent，需在 AgentResultEvent 补正文
             final java.util.Map<String, Boolean> textDeltaEmitted = Wraps.map();
+            // 本轮最终正文（用于结束后写入长期记忆）
+            final StringBuilder outputText = new StringBuilder();
 
             // 复用同一个 RuntimeContext：Plan 模式在订阅流前预先进入，首轮即只读
             RuntimeContext ctx = buildRuntimeContext();
@@ -1091,6 +1258,7 @@ public class AgentScopeAgent implements Agent {
                                     // 正文增量实时下发（真实流式）；输出全文在 AgentResultEvent 统一记一条 trace
                                     emitted.add(AgentStreamEvent.reasoningDelta(aid, delta.getDelta()));
                                     textDeltaEmitted.put(aid, Boolean.TRUE);
+                                    outputText.append(delta.getDelta());
                                 }
                             } else if (event instanceof ThinkingBlockStartEvent e) {
                                 String spanId = AgentTrace.newSpanId(aid, "think", ++spanSeq[0]);
@@ -1181,6 +1349,7 @@ public class AgentScopeAgent implements Agent {
                                     if (!Boolean.TRUE.equals(textDeltaEmitted.get(aid))) {
                                         emitted.add(AgentStreamEvent.reasoningDelta(aid, fullText));
                                         textDeltaEmitted.put(aid, Boolean.TRUE);
+                                        outputText.append(fullText);
                                     }
                                 }
                             } else if (event instanceof AgentEndEvent) {
@@ -1260,6 +1429,10 @@ public class AgentScopeAgent implements Agent {
                     })
                     .concatWith(Flux.defer(() -> {
                         long duration = System.currentTimeMillis() - startTime;
+                        // 记忆写在 COMPLETE 之前：宿主收到 COMPLETE 即为本轮结束，
+                        // 写晚了会出现「刚结束就查记忆查不到」的竞态
+                        autoSaveMemory(plan.userMsg != null ? plan.userMsg.getTextContent() : null,
+                                outputText.toString());
                         int in = (int) inputTokens[0];
                         int out = (int) outputTokens[0];
                         AiUsage usage = AiUsage.builder()
@@ -1401,7 +1574,7 @@ public class AgentScopeAgent implements Agent {
                 : (definition != null ? definition.getPlanHook() : null);
 
         String agentId = definition != null && definition.getId() != null ? definition.getId() : "agent";
-        String sysPrompt = resolveSystemPrompt();
+        String sysPrompt = injectMemory(resolveSystemPrompt(), input);
 
         Msg.Builder userMsgBuilder = Msg.builder().role(MsgRole.USER);
         // resume 路径 input 为 null（稍后替换为确认结果消息），不构造文本块避免 NPE
@@ -1672,6 +1845,7 @@ public class AgentScopeAgent implements Agent {
         // 先中断：不留下一个还在跑的循环（中断会关掉当前 Harness）
         interrupt();
         cleanupModelRegistrations();
+        closeMemoryManager();
         for (ChatClient client : chatClients.values()) {
             try {
                 client.close();
