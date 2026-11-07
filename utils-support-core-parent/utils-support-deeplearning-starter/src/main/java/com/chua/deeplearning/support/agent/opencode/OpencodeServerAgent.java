@@ -13,6 +13,7 @@ import com.chua.common.support.ai.agent.AgentQuestion;
 import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
+import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
 import com.chua.common.support.ai.agent.goal.GoalStatus;
@@ -342,6 +343,11 @@ public class OpencodeServerAgent implements Agent {
     private final List<AgentDefinition> subAgents = new CopyOnWriteArrayList<>();
 
     /**
+     * 按名称关闭的工具（写入各 agent 的 tools 段，值为 false）
+     */
+    private final Map<String, Boolean> disabledTools = new ConcurrentHashMap<>();
+
+    /**
      * 中断标记
      */
     private final AtomicBoolean interrupted = new AtomicBoolean(false);
@@ -587,6 +593,24 @@ public class OpencodeServerAgent implements Agent {
         throw new UnsupportedOperationException(
                 "Java 技能 handler 只在当前进程内可调用，opencode 无法访问；技能 " + name
                         + " 请改写为 workspace/.opencode/skill/" + name + "/SKILL.md，再调用 skillPath(..)");
+    }
+
+    @Override
+    public OpencodeServerAgent tool(AgentTool tool) {
+        String name = tool == null ? "null" : tool.getName();
+        throw new UnsupportedOperationException(
+                "进程内工具执行器无法跨进程回调：opencode 是独立进程，工具 " + name
+                        + " 的 Java executor 不会被调用。请改用 mcpServer(name, spec) 暴露 MCP 服务，"
+                        + "或把能力写成 workspace/.opencode/skill/<name>/SKILL.md 后 skillPath(..)");
+    }
+
+    @Override
+    public OpencodeServerAgent disableTool(String toolName) {
+        if (toolName == null || toolName.isBlank()) {
+            return this;
+        }
+        disabledTools.put(toolName.trim(), Boolean.FALSE);
+        return this;
     }
 
     @Override
@@ -1475,7 +1499,7 @@ public class OpencodeServerAgent implements Agent {
         boolean managePlan = planRequested();
         boolean hasManaged = !specs.isEmpty() || globalModel != null || hasText(instructions)
                 || manageMcp || managePlan || shellEnabled != null
-                || compression != null || !skillPaths.isEmpty();
+                || compression != null || !skillPaths.isEmpty() || !disabledTools.isEmpty();
         if (!hasManaged) {
             return;
         }
@@ -1537,7 +1561,7 @@ public class OpencodeServerAgent implements Agent {
                 continue;
             }
             specs.put(name, OpencodeProjectConfig.AgentSpec.modelOnly(name,
-                    resolvedModelId(entry.getValue())));
+                    resolvedModelId(entry.getValue()), toolsOverride()));
         }
         return specs;
     }
@@ -1560,7 +1584,8 @@ public class OpencodeServerAgent implements Agent {
         }
         Map<String, String> permissions = def != null && def.isPlanning() ? planPermissions() : null;
         return new OpencodeProjectConfig.AgentSpec(name, OpencodeProjectConfig.MODE_PRIMARY,
-                description, prompt, steps > 0 ? steps : null, resolvedModelId(client), permissions);
+                description, prompt, steps > 0 ? steps : null, resolvedModelId(client), permissions,
+                toolsOverride());
     }
 
     /**
@@ -1597,7 +1622,7 @@ public class OpencodeServerAgent implements Agent {
         Map<String, String> permissions = subAgent.isPlanning() ? planPermissions() : null;
         specs.put(name, new OpencodeProjectConfig.AgentSpec(name, OpencodeProjectConfig.MODE_SUBAGENT,
                 subAgent.getDescription(), prompt, steps > 0 ? steps : null,
-                resolvedModelId(client), permissions));
+                resolvedModelId(client), permissions, toolsOverride()));
         for (AgentDefinition child : subAgent.getAgents()) {
             next = addSubAgentSpecs(specs, child, next);
         }
@@ -1614,7 +1639,8 @@ public class OpencodeServerAgent implements Agent {
             return agentName;
         }
         if (!shouldManagePrimary()) {
-            return null;
+            // 仅按名称裁剪工具时也必须有一个可写的 agent 承载 tools 覆盖
+            return disabledTools.isEmpty() ? null : DEFAULT_MANAGED_AGENT;
         }
         if (definition != null && hasText(definition.getId())) {
             String name = sanitizeAgentName(definition.getId());
@@ -1623,6 +1649,15 @@ public class OpencodeServerAgent implements Agent {
             }
         }
         return DEFAULT_MANAGED_AGENT;
+    }
+
+    /**
+     * 写入 agent 的工具开关覆盖。
+     *
+     * @return 工具名 -> false；没有关闭任何工具时返回 null
+     */
+    private Map<String, Boolean> toolsOverride() {
+        return disabledTools.isEmpty() ? null : disabledTools;
     }
 
     /**

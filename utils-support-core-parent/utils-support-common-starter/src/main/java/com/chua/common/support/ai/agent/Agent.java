@@ -531,6 +531,67 @@ public interface Agent extends AutoCloseable {
     }
 
     /**
+     * 注册一个进程内工具（function calling）
+     *
+     * <p>与 {@link #skill(String, String, SkillHandler)} 的区别：技能是「提示 + 处理器」，
+     * 工具是「函数签名 + Schema + 处理器」，模型按 Schema 生成结构化参数调用。
+     * 同名工具后注册者覆盖先注册者。</p>
+     *
+     * <p>实现类若无法在本进程内执行工具（例如 opencode 这类独立进程后端），
+     * 必须抛 {@link UnsupportedOperationException} 并说明替代做法，不得静默忽略。</p>
+     *
+     * @param tool 工具定义
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent tool(AgentTool tool) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持注册进程内工具");
+    }
+
+    /**
+     * 批量注册进程内工具
+     *
+     * @param tools 工具定义列表，null 或空表示不注册
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent tools(List<AgentTool> tools) {
+        if (tools == null) {
+            return this;
+        }
+        for (AgentTool tool : tools) {
+            if (tool != null) {
+                tool(tool);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 已注册的进程内工具
+     *
+     * <p>只返回本进程内可执行、由 {@link #tool(AgentTool)} 注册的工具；
+     * MCP / 技能等由后端自管的工具面不在此列（用 {@link #disableTool(String)} 仍可关闭）。</p>
+     *
+     * @return 工具定义列表，未注册时为空列表
+     */
+    default List<AgentTool> tools() {
+        return List.of();
+    }
+
+    /**
+     * 按名称关闭一个工具
+     *
+     * <p>用于在下发前裁剪工具面：无论是本进程注册的工具、MCP 工具还是后端原生工具，
+     * 只要名称匹配就不再提供给模型。实现类必须真正生效，无法生效时抛
+     * {@link UnsupportedOperationException}。</p>
+     *
+     * @param toolName 工具名称
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent disableTool(String toolName) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持按名称禁用工具");
+    }
+
+    /**
      * 设置是否启用 MCP 工具
      *
      * <p>关闭后 Agent 退化为纯路由模型，不加载任何 MCP 工具和技能工具。

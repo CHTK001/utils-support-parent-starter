@@ -444,6 +444,10 @@ public final class OpencodeProjectConfig {
             if (spec.model() != null && !spec.model().isBlank()) {
                 node.put("model", spec.model());
             }
+            if (spec.tools() != null && !spec.tools().isEmpty()) {
+                ObjectNode toolsNode = childObject(node, "tools");
+                spec.tools().forEach(toolsNode::put);
+            }
         }
     }
 
@@ -651,9 +655,11 @@ public final class OpencodeProjectConfig {
      * @param steps       最大 agent 轮数；null 或非正数表示不写
      * @param model       该 agent 使用的模型（provider/model）；null 表示继承默认
      * @param permissions 该 agent 的权限覆盖；null 表示不写
+     * @param tools       该 agent 的工具开关覆盖（如 {@code bash -> false}）；null 表示不写
      */
     public record AgentSpec(String name, String mode, String description, String prompt,
-                            Integer steps, String model, Map<String, String> permissions) {
+                            Integer steps, String model, Map<String, String> permissions,
+                            Map<String, Boolean> tools) {
 
         /**
          * 只覆盖模型的构造入口（用于 {@code chatClient(agentId, ..)}）。
@@ -663,7 +669,19 @@ public final class OpencodeProjectConfig {
          * @return 定义
          */
         public static AgentSpec modelOnly(String name, String model) {
-            return new AgentSpec(name, null, null, null, null, model, null);
+            return new AgentSpec(name, null, null, null, null, model, null, null);
+        }
+
+        /**
+         * 只覆盖模型与工具开关的构造入口。
+         *
+         * @param name  agent 名称
+         * @param model 模型标识
+         * @param tools 工具开关覆盖
+         * @return 定义
+         */
+        public static AgentSpec modelOnly(String name, String model, Map<String, Boolean> tools) {
+            return new AgentSpec(name, null, null, null, null, model, null, tools);
         }
     }
 

@@ -14,6 +14,7 @@ import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
+import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
@@ -184,6 +185,16 @@ public class LangChain4jAgent implements Agent {
      * 通过 {@link #skill(String, String, SkillHandler)} 注册的本地技能
      */
     private final Map<String, SkillDefinition> localSkills = new LinkedHashMap<>();
+
+    /**
+     * 通过 {@link #tool(AgentTool)} 注册的进程内工具（名称 → 定义）
+     */
+    private final Map<String, AgentTool> localTools = new LinkedHashMap<>();
+
+    /**
+     * 按名称关闭的工具，下发模型前统一裁剪
+     */
+    private final Set<String> disabledTools = new LinkedHashSet<>();
 
     /**
      * 记忆体配置
@@ -413,6 +424,48 @@ public class LangChain4jAgent implements Agent {
         }
         localSkills.put(name, new SkillDefinition(name,
                 description != null ? description : name, List.of(), handler));
+        return this;
+    }
+
+    /**
+     * 注册进程内工具（function calling）
+     *
+     * <p>工具会与 MCP 工具、Skill 工具一起进入工具循环；同名时先注册者优先
+     * （MCP → 进程内工具 → Skill），并可通过 {@link #disableTool(String)} 关闭。</p>
+     *
+     * @param tool 工具定义
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent tool(AgentTool tool) {
+        if (tool == null) {
+            return this;
+        }
+        localTools.put(tool.getName(), tool);
+        return this;
+    }
+
+    /**
+     * 已注册的进程内工具
+     *
+     * @return 工具定义列表
+     */
+    @Override
+    public List<AgentTool> tools() {
+        return new ArrayList<>(localTools.values());
+    }
+
+    /**
+     * 按名称关闭工具
+     *
+     * @param toolName 工具名称
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent disableTool(String toolName) {
+        if (toolName != null && !toolName.isBlank()) {
+            disabledTools.add(toolName.trim());
+        }
         return this;
     }
 
@@ -1830,6 +1883,7 @@ public class LangChain4jAgent implements Agent {
         if (plan.mcpManager != null) {
             for (McpToolDescriptor descriptor : plan.mcpManager.listAllTools()) {
                 if (descriptor == null || descriptor.getName() == null
+                        || isToolDisabled(descriptor.getName())
                         || !names.add(descriptor.getName())) {
                     continue;
                 }
@@ -1842,8 +1896,20 @@ public class LangChain4jAgent implements Agent {
             }
         }
 
+        for (AgentTool tool : localTools.values()) {
+            if (!isToolDisabled(tool.getName()) && names.add(tool.getName())) {
+                specs.add(ToolSpecification.builder()
+                        .name(tool.getName())
+                        .description(tool.getDescription() != null
+                                ? tool.getDescription() : "Tool: " + tool.getName())
+                        .parameters(buildParametersFromSchema(tool.getParameters()))
+                        .build());
+            }
+        }
+
         for (SkillDefinition skill : collectSkills(plan)) {
-            if (skill == null || skill.getName() == null || !names.add(skill.getName())) {
+            if (skill == null || skill.getName() == null || isToolDisabled(skill.getName())
+                    || !names.add(skill.getName())) {
                 continue;
             }
             JsonObjectSchema parameters = buildParametersFromSkill(skill);
@@ -1867,7 +1933,8 @@ public class LangChain4jAgent implements Agent {
 
         if (plan.mcpManager != null) {
             for (McpToolDescriptor descriptor : plan.mcpManager.listAllTools()) {
-                if (descriptor == null || descriptor.getName() == null) {
+                if (descriptor == null || descriptor.getName() == null
+                        || isToolDisabled(descriptor.getName())) {
                     continue;
                 }
                 executors.putIfAbsent(descriptor.getName(), args -> {
@@ -1884,8 +1951,15 @@ public class LangChain4jAgent implements Agent {
             }
         }
 
+        for (AgentTool tool : localTools.values()) {
+            if (isToolDisabled(tool.getName())) {
+                continue;
+            }
+            executors.putIfAbsent(tool.getName(), args -> String.valueOf(tool.getExecutor().execute(args)));
+        }
+
         for (SkillDefinition skill : collectSkills(plan)) {
-            if (skill == null || skill.getName() == null) {
+            if (skill == null || skill.getName() == null || isToolDisabled(skill.getName())) {
                 continue;
             }
             executors.putIfAbsent(skill.getName(), args -> {
@@ -1896,6 +1970,16 @@ public class LangChain4jAgent implements Agent {
             });
         }
         return executors;
+    }
+
+    /**
+     * 判断工具是否已被 {@link #disableTool(String)} 关闭
+     *
+     * @param name 工具名称
+     * @return 已关闭返回 true
+     */
+    private boolean isToolDisabled(String name) {
+        return name != null && disabledTools.contains(name);
     }
 
     /**

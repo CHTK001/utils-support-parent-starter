@@ -16,6 +16,7 @@ import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
+import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.agent.ImageDefinition;
@@ -199,6 +200,16 @@ public class AgentScopeAgent implements Agent {
     private final Map<String, String> skillDescriptions = Wraps.linkedMap(); // skilldescriptions
 
     /**
+     * 通过 {@link #tool(AgentTool)} 注册的进程内工具（名称 → 定义）
+     */
+    private final Map<String, AgentTool> localTools = Wraps.linkedMap();
+
+    /**
+     * 按名称关闭的工具，注册进 Toolkit 前统一裁剪
+     */
+    private final List<String> disabledTools = Wraps.list();
+
+    /**
      * 每次 运行 注册的 模型id 追踪，用于清理
      */
     private final List<String> registeredModelIds = Wraps.list();
@@ -290,6 +301,44 @@ public class AgentScopeAgent implements Agent {
             if (description != null) {
                 this.skillDescriptions.put(name, description);
             }
+        }
+        return this;
+    }
+
+    /**
+     * 注册进程内工具（function calling），注册进 Agentscope Toolkit。
+     *
+     * @param tool 工具定义
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent tool(AgentTool tool) {
+        if (tool != null) {
+            this.localTools.put(tool.getName(), tool);
+        }
+        return this;
+    }
+
+    /**
+     * 已注册的进程内工具
+     *
+     * @return 工具定义列表
+     */
+    @Override
+    public List<AgentTool> tools() {
+        return new java.util.ArrayList<>(localTools.values());
+    }
+
+    /**
+     * 按名称关闭工具
+     *
+     * @param toolName 工具名称
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent disableTool(String toolName) {
+        if (toolName != null && !toolName.isBlank()) {
+            this.disabledTools.add(toolName.trim());
         }
         return this;
     }
@@ -1625,16 +1674,30 @@ public class AgentScopeAgent implements Agent {
                 log.warn("[AgentScope] 列举 MCP 工具失败: {}", e.getMessage(), e);
             }
         }
-        if (!skills.isEmpty() || !mcpTools.isEmpty()) {
+        if (!skills.isEmpty() || !mcpTools.isEmpty() || !localTools.isEmpty()) {
             io.agentscope.core.tool.Toolkit toolkit = new io.agentscope.core.tool.Toolkit();
+            java.util.Set<String> registered = new java.util.LinkedHashSet<>();
             for (Map.Entry<String, com.chua.common.support.ai.skill.SkillHandler> entry : skills.entrySet()) {
                 final String skillName = entry.getKey();
+                if (isToolDisabled(skillName) || !registered.add(skillName)) {
+                    continue;
+                }
                 final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
                 String desc = skillDescriptions.get(skillName);
                 toolkit.registerAgentTool(new SkillAgentTool(skillName, desc != null ? desc : "Skill: "
                         + skillName, handler));
             }
+            for (AgentTool tool : localTools.values()) {
+                if (isToolDisabled(tool.getName()) || !registered.add(tool.getName())) {
+                    continue;
+                }
+                toolkit.registerAgentTool(new FunctionAgentTool(tool));
+            }
             for (McpToolDescriptor descriptor : mcpTools) {
+                if (descriptor == null || descriptor.getName() == null
+                        || isToolDisabled(descriptor.getName()) || !registered.add(descriptor.getName())) {
+                    continue;
+                }
                 toolkit.registerAgentTool(new McpAgentTool(descriptor, globalMcpManager));
             }
             builder.toolkit(toolkit);
@@ -1809,6 +1872,69 @@ public class AgentScopeAgent implements Agent {
         log.info("[Agent] compression: {}, plan: {}, mcp: {}",
                 compressionConfig != null && compressionConfig.isEnabled() ? "ON" : "OFF",
                 planEnabled, mcpEnabled);
+    }
+
+    /**
+     * 判断工具是否已被 {@link #disableTool(String)} 关闭
+     *
+     * @param name 工具名称
+     * @return 已关闭返回 true
+     */
+    private boolean isToolDisabled(String name) {
+        return name != null && disabledTools.contains(name);
+    }
+
+    /**
+     * 将进程内工具执行器桥接为 Agentscope AgentTool。
+     *
+     * @author CH
+     * @since 4.0.0.50
+     */
+    private static class FunctionAgentTool implements io.agentscope.core.tool.AgentTool {
+
+        /**
+         * 通用工具定义
+         */
+        private final AgentTool tool;
+
+        FunctionAgentTool(AgentTool tool) {
+            this.tool = tool;
+        }
+
+        @Override
+        public String getName() {
+            return tool.getName();
+        }
+
+        @Override
+        public String getDescription() {
+            return tool.getDescription() != null ? tool.getDescription() : "Tool: " + tool.getName();
+        }
+
+        @Override
+        public java.util.Map<String, Object> getParameters() {
+            if (tool.getParameters() != null && !tool.getParameters().isEmpty()) {
+                return Wraps.map(tool.getParameters());
+            }
+            return Map.of("type", "object", "properties", Map.of(), "required", List.of());
+        }
+
+        @Override
+        public reactor.core.publisher.Mono<io.agentscope.core.message.ToolResultBlock> callAsync(
+                io.agentscope.core.tool.ToolCallParam param) {
+            try {
+                Map<String, Object> input = param.getInput() != null
+                        ? Wraps.map(param.getInput()) : Map.of();
+                Object result = tool.getExecutor().execute(input);
+                String text = result == null ? "" : String.valueOf(result);
+                return reactor.core.publisher.Mono.just(
+                        io.agentscope.core.message.ToolResultBlock.text(text));
+            } catch (Exception e) {
+                return reactor.core.publisher.Mono.just(
+                        io.agentscope.core.message.ToolResultBlock.error(
+                                e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+            }
+        }
     }
 
     /**
