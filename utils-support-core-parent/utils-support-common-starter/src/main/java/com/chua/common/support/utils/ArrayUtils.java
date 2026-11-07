@@ -44,11 +44,119 @@ public class ArrayUtils {
     private ArrayUtils() {
     }
 
+    /**
+     * 是否为 Match。
+     *
+     *
+     * @param array array
+     * @param name  名称
+     * @return the 结果
+     */
+    public static boolean isMatch(@Nullable String[] array, @Nullable String name) {
+        if (isEmpty(array)) {
+            return false;
+        }
 
+        for (String s : array) {
+            if (s.contains(SYMBOL_ASTERISK)) {
+                if (PathMatcher.INSTANCE.match(s, name)) {
+                    return true;
+                }
+                continue;
+            }
 
+            if (s.equals(name)) {
+                return true;
+            }
+        }
 
+        return false;
+    }
 
+    /**
+     * 是否为 Array。
+     *
+     *
+     * @param obj obj
+     * @return {@code null}       false
+     */
+    public static boolean isArray(@Nullable Object obj) {
+        return null != obj && obj.getClass().isArray();
+    }
 
+    /**
+     * {@code null}
+     *
+     * @param <T>
+     * @param array array
+     * @return {@code null}
+     * @since 3.0.7
+     */
+@SuppressWarnings({"unchecked", "all"})
+    public static <T> boolean hasNull(T... array) {
+        if (!isEmpty(array)) {
+            for (T element : array) {
+                if (Objects.isNull(element)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 为空时返回默认值。
+     *
+     *
+     * @param source       源
+     * @param defaultArray 默认array
+     * @param <T>
+     * @return the 结果
+     */
+    public static <T> T[] defaultIfEmpty(T[] source, T[] defaultArray) {
+        if (null == source || source.length == 0) {
+            return defaultArray;
+        }
+
+        return source;
+    }
+
+    /**
+     * {@link System#arraycopy(Object, int, Object, int, int)}<br>
+     * 0
+     *
+     * @param src    src
+     * @param length 长度
+     * @return the 结果
+     * @since 3.0.6
+     */
+    public static <T> T copyRange(T src, int length) {
+        int max = Array.getLength(src);
+        T temp = null;
+        if (max <= length) {
+            temp = (T) Array.newInstance(Array.get(src, 0).getClass(), max);
+            System.arraycopy(src, 0, temp, 0, max);
+            return temp;
+        }
+        temp = (T) Array.newInstance(Array.get(src, 0).getClass(), length);
+        System.arraycopy(src, 0, temp, 0, length);
+        return temp;
+    }
+
+    /**
+     * {@link System#arraycopy(Object, int, Object, int, int)}<br>
+     * 0
+     *
+     * @param src    src
+     * @param dest   dest
+     * @param length 长度
+     * @return the 结果
+     * @since 3.0.6
+     */
+    public static Object copy(Object src, Object dest, int length) {
+        System.arraycopy(src, 0, dest, 0, length);
+        return dest;
+    }
 
     /**
      * 安全获取数组指定下标的元素，越界或下标为负时返回默认值。
@@ -82,6 +190,9 @@ public class ArrayUtils {
         return getIndex(stringArray, index, null);
     }
 
+    /**
+     * byte[]           float[]
+     *
      * @param value 值
      * @return float[]                空
      */
@@ -94,8 +205,54 @@ public class ArrayUtils {
         return floats;
     }
 
+    /**
+     * float[] 转 double[]。
+     *
+     * <p>null 输入返回 null，空数组返回空数组。</p>
+     *
+     * @param value float 数组
+     * @return 对应的 double 数组，空 输入返回 空
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double[] toDouble(float[] value) {
+        if (value == null) {
+            return null;
+        }
+        double[] result = new double[value.length];
+        for (int i = 0; i < value.length; i++) {
+            result[i] = value[i];
+        }
+        return result;
+    }
 
+    /**
+     * double[] 转 float[]。
+     *
+     * <p>null 输入返回 null，空数组返回空数组。</p>
+     *
+     * @param value double 数组
+     * @return 对应的 float 数组，空 输入返回 空
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static float[] toFloat(double[] value) {
+        if (value == null) {
+            return null;
+        }
+        float[] result = new float[value.length];
+        for (int i = 0; i < value.length; i++) {
+            result[i] = (float) value[i];
+        }
+        return result;
+    }
 
+    /**
+     * byte[]
+     *
+     * @param value 值
+     * @param type  类型
+     * @return null
      */
     public static <T> T[] transToArray(byte[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -109,6 +266,10 @@ public class ArrayUtils {
         return newInstance;
     }
 
+    /**
+     * long[]
+     *
+     * @param value 值
      * @param type  类型
      * @return null
      */
@@ -124,6 +285,24 @@ public class ArrayUtils {
         return newInstance;
     }
 
+    /**
+     * float[]
+     *
+     * @param value 值
+     * @param type  类型
+     * @return null
+     */
+    public static <T> T[] transToArray(float[] value, Class<T> type) {
+        T[] newInstance = (T[]) Array.newInstance(type, value.length);
+        if (newInstance.length == 0) {
+            return newInstance;
+        }
+        int count = 0;
+        for (float o : value) {
+            newInstance[count++] = Converter.convertIfNecessary(o, type);
+        }
+        return newInstance;
+    }
 
     /**
      * double[]
@@ -174,6 +353,8 @@ public class ArrayUtils {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
             return newInstance;
+        }
+        int count = 0;
         for (int o : value) {
             newInstance[count++] = Converter.convertIfNecessary(o, type);
         }
@@ -193,6 +374,9 @@ public class ArrayUtils {
             return newInstance;
         }
         int count = 0;
+        for (boolean o : value) {
+            newInstance[count++] = Converter.convertIfNecessary(o, type);
+        }
         return newInstance;
     }
 
@@ -309,6 +493,24 @@ public class ArrayUtils {
         return false;
     }
 
+    /**
+     * {@link CommonConstant#INDEX_NOT_FOUND}
+     *
+     * @param array array
+     * @param value 值
+     * @return {@link 通用常量#索引_NOT_FOUND}
+     * @since 3.0.7
+     */
+    public static int indexOf(char[] array, char value) {
+        if (null != array) {
+            for (int i = 0; i < array.length; i++) {
+                if (value == array[i]) {
+                    return i;
+                }
+            }
+        }
+        return INDEX_NOT_FOUND;
+    }
 
     /**
      * 是否为 Equals。
@@ -444,6 +646,23 @@ public class ArrayUtils {
         return null == array || array.length == 0;
     }
 
+    /**
+     * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
+     *
+     * @param args 参数
+     * @return the 结果
+     * @since 4.5.18
+     */
+    public static boolean hasEmpty(Object... args) {
+        if (isNotEmpty(args)) {
+            for (Object element : args) {
+                if (ObjectUtils.isEmpty(element)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
@@ -455,6 +674,8 @@ public class ArrayUtils {
     public static boolean isAllNotEmpty(Object... args) {
         return !hasEmpty(args);
     }
+
+    /**
      * 是否为 Empty。
      *
      *
@@ -515,8 +736,40 @@ public class ArrayUtils {
         return !isEmpty(array);
     }
 
+    /**
+     * x
+     *
+     * @param index      索引
+     * @param arrayWidth x
+     * @return x
+     */
+    public static int convert1DtoX(final int index, final int arrayWidth) {
+        return index % arrayWidth;
+    }
 
+    /**
+     * y
+     *
+     * @param index      索引
+     * @param arrayWidth x
+     * @return y
+     */
+    public static int convert1DtoY(final int index, final int arrayWidth) {
+        return index / arrayWidth;
+    }
 
+    /**
+     * 二维数组转一维数组。
+     *
+     *
+     * @param x          x
+     * @param y          y
+     * @param arrayWidth x
+     * @return the 结果
+     */
+    public static int convert2dTo1d(final int x, final int y, final int arrayWidth) {
+        return y * arrayWidth + x;
+    }
 
     /**
      * 合并两个数组并按首次出现顺序去重，返回新数组。
@@ -580,12 +833,139 @@ public class ArrayUtils {
         return objects.toArray(target);
     }
 
+    /**
+     * 添加 Element。
+     *
+     *
+     * @param target Target
+     * @param source 源
+     */
+    public static <E> void addElement(E[] target, Collection<E> source) {
+        addElement(target, source.toArray(target));
+    }
 
+    /**
+     * 在数组头部插入一个元素，返回新数组（不修改入参）。
+     *
+     * <p>返回长度为 {@code target.length + 1} 的新数组，{@code source} 位于下标 0，
+     * 原数组元素整体后移一位。传入空数组时返回仅含 {@code source} 的新数组。
+     * 语义与 {@link #addLastElement(Object[], Object)} 对称。</p>
+     *
+     * @param target 原数组，不允许为 null
+     * @param source 待插入到头部的元素
+     * @param <E>     元素类型
+     * @return 插入后的新数组
+     * @throws IllegalArgumentException target 为 null 时抛出
+     */
+    public static <E> E[] addFirstElement(E[] target, E source) {
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
+        }
+        int oldLength = target.length;
+        Class<?> componentType = target.getClass().getComponentType();
+        E[] result = (E[]) Array.newInstance(componentType, oldLength + 1);
+        result[0] = source;
+        System.arraycopy(target, 0, result, 1, oldLength);
+        return result;
+    }
 
+    /**
+     * 在数组尾部追加一个元素，返回新数组（不修改入参）。
+     *
+     * <p>传入空数组时返回仅含 {@code source} 的新数组，语义与
+     * {@link #addFirstElement(Object[], Object)} 对称。</p>
+     *
+     * @param target 原数组，不允许为 null
+     * @param source 待追加到尾部的元素
+     * @param <E>     元素类型
+     * @return 追加后的新数组
+     * @throws IllegalArgumentException target 为 null 时抛出
+     */
+    public static <E> E[] addLastElement(E[] target, E source) {
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
+        }
+        int oldLength = target.length;
+        E[] result = Arrays.copyOf(target, oldLength + 1);
+        result[oldLength] = source;
+        return result;
+    }
 
+    /**
+     * 设置Range。
+     *
+     *
+     * @param target Target
+     * @param source 源
+     * @param from   从
+     * @param to     转为
+     * @return the 结果
+     */
+    public static <E> E[] setRange(E[] target, E source, int from, int to) {
+        if (target.length == 0) {
+            return target;
+        }
+        for (int i = from; i <= to; i++) {
+            target[i] = source;
+        }
+        return target;
+    }
 
+    /**
+     * 设置First。
+     *
+     *
+     * @param target Target
+     * @param source 源
+     * @return the 结果
+     */
+    public static <E> E[] setFirst(E[] target, E source) {
+        if (target.length == 0) {
+            return target;
+        }
+        target[0] = source;
+        return target;
+    }
 
+    /**
+     * 设置Last。
+     *
+     *
+     * @param target Target
+     * @param source 源
+     * @return the 结果
+     */
+    public static <E> E[] setLast(E[] target, E source) {
+        if (target.length == 0) {
+            return target;
+        }
+        target[target.length - 1] = source;
+        return target;
+    }
 
+    /**
+     * 就地替换数组指定下标的元素。
+     *
+     * <p>下标越界（小于 0 或不小于数组长度）时原样返回入参、不做修改，
+     * 避免抛出数组越界异常打断调用方流程。</p>
+     *
+     * @param target 原数组，不允许为 null
+     * @param source 新的元素值
+     * @param index  目标下标，越界时不做修改
+     * @param <E>     元素类型
+     * @return 被修改的 target（越界时为未改动的 target）
+     * @throws IllegalArgumentException target 为 null 时抛出
+     */
+    public static <E> E[] setElement(E[] target, E source, int index) {
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
+        }
+        if (index < 0 || index >= target.length) {
+            return target;
+        }
+        target[index] = source;
+        return target;
+    }
 
     /**
      * 添加 Element。
@@ -605,6 +985,18 @@ public class ArrayUtils {
         System.arraycopy(source, 0, target, oldLength, source.length);
 
         return target;
+    }
+
+    /**
+     * 插入元素。
+     *
+     *
+     * @param target Target
+     * @param source 源
+     */
+    public static <E> void insertElement(E[] target, Collection<E> source) {
+        insertElement(target, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
+    }
 
     /**
      * 插入元素。
@@ -693,12 +1085,34 @@ public class ArrayUtils {
      */
     public static <T, A> A[] toArray(T[] iterable, Function<T, A> function, IntFunction<A[]> generator) {
         if (null == iterable) {
+            return null;
         }
         List<? extends T> ts = CollectionUtils.newArrayList(iterable);
         return ts.stream().map(function).toArray(generator);
     }
 
+    /**
+     * 转换为ArrayString。
+     *
+     *
+     * @param iterable 可迭代
+     * @param function function
+     * @return the 结果
+     */
+    public static <T> String[] toArrayString(T[] iterable, Function<T, String> function) {
+        if (null == iterable) {
+            return SYMBOL_EMPTY_STRING_ARRAY;
+        }
 
+        return toArray(iterable, function, String[]::new);
+    }
+
+    /**
+     * 转换为Array。
+     *
+     *
+     * @param iterable 可迭代
+     * @param function function
      * @return the 结果
      * @param generator 生成器
      */
@@ -710,6 +1124,8 @@ public class ArrayUtils {
         List<? extends T> ts = CollectionUtils.newArrayList(iterable);
         return ts.stream().map(function).toArray(generator);
     }
+
+    /**
      * 转换为ArrayString。
      *
      *
@@ -740,6 +1156,23 @@ public class ArrayUtils {
         return ts.toArray((T[]) Array.newInstance(ts.getFirst().getClass(), 0));
     }
 
+    /**
+     * 裁剪或以分隔符拼接。
+     *
+     *
+     * @param split     分割
+     * @param separator separator
+     * @return the 结果
+     */
+    public static String[] trimOrSeparator(String[] split, String separator) {
+        String[] rs = new String[split.length];
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            rs[i] = StringUtils.startWithMove(StringUtils.endWithMove(s.trim(), separator), separator);
+        }
+
+        return rs;
+    }
 
     /**
      * 转换为字节数组。
@@ -781,6 +1214,7 @@ public class ArrayUtils {
             int length = Array.getLength(value);
             byte[] array = new byte[length];
             for (int i = 0; i < array.length; i++) {
+                array[i] = Converter.convertIfNecessary(Array.get(value, i), Byte.class).byteValue();
             }
             return array;
         }
@@ -791,6 +1225,24 @@ public class ArrayUtils {
         return new byte[0];
     }
 
+    /**
+     * 转换为字节数组。
+     *
+     *
+     * @param value 值
+     * @return null
+     */
+    public static byte[] transToByteArray(List value) {
+        byte[] newInstance = new byte[value.size()];
+        if (newInstance.length == 0) {
+            return newInstance;
+        }
+        int count = 0;
+        for (Object o : value) {
+            newInstance[count++] = Converter.convertIfNecessary(o, Byte.class).byteValue();
+        }
+        return newInstance;
+    }
 
     /**
      * 转换为字节数组。
@@ -803,6 +1255,8 @@ public class ArrayUtils {
         byte[] newInstance = new byte[value.length];
         if (newInstance.length == 0) {
             return newInstance;
+        }
+        int count = 0;
         for (Object o : value) {
             newInstance[count++] = Converter.convertIfNecessary(o, Byte.class).byteValue();
         }
@@ -821,6 +1275,7 @@ public class ArrayUtils {
         }
         byte[] result = new byte[value.length * 4];
         for (int i = 0; i < value.length; i++) {
+            int bits = Float.floatToIntBits(value[i]);
             result[i * 4] = (byte) (bits >> 24);
             result[i * 4 + 1] = (byte) (bits >> 16);
             result[i * 4 + 2] = (byte) (bits >> 8);
@@ -829,8 +1284,66 @@ public class ArrayUtils {
         return result;
     }
 
+    /**
+     * 转换为整型数组。
+     *
+     *
+     * @param value 值
+     * @return null
+     */
+    public static <T> int[] transToIntArray(byte[] value) {
+        int[] newInstance = new int[value.length];
+        if (newInstance.length == 0) {
+            return newInstance;
+        }
+        int count = 0;
+        for (Object o : value) {
+            newInstance[count++] = Converter.convertIfNecessary(o, int.class).byteValue();
+        }
+        return newInstance;
+    }
 
+    /**
+     * <br>
+     * 空
+     *
+     * @param <T>
+     * @param arrays arrays
+     * @return the 结果
+     */
+    @SafeVarargs
+    public static <T> T[] addAll(T[]... arrays) {
+        if (arrays.length == 1) {
+            return arrays[0];
+        }
 
+        int length = 0;
+        for (T[] array : arrays) {
+            if (null != array) {
+                length += array.length;
+            }
+        }
+        T[] result = newArray(arrays.getClass().getComponentType().getComponentType(), length);
+
+        length = 0;
+        for (T[] array : arrays) {
+            if (null != array) {
+                System.arraycopy(array, 0, result, length, array.length);
+                length += array.length;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 创建数组。
+     *
+     *
+     * @param <T>
+     * @param componentType 组件类型
+     * @param newSize       新大小
+     * @return the 结果
+     */
     public static <T> T[] newArray(Class<?> componentType, int newSize) {
         return (T[]) Array.newInstance(componentType, newSize);
     }
@@ -845,7 +1358,36 @@ public class ArrayUtils {
      */
     public static Object[] newArray(int newSize) {
         return new Object[newSize];
+    }
 
+    /**
+     * 获取 ComponentType。
+     *
+     *
+     * @param array array
+     * @return the 结果
+     * @since 3.2.2
+     */
+    public static Class<?> getComponentType(Object array) {
+        return null == array ? null : array.getClass().getComponentType();
+    }
+
+    /**
+     * 判断是否全部为空。
+     *
+     *
+     * @param arr arr
+     * @return the 结果
+     */
+    public static boolean allEmpty(Object[] arr) {
+        for (Object o : arr) {
+            if (null != o) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * 字符串
@@ -864,6 +1406,7 @@ public class ArrayUtils {
             return Arrays.toString((int[]) obj);
         } else if (obj instanceof short[]) {
             return Arrays.toString((short[]) obj);
+        } else if (obj instanceof char[]) {
             return Arrays.toString((char[]) obj);
         } else if (obj instanceof byte[]) {
             return Arrays.toString((byte[]) obj);
@@ -885,7 +1428,40 @@ public class ArrayUtils {
         return obj.toString();
     }
 
+    /**
+     * 字符串数组转列表。
+     *
+     *
+     * @param arr arr
+     * @return the 结果
+     */
+    public static List<String> strArrayToList(String[] arr) {
+        List<String> result = Wraps.list();
+        if (arr == null) {
+            return result;
+        }
+        Collections.addAll(result, arr);
+        return result;
+    }
 
+    /**
+     * 转换为Arrays。
+     *
+     *
+     * @param columns    columns
+     * @param collection 集合
+     * @return the 结果
+     */
+    public static Object[][] toArrays(List<String> columns, List<?> collection) {
+        Object[][] rs = new Object[collection.size()][columns.size()];
+        for (int i = 0; i < collection.size(); i++) {
+            Object o = collection.get(i);
+            Object[] objects = toArray(columns, o);
+            System.arraycopy(objects, 0, rs[i], 0, columns.size());
+        }
+
+        return rs;
+    }
 
     /**
      * 转换为Array。
@@ -901,6 +1477,8 @@ public class ArrayUtils {
         for (int i = 0; i < columns.size(); i++) {
             String column = columns.get(i);
             rs[i] = beanMap.get(column);
+        }
+
         return rs;
     }
 
@@ -939,6 +1517,20 @@ public class ArrayUtils {
         return v;
     }
 
+    /**
+     * 反转数组。
+     * <p>
+     *
+     * <p>       {@code null}
+     *
+     * @param array {@code null}
+     */
+    public static void reverse(final byte[] array) {
+        if (array == null) {
+            return;
+        }
+        reverse(array, 0, array.length);
+    }
 
     /**
      * <p>
@@ -991,6 +1583,22 @@ public class ArrayUtils {
         return v;
     }
 
+    /**
+     * 判断数组是否包含指定元素。
+     *
+     *
+     * @param arr         arr
+     * @param targetValue Target值
+     * @return the 结果
+     */
+    public static boolean arraysContains(String[] arr, String targetValue) {
+        for (String s : arr) {
+            if (s.equals(targetValue)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 截取子数组。
@@ -1004,6 +1612,8 @@ public class ArrayUtils {
     public static byte[] subArray(byte[] arr, int offset, int offset2) {
         if (arr.length < offset) {
             return null;
+        }
+
         if (offset2 <= offset) {
             return null;
         }
@@ -1013,11 +1623,104 @@ public class ArrayUtils {
         return rs;
     }
 
+    /**
+     * 获取数组长度。
+     *
+     *
+     * @param value 值
+     * @return the 结果
+     */
+    public static int length(String[] value) {
+        return null != value ? value.length : 0;
+    }
 
+    /**
+     * 反转数组并返回新数组。
+     *
+     *
+     * @param array array
+     * @return the 结果
+     */
+    public static byte[] reverseArray(byte[] array) {
+        byte[] copy = new byte[array.length];
+        copy(array, copy, copy.length);
 
+        for (int i = 0; i < copy.length / 2; i++) {
+            byte temp = copy[i];
+            copy[i] = copy[copy.length - 1 - i];
+            copy[copy.length - 1 - i] = temp;
+        }
 
+        return copy;
+    }
 
+    /**
+     * 生成固定长度数组。
+     *
+     *
+     * @param bytes       bytes
+     * @param fixedLength fixed长度
+     * @return the 结果
+     */
+    public static byte[] fixed(byte[] bytes, int fixedLength) {
+        if (bytes.length > fixedLength) {
+            byte[] rs = new byte[fixedLength];
+            System.arraycopy(bytes, 0, rs, 0, fixedLength);
+            return rs;
+        }
+        byte[] rs = new byte[fixedLength];
+        System.arraycopy(bytes, 0, rs, 0, bytes.length);
 
+        return rs;
+    }
+
+    /**
+     * 取首个元素。
+     *
+     *
+     * @param array array
+     * @return the 结果
+     */
+    public static String first(String[] array) {
+        if (null == array || array.length == 0) {
+            return null;
+        }
+
+        return array[0];
+    }
+
+    /**
+     * 取最后一个元素。
+     *
+     *
+     * @param array array
+     * @return the 结果
+     */
+    public static String last(String[] array) {
+        if (null == array || array.length == 0) {
+            return null;
+        }
+
+        return array[array.length - 1];
+    }
+
+    /**
+     * 创建实例。
+     *
+     *
+     * @param ele ele
+     * @param <E>
+     * @return the 结果
+     */
+    public static <E> E[] of(E... ele) {
+        //
+        E[] rs = (E[]) Array.newInstance(ele.getClass().getComponentType(), ele.length);
+
+        //
+        System.arraycopy(ele, 0, rs, 0, ele.length);
+
+        return rs;
+    }
 
     /**
      * 判断是否包含任一元素。
@@ -1046,11 +1749,135 @@ public class ArrayUtils {
         return false;
     }
 
+    /**
+     * 生成数值区间。
+     *
+     *
+     * @param responseBody 响应主体
+     * @param start        启动
+     * @param end          结束
+     * @return the 结果
+     */
+    public static byte[] range(byte[] responseBody, Integer start, Integer end) {
+        return ArrayUtils.subArray(responseBody,
+                                   (start == null || start < 0 ? 0 : start),
+                                           (null == end || end < 0 ? responseBody.length : end));
+    }
 
+    /**
+     * 忽略大小写判断是否包含全部元素。
+     *
+     *
+     * @param source 源
+     * @param target 1
+     * @return 1
+     */
+    public static boolean containsAllIgnoreCase(String[] target, String... source) {
+        if (ArrayUtils.isEmpty(source)) {
+            return true;
+        }
 
+        for (String s : target) {
+            for (String s1 : source) {
+                if (!s.equalsIgnoreCase(s1)) {
+                    return false;
+                }
+            }
+        }
 
+        return true;
+    }
 
+    /**
+     * 右填充并截断到指定长度。
+     *
+     *
+     * @param key   键
+     * @param limit 限制
+     * @return the 结果
+     */
+    public static byte[] rightPadAndLimit(byte[] key, int limit) {
+        byte[] rs = new byte[limit];
+        if (key.length >= limit) {
+            System.arraycopy(key, 0, rs, 0, limit);
+            return rs;
+        }
 
+        System.arraycopy(key, 0, rs, 0, key.length);
+        return rs;
+    }
+
+    /**
+     * N
+     *
+     * @param originalArray 原始array
+     * @param step          N
+     * @return N
+     */
+    public static <T> T[][] generatePairArray(T[] originalArray, int step) {
+ // 群体大小
+        if (originalArray.length % step != 0) {
+            throw new IllegalArgumentException("数组长度必须是 groupSize 的整数倍: length=" + originalArray.length
+                    + ", groupSize=" + step);
+        }
+
+ // 群体大小
+        T[][] newArray = (T[][]) Array.newInstance(originalArray[0].getClass(), originalArray.length / step);
+
+        //                             N
+        for (int i = 0; i < originalArray.length; i += step) {
+            T[] group = (T[]) Array.newInstance(originalArray[0].getClass(), step);
+            System.arraycopy(originalArray, i, group, 0, step);
+            newArray[i / step] = group;
+        }
+
+        return newArray;
+    }
+
+    /**
+     * 转换。
+     *
+     *
+     * @param strings       字符串
+     * @param strings1      字符串1
+     * @param strBiFunction strbifunction
+     * @param <S>
+     * @param <T>
+     * @param <R>
+     * @return the 结果
+     */
+    public static <S, T, R> R[] convert(S[] strings, T[] strings1, BiFunction<S, T, R> strBiFunction) {
+        List<Object> result = Wraps.list(strings.length * strings1.length);
+        for (S string : strings) {
+            for (T t : strings1) {
+                result.add(strBiFunction.apply(string, t));
+            }
+        }
+        if (result.isEmpty()) {
+            return (R[]) ArrayUtils.newArray(0);
+        }
+        return (R[]) result.toArray(ArrayUtils.newArray(result.getFirst().getClass(), 0));
+    }
+
+    /**
+     * 转换为Object。
+     *
+     *
+     * @param array array
+     * @return the 结果
+     */
+    public static Float[] toObject(float[] array) {
+        if (array == null) {
+            return null;
+        } else if (array.length == 0) {
+            return SYMBOL_EMPTY_OBJECT_FLOAT_ARRAY;
+        }
+        final Float[] result = new Float[array.length];
+        for (int i = 0; i < array.length; i++) {
+            result[i] = array[i];
+        }
+        return result;
+    }
 
     /**
      * 转换为Object。
@@ -1067,6 +1894,7 @@ public class ArrayUtils {
         } else if (array.length == 0) {
             return SYMBOL_EMPTY_OBJECT_BYTE_ARRAY;
         }
+        final Byte[] result = new Byte[array.length];
         for (int i = 0; i < array.length; i++) {
             result[i] = array[i];
         }
@@ -1092,6 +1920,24 @@ public class ArrayUtils {
         return value;
     }
 
+    /**
+     * 转换为LowerCase。
+     * <p>
+     *
+     * <p>       {@code null}                                {@code null}
+     *
+     * @param value 值
+     * @return null         空
+     */
+    public static String[] toLowerCase(String[] value) {
+        if (value == null) {
+            return null;
+        }
+        for (int i = 0; i < value.length; i++) {
+            value[i] = value[i].toLowerCase();
+        }
+        return value;
+    }
 
 
     /**
@@ -1117,6 +1963,14 @@ public class ArrayUtils {
         DESC
     }
 
+    /**
+     * 排序
+     * @param values 值
+     * @param sortedFields 排序字段
+     * @param direction direction
+     */
+    public static String[] sort(String[] values,
+                                String[] sortedFields,
                                 SortDirection direction) {
         if (values == null) {
             return new String[0];
@@ -1152,6 +2006,16 @@ public class ArrayUtils {
         return inDict.toArray(new String[0]);
     }
 
+    /**
+     * 排序字段                             偏移量element
+     *
+     * @param values        值
+     * @param sortedFields  排序字段
+     * @param offsetElement 偏移量element
+     * @return offsetElement
+     */
+    public static String[] filterAfter(String[] values,
+                                       String[] sortedFields,
                                        String offsetElement) {
         if (values == null || values.length == 0) {
             return new String[0];
@@ -1191,7 +2055,29 @@ public class ArrayUtils {
                 .toArray(new String[0]);
     }
 
+    /**
+     * 以分隔符拼接数组元素。
+     *
+     *
+     * @param firstValue 第一个值
+     * @param extValues  ext值
+     * @return the 结果
+     */
+    public static String join(String firstValue, String... extValues) {
+        if (extValues == null || extValues.length == 0) {
+            return firstValue;
+        }
 
+        StringBuilder sb = new StringBuilder(firstValue);
+        for (String extValue : extValues) {
+            sb.append(SYMBOL_COMMA).append(extValue);
+        }
+        return sb.substring(1);
+    }
+
+    /**
+     * 用指定分隔符连接对象数组。
+     *
      * <p>数组中的 null 元素会被替换为空字符串；byte[] 元素会被转换为默认字符集的字符串。</p>
      *
      * @param array     对象数组，为 空 时返回 空
@@ -1211,6 +2097,8 @@ public class ArrayUtils {
             if (o instanceof byte[] bytes) {
                 stringJoiner.add(new String(bytes));
                 continue;
+            }
+            stringJoiner.add(o.toString());
         }
         return stringJoiner.toString();
     }

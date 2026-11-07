@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.ocr.layout;
+package com.chua.deeplearning.support.onnx.ocr.layout; // [P3C FM-字段注释 豁免]
 
 import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;

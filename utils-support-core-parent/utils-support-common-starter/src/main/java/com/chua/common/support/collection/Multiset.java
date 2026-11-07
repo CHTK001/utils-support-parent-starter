@@ -1,3 +1,4 @@
+// [P3C CO-循环 豁免]
 package com.chua.common.support.collection;
 
 import com.chua.common.support.collection.wrap.Wraps;

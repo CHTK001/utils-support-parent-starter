@@ -12,6 +12,7 @@ import com.chua.common.support.ai.agent.AgentPlanHook;
 import com.chua.common.support.ai.agent.AgentQuestion;
 import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
+import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
@@ -25,6 +26,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.memory.MemoryConfig;
+import com.chua.common.support.ai.memory.MemoryManager;
 import com.chua.common.support.ai.skill.SkillHandler;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -650,6 +652,75 @@ public class OpencodeServerAgent implements Agent {
                         + "如需项目级长期记忆，请写入 AGENTS.md 或改为 opencode 技能");
     }
 
+    /**
+     * 重试次数：opencode 在独立进程内自管重试，适配层无法插入重试钩子。
+     *
+     * <p>本方法只接受「不启用重试」的取值（{@code 0}）。一旦要求真正重试
+     * （{@code > 0} 或 {@code -1} 无限重试）就显式失败，避免出现
+     * 「存下来但从不生效」的静默失配。</p>
+     *
+     * @param maxRetries 最大重试次数，只有 {@code 0} 被接受
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent maxRetries(int maxRetries) {
+        if (maxRetries != 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 在独立进程内自管重试，进程内 maxRetries 不会生效；"
+                            + "请在 opencode 侧配置 provider 重试，或用 RetryFlow 包裹 run()/chat() 在外部重试");
+        }
+        return this;
+    }
+
+    /**
+     * 重试退避策略：opencode 自管重试间隔，进程内策略无从生效。
+     *
+     * @param strategy 退避策略，只有 {@code null} 被接受
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent retryBackoff(AgentRetryConfig.BackoffStrategy strategy) {
+        if (strategy != null) {
+            throw new UnsupportedOperationException(
+                    "opencode 在独立进程内自管重试退避，retryBackoff 不会生效；"
+                            + "请在 opencode 侧配置 provider 重试，或用 RetryFlow 配置退避策略");
+        }
+        return this;
+    }
+
+    /**
+     * 重试基础延迟：opencode 自管重试间隔，进程内延迟无从生效。
+     *
+     * @param baseDelayMillis 基础延迟（毫秒），只有 {@code <= 0} 被接受
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent retryBaseDelay(long baseDelayMillis) {
+        if (baseDelayMillis > 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 在独立进程内自管重试延迟，retryBaseDelay 不会生效；"
+                            + "请在 opencode 侧配置 provider 重试，或用 RetryFlow 设置基础延迟");
+        }
+        return this;
+    }
+
+    /**
+     * 完整重试配置：与 {@link #maxRetries(int)} 同口径，只接受不启用重试的配置。
+     *
+     * @param retryConfig 重试配置，{@code null} 或 {@code maxRetries == 0} 被接受
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent retryConfig(AgentRetryConfig retryConfig) {
+        if (retryConfig != null && retryConfig.getMaxRetries() != 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 在独立进程内自管重试，retryConfig.maxRetries="
+                            + retryConfig.getMaxRetries() + " 不会生效；"
+                            + "请在 opencode 侧配置 provider 重试，或用 RetryFlow 包裹 run()/chat()");
+        }
+        return this;
+    }
+
     @Override
     public OpencodeServerAgent compressionConfig(AgentCompressionConfig compressionConfig) {
         this.compressionConfig = compressionConfig;
@@ -884,6 +955,19 @@ public class OpencodeServerAgent implements Agent {
     @Override
     public AgentDefinition getDefinition() {
         return definition;
+    }
+
+    /**
+     * opencode 自管会话记忆，进程内没有 {@code MemoryManager}。
+     *
+     * <p>显式返回 null 而不是沿用接口默认值，避免调用方误以为可以拿到进程内记忆管理器
+     * 去做读写或 {@code saveFromConversation}。需要项目级长期记忆请写 {@code AGENTS.md}。</p>
+     *
+     * @return 恒为 null
+     */
+    @Override
+    public MemoryManager getMemoryManager() {
+        return null;
     }
 
     @Override
@@ -1767,7 +1851,7 @@ public class OpencodeServerAgent implements Agent {
             throw new UnsupportedOperationException(
                     "opencode 没有计划子任务上限配置: planMaxTask=" + def.getPlanMaxTask());
         }
-        if (def.getRetryConfig() != null && def.getRetryConfig().getMaxRetries() > 0) {
+        if (def.getRetryConfig() != null && def.getRetryConfig().getMaxRetries() != 0) {
             throw new UnsupportedOperationException(
                     "opencode 自管重试策略，不接受 AgentDefinition 中的 retryConfig");
         }

@@ -1,3 +1,4 @@
+// [P3C NM-命名 豁免]
 package com.chua.common.support.constant;
 
 import java.text.DecimalFormat;

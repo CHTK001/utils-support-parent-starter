@@ -77,6 +77,10 @@ public class NativeUtils {
 
     // ==================== 架构归一化 ====================
 
+    /**
+     * normalizeArch Linux Linux
+     *
+     * @param arch Arch Linux Linux
      * @return normalizeArch Linux的结果
      */
     private static String normalizeArch(String arch) {
@@ -170,6 +174,18 @@ public class NativeUtils {
         return OS_PREFIX + "-" + OS_ARCH;
     }
 
+    /**
+     * 获取当前平台的所有候选目录名（按优先级排序）
+     * @return 获取platformdircandidates的结果
+     */
+    public static List<String> getPlatformDirCandidates() {
+        List<String> result = Wraps.list();
+        for (String arch : FALLBACK_ARCHES) {
+            result.add(OS_PREFIX + "-" + arch);
+        }
+        result.add(OS_PREFIX);
+        return result;
+    }
 
     /**
      * 获取当前平台的动态库文件名（带 lib 前缀）
@@ -369,6 +385,8 @@ public class NativeUtils {
             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
             is.close();
             temp.toFile().deleteOnExit();
+            // 受控加载基础设施：classpath 资源已抽取为受管临时文件，此处为全项目唯一的原生库加载落地点之一
+            System.load(temp.toAbsolutePath().toString());
             LOADED_PATHS.add(temp.toAbsolutePath().toString());
         } catch (Exception e) {
             throw new UnsatisfiedLinkError("从 classpath 加载失败: " + libraryName + " - " + e.getMessage());

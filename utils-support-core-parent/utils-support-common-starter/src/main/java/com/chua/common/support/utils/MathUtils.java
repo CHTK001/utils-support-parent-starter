@@ -47,7 +47,28 @@ public class MathUtils {
 
     // ==================== 钟状图算法：高斯/正态分布 PDF 采样 ====================
 
+    /**
+     * 钟状图采样点记录，记录横坐标 x 与对应的概率密度 y。
+     *
+     * @param x 横坐标（取值）
+     * @param y 概率密度 f(x)
+     * @author CH
+     * @since 4.0.0.42
+     * @return 样本point的结果
+     */
+    public record SamplePoint(double x, double y) {
+    }
 
+    /**
+     * 高斯（正态）分布概率密度函数。
+     *
+     * <p>公式：f(x) = (1 / (σ · √(2π))) · exp(-((x - μ)²) / (2σ²))
+     *
+     * @param x      横坐标取值
+     * @param mean   均值 μ
+     * @param stdDev 标准差 σ（必须大于 0）
+     * @return x 处的概率密度 f(x)
+     */
     public static double gaussianPdf(double x, double mean, double stdDev) {
         // 标准差必须为正
         if (stdDev <= 0.0) {
@@ -161,11 +182,85 @@ public class MathUtils {
 
     // ==================== 线性回归：最小二乘法 ====================
 
+    /**
+     * 一元线性回归结果。
+     *
+     * @param slope            斜率 k（y = k·x + b 中的 k）
+     * @param intercept        截距 b（y = k·x + b 中的 b）
+     * @param rSquared         决定系数 R²，取值范围 [0, 1]，越接近 1 表示拟合越好
+     * @param pearson          皮尔逊相关系数 r，取值范围 [-1, 1]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public record LinearRegression(
+            double slope,
             double intercept,
             double rSquared,
             double pearson) {
     }
 
+    /**
+     * 一元线性回归最小二乘拟合。
+     *
+     * <p>求解 y = k·x + b 的最佳拟合直线，返回斜率 k、截距 b、决定系数 R² 与皮尔逊相关系数 r。
+     *
+     * <p>输入要求：
+     * <ul>
+     *   <li>x 与 y 长度必须一致且 ≥ 2</li>
+     *   <li>x 不能全相等（否则斜率无意义）</li>
+     * </ul>
+     *
+     * <p>非法输入返回 {@link LinearRegression} 全零值（slope=0, intercept=0, rSquared=0, pearson=0）。
+     *
+     * @param x 自变量序列（长度 ≥ 2）
+     * @param y 因变量序列（长度与 x 一致）
+     * @return 线性回归结果
+     */
+    public static LinearRegression linearRegression(double[] x, double[] y) {
+        // 基本校验
+        if (x == null || y == null || x.length != y.length || x.length < 2) {
+            return new LinearRegression(0.0, 0.0, 0.0, 0.0);
+        }
+        int n = x.length;
+        // 累加 Σx、Σy、Σxy、Σx²、Σy²
+        double sumX = 0.0;
+        double sumY = 0.0;
+        double sumXY = 0.0;
+        double sumXX = 0.0;
+        double sumYY = 0.0;
+        for (int i = 0; i < n; i++) {
+            double xi = x[i];
+            double yi = y[i];
+            sumX += xi;
+            sumY += yi;
+            sumXY += xi * yi;
+            sumXX += xi * xi;
+            sumYY += yi * yi;
+        }
+        // 均值
+        double meanX = sumX / n;
+        double meanY = sumY / n;
+        // 方差与协方差（中心化形式）
+        double sxx = sumXX - n * meanX * meanX;
+        double syy = sumYY - n * meanY * meanY;
+        double sxy = sumXY - n * meanX * meanY;
+        // x 全相等时 sxx == 0，斜率无意义
+        if (sxx <= 0.0) {
+            return new LinearRegression(0.0, meanY, 0.0, 0.0);
+        }
+        // 最小二乘解
+        double slope = sxy / sxx;
+        double intercept = meanY - slope * meanX;
+ // 决定系数 R² 与皮尔逊相关系数 R（y 无波动时均取 0，避免除零产生 nan）
+        double rSquared = 0.0;
+        double pearson = 0.0;
+        if (syy > 0.0) {
+            double denominator = sxx * syy;
+            rSquared = (sxy * sxy) / denominator;
+            pearson = sxy / Math.sqrt(denominator);
+        }
+        return new LinearRegression(slope, intercept, clamp(rSquared, 0.0, 1.0), clampAbs(pearson, 1.0));
+    }
 
     /**
      * 一元线性回归并对给定 x 序列预测 y 值。
@@ -365,6 +460,12 @@ public class MathUtils {
         return result;
     }
 
+    /**
+     * 最小-最大 归一化，将值映射到 [0, 1] 区间。
+     *
+     * <p>公式：x̂ = (x - min) / (max - min)
+     *
+     * <p>当 max == min 时返回 0.0（避免除零）。
      *
      * @param value 输入值
      * @param min   区间最小值

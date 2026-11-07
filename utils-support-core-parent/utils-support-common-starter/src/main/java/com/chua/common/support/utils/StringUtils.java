@@ -1,4 +1,4 @@
-// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。 // [P3C CO-循环 豁免]
 package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -135,7 +135,23 @@ public class StringUtils {
      */
     private static final char INVISIBLE_CHAR_2 = 173;
 
+    /**
+     * 释放当前线程的 {@link StringBuilder} 池 thread本地
+     *
+     * <p>在固定线程池中，线程长期存活会导致 {@link #THREAD_LOCAL_BUILDERS} 缓存的
+     * {@link Deque} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
+     */
+    public static void clearThreadLocalBuilders() {
+        THREAD_LOCAL_BUILDERS.remove();
+    }
 
+    /**
+     * 判断字符串是否为 {@code null} 或空字符串（长度为 0）
+     *
+     * <pre>
+     * StringUtils.isEmpty(null) = true
+     * StringUtils.isEmpty("")   = true
+     * StringUtils.isEmpty(" ")  = false
      * StringUtils.isEmpty("abc") = false
      * </pre>
      *
@@ -615,6 +631,31 @@ public class StringUtils {
         return (null == str) ? null : trim(str, 0);
     }
 
+    /**
+     * 去除字符串首尾的空白字符（使用 {@link Character#isWhitespace} 判断）
+     *
+     * @param str 待处理的字符串
+     * @return 去除首尾空白后的字符串
+     * @see Character#isWhitespace
+     */
+    public static String trimWhitespace(String str) {
+        if (isEmpty(str)) {
+            return str;
+        }
+
+        int beginIndex = 0;
+        int endIndex = str.length() - 1;
+
+        while (beginIndex <= endIndex && Character.isWhitespace(str.charAt(beginIndex))) {
+            beginIndex++;
+        }
+
+        while (endIndex > beginIndex && Character.isWhitespace(str.charAt(endIndex))) {
+            endIndex--;
+        }
+
+        return str.substring(beginIndex, endIndex + 1);
+    }
 
     /**
      * 去除字符串中所有空白字符（包括中间空白）
@@ -631,6 +672,9 @@ public class StringUtils {
      * @return 去除所有空白后的字符串
      */
     public static String trimAllWhitespace(String source) {
+        if (isEmpty(source)) {
+            return source;
+        }
 
         int len = source.length();
         StringBuilder sb = new StringBuilder(source.length());
@@ -754,6 +798,38 @@ public class StringUtils {
         return str(obj, UTF_8);
     }
 
+    /**
+     * 将对象按指定字符集转换为字符串
+     *
+     * <pre>
+     *   1. Byte 数组或 ByteBuffer 按指定字符集解码
+     *   2. 其他数组使用 Arrays.toString
+     *   3. 其他对象直接调用 toString()
+     * </pre>
+     *
+     * @param obj     待转换的对象
+     * @param charset 字符集
+     * @return 转换后的字符串
+     */
+    public static String str(Object obj, Charset charset) {
+        if (null == obj) {
+            return null;
+        }
+
+        if (obj instanceof String) {
+            return (String) obj;
+        } else if (obj instanceof byte[]) {
+            return str((byte[]) obj, charset);
+        } else if (obj instanceof Byte[]) {
+            return str((Byte[]) obj, charset);
+        } else if (obj instanceof ByteBuffer) {
+            return str((ByteBuffer) obj, charset);
+        } else if (ArrayUtils.isArray(obj)) {
+            return ArrayUtils.toString(obj);
+        }
+
+        return obj.toString();
+    }
 
     /**
      * 将字节数组按指定字符集名称转换为字符串
@@ -785,8 +861,43 @@ public class StringUtils {
     }
 
 
+    /**
+     * 判断字符是否为空白字符
+     *
+     * <p>包括 {@link Character#isWhitespace(int)}、{@link Character#isSpaceChar(int)} 定义的空白字符，
+     * 以及部分特殊不可见字符（如 BOM 零宽空格、朝鲜文填充符等）。</p>
+     *
+     * @param c 待检查的字符
+     * @return 如果是空白字符返回 true
+     * @see Character#isWhitespace(int)
+     * @see Character#isSpaceChar(int)
+     * @since 4.0.10
+     */
+    public static boolean isBlankChar(int c) {
+        return Character.isWhitespace(c)
+                || Character.isSpaceChar(c)
+                || c == '\ufeff'
+                || c == '\u202a'
+                || c == '\u0000'
+
+                || c == '\u3164'
+
+                || c == '\u2800'
+
+                || c == '\u180e';
+    }
 
 
+    /**
+     * 判断字符串是否以指定字符结尾
+     *
+     * @param str 字符串
+     * @param c   指定字符
+     * @return 如果以该字符结尾返回 true
+     */
+    public static boolean endWith(CharSequence str, char c) {
+        return c == str.charAt(str.length() - 1);
+    }
 
     /**
      * 判断字符串是否以指定后缀结尾，可选忽略大小写
@@ -801,6 +912,8 @@ public class StringUtils {
     public static boolean endWith(CharSequence str, CharSequence suffix, boolean isIgnoreCase) {
         if (null == str || null == suffix) {
             return null == str && null == suffix;
+        }
+
         if (isIgnoreCase) {
             return str.toString().toLowerCase().endsWith(suffix.toString().toLowerCase());
         } else {
@@ -849,8 +962,51 @@ public class StringUtils {
         return endWith ? str.substring(0, str.length() - suffix.length()) : str;
     }
 
+    /**
+     * 判断字符串是否以指定前缀开头（忽略大小写）
+     *
+     * @param str    字符串
+     * @param prefix 前缀
+     * @return 如果以指定前缀开头返回 true
+     * @see #startWith(CharSequence, CharSequence, boolean)
+     */
+    public static boolean startWithIgnoreCase(CharSequence str, CharSequence prefix) {
+        return startWith(str, prefix, true);
+    }
 
+    /**
+     * 判断字符串是否以指定字符开头
+     *
+     * @param str 字符串
+     * @param c   指定字符
+     * @return 如果以该字符开头返回 true
+     */
+    public static boolean startWith(CharSequence str, char c) {
+        return c == str.charAt(0);
+    }
 
+    /**
+     * <p>检查 CharSequence 是否以指定前缀开头（可选是否忽略大小写）。</p>
+     *
+     * @param str        the charsequence to check, may be null
+     * @param prefix     the prefix to find, may be null
+     * @param ignoreCase indicates whether the compare should ignore case
+     * (case insensitive) or not.
+     * @return {@code true} if the charsequence starts with the prefix or
+     * both {@code null}
+     * @see String#startsWith(String)
+     */
+    private static boolean startsWith(final CharSequence str, final CharSequence prefix, final boolean ignoreCase) {
+        if (str == null || prefix == null) {
+            return str == prefix;
+        }
+
+        final int preLen = prefix.length();
+        if (preLen > str.length()) {
+            return false;
+        }
+        return regionMatches(str, ignoreCase, 0, prefix, 0, preLen);
+    }
 
     /**
      * 判断字符串是否以指定前缀开头（区分大小写）
@@ -861,6 +1017,7 @@ public class StringUtils {
      * @see #startWith(CharSequence, CharSequence, boolean)
      */
     public static boolean startWith(CharSequence str, CharSequence prefix) {
+        return startWith(str, prefix, false);
     }
 
     /**
@@ -931,6 +1088,12 @@ public class StringUtils {
         return rs;
     }
 
+    /**
+     * 使用 字符串tokenizer 将字符串拆分为字符串数组
+     *
+     * <p>默认启用去除空白和忽略空串。</p>
+     *
+     * @param str        输入字符串
      * @param delimiters 分隔符集合
      * @return 拆分后的字符串数组
      * @see #tokenizeToStringArray(String, String, boolean, boolean)
@@ -939,6 +1102,9 @@ public class StringUtils {
         return tokenizeToStringArray(str, delimiters, true, true);
     }
 
+    /**
+     * 使用 字符串tokenizer 将字符串拆分为字符串数组，可配置是否修剪和忽略空串
+     *
      * @param str               输入字符串
      * @param delimiters        分隔符集合
      * @param trimTokens        是否去除每个 令牌 的空白
@@ -1413,6 +1579,18 @@ public class StringUtils {
         }
     }
 
+    /**
+     * 返回指定长度的空格填充（默认最大 30）
+     *
+     * <p>宽度小于等于 0 时返回空字符串（与 {@link #padding(int, char)} 口径一致）。</p>
+     *
+     * @param width 填充宽度，小于等于 0 时返回空字符串
+     * @return 指定长度的空格字符串
+     * @see #padding(int, int)
+     */
+    public static String padding(int width) {
+        return padding(width, 30);
+    }
 
     /**
      * 返回指定字符重复指定次数的填充字符串
@@ -1544,6 +1722,9 @@ public class StringUtils {
         int padLen = padStr.length();
         int strLen = str.length();
         int pads = size - strLen;
+        if (pads <= 0) {
+            return str;
+        }
         if (padLen == 1 && pads <= SYMBOL_PAD_LIMIT) {
             return rightPad(str, size, padStr.charAt(0));
         }
@@ -1583,6 +1764,27 @@ public class StringUtils {
         return str.concat(new String(padding));
     }
 
+    /**
+     * 移除字符串开头的指定前缀
+     *
+     * <p>如果字符串以指定前缀开头，则移除该前缀；否则返回原字符串。</p>
+     *
+     * @param str    源字符串
+     * @param prefix 待移除的前缀
+     * @return 移除前缀后的字符串
+     */
+    public static String removePrefix(CharSequence str, CharSequence prefix) {
+        if (isEmpty(str) || isEmpty(prefix)) {
+            return str(str);
+        }
+
+        final String str2 = str.toString();
+        if (str2.startsWith(prefix.toString())) {
+
+            return subSuf(str2, prefix.length());
+        }
+        return str2;
+    }
 
     /**
      * 忽略大小写移除字符串开头的指定前缀
@@ -1606,6 +1808,27 @@ public class StringUtils {
         return str2;
     }
 
+    /**
+     * 移除字符串末尾的指定后缀
+     *
+     * <p>如果字符串以指定后缀结尾，则移除该后缀；否则返回原字符串。</p>
+     *
+     * @param str    源字符串
+     * @param suffix 待移除的后缀
+     * @return 移除后缀后的字符串
+     */
+    public static String removeSuffix(CharSequence str, CharSequence suffix) {
+        if (isEmpty(str) || isEmpty(suffix)) {
+            return str(str);
+        }
+
+        final String str2 = str.toString();
+        if (str2.endsWith(suffix.toString())) {
+
+            return subPre(str2, str2.length() - suffix.length());
+        }
+        return str2;
+    }
 
     /**
      * 返回指定子串在字符串中首次出现的位置
@@ -1720,7 +1943,33 @@ public class StringUtils {
                 : null == noneValueFunction ? defaultValue : noneValueFunction.apply(source);
     }
 
+    /**
+     * 将 {@code null} 转为空字符串
+     *
+     * @param str 字符串
+     * @return 非 空 返回原字符串，空 返回空串
+     */
+    public static String nullToEmpty(CharSequence str) {
+        return nullToDefault(str, SYMBOL_EMPTY);
+    }
 
+    /**
+     * 将 {@code null} 转为指定默认值
+     *
+     * <pre>
+     * nullToDefault(null, "default")  = "default"
+     * nullToDefault("", "default")    = ""
+     * nullToDefault("  ", "default")  = "  "
+     * nullToDefault("bat", "default") = "bat"
+     * </pre>
+     *
+     * @param str        字符串，可能为 空
+     * @param defaultStr 默认值
+     * @return 非 空 返回原字符串，空 返回默认值
+     */
+    public static String nullToDefault(CharSequence str, String defaultStr) {
+        return (str == null) ? defaultStr : str.toString();
+    }
 
 
     /**
@@ -1761,6 +2010,7 @@ public class StringUtils {
      */
     public static String replaceAll(String value, String[] oldPlace, boolean ignoreCase, String newPlace) {
         if (isEmpty(value)) {
+            return SYMBOL_EMPTY;
         }
 
         if (null == newPlace) {
@@ -1910,6 +2160,8 @@ public class StringUtils {
      */
     public static String[] delimitedListToStringArray(String source, String delimiter) {
         return delimitedListToStringArray(source, delimiter, null);
+    }
+
     /**
      * 用指定分隔符拆分字符串，同时移除每个元素中的指定字符
      *
@@ -1945,8 +2197,79 @@ public class StringUtils {
         return result.toArray(new String[0]);
     }
 
+    /**
+     * 删除字符串中包含在指定字符集合中的所有字符
+     *
+     * <pre>
+     *     deleteAny("11", "1") = ""
+     *     deleteAny("t1", "") = "t1"
+     *     deleteAny(null, "1") = null
+     *     deleteAny("T1", "1") = "T"
+     * </pre>
+     *
+     * @param source        源字符串
+     * @param charsToDelete 要删除的字符集合
+     * @return 删除后的字符串
+     */
+    public static String deleteAny(String source, String charsToDelete) {
+        if (isEmpty(source) || isEmpty(charsToDelete)) {
+            return source;
+        }
 
+        StringBuilder sb = new StringBuilder(source.length());
+        for (int i = 0; i < source.length(); i++) {
+            char c = source.charAt(i);
+            if (charsToDelete.indexOf(c) == -1) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 
+    /**
+     * 将字符串首字母大写
+     *
+     * <pre>
+     *     capitalize("11") = "11"
+     *     capitalize("t1") = "T1"
+     *     capitalize(null) = null
+     * </pre>
+     *
+     * @param source 源字符串
+     * @return 首字母大写后的字符串
+     */
+    public static String capitalize(String source) {
+        if (isEmpty(source)) {
+            return source;
+        }
+
+        char baseChar = source.charAt(0);
+        char updatedChar = Character.toUpperCase(baseChar);
+        if (baseChar == updatedChar) {
+            return source;
+        }
+
+        char[] chars = source.toCharArray();
+        chars[0] = updatedChar;
+        return new String(chars, 0, chars.length);
+    }
+
+    /**
+     * 移除字符串中首次出现指定字串及其之后的部分
+     *
+     * <p>如果字符串包含指定子串，则移除子串及其之后的内容并返回之前部分。</p>
+     *
+     * @param resource 源字符串
+     * @param s        目标子串
+     * @return 移除后的字符串
+     */
+    public static String removeSuffixContains(String resource, String s) {
+        if (isEmpty(resource) || isEmpty(s) || !resource.contains(s)) {
+            return resource;
+        }
+
+        return resource.substring(0, resource.indexOf(s));
+    }
 
     /**
      * 移除字符串末尾的指定子串
@@ -1974,6 +2297,27 @@ public class StringUtils {
         return str;
     }
 
+    /**
+     * 将字符串数组转换为指定分隔符连接的字符串（如 CSV）
+     *
+     * @param arr   数组（可能为 空 或空）
+     * @param delim 分隔符（通常为 ","）
+     * @return 分隔符连接的字符串
+     */
+    public static String arrayToDelimitedString(Object[] arr, String delim) {
+        if (ArrayUtils.isEmpty(arr)) {
+            return "";
+        }
+        if (arr.length == 1) {
+            return ObjectUtils.nullSafeToString(arr[0]);
+        }
+
+        StringJoiner sj = new StringJoiner(delim);
+        for (Object elem : arr) {
+            sj.add(String.valueOf(elem));
+        }
+        return sj.toString();
+    }
 
 
     /**
@@ -2010,6 +2354,21 @@ public class StringUtils {
                 .orElse(SYMBOL_EMPTY_STRING_ARRAY);
     }
 
+    /**
+     * 使用字符分隔符拆分字符串为列表
+     *
+     * <pre>
+     * a#b#c = [a,b,c]
+     * a##b#c = [a,"",b,c]
+     * </pre>
+     *
+     * @param str       字符串
+     * @param separator 分隔符
+     * @return 拆分后的列表
+     */
+    public static List<String> splitList(CharSequence str, char separator) {
+        return split(str, separator, 0);
+    }
 
     /**
      * 拆分字符串为数组（使用 Guava Splitter，自动去除空白和忽略空串）
@@ -2068,6 +2427,19 @@ public class StringUtils {
         return split(str, separator, 0).toArray(new String[0]);
     }
 
+    /**
+     * 拆分并去除空白，忽略空串
+     *
+     * @param str       字符串
+     * @param separator 分隔符
+     * @return 拆分并修剪后的字符串数组
+     */
+    public static String[] splitAndTrim(String str, String separator) {
+        if (StringUtils.isBlank(str)) {
+            return SYMBOL_EMPTY_ARRAY;
+        }
+        return Splitter.on(separator).trimResults().omitEmptyStrings().splitToStream(str).toArray(it -> new String[0]);
+    }
 
     /**
      * 使用字符分隔符拆分字符串为列表（默认不修剪、不忽略空）
@@ -2152,6 +2524,7 @@ public class StringUtils {
         }
         final int len = str.length();
         if (len == 0) {
+            return new String[0];
         }
         final List<String> list = Wraps.list();
         int i = 0;
@@ -2178,6 +2551,8 @@ public class StringUtils {
         return list.toArray(new String[0]);
     }
 
+    /**
+     * 使用字符串分隔符拆分字符串列表（默认不忽略大小写）
      *
      * @param str         字符串
      * @param separator   分隔符
@@ -2192,6 +2567,17 @@ public class StringUtils {
         return split(str, separator, limit, isTrim, ignoreEmpty, false);
     }
 
+    /**
+     * 使用字符串分隔符拆分字符串列表，可配置修剪、忽略空串和忽略大小写
+     *
+     * @param text        字符串
+     * @param separator   分隔符
+     * @param limit       限制数量，0 表示无限制
+     * @param isTrim      是否去除空白
+     * @param ignoreEmpty 是否忽略空串
+     * @param ignoreCase  是否忽略大小写
+     * @return 拆分后的列表
+     * @since 3.2.1
      */
     public static List<String> split(CharSequence text, String separator, int limit, boolean isTrim,
                                      boolean ignoreEmpty, boolean ignoreCase) {
@@ -2231,6 +2617,9 @@ public class StringUtils {
             return Wraps.list(0);
         }
         Splitter splitter = Splitter.on(separator);
+        if (limit > 0) {
+            splitter = splitter.limit(limit);
+        }
         if (isTrim) {
             splitter = splitter.trimResults();
         }
@@ -2272,11 +2661,150 @@ public class StringUtils {
         return true;
     }
 
+    /**
+     * 修饰符位掩码转换为字符串表示。
+     *
+     * <p>使用 {@link java.lang.reflect.Modifier} 静态判断位掩码各修饰符，
+     * 属 JDK 常量判断 API（非方法/字段反射调用），规约 1.10 豁免。</p>
+     *
+     * @param mod      修饰符位掩码
+     * @param splitter 分隔符
+     * @return 修饰符字符串，如 "abstract final"
+     */
+    public static String modifier(int mod, char splitter) {
+        StringBuilder sb = new StringBuilder(64);
+        if (Modifier.isAbstract(mod)) {
+            sb.append("abstract").append(splitter);
+        }
+        if (Modifier.isFinal(mod)) {
+            sb.append("final").append(splitter);
+        }
+        if (Modifier.isInterface(mod)) {
+            sb.append("interface").append(splitter);
+        }
+        if (Modifier.isNative(mod)) {
+            sb.append("native").append(splitter);
+        }
+        if (Modifier.isPrivate(mod)) {
+            sb.append("private").append(splitter);
+        }
+        if (Modifier.isProtected(mod)) {
+            sb.append("protected").append(splitter);
+        }
+        if (Modifier.isPublic(mod)) {
+            sb.append("public").append(splitter);
+        }
+        if (Modifier.isStatic(mod)) {
+            sb.append("static").append(splitter);
+        }
+        if (Modifier.isStrict(mod)) {
+            sb.append("strict").append(splitter);
+        }
+        if (Modifier.isSynchronized(mod)) {
+            sb.append("synchronized").append(splitter);
+        }
+        if (Modifier.isTransient(mod)) {
+            sb.append("transient").append(splitter);
+        }
+        if (Modifier.isVolatile(mod)) {
+            sb.append("volatile").append(splitter);
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 按显示宽度自动换行
+     *
+     * @param string 字符串
+     * @param width  每行显示宽度
+     * @return 换行后的字符串
+     * @see #wrapByDisplayWidth(String, int)
+     */
+    public static String wrap(String string, int width) {
+        return wrapByDisplayWidth(string, width);
+    }
+
+    /**
+     * 根据显示宽度自动换行（中文字符宽度为 2，英文字符宽度为 1）
+     *
+     * @param string 字符串
+     * @param width  每行显示宽度
+     * @return 换行后的字符串
+     */
+    public static String wrapByDisplayWidth(String string, int width) {
+        if (string == null || width <= 0) {
+            return string;
+        }
+
+        final StringBuilder sb = new StringBuilder(string.length());
+        final char[] buffer = string.toCharArray();
+        int displayCount = 0;
+
+        for (char c : buffer) {
+            //
+            int charWidth = isDoubleByteChar(c) ? 2 : 1;
+
+            //
+            if (displayCount + charWidth > width && displayCount > 0) {
+                sb.append('\n');
+                displayCount = 0;
+            }
+
+            if (c == '\n') {
+                displayCount = 0;
+            } else {
+                displayCount += charWidth;
+            }
+
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 
 
+    /**
+     * 获取类的完整类名（数组类型带 [] 后缀）
+     *
+     * @param clazz Java 类
+     * @return 类名
+     */
+    public static String classname(Class<?> clazz) {
+        if (clazz.isArray()) {
+            StringBuilder sb = new StringBuilder(clazz.getName());
+            sb.delete(0, 2);
+            if (sb.length() > 0 && sb.charAt(sb.length() - 1) == CommonConstant.SYMBOL_SEMICOLON_CHAR) {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            sb.append("[]");
+            return sb.toString();
+        } else {
+            return clazz.getName();
+        }
+    }
 
-
-
+    /**
+     * 将对象转换为字符串，捕获异常防止抛出
+     *
+     * <p>如果 {@code toString()} 抛出异常，返回包含异常信息的错误描述。</p>
+     *
+     * @param obj 待转换的对象
+     * @return 对象的字符串表示
+     */
+    public static String objectToString(Object obj) {
+        if (null == obj) {
+            return EMPTY_STRING;
+        }
+        try {
+            return obj.toString();
+        } catch (Throwable t) {
+            return "ERROR DATA!!! Method toString() throw exception. obj class: " + obj.getClass()
+                    + ", exception class: " + t.getClass()
+                    + ", exception message: " + t.getMessage();
+        }
+    }
 
     /**
      * 获取 charsequence 的长度，{@code null} 返回 0
@@ -2289,6 +2817,9 @@ public class StringUtils {
         return cs == null ? 0 : cs.length();
     }
 
+    /**
+     * 获取字符串的显示宽度（中文等宽字符计 2，其他计 1）
+     *
      * @param str 字符串
      * @return 显示宽度
      */
@@ -2299,13 +2830,156 @@ public class StringUtils {
         return getSingleCharCount(str) + getCharCount(str) * 2;
     }
 
+    /**
+     * 判断字符是否为双字节字符（如中文）
+     *
+     * @param c 字符
+     * @return 如果为双字节字符返回 true
+     */
+    public static boolean isDoubleByteChar(char c) {
+        //                      ASCII
+        return c > 0xFF;
+    }
 
 
+    /**
+     * 转为线。
+     *
+     * @param text 文本
+     * @return 转为线的结果
+     */
+    public static List<String> toLines(String text) {
+        List<String> result = Wraps.list();
+        BufferedReader reader = new BufferedReader(new StringReader(text));
+        try {
+            String line = reader.readLine();
+            while (line != null) {
+                result.add(line);
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            log.debug("[StringUtils] 读取文本行失败: {}", e.getMessage());
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                log.debug("[StringUtils] 关闭文本读取器失败: {}", e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 去除字符串首尾的指定字符
+     *
+     * <pre>
+     * strip(null, *)          = null
+     * strip("", *)            = ""
+     * strip("abc", null)      = "abc"
+     * strip("  abc", null)    = "abc"
+     * strip("abc  ", null)    = "abc"
+     * strip(" abc ", null)    = "abc"
+     * strip("  abcyx", "xyz") = "  abc"
+     * </pre>
+     *
+     * @param str        字符串
+     * @param stripChars 要去除的字符集合，空 去除空白字符
+     * @return 去除后的字符串
+     */
+    public static String strip(final String str, final String stripChars) {
+        if (isNullOrEmpty(str)) {
+            return str;
+        }
+        final String newStr = stripStart(str, stripChars);
+        return stripEnd(newStr, stripChars);
+    }
+
+    /**
+     * 去除字符串末尾的指定字符
+     *
+     * <pre>
+     * stripEnd(null, *)          = null
+     * stripEnd("", *)            = ""
+     * stripEnd("abc", "")        = "abc"
+     * stripEnd("abc", null)      = "abc"
+     * stripEnd("  abc", null)    = "  abc"
+     * stripEnd("abc  ", null)    = "abc"
+     * stripEnd(" abc ", null)    = " abc"
+     * stripEnd("  abcyx", "xyz") = "  abc"
+     * stripEnd("120.00", ".0")   = "12"
+     * </pre>
+     *
+     * @param str        字符串
+     * @param stripChars 要去除的字符集合，空 去除空白字符
+     * @return 去除后的字符串
+     */
+    public static String stripEnd(final String str, final String stripChars) {
+        int end;
+        if (str == null || (end = str.length()) == 0) {
+            return str;
+        }
+
+        if (stripChars == null) {
+            while (end != 0 && Character.isWhitespace(str.charAt(end - 1))) {
+                end--;
+            }
+        } else if (stripChars.isEmpty()) {
+            return str;
+        } else {
+            while (end != 0 && stripChars.indexOf(str.charAt(end - 1)) != -1) {
+                end--;
+            }
+        }
+        return str.substring(0, end);
+    }
+
+    /**
+     * 去除字符串开头的指定字符
+     *
+     * <pre>
+     * stripStart(null, *)          = null
+     * stripStart("", *)            = ""
+     * stripStart("abc", "")        = "abc"
+     * stripStart("abc", null)      = "abc"
+     * stripStart("  abc", null)    = "abc"
+     * stripStart("abc  ", null)    = "abc  "
+     * stripStart(" abc ", null)    = "abc "
+     * stripStart("yxabc  ", "xyz") = "abc  "
+     * </pre>
+     *
+     * @param str        字符串
+     * @param stripChars 要去除的字符集合，空 去除空白字符
+     * @return 去除后的字符串
+     */
+    public static String stripStart(final String str, final String stripChars) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return str;
+        }
+        int start = 0;
+        if (stripChars == null) {
+            while (start != strLen && Character.isWhitespace(str.charAt(start))) {
+                start++;
+            }
+        } else if (stripChars.isEmpty()) {
+            return str;
+        } else {
+            while (start != strLen && stripChars.indexOf(str.charAt(start)) != INDEX_NOT_FOUND) {
+                start++;
+            }
+        }
+        return str.substring(start);
+    }
 
 
-
-
-
+    /**
+     * 获取线程本地 StringBuilder 池中的构建器（无副作用：归还/复用）
+     *
+     * @return 借出的 StringBuilder 构建器，初始容量默认（16）
+     */
+    public static StringBuilder borrowBuilder() {
+        return new StringBuilder(16);
+    }
 
 
     /**
@@ -2355,6 +3029,7 @@ public class StringUtils {
         List<String> list = Wraps.list(strings.length);
         for (String s : strings) {
             if (StringUtils.isEmpty(s)) {
+                continue;
             }
             list.add(s);
         }
@@ -2379,16 +3054,160 @@ public class StringUtils {
         return join(list, sep);
     }
 
+    /**
+     * Tests that a String contains only ASCII characters.
+     *
+     * @param string scanned String
+     * @return true if all characters are in range 0 - 127
+     */
+    public static boolean isAscii(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            int c = string.charAt(i);
+            if (c > 127) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
+    /**
+     * Tests if a code point is "whitespace" as defined in the HTML spec. Used for HTML output.
+     *
+     * @param c code point to test
+     * @return true if code point is whitespace, false otherwise
+     * @see #isActuallyWhitespace(int)
+     */
+    public static boolean isWhitespace(int c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r';
+    }
+
+    /**
+     * Tests if a code point is "whitespace" as defined by what it looks like. Used for Element.text etc.
+     *
+     * @param c code point to test
+     * @return true if code point is whitespace, false otherwise
+     */
+    public static boolean isActuallyWhitespace(int c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == 160;
+
+    }
+
+    /**
+     * 是否InvisibleChar。
+     *
+     * @param c 方法入参 c
+     * @return 是否成功（true 表示成功）
+     */
+    public static boolean isInvisibleChar(int c) {
+        return c == 8203 || c == 173;
+    }
+
+    /**
+     * 归一化字符串中的空白字符：连续空白折叠为单个空格，换行、制表符等控制字符统一转为普通空格。
+     *
+     * <p>例如 {@code "a  \n\tb"} 归一化为 {@code "a b"}。适用于展示前的文本清洗，
+     * 不改变首尾非空白字符本身。</p>
+     *
+     * @param string 待归一化的字符串，null 安全（null 直接返回 null）
+     * @return 归一化后的字符串；入参为 null 时返回 null
+     */
+    public static String normaliseWhitespace(String string) {
+        StringBuilder sb = borrowBuilder();
+        appendNormalisedWhitespace(sb, string, false);
+        return sb.toString();
+    }
+
+    /**
+     * 将归一化后的空白文本追加到指定 {@link StringBuilder}，用于流式拼接场景。
+     *
+     * <p>对 {@code string} 内的空白做归一化（连续空白折叠为单个空格），
+     * 结果追加到 {@code accum} 末尾，不修改 {@code accum} 中已有内容。
+     * 当 {@code stripLeading} 为 true 时，仅跳过尚未遇到任何非空白字符之前的前导空白。</p>
+     *
+     * @param accum        目标 StringBuilder（非 null），归一化结果将追加到其末尾
+     * @param string       待归一化的字符串，null 时不追加任何内容
+     * @param stripLeading 是否去除前导空白；仅对追加到 accum 之前的空白有效
+     */
+    public static void appendNormalisedWhitespace(StringBuilder accum, String string, boolean stripLeading) {
+        boolean lastWasWhite = false;
+        boolean reachedNonWhite = false;
+
+        int len = string.length();
+        int c;
+        for (int i = 0; i < len; i += Character.charCount(c)) {
+            c = string.codePointAt(i);
+            if (isActuallyWhitespace(c)) {
+                boolean b = (stripLeading && !reachedNonWhite) || lastWasWhite;
+                if (b) {
+                    continue;
+                }
+                accum.append(' ');
+                lastWasWhite = true;
+            } else if (!isInvisibleChar(c)) {
+                accum.appendCodePoint(c);
+                lastWasWhite = false;
+                reachedNonWhite = true;
+            }
+        }
+    }
+
+    /**
+     * in。
+     *
+     * @param needle 方法入参 needle
+     * @param haystack 方法入参 haystack
+     * @return 是否成功（true 表示成功）
+     */
+    public static boolean in(final String needle, final String... haystack) {
+        final int len = haystack.length;
+        for (int i = 0; i < len; i++) {
+            if (haystack[i].equals(needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * inSorted。
+     *
+     * @param needle 方法入参 needle
+     * @param haystack 方法入参 haystack
+     * @return 是否成功（true 表示成功）
+     */
+    public static boolean inSorted(String needle, String[] haystack) {
+        return Arrays.binarySearch(haystack, needle) >= 0;
+    }
 
 
+    /**
+     * Creates a new absolute URL, from a provided existing absolute URL and a relative URL component.
+     *
+     * @param baseUrl the existing absolute base URL
+     * @param relUrl  the relative URL to resolve. (If it's already absolute, it will be returned)
+     * @return an absolute URL if one was able to be generated, or the empty String if not
+     */
+    public static String resolve(String baseUrl, String relUrl) {
+
+        baseUrl = stripControlChars(baseUrl);
+        relUrl = stripControlChars(relUrl);
+        try {
+            URL base;
+            try {
+                base = new URL(baseUrl);
+            } catch (MalformedURLException e) {
+
+                URL abs = new URL(relUrl);
+                return abs.toExternalForm();
+            }
+            return resolve(base, relUrl).toExternalForm();
+        } catch (MalformedURLException e) {
 
 
-
-
-
-
+            return RegexConstant.VALID_URI_SCHEME.matcher(relUrl).find() ? relUrl : "";
+        }
+    }
 
     /**
      * Creates a new absolute URL, from a provided existing absolute URL and a relative URL component.
@@ -2537,6 +3356,23 @@ public class StringUtils {
         return bytes(str, UTF_8);
     }
 
+    /**
+     * 将字符串转为字节数组
+     *
+     * @param str     输入字符串
+     * @param charset 字符集
+     * @return 字节数组
+     */
+    public static byte[] bytes(CharSequence str, Charset charset) {
+        if (str == null) {
+            return null;
+        }
+
+        if (null == charset) {
+            return str.toString().getBytes();
+        }
+        return str.toString().getBytes(charset);
+    }
 
     /**
      * 将字符串转为字节数组
@@ -2582,7 +3418,36 @@ public class StringUtils {
         return str;
     }
 
+    /**
+     * 移除字符串开头和结尾的指定子串
+     *
+     * @param str    源字符串
+     * @param remove 要移除的子串
+     * @return 移除开头和结尾子串后的字符串
+     */
+    public static String removeStartEnd(String str, String remove) {
+        //
+        if (isEmpty(str) || isEmpty(remove)) {
+            return str;
+        }
+        //
+        if (str.startsWith(remove)) {
+            return removeEnd(str.substring(remove.length()), remove);
+        }
+        //
+        return removeEnd(str, remove);
+    }
 
+    /**
+     * <p>忽略大小写移除字符串开头匹配的子串，否则返回源字符串。</p>
+     *
+     * <p>{@code null} 源字符串返回 {@code null}。
+     * 空字符串（""）源字符串返回空字符串。
+     * {@code null} 搜索字符串返回源字符串。</p>
+     *
+     * <pre>
+     * StringUtils.removeStartIgnoreCase(null, *)      = null
+     * StringUtils.removeStartIgnoreCase("", *)        = ""
      * StringUtils.removeStartIgnoreCase(*, null)      = *
      * StringUtils.removeStartIgnoreCase("www.domain.com", "www.")   = "domain.com"
      * StringUtils.removeStartIgnoreCase("www.domain.com", "WWW.")   = "domain.com"
@@ -2631,6 +3496,21 @@ public class StringUtils {
     }
 
 
+    /**
+     * <p>获取字符串最右侧的指定长度的字符。</p>
+     *
+     * <p>如果指定的长度不可用，或字符串为 {@code null}，
+     * 则直接返回原字符串而不抛出异常。如果 len 为负数，返回空字符串。</p>
+     *
+     * <pre>
+     * StringUtils.right(null, *)    = null
+     * StringUtils.right(*, -ve)     = ""
+     * StringUtils.right("", *)      = ""
+     * StringUtils.right("abc", 0)   = ""
+     * StringUtils.right("abc", 2)   = "bc"
+     * StringUtils.right("abc", 4)   = "abc"
+     * </pre>
+     *
      * @param str 要从中获取最右侧字符的字符串，可能为 空
      * @param len 需要的字符串长度
      * @return 最右侧的字符，如果输入为 空 则返回 空
@@ -2666,6 +3546,7 @@ public class StringUtils {
      * @return 文件大小描述
      */
     public static String getNetFileSizeDescription(long size, DecimalFormat format) {
+        StringBuilder bytes = new StringBuilder(16);
         int s1024 = 1024;
         if (size >= s1024 * s1024 * s1024) {
             double i = (size / (1024.0 * 1024.0 * 1024.0));
@@ -2687,8 +3568,75 @@ public class StringUtils {
     }
 
 
+    /**
+     * 统计字符串中指定子串出现的次数
+     *
+     * @param source 源字符串
+     * @param symbol 要统计的子串
+     * @return 出现次数
+     */
+    public static int count(String source, String symbol) {
+        if (isNullOrEmpty(source) || isNullOrEmpty(symbol)) {
+            return 0;
+        }
+        int index = -1;
+        int count = 0;
+        while ((index = source.indexOf(symbol, index + 1)) != -1) {
+            ++count;
+        }
+        return count;
+    }
+
+    /**
+     * 获取字符串中中文字符（双字节字符）的数量
+     *
+     * @param cell 输入字符串
+     * @return 中文字符数量
+     */
+    public static Integer getCharCount(String cell) {
+        if (cell == null) {
+            return 0;
+        }
+        return cell.length() - getSingleCharCount(cell);
+    }
 
 
+    /**
+     * 获取字符串中单字节字符的数量
+     *
+     * @param cell 输入字符串
+     * @return 单字节字符数量
+     */
+    public static Integer getSingleCharCount(String cell) {
+        if (cell == null) {
+            return 0;
+        }
+        String reg = "[^\t\\x00-\\xff]";
+        cell = cell.replaceAll(reg, "");
+
+        return cell.replaceAll("  ", "").length();
+    }
+
+    /**
+     * 获取填充后的字符串（带列表索引）
+     *
+     * @param str    源字符串
+     * @param len    目标长度
+     * @param symbol 填充符号
+     * @param index  列表索引
+     * @return 填充后的字符串
+     */
+    public static String getPadString(String str, Integer len, String symbol, int index) {
+        String origin = str + "  ";
+        if (index == 0) {
+            String tmp = getPadString(origin, len - 2);
+            return symbol + tmp + symbol;
+        } else {
+
+            String tmp = getPadString(origin, len - 1);
+            return tmp + symbol;
+        }
+    }
 
     /**
      * 将字符串填充到指定长度（居中填充空格）
@@ -2715,11 +3663,32 @@ public class StringUtils {
         return str.substring(0, len);
     }
 
+    /**
+     * 比较两个字符串是否相等（忽略大小写）
+     *
+     * <pre>
+     * equalsIgnoreCase(null, null)   = true
+     * equalsIgnoreCase(null, &quot;abc&quot;)  = false
+     * equalsIgnoreCase(&quot;abc&quot;, null)  = false
+     * equalsIgnoreCase(&quot;abc&quot;, &quot;abc&quot;) = true
+     * equalsIgnoreCase(&quot;abc&quot;, &quot;ABC&quot;) = true
+     * </pre>
+     *
+     * @param str1 第一个字符串
+     * @param str2 第二个字符串
+     * @return 如果两个字符串相等（忽略大小写）则返回 {@code true}
      */
     public static boolean equalsIgnoreCase(CharSequence str1, CharSequence str2) {
         return equals(str1, str2, true);
     }
 
+    /**
+     * 比较两个字符串是否相等，可选是否忽略大小写
+     *
+     * @param str1       第一个字符串
+     * @param str2       第二个字符串
+     * @param ignoreCase 是否忽略大小写
+     * @return 如果相等则返回 {@code true}
      * @since 3.2.0
      */
     public static boolean equals(CharSequence str1, CharSequence str2, boolean ignoreCase) {
@@ -2739,7 +3708,39 @@ public class StringUtils {
         }
     }
 
+    /**
+     * 将字符串转换为 ASCII 码序列（逗号分隔）
+     *
+     * @param strValue 输入字符串
+     * @return ASCII 码序列，如 "65,66,67"
+     */
+    public static String stringToAscii(String strValue) {
+        StringBuilder sbu = new StringBuilder(strValue.length() * 4);
+        char[] chars = strValue.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if (i != chars.length - 1) {
+                sbu.append((int) chars[i]).append(",");
+            } else {
+                sbu.append((int) chars[i]);
+            }
+        }
+        return sbu.toString();
+    }
 
+    /**
+     * 将 ASCII 码序列（逗号分隔）还原为字符串
+     *
+     * @param ascii ASCII 码序列，如 "65,66,67"
+     * @return 还原后的字符串
+     */
+    public static String asciiToStr(String ascii) {
+        StringBuilder sbu = new StringBuilder(ascii.length());
+        String[] chars = ascii.split(",");
+        for (String aChar : chars) {
+            sbu.append((char) Integer.parseInt(aChar));
+        }
+        return sbu.toString();
+    }
 
 
     /**
@@ -2754,6 +3755,11 @@ public class StringUtils {
         return indexOf(str, searchChar) > -1;
     }
 
+    /**
+     * 判断字符串是否包含指定子串
+     *
+     * @param str       输入字符串
+     * @param searchStr 要搜索的子串
      * @return 如果包含则返回 true
      * @since 5.1.1
      */
@@ -2764,6 +3770,17 @@ public class StringUtils {
         return str.toString().contains(searchStr);
     }
 
+    /**
+     * 判断字符串是否包含任意一个指定子串
+     *
+     * @param str      输入字符串
+     * @param testStrs 待检查的子串列表
+     * @return 如果包含任意一个则返回 true
+     * @since 3.2.0
+     */
+    public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
+        return null != getContainsStr(str, testStrs);
+    }
 
     /**
      * 判断字符串是否包含任意一个指定字符
@@ -2779,12 +3796,78 @@ public class StringUtils {
             for (int i = 0; i < len; i++) {
                 if (ArrayUtils.contains(testChars, str.charAt(i))) {
                     return true;
+                }
+            }
         }
         return false;
     }
 
+    /**
+     * 判断字符串是否仅包含指定字符集中的字符
+     *
+     * @param str       输入字符串
+     * @param testChars 允许的字符集
+     * @return 如果仅包含指定字符集中的字符则返回 true，否则返回 false
+     * @since 4.4.1
+     */
+    public static boolean containsOnly(CharSequence str, char... testChars) {
+        if (!isEmpty(str)) {
+            int len = str.length();
+            for (int i = 0; i < len; i++) {
+                if (!ArrayUtils.contains(testChars, str.charAt(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
+    /**
+     * 判断字符串中是否包含空白字符
+     * <br>
+     * 空 返回 false，空字符串返回 false
+     *
+     * @param str 输入字符串
+     * @return 如果包含空白字符则返回 true
+     * @since 4.0.8
+     */
+    public static boolean containsBlank(CharSequence str) {
+        if (null == str) {
+            return false;
+        }
+        final int length = str.length();
+        if (0 == length) {
+            return false;
+        }
 
+        for (int i = 0; i < length; i += 1) {
+            final char c = str.charAt(i);
+            if (Character.isWhitespace(c) || Character.isSpaceChar(c) || c == '\ufeff' || c == '\u202a' || c == '\u0000') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取字符串中包含的第一个匹配子串
+     *
+     * @param str      输入字符串
+     * @param testStrs 待检查的子串列表
+     * @return 第一个匹配的子串，如果没有匹配则返回 空
+     * @since 3.2.0
+     */
+    public static String getContainsStr(CharSequence str, CharSequence... testStrs) {
+        if (isEmpty(str) || ArrayUtils.isEmpty(testStrs)) {
+            return null;
+        }
+        for (CharSequence checkStr : testStrs) {
+            if (str.toString().contains(checkStr)) {
+                return checkStr.toString();
+            }
+        }
+        return null;
+    }
 
     /**
      * 忽略大小写判断字符串是否包含指定子串
@@ -2803,9 +3886,52 @@ public class StringUtils {
         return str.toString().toLowerCase().contains(testStr.toString().toLowerCase());
     }
 
+    /**
+     * 忽略大小写判断字符串是否包含任意一个指定子串
+     * <br>
+     *
+     * @param str      输入字符串
+     * @param testStrs 待检查的子串列表
+     * @return 如果包含任意一个则返回 true
+     * @since 3.2.0
+     */
+    public static boolean containsAnyIgnoreCase(CharSequence str, CharSequence... testStrs) {
+        return null != getContainsStrIgnoreCase(str, testStrs);
+    }
+
+    /**
+     * 忽略大小写获取字符串中包含的第一个匹配子串
+     * <br>
+     *
+     * @param str       输入字符串
+     * @param sequences 待检查的子串列表
+     * @return 第一个匹配的子串，如果没有匹配则返回 空
+     * @since 3.2.0
+     */
+    public static String getContainsStrIgnoreCase(CharSequence str, CharSequence... sequences) {
+        if (isEmpty(str) || ArrayUtils.isEmpty(sequences)) {
+            return null;
+        }
+        for (CharSequence testStr : sequences) {
+            if (containsIgnoreCase(str, testStr)) {
+                return testStr.toString();
+            }
+        }
+        return null;
+    }
 
 
-
+    /**
+     * <p>获取分隔符第一次出现之前的子串。分隔符不会被返回。</p>
+     *
+     * <p>{@code null} 字符串输入返回 {@code null}。空字符串（""）输入返回空字符串。
+     * {@code null} 分隔符返回原字符串。</p>
+     *
+     * <p>如果未找到分隔符，返回原字符串。</p>
+     *
+     * <pre>
+     * StringUtils.substringBefore(null, *)      = null
+     * StringUtils.substringBefore("", *)        = ""
      * StringUtils.substringBefore("abc", "a")   = ""
      * StringUtils.substringBefore("abcba", "b") = "a"
      * StringUtils.substringBefore("abc", "c")   = "ab"
@@ -2830,6 +3956,24 @@ public class StringUtils {
             return str;
         }
         return str.substring(0, pos);
+    }
+
+    /**
+     * 将对象数组转换为 "obj1,obj2...,objn" 格式的字符串
+     *
+     * @param array 对象数组
+     * @return 逗号分隔的字符串
+     */
+    public static String arrayToString(Object... array) {
+        StringBuilder sb = new StringBuilder(array.length * 16);
+        for (Object object : array) {
+            sb.append(object).append(",");
+        }
+        if (sb.length() > 0) {
+            sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
+    }
 
     /**
      * 将数组对象转换为逗号分隔的字符串
@@ -2911,18 +4055,125 @@ public class StringUtils {
         int start = str.indexOf(open);
         if (start != -1) {
             int end = str.indexOf(close, start + open.length());
+            if (end != -1) {
+                return str.substring(start + open.length(), end);
+            }
             return str.substring(start + open.length());
         }
         return null;
     }
 
+    /**
+     * 合并两个字符串数组为一个
+     *
+     * @param array1 第一个数组
+     * @param array2 第二个数组
+     * @return 合并后的数组
+     */
+    public static String[] joinStringArray(String[] array1, String[] array2) {
+        List<String> l = Wraps.list();
+        Collections.addAll(l, array1);
+        Collections.addAll(l, array2);
+        return l.toArray(new String[0]);
+    }
 
 
+    /**
+     * 忽略大小写替换所有匹配的子串<br/>
+     * 替换ignore大小写("abcdecd", "Cd", "FF") = "abffeff"
+     *
+     * @param text      原文本
+     * @param findtxt   要查找的子串
+     * @param replacetxt 替换文本
+     * @return 替换后的字符串
+     */
+    public static String replaceIgnoreCase(String text, String findtxt, String replacetxt) {
+        if (text == null) {
+            return null;
+        }
+        String str = text;
+        if (findtxt == null || findtxt.length() == 0) {
+            return str;
+        }
+        if (findtxt.length() > str.length()) {
+            return str;
+        }
+        int counter = 0;
+        String thesubstr;
+        while ((counter < str.length()) && (str.substring(counter).length() >= findtxt.length())) {
+            thesubstr = str.substring(counter, counter + findtxt.length());
+            if (thesubstr.equalsIgnoreCase(findtxt)) {
+                str = str.substring(0, counter) + replacetxt + str.substring(counter + findtxt.length());
+                counter += replacetxt.length();
+            } else {
+                counter++;
+            }
+        }
+        return str;
+    }
 
 
+    /**
+     * 清除列名中的引号字符，如 `someCol` 或 "somecol" 或 [somecol]
+     *
+     * @param columnName 列名
+     * @return 清除引号后的列名
+     */
+    public static String clearQuote(String columnName) {
+        if (isEmpty(columnName)) {
+            return columnName;
+        }
+        String s = replace(columnName, "`", "");
+        s = replace(s, "\"", "");
+        s = replace(s, "[", "");
+        s = replace(s, "]", "");
+        return s;
+    }
 
+    /**
+     * 将对象列表转换为 "obj1,obj2...,objn" 格式的字符串
+     *
+     * @param lst 对象列表
+     * @return 逗号分隔的字符串
+     */
+    public static String listToString(List<?> lst) {
 
+        StringBuilder sb = new StringBuilder(Math.max(lst.size() * 16, 16));
+        for (Object object : lst) {
+            sb.append(object).append(",");
+        }
+        if (sb.length() > 0) {
+            sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
+    }
 
+    /**
+     * 将对象数组转换为 "obj1,obj2...,objn" 格式的字符串（跳过第一个元素）
+     *
+     * @param array 对象数组
+     * @return 逗号分隔的字符串（跳过第一个元素）
+     */
+    public static String arrayToStringButSkipFirst(Object[] array) {
+        StringBuilder sb = new StringBuilder(array.length * 16);
+        int i = 1;
+        for (Object object : array) {
+            if (i++ != 1) {
+                sb.append(object).append(",");
+            }
+
+        }
+        if (sb.length() > 0) {
+            sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 替换字符串中第一个出现的子串
+     *
+     * @param originString 原始字符串
+     * @param oldPattern   要替换的旧模式
      * @param newPattern   替换的新模式
      * @return 替换后的字符串
      */
@@ -2931,6 +4182,7 @@ public class StringUtils {
             return originString;
         }
         StringBuilder sb = new StringBuilder(Math.max(originString.length() + 16, 16));
+        int pos = 0;
         int index = originString.indexOf(oldPattern);
         int patLen = oldPattern.length();
         if (index >= 0) {
@@ -2941,6 +4193,20 @@ public class StringUtils {
         sb.append(originString.substring(pos));
         return sb.toString();
     }
+
+    /**
+     * 检查对象值是否有效（非空），对于 charsequence 检查是否非空白
+     *
+     * @param object 待检查的对象
+     * @return 如果有效则返回 true
+     */
+    public static boolean checkValNotNull(Object object) {
+        if (object instanceof CharSequence) {
+            return isNotEmpty((CharSequence) object);
+        }
+        return object != null;
+    }
+
     /**
      * SQL
      */
@@ -2949,7 +4215,34 @@ public class StringUtils {
                     + "|call|execute|exec|declare|show|rename|set)" +
             "\\s+.*(into|from|set|where|table|database|view|index|on|cursor|procedure|trigger|for|password|union|" +
                     "and|or)|(select\\s*\\*\\s*from\\s+)", Pattern.CASE_INSENSITIVE);
+    /**
+     * '   ;               SQL
+     */
+    private static final Pattern SQL_COMMENT_PATTERN = Pattern.compile("'.*(or|union|--|#|/*|;)",
+            Pattern.CASE_INSENSITIVE);
 
+    /**
+     * SQL 注入替换空白字符
+     * <ul>
+     *     <li>\n       </li>
+     *     <li>\t                </li>
+     *     <li>\s       </li>
+     *     <li>\r       </li>
+     * </ul>
+     *
+     * @param str 输入字符串
+     * @return sqlinjection替换空白字符的结果
+     */
+    public static String sqlInjectionReplaceBlank(String str) {
+        if (check(str)) {
+            /**
+             * SQL                         SQL
+             */
+            Matcher matcher = REPLACE_BLANK.matcher(str);
+            str = matcher.replaceAll("");
+        }
+        return str;
+    }
 
     /**
      * 检查 SQL 注入关键字
@@ -2963,6 +4256,54 @@ public class StringUtils {
         return SQL_COMMENT_PATTERN.matcher(value).find() || SQL_SYNTAX_PATTERN.matcher(value).find();
     }
 
+    /**
+     * 将逗号分隔的列表（如 CSV 行）转换为字符串数组
+     *
+     * @param str 输入字符串
+     * @return 字符串数组，输入为空时返回空数组
+     */
+    public static String[] commaDelimitedListToStringArray(String str) {
+        return delimitedListToStringArray(str, ",");
+    }
+
+    /**
+     * 按分隔符分割后获取指定偏移量的子串
+     *
+     * @param str       输入字符串
+     * @param separator 分隔符
+     * @param offset    偏移量
+     * @return 分割后的第 偏移量 个子串
+     */
+    public static String after(String str, String separator, int offset) {
+        String[] split = str.split(separator);
+        if (split.length < offset) {
+            return CommonConstant.SYMBOL_EMPTY;
+        }
+
+        return split[offset];
+    }
+
+    /**
+     * 按分隔符分割后获取指定范围的子串（用分隔符重新连接）
+     *
+     * @param str       输入字符串
+     * @param separator 分隔符
+     * @param offset    起始偏移量
+     * @param offset2   结束偏移量
+     * @return 指定范围子串用分隔符连接后的结果
+     */
+    public static String between(String str, String separator, int offset, int offset2) {
+        String[] split = str.split(separator);
+        if (split.length < offset) {
+            return CommonConstant.SYMBOL_EMPTY;
+        }
+
+        if (offset2 <= offset) {
+            return CommonConstant.SYMBOL_EMPTY;
+        }
+
+        return Joiner.on(separator).join((Object[]) ArrayUtils.subArray(split, offset, offset2));
+    }
 
     /**
      * 比较两个字符串是否相等（安全比较，防止时序攻击）
@@ -2989,6 +4330,11 @@ public class StringUtils {
         return true;
     }
 
+    /**
+     * 安全比较两个字符串是否相等（防止时序攻击）
+     *
+     * @param source 源字符串
+     * @param target 目标字符串
      * @return 如果相等则返回 true
      */
     public static boolean safeEquals(String source, String target) {
@@ -3004,13 +4350,42 @@ public class StringUtils {
         int length = source.length();
         for (int i = 0; i < length; i++) {
             char s = source.charAt(i);
+            equal |= s ^ target.charAt(i);
         }
 
         return equal == 0;
     }
 
+    /**
+     * 获取有效字符串，如果值为 空、空字符串或 "空"/"无" 则返回默认值
+     *
+     * @param value        待检查的值
+     * @param defaultValue 默认值
+     * @return 有效字符串或默认值
+     */
+    public static String ifValid(String value, String defaultValue) {
+        if (null == value) {
+            return defaultValue;
+        }
+
+        if (isEmpty(value)) {
+            return defaultValue;
+        }
+
+        if (NONE.equals(value) || NULL.equalsIgnoreCase(value)) {
+            return defaultValue;
+        }
+
+        return value;
+    }
 
 
+    /**
+     * <p>从指定字符串中安全地获取子串，避免异常。</p>
+     *
+     * <p>负数的起始位置表示从字符串末尾倒数 {@code n} 个字符开始。</p>
+     *
+     * <p>{@code null} 字符串返回 {@code null}。空字符串（""）返回空字符串。</p>
      *
      * <pre>
      * StringUtils.substring(null, *)   = null
@@ -3184,6 +4559,7 @@ public class StringUtils {
         }
         final int csLen = cs.length();
         final int csLast = csLen - 1;
+        final int searchLen = searchChars.length;
         final int searchLast = searchLen - 1;
         for (int i = 0; i < csLen; i++) {
             final char ch = cs.charAt(i);
@@ -3237,6 +4613,16 @@ public class StringUtils {
         return containsNone(cs, invalidChars.toCharArray());
     }
 
+    /**
+     * <p>将字符串首字母转为小写，其余字符不变。</p>
+     *
+     * <p>对于基于单词的算法，请参见 {@link org.apache.commons.lang3.text.WordUtils#uncapitalize(String)}。
+     * {@code null} 输入返回 {@code null}。</p>
+     *
+     * <pre>
+     * StringUtils.uncapitalize(null)  = null
+     * StringUtils.uncapitalize("")    = ""
+     * StringUtils.uncapitalize("cat") = "cat"
      * StringUtils.uncapitalize("Cat") = "cat"
      * StringUtils.uncapitalize("CAT") = "cAT"
      * </pre>
@@ -3271,14 +4657,121 @@ public class StringUtils {
         return new String(newCodePoints, 0, outOffset);
     }
 
+    /**
+     * 判断关键字是否与值匹配（支持通配符 * 和 ?）
+     *
+     * @param keyword 关键字（可包含 * 或 ? 通配符）
+     * @param value   待匹配的值
+     * @return 如果匹配则返回 true
+     */
+    public static boolean isSimpleMatch(String keyword, String value) {
+        if (isEmpty(keyword)) {
+            return true;
+        }
+
+        if (keyword.contains("*") || keyword.contains("?")) {
+            return PathMatcher.INSTANCE.match(keyword, value);
+        }
+
+        return keyword.equals(value) || value.matches(keyword);
+    }
+
+    /**
+     * 判断输入字符串是否包含运算符（+ - * / % > < = !）
+     *
+     * @param input 输入字符串
+     * @return 如果包含运算符则返回 true
+     */
+    public static boolean containsOperator(String input) {
+        String regex = "\\s*[+\\-\\*/%><=!]+\\s*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.find();
+    }
+
+    /**
+     * 判断输入字符串是否包含函数调用（如 func()）
+     *
+     * @param input 输入字符串
+     * @return 如果包含函数调用则返回 true
+     */
+    public static boolean containsFunction(String input) {
+        String regex = "\\s*[a-zA-Z]+\\(.*\\)\\s*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.find();
+    }
+
+    /**
+     * 替换字符串中的重复子串
+     *
+     * @param source       源字符串
+     * @param repeatSymbol 要被替换的重复符号
+     * @param newSymbol    替换后的新符号
+     * @return 替换后的字符串
+     */
+    public static String removeRepeat(String source, String repeatSymbol, String newSymbol) {
+        return null == source ? null : source.replace(repeatSymbol, newSymbol);
+    }
+
+    /**
+     * 将 Unicode 编码的字符串转换为 UTF-8 编码
+     *
+     * @param str 输入字符串
+     * @return UTF-8 编码的字符串
+     */
+    public static String unicodeToUtf8(String str) {
+        try {
+            byte[] bytes = str.getBytes("Unicode");
+            return new String(bytes, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Unicode 转 UTF-8 失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 将 UTF-8 编码的字符串转换为 Unicode 编码
+     *
+     * @param str 输入字符串
+     * @return Unicode 编码的字符串
+     */
+    public static String utf8ToUnicode(String str) {
+        try {
+            byte[] bytes = str.getBytes("UTF-8");
+            return new String(bytes, "Unicode");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 转 Unicode 失败: " + e.getMessage(), e);
+        }
+    }
 
 
+    /**
+     * 对字符串进行 URL 编码
+     *
+     * @param word 待编码的字符串
+     * @return URL 编码后的字符串
+     */
+    public static String encode(String word) {
+        try {
+            return URLEncoder.encode(word, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException var2) {
+            return "";
+        }
+    }
 
-
-
-
-
-
+    /**
+     * 对字符串进行 URL 解码
+     *
+     * @param word 待解码的字符串
+     * @return URL 解码后的字符串
+     */
+    public static String decode(String word) {
+        try {
+            return URLDecoder.decode(word, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException var2) {
+            return "";
+        }
+    }
 
     /**
      * 将对象转换为字符串表示
@@ -3301,6 +4794,16 @@ public class StringUtils {
     }
 
 
+    /**
+     * 判断字符串是否为 "空"（忽略大小写），如果是则返回默认对象
+     *
+     * @param string 输入字符串
+     * @param o      默认对象
+     * @return 如果字符串为 "空" 则返回默认对象，否则返回字符串本身
+     */
+    public static <T> T isNullString(String string, T o) {
+        return NULL.equalsIgnoreCase(string) ? o : (T) string;
+    }
 
     /**
      * 判断逗号分隔的字符串中是否包含指定 标识
@@ -3361,6 +4864,18 @@ public class StringUtils {
         return false;
     }
 
+    /**
+     * 获取字符串的第一个字符
+     *
+     * @param value 输入字符串
+     * @return 第一个字符的字符串形式，空或 空 返回空字符串
+     */
+    public static String getFirst(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return SYMBOL_EMPTY;
+        }
+        return value.substring(0, 1);
+    }
 
 
     /**
@@ -3375,7 +4890,31 @@ public class StringUtils {
         return null != keyword && !keyword.trim().isEmpty();
     }
 
+    /**
+     * 忽略大小写查找字符串中子串的起始位置
+     *
+     * @param value 源字符串
+     * @param s     待查找的子串
+     * @return 子串的起始位置，未找到返回 {@code -1}
+     */
+    public static int indexOfIgnoreCase(String value, String s) {
+        if (value == null || s == null) {
+            return INDEX_NOT_FOUND;
+        }
+        return value.toLowerCase().indexOf(s.toLowerCase());
+    }
 
+    /**
+     * 将字符串首字母转为大写
+     *
+     * <p>如果输入为 {@code null} 或空字符串，则原样返回。</p>
+     *
+     * <pre>
+     * StringUtils.firstUpperCase(null)  = null
+     * StringUtils.firstUpperCase("")    = ""
+     * StringUtils.firstUpperCase("abc") = "Abc"
+     * StringUtils.firstUpperCase("ABC") = "ABC"
+     * StringUtils.firstUpperCase("a")   = "A"
      * </pre>
      *
      * @param str 待处理的字符串
@@ -3391,8 +4930,42 @@ public class StringUtils {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
+    /**
+     * 将字符串首字母转为小写
+     *
+     * <p>如果输入为 {@code null} 或空字符串，则原样返回。</p>
+     *
+     * <pre>
+     * StringUtils.firstLowerCase(null)  = null
+     * StringUtils.firstLowerCase("")    = ""
+     * StringUtils.firstLowerCase("ABC") = "aBC"
+     * StringUtils.firstLowerCase("abc") = "abc"
+     * StringUtils.firstLowerCase("A")   = "a"
+     * </pre>
+     *
+     * @param str 待处理的字符串
+     * @return 首字母小写后的字符串，{@code null} 返回 {@code null}
+     */
+    public static String firstLowerCase(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        if (Character.isLowerCase(str.charAt(0))) {
+            return str;
+        }
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
 
 
+    /**
+     * region匹配
+     * @param cs C
+     * @param ignoreCase ignore大小写
+     * @param thisStart this启动
+     * @param substring 子串
+     * @param start 启动
+     * @param length 长度
+     */
     static boolean regionMatches(final CharSequence cs, final boolean ignoreCase, final int thisStart,
                                  final CharSequence substring, final int start, final int length) {
         if (cs instanceof String && substring instanceof String) {

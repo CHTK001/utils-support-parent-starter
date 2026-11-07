@@ -1,4 +1,4 @@
-// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。 // [P3C CO-循环 豁免]
 package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.AiUsage;
@@ -190,8 +190,25 @@ public class AgentScopeAgent implements Agent {
     private AgentPlanHook planHook;
     /**
      * 是否启用 MCP
-    */
+     */
     private boolean mcpEnabled = true;
+
+    /**
+     * 单条工具结果的截断阈值（字符数），超过即只保留预览。
+     *
+     * <p>默认 8000/1500：超大目录/文件清单会撑爆下一轮模型调用 prompt 并导致卡死。</p>
+     */
+    private int toolResultMaxChars = 8000;
+
+    /**
+     * 截断后保留的预览字符数
+     */
+    private int toolResultHeadChars = 1500;
+
+    /**
+     * 是否允许恢复被暂停的待执行工具（人工确认 plan_exit 后的恢复轮）。
+     */
+    private boolean pendingToolRecoveryEnabled = true;
 
     /**
      * 注册的技能列表（名称 → 处理器）
@@ -327,6 +344,42 @@ public class AgentScopeAgent implements Agent {
     @Override
     public List<AgentTool> tools() {
         return new java.util.ArrayList<>(localTools.values());
+    }
+
+    /**
+     * 设置单条工具结果的截断阈值。
+     *
+     * <p>超大目录清单/文件内容会撑爆下一轮 prompt，这里把阈值交给底层
+     * {@code ToolResultEvictionConfig}，超出即只保留前 {@code headChars} 个字符。</p>
+     *
+     * @param maxChars  触发截断的字符数上限
+     * @param headChars 截断后保留的预览字符数
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent toolResultEviction(int maxChars, int headChars) {
+        if (maxChars < 0 || headChars < 0) {
+            throw new IllegalArgumentException("maxChars/headChars 不能为负: "
+                    + maxChars + "/" + headChars);
+        }
+        this.toolResultMaxChars = maxChars;
+        this.toolResultHeadChars = headChars;
+        return this;
+    }
+
+    /**
+     * 是否允许恢复被暂停的待执行工具。
+     *
+     * <p>关闭后 {@link #resumeStream} 直接返回错误事件并逐出缓存块，
+     * 要求调用方重新发起运行。</p>
+     *
+     * @param enabled 是否启用
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent pendingToolRecovery(boolean enabled) {
+        this.pendingToolRecoveryEnabled = enabled;
+        return this;
     }
 
     /**
@@ -583,6 +636,69 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 解析实际下发给模型的系统提示词。
+     *
+     * <p>与 {@link #runStream(String)} 使用同一套规则：leader 且声明了子 agent 时，
+     * 由 {@link AgentSystemPromptBuilder} 拼上子 Agent 路由表；否则取 definition 的提示词。</p>
+     *
+     * @return 完整系统提示词
+     */
+    @Override
+    public String getSystemPrompt() {
+        return resolveSystemPrompt();
+    }
+
+    /**
+     * 解析实际下发给模型的系统提示词。
+     *
+     * <p>先取 {@link AgentDefinition} 已经生成的提示词（显式 systemPrompt 或按
+     * definition 内声明拼好的路由表），再把运行期通过 {@link #subAgent(AgentDefinition)}
+     * 追加、definition 里没有声明的子 Agent 补进路由表，保证「读到的」与「发出去的」一致。</p>
+     *
+     * @return 完整系统提示词
+     */
+    private String resolveSystemPrompt() {
+        if (definition == null) {
+            return "You are a helpful assistant.";
+        }
+        String base = definition.getSystemPrompt();
+        List<AgentDefinition> runtimeSubAgents = undeclaredSubAgents();
+        if (definition.isLeader() && !runtimeSubAgents.isEmpty()) {
+            return AgentSystemPromptBuilder.build(base, runtimeSubAgents);
+        }
+        return base;
+    }
+
+    /**
+     * 收集运行期追加、但 definition 中没有同 id 声明的子 Agent。
+     *
+     * <p>definition 已声明的子 Agent 已经体现在 {@code definition.getSystemPrompt()} 里，
+     * 再拼一次会出现重复路由表。</p>
+     *
+     * @return 需要补进路由表的子 Agent
+     */
+    private List<AgentDefinition> undeclaredSubAgents() {
+        if (subAgentDefinitions.isEmpty()) {
+            return List.of();
+        }
+        List<AgentDefinition> declared = definition.getAgents();
+        List<AgentDefinition> extra = Wraps.list();
+        for (AgentDefinition sub : subAgentDefinitions) {
+            boolean exists = false;
+            for (AgentDefinition agent : declared) {
+                if (agent.getId() != null && agent.getId().equals(sub.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                extra.add(sub);
+            }
+        }
+        return extra;
+    }
+
+    /**
      * 获取subAgent
     */
     @Override
@@ -806,6 +922,16 @@ public class AgentScopeAgent implements Agent {
     @Override
     public Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions,
                                               String feedback) {
+        if (!this.pendingToolRecoveryEnabled) {
+            // 恢复通道被显式关闭：逐出缓存块并返回错误事件，绝不静默丢弃决策
+            takePendingBlocks(replyId);
+            return Flux.just(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.ERROR)
+                    .toolOutput("已通过 pendingToolRecovery(false) 关闭待执行工具恢复，"
+                            + "请重新发起运行")
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+        }
         final RunPlan plan;
         try {
             // 复用 prepareRun 完成模型注册 / 系统提示词 / 规划配置；触发消息稍后替换为确认结果消息
@@ -1275,17 +1401,7 @@ public class AgentScopeAgent implements Agent {
                 : (definition != null ? definition.getPlanHook() : null);
 
         String agentId = definition != null && definition.getId() != null ? definition.getId() : "agent";
-        String sysPrompt;
-        if (definition != null) {
-            boolean hasSubAgent = !subAgentDefinitions.isEmpty() && definition.isLeader();
-            if (hasSubAgent) {
-                sysPrompt = AgentSystemPromptBuilder.build(definition.getInstruction(), subAgentDefinitions);
-            } else {
-                sysPrompt = definition.getSystemPrompt();
-            }
-        } else {
-            sysPrompt = "You are a helpful assistant.";
-        }
+        String sysPrompt = resolveSystemPrompt();
 
         Msg.Builder userMsgBuilder = Msg.builder().role(MsgRole.USER);
         // resume 路径 input 为 null（稍后替换为确认结果消息），不构造文本块避免 NPE
@@ -1643,16 +1759,15 @@ public class AgentScopeAgent implements Agent {
         }
 
         // 工具结果截断：超大目录/文件清单（如 list_files 返回数百文件、多 MB）会撑爆
-        // 下一轮模型调用的 prompt 并导致卡死。这里显式收紧阈值：单条工具结果超过
-        // 8000 字符即只保留 1500 字符预览，完整内容落盘到 large_tool_results，
-        // 避免无界清单进入下一轮上下文。
+        // 下一轮模型调用的 prompt 并导致卡死。阈值可经 toolResultEviction(..) 覆盖，
+        // 完整内容由底层落盘到 large_tool_results，避免无界清单进入下一轮上下文。
         builder.toolResultEviction(ToolResultEvictionConfig.builder()
-                .maxResultChars(8000)
-                .previewChars(1500)
+                .maxResultChars(this.toolResultMaxChars)
+                .previewChars(this.toolResultHeadChars)
                 .build());
 
         // 跨轮恢复 pending 工具：人工确认（plan_exit）后再次调用时，agent 据此恢复待执行工具
-        builder.enablePendingToolRecovery(true);
+        builder.enablePendingToolRecovery(this.pendingToolRecoveryEnabled);
 
         for (SubagentDeclaration decl : declarations) {
             builder.subagent(decl);

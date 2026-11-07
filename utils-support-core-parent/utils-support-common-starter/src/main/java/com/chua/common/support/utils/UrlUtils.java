@@ -173,9 +173,63 @@ public class UrlUtils {
         }
         return String.join("/", stack);
     }
+    /**
+     * 使用默认 {@link SimpleUrlEncoder} 对 URL 进行百分号编码（percent-编码）。
+     *
+     * <p>编码格式遵循 RFC 3986 规范：安全字符（字母、数字、{@code -._~!$&'()*+,;=:@/}）保持原样，
+     * 非安全字符（如中文字符、空格、特殊符号）转换为 {@code %XX} 格式，其中 {@code XX} 为该字节的无符号十六进制大写表示。
+     *
+     * <p><b>使用场景</b>：
+     * <ul>
+     *   <li>URL 路径中包含非 ASCII 字符（如中文名称）时，需对其进行编码，否则可能引发 {@code URISyntaxException}</li>
+     *   <li>构建含特殊字符的查询参数时，需要对参数值进行编码</li>
+     *   <li>此编码器<b>不</b>将空格转为 {@code +} 号，而是转为 {@code %20}</li>
+     * </ul>
+     *
+     * @param url 待编码的 URL 字符串，可为 {@code null}
+     * @return 编码后的 URL 字符串；若入参为 {@code null} 或空，返回原值或空串
+     */
+    public static String encode(String url) {
+        return SimpleUrlEncoder.DEFAULT.encode(url);
+    }
+
+    /**
+     * 使用 UTF-8 字符集解码 {@code application/x-www-form-urlencoded} 格式的字符串。
+     *
+     * <p>解码规则：将 {@code %XX}（两位十六进制字符）还原为对应的字节并根据 UTF-8 解释为原始字符。
+     *
+     * <p><b>使用场景</b>：
+     * <ul>
+     *   <li>从 HTTP 请求中获取到编码后的查询参数或表单数据时，需解码为可读字符串</li>
+     *   <li>从 URL 中提取编码后的文件名、路径段时使用</li>
+     * </ul>
+     *
+     * <p>此方法等价于 {@code URLDecoder.decode(url, StandardCharsets.UTF_8.name())}。
+     *
+     * @param url 待解码的 URL 字符串，不能为 {@code null}
+     * @return 解码后的字符串
+     * @throws UnsupportedEncodingException 当系统不支持 UTF-8 时抛出（Java 标准环境不会出现）
+     * @since 3.1.2
+     */
+    public static String decode(String url) throws UnsupportedEncodingException {
+        return decode(url, UTF_8);
+    }
 
 
-
+    /**
+     * 使用指定字符集解码 {@code application/x-www-form-urlencoded} 格式字符串。
+     *
+     * <p>解码算法：
+     * <ol>
+     *   <li>遍历输入字符串，识别 {@code %} 加两位十六进制字符（如 {@code %E4%B8%AD}）的编码序列</li>
+     *   <li>将两位十六进制字符转为对应的字节值</li>
+     *   <li>将字节序列按照指定 {@code charset} 组装为 Java 字符</li>
+     *   <li>若 {@code charset} 为 {@code null}，则不做任何解码，直接返回原始字符串</li>
+     * </ol>
+     *
+     * <p>边界情况：
+     * <ul>
+     *   <li>输入不含 {@code %} 编码 —— 返回原字符串</li>
      *   <li>输入为 {@code null} —— 返回 {@code null}</li>
      *   <li>出现非法的百分号编码（如 {@code %ZZ}） —— 行为由 {@link URLDecoder} 内部实现决定</li>
      * </ul>
@@ -192,6 +246,13 @@ public class UrlUtils {
         return URLDecoder.decode(content, charset);
     }
 
+    /**
+     * 使用指定字符集名称解码 {@code application/x-www-form-urlencoded} 格式字符串。
+     *
+     * <p>此方法为 {@link #decode(String, Charset)} 的便捷重载，
+     * 通过 {@code Charset.forName(charset)} 将字符串转为 {@link Charset} 后调用。
+     *
+     * @param content 待解码的字符串，可为 {@code null}
      * @param charset 字符集名称，如 {@code "UTF-8"}、{@code "GBK"}，不能为 {@code null}
      * @return 解码后的字符串
      * @throws UnsupportedEncodingException 当 {@code charset} 名称对应的字符集不被 JVM 支持时抛出
@@ -239,6 +300,34 @@ public class UrlUtils {
     }
 
 
+    /**
+     * 将 {@link URL} 对象转换为 {@link URI} 对象，并优雅处理语法异常。
+     *
+     * <p><b>异常处理策略</b>：
+     * <ol>
+     *   <li>直接调用 {@link URL#toURI()}，该方法内部使用 {@code new URI(url.toString())}，
+     *       因此会对 URL 字符串中的特殊字符（如未编码的空格、中文字符等）进行 URI 语法校验</li>
+     *   <li>若 URL 字符串不符合 URI 语法规范（如包含非法字符），抛出 {@link URISyntaxException}</li>
+     *   <li>捕获异常后，打印异常堆栈至标准错误流，返回 {@code null}</li>
+     * </ol>
+     *
+     * <p>返回 {@code null} 意味着：
+     * <ul>
+     *   <li>原始 URL 包含 URI 规范不允许的字符，建议调用方先对 URL 进行编码再转换</li>
+     *   <li>上游方法（如 {@link #getDecodedPath(URL)}）需要处理 null 返回值的情况</li>
+     * </ul>
+     *
+     * @param url 目标 URL 对象，不可为 {@code null}
+     * @return 对应的 URI 对象；若 URL 字符串不符合 URI 语法规范，返回 {@code null}
+     */
+    public static URI toUri(URL url) {
+        try {
+            return url.toURI();
+        } catch (URISyntaxException e) {
+            LOG.log(System.Logger.Level.WARNING, "URL 转 URI 失败: " + url, e);
+        }
+        return null;
+    }
 
 
 
@@ -296,6 +385,11 @@ public class UrlUtils {
          */
         private final BitSet safeCharacters;
 
+        /**
+         * 构造默认编码器，创建容量为 256 的 {@code BitSet}，
+         * 并初始化以下 62 个基础字符为安全字符：
+         * <ul>
+         *   <li>小写字母 —— {@code a}（{@code 0x61}）至 {@code z}（{@code 0x7A}），共 26 个</li>
          *   <li>大写字母 —— {@code A}（{@code 0x41}）至 {@code Z}（{@code 0x5A}），共 26 个</li>
          *   <li>数字 —— {@code 0}（{@code 0x30}）至 {@code 9}（{@code 0x39}），共 10 个</li>
          * </ul>

@@ -249,11 +249,21 @@ public final class TreeUtils {
      * @param children children
      */
     private static <T> void pushReversed(Deque<T> stack, List<T> children) {
+        for (var i = children.size() - 1; i >= 0; i--) {
+            stack.push(children.get(i));
+        }
     }
 
     // ==================== 路径 / 父链 / 兄弟 ====================
 
 
+    /**
+     * 获取父节点列表：从直接父到根（不含自身）。
+     *
+     * @param roots          根节点集合
+     * @param target         目标节点
+     * @param childrenGetter 子节点访问器
+     * @param <T>            节点类型
      * @return 父节点列表 [直接父, ..., 根]；目标为根时返回空列表
      */
     public static <T> List<T> getParents(Collection<T> roots, T target,
@@ -289,6 +299,7 @@ public final class TreeUtils {
     private static <T> List<T> locatePath(Collection<T> roots, T target,
                                           Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
+        Objects.requireNonNull(target, "target must not be null");
         var path = Wraps.<T>list();
         Deque<Frame<T>> stack = Wraps.deque();
         for (var root : roots) {
@@ -322,6 +333,9 @@ public final class TreeUtils {
     // ==================== 排序 / 扁平化 ====================
 
 
+    /**
+     * 扁平化为平铺列表（DFS 前序：根 → 其全部后代 → 下一个根）。
+     *
      * @param roots          根节点集合
      * @param childrenGetter 子节点访问器
      * @param <T>            节点类型

@@ -237,6 +237,7 @@ public class CommandLine {
   * 解析
   */
  private void parse() {
+ int index = 0;
  while (index < args.length) {
  String token = args[index];
  if (token.startsWith("--")) {

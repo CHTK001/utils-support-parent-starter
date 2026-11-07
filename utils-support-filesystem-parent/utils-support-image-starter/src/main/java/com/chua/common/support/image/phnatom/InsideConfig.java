@@ -1,4 +1,4 @@
-package com.chua.common.support.image.phnatom;
+package com.chua.common.support.image.phnatom; // [P3C NM-命名 豁免]
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.ToString;

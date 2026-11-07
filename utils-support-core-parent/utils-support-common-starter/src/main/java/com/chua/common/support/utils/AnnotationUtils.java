@@ -118,6 +118,41 @@ public class AnnotationUtils {
 
     // ---- 公共 API ----
 
+    /**
+     * 判断目标元素上是否存在指定注解（含继承链 + 别名穿透）。
+     *
+     * <p>若目标元素有 {@code @GetMapping}，则查询 {@code RequestMapping} 也返回 {@code true}。</p>
+     *
+     * @param element         注解所在的目标元素
+     * @param annotationClass 待检查的注解类型
+     * @return 如果存在则返回 {@code true}
+     * @since 4.0.0.43
+     */
+    public static boolean isAnnotationPresent(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
+        if (element == null || annotationClass == null) {
+            return false;
+        }
+        // 1. 直接匹配
+        if (element.isAnnotationPresent(annotationClass)) {
+            return true;
+        }
+        // 2. 继承链匹配
+        if (element instanceof Class) {
+            if (hasInheritedAnnotation((Class<?>) element, annotationClass)) {
+                return true;
+            }
+        } else if (element instanceof Method) {
+            if (hasOverriddenAnnotation((Method) element, annotationClass)) {
+                return true;
+            }
+        }
+        // 3. 别名穿透
+        ensureAliasesLoaded();
+        if (isAlias(annotationClass)) {
+            return hasAliasMatch(element, annotationClass);
+        }
+        return false;
+    }
 
     /**
      * 是否存在注解。
@@ -128,6 +163,8 @@ public class AnnotationUtils {
     public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         if (clazz == null || annotationClass == null) {
             return false;
+        }
+        return isAnnotationPresent((AnnotatedElement) clazz, annotationClass);
     }
 
     /**
@@ -202,6 +239,63 @@ public class AnnotationUtils {
         return getAnnotation((AnnotatedElement) method, annotationClass);
     }
 
+    /**
+     * 解析注解定义：从当前元素向上遍历继承链，
+     * 按「子类优先 → 直接声明 > 继承 > 重写方法」顺序返回第一个匹配的定义。
+     *
+     * @param element         目标元素（类或方法）
+     * @param annotationClass 待解析的注解类型
+     * @param <A>             注解泛型
+     * @return 注解定义，未找到返回 {@code null}
+     * @since 4.0.0.43
+     */
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> AnnotationDefinition<A> resolveAnnotationDefinition(
+            AnnotatedElement element, Class<A> annotationClass) {
+        if (element == null || annotationClass == null) {
+            return null;
+        }
+        ensureAliasesLoaded();
+        Set<Class<? extends Annotation>> searchTypes = buildSearchSet(annotationClass);
+
+        // 1. 当前元素直接声明（最高优先级，子类优先）
+        for (Class<? extends Annotation> annClass : searchTypes) {
+            try {
+                A ann = (A) element.getAnnotation(annClass);
+                if (ann != null) {
+                    boolean isSubclass = element instanceof Class &&
+                            ((Class<?>) element).getSuperclass() != null &&
+                            ((Class<?>) element).getSuperclass() != Object.class;
+                    if (isSubclass) {
+                        return AnnotationDefinition.subclassOverrides(annotationClass, ann);
+                    }
+                    return AnnotationDefinition.ofDirect(ann, annotationClass);
+                }
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
+            }
+        }
+
+        // 2. 继承链（父类 / 父接口）
+        if (element instanceof Class) {
+            AnnotationDefinition<A> inherited = resolveFromHierarchy(
+                    (Class<?>) element, annotationClass, searchTypes);
+            if (inherited != null) {
+                return inherited;
+            }
+        }
+
+        // 3. 方法重写链
+        if (element instanceof Method) {
+            AnnotationDefinition<A> overridden = resolveFromMethodOverride(
+                    (Method) element, annotationClass, searchTypes);
+            if (overridden != null) {
+                return overridden;
+            }
+        }
+
+        return null;
+    }
 
     public static <A extends Annotation> AnnotationDefinition<A> resolveAnnotationDefinition(
             Class<?> clazz, Class<A> annotationClass) {
@@ -213,6 +307,30 @@ public class AnnotationUtils {
         return resolveAnnotationDefinition((AnnotatedElement) method, annotationClass);
     }
 
+    /**
+     * 判断类是否包含任意已知映射注解（通过 SPI 注册的别名族）。
+     *
+     * @param clazz 目标类
+     * @return 如果存在任意映射注解则返回 {@code true}
+     * @since 4.0.0.43
+     */
+    public static boolean isMappingAnnotation(Class<?> clazz) {
+        if (clazz == null) {
+            return false;
+        }
+        ensureAliasesLoaded();
+        for (String alias : ALIAS_SOURCE_SET) {
+            try {
+                Class<?> annClass = ReflectUtils.forName(alias);
+                if (isAnnotationPresent(clazz, (Class<? extends Annotation>) annClass)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
+            }
+        }
+        return false;
+    }
 
     /**
      * 判断方法是否包含任意已知映射注解（通过 SPI 注册的别名族）。
@@ -239,6 +357,28 @@ public class AnnotationUtils {
         return false;
     }
 
+    /**
+     * 将窄注解 类 解析为对应的宽注解 类（通过 SPI）。
+     *
+     * @param annotationClass 窄注解类型
+     * @return 对应的宽注解类型，无别名时返回原值
+     * @since 4.0.0.43
+     */
+    public static Class<? extends Annotation> resolveRequestMappingAlias(Class<? extends Annotation> annotationClass) {
+        if (annotationClass == null) {
+            return annotationClass;
+        }
+        String name = annotationClass.getName();
+        String resolved = ALIAS_NARROW_TO_WIDE.get(name);
+        if (resolved == null || resolved.equals(name)) {
+            return annotationClass;
+        }
+        try {
+            return (Class<? extends Annotation>) ReflectUtils.forName(resolved);
+        } catch (Exception e) {
+            return annotationClass;
+        }
+    }
 
     /**
      * 将窄注解全限定名解析为对应的宽注解全限定名（通过 SPI）。
@@ -248,6 +388,9 @@ public class AnnotationUtils {
      * @since 4.0.0.43
      */
     public static String resolveRequestMappingAlias(String annotationClassName) {
+        if (annotationClassName == null || annotationClassName.isEmpty()) {
+            return annotationClassName;
+        }
         ensureAliasesLoaded();
         return ALIAS_NARROW_TO_WIDE.getOrDefault(annotationClassName, annotationClassName);
     }
@@ -309,6 +452,8 @@ public class AnnotationUtils {
         for (Class<? extends Annotation> alt : buildSearchSet(annotationClass)) {
             if (!alt.equals(annotationClass) && element.isAnnotationPresent(alt)) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -351,6 +496,29 @@ public class AnnotationUtils {
         return false;
     }
 
+    /**
+     * findinherited注解。
+     * @param clazz clazz
+     * @param annotationClass 注解类
+     * @return findinherited注解的结果
+     */
+    @SuppressWarnings("unchecked")
+    private static <A extends Annotation> A findInheritedAnnotation(Class<?> clazz, Class<A> annotationClass) {
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
+            A annotation = getAnnotation(superClass, annotationClass);
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+        for (Class<?> iface : clazz.getInterfaces()) {
+            A annotation = getAnnotation(iface, annotationClass);
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+        return null;
+    }
 
     /**
      * 是否包含重写注解。

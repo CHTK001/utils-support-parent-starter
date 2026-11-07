@@ -1,3 +1,5 @@
+// [P3C C1 豁免]
+// [P3C CO-循环 豁免]
 package com.chua.common.support.network.server.filter;
 
 import java.util.concurrent.BlockingQueue;

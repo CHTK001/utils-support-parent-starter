@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.langchain4j;
 
 import com.chua.common.support.ai.agent.Agent;
+import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentTool;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -92,8 +94,7 @@ class LangChain4jToolWiringTest {
     }
 
     @Test
-    void toolsExposesRegisteredDefinitionsAndBatchRegistrationWorks() {
-        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
+    void toolsExposesRegisteredDefinitionsAndBatchRegistrationWorks() {        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
         try {
             AtomicInteger calls = new AtomicInteger();
             AgentTool echo = echoTool(calls);
@@ -106,6 +107,54 @@ class LangChain4jToolWiringTest {
             assertEquals("echo", agent.tools().get(0).getName());
             assertEquals("ping", agent.tools().get(1).getName());
             assertFalse(agent.tools().isEmpty());
+        } finally {
+            agent.close();
+        }
+    }
+
+    /**
+     * leader 的系统提示词必须把运行期追加的子 Agent 补进路由表，
+     * 且与 {@code runStream} 真正下发的提示词一致。
+     */
+    @Test
+    void systemPromptIncludesRuntimeSubAgentRouting() {
+        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
+        try {
+            agent.definition(AgentDefinition.builder()
+                    .id("leader")
+                    .instruction("你是主编排 agent")
+                    .leader(true)
+                    .build());
+            agent.subAgent(AgentDefinition.builder()
+                    .id("writer")
+                    .name("写手")
+                    .description("负责写长文")
+                    .instruction("只写文章")
+                    .build());
+
+            String prompt = agent.getSystemPrompt();
+
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("你是主编排 agent"), "应保留主 Agent 指令: " + prompt);
+            assertTrue(prompt.contains("writer"), "leader 的提示词应含运行期子 Agent 路由表: " + prompt);
+        } finally {
+            agent.close();
+        }
+    }
+
+    /**
+     * 非 leader 不应凭空拼路由表，直接使用 definition 的提示词。
+     */
+    @Test
+    void systemPromptEqualsDefinitionPromptForSingleAgent() {
+        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
+        try {
+            agent.definition(AgentDefinition.builder()
+                    .id("solo")
+                    .instruction("只做一件事")
+                    .build());
+
+            assertEquals("只做一件事", agent.getSystemPrompt());
         } finally {
             agent.close();
         }

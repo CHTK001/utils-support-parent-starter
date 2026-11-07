@@ -421,7 +421,27 @@ public class ObjectUtils {
         return hash;
     }
 
+    /**
+     * 计算多个对象的哈希码。
+     *
+     * <p>委托给 {@link Arrays#hashCode(Object[])} 计算。
+     *
+     * @param objects 对象数组
+     * @return 哈希码
+     */
+    public static int hashCode(Object... objects) {
+        return Arrays.hashCode(objects);
+    }
 
+    /**
+     * 返回第一个非空的值。
+     *
+     * <p>支持 {@link Optional} 类型，如果 v1 是 Optional 且有值则解包后递归处理。
+     *
+     * @param v1 值 1
+     * @param v2 值 2
+     * @param <T> 值类型
+     * @return 第一个非空的值，如果都为空则返回 空
      */
 @SuppressWarnings("ALL")
     public static <T>T firstNonNull(T v1, T v2) {
@@ -581,6 +601,37 @@ public class ObjectUtils {
         return (str != null ? str : SYMBOL_EMPTY_STRING);
     }
 
+    /**
+     * 转换 the given array (which may be a primitive array) 转为 an
+     * 对象 array (if necessary 的 primitive orm 对象).
+     * <p>A {@code null} source value will be converted to an
+     * 空 对象 array.
+     *
+     * @param source the (potentially primitive) array
+     * @return the corresponding 对象 array (从不 {@code null})
+     * @throws IllegalArgumentException if the 参数 是否 not an array
+     */
+    public static Object[] toObjectArray(Object source) {
+        if (source instanceof Object[]) {
+            return (Object[]) source;
+        }
+        if (source == null) {
+            return SYMBOL_EMPTY_OBJECT_ARRAY;
+        }
+        if (!source.getClass().isArray()) {
+            throw new IllegalArgumentException("Source is not an array: " + source);
+        }
+        int length = Array.getLength(source);
+        if (length == 0) {
+            return SYMBOL_EMPTY_OBJECT_ARRAY;
+        }
+        Class<?> wrapperType = Array.get(source, 0).getClass();
+        Object[] newArray = (Object[]) Array.newInstance(wrapperType, length);
+        for (int i = 0; i < length; i++) {
+            newArray[i] = Array.get(source, i);
+        }
+        return newArray;
+    }
 
     /**
      * 比较两个对象是否相等。
@@ -598,6 +649,12 @@ public class ObjectUtils {
     }
 
 
+    /**
+     * 比较两个 Integer 是否相等，空值按 0 处理。
+     *
+     * <p>如果一方为 null 则视为 0 进行比较。
+     *
+     * @param obj1 Integer 1
      * @param obj2 Integer 2
      * @return 相等返回 true，否则返回 false
      * @see Objects#equals(Object, Object)
@@ -612,6 +669,26 @@ public class ObjectUtils {
         }
 
         return obj1.equals(obj2);
+    }
+    /**
+     * 比较两个对象是否相等，支持 bigdecimal 特殊比较。
+     *
+     * <p>比较规则：
+     * <ol>
+     *   <li>两个对象同为 BigDecimal 时使用 {@link NumberUtils#equals(BigDecimal, BigDecimal)} 按值比较</li>
+     *   <li>否则使用 {@link Objects#equals(Object, Object)} 比较</li>
+     * </ol>
+     *
+     * @param obj1 对象 1
+     * @param obj2 对象 2
+     * @return 相等返回 true，否则返回 false
+     * @see Objects#equals(Object, Object)
+     */
+    public static boolean equal(Object obj1, Object obj2) {
+        if (obj1 instanceof BigDecimal && obj2 instanceof BigDecimal) {
+            return NumberUtils.equals((BigDecimal) obj1, (BigDecimal) obj2);
+        }
+        return Objects.equals(obj1, obj2);
     }
 
     /**
@@ -669,10 +746,25 @@ public class ObjectUtils {
      */
     public static <E, T>E withNull(T value,  SafeFunction<T, E> function) {
         if (null == value) {
+            return null;
         }
         return function.apply(value);
     }
 
+    /**
+     * 如果值非空则执行消费操作。
+     *
+     * <p>值为空时直接返回，不做任何操作。
+     *
+     * @param value    待检查的值
+     * @param consumer 值非空时的消费操作
+     */
+    public static void ifValidate(Object value, SafeConsumer<Object> consumer) {
+        if (null == value) {
+            return;
+        }
+        consumer.accept(value);
+    }
 
     /**
      * 判断对象是否为空。
@@ -710,7 +802,43 @@ public class ObjectUtils {
     }
 
 
+    /**
+     * 判断对象是否是指定类型的实例。
+     *
+     * <p>值为空且目标为 void 类型时返回 null。
+     * 否则检查类型兼容性，兼容时返回原值，不兼容时返回 空。
+     *
+     * @param value  待检查的对象
+     * @param target 目标类型
+     * @param <T>    目标类型
+     * @return 类型兼容时返回原值，否则返回 空
+     */
+    public static <T> T withAssignableFrom(Object value, Class<T> target) {
+        if (null == value && ClassUtils.isVoid(target)) {
+            return null;
+        }
 
+        return target.isAssignableFrom(value.getClass()) ? (T) value : null;
+    }
+
+    /**
+     * 如果值有效则执行转换函数。
+     *
+     * <p>值为 null 或空字符串时返回 null，否则执行转换函数。
+     *
+     * @param value    待检查的值
+     * @param function 转换函数
+     * @param <T>      输出类型
+     * @param <E>      输入类型
+     * @return 转换后的值或 空
+     */
+    public static <T, E> T ifValid(E value, Function<E, T> function) {
+        boolean rs = null == value || (value instanceof String && "".equals(value));
+        if (rs) {
+            return null;
+        }
+        return function.apply(value);
+    }
 
     /**
      * 判断对象是否为 空。
@@ -743,6 +871,8 @@ public class ObjectUtils {
                 .append(AT_SIGN)
                 .append(Integer.toHexString(System.identityHashCode(object)));
     }
+
+    /**
      * 追加对象的身份标识字符串到 字符串缓冲。
      *
      * <p>生成格式为 {@code 类名@十六进制哈希码} 的身份标识字符串。
@@ -765,8 +895,63 @@ public class ObjectUtils {
                 .append(hexString);
     }
 
+    /**
+     * 检查值是否为指定类型的实例，否则执行回调获取默认值。
+     *
+     * <p>值为空或类型不匹配时执行 supplier 回调。
+     *
+     * @param targetType 目标类型
+     * @param value      待检查的值
+     * @param supplier   不匹配时的回调
+     * @param <T>        目标类型
+     * @return 匹配时返回原值，否则返回回调结果
+     */
+    public static <T> T isPresent(Class<? extends T> targetType, Object value, Supplier<T> supplier) {
+        if (null == value || !(targetType.isAssignableFrom(value.getClass()))) {
+            return supplier.get();
+        }
 
+        return (T) value;
+    }
 
+    /**
+     * 将源对象转换为目标类型的实例。
+     *
+     * <p>通过 {@link BeanUtils#copyProperties(Object, Class)} 实现属性复制。
+     *
+     * @param source     源对象
+     * @param targetType 目标类型
+     * @param <T>        目标类型
+     * @return 目标类型的实例
+     */
+    public static <T> T to(Object source, Class<T> targetType) {
+        return BeanUtils.copyProperties(source, targetType);
+    }
+
+    /**
+     * 将可序列化对象转换为普通对象。
+     *
+     * <p>数组类型会通过 {@link StringUtils#utf8Str} 转换为字符串。
+     *
+     * @param serializable 可序列化对象
+     * @return 转换后的对象
+     */
+    public static Object toObject(Serializable serializable) {
+        if (null == serializable) {
+            return null;
+        }
+
+        if (serializable.getClass().isPrimitive()) {
+            return serializable;
+        }
+
+        if (serializable.getClass().isArray()) {
+            return StringUtils.utf8Str(serializable);
+        }
+
+        return serializable;
+
+    }
 
     /**
      * 判断对象是否非空。
@@ -781,6 +966,17 @@ public class ObjectUtils {
         return !isEmpty(obj);
     }
     /**
+     * 将对象转换为 UTF-8 字节数组。
+     *
+     * <p>通过 {@link Converter#convertIfNecessary} 转换。
+     *
+     * @param obj 待转换的对象
+     * @return UTF-8 字节数组
+     */
+    public static byte[] utf8Bytes(Object obj) {
+        return Converter.convertIfNecessary(obj, byte[].class);
+    }
+    /**
      * 判断所有对象是否都非空。
      *
      * <p>委托给 {@link ArrayUtils#isAllNotEmpty} 实现。
@@ -792,6 +988,36 @@ public class ObjectUtils {
         return ArrayUtils.isAllNotEmpty(objs);
     }
 
+    /**
+     * 将对象转为字符串。
+     *
+     * @param value 对象
+     * @return 字符串表示，为 空 时返回 空
+     */
+    public static String toString(Object value) {
+        return value == null ? null : value.toString();
+    }
 
 
+    /**
+     * 将值包装为 {@link Comparable}。
+     *
+     * <p>如果值已实现 Comparable 则直接返回，否则使用 toString 比较。
+     * 值为 空 时返回始终相等（compare转为 返回 0）的 Comparable。
+     *
+     * @param value 待包装的值
+     * @param <E>   值类型
+     * @return Comparable 实例
+     */
+    public static <E>Comparable<E> newComparable(E value) {
+        if (value == null) {
+            return o -> 0;
+        }
+
+        if (value instanceof Comparable comparable) {
+            return comparable;
+        }
+
+        return (Comparable<E>)(Comparable<String>) o -> o.compareTo(value.toString());
+    }
 }

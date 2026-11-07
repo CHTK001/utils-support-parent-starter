@@ -927,6 +927,20 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 获取实际下发给模型系统提示词。
+     *
+     * <p>不能回落到接口默认的 {@code definition.getSystemPrompt()}：leader 场景下
+     * 真正下发的提示词由 {@link AgentSystemPromptBuilder} 拼上子 Agent 路由表，
+     * 默认实现返回的是未拼路由表的原始值。</p>
+     *
+     * @return 完整系统提示词
+     */
+    @Override
+    public String getSystemPrompt() {
+        return buildSystemPrompt();
+    }
+
+    /**
      * 获取子 Agent 定义列表（返回不可变副本）
      *
      * @return 子 Agent 定义列表
@@ -1574,23 +1588,54 @@ public class LangChain4jAgent implements Agent {
     /**
      * 解析系统提示词
      *
+     * <p>先取 {@link AgentDefinition} 已经生成的提示词（显式 systemPrompt 或按 definition
+     * 内声明拼好的路由表），再把运行期通过 {@link #subAgent(AgentDefinition)} 追加、
+     * definition 里没有声明的子 Agent 补进路由表，保证「读到的」与「发出去的」一致。</p>
+     *
      * @return 系统提示词
      */
     private String buildSystemPrompt() {
         if (definition == null) {
             return "You are a helpful assistant.";
         }
-        boolean leader = definition.isLeader() && !subAgentDefinitions.isEmpty();
-        String prompt;
-        if (leader) {
-            prompt = AgentSystemPromptBuilder.build(definition.getInstruction(), subAgentDefinitions);
-        } else {
-            prompt = definition.getSystemPrompt();
+        String prompt = definition.getSystemPrompt();
+        List<AgentDefinition> runtimeSubAgents = undeclaredSubAgents();
+        if (definition.isLeader() && !runtimeSubAgents.isEmpty()) {
+            prompt = AgentSystemPromptBuilder.build(prompt, runtimeSubAgents);
         }
         if (prompt == null || prompt.isEmpty()) {
             return "You are a helpful assistant.";
         }
         return prompt;
+    }
+
+    /**
+     * 收集运行期追加、但 definition 中没有同 id 声明的子 Agent。
+     *
+     * <p>definition 已声明的子 Agent 已经体现在 {@code definition.getSystemPrompt()} 里，
+     * 再拼一次会出现重复路由表。</p>
+     *
+     * @return 需要补进路由表的子 Agent
+     */
+    private List<AgentDefinition> undeclaredSubAgents() {
+        if (subAgentDefinitions.isEmpty()) {
+            return List.of();
+        }
+        List<AgentDefinition> declared = definition.getAgents();
+        List<AgentDefinition> extra = new ArrayList<>();
+        for (AgentDefinition sub : subAgentDefinitions) {
+            boolean exists = false;
+            for (AgentDefinition agent : declared) {
+                if (agent.getId() != null && agent.getId().equals(sub.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                extra.add(sub);
+            }
+        }
+        return extra;
     }
 
     /**

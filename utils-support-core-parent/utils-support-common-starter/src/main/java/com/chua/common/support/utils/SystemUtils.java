@@ -60,18 +60,55 @@ public final class SystemUtils {
 
     // ==================== 主机信息 ====================
 
+    /**
+     * 获取当前主机的完整信息快照（含一级与易变项）。
+     *
+     * <p>结果在进程内缓存，重复调用没有采集开销；需要重新读取时先调
+     * {@link #refreshHostFacts()}（例如换了网卡或热插拔硬盘后）。</p>
+     *
+     * @return 快照，永不为 null
+     */
+    public static HostFacts hostFacts() {
+        return HostInfoRouter.current();
+    }
 
 
 
 
+    /**
+     * 获取当前主机信息来自哪个采集通道（如 {@code windows-cim}）。
+     *
+     * @return 通道名；尚未采集时为空串
+     */
+    public static String hostInfoChannel() {
+        return HostInfoRouter.channel();
+    }
 
+    /**
+     * 获取一级不可变信息（只含出厂/装机固化的锚点）。
+     *
+     * @return 锚点 → 取值，保持枚举顺序；取不到的锚点不出现
+     */
+    public static Map<String, String> immutableInfo() {
+        return export(true);
+    }
 
+    /**
+     * 获取易变信息（主机名、MAC、卷序列号等，不参与 ID 判定）。
+     *
+     * @return 锚点 → 取值；取不到的锚点不出现
      */
     public static Map<String, String> mutableInfo() {
         return export(false);
     }
 
 
+    /**
+     * 按层级导出锚点取值。
+     *
+     * @param strong true 导出不可变项，false 导出易变项
+     * @return 字段名 → 归一化取值
+     */
     private static Map<String, String> export(boolean strong) {
         HostFacts facts = hostFacts();
         Map<String, String> result = new LinkedHashMap<>();
@@ -102,6 +139,11 @@ public final class SystemUtils {
 
     // ==================== 唯一 ID ====================
 
+    /**
+     * 采集一级不可变信息并生成主机唯一 ID。
+     *
+     * <p>返回值可直接存放（授权文件、数据库、配置中心），格式固定为
+     * {@code CH1-XXXX-XXXX-...}，共 43 个字符，含校验位，可识别抄写错误。</p>
      *
      * @return 唯一 ID
      * @throws IllegalStateException 当前环境取不到任何一级不可变信息时抛出
@@ -145,6 +187,8 @@ public final class SystemUtils {
         return HostIdentity.match(id, facts);
     }
 
+    /**
+     * 用自定义阈值校验唯一 ID。
      *
      * @param id       待校验的 ID
      * @param ratio    匹配率下限，取值范围 (0, 1]

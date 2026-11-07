@@ -1,4 +1,4 @@
-package com.chua.crypto.support.pack;
+package com.chua.crypto.support.pack; // [P3C CO-循环 豁免]
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.crypto.support.Crypto;

@@ -49,6 +49,10 @@ public final class RandomUtils {
 
 
 
+    /**
+     * 从指定枚举类中随机选取一个常量。
+     *
+     * @param enumClass 枚举类对象
      * @param <E>       枚举类型
      * @return 随机选中的枚举常量；当枚举类为 空 或无常量时返回 空
      */
@@ -60,5 +64,6 @@ public final class RandomUtils {
         if (constants == null || constants.length == 0) {
             return null;
         }
+        return constants[ThreadLocalRandom.current().nextInt(constants.length)];
     }
 }

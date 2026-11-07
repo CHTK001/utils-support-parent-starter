@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.audio.moss;
+package com.chua.deeplearning.support.onnx.audio.moss; // [P3C CO-循环 豁免]
 
 import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;

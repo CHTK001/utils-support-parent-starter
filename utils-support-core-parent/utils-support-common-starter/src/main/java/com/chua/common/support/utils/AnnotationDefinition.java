@@ -90,6 +90,14 @@ public final class AnnotationDefinition<A extends Annotation> {
     }
 
 
+    /**
+     * ofOverridden方法。
+     *
+     * @param annotation 方法入参 annotation
+     * @param annotationClass 方法入参 annotationClass
+     * @return AnnotationDefinition 对象
+     */
+    public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation,
             Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.OVERRIDDEN_METHOD, annotationClass, false);
     }
