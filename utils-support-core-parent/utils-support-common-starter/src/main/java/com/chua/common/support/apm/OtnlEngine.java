@@ -13,6 +13,7 @@ import com.chua.common.support.apm.model.OtnlTopology;
 import com.chua.common.support.apm.model.OtnlTrace;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Otnl（Open Telemetry Native Layer）引擎 SPI。
@@ -80,6 +81,16 @@ public interface OtnlEngine extends AutoCloseable {
      * 能力标识：日志
      */
     String CAP_LOGS = "logs";
+
+    /**
+     * 能力标识：告警（{@code /alerts} 接口）
+     */
+    String CAP_ALERTS = "alerts";
+
+    /**
+     * 能力标识：性能剖析（{@code /profiles} 系列接口）
+     */
+    String CAP_PROFILES = "profiles";
 
     /**
      * 引擎标识，与配置 {@code plugin.apm.type} 对应
@@ -212,6 +223,57 @@ public interface OtnlEngine extends AutoCloseable {
      * @return 健康度
      */
     OtnlHealth health(OtnlQuery query);
+
+    /**
+     * 多服务合并拓扑（用于对比页合并多个服务的拓扑）
+     *
+     * @param serviceNames 需要合并的服务名列表
+     * @param query        查询条件
+     * @return 拓扑列表
+     */
+    default List<OtnlTopology> multiTopology(List<String> serviceNames, OtnlQuery query) {
+        return List.of();
+    }
+
+    /**
+     * 性能剖析任务列表
+     *
+     * @param query 查询条件
+     * @return 任务列表
+     */
+    default List<Map<String, Object>> profileTasks(OtnlQuery query) {
+        return List.of();
+    }
+
+    /**
+     * 工作区剖析任务采样到的代码片段
+     *
+     * @param taskId 任务 ID
+     * @return 片段列表
+     */
+    default List<Map<String, Object>> profiledSegments(String taskId) {
+        return List.of();
+    }
+
+    /**
+     * 剖析任务的结果（线程栈树）
+     *
+     * @param taskId 任务 ID
+     * @return 剖析结果
+     */
+    default Map<String, Object> profileAnalysis(String taskId) {
+        return Map.of();
+    }
+
+    /**
+     * 批量指标（多服务×多指标先构建好查询，返回时序）
+     *
+     * @param queries 指标查询列表
+     * @return 时序
+     */
+    default OtnlMetricSeries metricsBatch(List<OtnlMetricQuery> queries) {
+        return OtnlMetricSeries.empty("batch", OtnlScope.SERVICE, "batch");
+    }
 
     /**
      * 释放底层资源（HTTP 连接池等），默认无动作
