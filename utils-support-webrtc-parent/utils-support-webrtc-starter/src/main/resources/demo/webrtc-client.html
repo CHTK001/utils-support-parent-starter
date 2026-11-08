@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC 远程控制 Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b0e14; color: #e6e9ef; height: 100vh; overflow: hidden; }
+        .container { display: flex; flex-direction: column; height: 100%; }
+        #statusBar { padding: 8px 16px; background: #151922; font-size: 13px; display: flex; align-items: center; gap: 12px; }
+        #statusDot { width: 8px; height: 8px; border-radius: 50%; background: #474d5b; transition: background .3s; }
+        #statusDot.online { background: #2ea44f; }
+        #statusDot.error { background: #f85149; }
+        #statusDot.connecting { background: #d29922; }
+        #videoWrap { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        #controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 2; }
+        #controls button { padding: 8px 14px; border: none; border-radius: 4px; background: rgba(255,255,255,.12); color: #e6e9ef; font-size: 13px; cursor: pointer; }
+        #controls button:hover { background: rgba(255,255,255,.22); }
+        #controls button:disabled { opacity: .5; cursor: not-allowed; }
+        #logPanel { height: 140px; background: #151922; border-top: 1px solid #252a36; overflow-y: auto; padding: 6px 12px; }
+        #logPanel .entry { font-size: 12px; font-family: 'Fira Code', Consolas, monospace; line-height: 1.6; }
+        #logPanel .entry.warn { color: #d29922; }
+        #logPanel .entry.err { color: #f85149; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="statusBar">
+            <div id="statusDot"></div>
+            <div id="statusText">未连接</div>
+        </div>
+        <main>
+            <div id="videoWrap">
+                <video id="remoteVideo" autoplay playsinline muted></video>
+                <div id="controls">
+                    <button id="btnStart">开始控制</button>
+                    <button id="btnStop" disabled>断开</button>
+                </div>
+            </div>
+        </main>
+        <div id="logPanel"></div>
+    </div>
+
+    <script>
+        const WSS_URL = 'ws://127.0.0.1:10000/webrtc';
+        const log = (...args) => {
+            const el = document.createElement('div');
+            el.className = 'entry';
+            el.textContent = args.join(' ');
+            document.getElementById('logPanel').appendChild(el);
+            document.getElementById('logPanel').scrollTop = document.getElementById('logPanel').scrollHeight;
+        };
+        const statusDot = () => document.getElementById('statusDot');
+        const statusText = () => document.getElementById('statusText');
+        const status = level => {
+            statusDot().className = level;
+            statusText().textContent = level ? level.toUpperCase() : '未连接';
+        };
+
+        let ws = null;
+        let pc = null;
+        let dataChannel = null;
+        let mediaStream = null;
+        let peerId = 'browser-' + Math.random().toString(36).slice(2, 8);
+
+        const iceServer = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                try {
+                    ws = new WebSocket(WSS_URL);
+                    ws.binaryType = 'arraybuffer';
+                    ws.onopen = () => log('[ws] connected');
+                    ws.onclose = () => log('[ws] closed');
+                    ws.onerror = () => log('[ws] error');
+                    ws.onmessage = ev => handleFrame(ev.data);
+                    status();
+                } catch (e) { log('[ws] fail', e, 'error', e); }
+            }, 0);
+        });
+
+        function handleFrame(data) {
+            if (typeof data === 'string') {
+                log('[sig] in:', data);
+                const frame = JSON.parse(data);
+                const { type, payload } = frame;
+                if (type === 'answer') {
+                    log('[sdp] answer received, setting remote desc');
+                    pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: payload }))
+                        .then(() => log('[sdp] remote description set'))
+                        .catch(e => { log('[sdp] setRemoteDescription failed', e, 'error', e); });
+                } else if (type === 'ice-candidate') {
+                    log('[ice] candidate received');
+                    try { pc.addIceCandidate(JSON.parse(payload)); } catch (e) { log('[ice] parse failed', e, 'error', e); }
+                } else if (type === 'ok') {
+                    log('[sig] ok');
+                } else {
+                    log('[sig] unknown', type);
+                }
+            }
+        }
+
+        async function startConnection() {
+            if (pc) pc.close();
+            status('connecting');
+            dataChannel = null;
+            pc = new RTCPeerConnection(iceServer);
+            pc.onicecandidate = e => {
+                if (!e.candidate) return;
+                const json = JSON.stringify({ sdpMid: e.candidate.sdpMid, sdpMLineIndex: e.candidate.sdpMLineIndex, sdp: e.candidate.candidate });
+                sendSignaling({ peerId, type: 'ice-candidate', payload: json });
+                log('[ice] sent candidate');
+            };
+            pc.ontrack = e => {
+                log('[media] remote track, id:', e.streams[0].id);
+                document.getElementById('remoteVideo').srcObject = e.streams[0];
+            };
+            pc.onconnectionstatechange = () => {
+                log('[state]', pc.connectionState);
+                if (pc.connectionState === 'connected') status('online');
+            };
+            // 本地屏幕采集流（Display Media）
+            mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+            mediaStream.getTracks().forEach(t => { pc.addTrack(t, mediaStream.id, t); log('[media] added local track', t.kind); });
+            // 控制数据通道
+            const options = new RTCDataChannelInit();
+            options.ordered = true;
+            dataChannel = pc.createDataChannel('control', options);
+            dataChannel.onopen = () => log('[data] open');
+            dataChannel.onclose = () => log('[data] close');
+            dataChannel.onmessage = e => {
+                const msg = e.data instanceof ArrayBuffer ? new TextDecoder().decode(e.data) : e.data;
+                log('[data] received', msg);
+            };
+        }
+
+        function sendSignaling(msg) {
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+        }
+
+        async function onStartClick() {
+            try {
+                await startConnection();
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                sendSignaling({ peerId, type: 'offer', payload: JSON.stringify(offer) });
+                log('[sig] offer sent');
+                btnStart().disabled = true;
+                btnStop().disabled = false;
+            } catch (e) {
+                log('start failed', e, 'error', e);
+                status('error');
+            }
+        }
+
+        async function onStopClick() {
+            if (pc) { pc.close(); pc = null; }
+            if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+            mediaStream = null;
+            if (ws) { ws.close(); ws = null; }
+            status('');
+            document.getElementById('remoteVideo').srcObject = null;
+            btnStart().disabled = false;
+            btnStop().disabled = true;
+        }
+
+        document.getElementById('btnStart').addEventListener('click', onStartClick);
+        document.getElementById('btnStop').addEventListener('click', onStopClick);
+    </script>
+</body>
+</html>
