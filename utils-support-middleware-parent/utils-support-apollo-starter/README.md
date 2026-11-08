@@ -25,6 +25,7 @@ Apollo 配置中心服务发现集成
 | `ApolloClient` | Apollo 全功能链式客户端。 |
 | `ApolloConfigCenter` | Apollo 配置中心实现。 (SPI: `apollo`) |
 | `ApolloServiceDiscovery` | Apollo 服务发现实现类。 (SPI: `apollo`) |
+| `ApolloClientProvider` | Apollo 管理面 SPI（只读：应用/命名空间/配置项列表）。 (SPI: `apollo`) |
 
 ---
 
@@ -39,4 +40,5 @@ Apollo 配置中心服务发现集成
 ```
 utils-support-apollo-starter
 ├── utils-support-common-starter
+└── utils-support-datasource-starter （中间件管理面 SPI 契约）
 ```
