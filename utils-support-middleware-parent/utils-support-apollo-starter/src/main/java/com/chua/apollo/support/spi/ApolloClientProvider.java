@@ -275,6 +275,9 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
         for (Object o : data) {
             if (o instanceof JsonObject obj) {
                 out.add(obj);
+            } else if (o instanceof java.util.Map<?, ?> map) {
+                // JSON 数组内的元素是 LinkedHashMap，不是 JsonObject，需转成 JsonObject
+                out.add(new JsonObject(map));
             }
         }
         return out;
