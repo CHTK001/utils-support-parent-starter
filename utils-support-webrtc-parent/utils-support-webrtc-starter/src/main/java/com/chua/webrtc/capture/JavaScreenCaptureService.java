@@ -10,6 +10,9 @@ import dev.onvoid.webrtc.media.video.VideoTrack;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +61,15 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
     private int height = DEFAULT_HEIGHT;
 
     /**
+     * 是否由 {@link #setResize(int, int)} 显式指定过采集尺寸。
+     *
+     * <p>未指定时采集尺寸跟随真实屏幕像素：远控的鼠标坐标是「采集像素」，
+     * 注入端（{@code Robot.mouseMove}）按同一套数值直接落点，两者必须 1:1，
+     * 否则画面缩放到 1280×720 后，点在画面中心的鼠标会落到屏幕左上区域。</p>
+     */
+    private boolean resizeConfigured;
+
+    /**
      * 采集器（列出屏幕）
      *
      * <p>懒加载：webrtc-java 的 Native 库由 {@link PeerConnectionFactory} 的静态块加载，
@@ -93,8 +105,15 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
             // 创建桌面采集源
             desktopSource = new VideoDesktopSource();
             desktopSource.setFrameRate(frameRate);
-            desktopSource.setMaxFrameSize(width, height);
-            desktopSource.setSourceId(sourceId, false);
+            // 采集尺寸与真实屏幕 1:1（未显式 setResize 时），保证画面坐标 == 屏幕坐标
+            Rectangle screen = resizeConfigured ? null : primaryScreenBounds();
+            desktopSource.setMaxFrameSize(screen == null ? width : screen.width,
+                    screen == null ? height : screen.height);
+            // 关键：sourceId 默认值是 0，而 0 不是合法的桌面源 id。
+            // 传 0 时 Native 端不会报错、轨道也建得出来，但一帧都不会产出 ——
+            // 表现为 SDP 已协商、DataChannel 通、浏览器侧 videoWidth=0 且 0 帧。
+            // 未显式指定源时按「第一个可用桌面源」兜底。
+            desktopSource.setSourceId(sourceId > 0 ? sourceId : defaultSourceId(), false);
             desktopSource.start();
 
             // 轨道由 PeerConnectionFactory 从源创建，帧自动注入
@@ -140,6 +159,7 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
     public void setResize(int width, int height) {
         this.width = width;
         this.height = height;
+        this.resizeConfigured = true;
         if (desktopSource != null) {
             desktopSource.setMaxFrameSize(width, height);
         }
@@ -155,13 +175,75 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
         List<ScreenInfo> list = new ArrayList<>();
         try {
             List<DesktopSource> sources = screenCapturer().getDesktopSources();
+            Rectangle[] bounds = screenBounds(sources.size());
+            int index = 0;
             for (DesktopSource screen : sources) {
-                list.add(new DefaultScreenInfo(String.valueOf(screen.id), screen.title, 0, 0));
+                Rectangle box = bounds[index];
+                String name = screen.title == null || screen.title.isBlank()
+                        ? "屏幕 " + (index + 1) : screen.title;
+                list.add(new DefaultScreenInfo(String.valueOf(screen.id), name,
+                        box == null ? width : box.width,
+                        box == null ? height : box.height));
+                index++;
             }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to list screen sources", e);
         }
         return list.toArray(new ScreenInfo[0]);
+    }
+
+    /**
+     * 未显式指定采集源时的默认源：第一个可用桌面源。
+     *
+     * <p>不能沿用 {@code sourceId} 的初始值 0：Native 端对未知 id 既不报错也不出帧。</p>
+     *
+     * @return 默认桌面源 id
+     */
+    private long defaultSourceId() {
+        List<DesktopSource> sources = screenCapturer().getDesktopSources();
+        if (sources == null || sources.isEmpty()) {
+            throw new IllegalStateException("No desktop source available");
+        }
+        return sources.get(0).id;
+    }
+
+    /**
+     * 主屏像素尺寸。
+     *
+     * @return 主屏尺寸；headless 或 AWT 不可用时返回 null
+     */
+    private Rectangle primaryScreenBounds() {
+        try {
+            return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+                    .getDefaultConfiguration().getBounds();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 取各桌面源的像素尺寸。
+     *
+     * <p>webrtc-java 0.14 的 {@link DesktopSource} 只有 id/title，没有宽高；
+     * 这里用 AWT 的屏幕设备尺寸按序号对齐。数量对不上或处于 headless 时返回全 null，
+     * 由调用方回落到配置的采集尺寸。</p>
+     *
+     * @param count 桌面源数量
+     * @return 与 count 等长的尺寸数组，未知为 null
+     */
+    private Rectangle[] screenBounds(int count) {
+        Rectangle[] result = new Rectangle[count];
+        try {
+            GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+            if (devices.length == count) {
+                for (int i = 0; i < count; i++) {
+                    result[i] = devices[i].getDefaultConfiguration().getBounds();
+                }
+            }
+        } catch (Exception ignored) {
+            // headless 或 AWT 不可用：交给调用方回落
+        }
+        return result;
     }
 
     @Override
