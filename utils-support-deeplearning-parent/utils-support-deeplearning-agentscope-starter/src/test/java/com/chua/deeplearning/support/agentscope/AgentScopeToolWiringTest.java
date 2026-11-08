@@ -31,6 +31,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AgentScopeToolWiringTest {
 
     /**
+     * 工具结果截断：TTL（毫秒）
+     */
+    private static final int RESULT_TTL_MS = 5000;
+
+    /**
+     * 工具结果截断：HEAD 字符上限
+     */
+    private static final int RESULT_HEAD = 800;
+
+    /**
+     * 工具结果截断：非法 TTL（毫秒）
+     */
+    private static final int RESULT_TTL_MS_NEGATIVE = -1;
+
+    /**
+     * 工具结果截断：非法 HEAD 字符上限
+     */
+    private static final int RESULT_HEAD_NEGATIVE = 10;
+
+    /**
      * 构造回显工具。
      *
      * @return 工具定义
@@ -139,16 +159,17 @@ class AgentScopeToolWiringTest {
     void toolResultEvictionIsStored() throws Exception {
         Agent agent = Agent.create("agentscope");
         try {
-            agent.toolResultEviction(5000, 800);
+            agent.toolResultEviction(RESULT_TTL_MS, RESULT_HEAD);
 
             java.lang.reflect.Field max = agent.getClass().getDeclaredField("toolResultMaxChars");
             java.lang.reflect.Field head = agent.getClass().getDeclaredField("toolResultHeadChars");
             max.setAccessible(true);
             head.setAccessible(true);
-            assertEquals(5000, max.getInt(agent));
-            assertEquals(800, head.getInt(agent));
+            assertEquals(RESULT_TTL_MS, max.getInt(agent));
+            assertEquals(RESULT_HEAD, head.getInt(agent));
 
-            assertThrows(IllegalArgumentException.class, () -> agent.toolResultEviction(-1, 10));
+            assertThrows(IllegalArgumentException.class,
+                    () -> agent.toolResultEviction(RESULT_TTL_MS_NEGATIVE, RESULT_HEAD_NEGATIVE));
         } finally {
             agent.close();
         }

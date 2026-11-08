@@ -94,7 +94,8 @@ class LangChain4jToolWiringTest {
     }
 
     @Test
-    void toolsExposesRegisteredDefinitionsAndBatchRegistrationWorks() {        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
+    void toolsExposesRegisteredDefinitionsAndBatchRegistrationWorks() {
+        LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
         try {
             AtomicInteger calls = new AtomicInteger();
             AgentTool echo = echoTool(calls);
