@@ -215,6 +215,15 @@ public final class OpencodeServerProcess {
             .build();
 
     /**
+     * 可用性失败冷却时长（毫秒）。
+     *
+     * <p>一次启动失败（含联网下载失败）要花掉十几秒到九十秒，如果每次创建 Agent 都重试，
+     * 会话请求会被反复拖住。冷却期内 {@link #tryEnsureStarted(boolean)} 直接按失败返回，
+     * 让调用方立刻走降级，冷却到期后再给一次机会。</p>
+     */
+    private static final long FAILURE_COOLDOWN_MILLIS = 60_000L;
+
+    /**
      * 生命周期锁
      */
     private final Object lock = new Object();
@@ -228,6 +237,21 @@ public final class OpencodeServerProcess {
      * 当前托管的子进程（复用外部遗留进程时为 null）
      */
     private volatile Process process;
+
+    /**
+     * 最近一次可用性失败时间（毫秒时间戳，0 表示从未失败）
+     */
+    private volatile long lastFailureAt;
+
+    /**
+     * 最近一次可用性失败原因
+     */
+    private volatile String lastError;
+
+    /**
+     * 是否正在准备（下载 / 启动）中
+     */
+    private volatile boolean preparing;
 
     /**
      * 是否已注册 JVM 关闭钩子
@@ -255,20 +279,136 @@ public final class OpencodeServerProcess {
      * @return 可用服务信息
      */
     public ServerInfo ensureStarted() {
+        return ensureStarted(true);
+    }
+
+    /**
+     * 确保 server 可用（必要时启动或重启），可控制是否允许联网下载。
+     *
+     * @param allowDownload 缺失可执行文件时是否允许自动下载安装
+     * @return 可用服务信息
+     * @throws IllegalStateException 不可用
+     */
+    public ServerInfo ensureStarted(boolean allowDownload) {
         synchronized (lock) {
             ServerInfo current = info;
             if (current != null && isHealthy(current)) {
+                clearFailure();
                 return current;
             }
             ServerInfo persisted = readState();
             if (persisted != null && isHealthy(persisted)) {
                 log.info("[opencode] 复用已存在的 server: {}", persisted.baseUrl());
                 info = persisted;
+                clearFailure();
                 return persisted;
             }
             destroyCurrent();
-            info = start();
-            return info;
+            preparing = true;
+            try {
+                info = start(allowDownload);
+                clearFailure();
+                return info;
+            } catch (RuntimeException e) {
+                lastError = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+                lastFailureAt = System.currentTimeMillis();
+                throw e;
+            } finally {
+                preparing = false;
+            }
+        }
+    }
+
+    /**
+     * 尝试确保 server 可用，失败时不抛异常而是返回 {@code null}。
+     *
+     * <p>用于«创建 Agent 时的引擎降级判断»：失败会在
+     * {@link #availability()} 的 {@code reason} 里保留最近一次原因，
+     * 并在 {@link #FAILURE_COOLDOWN_MILLIS} 内直接快速失败，
+     * 避免每轮会话都重复等待一次启动/下载。</p>
+     *
+     * @param allowDownload 缺失可执行文件时是否允许自动下载安装
+     * @return 可用服务信息；不可用返回 {@code null}
+     */
+    public ServerInfo tryEnsureStarted(boolean allowDownload) {
+        if (!allowDownload && probeBinary() == null) {
+            lastError = "未安装 opencode CLI，且已关闭自动下载";
+            lastFailureAt = System.currentTimeMillis();
+            return null;
+        }
+        long failedAt = lastFailureAt;
+        if (failedAt > 0L && System.currentTimeMillis() - failedAt < FAILURE_COOLDOWN_MILLIS
+                && !isHealthy(info)) {
+            return null;
+        }
+        try {
+            return ensureStarted(allowDownload);
+        } catch (Exception e) {
+            log.warn("[opencode] 可用性检查失败（本次降级处理）: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 当前可用性快照（不触发下载，不阻塞）。
+     *
+     * <p>管理台用它展示：是否已安装、二进制路径、server 是否就绪、是否正在准备、
+     * 最近一次失败原因。健康探测只在已存在服务信息时发一次短超时请求。</p>
+     *
+     * @return 可用性快照
+     */
+    public Availability availability() {
+        Path binary = probeBinary();
+        ServerInfo current = info;
+        ServerInfo candidate = current != null ? current : readState();
+        boolean ready = candidate != null && isHealthy(candidate);
+        if (ready) {
+            info = candidate;
+        }
+        long failedAt = lastFailureAt;
+        boolean coolingDown = failedAt > 0L
+                && System.currentTimeMillis() - failedAt < FAILURE_COOLDOWN_MILLIS;
+        return new Availability(binary != null,
+                binary == null ? null : binary.toString(),
+                ready,
+                preparing,
+                !ready && (binary == null || coolingDown),
+                lastError,
+                ready ? candidate.baseUrl() : null);
+    }
+
+    /**
+     * 只探测本机已安装的可执行文件，不触发下载。
+     *
+     * @return 可执行文件；未安装返回 {@code null}
+     */
+    public Path probeBinary() {
+        try {
+            return preferRunnable(CliModelRunner.probe(CliModelRunner.opencode()));
+        } catch (Exception e) {
+            log.debug("[opencode] 探测可执行文件失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 清除失败记录（例如管理员手动触发重新下载后）。
+     */
+    public void clearFailure() {
+        lastFailureAt = 0L;
+        lastError = null;
+    }
+
+    /**
+     * 关闭托管进程（JVM 退出钩子与显式调用共用）。
+     */
+    public void shutdown() {
+        synchronized (lock) {
+            if (process == null) {
+                return;
+            }
+            destroyCurrent();
+            deleteState();
         }
     }
 
@@ -304,25 +444,13 @@ public final class OpencodeServerProcess {
     }
 
     /**
-     * 关闭托管进程（JVM 退出钩子与显式调用共用）。
-     */
-    public void shutdown() {
-        synchronized (lock) {
-            if (process == null) {
-                return;
-            }
-            destroyCurrent();
-            deleteState();
-        }
-    }
-
-    /**
      * 启动一个 server 并等待健康。
      *
+     * @param allowDownload 缺失可执行文件时是否允许自动下载安装
      * @return 服务信息
      */
-    private ServerInfo start() {
-        Path binary = resolveBinary();
+    private ServerInfo start(boolean allowDownload) {
+        Path binary = resolveBinary(allowDownload);
         Path home = home();
         Path configHome = prepareDirectory(home.resolve(XDG_DIRECTORY).resolve(XDG_CONFIG));
         Path dataHome = prepareDirectory(home.resolve(XDG_DIRECTORY).resolve(XDG_DATA));
@@ -375,11 +503,28 @@ public final class OpencodeServerProcess {
      * 与 {@code opencode.ps1}。{@link CliModelRunner#locate} 的 PATH 探测会先命中无扩展名的
      * sh 脚本，直接执行会报 {@code error=193}，这里改为优先选择 {@code .cmd}/{@code .exe}。</p>
      *
+     * @param allowDownload 缺失时是否允许自动下载安装
      * @return 可执行文件
      */
-    private Path resolveBinary() {
-        Path binary = CliModelRunner.locate(CliModelRunner.opencode());
-        if (!CliModelRunner.isWindows()) {
+    private Path resolveBinary(boolean allowDownload) {
+        Path binary = allowDownload
+                ? CliModelRunner.locate(CliModelRunner.opencode())
+                : CliModelRunner.probe(CliModelRunner.opencode());
+        if (binary == null) {
+            throw new IllegalStateException("未安装 opencode CLI，且已关闭自动下载"
+                    + "（可设置 -Ddeeplearning.cli.opencode.bin 指向可执行文件）");
+        }
+        return preferRunnable(binary);
+    }
+
+    /**
+     * 优先返回 Windows 上真正可被 {@link ProcessBuilder} 执行的文件。
+     *
+     * @param binary 原始定位结果
+     * @return 可执行文件；入参为 {@code null} 时返回 {@code null}
+     */
+    private static Path preferRunnable(Path binary) {
+        if (binary == null || !CliModelRunner.isWindows()) {
             return binary;
         }
         String fileName = binary.getFileName().toString().toLowerCase();
@@ -799,6 +944,22 @@ public final class OpencodeServerProcess {
         } catch (IOException e) {
             return "（读取日志失败: " + e.getMessage() + "）";
         }
+    }
+
+    /**
+     * 可用性快照（供管理台展示与降级判断，不含凭据）。
+     *
+     * @param installed 本机是否已安装 opencode CLI
+     * @param binary    可执行文件路径；未安装为 {@code null}
+     * @param serverReady 常驻 server 是否已就绪（健康检查通过）
+     * @param preparing 是否正在下载 / 启动
+     * @param degraded  是否已判定为不可用（未安装，或最近一次失败仍在冷却期）
+     * @param reason    最近一次失败原因
+     * @param baseUrl   已就绪时的服务地址
+     */
+    public record Availability(boolean installed, String binary, boolean serverReady,
+                               boolean preparing, boolean degraded, String reason,
+                               String baseUrl) {
     }
 
     /**

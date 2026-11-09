@@ -249,6 +249,32 @@ public final class CliModelRunner {
     }
 
     /**
+     * 只探测「本机已存在」的可执行文件，<b>不触发下载</b>。
+     *
+     * <p>与 {@link #locate(CliDescriptor)} 的区别：定位顺序只走前两步（安装目标、PATH），
+     * 缺失时返回 {@code null} 而不是联网下载。用于「能不能用」的快速判断——管理台展示
+     * 安装状态、以及引擎降级判断，都不能在请求线程里等一次可能很慢的下载。</p>
+     *
+     * @param d 描述
+     * @return 已存在的可执行文件；未安装返回 空
+     */
+    public static Path probe(CliDescriptor d) {
+        Path cached = LOCATED.get(d.cliId());
+        if (cached != null && Files.isRegularFile(cached)) {
+            return cached;
+        }
+        Path target = installTarget(d);
+        if (Files.isRegularFile(target)) {
+            return target;
+        }
+        Path inPath = findInPath(d);
+        if (inPath != null) {
+            return inPath;
+        }
+        return null;
+    }
+
+    /**
      * 定位实现
      *
      * @param d 描述
