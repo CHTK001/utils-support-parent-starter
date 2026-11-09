@@ -1,14 +1,14 @@
 package com.chua.common.support.ai.chat.aggregate;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.aggregate.strategy.RouterStrategy;
+import com.chua.common.support.task.cooldown.CooldownGate;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * 客户端冷却登记表 —— 调失败的 Key 先排除一段时间，到期后自动恢复参与路由。
@@ -22,16 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * 一次成功立即清除冷却，恢复参与路由 —— 这里只做「时间到了就放行」的弱熔断，
  * 不做半开探测：放行后若仍失败会再次进入冷却并继续翻倍。</p>
  *
+ * <p><b>状态落在哪</b>：本类只保留「AI 路由」这一层的语义（哪些异常该冷却、冷却键怎么拼），
+ * 真正的等待与恢复交给 {@link CooldownGate} 门面；渠道侧若也要一套「限流换号 + 慢慢恢复」，
+ * 直接 {@code CooldownGate.of("channel:xx")} 即可，不必再写一份状态机。</p>
+ *
  * <p><b>为什么是进程级共享</b>：冷却记录的是「这个上游 Key 现在不能用」，与该 Key
- * 被哪个聚合实例持有无关；{@code ModelClientResolver} 每 5 分钟重建一次客户端，
- * 若把状态挂在实例上，冷却会随重建一起丢失。登记表按
- * {@code provider|model|apiKey 摘要} 取值，重建后仍能命中同一行记录。</p>
+ * 由哪个客户端实例持有无关，故按键而非按实例记录。</p>
  *
  * <p><b>不冷却的情况</b>：400 / 参数错误这类「换个 Key 也一样」的请求级错误，
  * 排除客户端只会误伤健康 Key，因此记下失败但不进入冷却。</p>
- *
- * <p><b>容量</b>：登记表最多保留 {@value #MAX_ENTRIES} 条，超过时先清理已到期记录，
- * 防止长期运行无限增长。</p>
  *
  * @author CH
  * @since 4.0.0.44
@@ -42,22 +41,17 @@ public final class ClientCooldownRegistry {
     /**
      * 默认基础冷却时长（毫秒）：首次失败排除 60 秒
      */
-    public static final long DEFAULT_COOLDOWN_MS = 60_000L;
+    public static final long DEFAULT_COOLDOWN_MS = CooldownGate.DEFAULT_BASE_MS;
 
     /**
      * 默认最长冷却时长（毫秒）：连续失败封顶 10 分钟
      */
-    public static final long DEFAULT_MAX_COOLDOWN_MS = 600_000L;
+    public static final long DEFAULT_MAX_COOLDOWN_MS = CooldownGate.DEFAULT_MAX_MS;
 
     /**
-     * 连续失败翻倍次数上限：60s → 2m → 4m → 8m，再乘就到顶了
+     * AI 路由层的冷却作用域
      */
-    private static final int MAX_BACKOFF_SHIFT = 4;
-
-    /**
-     * 登记表容量上限
-     */
-    private static final int MAX_ENTRIES = 4096;
+    private static final CooldownGate GATE = CooldownGate.of("ai-chat");
 
     /**
      * 冷却键分隔符
@@ -83,19 +77,16 @@ public final class ClientCooldownRegistry {
     };
 
     /**
-     * 基础冷却时长（毫秒）
+     * 连不上的识别片段（地址写错 / 上游没起 / DNS 失败）。
+     *
+     * <p>这类失败与配额无关：按「限流」处理会把一个地址填错的成员误判成「被限流」，
+     * 进而触发「排到最后」之类的限流策略。它们仍会短时冷却，但不会被当作限流事件。</p>
      */
-    private static volatile long baseCooldownMs = DEFAULT_COOLDOWN_MS;
-
-    /**
-     * 最长冷却时长（毫秒）
-     */
-    private static volatile long maxCooldownMs = DEFAULT_MAX_COOLDOWN_MS;
-
-    /**
-     * 冷却状态：键为 provider|model|key 摘要
-     */
-    private static final Map<String, CooldownState> STATES = new ConcurrentHashMap<>();
+    private static final String[] UNREACHABLE_HINTS = {
+            "connect failed", "failed to connect", "connection refused", "connectexception",
+            "unknownhost", "nodename nor servname", "no route to host", "network is unreachable",
+            "stream reset", "connection reset", "premature end of content-length"
+    };
 
     private ClientCooldownRegistry() {
     }
@@ -109,17 +100,14 @@ public final class ClientCooldownRegistry {
      * @param maxMillis  连续失败冷却上限（毫秒）
      */
     public static void configure(long baseMillis, long maxMillis) {
-        baseCooldownMs = baseMillis > 0 ? baseMillis : DEFAULT_COOLDOWN_MS;
-        maxCooldownMs = maxMillis > 0 ? maxMillis : DEFAULT_MAX_COOLDOWN_MS;
+        GATE.configure(baseMillis, maxMillis);
     }
 
     /**
      * 清空全部冷却记录并恢复默认参数，主要供测试使用。
      */
     public static void reset() {
-        STATES.clear();
-        baseCooldownMs = DEFAULT_COOLDOWN_MS;
-        maxCooldownMs = DEFAULT_MAX_COOLDOWN_MS;
+        GATE.reset();
     }
 
     /**
@@ -134,24 +122,7 @@ public final class ClientCooldownRegistry {
      */
     public static List<RouterStrategy.WeightedClient> available(
             List<RouterStrategy.WeightedClient> clients) {
-        if (clients == null || clients.isEmpty()) {
-            return clients;
-        }
-        List<RouterStrategy.WeightedClient> healthy = new ArrayList<>(clients.size());
-        for (RouterStrategy.WeightedClient client : clients) {
-            if (!isCoolingDown(client)) {
-                healthy.add(client);
-            }
-        }
-        if (healthy.isEmpty()) {
-            log.warn("[Cooldown] 全部 {} 个候选客户端均在冷却中，本次降级为半开放行", clients.size());
-            return clients;
-        }
-        if (healthy.size() < clients.size()) {
-            log.info("[Cooldown] 本次跳过 {} 个冷却中的客户端，剩余 {}",
-                    clients.size() - healthy.size(), healthy.size());
-        }
-        return healthy;
+        return GATE.filterOpen(clients, ClientCooldownRegistry::keyOf);
     }
 
     /**
@@ -161,22 +132,7 @@ public final class ClientCooldownRegistry {
      * @return true 表示应跳过该客户端
      */
     public static boolean isCoolingDown(RouterStrategy.WeightedClient client) {
-        if (client == null) {
-            return false;
-        }
-        String key = keyOf(client);
-        CooldownState state = STATES.get(key);
-        if (state == null) {
-            return false;
-        }
-        long now = System.currentTimeMillis();
-        if (state.until <= now) {
-            // 到期即恢复：清理记录，下次失败重新从基础时长开始
-            STATES.remove(key, state);
-            log.info("[Cooldown] {}:{} 冷却结束，恢复参与路由", client.provider(), client.model());
-            return false;
-        }
-        return true;
+        return client != null && GATE.blocked(keyOf(client));
     }
 
     /**
@@ -189,19 +145,7 @@ public final class ClientCooldownRegistry {
         if (client == null || !shouldCooldown(error)) {
             return;
         }
-        String key = keyOf(client);
-        long now = System.currentTimeMillis();
-        CooldownState state = STATES.compute(key, (k, old) -> {
-            CooldownState next = old == null ? new CooldownState() : old;
-            next.failures++;
-            next.until = now + cooldownMillis(next.failures);
-            next.reason = describe(error);
-            return next;
-        });
-        log.warn("[Cooldown] {}:{} 第 {} 次失败，排除 {}s（原因: {}）",
-                client.provider(), client.model(), state.failures,
-                (state.until - now) / 1000, state.reason);
-        trimIfNecessary();
+        GATE.fail(keyOf(client), describe(error), !isUnreachable(error));
     }
 
     /**
@@ -210,11 +154,8 @@ public final class ClientCooldownRegistry {
      * @param client 成功的客户端
      */
     public static void recordSuccess(RouterStrategy.WeightedClient client) {
-        if (client == null) {
-            return;
-        }
-        if (STATES.remove(keyOf(client)) != null) {
-            log.info("[Cooldown] {}:{} 调用成功，冷却已解除", client.provider(), client.model());
+        if (client != null) {
+            GATE.pass(keyOf(client));
         }
     }
 
@@ -225,14 +166,7 @@ public final class ClientCooldownRegistry {
      * @return 剩余冷却毫秒数
      */
     public static long remainingMillis(RouterStrategy.WeightedClient client) {
-        if (client == null) {
-            return 0L;
-        }
-        CooldownState state = STATES.get(keyOf(client));
-        if (state == null) {
-            return 0L;
-        }
-        return Math.max(0L, state.until - System.currentTimeMillis());
+        return client == null ? 0L : GATE.remaining(keyOf(client));
     }
 
     /**
@@ -241,20 +175,96 @@ public final class ClientCooldownRegistry {
      * @return 条目数
      */
     public static int size() {
-        return STATES.size();
+        return GATE.size();
     }
 
     /**
-     * 计算第 N 次连续失败应排除的时长。
+     * 按键判断是否处于冷却期（不依赖 {@link RouterStrategy.WeightedClient}）。
      *
-     * @param failures 连续失败次数（从 1 开始）
-     * @return 冷却毫秒数
+     * <p>{@link SwitchingChatClient} 的实现（多 Key / 路由组）自己拼键：成员可能是
+     * 同一供应商的多个 Key，也可能是不同供应商的模型，没法从客户端实例反推身份。</p>
+     *
+     * @param key 冷却键（如 {@code provider|model|key-xxxx}）
+     * @return true 表示应跳过
      */
-    private static long cooldownMillis(int failures) {
-        int shift = Math.min(Math.max(failures - 1, 0), MAX_BACKOFF_SHIFT);
-        long duration = (long) baseCooldownMs << shift;
-        long cap = Math.max(baseCooldownMs, maxCooldownMs);
-        return Math.min(duration, cap);
+    public static boolean isCooling(String key) {
+        return GATE.blocked(key);
+    }
+
+    /**
+     * 按键记一次失败（冷却时长按连续失败次数翻倍）。
+     *
+     * @param key 冷却键
+     */
+    public static void failure(String key) {
+        failure(key, null);
+    }
+
+    /**
+     * 按键记一次失败；请求级错误（换 Key 也一样）不进入冷却。
+     *
+     * @param key   冷却键
+     * @param error 失败原因
+     */
+    public static void failure(String key, Throwable error) {
+        if (key == null || !shouldCooldown(error)) {
+            return;
+        }
+        // 只有「限流 / 配额」类的失败才算限流事件；连不上、报文错等不触发限流策略
+        GATE.fail(key, describe(error), !isUnreachable(error));
+    }
+
+    /**
+     * 订阅某个前缀下的失败事件（如 {@code provider|model|}）。
+     *
+     * @param prefix  订阅前缀（冷却键以它开头即命中）
+     * @param onLimit 回调，入参为完整冷却键；为 null 表示退订
+     */
+    public static void subscribe(String prefix, Consumer<String> onLimit) {
+        GATE.subscribe(prefix, onLimit);
+    }
+
+    /**
+     * 按键记一次成功：立即解除冷却。
+     *
+     * @param key 冷却键
+     */
+    public static void success(String key) {
+        GATE.pass(key);
+    }
+
+    /**
+     * 是否为「连不上上游」类失败。
+     *
+     * @param error 异常
+     * @return true 表示地址不可达
+     */
+    private static boolean isUnreachable(Throwable error) {
+        String message = describe(error).toLowerCase(Locale.ROOT);
+        String type = rootType(error).toLowerCase(Locale.ROOT);
+        for (String hint : UNREACHABLE_HINTS) {
+            if (message.contains(hint) || type.contains(hint)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 取根因异常的类名。
+     *
+     * @param error 异常
+     * @return 类名；无异常返回空串
+     */
+    private static String rootType(Throwable error) {
+        if (error == null) {
+            return "";
+        }
+        Throwable root = error;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        return root.getClass().getSimpleName();
     }
 
     /**
@@ -333,41 +343,5 @@ public final class ClientCooldownRegistry {
             hash *= FNV_PRIME;
         }
         return hash;
-    }
-
-    /**
-     * 超过容量上限时清理已到期记录。
-     */
-    private static void trimIfNecessary() {
-        if (STATES.size() <= MAX_ENTRIES) {
-            return;
-        }
-        long now = System.currentTimeMillis();
-        STATES.entrySet().removeIf(entry -> entry.getValue().until <= now);
-        if (STATES.size() > MAX_ENTRIES) {
-            log.warn("[Cooldown] 冷却登记表条目超过上限 {}，已清理到期记录后仍超限: {}",
-                    MAX_ENTRIES, STATES.size());
-        }
-    }
-
-    /**
-     * 单个客户端的冷却状态。
-     */
-    private static final class CooldownState {
-
-        /**
-         * 连续失败次数
-         */
-        private int failures;
-
-        /**
-         * 冷却截止时间戳（毫秒）
-         */
-        private long until;
-
-        /**
-         * 最近一次失败原因
-         */
-        private String reason;
     }
 }
