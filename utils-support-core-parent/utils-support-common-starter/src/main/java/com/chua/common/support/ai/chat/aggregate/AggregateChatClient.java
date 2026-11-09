@@ -570,7 +570,7 @@ public class AggregateChatClient implements ChatClient {
      */
     private List<RouterStrategy.WeightedClient> filterHealthy(List<RouterStrategy.WeightedClient> clients) {
         if (!autoSwitchEnabled) {
-            return clients;
+            return ClientCooldownRegistry.available(clients);
         }
         List<RouterStrategy.WeightedClient> result = Wraps.list(clients.size());
         for (RouterStrategy.WeightedClient wc : clients) {
@@ -578,7 +578,8 @@ public class AggregateChatClient implements ChatClient {
                 result.add(wc);
             }
         }
-        return result;
+        // 健康检查之外再排掉冷却中的客户端：失败后被排除一段时间，到期自动回归
+        return ClientCooldownRegistry.available(result);
     }
 
     /**

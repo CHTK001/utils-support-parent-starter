@@ -68,6 +68,8 @@ public final class FailoverTemplate {
         if (remaining.isEmpty()) {
             throw new IllegalArgumentException("No clients configured");
         }
+        // 上次失败后仍在冷却的客户端先跳过；全部都在冷却时放行全部（半开），避免整体不可用
+        remaining = ClientCooldownRegistry.available(remaining);
 
         Exception lastError = null;
         int attempt = 0;
@@ -100,9 +102,11 @@ public final class FailoverTemplate {
                     usageCallback.accept(resp.usage());
                 }
 
+                ClientCooldownRegistry.recordSuccess(wc);
                 return resp != null ? resp.text() : "";
             } catch (Exception e) {
                 lastError = e;
+                ClientCooldownRegistry.recordFailure(wc, e);
                 long elapsed = System.currentTimeMillis() - start;
                 log.warn("[FailoverTemplate] {} failed after {}ms (attempt {}): {}",
                         wc.provider(), elapsed, attempt, e.getMessage(), e);
@@ -131,6 +135,8 @@ public final class FailoverTemplate {
         if (remaining.isEmpty()) {
             throw new IllegalArgumentException("No clients configured");
         }
+        // 上次失败后仍在冷却的客户端先跳过；全部都在冷却时放行全部（半开），避免整体不可用
+        remaining = ClientCooldownRegistry.available(remaining);
 
         Exception lastError = null;
 
@@ -213,6 +219,7 @@ public final class FailoverTemplate {
                     }
                     lastError = new java.util.concurrent.TimeoutException(
                             wc.provider() + " 首包超时(" + firstTokenTimeoutMs + "ms)");
+                    ClientCooldownRegistry.recordFailure(wc, lastError);
                     log.warn("[FailoverTemplate] {} 首包 {}ms 未返回，切换下一客户端",
                             wc.provider(), firstTokenTimeoutMs);
                     continue;
@@ -222,10 +229,12 @@ public final class FailoverTemplate {
                 finished.await(FailoverTimeouts.completionWaitSeconds(), TimeUnit.SECONDS);
                 Throwable t = taskError.get();
                 if (t == null) {
+                    ClientCooldownRegistry.recordSuccess(wc);
                     return;
                 }
                 if (started.get()) {
                     // 开始输出后才失败：内容已部分下发，无法干净切换，直接抛出以免重复/错乱
+                    // 此时失败可能来自调用方回调或网络抖动，无法归因到 Key，因此不进入冷却
                     if (t instanceof Exception e) {
                         throw e;
                     }
@@ -233,6 +242,7 @@ public final class FailoverTemplate {
                 }
                 // 首包前就出错（401/429/连接失败等）：快速切换下一密钥，不浪费等待
                 lastError = (t instanceof Exception e) ? e : new RuntimeException(t);
+                ClientCooldownRegistry.recordFailure(wc, lastError);
                 log.warn("[FailoverTemplate] {} 首包前失败，切换下一客户端: {}",
                         wc.provider(), t.getMessage(), t);
             }
