@@ -519,9 +519,14 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 与 worker finally 的挂回决策互斥（见那里的说明）。
             // worker 还在途（workerInFlight=true）时这里跳过挂回，
             // 由 worker 的 finally 判定后挂回；反之由这里挂回，二者恰居其一。
-            // TEMP-REVERT-VERIFY: 排空后不挂回，模拟缺陷 10 旧行为
-            att.pendingWrite = null;
-            clearWriteInterest(key);
+            synchronized (key) {
+                att.pendingWrite = null;
+                clearWriteInterest(key);
+                if (!att.workerInFlight && key.isValid()) {
+                    addReadInterest(key);
+                    att.ioSelector.wakeup();
+                }
+            }
         } catch (IOException e) {
             log.debug("续写响应失败，关闭连接: {}", e.getMessage());
             att.pendingWrite = null;
@@ -632,11 +637,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                     // 双跳过（谁都不挂回 → 连接停摆）或双放行（worker 判完后 flush
                     // 才挂回并派发，worker 的陈旧挂回让下一帧与在途 worker 并发）。
                     // 锁内两方顺序执行时后到方必然看到先到方的完整结果，二选一恰好挂回一次。
-                    // TEMP-REVERT-VERIFY: 缺陷 10 旧行为，worker 完成后无条件放行下一帧
-                    att.workerInFlight = false;
-                    if (key.isValid()) {
-                        addReadInterest(key);
-                        att.ioSelector.wakeup();
+                    synchronized (key) {
+                        att.workerInFlight = false;
+                        if (key.isValid() && att.pendingWrite == null) {
+                            addReadInterest(key);
+                            att.ioSelector.wakeup();
+                        }
                     }
                 }
             });
