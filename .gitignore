@@ -205,6 +205,9 @@ hs_err*
 thread-dump*
 target.locked/
 
+# 一次性源码备份目录（内容与 src/main/java 逐字节相同，不进 git）
+src-bak/
+
 # block: added by cleanup script 2026-11-04 10:30
 # ===== exceptions: dev snapshot / build / runtime junk must never enter git history =====
 *.err.txt
