@@ -263,6 +263,12 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 if (running) {
                     log.warn("{} 非阻塞 accept 异常: {}", getClass().getSimpleName(), e.getMessage(), e);
                 }
+            } catch (Throwable t) {
+                // 事件循环线程绝不能死：接收线程一死，服务就不再接纳任何新连接
+                if (running) {
+                    log.warn("{} 非阻塞 accept 异常: {} {}", getClass().getSimpleName(),
+                            t.getClass().getSimpleName(), t.getMessage(), t);
+                }
             }
         }
         log.info("{} nonBlockingAcceptLoop ended", getClass().getSimpleName());

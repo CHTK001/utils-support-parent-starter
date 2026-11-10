@@ -878,13 +878,17 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                     buffer = ByteBuffer.wrap((payload + "\n").getBytes(StandardCharsets.UTF_8));
                 }
                 pendingWrite = null;
+                // 队列已空：交还写权 + 清写兴趣必须在锁内完成，否则存在丢唤醒窗口——
+                // write() 若在「排空循环结束」与「writePending 置 false」之间入队，
+                // 它看到的仍是 true，不会设置 OP_WRITE；随后这里再清掉 OP_WRITE，
+                // 这条消息就永远躺在队列里，直到下一次 write() 才被带走。
+                writePending.set(false);
+                try {
+                    key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+                } catch (CancelledKeyException ignored) {
+                    // 连接已并发关闭：兴趣位无意义
+                }
             }
-            try {
-                key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
-            } catch (CancelledKeyException ignored) {
-                // 连接已并发关闭：兴趣位无意义
-            }
-            writePending.set(false);
         }
 
         /**
