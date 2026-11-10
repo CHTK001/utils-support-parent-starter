@@ -191,9 +191,22 @@ public class FileSystemFileStorage extends AbstractFileStorage {
             String fileName = source.getFileName().toString();
             String suffix = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
 
+            // Range 语义：本地文件用 skip 定位（FileInputStream.skip 是 posix lseek 级廉价操作），
+            // 再按 length 限制上界。总长度仍以元数据里的完整 size 返回，供调用方生成
+            // Content-Range；此处只在读取端裁剪。
+            long offset = Math.max(0L, request.getOffset());
+            long length = request.getLength();
+            if (attrs.size() > 0 && offset >= attrs.size() && length != 0) {
+                return GetObjectResult.builder()
+                        .resultCode(ObjectResult.ResultCode.FAILURE)
+                        .message("偏移超出文件长度: " + offset + " >= " + attrs.size())
+                        .build();
+            }
+            InputStream inputStream = applyRange(Files.newInputStream(source), offset, length);
+
             return GetObjectResult.builder()
                     .resultCode(ObjectResult.ResultCode.SUCCESS)
-                    .inputStream(Files.newInputStream(source))
+                    .inputStream(inputStream)
                     .metadata(Metadata.builder()
                             .name(fileName)
                             .path(source.getParent() != null ? source.getParent().toString() : "")
@@ -218,6 +231,17 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
+    }
+
+    /**
+     * 本地文件系统原生支持偏移读取（{@code skip} + 长度受限流），
+     * 文件服务按 Range 请求只需读目标区间，不再整块载入内存。
+     *
+     * @return 恒为 true
+     */
+    @Override
+    public boolean supportsRange() {
+        return true;
     }
 
     /**

@@ -322,6 +322,31 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
+     * 重放解析缓冲中已缓存的下一条请求（HTTP pipelining）。
+     *
+     * <p>一次 socket read 可能把多条请求一起读进解析缓冲；{@link #feed(ByteBuffer)}
+     * 只推进到第一条就返回 1，剩余字节仍留在缓冲里。调用本方法可在不读 socket 的情况下
+     * 继续解出后续请求。</p>
+     *
+     * <p><b>前置条件</b>：调用前必须先 {@link #resetForNextRequest()}。状态机处于
+     * {@code COMPLETE} 时 {@code feed(null)} 会直接返回 1，否则会重复处理上一条请求。</p>
+     *
+     * @return 1=又解析出一条完整请求；0=缓冲不足，需要真正读 socket；-1=解析错误
+     */
+    public int feedBuffered() {
+        return feed(null);
+    }
+
+    /**
+     * 当前解析缓冲里是否还有未消费的字节（可能是下一条 pipeline 请求的前缀）。
+     *
+     * @return 有残留字节返回 true
+     */
+    public boolean hasBufferedInput() {
+        return buf != null && buf.hasRemaining();
+    }
+
+    /**
      * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
      * @return 结果数值
      */

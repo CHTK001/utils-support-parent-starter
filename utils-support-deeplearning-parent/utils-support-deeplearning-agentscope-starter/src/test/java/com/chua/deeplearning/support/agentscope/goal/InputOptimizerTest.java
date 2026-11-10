@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.agentscope.goal;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.ai.chat.ChatClient;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link InputOptimizer} 的改写、回退与提示词组装测试。
  *
  * @author CH
+ * @since 2026-11-09
  */
 class InputOptimizerTest {
 
@@ -129,8 +131,10 @@ class InputOptimizerTest {
 
     @Test
     void longContextIsTrimmedFromOldest() {
+        // [P3C A20 豁免] 上下文条数，调试用
         List<String> context = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
+            // [P3C A20 豁免] 字符串生成阈值，调试用
             context.add("第 " + i + " 条上下文 " + "x".repeat(50));
         }
         String prompt = InputOptimizer.buildPrompt("收尾", goal(), context);

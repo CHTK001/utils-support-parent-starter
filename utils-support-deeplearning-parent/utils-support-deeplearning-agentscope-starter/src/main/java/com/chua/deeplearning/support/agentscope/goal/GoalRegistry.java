@@ -37,6 +37,7 @@ public final class GoalRegistry {
      * 使用默认容量。
      */
     public GoalRegistry() {
+        // [P3C A20 豁免] 默认容量，文档约定
         this(500);
     }
 

@@ -1,22 +1,27 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.impl;
 
-import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
+import com.chua.common.support.network.server.nio.NioServerResponse;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import lombok.ToString;
+
 /**
  * TCP 帧式协议的 {@link ServerResponse} 实现。
  *
- * <p>与 {@link HttpServerResponse} 不同，本实现不直接向网络写出数据，
- * 而是将所有写入缓存在内存中，通过 {@link #getReadyBytes()} 返回完整的 HTTP 响应报文字节，
- * 由调用方（如 {@link JdkTcpServer}）负责加上长度头后写出。</p>
+ * <p>与 HTTP 服务端响应不同，本实现不直接向网络写出数据，而是将所有写入汇总缓存，
+ * 通过 {@link #getReadyBytes()} 返回完整的 HTTP 响应报文字节，
+ * 由调用方（如 {@link JdkTcpServer}）负责加上 4 字节长度头后写出。</p>
+ *
+ * <p>内部委托 {@link NioServerResponse} 构建 HTTP 响应头：
+ * 设置 {@link NioServerResponse#setAsyncWriter(ByteArrayAsyncWriter)} 后，
+ * {@code complete()} 把 header + body 完整字节送入 {@link #ready} 缓冲。
+ * 对外报文与旧版完全一致，且额外携带一条 {@code Connection: close}：
+ * TCP 帧模式中 1 帧 = 1 请求/响应，不允许连接复用。</p>
  *
  * <p>使用方式：</p>
  * <pre>{@code
@@ -25,56 +30,94 @@ import lombok.ToString;
  *        .setContentType("text/plain")
  *        .setBody("hello tcp");
  * response.end();
- * byte[] frame = response.getReadyBytes();  // 获取完整响应报文（含长度头）
+ * byte[] frame = response.getReadyBytes();  // 获取完整响应报文（不含长度头，由上层补）
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @ToString
-public class TcpServerResponse implements ServerResponse {
+public class TcpServerResponse implements ServerResponse,
+        NioServerResponse.ByteArrayAsyncWriter,
+        java.util.function.BiConsumer<java.nio.ByteBuffer, java.nio.ByteBuffer> {
 
     /**
-     * 状态码，默认 200
+     * 完整 HTTP 响应报文缓冲（状态行 + 所有头 + 空行 + 响应体）
      */
-    private int statusCode = 200;
+    private final ByteArrayOutputStream ready = new ByteArrayOutputStream();
     /**
-     * 响应头（大小写不敏感）
+     * 是否已终止（end() 之后不可再写入）
      */
-    private final Map<String, String> headers = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
+    private volatile boolean ended;
     /**
-     * 响应体
+     * NIO 响应层：channel 传 null（TCP 无通道概念），只走 asyncWriter 字节收集路径。
      */
-    private byte[] body;
+    private final NioServerResponse nioResponse = new NioServerResponse(null);
+
+    public TcpServerResponse() {
+        // complete() 把 header + body 完整字节交付给本监听者
+        this.nioResponse.setAsyncWriter(this);
+    }
+
     /**
-     * 是否已终止
+     * 接收 NIO 层 {@code complete()} 交付的 header 与 body 字节，
+     * 按响应顺序追加至 {@link #ready}，它们是 TCP 帧的唯一有效内容。
+     *
+     * @param header 已编码的响应头（状态行 + 空行)
+     * @param body   响应体，可能为空数组
      */
-    private boolean ended;
+    @Override
+    public void write(byte[] header, byte[] body) {
+        if (header != null && header.length > 0) {
+            ready.write(header, 0, header.length);
+        }
+        if (body != null && body.length > 0) {
+            ready.write(body, 0, body.length);
+        }
+    }
+
     /**
-     * 输出缓冲（OutputStream 写入路径用）
+     * 响应层桥接：把 NIO 层 {@code complete()} 按 {@code ByteBuffer.wrap} 送出的行/体
+     * 转换回字节数组，交给 {@link #write(byte[], byte[])} 追加至 {@link #ready}。
+     *
+     * @param header 已编码的响应头
+     * @param body   响应体
      */
-    private ByteArrayOutputStream output;
+    @Override
+    public void accept(java.nio.ByteBuffer header, java.nio.ByteBuffer body) {
+        write(toBytes(header), toBytes(body));
+    }
+
     /**
-     * SSE 模式开关
+     * 从 Buffer 中取出实际字节.
+     *
+     * @param buffer 缓冲
+     * @return 字节数组
      */
-    private boolean sseMode;
-    /**
-     * 原始结果对象
-     */
-    private Object result;
+    private static byte[] toBytes(java.nio.ByteBuffer buffer) {
+        if (buffer == null || !buffer.hasRemaining()) {
+            return new byte[0];
+        }
+        if (buffer.hasArray()) {
+            return java.util.Arrays.copyOfRange(buffer.array(), buffer.position(), buffer.limit());
+        }
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        return bytes;
+    }
 
     @Override
     public ServerResponse setStatus(int code) {
         if (ended) {
             return this;
         }
-        this.statusCode = code;
+        nioResponse.setStatus(code);
         return this;
     }
 
     @Override
     public int getStatus() {
-        return statusCode;
+        return nioResponse.getStatus();
     }
 
     @Override
@@ -82,20 +125,18 @@ public class TcpServerResponse implements ServerResponse {
         if (ended) {
             return this;
         }
-        headers.put(name, value);
+        nioResponse.setHeader(name, value);
         return this;
     }
 
     @Override
     public String getHeader(String name) {
-        return headers.get(name);
+        return nioResponse.getHeader(name);
     }
 
     @Override
     public HttpHeader getHeaders() {
-        HttpHeader h = HttpHeader.create();
-        headers.forEach((k, v) -> h.add(k, v));
-        return h;
+        return nioResponse.getHeaders();
     }
 
     @Override
@@ -105,7 +146,7 @@ public class TcpServerResponse implements ServerResponse {
 
     @Override
     public String getContentType() {
-        return headers.get("Content-Type");
+        return nioResponse.getContentType();
     }
 
     @Override
@@ -113,7 +154,7 @@ public class TcpServerResponse implements ServerResponse {
         if (ended) {
             return this;
         }
-        this.body = b;
+        nioResponse.setBody(b);
         return this;
     }
 
@@ -122,21 +163,18 @@ public class TcpServerResponse implements ServerResponse {
         if (ended) {
             return this;
         }
-        this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : new byte[0];
+        nioResponse.setBody(b);
         return this;
     }
 
     @Override
     public byte[] getBody() {
-        return body;
+        return nioResponse.getBody();
     }
 
     @Override
     public OutputStream getOutputStream() {
-        if (output == null) {
-            output = new ByteArrayOutputStream();
-        }
-        return output;
+        return nioResponse.getOutputStream();
     }
 
     @Override
@@ -162,7 +200,7 @@ public class TcpServerResponse implements ServerResponse {
 
     @Override
     public boolean isCommitted() {
-        return false;
+        return nioResponse.isCommitted();
     }
 
     @Override
@@ -172,13 +210,13 @@ public class TcpServerResponse implements ServerResponse {
 
     @Override
     public ServerResponse setResult(Object result) {
-        this.result = result;
+        nioResponse.setResult(result);
         return this;
     }
 
     @Override
     public Object getResult() {
-        return result;
+        return nioResponse.getResult();
     }
 
     @Override
@@ -186,52 +224,74 @@ public class TcpServerResponse implements ServerResponse {
         if (ended) {
             return this;
         }
-        statusCode = 200;
-        body = null;
-        result = null;
-        headers.clear();
-        if (output != null) {
-            output.reset();
-        }
-        sseMode = false;
+        nioResponse.reset();
+        ready.reset();
+        ended = false;
         return this;
     }
 
     @Override
     public void end() {
-        // 将 OutputStream 缓冲区内容合并到 body
-        if (output != null && output.size() > 0) {
-            if (body != null && body.length > 0) {
-                ByteArrayOutputStream merged = new ByteArrayOutputStream(body.length + output.size());
-                try {
-                    merged.write(body);
-                    output.writeTo(merged);
-                    body = merged.toByteArray();
-                } catch (IOException e) {
-                    body = output.toByteArray();
-                }
-            } else {
-                body = output.toByteArray();
-            }
-            output = null;
+        if (ended) {
+            return;
         }
+        // TCP 是 1 帧 = 1 请求/响应：无论请求是否显式要求 close，都必须回 Connection: close，
+        // 否则响应将宣称连接可复用，而 TCP 层读完帧后直接关连接，会破坏对端连接模型
+        nioResponse.setConnectionClose(true);
+        // 标记 NIO 层已终止：complete() 构建 header + body 交付给 ready
+        nioResponse.end();
+        nioResponse.complete();
         ended = true;
     }
 
     @Override
     public void writeRaw(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
+        if (ended) {
             return;
         }
-        if (output == null) {
-            output = new ByteArrayOutputStream();
-        }
-        try {
-            output.write(bytes);
-        } catch (IOException e) {
-            throw new RuntimeException("writeRaw failed", e);
-        }
+        // 将原始字节合入帧体：byte[] 为 null 或空时的返回由 NIO 层处理
+        nioResponse.writeRaw(bytes);
     }
+
+    @Override
+    public ServerResponse sse() {
+        // TCP 是 1 帧 = 1 请求/响应：不支持 SSE 流式写出，只约定 Content-Type + 必须 close
+        setContentType("text/event-stream; charset=utf-8");
+        setHeader("Cache-Control", "no-cache");
+        setHeader("Connection", "close");
+        return this;
+    }
+
+    @Override
+    public void sseEvent(String event, String data) {
+        // 无 DT 实流缓冲区，直接写原始帧到帧体。
+        // "data: " / "\n" 前后缀是热路径常量，避免每个分片重复 getBytes 分配。
+        writeRaw(("event: " + event + "\n").getBytes(StandardCharsets.UTF_8));
+        writeRaw(DATA_PREFIX_BYTES);
+        writeRaw((data + "\n").getBytes(StandardCharsets.UTF_8));
+        writeRaw(EVENT_END_BYTES);
+    }
+
+    @Override
+    public void sseClose() {
+        writeRaw(SSE_CLOSE_BYTES);
+    }
+
+    /**
+     * SSE 分片固定前缀："data: "（只读常量，热路径复用）
+     */
+    private static final byte[] DATA_PREFIX_BYTES = "data: ".getBytes(StandardCharsets.UTF_8);
+
+    /**
+     * SSE 分片固定结束：空行（只读常量，热路径复用）
+     */
+    private static final byte[] EVENT_END_BYTES = "\n".getBytes(StandardCharsets.UTF_8);
+
+    /**
+     * SSE 关闭帧（只读常量，热路径复用）
+     */
+    private static final byte[] SSE_CLOSE_BYTES =
+            "event:close\ndata:closed\n\n".getBytes(StandardCharsets.UTF_8);
 
     /**
      * 构造并返回完整的 HTTP 响应报文字节（含状态行、所有头、空行和响应体）。
@@ -244,62 +304,6 @@ public class TcpServerResponse implements ServerResponse {
         if (!ended) {
             end();
         }
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        try {
-            // 状态行
-            String reason = getReasonPhrase(statusCode);
-            buf.write(("HTTP/1.1 " + statusCode + " " + reason + "\r\n").getBytes(StandardCharsets.US_ASCII));
-
-            // 响应头
-            // Content-Length 优先使用显式设置的值，否则由 body 长度推导
-            String explicitCl = headers.get("Content-Length");
-            long contentLength = body != null ? body.length : 0;
-            if (explicitCl == null) {
-                headers.put("Content-Length", String.valueOf(contentLength));
-            }
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                buf.write((entry.getKey() + ": " + entry.getValue() + "\r\n").getBytes(StandardCharsets.US_ASCII));
-            }
-
-            // 空行
-            buf.write("\r\n".getBytes(StandardCharsets.US_ASCII));
-
-            // 响应体
-            if (body != null && body.length > 0) {
-                buf.write(body);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("构建 TCP 响应报文失败", e);
-        }
-        return buf.toByteArray();
-    }
-
-    /**
-     * 获取 HTTP 标准状态码对应的标准原因短语。
-     *
-     * @param code 状态码
-     * @return 原因短语
-     */
-    private static String getReasonPhrase(int code) {
-        switch (code) {
-            case 200: return "OK";
-            case 201: return "Created";
-            case 204: return "No Content";
-            case 301: return "Moved Permanently";
-            case 302: return "Found";
-            case 304: return "Not Modified";
-            case 400: return "Bad Request";
-            case 401: return "Unauthorized";
-            case 403: return "Forbidden";
-            case 404: return "Not Found";
-            case 405: return "Method Not Allowed";
-            case 408: return "Request Timeout";
-            case 413: return "Payload Too Large";
-            case 500: return "Internal Server Error";
-            case 502: return "Bad Gateway";
-            case 503: return "Service Unavailable";
-            case 504: return "Gateway Timeout";
-            default: return "Unknown";
-        }
+        return ready.toByteArray();
     }
 }

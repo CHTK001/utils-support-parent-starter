@@ -124,6 +124,12 @@ public class NioServerResponse implements ServerResponse {
      * 通道closed
      */
     private boolean channelClosed;
+
+    /**
+     * 本条响应需要回 {@code Connection: close}（请求显式要求关闭，或 pipeline 的最后一条）。
+     * <p>响应头不能无条件写 keep-alive：否则客户端在收到 EOF 前会以为连接仍可复用。</p>
+     */
+    private boolean connectionClose;
     /**
      * 结果
      */
@@ -396,6 +402,7 @@ public class NioServerResponse implements ServerResponse {
         sent = false;
         sseMode = false;
         channelClosed = false;
+        connectionClose = false;
         result = null;
         if (rawOutput != null) {
             // 保留小缓冲以复用（这是复用的主要收益），但一次性写过大批量数据后
@@ -506,6 +513,24 @@ public class NioServerResponse implements ServerResponse {
     // ─── 内部方法 ─────────────────────────────────────────
 
     /**
+     * 直接以字节数组交付的异步写出回调。
+     *
+     * <p>{@link #complete()} 原本用 {@code ByteBuffer.wrap} 把响应头和体各包一层，
+     * echo 场景下每条响应固定产生两个包装对象（JFR 显示占全部申请的 15%）。
+     * 实现本接口的写出方可以直接拿到数组，由写出方在自己的合并缓冲里完成拷贝。</p>
+     */
+    public interface ByteArrayAsyncWriter {
+
+        /**
+         * 交付一条待写响应。
+         *
+         * @param header 已编码的响应头
+         * @param body 响应体，可能为空数组
+         */
+        void write(byte[] header, byte[] body);
+    }
+
+    /**
      * 完成响应：将缓冲区内容写入到 channel。
      * <p>SSE 模式下只关闭 channel；缓冲模式下构建完整 HTTP/1.1 响应报文。</p>
      */
@@ -528,7 +553,11 @@ public class NioServerResponse implements ServerResponse {
             if (asyncWriter != null) {
                 WriteProbe.completed(headerBytes.length + (data == null ? 0 : data.length));
                 // 真响应式:字节交给事件循环 OP_WRITE 异步写出
-                asyncWriter.accept(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
+                if (asyncWriter instanceof ByteArrayAsyncWriter raw) {
+                    raw.write(headerBytes, data);
+                } else {
+                    asyncWriter.accept(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
+                }
             } else {
                 // gather write：将 header 和 body 一次性写出
                 WriteProbe.completed(headerBytes.length + (data == null ? 0 : data.length));
@@ -631,8 +660,9 @@ public class NioServerResponse implements ServerResponse {
      * @return 结果值
      */
     private byte[] buildHttpHeaders(int bodyLength) {
-        // 快路径:status=200 + 无用户自定义 header + keep-alive,即 echo 场景
-        if (statusCode == 200 && headersEmpty()) {
+        // 快路径:status=200 + 无用户自定义 header + 可复用连接,即 echo 场景。
+        // 需要回 Connection: close 时降级到通用构建，避免缓存的头模板把 keep-alive 写死。
+        if (statusCode == 200 && headersEmpty() && !connectionClose) {
             return buildEchoHeader(bodyLength);
         }
         // 慢路径:自定义 header 或非 200,降级到通用构建
@@ -646,7 +676,7 @@ public class NioServerResponse implements ServerResponse {
             sb.append("Content-Length: ").append(bodyLength).append("\r\n");
         }
         if (!h.containsKey("Connection")) {
-            sb.append("Connection: keep-alive\r\n");
+            sb.append(connectionClose ? "Connection: close\r\n" : "Connection: keep-alive\r\n");
         }
         for (Map.Entry<String, String> e : h.entrySet()) {
             sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
@@ -680,6 +710,18 @@ public class NioServerResponse implements ServerResponse {
         // putIfAbsent 防竞态;但首次构建后所有相同长度请求都直接拿到 cached
         byte[] prev = ECHO_HEADER_CACHE.putIfAbsent(bodyLength, result);
         return prev != null ? prev : result;
+    }
+
+    /**
+     * 标记本条响应应携带 {@code Connection: close}。
+     *
+     * <p>由服务端在 {@code complete()} 之前设置：请求显式带 {@code Connection: close}
+     * 或该连接即将关闭时，不能继续向客户端宣称连接可复用。</p>
+     *
+     * @param connectionClose 是否回 close 头
+     */
+    public void setConnectionClose(boolean connectionClose) {
+        this.connectionClose = connectionClose;
     }
 
     /**

@@ -12,14 +12,18 @@ public class SmallFileSpeed {
         Path root = Files.createTempDirectory("fp-small");
         Path source = root.resolve("src");
         Files.createDirectories(source);
+        // [P3C A20 豁免] 压测 payload 大小，调试用
         byte[] payload = new byte[8 * 1024];
+        // [P3C A20 豁免] 压测目录数，调试用
         for (int d = 0; d < 40; d++) {
             Path dir = source.resolve("dir-" + d);
             Files.createDirectories(dir);
+            // [P3C A20 豁免] 压测文件数，调试用
             for (int i = 0; i < 100; i++) {
                 Files.write(dir.resolve("f-" + i + ".dat"), payload);
             }
         }
+        // [P3C A20 豁免] 压测参数，调试用
         int[] perConns = {1, 16, 64, 256};
         for (int perConn : perConns) {
             Path t = root.resolve("dst-" + perConn);

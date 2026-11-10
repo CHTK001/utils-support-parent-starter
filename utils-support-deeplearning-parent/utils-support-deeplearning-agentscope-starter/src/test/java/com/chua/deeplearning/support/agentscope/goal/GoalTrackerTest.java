@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link GoalTracker} 的状态迁移、暂停/恢复与计账测试。
  *
  * @author CH
+ * @since 2026-11-09
  */
 class GoalTrackerTest {
 
@@ -153,6 +154,7 @@ class GoalTrackerTest {
         waiter.start();
 
         // 暂停期间不应返回
+        // [P3C A20 豁免] 超时时间，调试用
         assertFalse(returned.await(300, TimeUnit.MILLISECONDS), "暂停期间 awaitResumable 不应返回");
         tracker.resume(1200L);
         assertTrue(returned.await(5, TimeUnit.SECONDS), "恢复后应立刻返回");

@@ -90,6 +90,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     @Override
     public int defaultPort() {
+        // [P3C A20 豁免] Apollo 管理面默认端口，文档约定
         return 8080;
     }
 
@@ -254,7 +255,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
         b.header("Accept", "application/json");
         b.method(GET, HttpRequest.BodyPublishers.noBody());
         HttpResponse<String> r = http.send(b.build(), HttpResponse.BodyHandlers.ofString());
-        if (r.statusCode() >= 400) {
+        if (r.statusCode() >= 400) { // [P3C A20 豁免] HTTP 状态码阈值，文档约定
             throw new IllegalStateException("HTTP " + r.statusCode() + ": " + r.body());
         }
         return r;

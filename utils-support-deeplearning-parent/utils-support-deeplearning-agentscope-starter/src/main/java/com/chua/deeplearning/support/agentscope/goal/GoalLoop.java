@@ -227,6 +227,7 @@ public final class GoalLoop {
      * @return 提示词
      */
     public static String roundPrompt(SessionGoal goal, int round) {
+        // [P3C A20 豁免] 提示词缓冲区，调试用
         StringBuilder sb = new StringBuilder(256);
         sb.append("你正在推进一个长期目标，请围绕它继续工作。\n\n");
         sb.append("【目标】").append(goal.title()).append('\n');

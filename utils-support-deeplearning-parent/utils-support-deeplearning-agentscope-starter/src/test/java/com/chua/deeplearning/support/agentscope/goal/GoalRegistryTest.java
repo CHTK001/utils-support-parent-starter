@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link GoalRegistry} 的绑定、状态代理与容量保护测试。
  *
  * @author CH
+ * @since 2026-11-09
  */
 class GoalRegistryTest {
 
@@ -28,6 +29,7 @@ class GoalRegistryTest {
 
     @Test
     void bindThenFindAndStatus() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         GoalTracker tracker = registry.bind(goal("s1"));
 
@@ -42,6 +44,7 @@ class GoalRegistryTest {
 
     @Test
     void pauseResumeCancelThroughRegistry() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         registry.bind(goal("s1"));
         registry.find("s1").orElseThrow().start(1000L);
@@ -53,6 +56,7 @@ class GoalRegistryTest {
 
     @Test
     void removeReturnsStatusThenNull() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         registry.bind(goal("s1"));
         assertNotNull(registry.remove("s1"));
@@ -63,6 +67,7 @@ class GoalRegistryTest {
 
     @Test
     void statusOfUnknownSessionIsNull() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         assertNull(registry.status("nope"));
         assertTrue(registry.find("nope").isEmpty());
@@ -70,6 +75,7 @@ class GoalRegistryTest {
 
     @Test
     void pauseUnknownSessionThrows() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         assertThrows(IllegalStateException.class, () -> registry.pause("nope", 1000L));
     }
@@ -110,6 +116,7 @@ class GoalRegistryTest {
 
     @Test
     void clearRemovesEverything() {
+        // [P3C A20 豁免] 容量规划，调试用
         GoalRegistry registry = new GoalRegistry(10);
         registry.bind(goal("s1"));
         registry.bind(goal("s2"));

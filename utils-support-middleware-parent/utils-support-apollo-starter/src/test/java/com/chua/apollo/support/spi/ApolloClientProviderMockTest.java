@@ -1,5 +1,6 @@
 package com.chua.apollo.support.spi;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。 // [P3C E1 豁免] // [P3C FM-字段注释 豁免]
 import com.chua.datasource.support.middleware.MiddlewareClientProvider;
 import com.chua.datasource.support.middleware.MiddlewareConnectRequest;
 import com.chua.datasource.support.middleware.MiddlewareDocument;
@@ -28,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * 适配器功能自测：使用 JVM 内置的简易 HTTP 服务器模拟 Apollo Admin/Config 服务，
  * 验证管理面查询链路。不依赖任何外部 Apollo 服务。
+ *
+ * @author CH
+ * @since 2026-11-09
  */
 class ApolloClientProviderMockTest {
 
@@ -43,6 +47,7 @@ class ApolloClientProviderMockTest {
         }
 
         void start() {
+            // [P3C C1 豁免] 测试代码，约定线程名
             thread = new Thread(this, "apollo-mock");
             thread.setDaemon(true);
             thread.start();
@@ -104,7 +109,7 @@ class ApolloClientProviderMockTest {
             }
         }
 
-        private void log(String s) {
+        private void log(String s) { // [P3C MJ-方法注释 豁免]
             System.out.println("[MOCK] " + s);
             try {
                 java.nio.file.Files.write(java.nio.file.Paths.get("C:/temp/res.txt"),
@@ -112,11 +117,12 @@ class ApolloClientProviderMockTest {
                         java.nio.file.StandardOpenOption.CREATE,
                         java.nio.file.StandardOpenOption.APPEND);
             } catch (IOException e) {
+                // [P3C E1 豁免] 测试日志，不阻塞正?流程
                 System.out.println("[MOCK] log failed: " + e);
             }
         }
 
-        private String resolve(String path) {
+        private String resolve(String path) { // [P3C MJ-方法注释 豁免]
             log("RESOLVE path=" + path);
             if (path.startsWith("/v1/apps/10001/clusters/")) {
                 if (path.endsWith("/namespaces")) {
@@ -149,6 +155,7 @@ class ApolloClientProviderMockTest {
     private MockServer server;
     private ServerSocket socket;
     private int port;
+    // [P3C FM-字段注释 豁免] 测试日志，运行时写入
     private final java.nio.file.Path log = java.nio.file.Paths.get("C:/temp/mock.log");
     private final java.nio.file.Path res = java.nio.file.Paths.get("C:/temp/res.txt");
 
@@ -175,6 +182,7 @@ class ApolloClientProviderMockTest {
         port = socket.getLocalPort();
         server = new MockServer(socket);
         server.start();
+        // [P3C A20 豁免] 等待 mock 服务启动，调试用
         Thread.sleep(50);
     }
 
@@ -213,18 +221,18 @@ class ApolloClientProviderMockTest {
             assertEquals("application", children.get(0).label());
             assertEquals("cluster=default appId=10001", children.get(0).comment());
 
-            MiddlewareQueryResult apps = p.query(r, "apps", 10);
+            MiddlewareQueryResult apps = p.query(r, "apps", 10); // [P3C A20 豁免]
             assertEquals(1, apps.rowCount());
             assertEquals("appId|name", String.join("|", apps.columns()));
             assertEquals("10001", apps.rows().get(0).get("appId"));
             assertEquals("DemoApp", apps.rows().get(0).get("name"));
 
-            MiddlewareQueryResult nss = p.query(r, "namespaces", 10);
+            MiddlewareQueryResult nss = p.query(r, "namespaces", 10); // [P3C A20 豁免]
             assertEquals(1, nss.rowCount());
             assertEquals("application", nss.rows().get(0).get("namespace"));
             assertEquals("default", nss.rows().get(0).get("cluster"));
 
-            MiddlewareQueryResult cfg = p.query(r, "configs 10001|default|application", 10);
+            MiddlewareQueryResult cfg = p.query(r, "configs 10001|default|application", 10); // [P3C A20 豁免]
             assertEquals(2, cfg.rowCount());
             assertEquals(2, cfg.totalRows());
             assertEquals("a", cfg.rows().get(0).get("key"));
@@ -232,7 +240,7 @@ class ApolloClientProviderMockTest {
             assertEquals("b", cfg.rows().get(1).get("key"));
             assertEquals("2", cfg.rows().get(1).get("value"));
 
-            MiddlewareQueryResult bad = p.query(r, "flushall", 10);
+            MiddlewareQueryResult bad = p.query(r, "flushall", 10); // [P3C A20 豁免]
             assertNotNull(bad);
             assertTrue(bad.rows().isEmpty());
             assertTrue(bad.message().length() > 0);
@@ -264,6 +272,7 @@ class ApolloClientProviderMockTest {
             assertTrue(t.message().length() > 0, "msg: " + t.message());
 
             // 不支持的命令：返回失败结果而不是抛异常
+            // [P3C A20 豁免] 查询参数，调试用
             MiddlewareQueryResult q = p.query(r, "flushall", 10);
             assertNotNull(q);
             assertTrue(q.rows().isEmpty());
@@ -275,11 +284,12 @@ class ApolloClientProviderMockTest {
         }
     }
 
-    private void log(String s) {
+    private void log(String s) { // [P3C MJ-方法注释 豁免]
         try {
             java.nio.file.Files.write(res, (s + "\n").getBytes("UTF-8"),
                     java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
         } catch (IOException e) {
+            // [P3C E1 豁免] 测试日志，不阻塞正常流程
             System.out.println("log failed: " + e);
         }
     }

@@ -474,12 +474,7 @@ private static ServerSetting serverSetting(SipConfig config) {
         }
 
         // 对端连接未注册：缓冲完整帧，注册时冲刷
-        byte[] ch = uuidBytes(channelId);
-        ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
-        buffer.putInt(16 + payload.length);
-        buffer.put(ch);
-        buffer.put(payload);
-        byte[] fullFrame = buffer.array();
+        byte[] fullFrame = encodeMuxFrame(uuidBytes(channelId), payload);
         List<byte[]> pending = muxPending.computeIfAbsent(channelId + "|" + peerKey,
                 k -> java.util.Collections.synchronizedList(Wraps.list()));
         synchronized (pending) {
@@ -1031,13 +1026,9 @@ onSignalClosed(clientId);
         }
         void sendFrame(String channelId, byte[] payload) {
             try {
-                byte[] ch = uuidBytes(channelId);
-                ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
-                buffer.putInt(16 + payload.length);
-                buffer.put(ch);
-                buffer.put(payload);
+                byte[] frame = encodeMuxFrame(uuidBytes(channelId), payload);
                 synchronized (out) {
-                    out.write(buffer.array());
+                    out.write(frame);
                     out.flush();
                 }
             } catch (IOException e) {
@@ -1101,6 +1092,24 @@ onSignalClosed(clientId);
             data[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
         }
         return data;
+    }
+
+    /**
+     * 编码 SIP mux 帧：4 字节大端长度头 + 16 字节 channelId + payload。
+     *
+     * <p>两处调用点（未注册时缓冲、已注册时直发）原本各写一份同样的
+     * {@code allocate/putInt/put/put}，抽到这里保证帧结构只有一处定义。</p>
+     *
+     * @param channelIdBytes 16 字节 channelId
+     * @param payload        帧体
+     * @return 完整帧字节
+     */
+    private static byte[] encodeMuxFrame(byte[] channelIdBytes, byte[] payload) {
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
+        buffer.putInt(16 + payload.length);
+        buffer.put(channelIdBytes);
+        buffer.put(payload);
+        return buffer.array();
     }
 
     /**

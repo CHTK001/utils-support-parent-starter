@@ -446,6 +446,8 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
      * 写入Simple。
+     * <p>HTTP 头部的固定前/后缀在常量池复用，只动态拼接状态码与 Content-Length，
+     * 避免整段响应重复编码。</p>
      *
      * @param out 方法入参 out
      * @param code 编码，不允许为 null
@@ -453,12 +455,15 @@ OutputStream backOut = backendSocket.getOutputStream();
      * @throws IOException 当执行过程不满足前置条件时
      */
     private void writeSimple(OutputStream out, int code, String msg) throws IOException {
-        String body = msg == null ? "" : msg;
-        String resp = "HTTP/1.1 " + code + " " + (code == 502 ? "Bad Gateway" : "Error") + "\r\n"
-                + "Content-Type: text/plain\r\n"
-                + "Content-Length: " + body.getBytes(java.nio.charset.StandardCharsets.UTF_8).length + "\r\n"
-                + "Connection: close\r\n\r\n" + body;
-        out.write(resp.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        byte[] body = (msg == null ? "" : msg).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        StringBuilder head = new StringBuilder(96);
+        head.append("HTTP/1.1 ").append(code).append(' ')
+                .append(code == 502 ? "Bad Gateway" : "Error").append("\r\n")
+                .append("Content-Type: text/plain\r\n")
+                .append("Content-Length: ").append(body.length).append("\r\n")
+                .append("Connection: close\r\n\r\n");
+        out.write(head.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        out.write(body);
         out.flush();
     }
 }

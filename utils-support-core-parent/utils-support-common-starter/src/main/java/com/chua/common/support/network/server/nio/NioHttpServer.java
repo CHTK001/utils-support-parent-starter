@@ -145,6 +145,15 @@ public class NioHttpServer extends AbstractServer {
     private static final long SELECT_TIMEOUT_MS = Long.parseLong(System.getProperty("bench.nio.select.timeout", "50"));
 
     /**
+     * 单条连接一次 pipeline 最多连续处理的请求数。
+     *
+     * <p>HTTP/1.1 允许客户端在一条 keep-alive 连接上连续发多条请求，服务端必须按序回应。
+     * 但内联路径跑在事件循环线程上，一条连接上无限重放会独占整个分片；到上限就停止重放、
+     * 恢复 OP_READ 让出线程，剩余字节仍留在解析缓冲中，下次读事件继续。</p>
+     */
+    private static final int MAX_PIPELINE_DEPTH = Integer.getInteger("nio.pipeline.max", 4096);
+
+    /**
      * 将响应头与体追加到连接的写队列,小响应合并成单个缓冲以减少 socket 写次数。
      * <p>调用方需持有 {@code st.writeQueue} 的锁。</p>
      * @param st 连接状态
@@ -171,6 +180,128 @@ public class NioHttpServer extends AbstractServer {
         if (body != null && body.hasRemaining()) {
             st.writeQueue.add(body);
             st.pendingWriteBytes += body.remaining();
+        }
+    }
+
+    /**
+     * 字节数组版本的入队：与 {@link #appendResponseBuffers} 语义一致，但省掉两个
+     * {@code ByteBuffer.wrap} 包装对象。
+     *
+     * <p>{@code NioServerResponse#complete()} 手里本来就是 {@code byte[]}，原先必须
+     * 先包成两个 ByteBuffer 才能交给写出方（JFR：包装对象占全部申请的 15%）。</p>
+     *
+     * <p>调用方需持有 {@code st.writeQueue} 的锁。</p>
+     *
+     * @param st 连接状态
+     * @param header 已编码的响应头
+     * @param body 响应体，可为 null
+     */
+    private static void appendResponseBuffers(ConnectionState st, byte[] header, byte[] body) {
+        int bodyLength = body == null ? 0 : body.length;
+        int total = header.length + bodyLength;
+        if (total <= COMBINE_THRESHOLD) {
+            ByteBuffer combined = st.takeCombineBuffer(total);
+            combined.put(header);
+            if (bodyLength > 0) {
+                combined.put(body);
+            }
+            combined.flip();
+            st.writeQueue.add(combined);
+            st.pendingWriteBytes += total;
+            WriteProbe.enqueued(total);
+            return;
+        }
+        // 超大响应不做合并：直接包装数组（此处每条响应才两个包装对象，且是低频路径）
+        st.writeQueue.add(ByteBuffer.wrap(header));
+        st.pendingWriteBytes += header.length;
+        WriteProbe.enqueued(header.length);
+        if (bodyLength > 0) {
+            st.writeQueue.add(ByteBuffer.wrap(body));
+            st.pendingWriteBytes += bodyLength;
+        }
+    }
+
+    /**
+     * 内联路径（事件循环线程同步写）的写出回调，按连接复用一个实例。
+     *
+     * <p>同时实现三个接口：{@code BiConsumer<ByteBuffer,ByteBuffer>} 是
+     * {@code NioServerResponse#setAsyncWriter} 的通用契约，
+     * {@code Consumer<byte[]>} 是流式直写契约，
+     * {@link NioServerResponse.ByteArrayAsyncWriter} 让 {@code complete()} 能把
+     * {@code byte[]} 直接交过来，不必先包成 ByteBuffer。</p>
+     */
+    private final class InlineWriter implements java.util.function.BiConsumer<ByteBuffer, ByteBuffer>,
+            java.util.function.Consumer<byte[]>, NioServerResponse.ByteArrayAsyncWriter {
+
+        private final ConnectionState st;
+        private final SelectionKey key;
+
+        InlineWriter(ConnectionState st, SelectionKey key) {
+            this.st = st;
+            this.key = key;
+        }
+
+        @Override
+        public void accept(ByteBuffer header, ByteBuffer body) {
+            synchronized (st.writeQueue) {
+                appendResponseBuffers(st, header, body);
+            }
+            flushInlineWrite(st, key);
+        }
+
+        @Override
+        public void write(byte[] header, byte[] body) {
+            synchronized (st.writeQueue) {
+                appendResponseBuffers(st, header, body);
+            }
+            flushInlineWrite(st, key);
+        }
+
+        @Override
+        public void accept(byte[] bytes) {
+            enqueueStream(st, key, bytes);
+            flushInlineWrite(st, key);
+        }
+    }
+
+    /**
+     * worker（虚拟线程直写）路径的写出回调，同样按连接复用一个实例。
+     *
+     * <p>与 {@link InlineWriter} 的区别：响应字节只入队，由
+     * {@link #processRequestDirectWrite} 统一排空；流式分片则在本回调里立即排空，
+     * 保持原有 SSE 背压语义。</p>
+     */
+    private final class DirectWriter implements java.util.function.BiConsumer<ByteBuffer, ByteBuffer>,
+            java.util.function.Consumer<byte[]>, NioServerResponse.ByteArrayAsyncWriter {
+
+        private final ConnectionState st;
+        private final SelectionKey key;
+
+        DirectWriter(ConnectionState st, SelectionKey key) {
+            this.st = st;
+            this.key = key;
+        }
+
+        @Override
+        public void accept(ByteBuffer header, ByteBuffer body) {
+            synchronized (st.writeQueue) {
+                appendResponseBuffers(st, header, body);
+            }
+        }
+
+        @Override
+        public void write(byte[] header, byte[] body) {
+            synchronized (st.writeQueue) {
+                appendResponseBuffers(st, header, body);
+            }
+        }
+
+        @Override
+        public void accept(byte[] bytes) {
+            enqueueStream(st, key, bytes);
+            synchronized (st.writeQueue) {
+                drainWriteQueue(st, key);
+            }
         }
     }
 
@@ -403,6 +534,25 @@ public class NioHttpServer extends AbstractServer {
                 }
                 // 探针: 每轮事件循环选中的 key 数量 (KS)
                 WriteProbe.keysSelected(sel.selectedKeys().size());
+                // 连接风暴优先：先排空 acceptable key，避免它排在大量 read key 之后，
+                // 让内核 accept 队列在这几十毫秒里溢出（Windows 满队列直接回 RST）。
+                // 只处理 OP_ACCEPT，其余 key 仍交给下方统一遍历；异常只记录，不杀事件循环。
+                if (idx == 0) {
+                    java.util.Iterator<SelectionKey> acceptIt = sel.selectedKeys().iterator();
+                    while (acceptIt.hasNext()) {
+                        SelectionKey ak = acceptIt.next();
+                        if (!ak.isValid() || !ak.isAcceptable()) {
+                            continue;
+                        }
+                        acceptIt.remove();
+                        try {
+                            handleAccept(ak);
+                        } catch (Throwable t) {
+                            log.warn("Event loop[{}] accept error: {} -> {}", idx,
+                                    t.getClass().getSimpleName(), t.getMessage(), t);
+                        }
+                    }
+                }
                 java.util.Iterator<SelectionKey> it = sel.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
@@ -457,12 +607,19 @@ public class NioHttpServer extends AbstractServer {
      * @throws IOException 异常
      */
     private void handleAccept(SelectionKey key) throws IOException {
-        int batch = Math.max(setting.getAcceptBatch(), 1);
-        for (int i = 0; i < batch; i++) {
+        // 连接风暴时一轮排空内核 accept 队列：Windows 把 backlog 静默截断到约 200，队列一满
+        // 就回 RST（这些连接根本到不了 tryAcquireConnection）。固定只 accept batch 条就返回
+        // 会让剩余连接在后续 select 周期里持续溢出，因此 drain 到 accept()==null 为止。
+        // acceptBatch 退化为每轮安全阀，避免 SYN 洪泛独占事件循环分片。
+        int budget = Math.max(setting.getAcceptBatch(), 1);
+        long wakeMask = 0L;
+        int drained = 0;
+        while (drained < budget) {
             SocketChannel accepted = serverChannel.accept();
             if (accepted == null) {
-                return;
+                break;
             }
+            drained++;
             if (!accepting) {
                 // 优雅关闭中：不再接纳，直接关闭（存量连接不受影响）
                 closeQuietly(accepted);
@@ -498,10 +655,16 @@ public class NioHttpServer extends AbstractServer {
             accepted.configureBlocking(false);
             accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
             int shard = (accepted.hashCode() & Integer.MAX_VALUE) % selectors.length;
-            // 只入队 + wakeup:register 动作交由目标分片事件循环线程执行(与 select 同线程),
+            // 只入队:register 动作交由目标分片事件循环线程执行(与 select 同线程),
             // 避免跨线程 register 与 select() 的竞态导致 OP_READ 感知不到、请求超时
             pendingAcceptQueues[shard].add(accepted);
-            selectors[shard].wakeup();
+            wakeMask |= 1L << shard;
+        }
+        // 按分片聚合 wakeup：一轮上千次 wakeup 会让 selector 自旋空转
+        for (int i = 0; i < selectors.length; i++) {
+            if ((wakeMask & (1L << i)) != 0) {
+                selectors[i].wakeup();
+            }
         }
     }
 
@@ -576,7 +739,11 @@ public class NioHttpServer extends AbstractServer {
             st.inWorker = true;
             // 内联快速路径按需启用(setting.isInlineDispatch=true 且非 SSL/WS):
             // 非阻塞 handler 事件循环线程内执行并同步写出,省虚拟线程提交 + Selector 唤醒
-            if (setting.isInlineDispatch() && sslContext == null
+            // 一次 read 里已缓存多条请求时改走 worker：pipeline 循环可能很长，
+            // 不能让事件循环线程被单条连接独占
+            boolean pipelined = st.request.hasBufferedInput()
+                    || (st.readBuf != null && st.readBuf.position() > 0);
+            if (setting.isInlineDispatch() && sslContext == null && !pipelined
                     && !WebSocketProtocol.isUpgradeRequest(st.request)) {
                 processRequestInline(st, key);
             } else {
@@ -597,48 +764,67 @@ public class NioHttpServer extends AbstractServer {
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
-            NioServerResponse response = st.response();
-            // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写。
-            // 回调按连接缓存:捕获项只有 st 与 key(连接内不变),每请求重建纯属浪费
-            java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter = st.inlineAsyncWriter;
-            if (asyncWriter == null) {
-                asyncWriter = (header, body) -> {
-                    synchronized (st.writeQueue) {
-                        appendResponseBuffers(st, header, body);
-                    }
-                    flushInlineWrite(st, key);
-                };
-                st.inlineAsyncWriter = asyncWriter;
-            }
-            response.setAsyncWriter(asyncWriter);
-            // 流式直写(SSE):入待写队列并受背压门限约束,不再在事件循环里忙等非阻塞通道
-            java.util.function.Consumer<byte[]> streamWriter = st.inlineStreamWriter;
-            if (streamWriter == null) {
-                streamWriter = bytes -> {
-                    enqueueStream(st, key, bytes);
-                    flushInlineWrite(st, key);
-                };
-                st.inlineStreamWriter = streamWriter;
-            }
-            response.setStreamWriter(streamWriter);
-            try {
-                handleRequest(st.request, response);
-            } catch (Exception e) {
-                log.debug("Inline handler failed: {}", e.getMessage());
-                if (!response.isCommitted()) {
-                    response.sendError(500, "Internal Server Error");
+            int depth = 0;
+            boolean hasPending = false;
+            // 循环期间始终摘除 OP_READ、保持 inWorker=true：一条连接上的 pipeline 请求
+            // 必须严格串行处理，响应按 FIFO 入队，绝不并发调用 handler 或写 channel。
+            while (true) {
+                // Upgrade 需要切阻塞模式跑帧协议，不能在内联事件循环线程上执行
+                if (WebSocketProtocol.isUpgradeRequest(st.request)) {
+                    closeConn(key, st);
+                    return;
                 }
-            } finally {
-                response.complete();
+                NioServerResponse response = st.response();
+                // 回调按连接缓存:捕获项只有 st 与 key(连接内不变),每请求重建纯属浪费。
+                // 同一个实例同时实现字节数组直交接口,避免 complete() 为每条响应新建两个 ByteBuffer 包装。
+                InlineWriter writer = st.inlineWriter;
+                if (writer == null) {
+                    writer = new InlineWriter(st, key);
+                    st.inlineWriter = writer;
+                }
+                response.setAsyncWriter(writer);
+                // 流式直写(SSE):入待写队列并受背压门限约束
+                response.setStreamWriter(writer);
+                // 响应头必须与实际生命周期一致：要关的连接不能对外宣称 keep-alive
+                response.setConnectionClose(!shouldKeepAlive(st.request, response));
+                try {
+                    handleRequest(st.request, response);
+                } catch (Exception e) {
+                    log.debug("Inline handler failed: {}", e.getMessage());
+                    if (!response.isCommitted()) {
+                        response.sendError(500, "Internal Server Error");
+                    }
+                } finally {
+                    response.complete();
+                }
+                st.keepAlive = shouldKeepAlive(st.request, response);
+                st.request.resetForNextRequest();
+                // 响应字节已交付写队列，此刻归位实例供下一条请求复用
+                recycle(st, response);
+                depth++;
+                synchronized (st.writeQueue) {
+                    hasPending = !st.writeQueue.isEmpty();
+                }
+                // 背压未写完、连接要关时停止重放；超长 pipeline 直接关闭，
+                // 避免残留请求留在用户态缓冲里却只恢复 OP_READ
+                if (depth >= MAX_PIPELINE_DEPTH) {
+                    closeConn(key, st);
+                    return;
+                }
+                if (!st.keepAlive || !running || st.closed.get() || hasPending) {
+                    break;
+                }
+                int r = replayNextRequest(st);
+                if (r < 0) {
+                    closeConn(key, st);
+                    return;
+                }
+                if (r == 0) {
+                    break;
+                }
+                // r == 1：解析器已解出下一条请求，继续本连接串行处理
             }
-            st.keepAlive = shouldKeepAlive(st.request, response);
-            st.request.resetForNextRequest();
-            recycle(st, response);
-            // 同步写出已尝试,若队列仍有残留则回退事件循环 OP_WRITE 续写
-            boolean hasPending;
-            synchronized (st.writeQueue) {
-                hasPending = !st.writeQueue.isEmpty();
-            }
+            // 统一收尾：整个循环只入队一次，避免 rearm 在 pipeline 期间提前恢复 OP_READ
             if (hasPending) {
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
@@ -649,6 +835,26 @@ public class NioHttpServer extends AbstractServer {
             log.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
         }
+    }
+
+    /**
+     * 重放解析缓冲里已缓存的下一条 pipeline 请求；若单次 read 超过解析器 8KB 行缓冲，
+     * 剩余字节还留在连接读缓冲中，需要一并续上。
+     *
+     * <p>调用前必须已 {@code resetForNextRequest()}，否则 COMPLETE 状态会重复处理上一条。</p>
+     *
+     * @param st 连接状态
+     * @return 1=解出下一条完整请求；0=需要真正读 socket；-1=解析错误
+     */
+    private int replayNextRequest(ConnectionState st) {
+        int r = st.request.feedBuffered();
+        if (r == 0 && st.readBuf != null && st.readBuf.position() > 0) {
+            // readBuf 处于 write 模式（handleRead 的 compact 之后），flip 后可读
+            st.readBuf.flip();
+            r = st.request.feed(st.readBuf);
+            st.readBuf.compact();
+        }
+        return r;
     }
 
     /**
@@ -788,45 +994,86 @@ public class NioHttpServer extends AbstractServer {
      */
     private void processRequestDirectWrite(ConnectionState st, SelectionKey key) {
         try {
-            // WebSocket 升级:回退到虚拟线程帧协议处理
-            if (WebSocketProtocol.isUpgradeRequest(st.request)) {
-                key.cancel();
-                st.channel.configureBlocking(true);
-                handleWebSocketUpgrade(st.channel, st.request);
-                closeConn(key, st);
-                return;
-            }
-            NioServerResponse response = st.response();
-            response.setAsyncWriter((header, body) -> {
+            int depth = 0;
+            boolean allWritten = true;
+            // 与内联路径同一套 pipeline 语义：一条连接只有一个 worker 串行处理，
+            // 响应按 FIFO 入队并同步排空，保证 HTTP/1.1 要求的响应顺序。
+            while (true) {
+                // WebSocket 升级:回退到虚拟线程帧协议处理
+                if (WebSocketProtocol.isUpgradeRequest(st.request)) {
+                    key.cancel();
+                    st.channel.configureBlocking(true);
+                    handleWebSocketUpgrade(st.channel, st.request);
+                    closeConn(key, st);
+                    return;
+                }
+                NioServerResponse response = st.response();
+                // 写出回调按连接缓存，避免每条请求新建 lambda / ByteBuffer 包装
+                DirectWriter writer = st.directWriter;
+                if (writer == null) {
+                    writer = new DirectWriter(st, key);
+                    st.directWriter = writer;
+                }
+                response.setAsyncWriter(writer);
+                // 流式直写(SSE):worker 线程排空队列;排不完交由事件循环 OP_WRITE 续写
+                response.setStreamWriter(writer);
+                // 响应头必须与实际生命周期一致：要关的连接不能对外宣称 keep-alive
+                response.setConnectionClose(!shouldKeepAlive(st.request, response));
+                try {
+                    handleRequest(st.request, response);
+                } catch (Exception e) {
+                    log.warn("Request handling failed: {}", e.getMessage(), e);
+                    if (!response.isCommitted()) {
+                        response.sendError(500, "Internal Server Error");
+                    }
+                } finally {
+                    response.complete();
+                }
+                st.keepAlive = shouldKeepAlive(st.request, response);
+                st.request.resetForNextRequest();
+                // 直写:worker 线程同步排空 writeQueue(与事件循环 handleWrite 同锁)。
+                // 未写完(对端背压)时剩余字节交由事件循环 OP_WRITE 续写。
+                boolean written;
                 synchronized (st.writeQueue) {
-                    appendResponseBuffers(st, header, body);
+                    written = drainWriteQueue(st, key);
                 }
-            });
-            // 流式直写(SSE):worker 线程排空队列;排不完交由事件循环 OP_WRITE 续写
-            response.setStreamWriter(bytes -> {
-                enqueueStream(st, key, bytes);
-                synchronized (st.writeQueue) {
-                    drainWriteQueue(st, key);
+                if (!written) {
+                    // 背压：剩余 pipeline 请求字节在用户态缓冲里，退出循环后 socket 不会再有
+                    // 读事件，会永久挂死。worker 是虚拟线程，在此短暂同步等待并重试排空，
+                    // 全程单连接严格串行，不提交并发任务（否则响应会串位）。
+                    for (int k = 0; k < 500 && !written; k++) {
+                        java.util.concurrent.locks.LockSupport.parkNanos(100_000L);
+                        synchronized (st.writeQueue) {
+                            written = drainWriteQueue(st, key);
+                        }
+                    }
+                    if (!written) {
+                        closeConn(key, st);
+                        return;
+                    }
                 }
-            });
-            try {
-                handleRequest(st.request, response);
-            } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage(), e);
-                if (!response.isCommitted()) {
-                    response.sendError(500, "Internal Server Error");
+                // 响应字节已入队(队列持有各自的 byte[]),此刻归位实例供下一条请求复用
+                recycle(st, response);
+                depth++;
+                allWritten = true;
+                if (depth >= MAX_PIPELINE_DEPTH) {
+                    // 超长 pipeline 视为滥用，明确关闭而不是静默挂住
+                    closeConn(key, st);
+                    return;
                 }
-            } finally {
-                response.complete();
+                if (!st.keepAlive || !running || st.closed.get()) {
+                    break;
+                }
+                int r = replayNextRequest(st);
+                if (r < 0) {
+                    closeConn(key, st);
+                    return;
+                }
+                if (r == 0) {
+                    break;
+                }
             }
-            st.keepAlive = shouldKeepAlive(st.request, response);
-            st.request.resetForNextRequest();
-            // 直写:worker 线程同步排空 writeQueue(与事件循环 handleWrite 同锁)。
-            // 未写完(对端背压)时剩余字节交由事件循环 OP_WRITE 续写。
-            boolean allWritten;
-            synchronized (st.writeQueue) {
-                allWritten = drainWriteQueue(st, key);
-            }
+            // 整个循环只入队一次，避免 rearm 在 pipeline 期间提前恢复 OP_READ
             if (allWritten) {
                 // 直写完成:通知事件循环恢复 OP_READ(interestOps 仍由事件循环线程修改)
                 rearmReadQueues[st.shard].add(key);
@@ -835,8 +1082,6 @@ public class NioHttpServer extends AbstractServer {
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
             }
-            // 响应字节已入队(队列持有各自的 byte[]),此刻归位实例供下一条请求复用
-            recycle(st, response);
         } catch (Exception e) {
             log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
@@ -996,18 +1241,19 @@ public class NioHttpServer extends AbstractServer {
         NioServerResponse response;
 
         /**
-         * 内联路径的异步写出回调（连接级复用）。
+         * 内联路径的写出回调（连接级复用）。
          *
          * <p>原先每条请求都新建两个 lambda（实测合计占全部申请的 5.3%）。它们的捕获项
          * 只有本连接状态与所属 SelectionKey，两者在连接生命周期内都不变，因此可以
-         * 在首次使用时创建一次。</p>
+         * 在首次使用时创建一次。同一个实例还实现了字节数组直交接口，供
+         * {@code NioServerResponse#complete()} 跳过 ByteBuffer 包装。</p>
          */
-        java.util.function.BiConsumer<ByteBuffer, ByteBuffer> inlineAsyncWriter;
+        InlineWriter inlineWriter;
 
         /**
-         * 内联路径的流式直写回调（连接级复用）。
+         * worker 直写路径的写出回调（连接级复用），语义见 {@link DirectWriter}。
          */
-        java.util.function.Consumer<byte[]> inlineStreamWriter;
+        DirectWriter directWriter;
 
         /**
          * 头体合并缓冲（连接级复用）。
@@ -1105,20 +1351,35 @@ public class NioHttpServer extends AbstractServer {
             NioServerResponse response = new NioServerResponse(channel);
             // 懒分配:首次读到数据才分配 16KB,避免空闲连接预占内存
             ByteBuffer readBuf = null;
+            // 一次阻塞 read 可能把多条 pipeline 请求一起读进解析缓冲：先重放完缓存的
+            // 完整请求再读 socket，否则剩余请求会因无新数据到达而永久挂死。
+            boolean replayPending = false;
             while (running && channel.isConnected()) {
-                if (readBuf == null) {
-                    readBuf = ByteBuffer.allocate(16384);
+                int r;
+                if (replayPending) {
+                    r = request.feedBuffered();
+                    if (r == 0 && readBuf != null && readBuf.position() > 0) {
+                        readBuf.flip();
+                        r = request.feed(readBuf);
+                        readBuf.compact();
+                    }
+                    // 只有解出完整请求才继续重放；半包必须回到阻塞读等新数据
+                    replayPending = (r == 1);
+                } else {
+                    if (readBuf == null) {
+                        readBuf = ByteBuffer.allocate(16384);
+                    }
+                    int n = channel.read(readBuf);
+                    if (n < 0) {
+                        break; // 对端关闭
+                    }
+                    if (n == 0) {
+                        continue;
+                    }
+                    readBuf.flip();
+                    r = request.feed(readBuf);
+                    readBuf.compact();
                 }
-                int n = channel.read(readBuf);
-                if (n < 0) {
-                    break; // 对端关闭
-                }
-                if (n == 0) {
-                    continue;
-                }
-                readBuf.flip();
-                int r = request.feed(readBuf);
-                readBuf.compact();
                 if (r == 0) {
                     continue; // 还需更多数据
                 }
@@ -1145,6 +1406,8 @@ public class NioHttpServer extends AbstractServer {
                     break;
                 }
                 request.resetForNextRequest();
+                // 下一条可能已在同一批字节里，先走重放分支
+                replayPending = true;
                 if (!response.resetForNextRequest()) {
                     // SSE 等长生命周期响应：不复用，下次循环取新实例
                     response = new NioServerResponse(channel);
@@ -1541,7 +1804,32 @@ public class NioHttpServer extends AbstractServer {
             return false;
         }
         if (connHeader != null) {
-            return "keep-alive".equalsIgnoreCase(connHeader.trim());
+            // Connection 允许多 token（如 "keep-alive, Upgrade"），按逗号切分判断；
+            // 整串 equalsIgnoreCase 会把这类合法头误判为不可复用。
+            boolean keepAlive = false;
+            boolean close = false;
+            boolean other = false;
+            for (String token : connHeader.split(",")) {
+                String t = token.trim();
+                if (t.isEmpty()) {
+                    continue;
+                }
+                if ("keep-alive".equalsIgnoreCase(t)) {
+                    keepAlive = true;
+                } else if ("close".equalsIgnoreCase(t)) {
+                    close = true;
+                } else {
+                    // Upgrade 等语义不允许按 HTTP/1.1 默认推断为可复用
+                    other = true;
+                }
+            }
+            if (close) {
+                return false;
+            }
+            if (keepAlive) {
+                return true;
+            }
+            return !other && "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());
         }
         // HTTP/1.1 默认 Keep-Alive
         return "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());

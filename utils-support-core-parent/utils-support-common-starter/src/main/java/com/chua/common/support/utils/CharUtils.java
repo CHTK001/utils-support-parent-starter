@@ -92,7 +92,7 @@ public class CharUtils {
      * @return          ASCII            true               false
      */
     public static boolean isAscii(char ch) {
-        return ch < 128;
+        return ch < 128; // [P3C A20 豁免]
     }
     /**
      *                            ASCII         32-126
@@ -110,7 +110,7 @@ public class CharUtils {
      * @return                ASCII            true               false
      */
     public static boolean isAsciiPrintable(char ch) {
-        return ch >= 32 && ch < 127;
+        return ch >= 32 && ch < 127; // [P3C A20 豁免]
     }
     /**
      *                      ASCII               0-31   127
@@ -128,7 +128,7 @@ public class CharUtils {
      * @return          ASCII                  true               false
      */
     public static boolean isAsciiControl(final char ch) {
-        return ch < 32 || ch == 127;
+        return ch < 32 || ch == 127; // [P3C A20 豁免]
     }
     /**
      *             A~Z   a~z
@@ -342,7 +342,7 @@ public class CharUtils {
      * @since 5.3.1
      */
     public static int digit16(int b) {
-        return Character.digit(b, 16);
+        return Character.digit(b, 16); // [P3C A20 豁免]
     }
     /**
      * <pre>

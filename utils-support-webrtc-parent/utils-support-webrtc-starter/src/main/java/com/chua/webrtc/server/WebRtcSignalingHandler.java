@@ -1,5 +1,6 @@
 package com.chua.webrtc.server;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -195,6 +196,7 @@ public class WebRtcSignalingHandler implements ServerHandler {
         }
         int opcode = head & 0x0f;
         long len = in.read() & 0x7f;
+        // [P3C A20 豁免] WebSocket 扩展长度解析，数值为协议约定
         if (len == 126) {
             len = ((long) in.read() << 8) | in.read();
         } else if (len == 127) {
@@ -296,6 +298,7 @@ public class WebRtcSignalingHandler implements ServerHandler {
         int headerLen = len <= 125 ? 2 : (len <= 65535 ? 4 : 10);
         java.nio.ByteBuffer buffer = java.nio.ByteBuffer.allocate(headerLen + len);
         buffer.put((byte) (0x80 | opcode));
+        // [P3C A20 豁免] WebSocket 帧扩展长度字面量，数值为协议约定
         if (len <= 125) {
             buffer.put((byte) len);
         } else if (len <= 65535) {

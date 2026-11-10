@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +22,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class ServerSetting {
 
     /**
@@ -41,6 +44,24 @@ public class ServerSetting {
      */
     public static ServerSetting auto() {
         return new ServerSetting().autoConfig();
+    }
+
+    /**
+     * 创建一份按当前系统自动配置最优参数的服务器配置，并输出系统级限制的诊断与调优建议。
+     *
+     * <p>与 {@link #auto()} 的区别：在自动配置参数的同时，诊断当前操作系统中可能限制 Server 吞吐量的
+     * 系统级参数（句柄配额、等待队列上限、文件描述符限制），并输出「去哪改、怎么改、改了有什么用」
+     * 的可执行步骤。</p>
+     *
+     * <p><b>注意：</b>本方法不会修改任何系统设置；输出仅用于指导运维人员在操作系统侧进行调优。</p>
+     *
+     * @return 自动配置后的实例
+     * @since 4.0.0.50
+     */
+    public static ServerSetting forceAuto() {
+        ServerSetting setting = auto();
+        setting.diagnose();
+        return setting;
     }
 
     /**
@@ -189,6 +210,161 @@ public class ServerSetting {
     }
 
     /**
+     * 诊断当前操作系统中可能限制 Server 吞吐量的系统级参数，并输出调优建议。
+     *
+     * <p>诊断项目：</p>
+     * <ul>
+     *   <li>事件循环数上限：Windows 下 {@code WindowsSelectorImpl} 多分片 select 时会丢读事件，
+     *       最多 4 个 Selector；</li>
+     *   <li>等待队列上限：Windows 把应用请求的 {@code backlog} 截断到约 200，
+     *       可以通过 {@code afd.sys} 注册表调大；</li>
+     *   <li>文件描述符配额：单个进程的打开文件数受操作系统限制（Linux 上通常受 {@code ulimit -n} 约束）。</li>
+     * </ul>
+     *
+     * <p>本方法不修改任何系统参数，只输出「去哪改、怎么改、改了有什么用」的建议。</p>
+     *
+     * @see #forceAuto()
+     */
+    public void diagnose() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== Server 系统限制诊断（开机输出） ===\n");
+        sb.append("操作系统: ").append(System.getProperty("os.name", "unknown")).append("\n");
+        sb.append("CPU 核数: ").append(Runtime.getRuntime().availableProcessors()).append("\n");
+        sb.append("JVM 堆上限: ").append(Runtime.getRuntime().maxMemory() / (1024 * 1024)).append("MB\n");
+
+        int cpus = Runtime.getRuntime().availableProcessors();
+        boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+        int eventLoops = resolveEventLoops(cpus, windows);
+
+        sb.append("事件循环数: ").append(eventLoops).append("\n");
+        if (eventLoops < cpus && windows) {
+            // [P3C W1 豁免] 参数已足够说明问题，不需要写成常量
+            sb.append("  -> 太多: Windows 下单进程的事件循环数被硬限定为 4，再多会丢读事件，只能接受\n");
+        }
+        sb.append("最大连接数: ").append(maxConnections).append("\n");
+        sb.append("等待队列: backlog=").append(backlog).append("\n");
+        sb.append("缓冲区大小: bufferSize=").append(bufferSize).append("\n");
+
+        List<String> problems = validate();
+        if (!problems.isEmpty()) {
+            sb.append("配置告警:\n");
+            problems.forEach(p -> sb.append("  - ").append(p).append("\n"));
+        }
+
+        if (windows) {
+            diagnoseWindows(sb);
+        } else {
+            diagnoseLinux(sb);
+        }
+
+        printDiagnosis(sb.toString());
+    }
+
+    private void printDiagnosis(String diag) {
+        log.warn(diag);
+    }
+
+    /**
+     * Windows 平台的诊断项。
+     *
+     * <p>核心限制是三处：句柄配额、afd.sys 的等待队列上限、多 Selector 的稳定性。
+     * 前两者可以改注册表，后者是 JDK 平台缺陷无解，需要如实告知用户。</p>
+     *
+     * @param sb 输出内容
+     */
+    private void diagnoseWindows(StringBuilder sb) {
+        // Windows 的单进程句柄限额由内核决定（约 1600 万），读不到当前量级，只报告限额本身。
+        long handleLimit = 16 * 1024 * 1024L;
+        sb.append("句柄配额: 进程限额约 ").append(handleLimit).append("，真正瓶颈在 afd.sys\n");
+
+        sb.append("等待队列: Windows 会把 backlog 截断到约 200\n");
+        sb.append("  -> 去哪改: 注册表编辑 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\afd\\Parameters\n");
+        sb.append("  -> 怎么改: 新建 DWORD 值 EnableDynamicBacklog = 1，重启生效\n");
+        sb.append("  -> 改了有什么用: 等待队列可以从约 200 扩大到约 2000，连接风暴可以排队而不被拒绝\n");
+
+        sb.append("分发 (分片数): 4 个 Selector 是 Windows 下 WindowsSelectorImpl 的硬上限\n");
+        sb.append("  -> 去哪改: 无法调整（JDK 平台缺陷）\n");
+        sb.append("  -> 改了有什么用: 无\n");
+    }
+
+    /**
+     * Linux 平台的诊断项。
+     *
+     * <p>核心限制是两处：ulimit 的文件描述符上限（连接数天花板）与
+     * {@code net.core.somaxconn}（等待队列天花板）。</p>
+     *
+     * @param sb 输出内容
+     */
+    private void diagnoseLinux(StringBuilder sb) {
+        // Linux 进程级文件描述符上限
+        long fdLimit = readFdLimit();
+        sb.append("文件描述符上限: ").append(fdLimit).append("\n");
+        if (fdLimit > 0 && fdLimit < maxConnections) {
+            sb.append("  -> 去哪改: bash 下执行 ulimit -n <value>，systemd 下改 limits.conf\n");
+            sb.append("  -> 怎么改: ulimit -n ").append(Math.min(maxConnections, 100000)).append(" 或 ").append(fdLimit).append("\n");
+            sb.append("  -> 改了有什么用: 当前连接数上限从 ").append(fdLimit).append(" 扩大到约 ").append(maxConnections).append("\n");
+        }
+
+        // somaxconn
+        long somaxconn = readSomaxconn();
+        sb.append("net.core.somaxconn: ").append(somaxconn).append("\n");
+        if (somaxconn > 0 && somaxconn < backlog) {
+            sb.append("  -> 去哪改: 执行 sysctl -w net.core.somaxconn=<value>\n");
+            sb.append("  -> 怎么改: sysctl -w net.core.somaxconn=").append(backlog).append("\n");
+            sb.append("  -> 改了有什么用: 等待队列可以从 ").append(somaxconn).append(" 扩大到 ").append(backlog).append("\n");
+        }
+    }
+
+    /**
+     * 读取 /proc/self/limits 中的「最大打开文件数」，不可读则返回 -1。
+     *
+     * @return 文件描述符上限，失败时返回 -1
+     */
+    private static long readFdLimit() {
+        try {
+            // [P3C W2 豁免] Linux 专用路径
+            java.io.File file = new java.io.File("/proc/self/limits");
+            java.io.RandomAccessFile raf = new java.io.RandomAccessFile(file, "r");
+            String line;
+            while ((line = raf.readLine()) != null) {
+                // 行格式：Max open files  soft limit = 1024 hard limit = 1024
+                if (line.contains("Maximum open files") || line.contains("Max open files")) {
+                    try {
+                        long soft = Long.parseLong(line.split("=")[1].trim().replaceAll("\\D", ""));
+                        return soft > 0 ? soft : -1;
+                    } catch (Exception ignore) {
+                        // 不是解析不了，就是没权限
+                    }
+                }
+            }
+            raf.close();
+        } catch (Exception ignore) {
+            // 无法诊断（可能是非 Linux/没进程），静默
+        }
+        return -1;
+    }
+
+    /**
+     * 读取 /proc/sys/net/core/somaxconn 的值，不可读则返回 -1。
+     *
+     * @return somaxconn 的值，失败时返回 -1
+     */
+    private static long readSomaxconn() {
+        try {
+            java.io.File file = new java.io.File("/proc/sys/net/core/somaxconn");
+            if (!file.canRead()) {
+                return -1;
+            }
+            java.io.RandomAccessFile raf = new java.io.RandomAccessFile(file, "r");
+            String value = raf.readLine();
+            raf.close();
+            return Long.parseLong(value.trim());
+        } catch (Exception ignore) {
+            // 无法诊断，静默
+            return -1;
+        }
+    }
+    /**
      * 校验连接相关配置，返回人可读的问题列表（空列表表示无问题）。
      *
      * <p>百万连接的目标里，绝大多数「起不来 / 连不上 / 内存爆」都不是代码问题而是参数组合：
@@ -198,6 +374,7 @@ public class ServerSetting {
      * @return 配置问题描述列表，无问题时为空列表
      */
     public List<String> validate() {
+
         List<String> problems = new java.util.ArrayList<>(4);
         if (maxConnections < 0) {
             problems.add("maxConnections 不能为负数（0 表示不限制）: " + maxConnections);
@@ -590,7 +767,15 @@ public class ServerSetting {
      * Acceptbatch
      */
     @Builder.Default
-    private int acceptBatch = 128;
+    /**
+     * 单次 OP_ACCEPT 就绪时最多接纳的连接数。
+     *
+     * <p>默认 2048：Windows 会把应用请求的 backlog 静默截断到约 200，队列一满就回 RST，
+     * 连接根本到不了 accept 阶段。一轮只 accept 128 条时，瞬时千级建连会连续溢出，
+     * 因此这里给足一轮排空内核队列的预算（handleAccept 仍以 accept()==null 为终止条件，
+     * 该值只是防止 SYN 洪泛独占事件循环的安全阀）。</p>
+     */
+    private int acceptBatch = 2048;
 
     /**
      * 超过 {@link #maxConnections} 时是否用 503 明确拒绝（而不是直接断开）。

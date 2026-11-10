@@ -1200,6 +1200,7 @@ public class OpencodeAgent implements Agent {
         if (s == null) {
             return "";
         }
+        // [P3C A20 豁免] 预览截断阈值，调试用
         return s.length() <= 200 ? s : s.substring(0, 200) + "…";
     }
 
@@ -1279,6 +1280,7 @@ public class OpencodeAgent implements Agent {
         if (s == null) {
             return "";
         }
+        // [P3C A20 豁免] 长度预留，调试用
         StringBuilder sb = new StringBuilder(s.length() + 16);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

@@ -32,6 +32,26 @@ public class GetObjectRequest {
     private String key;
 
     /**
+     * 读取起始偏移（字节），默认 0（从头读取）。
+     *
+     * <p>与 {@link #length} 配合实现 HTTP Range 语义：由调用方（如文件服务过滤器）
+     * 在 206 响应时只取需要的区间，避免把整份大文件读进内存。存储实现若不支持
+     * 偏移读取可忽略该字段（调用方会自行 skip），支持的后端（本地文件系统、
+     * 对象存储）应下推到原生 Range/seek 能力。</p>
+     */
+    @Builder.Default
+    private long offset = 0L;
+
+    /**
+     * 读取长度（字节），默认 -1 表示读到末尾。
+     *
+     * <p>仅在 {@link #offset} 大于 0 或显式指定时生效；调用方负责按实际读到的
+     * 字节数生成 {@code Content-Range}，因此本字段只是读取上限，不做截断校验。</p>
+     */
+    @Builder.Default
+    private long length = -1L;
+
+    /**
      * 获取完整的对象 键。
      *
      * @return 完整的 键（路径 + 文件名）

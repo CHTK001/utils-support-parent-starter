@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +32,53 @@ class CooldownGateTest {
         CooldownGate.of("test-a").reset();
         CooldownGate.of("test-b").reset();
         CooldownGate.of("default").reset();
+        CooldownPolicies.clear();
+    }
+
+    /**
+     * 渠道注册自己的策略后，只影响该前缀下的键，其余仍用作用域默认值
+     */
+    @Test
+    void registeredPolicyOverridesOnlyItsPrefix() {
+        CooldownGate gate = CooldownGate.of("test-a").configure(60_000L, 600_000L);
+        CooldownPolicies.register("channel|slow|", 10_000L, 20_000L);
+
+        gate.fail("channel|slow|acc-1", "429");
+        gate.fail("channel|other|acc-1", "429");
+
+        long slow = gate.remaining("channel|slow|acc-1");
+        long normal = gate.remaining("channel|other|acc-1");
+        assertTrue(slow > 9_000L && slow <= 10_000L, "渠道自定义时长未生效: " + slow);
+        assertTrue(normal > 59_000L, "未注册的渠道不应被影响: " + normal);
+        assertEquals(20_000L, gate.backoffMillis("channel|slow|acc-1", 99));
+    }
+
+    /**
+     * 多个前缀命中时取最长的一个（渠道 > 平台）
+     */
+    @Test
+    void longestPrefixWins() {
+        CooldownPolicies.register("p|", 1_000L, 2_000L);
+        CooldownPolicies.register("p|m|", 5_000L, 9_000L);
+
+        assertEquals(5_000L, CooldownPolicies.resolve("p|m|key").baseMillis());
+        assertEquals(1_000L, CooldownPolicies.resolve("p|m2|key").baseMillis());
+        assertNull(CooldownPolicies.resolve("other|key"));
+    }
+
+    /**
+     * 注册全 0 等于撤销策略，避免配置删掉后仍然生效
+     */
+    @Test
+    void zeroPolicyUnregistersPrefix() {
+        CooldownPolicies.register("p|", 1_000L, 2_000L);
+        assertEquals(1, CooldownPolicies.size());
+
+        CooldownPolicies.register("p|", 0L, 0L);
+
+        assertEquals(0, CooldownPolicies.size());
+        assertEquals(CooldownGate.DEFAULT_BASE_MS,
+                CooldownGate.of("test-a").backoffMillis("p|key", 1));
     }
 
     /**

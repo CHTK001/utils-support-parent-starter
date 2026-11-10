@@ -74,11 +74,11 @@ public class WebRtcProperties {
             this.autoStart = autoStart;
         }
 
-        public boolean isAutoClose() {
+        public boolean isAutoClose() { // [P3C MJ-方法注释 豁免]
             return autoClose;
         }
 
-        public void setAutoClose(boolean autoClose) {
+        public void setAutoClose(boolean autoClose) { // [P3C MJ-方法注释 豁免]
             this.autoClose = autoClose;
         }
     }

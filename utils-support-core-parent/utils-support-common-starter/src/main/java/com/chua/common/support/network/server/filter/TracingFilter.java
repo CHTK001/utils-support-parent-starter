@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.filter;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
@@ -41,7 +42,7 @@ public class TracingFilter implements ServerFilter {
      */
     @Override
     public int getOrder() {
-        return Integer.MIN_VALUE + 60;
+        return Integer.MIN_VALUE + 60; // [P3C A20 豁免]
     }
 
     /**

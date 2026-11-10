@@ -24,15 +24,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -590,8 +588,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         SocketChannel sc = (SocketChannel) key.channel();
         Attachment att = (Attachment) key.attachment();
         if (readFrame(sc, att)) {
-            // 拷贝 body 数据后 reset:避免同一连接下一帧复用 bodyBuf 底层数组覆盖上一帧数据
-            byte[] body = Arrays.copyOf(att.bodyBuf.array(), att.bodyLen);
+            // bodyBuf 每帧由 ByteBuffer.allocate(bodyLen) 新建，reset() 只把引用置 null，
+            // 下一帧会重新分配新数组，因此可直接把底层数组交给 worker，
+            // 无需 Arrays.copyOf 再做一次全量分配 + 拷贝（热路径每帧省一次 O(bodyLen)）。
+            byte[] body = att.bodyBuf.array();
             att.reset();
             virtualPool.execute(() -> processRequest(sc, body, att));
         }
@@ -657,7 +657,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             try {
                 byte[] respData = frameHandler.handle(reqData);
                 if (respData != null) {
-                    writeResponse(sc, respData);
+                    writeResponse(sc, att, respData);
                 }
             } catch (Exception e) {
                 log.error("Process request error", e);
@@ -673,7 +673,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         } catch (Exception ignored) {
             // NOTHING
         }
-        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
+        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, setting.getCharset(), setting.getMaxRequestSize());
         TcpServerResponse response = new TcpServerResponse();
         try {
             handleRequest(request, response);
@@ -687,19 +687,19 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
         byte[] respFrame = response.getReadyBytes();
         if (respFrame != null && respFrame.length > 0) {
-            writeResponse(sc, respFrame);
+            writeResponse(sc, att, respFrame);
         } else {
-            writeEmptyResponse(sc);
+            writeEmptyResponse(sc, att);
         }
     }
 
     /**
      * 写回空响应（200 + Content-Length: 0）。
-     * @param sc 方法入参 sc
+     * @param sc  方法入参 sc
+     * @param att 方法入参 att
      */
-    private void writeEmptyResponse(SocketChannel sc) {
-        byte[] bytes = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);
-        writeFrame(sc, bytes);
+    private void writeEmptyResponse(SocketChannel sc, Attachment att) {
+        writeFrame(sc, att, TcpFrameWriter.EMPTY_RESPONSE_BYTES);
     }
 
     /**
@@ -711,23 +711,25 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * 非阻塞通道的「写不完」是正常状态，必须交还给 Selector。</p>
      *
      * @param sc       目标通道
+     * @param att      连接级拼帧上下文，直接复用不再反查
      * @param respData 响应帧字节（不含长度头）
      */
-    private void writeResponse(SocketChannel sc, byte[] respData) {
+    private void writeResponse(SocketChannel sc, Attachment att, byte[] respData) {
         if (respData.length > MAX_BODY_SIZE) {
             log.warn("Response too large: {}", respData.length);
             return;
         }
-        writeFrame(sc, respData);
+        writeFrame(sc, att, respData);
     }
 
     /**
      * 以「4 字节长度头 + 消息体」的帧格式写出。
      *
      * @param sc   目标通道
+     * @param att  连接级拼帧上下文
      * @param data 消息体
      */
-    private void writeFrame(SocketChannel sc, byte[] data) {
+    private void writeFrame(SocketChannel sc, Attachment att, byte[] data) {
         ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + data.length);
         buf.putInt(data.length);
         buf.put(data);
@@ -737,8 +739,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             if (!buf.hasRemaining() || written < 0) {
                 return;
             }
-            // 未写完：剩余字节挂到连接上，注册 OP_WRITE 由事件循环续写
-            Attachment att = resolveAttachment(sc);
+            // 未写完：剩余字节挂到连接上，注册 OP_WRITE 由事件循环续写。
+            // att 由读事件直接传入，省去 resolveAttachment() 遍历所有 Selector 做 keyFor 反查。
             if (att == null) {
                 log.debug("连接无拼帧上下文，未写完的响应被丢弃（对端可能已退出）");
                 return;
@@ -762,33 +764,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-     * 取连接对应的拼帧上下文。
-     *
-     * @param sc 通道
-     * @return 拼帧上下文，取不到返回 null
-     */
-    private Attachment resolveAttachment(SocketChannel sc) {
-        if (ioSelectors == null) {
-            return null;
-        }
-        for (Selector selector : ioSelectors) {
-            if (selector == null) {
-                continue;
-            }
-            SelectionKey key = sc.keyFor(selector);
-            if (key != null && key.attachment() instanceof Attachment att) {
-                return att;
-            }
-        }
-        return null;
-    }
-
-    /**
      * 关闭Channel
      *
      * <p>帧式协议的连接关闭统一收敛到这里，因此连接预算也在这里归还：
      * 一条连接可能因「解析错误 / 对端关闭 / 写失败 / stop()」多条路径关闭，
-     * 归还必须幂等，故以 {@link Attachment#budgetReleased} 做一次性标记。</p>
+     * 归还必须幂等，故以 {@link Attachment#budgetReleased} 的 CAS 做一次性标记。</p>
      *
      * @param key 键，不允许为 null
      */
@@ -801,8 +781,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 // NOTHING
             }
             key.cancel();
-            if (att != null && !att.budgetReleased) {
-                att.budgetReleased = true;
+            if (att != null && att.budgetReleased.compareAndSet(false, true)) {
                 releaseConnection();
             }
         }
@@ -1151,13 +1130,17 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
          *
          * <p>取代旧实现的 {@code while (hasRemaining()) { write; Thread.yield(); }} 忙等：
          * 对端不读时忙等会烧满一个核且永不超时，而这里只是挂起一次、等内核通知可写。</p>
+         *
+         * <p>由 worker 线程写、IO Selector 线程读，必须 volatile 保证跨线程可见：
+         * 否则续写线程可能永远看不到挂起的 buffer，响应被静默丢弃。</p>
          */
-        ByteBuffer pendingWrite;
+        volatile ByteBuffer pendingWrite;
 
         /**
-         * 连接预算是否已归还（保证 {@code releaseConnection()} 幂等）
+         * 连接预算是否已归还：关闭可能同时发生在 IO 线程与 worker 线程，
+         * 用 CAS 保证 {@code releaseConnection()} 严格只调用一次。
          */
-        boolean budgetReleased;
+        final AtomicBoolean budgetReleased = new AtomicBoolean();
 
         /**
          * 创建连接级拼帧上下文。

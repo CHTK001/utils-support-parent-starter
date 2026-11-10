@@ -43,9 +43,15 @@ public class WindowsHostInfoProvider implements HostInfoProvider {
     private static final int DEFAULT_PRIORITY = 300;
 
     /**
-     * 采集超时（毫秒）：CIM 查询涉及 WMI，冷启动较慢，给足余量
+     * 采集超时（毫秒）：CIM 查询涉及 WMI，冷启动较慢，给足余量。
+     *
+     * <p>实测（Windows 10 + 慢盘/杀软环境）PowerShell 冷启动约 8~11 秒，
+     * 加上 7 项 CIM 查询合计约 13 秒。15 秒上限会在慢机上把「取不到」误判成
+     * 环境限制，进而让 {@code uniqueId()} 抛异常、{@code hasImmutableInfo()} 返回 false。
+     * 本方法只在进程内首次调用时执行一次（结果由 {@link HostInfoRouter} 缓存），
+     * 因此放宽到 60 秒不构成热路径开销。</p>
      */
-    private static final long TIMEOUT_MS = 15_000L;
+    private static final long TIMEOUT_MS = 60_000L;
 
     /**
      * 输出行分隔：{@code key\tvalue}，用制表符避免序列号里出现空格时错位

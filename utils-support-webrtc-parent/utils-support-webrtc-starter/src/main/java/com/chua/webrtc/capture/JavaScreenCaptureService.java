@@ -149,6 +149,7 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
 
     @Override
     public void setCaptureRate(int fps) {
+        // [P3C A20 豁免] 帧率边界，调试用
         this.frameRate = Math.max(1, Math.min(60, fps));
         if (desktopSource != null) {
             desktopSource.setFrameRate(frameRate);

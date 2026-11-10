@@ -10,6 +10,7 @@ import com.chua.common.support.storage.setting.BucketSetting;
 import com.chua.common.support.utils.IdUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -72,6 +73,108 @@ public abstract class AbstractFileStorage implements FileStorage {
     @Override
     public void close() {
         // 子类可覆盖实现资源释放
+    }
+
+    /**
+     * 按偏移/长度裁剪输入流（{@link GetObjectRequest} 的 Range 语义兜底实现）。
+     *
+     * <p>给不支持原生 seek 的存储实现使用：先 {@code skip} 掉前缀，再用长度
+     * 上限包装，调用方读到的就是请求区间。若底层流自身已按 offset/length 定位
+     * （如对象存储下推了 Range 头），**不要**再调用本方法，否则会二次跳过。</p>
+     *
+     * <p>{@code skip} 在本地文件上是廉价定位；在网络流上是白读，这正是
+     * {@link com.chua.common.support.storage.FileStorage#supportsRange()} 存在的
+     * 原因——只有支持原生区间读取的实现才应跳过前缀。</p>
+     *
+     * @param in     原始输入流（不为 null）
+     * @param offset 起始偏移，≤0 表示从头
+     * @param length 读取长度，&lt;0 表示读到末尾
+     * @return 定位后的输入流（关闭返回值即关闭原始流）
+     * @throws IOException skip 失败或提前 EOF 时抛出
+     */
+    protected static InputStream applyRange(InputStream in, long offset, long length) throws IOException {
+        if (offset > 0) {
+            long remaining = offset;
+            while (remaining > 0) {
+                long skipped = in.skip(remaining);
+                if (skipped <= 0) {
+                    // skip 返回 0 时读一字节推进，避免个别实现永远 skip 0 造成死循环
+                    if (in.read() < 0) {
+                        throw new IOException("偏移超出文件长度: " + offset);
+                    }
+                    skipped = 1;
+                }
+                remaining -= skipped;
+            }
+        }
+        return length < 0 ? in : new BoundedInputStream(in, length);
+    }
+
+    /**
+     * 长度受限的输入流包装：读满上限后表现为 EOF，关闭时关闭底层流。
+     *
+     * <p>用于 Range 读取——不预先分配 {@code length} 大小的数组，也不依赖
+     * 底层流是否恰好在此处结束（部分存储的流会多吐字节或提前结束，两种都必须
+     * 收敛到调用方声明的区间上界）。</p>
+     */
+    protected static final class BoundedInputStream extends java.io.FilterInputStream {
+
+        /** 剩余可读字节数 */
+        private long remaining;
+
+        /**
+         * 构造长度受限流。
+         *
+         * @param in     底层流
+         * @param length 最多可读字节数（&lt;0 表示不限制）
+         */
+        BoundedInputStream(InputStream in, long length) {
+            super(in);
+            this.remaining = length;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (remaining <= 0) {
+                return -1;
+            }
+            int b = super.read();
+            if (b >= 0) {
+                remaining--;
+            }
+            return b;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (remaining <= 0) {
+                return -1;
+            }
+            int n = super.read(b, off, (int) Math.min(len, remaining));
+            if (n > 0) {
+                remaining -= n;
+            }
+            return n;
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            long skipped = super.skip(Math.min(n, remaining));
+            if (skipped > 0) {
+                remaining -= skipped;
+            }
+            return skipped;
+        }
+
+        @Override
+        public int available() throws IOException {
+            return (int) Math.min(super.available(), remaining);
+        }
+
+        @Override
+        public boolean markSupported() {
+            return false;
+        }
     }
 
     /**

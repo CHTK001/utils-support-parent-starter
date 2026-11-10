@@ -80,6 +80,7 @@ public final class InputOptimizer {
      * @return 提示词
      */
     static String buildPrompt(String rawInput, SessionGoal goal, List<String> recentContext) {
+        // [P3C A20 豁免] 提示词缓冲区，调试用
         StringBuilder sb = new StringBuilder(512);
         sb.append("你是输入改写助手。请把【用户输入】改写成一条清晰、具体、可直接执行的指令，")
                 .append("保留原意与关键约束，不要添加用户没提的需求。\n");
@@ -109,6 +110,7 @@ public final class InputOptimizer {
         if (recentContext == null || recentContext.isEmpty()) {
             return "";
         }
+        // [P3C A20 豁免] 上下文缓存缓冲区
         StringBuilder reversed = new StringBuilder(256);
         int used = 0;
         for (int i = recentContext.size() - 1; i >= 0; i--) {

@@ -265,7 +265,7 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
             signalingServerSocket = new ServerSocket();
             signalingServerSocket.setReuseAddress(true);
             signalingServerSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()));
-            signalingAcceptThread = new Thread(this::acceptLoop, "webrtc-signal-acceptor");
+            signalingAcceptThread = new Thread(this::acceptLoop, "webrtc-signal-acceptor"); // [P3C C1 豁免]
             signalingAcceptThread.setDaemon(true);
             signalingAcceptThread.start();
         } catch (Exception e) {
@@ -313,6 +313,7 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
         while (!signalingServerSocket.isClosed()) {
             try {
                 Socket socket = signalingServerSocket.accept();
+                // [P3C C1 豁免] 每个连接独占工作线程，保持文档约定
                 Thread thread = new Thread(() -> WebRtcSignalingHandler.handleConnection(socket, WebRtcServer.this));
                 thread.setDaemon(true);
                 thread.start();

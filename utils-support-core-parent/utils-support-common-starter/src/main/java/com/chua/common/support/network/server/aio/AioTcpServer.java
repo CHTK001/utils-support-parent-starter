@@ -6,6 +6,7 @@ import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.impl.TcpServerRequest;
 import com.chua.common.support.network.server.impl.TcpServerResponse;
+import com.chua.common.support.network.server.impl.TcpFrameWriter;
 import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.network.tcp.callback.TcpServerHandler;
 import com.chua.common.support.spi.annotations.Spi;
@@ -21,8 +22,7 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -375,7 +375,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         } catch (Exception ignored) {
             // NOTHING
         }
-        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
+        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, setting.getCharset(), setting.getMaxRequestSize());
         TcpServerResponse response = new TcpServerResponse();
         try {
             handleRequest(request, response);
@@ -410,10 +410,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             releaseConnectionSlot();
             return;
         }
-        ByteBuffer out = ByteBuffer.allocate(4 + data.length);
-        out.putInt(data.length);
-        out.put(data);
-        out.flip();
+        ByteBuffer out = ByteBuffer.wrap(TcpFrameWriter.encodeFrame(data));
         channel.write(out, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
             @Override
             public void completed(Integer w, Void attachment) {
@@ -434,8 +431,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
      * @param readBuf 该连接的读缓冲，写完后复用续读
      */
     private void writeEmptyFrame(AsynchronousSocketChannel channel, ByteBuffer readBuf) {
-        byte[] empty = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);
-        writeFrame(channel, empty, readBuf);
+        writeFrame(channel, TcpFrameWriter.EMPTY_RESPONSE_BYTES, readBuf);
     }
 
     /**

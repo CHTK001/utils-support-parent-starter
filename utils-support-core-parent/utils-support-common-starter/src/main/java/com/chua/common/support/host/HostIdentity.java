@@ -160,6 +160,10 @@ public final class HostIdentity {
      * <p>占位串必须折算掉：{@code To be filled by O.E.M.} 这类值在同型号整批机器上
      * 完全一致，保留它会让这些机器算出同一个 ID，把不同机器判成同一台。</p>
      *
+     * <p>最终归一值会去掉<b>全部</b>内部空白：命令输出（如 {@code wmic} 序列号）
+     * 常在同一序列号的字符间插入空格或制表符，不去掉会把同一序列号的不同输出
+     * 判成不同取值，导致同一台机器生成不同 ID。</p>
+     *
      * @param raw 原始取值
      * @return 归一值；取不到或为占位串时返回空串
      */
@@ -171,11 +175,13 @@ public final class HostIdentity {
         if (value.isEmpty()) {
             return "";
         }
-        // 压掉内部连续空白（命令输出常带换行与对齐空格）
-        value = value.replaceAll("\\s+", " ").toUpperCase(Locale.ROOT);
-        if (PLACEHOLDERS.contains(value)) {
+        // 先压掉内部连续空白并转大写，用于占位串匹配（占位串本身含空格）
+        String collapsed = value.replaceAll("\\s+", " ").toUpperCase(Locale.ROOT);
+        if (PLACEHOLDERS.contains(collapsed)) {
             return "";
         }
+        // 最终归一值去掉全部内部空白
+        value = collapsed.replace(" ", "");
         // 全 0 / 全 F 的序列号（长度 8 以上）同样是占位，按取不到处理
         if (value.length() >= 8 && (isAllOf(value, '0') || isAllOf(value, 'F'))) {
             return "";

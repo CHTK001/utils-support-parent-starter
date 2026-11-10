@@ -63,6 +63,21 @@ public interface FileStorage extends AutoCloseable {
     GetObjectResult getObject(String key);
 
     /**
+     * 是否原生支持按偏移/长度读取（HTTP Range 下推到存储层）。
+     *
+     * <p>默认 {@code false}：调用方按 {@link GetObjectRequest#getOffset()} 自行
+     * {@code skip} 后再读，语义正确但会白读前缀字节。本地文件系统等可以直接
+     * seek 的后端应返回 {@code true}，对象存储在下推 Range 头后同样可返回
+     * {@code true}。</p>
+     *
+     * @return true 表示 {@link GetObjectRequest#getOffset()} 与
+     * {@link GetObjectRequest#getLength()} 会被本实现真正执行
+     */
+    default boolean supportsRange() {
+        return false;
+    }
+
+    /**
      * 删除文件。
      *
      * @param key 要删除的文件 键

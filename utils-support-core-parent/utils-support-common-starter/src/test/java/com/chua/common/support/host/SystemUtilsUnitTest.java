@@ -27,7 +27,8 @@ class SystemUtilsUnitTest {
         assertNotNull(id);
         System.out.println("generated id = " + id);
         assertTrue(id.startsWith("CH1-"));
-        assertEquals(32, id.length() - 4);
+        // 去掉 "CH1-" 前缀后是 8 组 x 4 字符 = 32 个 Base32 字符 + 7 个组间连字符 = 39
+        assertEquals(39, id.length() - 4);
         assertEquals(9, id.split("-").length);
 
         HostIdentity.Parsed parsed = SystemUtils.parseId(id);
@@ -43,8 +44,9 @@ class SystemUtilsUnitTest {
         System.out.println("verifySameId: id = " + id);
         HostIdentity.Match match = SystemUtils.verifyId(id);
         assertTrue(match.same(), match.reason());
-        assertEquals(1, match.matched());
-        assertEquals(1, match.comparable());
+        // 同机自校验：本机采集到的全部一级锚点都应匹配（本机有 4 项，非 1 项）
+        assertTrue(match.matched() >= 1, "应至少匹配 1 项");
+        assertEquals(match.matched(), match.comparable(), "可比项应全部匹配");
         assertEquals(1.0, match.ratio());
         assertTrue(match.matchedAnchors().contains(HostAnchor.MACHINE_ID));
     }
@@ -52,7 +54,12 @@ class SystemUtilsUnitTest {
     @Test
     void testVerifyChangedMacs() {
         String id = SystemUtils.uniqueId();
-        HostFacts facts = fakeFacts(HostAnchor.PRIMARY_MAC, "AA:BB:CC:DD:EE:FF");
+        // 换网卡只改易变锚点 primaryMac，不改任何一级锚点，不应影响同一台机器判定。
+        // 必须基于真实快照覆盖 MAC，而不是用仅含假 machineId 的 fakeFacts。
+        Map<HostAnchor, String> values = new EnumMap<>(HostAnchor.class);
+        values.putAll(SystemUtils.hostFacts().values());
+        values.put(HostAnchor.PRIMARY_MAC, "AA:BB:CC:DD:EE:FF");
+        HostFacts facts = new HostFacts(values, SystemUtils.hostFacts().channel());
         System.out.println("verifyChangedMac: id = " + id + " facts = " + facts);
         HostIdentity.Match match = SystemUtils.verifyId(id, facts);
         assertTrue(match.same(), match.reason());

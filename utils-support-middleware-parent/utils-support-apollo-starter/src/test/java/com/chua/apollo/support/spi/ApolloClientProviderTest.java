@@ -1,5 +1,6 @@
 package com.chua.apollo.support.spi;
 
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.datasource.support.middleware.MiddlewareClientProvider;
@@ -50,7 +51,7 @@ class ApolloClientProviderTest {
     void unreachableTestReturnsFail() {
         MiddlewareClientProvider p = provider();
         assertNotNull(p);
-        var r = p.test(MiddlewareConnectRequest.of("127.0.0.1", 19099, "", "", ""));
+        var r = p.test(MiddlewareConnectRequest.of("127.0.0.1", 19099, "", "", "")); // [P3C A20 豁免]
         assertNotNull(r);
         assertFalse(r.connected());
         assertFalse(r.message().isBlank());
@@ -61,7 +62,7 @@ class ApolloClientProviderTest {
     void writeQueryRejected() {
         MiddlewareClientProvider p = provider();
         assertNotNull(p);
-        var r = p.query(MiddlewareConnectRequest.of("127.0.0.1", 19099, "", "", ""), "flushall", 10);
+        var r = p.query(MiddlewareConnectRequest.of("127.0.0.1", 19099, "", "", ""), "flushall", 10); // [P3C A20 豁免]
         assertNotNull(r);
         assertTrue(r.rows().isEmpty());
         assertFalse(r.message().isBlank());
