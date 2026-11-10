@@ -32,8 +32,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>两种处理模式:
  * <ul>
- *   <li>帧模式(默认):{@code setFrameHandler(bytes -> bytes)} — 每个读取块作为一个
- *       请求帧,处理器返回响应字节回写(请求-响应语义)</li>
+ *   <li>帧模式(默认):{@code setFrameHandler(bytes -> bytes)} — 按
+ *       {@link com.chua.common.support.network.tcp.TcpServer} 契约解析
+ *       「4 字节大端长度头 + 消息体」，<b>拼装出完整帧</b>后才回调一次处理器，
+ *       响应同样以长度帧写回(请求-响应语义)。半包会继续累积，粘包会留在解码器里
+ *       逐帧派发，不会把一次读到的原始字节块直接当作一帧。</li>
  *   <li>管道模式:{@code setRawPipeHandler((in,out) -> {...})} — 连接建立后回调
  *       阻塞流,由业务自行读写(长连接/自定义协议);运行于每连接虚拟线程</li>
  * </ul>
@@ -269,9 +272,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                 }
                 try {
                     if (frameHandler != null) {
-                        // 帧模式:纯异步回调链。读缓冲随连接走（见 FrameReadBuffer），
+                        // 帧模式:纯异步回调链。解码器随连接走（见 FrameDecoder），
                         // 不再每次读到数据就 allocateDirect 一块新的
-                        issueFrameRead(channel, newFrameReadBuffer());
+                        issueFrameRead(channel, newFrameDecoder());
                     }
                 } catch (Exception e) {
                     log.debug("AIO TcpServer 连接结束: {}", e.getMessage());
@@ -287,33 +290,55 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-     * 分配帧模式的连接读缓冲（direct，按 bufferSize 或 32KB 取大）。
+     * 为一条连接新建帧解码器。
      *
-     * <p>只在连接建立时分配一次，之后整条连接复用同一块；
-     * 旧实现把它放在 {@code writeFrame} 的写完成回调里，等于「每帧响应分配一块
-     * 32KB direct buffer」，每帧一次堆外分配 + 一次 GC 回收，是高吞吐下最主要的
-     * 内存抖动来源（direct buffer 的回收还要等 Cleaner）。</p>
+     * <p>只在连接建立时创建一次，之后整条连接复用；旧实现把读缓冲放在
+     * {@code writeFrame} 的写完成回调里 {@code allocateDirect}，等于每帧响应一次
+     * 堆外分配 + 一次 Cleaner 回收，是高吞吐下最主要的内存抖动来源。这个特性保留。</p>
+     *
+     * @return 新解码器
+     */
+    private FrameDecoder newFrameDecoder() {
+        return new FrameDecoder(Math.max(setting.getBufferSize(), 32768));
+    }
+
+    /**
+     * 分配管道模式（{@code setRawPipeHandler}）的连接读缓冲。
+     *
+     * <p>管道模式由业务自行解释字节流，不做长度帧重组，所以这里只要一块
+     * 能反复复用的原始读缓冲；帧模式走 {@link #newFrameDecoder()}。</p>
+     *
+     * <p>只在连接建立时分配一次，之后整条连接复用；旧实现把它放在
+     * {@code writeFrame} 的写完成回调里，等于每帧响应一次堆外分配 + 一次
+     * Cleaner 回收，是高吞吐下最主要的内存抖动来源。</p>
      *
      * @return 新读缓冲
      */
-    private ByteBuffer newFrameReadBuffer() {
+    private ByteBuffer newStreamReadBuffer() {
         return ByteBuffer.allocateDirect(Math.max(setting.getBufferSize(), 32768));
     }
+
     /**
-     * 发起一帧的异步读(读完成 → 处理器 → 异步写 → 续读,全程无阻塞)。
+     * 发起一帧的异步读(读完成 → 攒够一整帧才处理 → 异步写 → 续读,全程无阻塞)。
      *
      * @param channel 通道
-     * @param buf     读缓冲(连接生命周期内复用)
+     * @param dec     该连接的帧解码器(连接生命周期内复用)
      */
-    private void issueFrameRead(AsynchronousSocketChannel channel, ByteBuffer buf) {
+    private void issueFrameRead(AsynchronousSocketChannel channel, FrameDecoder dec) {
         if (!running || !channel.isOpen()) {
             // 停止中：关闭连接并归还预算，否则该连接的配额会永久泄漏
             closeQuietly(channel);
             releaseConnectionSlot();
             return;
         }
-        buf.clear();
-        channel.read(buf, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
+        // 粘包场景：上一次读可能已经多带了后续帧，此时必须直接从累积器派发，
+        // 不能再去 read —— 对端正在等这条响应，再读只会拿到 0 字节或拖到超时。
+        if (dec.hasCompleteFrame()) {
+            handleFrame(channel, dec, dec.takeFrame());
+            return;
+        }
+        ByteBuffer target = dec.readTarget();
+        channel.read(target, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
             @Override
             public void completed(Integer n, Void attachment) {
                 if (n == null || n < 0 || !running) {
@@ -321,33 +346,19 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                     releaseConnectionSlot();
                     return;
                 }
-                buf.flip();
-                byte[] request = new byte[buf.remaining()];
-                buf.get(request);
-                // URL 路由模式：走 Filter Chain；否则走旧帧式路径
-                if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
-                    processViaFilterChain(channel, request, buf);
-                    return;
-                }
-                if (frameHandler == null) {
+                dec.append(n);
+                if (dec.isCorrupted()) {
+                    log.debug("长度帧头非法或超限，关闭连接: bodyLength={}", dec.bodyLength());
                     closeQuietly(channel);
                     releaseConnectionSlot();
                     return;
                 }
-                byte[] response;
-                try {
-                    response = frameHandler.handle(request);
-                } catch (Exception e) {
-                    log.debug("帧处理器异常: {}", e.getMessage());
-                    closeQuietly(channel);
-                    releaseConnectionSlot();
+                // 半包：长度头或消息体还没凑齐，继续读，绝不能当成一帧交给处理器
+                if (!dec.hasCompleteFrame()) {
+                    issueFrameRead(channel, dec);
                     return;
                 }
-                if (response == null || response.length == 0) {
-                    issueFrameRead(channel, buf);
-                    return;
-                }
-                writeFrame(channel, response, buf);
+                handleFrame(channel, dec, dec.takeFrame());
             }
 
             @Override
@@ -359,13 +370,47 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
+     * 处理一个完整帧：URL 路由模式走 Filter Chain，否则走旧帧式路径。
+     *
+     * @param channel 通道
+     * @param dec     帧解码器
+     * @param request 完整帧体（不含 4 字节长度头）
+     */
+    private void handleFrame(AsynchronousSocketChannel channel, FrameDecoder dec, byte[] request) {
+        // URL 路由模式：走 Filter Chain；否则走旧帧式路径
+        if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
+            processViaFilterChain(channel, request, dec);
+            return;
+        }
+        if (frameHandler == null) {
+            closeQuietly(channel);
+            releaseConnectionSlot();
+            return;
+        }
+        byte[] response;
+        try {
+            response = frameHandler.handle(request);
+        } catch (Exception e) {
+            log.debug("帧处理器异常: {}", e.getMessage());
+            closeQuietly(channel);
+            releaseConnectionSlot();
+            return;
+        }
+        if (response == null || response.length == 0) {
+            issueFrameRead(channel, dec);
+            return;
+        }
+        writeFrame(channel, response, dec);
+    }
+
+    /**
      * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回通道。
      *
      * @param channel 方法入参 channel
      * @param reqData 请求数据，不允许为 null
-     * @param readBuf 该连接的读缓冲（写完后复用同一块续读，避免每帧 allocateDirect）
+     * @param dec     该连接的帧解码器（写完后复用同一连接续读，避免每帧重新分配）
      */
-    private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData, ByteBuffer readBuf) {
+    private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData, FrameDecoder dec) {
         InetSocketAddress remoteAddr = null;
         try {
             java.net.SocketAddress addr = channel.getRemoteAddress();
@@ -390,32 +435,52 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         }
         byte[] respFrame = response.getReadyBytes();
         if (respFrame != null && respFrame.length > 0) {
-            writeFrame(channel, respFrame, readBuf);
+            writeFrame(channel, respFrame, dec);
         } else {
-            writeEmptyFrame(channel, readBuf);
+            writeEmptyFrame(channel, dec);
         }
     }
 
     /**
-     * 写出长度帧：4 字节大端长度头 + body，写完后用同一块连接读缓冲续读。
+     * 写出长度帧：4 字节大端长度头 + body，写尽后用同一连接续读。
+     *
+     * <p>必须把「写尽」判断出来：AIO 的写完成回调给出的是本次写出的字节数，
+     * 对端背压时一次完成只写出一部分是常态。旧实现收到第一个完成回调就直接续读，
+     * 剩余字节永久丢失，客户端会拿到一条被截断的响应，之后整条连接的帧边界全部错位。</p>
      *
      * @param channel 方法入参 channel
      * @param data 数据，不允许为 null
-     * @param readBuf 该连接的读缓冲（连接生命周期内复用，避免每帧 allocateDirect）
+     * @param dec 该连接的帧解码器（连接生命周期内复用，避免每帧重新分配）
      */
-    private void writeFrame(AsynchronousSocketChannel channel, byte[] data, ByteBuffer readBuf) {
+    private void writeFrame(AsynchronousSocketChannel channel, byte[] data, FrameDecoder dec) {
         if (data.length > 8 * 1024 * 1024) {
             log.warn("响应过大: {} bytes", data.length);
             closeQuietly(channel);
             releaseConnectionSlot();
             return;
         }
-        ByteBuffer out = ByteBuffer.wrap(TcpFrameWriter.encodeFrame(data));
+        writeRemaining(channel, ByteBuffer.wrap(TcpFrameWriter.encodeFrame(data)), dec);
+    }
+
+    /**
+     * 递归续写直到缓冲排空，排空后才发起下一次读。
+     *
+     * @param channel 通道
+     * @param out     待写字节（剩余部分随递归推进）
+     * @param dec     帧解码器
+     */
+    private void writeRemaining(AsynchronousSocketChannel channel, ByteBuffer out, FrameDecoder dec) {
         channel.write(out, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
             @Override
             public void completed(Integer w, Void attachment) {
-                issueFrameRead(channel, readBuf);
+                if (out.hasRemaining()) {
+                    // 没写尽：继续挂下一次写，绝不能提前去读
+                    channel.write(out, null, this);
+                    return;
+                }
+                issueFrameRead(channel, dec);
             }
+
             @Override
             public void failed(Throwable exc, Void attachment) {
                 closeQuietly(channel);
@@ -428,10 +493,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
      * 写出空响应帧（200 OK + Content-Length: 0）。
      *
      * @param channel 方法入参 channel
-     * @param readBuf 该连接的读缓冲，写完后复用续读
+     * @param dec 该连接的帧解码器，写尽后复用续读
      */
-    private void writeEmptyFrame(AsynchronousSocketChannel channel, ByteBuffer readBuf) {
-        writeFrame(channel, TcpFrameWriter.EMPTY_RESPONSE_BYTES, readBuf);
+    private void writeEmptyFrame(AsynchronousSocketChannel channel, FrameDecoder dec) {
+        writeFrame(channel, TcpFrameWriter.EMPTY_RESPONSE_BYTES, dec);
     }
 
     /**
@@ -470,7 +535,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                 return;
             }
             if (buf == null) {
-                buf = newFrameReadBuffer();
+                buf = newStreamReadBuffer();
             }
             buf.clear();
             channel.read(buf, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
@@ -722,4 +787,184 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     @Override
     public int getActiveConnections() {
         return metrics.getActiveConnections();
+    }
+
+    /**
+     * 长度帧解码器：把 AIO 零散的读完成事件重组成一个个完整帧。
+     *
+     * <p>为什么必须有这个东西：{@link com.chua.common.support.network.tcp.TcpServer}
+     * 的契约规定线上格式是「4 字节大端长度头 + 消息体」，并要求实现类
+     * 「读取并拼装完整帧」；而 {@code AsynchronousSocketChannel.read} 的完成语义只是
+     * 「读到了若干字节」，与帧边界毫无关系。缺了这层重组就会出现两种坏法：</p>
+     * <ul>
+     *   <li><b>半包</b>：长度头分两次到达时，那 4 个字节会被当成一个「请求」交给业务；</li>
+     *   <li><b>粘包</b>：两帧合并进一次读时，第二帧被并进第一帧的字节里，
+     *       对端再也等不到属于它的响应。</li>
+     * </ul>
+     *
+     * <p>不需要加锁：AIO 完成链保证同一条连接同时只有一次读在途
+     * （读完成 → 处理 → 写尽 → 才发起下一次读）。</p>
+     */
+    private static final class FrameDecoder {
+
+        /**
+         * 长度头字节数
+         */
+        private static final int HEADER_SIZE = 4;
+
+        /**
+         * 单帧消息体上限，与 {@code JdkTcpServer.MAX_BODY_SIZE} 同口径
+         */
+        private static final int MAX_BODY_SIZE = 8 * 1024 * 1024;
+
+        /**
+         * 累积器初始容量
+         */
+        private static final int INITIAL_ACC = 1024;
+
+        /**
+         * 每次 read 的落地缓冲，读到的字节再并入累积器
+         */
+        private final ByteBuffer scratch;
+
+        /**
+         * 跨读完成事件累积的字节，{@code [0, length)} 有效
+         */
+        private byte[] acc;
+
+        /**
+         * 累积器内的有效字节数
+         */
+        private int length;
+
+        /**
+         * 创建解码器。
+         *
+         * @param scratchSize 单次读的落地缓冲大小
+         */
+        FrameDecoder(int scratchSize) {
+            this.scratch = ByteBuffer.allocate(scratchSize);
+            this.acc = new byte[0];
+        }
+
+        /**
+         * 取得供 {@code channel.read} 使用的缓冲，可写区间为整个容量。
+         *
+         * @return 读目标缓冲
+         */
+        ByteBuffer readTarget() {
+            scratch.clear();
+            return scratch;
+        }
+
+        /**
+         * 把本次读到的字节并入累积器。
+         *
+         * @param n 本次读到的字节数
+         */
+        void append(int n) {
+            if (n <= 0) {
+                return;
+            }
+            scratch.flip();
+            int add = Math.min(n, scratch.remaining());
+            if (add <= 0) {
+                return;
+            }
+            ensureCapacity(length + add);
+            scratch.get(acc, length, add);
+            length += add;
+        }
+
+        /**
+         * 长度头是否已完整可读。
+         *
+         * @return 头部齐全返回 true
+         */
+        private boolean headerReady() {
+            return length >= HEADER_SIZE;
+        }
+
+        /**
+         * 长度头声明的消息体字节数。
+         *
+         * @return 消息体长度；头部不完整时返回 -1
+         */
+        int bodyLength() {
+            if (!headerReady()) {
+                return -1;
+            }
+            return ((acc[0] & 0xFF) << 24)
+                    | ((acc[1] & 0xFF) << 16)
+                    | ((acc[2] & 0xFF) << 8)
+                    | (acc[3] & 0xFF);
+        }
+
+        /**
+         * 长度头是否已非法（非正数或超出单帧上限）。
+         *
+         * @return 非法返回 true
+         */
+        boolean isCorrupted() {
+            if (!headerReady()) {
+                return false;
+            }
+            int body = bodyLength();
+            return body <= 0 || body > MAX_BODY_SIZE;
+        }
+
+        /**
+         * 累积器里是否已经攒够完整一帧。
+         *
+         * @return 有完整帧返回 true
+         */
+        boolean hasCompleteFrame() {
+            if (isCorrupted()) {
+                return false;
+            }
+            return headerReady() && length >= HEADER_SIZE + bodyLength();
+        }
+
+        /**
+         * 取出头部的完整一帧，剩余字节留在累积器里等下一次派发。
+         *
+         * @return 帧体字节（不含长度头）；没有完整帧时返回空数组
+         */
+        byte[] takeFrame() {
+            if (!hasCompleteFrame()) {
+                return new byte[0];
+            }
+            int body = bodyLength();
+            byte[] out = new byte[body];
+            System.arraycopy(acc, HEADER_SIZE, out, 0, body);
+            int rest = length - HEADER_SIZE - body;
+            if (rest > 0) {
+                System.arraycopy(acc, HEADER_SIZE + body, acc, 0, rest);
+            }
+            length = rest;
+            return out;
+        }
+
+        /**
+         * 按需扩容累积器，保留已有内容。
+         *
+         * @param need 需要的最小容量
+         */
+        private void ensureCapacity(int need) {
+            if (acc.length >= need) {
+                return;
+            }
+            int cap = acc.length == 0 ? INITIAL_ACC : acc.length;
+            while (cap < need) {
+                cap <<= 1;
+                // 溢出保护：位运算越过最大值时直接按需求分配
+                if (cap <= 0) {
+                    cap = need;
+                    break;
+                }
+            }
+            byte[] next = new byte[cap];
+            System.arraycopy(acc, 0, next, 0, length);
+            acc = next;
+        }
     }}

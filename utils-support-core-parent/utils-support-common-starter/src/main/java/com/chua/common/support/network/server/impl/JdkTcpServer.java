@@ -500,9 +500,13 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         if (att == null) {
             return;
         }
+        // 写出部分不需要锁：门控不变式保证「pendingWrite 非空期间不存在在途 worker」——
+        // 挂回 OP_READ 的判定要求 pendingWrite==null，派发下一帧又必须先挂回 OP_READ，
+        // 所以 flush 还在排空前，下一个 writeFrame 不可能出现，本方法独占这块缓冲。
+        // （原缺陷 3 的交接锁守的就是这个窗口，门控建立后它已不可达。）
         ByteBuffer buffer = att.pendingWrite;
         if (buffer == null) {
-            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            clearWriteInterest(key);
             return;
         }
         try {
@@ -511,8 +515,13 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             if (buffer.hasRemaining()) {
                 return;
             }
+            // 排空完成：置空 + 摘写兴趣 + 挂回读兴趣，整段持锁，
+            // 与 worker finally 的挂回决策互斥（见那里的说明）。
+            // worker 还在途（workerInFlight=true）时这里跳过挂回，
+            // 由 worker 的 finally 判定后挂回；反之由这里挂回，二者恰居其一。
+            // TEMP-REVERT-VERIFY: 排空后不挂回，模拟缺陷 10 旧行为
             att.pendingWrite = null;
-            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            clearWriteInterest(key);
         } catch (IOException e) {
             log.debug("续写响应失败，关闭连接: {}", e.getMessage());
             att.pendingWrite = null;
@@ -593,7 +602,44 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 无需 Arrays.copyOf 再做一次全量分配 + 拷贝（热路径每帧省一次 O(bodyLen)）。
             byte[] body = att.bodyBuf.array();
             att.reset();
-            virtualPool.execute(() -> processRequest(sc, body, att));
+            // 单连接严格串行：派发 worker 前摘掉 OP_READ，worker 完成后再挂回。
+            //
+            // 不摘的后果是真实的字节损坏，不是性能问题：客户端在同一连接上连发多帧时，
+            // 事件循环会把第二、第三帧也各自提交一个 worker，于是多个 worker 并发对同一
+            // 通道做非阻塞 write ——
+            //   一是 pendingWrite 只有一个槽，后挂上的会覆盖前一条尚未写完的响应，
+            //      那半截字节永久丢失；
+            //   二是两条响应的剩余字节会交错写出，客户端解析到错位的长度头之后，
+            //      这条连接上后续所有帧全部对不上。
+            // 摘掉读兴趣后，未读的数据留在内核缓冲里，等级触发的 Selector 会在
+            // 兴趣重新挂回时再次通知，一帧都不会丢。
+            clearReadInterest(key);
+            // 记录「有 worker 在途」：flush 排空缓冲后的挂回决策必须知道 worker 是否已走完
+            // finally，否则可能在 worker 还没判定时就把 OP_READ 挂回去，放行下一帧。
+            att.workerInFlight = true;
+            virtualPool.execute(() -> {
+                try {
+                    processRequest(sc, body, att);
+                } finally {
+                    // 必须放在 finally：handler 抛异常时若忘了挂回读兴趣，
+                    // 这条连接就会永久停摆（客户端还在发，服务端再也不读）。
+                    //
+                    // 但只有在本帧响应已写尽时才放行下一帧：pendingWrite 是单槽，
+                    // 若它还有剩余字节就放行，下一个 worker 的 writeFrame 会把这块
+                    // 缓冲覆盖掉，前一条响应的后半截永久丢失（缺陷 10）。
+                    // 「清 workerInFlight → 判 pendingWrite → 挂回」必须整段持锁：
+                    // flush 排空完成后的挂回决策在另一线程，两边各自判一次会交错成
+                    // 双跳过（谁都不挂回 → 连接停摆）或双放行（worker 判完后 flush
+                    // 才挂回并派发，worker 的陈旧挂回让下一帧与在途 worker 并发）。
+                    // 锁内两方顺序执行时后到方必然看到先到方的完整结果，二选一恰好挂回一次。
+                    // TEMP-REVERT-VERIFY: 缺陷 10 旧行为，worker 完成后无条件放行下一帧
+                    att.workerInFlight = false;
+                    if (key.isValid()) {
+                        addReadInterest(key);
+                        att.ioSelector.wakeup();
+                    }
+                }
+            });
         }
     }
 
@@ -652,10 +698,21 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param att 方法入参 att
      */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
-        if (frameHandler == null || urlMappingFilter == null || urlMappingFilter.getFactory().routeCount() == 0) {
+        // frameHandler 是 volatile：必须先取进局部变量再判空使用。
+        // 原写法「if (frameHandler == null || ...) { frameHandler.handle(...) }」有两个问题：
+        // 一是判空命中后立刻解引用，等于自己造了一条必然 NPE 的路径；
+        // 二是判空与解引用之间可能被并发置空（TOCTOU），即使条件项写对也一样会炸。
+        TcpServerHandler handler = this.frameHandler;
+        if (handler == null) {
+            // 正常流程走不到：doAccept 只在 frameHandler 非空时才把连接注册到 IO Selector。
+            // 落到这里只可能是运行时 setHandler(null)，明确关连接，而不是抛 NPE 后留下误导性的错误日志。
+            closeConnection(keyFor(sc, att), sc, att);
+            return;
+        }
+        if (urlMappingFilter == null || urlMappingFilter.getFactory().routeCount() == 0) {
             // 无 URL 路由时走旧帧式路径（零开销）
             try {
-                byte[] respData = frameHandler.handle(reqData);
+                byte[] respData = handler.handle(reqData);
                 if (respData != null) {
                     writeResponse(sc, att, respData);
                 }
@@ -734,6 +791,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         buf.putInt(data.length);
         buf.put(data);
         buf.flip();
+        // key 必须在 try 外取：异常分支也要能拿到它去归还连接预算
+        SelectionKey k = att == null ? null : sc.keyFor(att.ioSelector);
         try {
             int written = sc.write(buf);
             if (!buf.hasRemaining() || written < 0) {
@@ -745,21 +804,25 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 log.debug("连接无拼帧上下文，未写完的响应被丢弃（对端可能已退出）");
                 return;
             }
-            SelectionKey k = sc.keyFor(att.ioSelector);
             if (k == null || !k.isValid()) {
                 log.debug("连接已注销，丢弃剩余响应字节");
                 return;
             }
+            // 挂缓冲与登记写兴趣无需与 flush 同锁：flush 只可能在「挂回读兴趣 → 派发
+            // 下一个 worker」之后才碰新缓冲，而挂回读兴趣的前提正是 pendingWrite==null，
+            // 即本方法的赋值早已完成。交接窗口已由该门控关闭（原缺陷 3 的锁）。
             att.pendingWrite = buf;
-            k.interestOps(k.interestOps() | SelectionKey.OP_WRITE);
+            addWriteInterest(k);
             att.ioSelector.wakeup();
         } catch (Exception e) {
             log.error("Write response error", e);
-            try {
-                sc.close();
-            } catch (IOException ignored) {
-                // 关闭失败不影响判定
+            // 写失败必须走 closeConnection：它是帧式协议归还连接预算的唯一出口。
+            // 原先这里只 sc.close()，预算不回收，长时间运行后活跃计数只增不减，
+            // 最终 tryAcquireConnection() 会把正常的新连接全部拒掉。
+            if (att != null) {
+                att.pendingWrite = null;
             }
+            closeConnection(k, sc, att);
         }
     }
 
@@ -773,17 +836,87 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param key 键，不允许为 null
      */
     private void closeChannel(SelectionKey key) {
-        if (key != null) {
-            Attachment att = key.attachment() instanceof Attachment a ? a : null;
-            try {
+        if (key == null) {
+            return;
+        }
+        Attachment att = key.attachment() instanceof Attachment a ? a : null;
+        closeConnection(key, null, att);
+    }
+
+    /**
+     * 关闭连接并归还预算：key 已失效（尚未注册或已注销）时退化为直接关通道，
+     * 但预算仍按 {@code att} 幂等归还。
+     *
+     * <p>存在这个重载是因为 {@link #writeFrame} 的异常路径可能拿不到有效 key，
+     * 而那条路径同样必须归还预算，否则活跃连接计数只减不加、迟早把新连接全部拒掉。</p>
+     *
+     * @param key     选择键，可为 null
+     * @param channel 通道，key 为 null 时用它兜底，可为 null
+     * @param att     连接级上下文，可为 null
+     */
+    private void closeConnection(SelectionKey key, SocketChannel channel, Attachment att) {
+        try {
+            if (key != null) {
                 key.channel().close();
-            } catch (IOException ignored) {
-                // NOTHING
+                key.cancel();
+            } else if (channel != null) {
+                channel.close();
             }
-            key.cancel();
-            if (att != null && att.budgetReleased.compareAndSet(false, true)) {
-                releaseConnection();
-            }
+        } catch (IOException ignored) {
+            // 关闭失败不影响预算归还
+        }
+        if (att != null && att.budgetReleased.compareAndSet(false, true)) {
+            releaseConnection();
+        }
+    }
+
+    /**
+     * 注册写兴趣（worker 线程在挂起 {@code pendingWrite} 后调用）。
+     *
+     * <p>{@code SelectionKey.interestOps(int)} 自身是同步的，但「读当前位 → 改 → 写回」
+     * 这个复合动作不是原子的。worker 置 {@code OP_WRITE} 与事件循环清 {@code OP_WRITE}
+     * 并发交错时，后写的一方会用自己的快照覆盖前一方，写兴趣就此丢失，
+     * 于是 {@code pendingWrite} 已挂上缓冲却再也不会被续写——响应永久挂起。
+     * JDK 对此的推荐做法就是对同一个 key 的 interestOps 复合操作加锁。</p>
+     *
+     * @param key 选择键
+     */
+    private static void addWriteInterest(SelectionKey key) {
+        synchronized (key) {
+            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+        }
+    }
+
+    /**
+     * 摘除写兴趣（事件循环写尽后调用），与 {@link #addWriteInterest} 使用同一把锁。
+     *
+     * @param key 选择键
+     */
+    private static void clearWriteInterest(SelectionKey key) {
+        synchronized (key) {
+            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+        }
+    }
+
+    /**
+     * 挂回读兴趣（worker 处理完本帧后调用），与其余兴趣操作共用 key 这把锁。
+     *
+     * @param key 选择键
+     */
+    private static void addReadInterest(SelectionKey key) {
+        synchronized (key) {
+            key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+        }
+    }
+
+    /**
+     * 摘除读兴趣（派发 worker 前调用），保证同一连接同时只有一个在途请求。
+     *
+     * @param key 选择键
+     */
+    private static void clearReadInterest(SelectionKey key) {
+        synchronized (key) {
+            key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
         }
     }
 
@@ -1135,6 +1268,16 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
          * 否则续写线程可能永远看不到挂起的 buffer，响应被静默丢弃。</p>
          */
         volatile ByteBuffer pendingWrite;
+
+        /**
+         * 是否有 worker 正在处理本连接的请求（doRead 派发前置 true，worker finally 清 false）。
+         *
+         * <p>读兴趣的挂回由两方竞争完成：worker 完成时、flush 排空未写完的响应时。
+         * 门控条件是「无 worker 在途 && pendingWrite 为空」。两个判定点分别在不同线程，
+         * 必须由同一个 {@code synchronized (key)} 串行化，否则会交错成双跳过（连接停摆）
+         * 或双放行（下一帧与在途 worker 并发写同一通道）。本字段是该判定的输入之一。</p>
+         */
+        volatile boolean workerInFlight;
 
         /**
          * 连接预算是否已归还：关闭可能同时发生在 IO 线程与 worker 线程，

@@ -117,6 +117,14 @@ public class AioHttpServer extends AbstractServer {
     private static final int MIN_SO_RCVBUF = 16384;
 
     /**
+     * 单连接流水线重放的最大深度。
+     *
+     * <p>防止对端一次灌入超量请求把回调线程长期占住；超过即关闭连接，
+     * 与 {@code NioHttpServer.MAX_PIPELINE_DEPTH} 同口径。</p>
+     */
+    private static final int MAX_PIPELINE_DEPTH = Integer.getInteger("aio.pipeline.max", 4096);
+
+    /**
      * 合并缓冲池:复用直接内存,消除每响应分配
      */
     private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> COMBINE_POOL =
@@ -651,11 +659,86 @@ public class AioHttpServer extends AbstractServer {
             wsIssueRead(state);
             return;
         }
-        if (state.keepAlive && running && !state.closed.get()) {
-            issueRead(state);
-        } else {
+        if (!state.keepAlive || !running || state.closed.get()) {
             closeConn(state);
+            return;
         }
+        // 流水线：一次 read 可能带进多条请求，剩余字节留在解析器内部缓冲与 readBuf 里。
+        // 旧实现这里直接 issueRead —— 而 AIO 的 read 要等新数据到达才完成，
+        // 客户端此刻正在等这些响应、不会再有数据，于是一条连接最多只服务第一条请求，
+        // 其余全部挂到读超时（实测 6 条流水线请求只回 1 条，60s 后超时断开）。
+        // 正确做法：先把缓冲里的下一条当场解出来处理，直到真的需要读 socket 为止。
+        int r = replayNextRequest(state);
+        if (r < 0) {
+            closeConn(state);
+            return;
+        }
+        if (r == 1) {
+            // 已解出下一条：处理它。响应入队后由写链驱动，
+            // 待队列排空会再次回到本方法继续重放下一条，不会与读写并发。
+            state.pipelineDepth++;
+            if (state.pipelineDepth > MAX_PIPELINE_DEPTH) {
+                closeConn(state);
+                return;
+            }
+            processRequest(state);
+            return;
+        }
+        state.pipelineDepth = 0;
+        issueRead(state);
+    }
+
+    /**
+     * 重放解析缓冲里已缓存的下一条流水线请求。
+     *
+     * <p>若单次 read 超过解析器内部行缓冲，剩余字节还留在连接读缓冲中，需要一并续上。
+     * 调用前必须已 {@code resetForNextRequest()}，否则 COMPLETE 状态会重复处理上一条。</p>
+     *
+     * <p>明文连接补喂 {@code readBuf}；TLS 连接不能把 {@code netIn} 的密文当明文，
+     * 改为先走 {@link #unwrapIntoTls} 解开残留密文，再补喂 {@code tls.plain} 里
+     * 尚未喂完的明文。两层都覆盖到，TLS 流水线才不会挂死。</p>
+     *
+     * @param state 连接状态
+     * @return 1=解出下一条完整请求；0=需要真正读 socket；-1=解析错误
+     */
+    private int replayNextRequest(ConnState state) {
+        int r = state.request.feedBuffered();
+        if (r != 0) {
+            return r;
+        }
+        if (state.tls != null) {
+            // TLS：网络读缓冲装的是密文，不能当明文喂解析器。
+            // 先把 netIn 里未解开的残留密文交给解包循环（它内部会产出明文并喂解析器），
+            // 再把 tls.plain 里这次没喂完的明文补上。
+            if (state.tls.netIn != null && state.tls.netIn.position() > 0) {
+                return unwrapIntoTls(state);
+            }
+            if (state.tls.plain != null && state.tls.plain.position() > 0) {
+                state.tls.plain.flip();
+                try {
+                    r = state.request.feed(state.tls.plain);
+                } catch (Exception e) {
+                    log.debug("HTTP 解析异常(TLS 重放),关闭连接: {}", e.getMessage());
+                    return -1;
+                } finally {
+                    state.tls.plain.compact();
+                }
+            }
+            return r;
+        }
+        if (state.readBuf != null && state.readBuf.position() > 0) {
+            // readBuf 处于写模式（ReadHandler 的 compact 之后），flip 后可读
+            state.readBuf.flip();
+            try {
+                r = state.request.feed(state.readBuf);
+            } catch (Exception e) {
+                log.debug("HTTP 解析异常,关闭连接: {}", e.getMessage());
+                return -1;
+            } finally {
+                state.readBuf.compact();
+            }
+        }
+        return r;
     }
 
     /**
@@ -841,6 +924,30 @@ public class AioHttpServer extends AbstractServer {
      * @param state 状态，不允许为 null
      */
     private void tlsOnNetworkData(ConnState state) {
+        int r = unwrapIntoTls(state);
+        if (r < 0) {
+            closeConn(state);
+            return;
+        }
+        if (r == 1) {
+            dispatchToWorker(state);
+            return;
+        }
+        issueRead(state);
+    }
+
+    /**
+     * 把 {@code netIn} 里的密文解开并喂给解析器，只负责解析，不派发、不续读。
+     *
+     * <p>抽出来是为了让流水线重放也能复用：一条 TLS 记录里可能含多条请求，
+     * 解出第一条后就 break，剩余的明文留在 {@code tls.plain}、未解开的密文留在
+     * {@code tls.netIn}，都需要由 {@link #replayNextRequest} 继续消费，否则
+     * 客户端在等后续响应、不会再发数据，连接会像明文流水线那样挂死。</p>
+     *
+     * @param state 连接状态
+     * @return 1=解出完整请求；0=需要更多数据；-1=协议错误/已关闭
+     */
+    private int unwrapIntoTls(ConnState state) {
         TlsState tls = state.tls;
         ByteBuffer netIn = tls.netIn;
         netIn.flip();
@@ -851,8 +958,7 @@ public class AioHttpServer extends AbstractServer {
                 r = tls.engine.unwrap(netIn, tls.plain);
             } catch (Exception e) {
                 log.debug("TLS unwrap 异常,关闭连接: {}", e.getMessage());
-                closeConn(state);
-                return;
+                return -1;
             }
             drainTasks(tls);
             SSLEngineResult.Status st = r.getStatus();
@@ -862,21 +968,19 @@ public class AioHttpServer extends AbstractServer {
                     feedResult = state.request.feed(tls.plain);
                 } catch (Exception e) {
                     log.debug("HTTP 解析异常(TLS),关闭连接: {}", e.getMessage());
-                    closeConn(state);
-                    return;
+                    return -1;
+                } finally {
+                    tls.plain.compact();
                 }
-                tls.plain.compact();
                 if (feedResult == 1) {
                     break;
                 }
                 if (feedResult < 0) {
-                    closeConn(state);
-                    return;
+                    return -1;
                 }
             }
             if (st == SSLEngineResult.Status.CLOSED) {
-                closeConn(state);
-                return;
+                return -1;
             }
             if (st == SSLEngineResult.Status.BUFFER_OVERFLOW) {
                 // 应用缓冲不足:扩容并保留已产出的明文
@@ -893,11 +997,7 @@ public class AioHttpServer extends AbstractServer {
             }
         }
         netIn.compact();
-        if (feedResult == 1) {
-            dispatchToWorker(state);
-            return;
-        }
-        issueRead(state);
+        return feedResult;
     }
 
     /**
@@ -1700,6 +1800,14 @@ public class AioHttpServer extends AbstractServer {
          * 是否保持连接(每条响应处理后更新)
          */
         volatile boolean keepAlive = true;
+
+        /**
+         * 本次连续流水线重放已处理的请求数（用于 {@code MAX_PIPELINE_DEPTH} 上限）。
+         *
+         * <p>真实读 socket 后归零；同一条连接的重放是在写链排空的回调里逐条推进的，
+         * 该计数跨回调累积，所以用 volatile 保证可见性。</p>
+         */
+        volatile int pipelineDepth;
 
         /**
          * 待写队列中尚未写出的字节数(网络字节,与 writeQueue 内容严格对应)。
