@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -435,18 +436,26 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
-                    if (!key.isValid()) {
-                        continue;
-                    }
-                    if (key.isAcceptable()) {
-                        doAccept(key);
+                    try {
+                        if (!key.isValid()) {
+                            continue;
+                        }
+                        if (key.isAcceptable()) {
+                            doAccept(key);
+                        }
+                    } catch (Throwable t) {
+                        // 单条连接的异常（典型是连接被并发关闭后 isAcceptable()
+                        // 抛 CancelledKeyException）不允许杀死接收线程：
+                        // 接收线程一死，服务就再也不接受任何新连接。
+                        log.warn("Accept 分发异常: {} -> {}",
+                                t.getClass().getSimpleName(), t.getMessage());
                     }
                 }
             } catch (ClosedSelectorException e) {
                 break;
-            } catch (IOException e) {
+            } catch (Throwable t) {
                 if (running) {
-                    log.error("接受连接异常", e);
+                    log.error("接受连接异常", t);
                 }
             }
         }
@@ -466,21 +475,34 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
-                    if (!key.isValid()) {
-                        continue;
-                    }
-                    if (key.isWritable()) {
-                        // 续写未写完的响应帧：写就绪才回写，不再忙等 Thread.yield()
-                        flushPendingWrite(key);
-                    }
-                    if (key.isReadable()) {
-                        doRead(key);
+                    try {
+                        if (!key.isValid()) {
+                            continue;
+                        }
+                        if (key.isWritable()) {
+                            // 续写未写完的响应帧：写就绪才回写，不再忙等 Thread.yield()
+                            flushPendingWrite(key);
+                        }
+                        if (key.isReadable()) {
+                            doRead(key);
+                        }
+                    } catch (Throwable t) {
+                        // 单条连接的异常（典型是连接已被 worker 并发关闭后
+                        // isReadable()/isWritable() 抛 CancelledKeyException）
+                        // 只清理该连接，绝不允许杀死 IO 事件循环线程：
+                        // 线程一死，这个 Selector 上所有连接的读写全部停摆。
+                        log.warn("IO 分发异常: {} -> {}",
+                                t.getClass().getSimpleName(), t.getMessage());
+                        closeConnection(key, null,
+                                key.attachment() instanceof Attachment a ? a : null);
                     }
                 }
             } catch (ClosedSelectorException e) {
                 break;
-            } catch (IOException e) {
-                log.error("IO selector error", e);
+            } catch (Throwable t) {
+                if (running) {
+                    log.error("IO selector error", t);
+                }
             }
         }
     }
@@ -888,9 +910,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param key 选择键
      */
     private static void addWriteInterest(SelectionKey key) {
-        synchronized (key) {
-            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-        }
+        interestOps(key, SelectionKey.OP_WRITE, true);
     }
 
     /**
@@ -899,9 +919,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param key 选择键
      */
     private static void clearWriteInterest(SelectionKey key) {
-        synchronized (key) {
-            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
-        }
+        interestOps(key, SelectionKey.OP_WRITE, false);
     }
 
     /**
@@ -910,9 +928,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param key 选择键
      */
     private static void addReadInterest(SelectionKey key) {
-        synchronized (key) {
-            key.interestOps(key.interestOps() | SelectionKey.OP_READ);
-        }
+        interestOps(key, SelectionKey.OP_READ, true);
     }
 
     /**
@@ -921,8 +937,30 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param key 选择键
      */
     private static void clearReadInterest(SelectionKey key) {
+        interestOps(key, SelectionKey.OP_READ, false);
+    }
+
+    /**
+     * 复合地置位/清除兴趣位，并对「键被并发取消」做防护。
+     *
+     * <p>{@code interestOps} 的「读当前位 → 改 → 写回」不是原子的，必须同锁；
+     * 而连接可能已被 worker 线程并发关闭（{@code key.cancel()}），此时
+     * {@code interestOps} 抛 {@link CancelledKeyException}。兴趣位对已注销的键
+     * 没有意义，直接放弃即可——绝不能把异常抛给事件循环或 worker 的 finally：
+     * 事件循环线程一旦被一条已关闭的连接打死，该 Selector 上所有连接的读写
+     * 全部停摆（实测日志里 {@code jdk-tcp-io-0} 就是这样被杀掉的）。</p>
+     *
+     * @param key 选择键
+     * @param op  兴趣位（{@link SelectionKey#OP_READ} / {@link SelectionKey#OP_WRITE}）
+     * @param set true=置位；false=清除
+     */
+    private static void interestOps(SelectionKey key, int op, boolean set) {
         synchronized (key) {
-            key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
+            try {
+                key.interestOps(set ? key.interestOps() | op : key.interestOps() & ~op);
+            } catch (CancelledKeyException ignored) {
+                // 连接已并发关闭：兴趣位无意义，放弃
+            }
         }
     }
 

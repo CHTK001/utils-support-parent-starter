@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -414,11 +415,20 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                         } catch (IOException closeEx) {
                             log.debug("[sync] 关闭通道失败，已忽略: {}", closeEx.getMessage());
                         }
+                    } catch (Throwable t) {
+                        // 键被并发取消会抛 CancelledKeyException：boss 线程绝不能因此退出，
+                        // 否则整个服务停止接受新连接。
+                        log.warn("[sync] Boss 分发异常: {} -> {}",
+                                t.getClass().getSimpleName(), t.getMessage());
                     }
                 }
             } catch (IOException e) {
                 if (running.get()) {
                     log.error("TCP SyncServer Boss 循环异常", e);
+                }
+            } catch (Throwable t) {
+                if (running.get()) {
+                    log.error("TCP SyncServer Boss 循环异常", t);
                 }
             }
         }
@@ -459,11 +469,31 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                         }
                     } catch (IOException e) {
                         handleChannelError(key, e);
+                    } catch (Throwable t) {
+                        // 连接被并发关闭时 isReadable()/flushQueue 的 interestOps 会抛
+                        // CancelledKeyException：只清理该连接，worker 线程必须存活。
+                        log.warn("[sync] Worker{} 分发异常: {} -> {}", idx,
+                                t.getClass().getSimpleName(), t.getMessage());
+                        try {
+                            ClientConnection connection =
+                                    key.attachment() instanceof ClientConnection c ? c : null;
+                            if (connection != null) {
+                                connection.unregister();
+                            } else {
+                                key.cancel();
+                            }
+                        } catch (Exception ignored) {
+                            // 连接已经不可用，忽略清理失败
+                        }
                     }
                 }
             } catch (IOException e) {
                 if (running.get()) {
                     log.error("TCP SyncServer Worker{} 循环异常", idx, e);
+                }
+            } catch (Throwable t) {
+                if (running.get()) {
+                    log.error("TCP SyncServer Worker{} 循环异常", idx, t);
                 }
             }
         }
@@ -807,8 +837,13 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             if (writePending.compareAndSet(false, true)) {
                 SelectionKey key = channel.keyFor(worker);
                 if (key != null) {
-                    key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-                    worker.wakeup();
+                    try {
+                        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+                        worker.wakeup();
+                    } catch (CancelledKeyException e) {
+                        // 连接已被事件循环关闭：这条连接不会再冲刷，复位标志即可
+                        writePending.set(false);
+                    }
                 } else {
                     writePending.set(false);
                 }
@@ -844,7 +879,11 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                 }
                 pendingWrite = null;
             }
-            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            try {
+                key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            } catch (CancelledKeyException ignored) {
+                // 连接已并发关闭：兴趣位无意义
+            }
             writePending.set(false);
         }
 

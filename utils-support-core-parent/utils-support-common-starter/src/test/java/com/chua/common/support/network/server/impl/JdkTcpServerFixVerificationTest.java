@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -627,6 +628,58 @@ class JdkTcpServerFixVerificationTest {
             server.stop();
         }
         assertEquals(0, wrong, "缺陷 10 下有 " + wrong + "/" + (rounds * frames) + " 条响应被覆盖或错位");
+    }
+
+    /**
+     * 已取消的 {@link SelectionKey} 上做兴趣位/续写操作不得抛异常。
+     *
+     * <p>连接被 worker 线程并发关闭（{@code key.cancel()}）后，事件循环可能还在处理
+     * 同一个键：{@code isReadable()} / {@code interestOps()} 会抛
+     * {@link java.nio.channels.CancelledKeyException}。旧实现只捕获 IOException，
+     * 这个运行时异常会直接打死 IO 事件循环线程——该 Selector 上所有连接的读写
+     * 全部停摆（实测日志里 {@code jdk-tcp-io-0} 就是这样被杀掉的）。</p>
+     *
+     * <p>本用例直接构造「键已取消」的状态，再调用四个兴趣位辅助与续写方法：
+     * 旧实现必抛 CancelledKeyException，修复后应全部静默返回。</p>
+     *
+     * @throws Exception 反射或套接字操作失败
+     */
+    @Test
+    @Timeout(30)
+    @DisplayName("已取消的 SelectionKey 上兴趣位操作不得抛异常打死事件循环")
+    void cancelledKeyInterestOpsMustNotThrow() throws Exception {
+        int port = freePort();
+        JdkTcpServer server = new JdkTcpServer(setting(port));
+        ServerSocketChannel listener = ServerSocketChannel.open();
+        listener.bind(new InetSocketAddress("127.0.0.1", port));
+        Socket client = new Socket();
+        client.connect(new InetSocketAddress("127.0.0.1", port));
+        SocketChannel channel = listener.accept();
+        channel.configureBlocking(false);
+        try (Selector selector = Selector.open()) {
+            Class<?> attClass = Class.forName(
+                    "com.chua.common.support.network.server.impl.JdkTcpServer$Attachment");
+            Constructor<?> attCtor = attClass.getDeclaredConstructor(Selector.class);
+            attCtor.setAccessible(true);
+            Object att = attCtor.newInstance(selector);
+            SelectionKey key = channel.register(selector, SelectionKey.OP_READ, att);
+            // 模拟 worker 线程在事件循环处理该键之前关闭了连接
+            key.cancel();
+
+            for (String name : new String[]{"addReadInterest", "clearReadInterest",
+                    "addWriteInterest", "clearWriteInterest"}) {
+                Method method = JdkTcpServer.class.getDeclaredMethod(name, SelectionKey.class);
+                method.setAccessible(true);
+                method.invoke(null, key);
+            }
+            Method flush = JdkTcpServer.class.getDeclaredMethod("flushPendingWrite", SelectionKey.class);
+            flush.setAccessible(true);
+            flush.invoke(server, key);
+        } finally {
+            client.close();
+            channel.close();
+            listener.close();
+        }
     }
 
     /**
