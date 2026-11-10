@@ -70,14 +70,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-datasource-starter</artifactId>
-            <!-- 该依赖指向 spring 仓库制品，不能用 ${project.version}（utils 版本比 spring 低一个补丁位） -->
-            <version>${spring.support.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>test</scope>

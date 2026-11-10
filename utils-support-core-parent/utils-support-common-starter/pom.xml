@@ -16,14 +16,6 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <repositories>
-        <repository>
-            <id>local-vector-api</id>
-            <url>file://${user.home}/.m2/repository</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -55,6 +47,13 @@
                         <arg>--enable-preview</arg>
                         <arg>-proc:full</arg>
                         <arg>-parameters</arg>
+                        <!--
+                          向量 API 由 JDK 自带的 jdk.incubator.vector 模块提供（VectorMath 唯一引用点），
+                          不再依赖外部 com.chua.jdk:vector-api 制品（该制品只存在于个别机器的本地仓库，
+                          不是可发布依赖）。本模块的 compilerArgs 覆盖了父 POM pluginManagement 的同名列表，
+                          故此处必须显式再声明一次。
+                        -->
+                        <arg>--add-modules=jdk.incubator.vector</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
@@ -68,13 +67,6 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>com.chua.jdk</groupId>
-            <artifactId>vector-api</artifactId>
-            <!-- 外部发布包，不随本反应器版本同步（已发版 4.0.0.42），本地仅经 local-vector-api 仓库提供 -->
-            <version>4.0.0.42</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

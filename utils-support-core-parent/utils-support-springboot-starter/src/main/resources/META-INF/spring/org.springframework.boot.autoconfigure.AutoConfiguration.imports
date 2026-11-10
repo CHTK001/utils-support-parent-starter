@@ -5,4 +5,3 @@ com.chua.springboot.support.autoconfigure.RateLimiterAutoConfiguration
 com.chua.springboot.support.autoconfigure.CircuitBreakerAutoConfiguration
 com.chua.springboot.support.autoconfigure.DispatcherAutoConfiguration
 com.chua.springboot.support.context.ObjectContextAutoConfiguration
-com.chua.springboot.support.endpoint.ConcurrentEndpoint
