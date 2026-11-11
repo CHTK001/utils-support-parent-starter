@@ -851,6 +851,63 @@ public class ServerSetting {
     private int bufferSize = 8192;
 
     /**
+     * 是否把读缓冲分配到堆外（DirectBuffer）。
+     *
+     * <p>默认 {@code false}: 读缓冲分配在 JVM 堆，便于 GC 回收、调试和线上无缝切换。
+     * 设为 {@code true} 后，读缓冲改为 {@link ByteBuffer#allocateDirect}，堆占用下降，
+     * 但直接内存（{@code -XX:MaxDirectMemorySize}）接管。这在「百万连接、空闲连接极少
+     * 读数据、只留连接元数据」的场景才有意义；普通低并发或需要调试堆内存的场景请
+     * 保持默认 {@code false}，不要盲目开启。
+     *
+     * <p>注意：两者均不影响读缓冲大小（由 {@link #bufferSize} 控制）。本开关只决定
+     * 该缓冲分配在哪片内存区域。</p>
+     */
+    /**
+     * 是否把读缓冲分配到堆外（DirectBuffer）。
+     *
+     * <p>默认 {@code false}: 读缓冲分配在 JVM 堆，便于 GC 回收、调试和线上无缝切换。
+     * 设为 {@code true} 后，读缓冲改为 {@link ByteBuffer#allocateDirect}，堆占用下降，
+     * 但直接内存（{@code -XX:MaxDirectMemorySize}）接管。这在「百万连接、空闲连接极少
+     * 读数据、只留连接元数据」的场景才有意义；普通低并发或需要调试堆内存的场景请
+     * 保持默认 {@code false}，不要盲目开启。
+     *
+     * <p>注意：两者均不影响读缓冲大小（由 {@link #bufferSize} 控制）。本开关只决定
+     * 该缓冲分配在哪片内存区域。</p>
+     *
+     * @return 是否使用直接内存读缓冲
+     */
+    @Builder.Default
+    private boolean useDirectBuffer = false;
+
+    /**
+     * 是否显式设置过 {@link #useDirectBuffer}（autoConfig 内部标记）。
+     */
+    @Builder.Default
+    private boolean useDirectBufferExplicit = false;
+
+    /**
+     * 是否把读缓冲分配到堆外（DirectBuffer）。
+     *
+     * <p>默认 {@code false}，分配在 JVM 堆，便于 GC 回收和调试。
+     * 设为 {@code true} 后，读缓冲改为 {@link ByteBuffer#allocateDirect}。
+     *
+     * @return 是否使用直接内存读缓冲
+     */
+    public boolean isUseDirectBuffer() {
+        return useDirectBuffer;
+    }
+
+    /**
+     * 设置是否把读缓冲分配到堆外（DirectBuffer）。
+     *
+     * @param useDirectBuffer 是否使用直接内存读缓冲
+     */
+    public void setUseDirectBuffer(boolean useDirectBuffer) {
+        this.useDirectBuffer = useDirectBuffer;
+        this.useDirectBufferExplicit = true;
+    }
+
+    /**
      * 是否显式设置过 bufferSize（autoConfig 内部标记；默认 false）。
      *
      * <p>与 {@link #maxConnectionsExplicit} 同理：用户显式指定的缓冲区大小不能被

@@ -154,6 +154,11 @@ public class NioHttpServer extends AbstractServer {
     private static final int MAX_PIPELINE_DEPTH = Integer.getInteger("nio.pipeline.max", 4096);
 
     /**
+     * 读缓冲下限（字节）：低于此值会让大请求头/请求体被拆成过多系统调用。
+     */
+    private static final int MIN_READ_BUFFER_SIZE = 4096;
+
+    /**
      * 将响应头与体追加到连接的写队列,小响应合并成单个缓冲以减少 socket 写次数。
      * <p>调用方需持有 {@code st.writeQueue} 的锁。</p>
      * @param st 连接状态
@@ -713,11 +718,13 @@ public class NioHttpServer extends AbstractServer {
             return;
         }
         // 懒分配读缓冲:空闲连接(未收发数据)不占用读缓冲,百万级空闲连接场景节省数十 GB 堆内存。
-        // 缓冲大小跟随 setting.bufferSize(默认 8KB/16KB),不再硬编码 32KB —— 硬编码会让
-        // 每连接常驻内存从 ~20KB 涨到 ~47KB,百万连接时差 27GB 堆内存。
+        // 缓冲大小跟随 setting.bufferSize; 区域由 setting.useDirectBuffer 决定:
+        //   - 堆内(默认): GC 自动回收,便于 jmap/调试,适合低并发
+        //   - 堆外: 不占 -Xmx,百万连接时堆只留连接元数据,代价是直接内存与调试难度
         ByteBuffer buf = st.readBuf;
         if (buf == null) {
-            buf = ByteBuffer.allocate(Math.max(setting.getBufferSize(), 4096));
+            int size = Math.max(setting.getBufferSize(), MIN_READ_BUFFER_SIZE);
+            buf = setting.isUseDirectBuffer() ? ByteBuffer.allocateDirect(size) : ByteBuffer.allocate(size);
             st.readBuf = buf;
         }
         int n = st.channel.read(buf);
