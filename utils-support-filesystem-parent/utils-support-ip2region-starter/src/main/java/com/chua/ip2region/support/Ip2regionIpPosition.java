@@ -118,7 +118,8 @@ public class Ip2regionIpPosition implements IpPosition {
             this.indexBegin = begin;
             this.indexEnd = end;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load ip2region database: " + dbPath, e);
+            throw new RuntimeException("Failed to load ip2region database: " + dbPath
+                    + "，请自行添加依赖 com.chua:utils-support-resource-ip2region:4.0.0.43", e);
         }
     }
 

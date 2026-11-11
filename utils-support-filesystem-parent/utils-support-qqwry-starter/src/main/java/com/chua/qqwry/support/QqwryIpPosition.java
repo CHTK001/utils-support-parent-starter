@@ -39,7 +39,8 @@ public class QqwryIpPosition implements IpPosition {
         try {
             this.reader = new QQWryReader(dbPath);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load QQWry database: " + dbPath, e);
+            throw new RuntimeException("Failed to load QQWry database: " + dbPath
+                    + "，请自行添加依赖 com.chua:utils-support-resource-qqwry:4.0.0.43", e);
         }
     }
 

@@ -18,11 +18,6 @@
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-resource-qqwry</artifactId>
-            <version>4.0.0.43</version>
-        </dependency>
     </dependencies>
 </project>
 

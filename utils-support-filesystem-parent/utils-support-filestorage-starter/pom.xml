@@ -28,11 +28,6 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-resource-filestorage</artifactId>
-            <version>4.0.0.43</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-image-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
