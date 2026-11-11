@@ -2030,16 +2030,6 @@
                 <version>${io.gitee.dengwenjie.seeta.sdk.platform.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-resource-qqwry</artifactId>
-                <version>4.0.0.43</version>
-            </dependency>
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-resource-ip2region</artifactId>
-                <version>4.0.0.43</version>
-            </dependency>
-            <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>cas20200407</artifactId>
                 <version>${aliyun.cas.sdk.version}</version>
