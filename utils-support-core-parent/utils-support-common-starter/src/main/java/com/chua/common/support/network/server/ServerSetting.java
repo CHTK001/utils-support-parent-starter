@@ -143,9 +143,10 @@ public class ServerSetting {
         //
         // 推导顺序（单向，避免两个变量互相反推导致永远撞边界）：
         //   1) 先按堆定 bufferSize：小堆用小缓冲，大堆才放大（性能优化只在小连接数时兑现）
-        //   2) 再按「堆预算 − 连接固定开销」定 maxConnections
+        //   2) 再按「堆预算 − 每连接成本」定 maxConnections
         // 用户显式设置过的项不覆盖，只保证未显式的那项适配。
-        long perConnFixedKb = PER_CONNECTION_FIXED_KB;
+        // 每连接成本见 effectivePerConnectionKb()：缓冲型连接按 bufferSize 估，
+        // 虚拟线程型长连接（WebSocket）由实现显式声明，否则容量会被压到远低于机器上限。
         long budgetMb = (long) (heapMb * HEAP_BUDGET_RATIO);
 
         if (!bufferSizeExplicit) {
@@ -155,7 +156,7 @@ public class ServerSetting {
                     : MIN_BUFFER_SIZE;
         }
         if (!maxConnectionsExplicit) {
-            long perConnKb = Math.max(this.bufferSize / 1024L, 1L) + perConnFixedKb;
+            long perConnKb = effectivePerConnectionKb();
             long affordable = perConnKb > 0 ? budgetMb * 1024L / perConnKb : this.maxConnections;
             long resolved = resolveMaxConnections(heapMb, os);
             long limit = Math.min(resolved, affordable);
@@ -443,10 +444,9 @@ public class ServerSetting {
             }
         }
         if (maxConnections > 0) {
-            // 每连接常驻内存的估算（与 autoConfig 的预算公式共用 PER_CONNECTION_FIXED_KB）：
-            //   空闲连接(idle, 未收发数据)：readBuf 惰性不分配，实测 ~1.7KB/连接
-            //   服务过请求(warm)：bufferSize(readBuf) + 12KB 固定项，实测 50k 连接吻合
-            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + PER_CONNECTION_FIXED_KB;
+            // 每连接常驻内存的估算（与 autoConfig 共用 effectivePerConnectionKb()，
+            // 虚拟线程型长连接会声明真实成本，两处口径必须一致）
+            long perConnectionKb = effectivePerConnectionKb();
             long neededMb = maxConnections * perConnectionKb / 1024L;
             long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
             if (neededMb > heapMb) {
@@ -878,6 +878,54 @@ public class ServerSetting {
      */
     @Builder.Default
     private boolean useDirectBuffer = false;
+
+    /**
+     * 每连接常驻内存（KB）的估算口径。
+     *
+     * <p>默认按「读缓冲 + 固定开销」估算，适用于 NIO/AIO 这类<b>每连接持有读缓冲</b>的实现。
+     * 虚拟线程型长连接（WebSocket 等）没有每连接读缓冲，堆上只有连接对象与会话表条目，
+     * 若仍套用缓冲公式，{@code autoConfig()} 会把 {@code maxConnections} 压到远低于机器容量
+     * （例如 8GB 堆算成 18 万，而实际能跑数百万）。这类实现必须通过
+     * {@link #setPerConnectionCostKb(int)} 声明真实成本。</p>
+     *
+     * @return 每连接估算 KB
+     */
+    public long effectivePerConnectionKb() {
+        if (perConnectionCostKb > 0) {
+            return perConnectionCostKb;
+        }
+        return Math.max(bufferSize / 1024L, 1L) + PER_CONNECTION_FIXED_KB;
+    }
+
+    /**
+     * 每连接常驻内存提示（KB）；{@code 0} 表示按 {@code bufferSize + 固定开销} 自动推导。
+     *
+     * <p>由具体实现声明：NIO/AIO 保持 0，虚拟线程型长连接（WebSocket）填实测值。</p>
+     */
+    @Builder.Default
+    private int perConnectionCostKb = 0;
+
+    /**
+     * 设置每连接常驻内存提示（KB），供 {@code autoConfig()} 推导连接数上限。
+     *
+     * <p>调用时机很重要：必须在 {@code autoConfig()} <b>之前</b>设置。服务端实现应在
+     * {@code super(setting)} 的实参里就设好（见 {@code JdkWebSocketServer} 的写法），
+     * 因为 {@code AbstractServer} 的构造函数里就会跑 {@code autoConfig()}。</p>
+     *
+     * @param perConnectionCostKb 每连接 KB，{@code <= 0} 表示恢复自动推导
+     */
+    public void setPerConnectionCostKb(int perConnectionCostKb) {
+        this.perConnectionCostKb = Math.max(0, perConnectionCostKb);
+    }
+
+    /**
+     * 获取每连接常驻内存提示（KB）。
+     *
+     * @return 每连接 KB，{@code 0} 表示未声明
+     */
+    public int getPerConnectionCostKb() {
+        return perConnectionCostKb;
+    }
 
     /**
      * 是否显式设置过 {@link #useDirectBuffer}（autoConfig 内部标记）。

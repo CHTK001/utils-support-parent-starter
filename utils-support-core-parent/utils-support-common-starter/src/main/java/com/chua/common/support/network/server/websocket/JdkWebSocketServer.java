@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -62,7 +63,7 @@ public class JdkWebSocketServer extends AbstractServer {
     /**
      * Connections
      */
-    private final List<Connection> connections = new CopyOnWriteArrayList<>();
+    private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
     /**
      * ConnectionIDSEQ
      */
@@ -73,7 +74,31 @@ public class JdkWebSocketServer extends AbstractServer {
      * @param setting setting
      */
     public JdkWebSocketServer(ServerSetting setting) {
-        super(setting);
+        super(withVirtualThreadConnectionCost(setting));
+    }
+
+    /**
+     * 虚拟线程型连接的每连接堆占用（KB）。
+     *
+     * <p>与 {@code WebSocketSyncServer} 同模型：连接对象 + 阻塞在 socket read 上的虚拟线程栈，
+     * 约 4KB；远低于缓冲型连接的 bufferSize+12KB。</p>
+     */
+    private static final int VIRTUAL_THREAD_CONNECTION_KB = 4;
+
+    /**
+     * 声明本实现的每连接成本，供 {@code autoConfig()} 正确推导连接数上限。
+     *
+     * <p>必须在 {@code super(setting)} 的实参里调用：{@code AbstractServer} 构造函数里
+     * 就会跑 {@code autoConfig()}。</p>
+     *
+     * @param setting 服务端配置，可为 null
+     * @return 同一个配置对象
+     */
+    private static ServerSetting withVirtualThreadConnectionCost(ServerSetting setting) {
+        if (setting != null) {
+            setting.setPerConnectionCostKb(VIRTUAL_THREAD_CONNECTION_KB);
+        }
+        return setting;
     }
 
     /**

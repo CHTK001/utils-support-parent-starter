@@ -104,6 +104,26 @@ class DirectBufferReadTest {
     }
 
     /**
+     * 触发 GC 并等待沉降后返回堆使用量。
+     *
+     * <p>比较复杂对象图（如「N 条连接保留了多少堆」）时不能直接读实时 {@code used}：
+     * 测量期间只要有任意一次 GC，读数就会跳变，可能得出「增长为负」的假结论
+     * （实测踩过 before=51MB → after=27MB）。两边都先 GC 再读，比较的就是<b>保留集</b>，
+     * 这是 GC 稳定的。</p>
+     *
+     * @param mem 内存管理
+     * @return 沉降后的堆使用量（字节）
+     * @throws InterruptedException 等待被中断
+     */
+    private static long settledHeapUsed(MemoryMXBean mem) throws InterruptedException {
+        for (int i = 0; i < 3; i++) {
+            System.gc();
+            Thread.sleep(150L);
+        }
+        return mem.getHeapMemoryUsage().getUsed();
+    }
+
+    /**
      * 在一条已建连接上完成一次 HTTP 往返，返回响应体。
      *
      * @param socket 已连接套接字
@@ -312,7 +332,7 @@ class DirectBufferReadTest {
         List<Socket> sockets = new ArrayList<>();
         try {
             server.start();
-            long before = mem.getHeapMemoryUsage().getUsed();
+            long before = settledHeapUsed(mem);
             for (int i = 0; i < 500; i++) {
                 Socket socket = new Socket();
                 socket.setSoTimeout(20000);
@@ -320,8 +340,10 @@ class DirectBufferReadTest {
                 sockets.add(socket);
                 roundTrip(socket);
             }
-            long after = mem.getHeapMemoryUsage().getUsed();
-            // 500 连接 × 16KB 读缓冲 ≈ 8MB，留足余量避免 GC 噪声误判
+            long after = settledHeapUsed(mem);
+            // 500 连接 × 16KB 读缓冲 ≈ 8MB，留足余量避免 GC 噪声误判。
+            // 必须两边都先 GC 再测：直接比对「实时 used」会在中途发生 GC 时给出
+            // 负增长（实测踩过 before=51MB → after=27MB），那是假红不是缺陷。
             assertTrue(after - before > 2 * 1024 * 1024,
                     "堆内模式下 500 条服务过的连接应让堆增长（读缓冲在堆），"
                             + "实测 before=" + before + " after=" + after);

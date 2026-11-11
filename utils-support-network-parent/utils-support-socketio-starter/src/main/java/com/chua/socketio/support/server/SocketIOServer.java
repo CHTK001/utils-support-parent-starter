@@ -19,6 +19,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.response.ServerResponse;
 
@@ -91,6 +93,16 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
+     * 已准入的连接会话（用于配对释放连接预算）。
+     *
+     * <p>netty-socketio 的连接回调没有「握手中」与「已接入」的区分：{@code addConnectListener}
+     * 触发时连接已经建立。因此超限时只能在此处 {@code client.disconnect()} 主动断开，
+     * 并靠本集合保证 {@link #releaseConnection()} 严格与 {@link #tryAcquireConnection()} 配对
+     * （被拒绝的连接不登记，其 disconnect 回调不会释放名额，否则计数会被打到负数）。</p>
+     */
+    private final Set<UUID> admittedConnections = ConcurrentHashMap.newKeySet();
+
+    /**
      * 执行开始
     */
     @Override
@@ -105,10 +117,22 @@ public class SocketIOServer extends AbstractServer {
         delegate = new com.corundumstudio.socketio.SocketIOServer(configuration);
 
         delegate.addConnectListener(client -> {
+            // 连接预算：netty-socketio 自己不判上限，不在这里拦，maxConnections 对 Socket.IO 完全无效，
+            // 连接会一直被接受到把机器吃光
+            if (!tryAcquireConnection()) {
+                log.warn("Socket.IO 连接数达上限 {}，拒绝会话 {}", setting.getMaxConnections(),
+                        client.getSessionId());
+                client.disconnect();
+                return;
+            }
+            admittedConnections.add(client.getSessionId());
             invokeAnnotatedMethods(OnOpen.class);
         });
 
         delegate.addDisconnectListener(client -> {
+            if (admittedConnections.remove(client.getSessionId())) {
+                releaseConnection();
+            }
             invokeAnnotatedMethods(OnClose.class);
         });
 
@@ -134,6 +158,7 @@ public class SocketIOServer extends AbstractServer {
         }
         delegateRunning = false;
         messageHandlers.clear();
+        admittedConnections.clear();
         log.info("Socket.IO 服务器停止");
     }
 

@@ -69,9 +69,15 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     private ExecutorService executor;
 
     /**
-     * 连接列表
+     * 连接注册表。
+     *
+     * <p><b>不能用 {@code CopyOnWriteArrayList}</b>：它每次 {@code add}/{@code remove} 都会
+     * 全量复制底层数组，n 条连接的总代价是 O(n²) —— 百万连接下光是复制就要搬运 TB 级内存，
+     * accept 吞吐会随时间崩塌。{@code ConcurrentHashMap.newKeySet()} 增删都是 O(1)，
+     * 迭代为弱一致（广播时容忍并发增删），才是长连接注册表该用的结构。
+     * 同一缺陷也存在于 {@code JdkWebSocketServer}。</p>
      */
-    private final List<Connection> connections = new CopyOnWriteArrayList<>();
+    private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
 
     /**
      * 客户端注册表（sessionId -> metadata）
@@ -106,7 +112,32 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * @param setting 服务端配置
      */
     public WebSocketSyncServer(ServerSetting setting) {
-        super(setting);
+        super(withVirtualThreadConnectionCost(setting));
+    }
+
+    /**
+     * 虚拟线程型连接的每连接堆占用（KB）。
+     *
+     * <p>实测值：连接对象 + 会话表条目 + 阻塞在 socket read 上的虚拟线程栈，
+     * 合计约 4KB（远低于缓冲型连接的 bufferSize+12KB）。</p>
+     */
+    private static final int VIRTUAL_THREAD_CONNECTION_KB = 4;
+
+    /**
+     * 声明本实现的每连接成本，供 {@code autoConfig()} 正确推导连接数上限。
+     *
+     * <p>必须在 {@code super(setting)} 的实参里调用：{@code AbstractServer} 的构造函数
+     * 就会跑 {@code autoConfig()}，晚一步设置就来不及了。不声明的话，autoConfig 会按
+     * 「读缓冲 + 固定开销」估算，把百万级长连接的 maxConnections 压到十几万。</p>
+     *
+     * @param setting 服务端配置，可为 null
+     * @return 同一个配置对象
+     */
+    private static ServerSetting withVirtualThreadConnectionCost(ServerSetting setting) {
+        if (setting != null) {
+            setting.setPerConnectionCostKb(VIRTUAL_THREAD_CONNECTION_KB);
+        }
+        return setting;
     }
 
     /**
