@@ -75,17 +75,8 @@
             <version>3.27.7</version>
             <scope>test</scope>
         </dependency>
-        <!--
-          纠错验收用：SherpaCorrectorTest 需要 macbert4csc 的模型资源（约 452MB）才能
-          真正执行「因该→应该」的核对。该模型由 utils-support-models-parent 独立构建并
-          install 到本地仓库；缺失时用例会 skip（不伪装通过），不影响主线编译。
-        -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-macbert4csc</artifactId>
-            <version>4.0.0.43</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- 纠错验收用的 macbert4csc 模型（约 452MB）不在本 starter 声明；
+             SherpaCorrectorTest 需要时由使用方自行添加 utils-support-models-onnx-macbert4csc，缺失时用例 skip -->
     </dependencies>
 
     <profiles>
