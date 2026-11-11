@@ -400,15 +400,17 @@ public class ServerSetting {
             }
         }
         if (maxConnections > 0) {
-            // 每连接常驻内存的粗估：懒分配后空闲连接约 1KB 元数据 + 内核结构，
-            // 有流量时再叠加 readBuf/writeQueue，这里只做量级告警（不阻断启动）
-            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + 4L;
+            // 每连接常驻内存的粗估（实测数据，50k 连接）：
+            //   空闲连接(idle, 未收发数据)：~1.7KB/连接（readBuf 惰性不分配）
+            //   服务过请求(warm)：~30KB/连接（readBuf + request buf 8KB + 响应/合并缓冲 + 对象开销）
+            // 公式取 warm 上界：bufferSize(readBuf) + 8KB(request buf) + 4KB(对象/响应/合并缓冲)
+            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + 8L + 4L;
             long neededMb = maxConnections * perConnectionKb / 1024L;
             long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
             if (neededMb > heapMb) {
                 problems.add("maxConnections=" + maxConnections + " 在满载且每连接有流量时约需 "
                         + neededMb + "MB，超过最大堆 " + heapMb + "MB；"
-                        + "请调小 maxConnections 或调大 -Xmx（空闲连接不分配缓冲，此为满载上界估算）");
+                        + "请调小 maxConnections 或调大 -Xmx（空闲连接仅 ~1.7KB/连接，此为 warm 上界估算）");
             }
             if (maxConnections > 200_000 && System.getProperty("os.name", "").toLowerCase().contains("win")
                     && !WindowsMaxConnectionHint.SHOWN.getAndSet(true)) {

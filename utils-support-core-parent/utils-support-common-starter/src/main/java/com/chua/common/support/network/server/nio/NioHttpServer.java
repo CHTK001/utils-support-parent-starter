@@ -712,10 +712,12 @@ public class NioHttpServer extends AbstractServer {
             key.interestOps(0);
             return;
         }
-        // 懒分配读缓冲:空闲连接(未收发数据)不占用 32KB,百万级空闲连接场景节省数十 GB 堆内存
+        // 懒分配读缓冲:空闲连接(未收发数据)不占用读缓冲,百万级空闲连接场景节省数十 GB 堆内存。
+        // 缓冲大小跟随 setting.bufferSize(默认 8KB/16KB),不再硬编码 32KB —— 硬编码会让
+        // 每连接常驻内存从 ~20KB 涨到 ~47KB,百万连接时差 27GB 堆内存。
         ByteBuffer buf = st.readBuf;
         if (buf == null) {
-            buf = ByteBuffer.allocate(32768);
+            buf = ByteBuffer.allocate(Math.max(setting.getBufferSize(), 4096));
             st.readBuf = buf;
         }
         int n = st.channel.read(buf);

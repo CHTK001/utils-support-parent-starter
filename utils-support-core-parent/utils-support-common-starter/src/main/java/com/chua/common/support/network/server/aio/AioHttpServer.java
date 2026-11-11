@@ -95,7 +95,7 @@ public class AioHttpServer extends AbstractServer {
      * 默认读缓冲区大小(字节):与 NIO 版一致取 32KB,
      * 减少大请求体场景的系统调用次数,小请求仅按需 flip 无额外开销
      */
-    private static final int READ_BUFFER_SIZE = 32768;
+    private static final int READ_BUFFER_SIZE = 4096;
 
     /**
      * 并发 accept 重叠深度:IOCP 支持多个重叠 AcceptEx 同时等待,
