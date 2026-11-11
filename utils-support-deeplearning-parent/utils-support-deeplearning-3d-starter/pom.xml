@@ -11,7 +11,7 @@
     </parent>
     <artifactId>utils-support-deeplearning-3d-starter</artifactId>
     <name>Utils Support Deep Learning 3D Starter</name>
-    <description>3D 鐢熸垚妯″潡锛氭敮鎸佹枃鏈€佸浘鐗囩敓鎴?3D 妯″瀷</description>
+    <description>3D 生成模块：支持文本、图片生成 3D 模型</description>
     <build>
         <plugins>
             

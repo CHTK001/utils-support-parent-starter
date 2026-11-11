@@ -11,15 +11,15 @@
     <artifactId>utils-support-maven-starter</artifactId>
     <name>Utils Support Maven Starter</name>
     <description>
-        Utils Support Maven Starter - Maven 缂栬瘧闆嗘垚妯″潡
+        Utils Support Maven Starter - Maven 编译集成模块
 
-        鎻愪緵 Maven 椤圭洰鐨勯摼寮忕紪璇戜笌鏋勫缓鏀寔锛?
-        - 閾惧紡 Builder API 鍒涘缓 MavenClient
-        - 鍚屾/寮傛 pom.xml 缂栬瘧涓庢瀯寤?
-        - 缂栬瘧杩囩▼瀹炴椂杩涘害鍥炶皟
-        - 鑷畾涔夌紪璇戠洰鏍囦笌 Profile
-        - 鍩轰簬 Maven Invoker 鐨勭嫭绔嬭繘绋嬬紪璇?
-        - 鏀寔 JDK 澶氱増鏈垏鎹?
+        提供 Maven 项目的链式编译与构建支持。
+        - 链式 Builder API 创建 MavenClient
+        - 同步/异步 pom.xml 编译与构建
+        - 编译过程实时进度回调
+        - 自定义编译目标与 Profile
+        - 基于 Maven Invoker 的独立进程编译
+        - 支持 JDK 多版本切换
     </description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>

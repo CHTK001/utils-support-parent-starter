@@ -9,7 +9,7 @@
     </parent>
     <artifactId>utils-support-datasearch-starter</artifactId>
     <name>Datasearch Starter</name>
-    <description>鏁版嵁鎼滅储妯″潡锛屾彁渚涜棰?闊充箰璧勬簮鎼滅储銆乄ebDAV浜戝瓨鍌ㄣ€丣DBC鍏冩暟鎹€佹暟鎹悓姝ヨ緭鍏ョ瓑鑳藉姏</description>
+    <description>数据搜索模块，提供视频、音乐资源搜索、WebDAV云存储、JDBC元数据、数据同步输入等能力</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>

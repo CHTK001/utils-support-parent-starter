@@ -11,13 +11,13 @@
     <artifactId>utils-support-spring-starter</artifactId>
     <name>Utils Support Spring Starter</name>
     <description>
-        Utils Support Spring Starter - Spring 妗嗘灦闆嗘垚妯″潡
+        Utils Support Spring Starter - Spring 框架集成模块
 
-        鎻愪緵 Spring 鐜涓嬬殑宸ュ叿鏀寔锛?
-        - Spring 鐜閰嶇疆娉ㄥ叆锛圫pringBeanUtils / ApplicationContextInitializer锛?
-        - 鏃ユ湡鏃堕棿 ConversionService / Formatter 閰嶇疆
-        - Spring MVC 鍦板潃瑙ｆ瀽 SPI
-        - Request/Response 宸ュ叿
+        提供 Spring 环境下的工具支持。
+        - Spring 环境配置注入（SpringBeanUtils / ApplicationContextInitializer）
+        - 日期时间 ConversionService / Formatter 配置
+        - Spring MVC 地址解析 SPI
+        - Request/Response 工具
     </description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>

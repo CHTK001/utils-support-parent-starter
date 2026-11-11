@@ -12,7 +12,7 @@
     <version>4.0.0.50</version>
     <packaging>pom</packaging>
     <name>Utils Support Filesystem Parent</name>
-    <description>鏂囦欢绯荤粺鐖舵ā鍧楋紝鎻愪緵绯荤粺鏃ュ織妫€绱㈢瓑鍔熻兘</description>
+    <description>文件系统父模块，提供系统日志检索等功能</description>
     <modules>
         <module>utils-support-email-starter</module>
         <module>utils-support-pdf-starter</module>

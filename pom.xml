@@ -2297,7 +2297,7 @@
                         <failBuildOnCVss>7</failBuildOnCVss>
                     </configuration>
                 </plugin>
-                <!-- JaCoCo 浠ｇ爜瑕嗙洊鐜?-->
+                <!-- JaCoCo 代码覆盖率-->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>

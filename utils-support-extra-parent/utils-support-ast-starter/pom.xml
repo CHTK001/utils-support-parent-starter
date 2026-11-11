@@ -11,20 +11,20 @@
     <artifactId>utils-support-ast-starter</artifactId>
     <name>Utils Support AST Processor Starter - AST</name>
     <description>
-        鍩轰簬 Java AST (Abstract Syntax Tree) 鐨勭紪璇戞湡娉ㄨВ澶勭悊鍣紝鍒╃敤 javac Tree API 鍦ㄧ紪璇戦樁娈典慨鏀瑰拰鐢熸垚浠ｇ爜銆?
+        基于 Java AST (Abstract Syntax Tree) 的编译期注解处理器，利用 javac Tree API 在编译阶段修改和生成代码。
 
-        鏀寔鐨勬敞瑙ｅ強鍔熻兘锛?
-        - @DefaultValue    : 涓哄瓧娈垫垨鏂规硶鍙傛暟鎻愪緵榛樿鍊?
-        - @NonNull         : 鑷姩鐢熸垚闈炵┖ (null) 鏍￠獙浠ｇ爜
-        - @Slf4j           : 鑷姩娉ㄥ叆骞跺垵濮嬪寲 Slf4j Logger 瀵硅薄
-        - @ToString        : 鑷姩鐢熸垚 toString() 鏂规硶
-        - @Trimmed         : 鑷姩瀵?String 绫诲瀷瀛楁璋冪敤 String.trim() 鍘婚櫎棣栧熬绌烘牸
-        - @OptionalCode    : 鏀寔鏉′欢浠ｇ爜鍧楁垨鍙€変唬鐮佺敓鎴?
-        - @SneakyThrows    : 浼橀泤鍦版姏鍑哄彈妫€寮傚父锛屾棤闇€鍦ㄦ柟娉曠鍚嶄腑澹版槑 throws
+        支持的注解及功能：
+        - @DefaultValue    : 为字段或方法参数提供默认值
+        - @NonNull         : 自动生成非空 (null) 校验代码
+        - @Slf4j           : 自动注入并初始化 Slf4j Logger 对象
+        - @ToString        : 自动生成 toString() 方法
+        - @Trimmed         : 自动对 String 类型字段调用 String.trim() 去除首尾空格
+        - @OptionalCode    : 支持条件代码块或可选代码生成
+        - @SneakyThrows    : 优雅地抛出受检异常，无需在方法签名中声明 throws
 
-        鏍稿績瀹炵幇锛?
-        - 鍩轰簬 javax.annotation.processing.AbstractProcessor 涓?javac Tree API
-        - 绾紪璇戞湡澶勭悊锛屾棤杩愯鏃朵緷璧栵紝闆舵€ц兘鎹熻€?
+        核心实现：
+        - 基于 javax.annotation.processing.AbstractProcessor 与 javac Tree API
+        - 纯编译期处理，无运行时依赖，零性能损耗
     </description>
 
     <properties>
