@@ -1,7 +1,6 @@
 package com.chua.sqlite.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
-import com.chua.nativesqlite.support.SqliteHookBridge;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;

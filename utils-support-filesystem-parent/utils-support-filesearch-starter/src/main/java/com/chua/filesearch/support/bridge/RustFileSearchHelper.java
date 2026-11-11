@@ -2,6 +2,7 @@
 package com.chua.filesearch.support.bridge;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.filesearch.support.nativeaccess.RustFileSearchBridge;
 import com.chua.filesystem.support.filesearch.model.FileInfo;
 import com.chua.filesystem.support.filesearch.model.FileSearchCriteria;
 import lombok.extern.slf4j.Slf4j;

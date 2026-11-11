@@ -5,7 +5,7 @@ import com.chua.common.support.file.resource.AbstractResourceFinder;
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.filesearch.support.bridge.RustFileSearchBridge;
+import com.chua.filesearch.support.nativeaccess.RustFileSearchBridge;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;

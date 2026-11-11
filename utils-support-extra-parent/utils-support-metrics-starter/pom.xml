@@ -25,11 +25,6 @@
             <version>4.0.0.50</version>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-metrics</artifactId>
-            <version>4.0.0.43</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>

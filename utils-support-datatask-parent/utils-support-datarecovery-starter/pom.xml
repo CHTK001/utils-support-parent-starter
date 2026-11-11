@@ -23,17 +23,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- DataRecovery JNI 绑定与 Rust 源码均已迁入 native 模块，包名仍为
-             com.chua.datarecovery.support（原生符号写死了该全限定名）。
-             本模块只保留业务侧，原生库与构建由 utils-support-native-datarecovery
-             提供（其 src/main/rust + CI native-datarecovery.yml）。 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-datarecovery</artifactId>
-            <version>4.0.0.43</version>
-            <scope>compile</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -1,6 +1,5 @@
 package com.chua.video.processor.support;
 
-import com.chua.video.processor.support.bridge.VideoProcessorBridge;
 /**
  * 视频处理入口，提供转码为 HLS 等能力。
  *

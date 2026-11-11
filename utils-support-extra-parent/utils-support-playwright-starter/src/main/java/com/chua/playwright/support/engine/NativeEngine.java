@@ -144,7 +144,8 @@ public class NativeEngine implements Engine {
             } catch (Throwable e) {
                 loadError = e;
                 loaded = false;
-                log.warn("[headless] 原生库不可用，将由调用方回退 JavaEngine: {}", e.getMessage(), e);
+                log.warn("[headless] 原生库不可用，将由调用方回退 JavaEngine；请自行添加依赖 "
+                        + "com.chua:utils-support-native-headless:4.0.0.43: {}", e.toString(), e);
             }
         }
     }

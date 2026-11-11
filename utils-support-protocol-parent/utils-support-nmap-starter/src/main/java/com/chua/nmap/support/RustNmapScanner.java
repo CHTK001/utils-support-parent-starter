@@ -5,7 +5,6 @@ import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.nmap.support.bridge.RustNmapBridge;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -18,16 +18,6 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Rust JNI 桥与 Rust 源码均已迁入 native 模块：绑定类 VideoProcessorBridge
-             位于 utils-support-native-video-processor，并且是该模块的源文件，故必须是
-             compile scope，否则编译期看不到 com.chua.video.processor.support.bridge 包。
-             原生库构建（src/main/rust/build.sh）同样由 native 模块负责。 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-video-processor</artifactId>
-            <version>4.0.0.43</version>
-            <scope>compile</scope>
-        </dependency>
         <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->
         <dependency>
             <groupId>com.chua</groupId>

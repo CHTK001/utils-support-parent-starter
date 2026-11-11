@@ -4,11 +4,9 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
-import com.chua.nativemetrics.support.MetricsNativeLibrary;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -60,10 +58,13 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
      */
     public MetricsService(long intervalMs) {
         super("/metrics");
-        this.nativeLib = Objects.requireNonNull(
-                MetricsNativeLibrary.create(),
-                "无法加载 metrics_native native 库"
-        );
+        MetricsNativeLibrary library = MetricsNativeLibrary.create();
+        if (library == null) {
+            log.warn("metrics 原生库不可用，指标采集降级为空实现；请自行添加依赖 com.chua:utils-support-native-metrics:4.0.0.43");
+            this.nativeLib = null;
+            return;
+        }
+        this.nativeLib = library;
         this.nativeLib.start(intervalMs);
     }
 
@@ -89,6 +90,9 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     */
     @Override
     protected List<SnapshotWrapper> listAndModified(String path) {
+        if (nativeLib == null) {
+            return Wraps.list();
+        }
         String json = nativeLib.poll();
         if (json == null || json.isEmpty()) {
             return Wraps.list();

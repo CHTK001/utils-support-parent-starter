@@ -5,7 +5,6 @@ import com.chua.common.support.codec.image.ImageEncoder;
 import com.chua.common.support.exception.CodecException;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
-import com.chua.nativeturbojpeg.support.TurboJpegBridge;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;

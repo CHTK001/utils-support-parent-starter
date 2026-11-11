@@ -3,7 +3,6 @@ package com.chua.image.support.compression.engine;
 
 import com.chua.common.support.image.compression.PaletteQuantizer;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.nativeimageopt.support.ImageOptBridge;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;

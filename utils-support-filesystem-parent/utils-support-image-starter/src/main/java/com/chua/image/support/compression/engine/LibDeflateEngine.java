@@ -2,7 +2,6 @@ package com.chua.image.support.compression.engine;
 
 import com.chua.common.support.image.compression.DeflateEngine;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.nativeimageopt.support.ImageOptBridge;
 
 /**
  * 基于 {@code libdeflate} 的 deflate 引擎（native 钩子）。
@@ -20,7 +19,7 @@ import com.chua.nativeimageopt.support.ImageOptBridge;
  *
  * <h3>与纯 Java 兜底的分工</h3>
  * <p>{@link DeflateEngine#deflate(byte[], DeflateProfile)} 的 {@code iterations}
- * 表示「多轮参数搜索」。本实现把 {@link com.chua.nativeimageopt.support.ImageOptBridge} 的
+ * 表示「多轮参数搜索」。本实现把 {@link ImageOptBridge} 的
  * 多档试压接口接上：在<b>映射后</b>的目标级别上下各取一档逐一压缩并返回最短结果。
  * 这正是 zopfli 的核心思路（穷举参数组合取最小），但用 libdeflate 的高速内核做试压，
  * 把耗时从 zopfli 的分钟级压到秒级。

@@ -8,7 +8,6 @@ import com.chua.common.support.image.compression.DeflateEngine;
 import com.chua.common.support.image.compression.PaletteQuantizer;
 import com.chua.common.support.image.compression.PaletteQuantizer.QuantizedImage;
 import com.chua.image.support.compression.TinyPngImageCompressor;
-import com.chua.nativeimageopt.support.ImageOptBridge;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;

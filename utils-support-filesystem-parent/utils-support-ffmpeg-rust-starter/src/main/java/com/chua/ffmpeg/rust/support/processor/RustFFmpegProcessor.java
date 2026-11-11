@@ -6,7 +6,6 @@ import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
 import com.chua.common.support.media.ffmpeg.FFmpegMediaInfo;
 import com.chua.common.support.media.ffmpeg.FrameInfo;
-import com.chua.nativeffmpeg.support.NativeFFmpeg;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
