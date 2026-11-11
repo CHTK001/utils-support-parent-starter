@@ -64,6 +64,11 @@ public class JdkWebSocketServer extends AbstractServer {
      * Connections
      */
     private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
+
+    /**
+     * 广播扇出器：把「逐条写全部连接」移出调用线程（百万连接下同步扇出会阻塞数秒以上）。
+     */
+    private AsyncBroadcaster broadcaster;
     /**
      * ConnectionIDSEQ
      */
@@ -114,6 +119,8 @@ public class JdkWebSocketServer extends AbstractServer {
                     setting.resolveBacklog(2048));
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
+            int shards = Math.min(8, Math.max(2, Runtime.getRuntime().availableProcessors()));
+            broadcaster = new AsyncBroadcaster(shards, 256, () -> connections);
             executor.submit(this::acceptLoop);
             log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",
                     setting.getHost(), setting.getPort(), setting.resolveBacklog(2048));
@@ -127,6 +134,10 @@ public class JdkWebSocketServer extends AbstractServer {
      */
     @Override
     protected void doStop() {
+        if (broadcaster != null) {
+            broadcaster.close();
+            broadcaster = null;
+        }
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
@@ -195,20 +206,16 @@ public class JdkWebSocketServer extends AbstractServer {
      * @param payload 方法入参 payload
      */
     public void publish(String topic, String payload) {
+        AsyncBroadcaster fanOut = broadcaster;
+        if (fanOut == null) {
+            return;
+        }
         try {
-            String frame = buildTextFrame(payload);
-            for (Connection c : connections) {
-                try {
-                    synchronized (c) {
-                        c.out.write(frame.getBytes(StandardCharsets.ISO_8859_1));
-                        c.out.flush();
-                    }
-                } catch (IOException e) {
-                    log.debug("[ws] 发送消息失败，已忽略: {}", e.getMessage());
-                }
-            }
+            // 帧只编码一次：原实现每条连接都要 getBytes 一遍，百万连接 = 100 万次重复转换
+            byte[] frame = buildTextFrame(payload).getBytes(StandardCharsets.ISO_8859_1);
+            fanOut.publish(frame);
         } catch (Exception e) {
-            log.debug("[ws] 操作失败，已忽略: {}", e.getMessage());
+            log.debug("[ws] 广播编码失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -352,60 +359,21 @@ public class JdkWebSocketServer extends AbstractServer {
     */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
+        int maxPayload = Math.max(setting.getMaxFrameSize(), 65536);
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
-            int b0 = in.read();
-            if (b0 < 0) {
+            // 批量读帧头（3 次系统调用/帧），不再逐字节 read()（原实现一帧 2~14 次 syscall）
+            WsFrames.FrameHeader header = WsFrames.readHeader(in);
+            if (header == null) {
                 break;
             }
-            boolean fin = (b0 & 0x80) != 0;
-            int opcode = b0 & 0x0F;
-            int b1 = in.read();
-            if (b1 < 0) {
+            byte[] payload = WsFrames.readPayload(in, header, maxPayload);
+            if (header.opcode == WsFrames.OPCODE_CLOSE) {
                 break;
             }
-            boolean masked = (b1 & 0x80) != 0;
-            int length = b1 & 0x7F;
-            if (length == 126) {
-                length = (in.read() << 8) | (in.read());
-            } else if (length == 127) {
-                length = 0;
-                for (int i = 0; i < 4; i++) {
-                    length = (length << 8) | in.read();
-                }
-                long extended = 0;
-                for (int i = 0; i < 4; i++) {
-                    extended = (extended << 8) | in.read();
-                }
-                if (extended > Integer.MAX_VALUE) {
-                    continue;
-                }
-                length = (int) extended;
-            }
-            byte[] maskKey = new byte[4];
-            if (masked) {
-                in.read(maskKey);
-            }
-            byte[] payload = new byte[length];
-            int off = 0;
-            while (off < length) {
-                int r = in.read(payload, off, length - off);
-                if (r < 0) {
-                    break;
-                }
-                off += r;
-            }
-            if (masked) {
-                for (int i = 0; i < payload.length; i++) {
-                    payload[i] ^= maskKey[i % 4];
-                }
-            }
-            if (opcode == 0x8) {
-                break;
-            }
-            if (opcode == 0x9 || opcode == 0xA) {
+            if (header.opcode == 0x9 || header.opcode == 0xA) {
                 continue;
             }
-            if (opcode == 0x1 || opcode == 0x2) {
+            if (header.opcode == WsFrames.OPCODE_TEXT || header.opcode == WsFrames.OPCODE_BINARY) {
                 String text = new String(payload, StandardCharsets.UTF_8);
                 String topic = "default";
                 String body = text;
@@ -554,7 +522,7 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    private static class Connection {
+    private static class Connection implements AsyncBroadcaster.Sink {
         final Socket socket;
         OutputStream out;
         /**
@@ -575,6 +543,27 @@ public class JdkWebSocketServer extends AbstractServer {
         void close() throws IOException {
             if (!socket.isClosed()) {
                 socket.close();
+            }
+        }
+
+        /**
+         * 写出一整帧（广播扇出走这里）。
+         *
+         * <p>握手未完成时 {@code out} 还是 null——此时必须跳过而不是抛异常：
+         * 一条刚接入还没握手的连接不能让整轮广播中断（原实现会让调用方直接 abort）。</p>
+         *
+         * @param frame 已编码的帧
+         * @throws Exception 写失败
+         */
+        @Override
+        public void writeFrame(byte[] frame) throws Exception {
+            OutputStream os = out;
+            if (os == null || frame == null) {
+                return;
+            }
+            synchronized (this) {
+                os.write(frame);
+                os.flush();
             }
         }
     }

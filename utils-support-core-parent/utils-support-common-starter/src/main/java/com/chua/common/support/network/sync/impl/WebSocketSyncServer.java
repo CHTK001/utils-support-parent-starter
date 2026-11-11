@@ -7,6 +7,8 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.server.websocket.AsyncBroadcaster;
+import com.chua.common.support.network.server.websocket.WsFrames;
 import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
@@ -78,6 +80,14 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * 同一缺陷也存在于 {@code JdkWebSocketServer}。</p>
      */
     private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
+
+    /**
+     * 广播扇出器：把「逐条写全部连接」移出调用线程。
+     *
+     * <p>百万连接时同步扇出会阻塞调用线程数秒到数分钟，必须异步；分片让慢客户端
+     * 只拖累自己那一片，同时保住单连接内的帧顺序。</p>
+     */
+    private AsyncBroadcaster broadcaster;
 
     /**
      * 客户端注册表（sessionId -> metadata）
@@ -156,6 +166,10 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
             // 与百万连接目标冲突。改为虚拟线程池，每条连接只在有数据时才占用调度。
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
+            // 广播分片数取 CPU 核数，封顶 8：分片太少慢客户端影响面大，太多则每帧要
+            // 遍历 n×shards 次；队列 256 帧 ≈ 百万连接下几秒的洪峰余量，满则丢帧。
+            int shards = Math.min(8, Math.max(2, Runtime.getRuntime().availableProcessors()));
+            broadcaster = new AsyncBroadcaster(shards, 256, () -> connections);
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("WebSocket SyncServer 启动失败", e);
@@ -167,6 +181,10 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      */
     @Override
     protected void doStop() {
+        if (broadcaster != null) {
+            broadcaster.close();
+            broadcaster = null;
+        }
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
@@ -190,16 +208,19 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      */
     @Override
     public void publish(String topic, Object message) {
-        String payload = topic + ":" + message.toString();
-        for (Connection conn : connections) {
-            try {
-                synchronized (conn) {
-                    conn.send(payload);
-                }
-            } catch (Exception e) {
-                // ignore
-            }
+        AsyncBroadcaster fanOut = broadcaster;
+        if (fanOut == null) {
+            return;
         }
+        String payload = topic + ":" + message;
+        byte[] frame;
+        try {
+            // 帧只编码一次：原实现是每条连接各编码一遍，百万连接等于 100 万次重复编码
+            frame = buildTextFrame(payload);
+        } catch (Exception e) {
+            return;
+        }
+        fanOut.publish(frame);
     }
 
     /**
@@ -381,49 +402,18 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
+        int maxPayload = Math.max(setting.getMaxFrameSize(), 65536);
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
-            int b0 = in.read();
-            if (b0 < 0) {
+            // 批量读帧头（3 次系统调用/帧），不再逐字节 read()（原来一帧 2~14 次 syscall）
+            WsFrames.FrameHeader header = WsFrames.readHeader(in);
+            if (header == null) {
                 break;
             }
-            boolean fin = (b0 & 0x80) != 0;
-            int opcode = b0 & 0x0F;
-            int b1 = in.read();
-            if (b1 < 0) {
+            byte[] payload = WsFrames.readPayload(in, header, maxPayload);
+            if (header.opcode == WsFrames.OPCODE_CLOSE) {
                 break;
             }
-            boolean masked = (b1 & 0x80) != 0;
-            int length = b1 & 0x7F;
-            if (length == 126) {
-                length = (in.read() << 8) | (in.read());
-            } else if (length == 127) {
-                length = 0;
-                for (int i = 0; i < 4; i++) {
-                    length = (length << 8) | in.read();
-                }
-            }
-            byte[] maskKey = new byte[4];
-            if (masked) {
-                in.read(maskKey);
-            }
-            byte[] payload = new byte[length];
-            int off = 0;
-            while (off < length) {
-                int r = in.read(payload, off, length - off);
-                if (r < 0) {
-                    break;
-                }
-                off += r;
-            }
-            if (masked) {
-                for (int i = 0; i < payload.length; i++) {
-                    payload[i] ^= maskKey[i % 4];
-                }
-            }
-            if (opcode == 0x8) {
-                break;
-            }
-            if (opcode == 0x1 || opcode == 0x2) {
+            if (header.opcode == WsFrames.OPCODE_TEXT || header.opcode == WsFrames.OPCODE_BINARY) {
                 String text = new String(payload, StandardCharsets.UTF_8);
                 String topic = "default";
                 String body = text;
@@ -524,7 +514,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     /**
      * WebSocket 连接
      */
-    private static class Connection {
+    private static class Connection implements AsyncBroadcaster.Sink {
         Socket socket;
         OutputStream out;
         String sessionId;
@@ -550,9 +540,24 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         }
 
         void send(String payload) throws Exception {
-            byte[] frame = buildTextFrame(payload);
-            out.write(frame);
-            out.flush();
+            writeFrame(buildTextFrame(payload));
+        }
+
+        /**
+         * 写出一整帧（广播扇出与定向发送共用）。
+         *
+         * <p>同连接必须串行：分片只保证同一片内串行，定向 {@code send} 可能来自任意线程，
+         * 两边同时写会把帧字节交错。</p>
+         *
+         * @param frame 已编码的帧
+         * @throws Exception 写失败
+         */
+        @Override
+        public void writeFrame(byte[] frame) throws Exception {
+            synchronized (this) {
+                out.write(frame);
+                out.flush();
+            }
         }
 
         void close() throws IOException {
