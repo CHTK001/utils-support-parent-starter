@@ -418,7 +418,8 @@ public class RagPipeline implements RagClient {
      * <p>批量嵌入失败时降级为逐个嵌入；单个分块嵌入失败时以空向量占位并跳过存储。</p>
      *
      * @param rc RAG 上下文，须已设置 docId/fileName/fileType/currentChunks
-     * @return 实际入向量存储的分块数量
+     * @return 实际入向量存储的分块数量（全部失败时抛异常，交由管线记为失败，避免假 READY）
+     * @throws IllegalStateException 全部分块都没能生成向量时抛出
      */
     private int embedAndStore(RagContext rc) {
         List<TextChunk> chunks = rc.currentChunks();
@@ -438,6 +439,7 @@ public class RagPipeline implements RagClient {
                 }
             }
         }
+        int stored = 0;
         for (int i = 0; i < chunks.size(); i++) {
             if (vectors[i] != null && vectors[i].length > 0) {
                 String chunkId = rc.docId() + FILE_NAME_SEPARATOR + chunks.get(i).index();
@@ -457,7 +459,17 @@ public class RagPipeline implements RagClient {
                 vectorStorage.add(new Vector(chunkId, vectors[i], metadata));
                 // 记录分块内容，供检索后回读（jvector 等向量库不返回 metadata）
                 chunkContentCache.put(chunkId, meta.content());
+                stored++;
             }
+        }
+        if (stored == 0) {
+            // 一个分块都没拿到向量：不能把「没索引」当成功，否则文档状态会被置为 READY（已完成），
+            // 而向量库里其实一条内容都没有，检索/问答必然空，用户无从判断。
+            throw new IllegalStateException(
+                    "向量化失败：0/" + chunks.size() + " 个分块生成向量，请检查默认 Embedding 模型");
+        }
+        if (stored < chunks.size()) {
+            log.warn("[RagPipeline] 向量化部分失败: 成功 {}/{} 个分块", stored, chunks.size());
         }
         // 持久化：① 让向量索引落盘（jvector 等默认只在 rebuild 时写盘，仅 add 不落盘）；
         // ② 保存分块内容缓存。否则进程重启后内存索引与内容缓存全丢，历史文档检索不到
@@ -468,7 +480,7 @@ public class RagPipeline implements RagClient {
             log.warn("[RagPipeline] 向量索引落盘失败（内存仍可用）: {}", e.getMessage(), e);
         }
         persistChunkContentCache();
-        return chunks.size();
+        return stored;
     }
 
     /**
