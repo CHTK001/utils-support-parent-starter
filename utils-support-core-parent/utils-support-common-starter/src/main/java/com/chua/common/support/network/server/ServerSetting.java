@@ -77,6 +77,32 @@ public class ServerSetting {
     private boolean auto = true;
 
     /**
+     * 每连接除读缓冲外的固定开销（KB）：连接对象 + 解析器 8KB 行缓冲 + 响应/合并缓冲 + 对象头。
+     *
+     * <p>实测口径（50k 连接）：warm ≈ bufferSize + 8KB + 4KB。取 12KB 作为固定项，
+     * 与 {@code validate()} 里的内存估算保持一致，避免两处公式互相矛盾。</p>
+     */
+    private static final long PER_CONNECTION_FIXED_KB = 12L;
+
+    /**
+     * 堆内存中允许分配给「每连接缓冲」的比例。
+     *
+     * <p>其余留给业务对象、GC 余量与非堆（直接内存/元空间）。取 0.6 而不是 1.0，
+     * 是因为满载时除了连接缓冲还有请求处理本身的临时分配。</p>
+     */
+    private static final double HEAP_BUDGET_RATIO = 0.6D;
+
+    /**
+     * 读缓冲下限（字节）：再小会让大请求头/请求体被拆成过多系统调用。
+     */
+    private static final int MIN_BUFFER_SIZE = 2048;
+
+    /**
+     * 读缓冲上限（字节）：连接少时放大到此值，减少系统调用。
+     */
+    private static final int MAX_BUFFER_SIZE = 16384;
+
+    /**
      * 按当前系统自动配置最优参数。
      *
      * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
@@ -110,16 +136,33 @@ public class ServerSetting {
                 ? Math.min(Math.max(cpus * 64, 128), 1024)
                 : Math.min(Math.max(cpus * 128, 256), 4096);
 
-        // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)。
-        // 同时按操作系统可用的 fd 语义收敛：Linux 受 ulimit -n、Windows 受句柄配额约束，
-        // 超过时会在 accept 阶段失败而不是优雅拒绝，故此处给出可观测的保守值。
-        // 用户显式设置过的值优先，不被覆盖
-        if (!maxConnectionsExplicit) {
-            this.maxConnections = resolveMaxConnections(heapMb, os);
-        }
+        // 缓冲区与连接数必须由「同一份内存预算」联合推导，否则 autoConfig 自相矛盾：
+        // 旧实现按堆分别定 maxConnections(16GB→100万) 与 bufferSize(4GB+→16KB)，
+        // 相乘 1M × (16KB + 12KB 固定开销) ≈ 28GB > 16GB 堆，满载必然 OOM ——
+        // 实测 50k 连接在 2GB 堆下就 OOM（warm 47KB/连接）。
+        //
+        // 推导顺序（单向，避免两个变量互相反推导致永远撞边界）：
+        //   1) 先按堆定 bufferSize：小堆用小缓冲，大堆才放大（性能优化只在小连接数时兑现）
+        //   2) 再按「堆预算 − 连接固定开销」定 maxConnections
+        // 用户显式设置过的项不覆盖，只保证未显式的那项适配。
+        long perConnFixedKb = PER_CONNECTION_FIXED_KB;
+        long budgetMb = (long) (heapMb * HEAP_BUDGET_RATIO);
 
-        // 缓冲区：内存充足时放大，减少系统调用次数
-        this.bufferSize = heapMb >= 4096 ? 16384 : 8192;
+        if (!bufferSizeExplicit) {
+            // 小堆必须用最小缓冲，否则固定开销 + 缓冲会挤掉容量
+            this.bufferSize = heapMb >= 8192 ? MAX_BUFFER_SIZE
+                    : heapMb >= 2048 ? 8192
+                    : MIN_BUFFER_SIZE;
+        }
+        if (!maxConnectionsExplicit) {
+            long perConnKb = Math.max(this.bufferSize / 1024L, 1L) + perConnFixedKb;
+            long affordable = perConnKb > 0 ? budgetMb * 1024L / perConnKb : this.maxConnections;
+            long resolved = resolveMaxConnections(heapMb, os);
+            long limit = Math.min(resolved, affordable);
+            if (limit > 0) {
+                this.maxConnections = (int) limit;
+            }
+        }
 
         // 最大帧/请求体：跟随缓冲区分级，容纳大消息往返（含长度头余量）
         this.maxFrameSize = heapMb >= 4096 ? 1024 * 1024 : 65536;
@@ -400,17 +443,17 @@ public class ServerSetting {
             }
         }
         if (maxConnections > 0) {
-            // 每连接常驻内存的粗估（实测数据，50k 连接）：
-            //   空闲连接(idle, 未收发数据)：~1.7KB/连接（readBuf 惰性不分配）
-            //   服务过请求(warm)：~30KB/连接（readBuf + request buf 8KB + 响应/合并缓冲 + 对象开销）
-            // 公式取 warm 上界：bufferSize(readBuf) + 8KB(request buf) + 4KB(对象/响应/合并缓冲)
-            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + 8L + 4L;
+            // 每连接常驻内存的估算（与 autoConfig 的预算公式共用 PER_CONNECTION_FIXED_KB）：
+            //   空闲连接(idle, 未收发数据)：readBuf 惰性不分配，实测 ~1.7KB/连接
+            //   服务过请求(warm)：bufferSize(readBuf) + 12KB 固定项，实测 50k 连接吻合
+            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + PER_CONNECTION_FIXED_KB;
             long neededMb = maxConnections * perConnectionKb / 1024L;
             long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
             if (neededMb > heapMb) {
                 problems.add("maxConnections=" + maxConnections + " 在满载且每连接有流量时约需 "
                         + neededMb + "MB，超过最大堆 " + heapMb + "MB；"
-                        + "请调小 maxConnections 或调大 -Xmx（空闲连接仅 ~1.7KB/连接，此为 warm 上界估算）");
+                        + "请调小 maxConnections、调小 bufferSize 或调大 -Xmx"
+                        + "（空闲连接仅 ~1.7KB/连接，此为 warm 上界估算）");
             }
             if (maxConnections > 200_000 && System.getProperty("os.name", "").toLowerCase().contains("win")
                     && !WindowsMaxConnectionHint.SHOWN.getAndSet(true)) {
@@ -806,6 +849,25 @@ public class ServerSetting {
      */
     @Builder.Default
     private int bufferSize = 8192;
+
+    /**
+     * 是否显式设置过 bufferSize（autoConfig 内部标记；默认 false）。
+     *
+     * <p>与 {@link #maxConnectionsExplicit} 同理：用户显式指定的缓冲区大小不能被
+     * {@code autoConfig()} 按「堆 / 连接数」反推覆盖。</p>
+     */
+    @Builder.Default
+    private boolean bufferSizeExplicit = false;
+
+    /**
+     * 设置缓冲区大小，并标记为显式配置（避免被 {@link #autoConfig()} 覆盖）。
+     *
+     * @param bufferSize 缓冲区字节数
+     */
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+        this.bufferSizeExplicit = true;
+    }
 
     /**
      * WebSocket/消息协议最大帧大小（字节）
