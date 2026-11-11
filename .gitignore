@@ -228,6 +228,8 @@ site-builder/
 pmt_proxy/
 node_modules/.tmp/
 
+# Spring Boot 自动装配注册表：本模块为纯工具库，无自动配置类，文件长期为 0 字节
+utils-support-core-parent/utils-support-common-starter/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 # H2 / SQLite 数据库文件及备份残留（禁止入库）
 *.mv.db
 *.trace.db
