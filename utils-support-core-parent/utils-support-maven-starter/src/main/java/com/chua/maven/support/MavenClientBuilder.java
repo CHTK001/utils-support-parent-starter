@@ -88,6 +88,19 @@ public class MavenClientBuilder {
     private String jdkVersion;
 
     /**
+     * JDK 安装路径（可选，留空用当前进程的 java）
+     * <p>多 JDK 并存时按项目指定编译所用的 java，等价于 fork 出来的 Maven 进程的 JAVA_HOME。</p>
+     */
+    private String javaHome;
+
+    /**
+     * Maven 安装路径（可选，留空按 maven.home / MAVEN_HOME / PATH 解析）
+     * <p>按调用传入而不是写全局系统属性：同进程并发构建两个项目时，
+     * 用不同 Maven 版本不会互相覆盖。</p>
+     */
+    private String mavenHome;
+
+    /**
      * 编译进度回调
      */
     private MavenCompilerProgress progressCallback;
@@ -194,6 +207,24 @@ public class MavenClientBuilder {
      */
     public String getJdkVersion() {
         return jdkVersion;
+    }
+
+    /**
+     * 获取 JDK 安装路径
+     *
+     * @return JDK 安装路径，未设置返回 null
+     */
+    public String getJavaHome() {
+        return javaHome;
+    }
+
+    /**
+     * 获取 Maven 安装路径
+     *
+     * @return Maven 安装路径，未设置返回 null
+     */
+    public String getMavenHome() {
+        return mavenHome;
     }
 
     /**
@@ -402,6 +433,28 @@ public class MavenClientBuilder {
      */
     public MavenClientBuilder jdkVersion(String jdkVersion) {
         this.jdkVersion = jdkVersion;
+        return this;
+    }
+
+    /**
+     * 设置 JDK 安装路径（编译期使用）
+     *
+     * @param javaHome JDK 安装路径，如 C:/jdk-17；留空用当前进程的 java
+     * @return this
+     */
+    public MavenClientBuilder javaHome(String javaHome) {
+        this.javaHome = javaHome;
+        return this;
+    }
+
+    /**
+     * 设置 Maven 安装路径（按调用生效）
+     *
+     * @param mavenHome Maven 安装路径，如 C:/apache-maven-3.9.9；留空自动解析
+     * @return this
+     */
+    public MavenClientBuilder mavenHome(String mavenHome) {
+        this.mavenHome = mavenHome;
         return this;
     }
 

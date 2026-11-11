@@ -46,3 +46,4 @@ com.chua.common.support.datasearch.usage.spi.impl.ZCodeUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ZedUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.CodexCliUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.TraeCnUsageParser
+com.chua.common.support.datasearch.usage.spi.impl.ScnetUsageParser

@@ -108,6 +108,16 @@ public class MavenClient implements AutoCloseable {
     private final String jdkVersion;
 
     /**
+     * JDK 安装路径（编译期 fork 的 JAVA_HOME；空表示沿用当前进程）
+     */
+    private final String javaHome;
+
+    /**
+     * Maven 安装路径（按调用传入，避免全局系统属性串版本）
+     */
+    private final String mavenHome;
+
+    /**
      * 编译进度回调
      */
     private final MavenCompilerProgress progressCallback;
@@ -192,6 +202,8 @@ public class MavenClient implements AutoCloseable {
         this.debug = builder.isDebug();
         this.offline = builder.isOffline();
         this.jdkVersion = builder.getJdkVersion();
+        this.javaHome = builder.getJavaHome();
+        this.mavenHome = builder.getMavenHome();
         this.progressCallback = builder.getProgressCallback();
         this.compilerCallback = builder.getCompilerCallback();
         this.properties = new Properties();
@@ -309,6 +321,17 @@ public class MavenClient implements AutoCloseable {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(projectPath));
         request.setGoals(effectiveGoals);
+        if (javaHome != null && !javaHome.isBlank()) {
+            // 允许填 JDK 根目录 / bin 目录 / java 可执行文件本身，统一归一成 JDK 根目录：
+            // Maven fork 出去的进程要的是 JAVA_HOME，指到 bin 里会找不到 lib/tools.jar。
+            File home = new File(normalizeJavaHome(javaHome.trim()));
+            if (home.isDirectory()) {
+                // fork 出去的 Maven 进程用它自己的 JAVA_HOME，和启动脚本用的是同一套 JDK
+                request.setJavaHome(home);
+            } else {
+                log.warn("[maven] 指定的 JDK 路径无效: {}，回退到当前进程的 java", javaHome);
+            }
+        }
 
         if (!profiles.isEmpty()) {
             request.setProfiles(profiles);
@@ -458,6 +481,15 @@ public class MavenClient implements AutoCloseable {
      * @return Maven 安装目录路径，找不到返回 空
      */
     private String resolveMavenHome() {
+        // 0. 调用方显式指定的 Maven（项目级配置，优先且不写全局属性）
+        if (mavenHome != null && !mavenHome.isBlank()) {
+            File home = new File(mavenHome.trim());
+            if (home.isDirectory()) {
+                return home.getAbsolutePath();
+            }
+            log.warn("[maven] 指定的 Maven 路径无效: {}", mavenHome);
+        }
+
         // 1. 检查系统属性
         String path = System.getProperty("maven.home");
         if (path != null && !path.isBlank() && new File(path).exists()) {
@@ -498,6 +530,37 @@ public class MavenClient implements AutoCloseable {
 
         log.warn("[maven] 未找到 Maven 安装路径，请设置 MAVEN_HOME 环境变量或 maven.home 系统属性");
         return null;
+    }
+
+    /**
+     * 把用户填的 JDK 路径归一成 JDK 根目录。
+     *
+     * <p>项目表单允许三种写法（根目录 / bin 目录 / java 可执行文件），
+     * 而 Maven fork 进程只认 JAVA_HOME（根目录），故统一收敛：
+     * {@code .../jdk-21/bin} 与 {@code .../jdk-21/bin/java} 都还原为 {@code .../jdk-21}。</p>
+     *
+     * @param path 用户配置的 JDK 路径
+     * @return JDK 根目录；入参为空返回空串
+     */
+    private String normalizeJavaHome(String path) {
+        if (path == null || path.isBlank()) {
+            return "";
+        }
+        String home = path.trim().replaceAll("[/\\\\]+$", "");
+        // 先剥掉可执行文件名（java / java.exe），再剥掉 bin 目录：
+        // .../jdk/bin/java、.../jdk/bin、.../jdk 三种写法都收敛到 .../jdk
+        String lower = home.toLowerCase();
+        if (lower.endsWith("java.exe") || lower.endsWith("java")) {
+            int cut = Math.max(home.lastIndexOf('/'), home.lastIndexOf('\\'));
+            if (cut > 0) {
+                home = home.substring(0, cut);
+            }
+        }
+        lower = home.toLowerCase();
+        if (lower.endsWith("/bin") || lower.endsWith("\\bin")) {
+            home = home.substring(0, home.length() - 4);
+        }
+        return home;
     }
 
     /**
