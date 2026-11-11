@@ -25,14 +25,7 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Windows NTFS MFT 快速文件搜索能力并入 utils-support-native-filesearch
-             （Windows 走 MFT、其它平台 walkdir），本模块只声明该 native 依赖一次。 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-filesearch</artifactId>
-            <version>4.0.0.43</version>
-            <scope>compile</scope>
-        </dependency>
+        <!-- NTFS MFT 等原生文件检索由 utils-support-filesearch-starter 承载，本模块不再依赖 native 包 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

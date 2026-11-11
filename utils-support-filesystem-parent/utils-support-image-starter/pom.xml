@@ -43,19 +43,9 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-libjpeg-turbo</artifactId>
-            <version>4.0.0.43</version>
-        </dependency>
-        <!-- 图片压缩的 native 钩子：libdeflate（deflate 内核）+ libimagequant（调色板量化内核）。
-             动态库缺失时 CompressionEngines 自动回退到纯 Java 实现，功能不受影响。
-             可选：整包排除本依赖以完全走纯 Java 路径 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-imageopt</artifactId>
-            <version>4.0.0.43</version>
-        </dependency>
+        <!-- turbojpeg / libdeflate / libimagequant 加速为可选运行时依赖：
+             编译期不引入 utils-support-native-libjpeg-turbo、utils-support-native-imageopt，
+             代码通过 TurboJpegBridge / ImageOptBridge 反射加载；缺失时自动回退纯 Java 并打印告警。 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
