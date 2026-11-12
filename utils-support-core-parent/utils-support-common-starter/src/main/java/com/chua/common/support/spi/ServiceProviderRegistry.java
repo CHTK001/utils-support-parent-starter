@@ -63,9 +63,17 @@ class ServiceProviderRegistry {
                 continue;
             }
 
-            definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+            // 列表是 SortedArrayList（普通 ArrayList 子类），注册与查找可能并发（懒扫描/热重载/手动注册），
+            // 这里与查找侧的 synchronized(list) 配对，避免 ConcurrentModificationException 与扩容期越界。
+            SortedList<ServiceDefinition> list =
+                    definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+            synchronized (list) {
+                list.add(serviceDefinition);
+            }
             if (serviceDefinition.isDefault()) {
-                defaultDefinitions.add(serviceDefinition);
+                synchronized (defaultDefinitions) {
+                    defaultDefinitions.add(serviceDefinition);
+                }
             }
         }
     }
@@ -104,7 +112,11 @@ class ServiceProviderRegistry {
         serviceDefinition.setObj(ref);
         serviceDefinition.setType(type);
         serviceDefinition.setImplClass(ref.getClass());
-        definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+        SortedList<ServiceDefinition> list =
+                definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+        synchronized (list) {
+            list.add(serviceDefinition);
+        }
     }
 
     /**
@@ -119,7 +131,11 @@ class ServiceProviderRegistry {
         ServiceDefinition serviceDefinition = new ServiceDefinition();
         serviceDefinition.setImplClass(ref);
         serviceDefinition.setType(type);
-        definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+        SortedList<ServiceDefinition> list =
+                definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+        synchronized (list) {
+            list.add(serviceDefinition);
+        }
     }
 
     /**
@@ -132,8 +148,10 @@ class ServiceProviderRegistry {
         Map<String, List<ServiceDefinition>> remove = Wraps.map(DEFAULT_SIZE);
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
-            for (ServiceDefinition serviceDefinition : value) {
-                doRegisterRemoveCollection(remove, baseName, resolverType, serviceDefinition, entry.getKey());
+            synchronized (value) {
+                for (ServiceDefinition serviceDefinition : value) {
+                    doRegisterRemoveCollection(remove, baseName, resolverType, serviceDefinition, entry.getKey());
+                }
             }
         }
 
@@ -142,7 +160,13 @@ class ServiceProviderRegistry {
         }
 
         for (Map.Entry<String, List<ServiceDefinition>> entry : remove.entrySet()) {
-            definitions.get(entry.getKey()).removeAll(entry.getValue());
+            SortedList<ServiceDefinition> value = definitions.get(entry.getKey());
+            if (null == value) {
+                continue;
+            }
+            synchronized (value) {
+                value.removeAll(entry.getValue());
+            }
         }
     }
 

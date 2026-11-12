@@ -119,12 +119,39 @@ public class ServiceDefinitionFinder {
             name1 = split[1];
         }
         SortedList<ServiceDefinition> definitions = new SortedArrayList<>(COMPARATOR);
+
+        // 快路径：definitions 的 key 就是服务名，直接取，不必为了大小写兼容全表扫描。
+        // 这是 getExtension 的热路径（协议选实现/Server/Filter 枚举都走它）。
+        SortedList<ServiceDefinition> direct = this.definitions.get(name1);
+        if (null == direct) {
+            direct = this.definitions.get(name);
+        }
+        if (null == direct) {
+            direct = this.definitions.get(name1.toLowerCase());
+        }
+        if (null != direct) {
+            synchronized (direct) {
+                for (ServiceDefinition serviceDefinition : direct) {
+                    if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType()))
+                            && name1.equalsIgnoreCase(serviceDefinition.getName())) {
+                        definitions.add(serviceDefinition);
+                    }
+                }
+            }
+            if (!definitions.isEmpty()) {
+                return definitions.first();
+            }
+        }
+
+        // 兜底：历史行为，逐条扫描（兼容 describeType 变体与非常规 key）
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : this.definitions.entrySet()) {
             SortedList<ServiceDefinition> entryValue = entry.getValue();
-            for (ServiceDefinition serviceDefinition : entryValue) {
-                if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType()))
-                        && name1.equalsIgnoreCase(serviceDefinition.getName())) {
-                    definitions.add(serviceDefinition);
+            synchronized (entryValue) {
+                for (ServiceDefinition serviceDefinition : entryValue) {
+                    if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType()))
+                            && name1.equalsIgnoreCase(serviceDefinition.getName())) {
+                        definitions.add(serviceDefinition);
+                    }
                 }
             }
         }
@@ -245,7 +272,9 @@ public class ServiceDefinitionFinder {
 
         SortedList<ServiceDefinition> serviceDefinitions = definitions.get(name);
         if (null != serviceDefinitions) {
-            rs.addAll(serviceDefinitions);
+            synchronized (serviceDefinitions) {
+                rs.addAll(serviceDefinitions);
+            }
         }
 
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
@@ -255,7 +284,9 @@ public class ServiceDefinitionFinder {
 
             SortedList<ServiceDefinition> entryValue = entry.getValue();
             if (null != args) {
-                rs.addAll(createNameAware(name, entryValue, args));
+                synchronized (entryValue) {
+                    rs.addAll(createNameAware(name, entryValue, args));
+                }
             }
         }
 
