@@ -269,6 +269,42 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     }
 
     /**
+     * 累计 accept 数（诊断用）。
+     *
+     * @return 次数
+     */
+    public long getAcceptedTotal() {
+        return acceptedTotal.get();
+    }
+
+    /**
+     * 累计握手成功数（诊断用）。
+     *
+     * @return 次数
+     */
+    public long getHandshakeOkTotal() {
+        return handshakeOkTotal.get();
+    }
+
+    /**
+     * 累计握手失败数（诊断用）。
+     *
+     * @return 次数
+     */
+    public long getHandshakeFailTotal() {
+        return handshakeFailTotal.get();
+    }
+
+    /**
+     * 最近一次握手异常信息（诊断用）。
+     *
+     * @return 异常描述，未发生时为 null
+     */
+    public String getLastHandshakeError() {
+        return lastHandshakeError.get();
+    }
+
+    /**
      * 获取ClientMetadata
      */
     @Override
@@ -310,6 +346,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket socket = serverSocket.accept();
+                acceptedTotal.incrementAndGet();
                 if (!accepting) {
                     // 优雅关闭中：不再接纳新连接（存量连接继续服务）
                     try {
@@ -357,18 +394,42 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     }
 
     /**
+     * 累计 accept 数（诊断用）：用于区分"没被接纳"与"接纳后握手失败"。
+     */
+    private final java.util.concurrent.atomic.AtomicLong acceptedTotal = new java.util.concurrent.atomic.AtomicLong();
+
+    /**
+     * 累计握手成功数（诊断用）。
+     */
+    private final java.util.concurrent.atomic.AtomicLong handshakeOkTotal = new java.util.concurrent.atomic.AtomicLong();
+
+    /**
+     * 累计握手失败数（诊断用）。
+     */
+    private final java.util.concurrent.atomic.AtomicLong handshakeFailTotal = new java.util.concurrent.atomic.AtomicLong();
+
+    /**
+     * 最近一次握手异常（诊断用，只记首条）。
+     */
+    private final java.util.concurrent.atomic.AtomicReference<String> lastHandshakeError =
+            new java.util.concurrent.atomic.AtomicReference<>();
+
+    /**
      * 处理连接
      * @param conn 连接，不允许为 null
      */
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
+                handshakeFailTotal.incrementAndGet();
                 closeConnection(conn);
                 return;
             }
+            handshakeOkTotal.incrementAndGet();
             readFrames(conn);
         } catch (IOException e) {
-            // ignore
+            handshakeFailTotal.incrementAndGet();
+            lastHandshakeError.compareAndSet(null, e.getClass().getSimpleName() + ": " + e.getMessage());
         } finally {
             closeConnection(conn);
         }

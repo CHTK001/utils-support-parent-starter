@@ -58,14 +58,29 @@ class WebSocketThroughputTest {
     private static final int ECHO_DURATION_MS = 8_000;
 
     /**
-     * 广播场景的连接数。
+     * 广播场景的连接数（-Dbench.ws.clients 覆盖）。
      */
-    private static final int FANOUT_CLIENTS = 500;
+    private static int fanoutClients() {
+        return Integer.getInteger("bench.ws.clients", 500);
+    }
 
     /**
-     * 广播场景发布帧数。
+     * 广播场景发布帧数（-Dbench.ws.frames 覆盖）。
      */
-    private static final int FANOUT_FRAMES = 30;
+    private static int fanoutFrames() {
+        return Integer.getInteger("bench.ws.frames", 30);
+    }
+
+    /**
+     * 分批建连的批大小：Windows 的 listen() 有效 accept 队列约 200（SOMAXCONN 上限），
+     * 一次并发过多会让超出的 SYN 被内核丢弃、靠 TCP 重传慢慢补。
+     */
+    private static final int CONNECT_CHUNK = 100;
+
+    /**
+     * 批次之间的间隔（毫秒），留给内核 accept 队列排空。
+     */
+    private static final long CONNECT_GAP_MS = 250L;
 
     /**
      * 服务端配置。
@@ -277,24 +292,29 @@ class WebSocketThroughputTest {
      * @throws Exception 启动失败
      */
     @Test
-    @Timeout(240)
+    @Timeout(600)
     @DisplayName("吞吐：WebSocket 广播扇出（帧/秒 + 送达耗时）")
     void broadcastFanout() throws Exception {
         ServerSetting setting = setting();
         setting.setPort(freePort());
         // auto=false 时 maxConnections 走默认值（实测约 200），广播场景的连接数必须显式放开，
         // 否则超出的连接会在握手阶段被连接预算直接关掉，只统计到前 200 条。
-        setting.setMaxConnections(FANOUT_CLIENTS + 200);
+        setting.setMaxConnections(fanoutClients() + 1000);
         WebSocketSyncServer server = new WebSocketSyncServer(setting);
         server.start();
         try {
+            final int clientCount = fanoutClients();
+            final int frameCount = fanoutFrames();
             int port = server.getPort();
-            AtomicIntegerArray received = new AtomicIntegerArray(FANOUT_CLIENTS);
+            AtomicIntegerArray received = new AtomicIntegerArray(clientCount);
             AtomicBoolean running = new AtomicBoolean(true);
-            Thread[] clients = new Thread[FANOUT_CLIENTS];
+            Thread[] clients = new Thread[clientCount];
+            AtomicInteger connectFailures = new AtomicInteger();
+            java.util.concurrent.atomic.AtomicReference<String> firstError =
+                    new java.util.concurrent.atomic.AtomicReference<>();
             int connected = 0;
 
-            for (int i = 0; i < FANOUT_CLIENTS; i++) {
+            for (int i = 0; i < clientCount; i++) {
                 final int index = i;
                 clients[index] = Thread.ofVirtual().start(() -> {
                     try (Socket socket = wsConnect(port)) {
@@ -306,50 +326,67 @@ class WebSocketThroughputTest {
                             }
                             received.incrementAndGet(index);
                         }
-                    } catch (Exception ignored) {
-                        // 停止期断开属正常
+                    } catch (Exception e) {
+                        // 记录首个失败原因：大连接数下"全部失败"必须能定位，不能静默
+                        connectFailures.incrementAndGet();
+                        firstError.compareAndSet(null,
+                                e.getClass().getSimpleName() + ": " + e.getMessage());
                     }
                 });
                 // 分批建连：Windows 的 listen() 有效 accept 队列约 200（SOMAXCONN 上限），
-                // 一次性并发 500 条会让超出的 SYN 被内核丢弃、靠 TCP 重传补，实测 10 秒只挤进 203 条。
+                // 一次性并发过多会让超出的 SYN 被内核丢弃、靠 TCP 重传补（实测 500 并发 10 秒只进 203 条）。
                 // HttpBench 里 CLUSTER=100 + GAP_MS=300 也是同一个原因。
-                if ((i + 1) % 50 == 0) {
-                    Thread.sleep(200L);
+                if ((i + 1) % CONNECT_CHUNK == 0) {
+                    Thread.sleep(CONNECT_GAP_MS);
                 }
             }
-            // 给握手留时间：等全部连接完成握手（最多 10 秒）
-            long deadline = System.currentTimeMillis() + 10000L;
+            // 等全部连接完成握手（大连接数下要放宽，2 万条约 50 秒）
+            long readyStart = System.currentTimeMillis();
+            long deadline = readyStart + 180000L;
             while (System.currentTimeMillis() < deadline
-                    && server.getConnectedClients().size() < FANOUT_CLIENTS) {
-                Thread.sleep(20L);
+                    && server.getConnectedClients().size() < clientCount) {
+                // 全部客户端都失败时不必再空等到超时，直接出诊断
+                if (connectFailures.get() >= clientCount) {
+                    break;
+                }
+                Thread.sleep(50L);
             }
             connected = server.getConnectedClients().size();
-            Thread.sleep(300L);
+            System.out.println("BENCH|ws-fanout-ready|clients=" + connected + "/" + clientCount
+                    + "|waitMs=" + (System.currentTimeMillis() - readyStart)
+                    + "|connectFailures=" + connectFailures.get()
+                    + "|firstError=" + firstError.get()
+                    + "|accepted=" + server.getAcceptedTotal()
+                    + "|hsOk=" + server.getHandshakeOkTotal()
+                    + "|hsFail=" + server.getHandshakeFailTotal()
+                    + "|hsErr=" + server.getLastHandshakeError());
+            System.out.flush();
+            Thread.sleep(500L);
 
             String payload = "x".repeat(64);
             long start = System.nanoTime();
-            for (int i = 0; i < FANOUT_FRAMES; i++) {
+            for (int i = 0; i < frameCount; i++) {
                 server.publish("t", payload);
             }
             long publishDone = System.nanoTime();
 
-            long expected = (long) FANOUT_CLIENTS * FANOUT_FRAMES;
-            long waitUntil = System.currentTimeMillis() + 30000L;
+            long expected = (long) clientCount * frameCount;
+            long waitUntil = System.currentTimeMillis() + 120000L;
             long delivered = 0;
             while (System.currentTimeMillis() < waitUntil) {
                 delivered = 0;
-                for (int i = 0; i < FANOUT_CLIENTS; i++) {
+                for (int i = 0; i < clientCount; i++) {
                     delivered += received.get(i);
                 }
                 if (delivered >= expected) {
                     break;
                 }
-                Thread.sleep(20L);
+                Thread.sleep(50L);
             }
             long elapsedMs = Math.max(1L, (System.nanoTime() - start) / 1_000_000L);
             long publishMs = Math.max(1L, (publishDone - start) / 1_000_000L);
-            System.out.println("BENCH|ws-fanout|clients=" + connected + "/" + FANOUT_CLIENTS
-                    + "|frames=" + FANOUT_FRAMES
+            System.out.println("BENCH|ws-fanout|clients=" + connected + "/" + clientCount
+                    + "|frames=" + frameCount
                     + "|delivered=" + delivered + "/" + expected
                     + "|publishMs=" + publishMs
                     + "|totalMs=" + elapsedMs
