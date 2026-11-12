@@ -287,7 +287,102 @@ class WebSocketThroughputTest {
     }
 
     /**
-     * 广播扇出：发布 N 帧给 C 条连接，测全部送达耗时。
+     * 读完子进程输出直到出现指定前缀的行。
+     *
+     * @param reader 子进程输出
+     * @param prefix 行前缀
+     * @param timeoutMs 超时
+     * @return 命中行；超时返回 null
+     * @throws Exception 读取失败
+     */
+    private static String waitForLine(java.io.BufferedReader reader, String prefix, long timeoutMs)
+            throws Exception {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        String line;
+        while (System.currentTimeMillis() < deadline) {
+            line = reader.readLine();
+            if (line == null) {
+                return null;
+            }
+            if (line.startsWith(prefix)) {
+                return line;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 广播扇出（客户端在独立进程）：排除同 JVM 里客户端被服务端抢 CPU 的干扰。
+     *
+     * <p>同进程实测 2 万条时，服务端 accepted/hsOk 都是 20000，但客户端线程集体
+     * 在"读 101"上超时——压测端被饿死。这里把客户端拆到子进程再测同一场景。</p>
+     *
+     * @throws Exception 启动失败
+     */
+    @Test
+    @Timeout(900)
+    @DisplayName("吞吐：广播扇出（独立进程客户端）")
+    void broadcastFanoutExternal() throws Exception {
+        final int clientCount = fanoutClients();
+        final int frameCount = fanoutFrames();
+        ServerSetting setting = setting();
+        setting.setPort(freePort());
+        setting.setMaxConnections(clientCount + 1000);
+        WebSocketSyncServer server = new WebSocketSyncServer(setting);
+        server.start();
+        Process child = null;
+        try {
+            String testClasses = new java.io.File("target/test-classes").getAbsolutePath();
+            String mainClasses = new java.io.File("target/classes").getAbsolutePath();
+            String classpath = testClasses + java.io.File.pathSeparator
+                    + mainClasses + java.io.File.pathSeparator
+                    + System.getProperty("java.class.path");
+            ProcessBuilder builder = new ProcessBuilder(
+                    System.getProperty("java.home") + java.io.File.separator + "bin"
+                            + java.io.File.separator + "java",
+                    "-Xmx2g",
+                    "-cp", classpath,
+                    WebSocketFanoutClient.class.getName(),
+                    String.valueOf(server.getPort()),
+                    String.valueOf(clientCount),
+                    String.valueOf(frameCount),
+                    "100", "250");
+            builder.redirectErrorStream(true);
+            child = builder.start();
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(child.getInputStream(), StandardCharsets.UTF_8));
+
+            String ready = waitForLine(reader, "READY", 300_000L);
+            System.out.println("BENCH|ws-fanout-child|" + ready);
+            System.out.flush();
+            if (ready == null) {
+                return;
+            }
+
+            long start = System.nanoTime();
+            String payload = "x".repeat(64);
+            for (int i = 0; i < frameCount; i++) {
+                server.publish("t", payload);
+            }
+            long publishMs = (System.nanoTime() - start) / 1_000_000L;
+            String done = waitForLine(reader, "DONE", 300_000L);
+            long totalMs = (System.nanoTime() - start) / 1_000_000L;
+            System.out.println("BENCH|ws-fanout-external|clients=" + clientCount
+                    + "|frames=" + frameCount
+                    + "|publishMs=" + publishMs
+                    + "|totalMs=" + totalMs
+                    + "|child=" + done);
+            System.out.flush();
+        } finally {
+            if (child != null) {
+                child.destroy();
+            }
+            server.stop();
+        }
+    }
+
+    /**
+     * 广播扇出：发布 N 帧给 C 条连接，测全部送达耗时（客户端与服务端同 JVM）。
      *
      * @throws Exception 启动失败
      */

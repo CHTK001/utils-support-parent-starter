@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-core-parent</artifactId>
+        <version>4.0.0.50</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>utils-support-native-spi</artifactId>
+    <name>Utils Support Native SPI</name>
+    <description>
+        native 能力 SPI 契约：接口定义在 utils 侧，native-parent 的模块提供
+        {@code META-INF/services} 实现，调用方只依赖本模块即可编译，不再反射
+        native 类，也不需要强依赖 native 制品。
+    </description>
+
+    <dependencies>
+        <!-- ServiceProvider / @Spi 统一走 common-starter，与项目其它 SPI 口径一致 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
+                <configuration>
+                    <!-- 契约里有 record 与 java.lang.foreign 类型，必须按 Java 25 编译 -->
+                    <release>25</release>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
