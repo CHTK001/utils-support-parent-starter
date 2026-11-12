@@ -3,6 +3,8 @@ package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.server.websocket.AsyncBroadcaster;
+import com.chua.common.support.network.server.websocket.WsSink;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -160,7 +162,8 @@ class WebSocketConnectionScaleTest {
      * 连接注册表必须是 O(1) 增删的并发结构，不能是 {@code CopyOnWriteArrayList}。
      *
      * <p>这是对「百万连接」最直接的代码级护栏：COW 列表的增删是 O(n) 复制，
-     * 结构一换回去，容量立刻掉一个量级。用反射断言类型，稳定且零成本。</p>
+     * 结构一换回去，容量立刻掉一个量级。注册表现在由 {@code AsyncBroadcaster}
+     * 按分片持有（注册时归档，扇出时只遍历本片），所以校验落点也移到分片集合上。</p>
      *
      * @throws Exception 反射失败
      */
@@ -168,18 +171,35 @@ class WebSocketConnectionScaleTest {
     @Timeout(30)
     @DisplayName("连接注册表必须是并发 Set（不得回退成 CopyOnWriteArrayList）")
     void connectionRegistryMustBeConcurrentSet() throws Exception {
+        AsyncBroadcaster<WsSink> broadcaster = new AsyncBroadcaster<>(4, 16);
+        try {
+            Field field = AsyncBroadcaster.class.getDeclaredField("shardSinks");
+            field.setAccessible(true);
+            Object value = field.get(broadcaster);
+            assertTrue(value instanceof List, "shardSinks 应为分片列表，实际 "
+                    + (value == null ? "null" : value.getClass().getName()));
+
+            List<?> shards = (List<?>) value;
+            assertEquals(4, shards.size(), "分片数与构造参数不符");
+            for (Object shard : shards) {
+                assertTrue(shard instanceof Set,
+                        "分片注册表应为 Set（O(1) 增删），实际 "
+                                + (shard == null ? "null" : shard.getClass().getName()));
+                assertFalse(shard.getClass().getName().contains("CopyOnWrite"),
+                        "分片注册表不得是 " + shard.getClass().getName()
+                                + "：每次增删全量复制底层数组，n 条连接总代价 O(n²)");
+            }
+        } finally {
+            broadcaster.close();
+        }
+
+        // 两个自研 WS 实现必须共用这一个注册表，避免有人又加一个 O(n) 的连接表
         for (String className : new String[]{
                 "com.chua.common.support.network.sync.impl.WebSocketSyncServer",
                 "com.chua.common.support.network.server.websocket.JdkWebSocketServer"}) {
-            Field field = Class.forName(className).getDeclaredField("connections");
-            field.setAccessible(true);
-            Class<?> type = field.getType();
-            assertTrue(Set.class.isAssignableFrom(type),
-                    className + ".connections 应为 Set（O(1) 增删），实际 " + type.getName()
-                            + "；CopyOnWriteArrayList 在百万连接下是 O(n²)");
-            assertFalse(type.getName().contains("CopyOnWrite"),
-                    className + ".connections 不得是 " + type.getName()
-                            + "：每次增删全量复制底层数组，n 条连接总代价 O(n²)");
+            Field field = Class.forName(className).getDeclaredField("broadcaster");
+            assertEquals(AsyncBroadcaster.class, field.getType(),
+                    className + ".broadcaster 类型不符：连接注册表必须落在扇出器里");
         }
     }
 

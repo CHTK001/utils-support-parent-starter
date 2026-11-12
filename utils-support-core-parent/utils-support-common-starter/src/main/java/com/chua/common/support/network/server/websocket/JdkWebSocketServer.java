@@ -60,15 +60,14 @@ public class JdkWebSocketServer extends AbstractServer {
      * topicHandlers
      */
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
-    /**
-     * Connections
-     */
-    private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
 
     /**
      * 广播扇出器：把「逐条写全部连接」移出调用线程（百万连接下同步扇出会阻塞数秒以上）。
+     *
+     * <p>连接注册表也由它按分片持有：注册时归档，扇出时只遍历本片，每帧代价是 n
+     * 而不是 n×分片数。</p>
      */
-    private AsyncBroadcaster broadcaster;
+    private AsyncBroadcaster<Connection> broadcaster;
     /**
      * ConnectionIDSEQ
      */
@@ -120,7 +119,7 @@ public class JdkWebSocketServer extends AbstractServer {
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             int shards = Math.min(8, Math.max(2, Runtime.getRuntime().availableProcessors()));
-            broadcaster = new AsyncBroadcaster(shards, 256, () -> connections);
+            broadcaster = new AsyncBroadcaster<>(shards, 256);
             executor.submit(this::acceptLoop);
             log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",
                     setting.getHost(), setting.getPort(), setting.resolveBacklog(2048));
@@ -134,10 +133,9 @@ public class JdkWebSocketServer extends AbstractServer {
      */
     @Override
     protected void doStop() {
-        if (broadcaster != null) {
-            broadcaster.close();
-            broadcaster = null;
-        }
+        AsyncBroadcaster<Connection> fanOut = broadcaster;
+        // 先取快照再关：close() 会清空分片集合，之后就拿不到还要关闭的连接了
+        List<Connection> snapshot = fanOut == null ? List.of() : fanOut.snapshot();
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
@@ -145,10 +143,13 @@ public class JdkWebSocketServer extends AbstractServer {
         } catch (IOException e) {
             log.debug("[ws] 关闭连接失败，已忽略: {}", e.getMessage());
         }
-        for (Connection c : connections) {
+        for (Connection c : snapshot) {
             closeConnection(c);
         }
-        connections.clear();
+        if (fanOut != null) {
+            fanOut.close();
+            broadcaster = null;
+        }
         if (executor != null) {
             executor.shutdownNow();
         }
@@ -240,7 +241,10 @@ public class JdkWebSocketServer extends AbstractServer {
                     socket.setTcpNoDelay(setting.isTcpNoDelay());
                     applySocketOptions(socket);
                     Connection conn = new Connection(socket);
-                    connections.add(conn);
+                    AsyncBroadcaster<Connection> fanOut = broadcaster;
+                    if (fanOut != null) {
+                        fanOut.register(conn);
+                    }
                     executor.submit(() -> handleConnection(conn));
                 } catch (Exception e) {
                     // 任一环节失败（含停止中任务被拒）都必须归还预算
@@ -292,7 +296,10 @@ public class JdkWebSocketServer extends AbstractServer {
         } catch (IOException e) {
             log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
         }
-        connections.remove(conn);
+        AsyncBroadcaster<Connection> fanOut = broadcaster;
+        if (fanOut != null) {
+            fanOut.unregister(conn);
+        }
         releaseConnection();
     }
 
@@ -522,7 +529,7 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    private static class Connection implements AsyncBroadcaster.Sink {
+    private static class Connection implements WsSink {
         final Socket socket;
         OutputStream out;
         /**

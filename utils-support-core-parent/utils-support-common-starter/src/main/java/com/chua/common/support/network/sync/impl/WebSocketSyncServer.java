@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.server.websocket.AsyncBroadcaster;
 import com.chua.common.support.network.server.websocket.WsFrames;
+import com.chua.common.support.network.server.websocket.WsSink;
 import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
@@ -71,15 +72,22 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     private ExecutorService executor;
 
     /**
-     * 连接注册表。
+     * 连接注册表由 {@link AsyncBroadcaster} 按分片持有（注册时归档，扇出时只遍历本片）。
      *
      * <p><b>不能用 {@code CopyOnWriteArrayList}</b>：它每次 {@code add}/{@code remove} 都会
      * 全量复制底层数组，n 条连接的总代价是 O(n²) —— 百万连接下光是复制就要搬运 TB 级内存，
-     * accept 吞吐会随时间崩塌。{@code ConcurrentHashMap.newKeySet()} 增删都是 O(1)，
-     * 迭代为弱一致（广播时容忍并发增删），才是长连接注册表该用的结构。
-     * 同一缺陷也存在于 {@code JdkWebSocketServer}。</p>
+     * accept 吞吐会随时间崩塌。分片内部仍用 {@code ConcurrentHashMap.newKeySet()}，
+     * 增删都是 O(1)。同一口径也适用于 {@code JdkWebSocketServer}。</p>
      */
-    private final Set<Connection> connections = ConcurrentHashMap.newKeySet();
+
+    /**
+     * 会话索引（sessionId -> connection）。
+     *
+     * <p>定向发送必须 O(1)：上一版按 sessionId 线性扫描全部连接，百万连接下一条定向
+     * 消息要遍历 100 万次，而且 {@code write+flush} 发生在调用线程上——一个不读数据的
+     * 客户端就能把业务线程永久卡在内核写缓冲里。改为索引查找 + 投递到该连接所属分片。</p>
+     */
+    private final Map<String, Connection> bySessionId = new ConcurrentHashMap<>();
 
     /**
      * 广播扇出器：把「逐条写全部连接」移出调用线程。
@@ -87,7 +95,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * <p>百万连接时同步扇出会阻塞调用线程数秒到数分钟，必须异步；分片让慢客户端
      * 只拖累自己那一片，同时保住单连接内的帧顺序。</p>
      */
-    private AsyncBroadcaster broadcaster;
+    private AsyncBroadcaster<Connection> broadcaster;
 
     /**
      * 客户端注册表（sessionId -> metadata）
@@ -166,10 +174,11 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
             // 与百万连接目标冲突。改为虚拟线程池，每条连接只在有数据时才占用调度。
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
-            // 广播分片数取 CPU 核数，封顶 8：分片太少慢客户端影响面大，太多则每帧要
-            // 遍历 n×shards 次；队列 256 帧 ≈ 百万连接下几秒的洪峰余量，满则丢帧。
+            // 广播分片数取 CPU 核数，封顶 8：分片太少慢客户端影响面大；注册时按片归档后，
+            // 每帧总代价是 n 而不是 n×shards，所以分片数不再有遍历放大效应。
+            // 队列 256 帧 ≈ 百万连接下几秒的洪峰余量，满则丢帧。
             int shards = Math.min(8, Math.max(2, Runtime.getRuntime().availableProcessors()));
-            broadcaster = new AsyncBroadcaster(shards, 256, () -> connections);
+            broadcaster = new AsyncBroadcaster<>(shards, 256);
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("WebSocket SyncServer 启动失败", e);
@@ -181,10 +190,9 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      */
     @Override
     protected void doStop() {
-        if (broadcaster != null) {
-            broadcaster.close();
-            broadcaster = null;
-        }
+        AsyncBroadcaster<Connection> fanOut = broadcaster;
+        // 先取快照再关：close() 会清空分片集合，之后就拿不到还要关闭的连接了
+        List<Connection> snapshot = fanOut == null ? List.of() : fanOut.snapshot();
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
@@ -192,14 +200,18 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
                 // ignore
             }
         }
-        for (Connection c : connections) {
+        for (Connection c : snapshot) {
             closeConnection(c);
         }
-        connections.clear();
+        if (fanOut != null) {
+            fanOut.close();
+            broadcaster = null;
+        }
         if (executor != null) {
             executor.shutdownNow();
         }
         clients.clear();
+        bySessionId.clear();
         subscriptions.clear();
     }
 
@@ -228,20 +240,24 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      */
     @Override
     public void send(String clientId, String topic, Object message) {
-        String messageBody = message instanceof String value ? value : Json.toJson(message);
-        String payload = topic + ":" + messageBody;
-        for (Connection conn : connections) {
-            if (clientId.equals(conn.sessionId)) {
-                try {
-                    synchronized (conn) {
-                        conn.send(payload);
-                    }
-                } catch (Exception e) {
-                    // ignore
-                }
-                break;
-            }
+        AsyncBroadcaster<Connection> fanOut = broadcaster;
+        if (fanOut == null) {
+            return;
         }
+        // O(1) 索引查找：不再扫描全部连接（百万连接下一条定向消息要遍历 100 万次）
+        Connection conn = bySessionId.get(clientId);
+        if (conn == null) {
+            return;
+        }
+        String messageBody = message instanceof String value ? value : Json.toJson(message);
+        byte[] frame;
+        try {
+            frame = buildTextFrame(topic + ":" + messageBody);
+        } catch (Exception e) {
+            return;
+        }
+        // 投递到该连接所属分片后立即返回：慢客户端不能把调用线程卡在内核写缓冲上
+        fanOut.sendTo(conn, frame);
     }
 
     /**
@@ -314,10 +330,16 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
                     continue;
                 }
                 Connection conn = new Connection(socket);
-                connections.add(conn);
                 String sessionId = "ws-" + connectionIdSeq.incrementAndGet();
                 conn.sessionId = sessionId;
                 clients.put(sessionId, Wraps.map());
+                // 注册进扇出分片 + 会话索引：必须在开始处理该连接之前完成，
+                // 否则首帧广播可能漏掉它。停止过程中 broadcaster 可能已被置空。
+                AsyncBroadcaster<Connection> fanOut = broadcaster;
+                if (fanOut != null) {
+                    fanOut.register(conn);
+                }
+                bySessionId.put(sessionId, conn);
                 notifyListener(l -> l.onClientConnected(sessionId, clients.get(sessionId)));
                 try {
                     applySocketOptions(socket);
@@ -485,9 +507,13 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         } catch (IOException e) {
             // ignore
         }
-        connections.remove(conn);
+        AsyncBroadcaster<Connection> fanOut = broadcaster;
+        if (fanOut != null) {
+            fanOut.unregister(conn);
+        }
         String sessionId = conn.sessionId;
         if (sessionId != null) {
+            bySessionId.remove(sessionId);
             clients.remove(sessionId);
             subscriptions.values().forEach(set -> set.remove(sessionId));
         }
@@ -514,7 +540,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     /**
      * WebSocket 连接
      */
-    private static class Connection implements AsyncBroadcaster.Sink {
+    private static class Connection implements WsSink {
         Socket socket;
         OutputStream out;
         String sessionId;
@@ -539,14 +565,10 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
             }
         }
 
-        void send(String payload) throws Exception {
-            writeFrame(buildTextFrame(payload));
-        }
-
         /**
          * 写出一整帧（广播扇出与定向发送共用）。
          *
-         * <p>同连接必须串行：分片只保证同一片内串行，定向 {@code send} 可能来自任意线程，
+         * <p>同连接必须串行：分片只保证同一片内串行，定向消息与广播可能来自不同线程，
          * 两边同时写会把帧字节交错。</p>
          *
          * @param frame 已编码的帧

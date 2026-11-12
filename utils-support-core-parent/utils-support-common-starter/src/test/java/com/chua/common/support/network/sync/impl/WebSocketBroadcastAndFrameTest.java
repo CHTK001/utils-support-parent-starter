@@ -13,15 +13,21 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -327,6 +333,138 @@ class WebSocketBroadcastAndFrameTest {
                 }
             }
             server.stop();
+        }
+    }
+
+    /**
+     * 定向 {@code send(clientId, ...)} 只送达目标连接。
+     *
+     * <p>原实现按 sessionId 线性扫描全部连接后写入；改成 sessionId 索引后，
+     * 必须保证「仍然只到目标、不会误发」——索引写错会把私信广播给所有人。</p>
+     *
+     * @throws Exception 套接字失败
+     */
+    @Test
+    @Timeout(120)
+    @DisplayName("定向 send 只送达目标连接")
+    void targetedSendReachesOnlyTarget() throws Exception {
+        int port = freePort();
+        ServerSetting setting = new ServerSetting();
+        setting.setHost("127.0.0.1");
+        setting.setPort(port);
+        setting.setAuto(false);
+        WebSocketSyncServer server = new WebSocketSyncServer(setting);
+
+        BlockingQueue<String> sessionIds = new LinkedBlockingQueue<>();
+        server.addListener(new SyncServerListener() {
+            @Override
+            public void onClientConnected(String clientId, java.util.Map<String, Object> metadata) {
+                sessionIds.add(clientId);
+            }
+        });
+
+        Socket target = null;
+        Socket other = null;
+        try {
+            server.start();
+            target = wsConnect(port, 0);
+            String targetId = sessionIds.poll(10, TimeUnit.SECONDS);
+            other = wsConnect(port, 0);
+            String otherId = sessionIds.poll(10, TimeUnit.SECONDS);
+            assertNotNull(targetId, "未收到首个连接的 onClientConnected");
+            assertNotNull(otherId, "未收到第二个连接的 onClientConnected");
+            Thread.sleep(200L);
+
+            server.send(targetId, "topic", "only-me");
+
+            byte[] frame = readServerFrame(target.getInputStream());
+            assertEquals("topic:only-me", new String(frame, StandardCharsets.UTF_8), "定向消息内容不符");
+
+            final Socket otherRef = other;
+            otherRef.setSoTimeout(1000);
+            assertThrows(SocketTimeoutException.class, () -> readServerFrame(otherRef.getInputStream()),
+                    "非目标连接收到了定向消息（索引命中错误，私信被扩散成广播）");
+        } finally {
+            closeQuietly(target);
+            closeQuietly(other);
+            server.stop();
+        }
+    }
+
+    /**
+     * 慢消费者在场时，定向 {@code send} 必须立即返回。
+     *
+     * <p>原实现是在调用线程里对该连接 {@code write+flush}：客户端不读数据时，
+     * 内核发送/接收缓冲一满就把业务线程永久卡住（百万连接下等同服务不可用）。
+     * 改为投递到该连接所属分片后，调用方只做入队。</p>
+     *
+     * @throws Exception 套接字失败
+     */
+    @Test
+    @Timeout(120)
+    @DisplayName("慢消费者存在时定向 send 不阻塞调用线程")
+    void targetedSendDoesNotBlockOnSlowConsumer() throws Exception {
+        int port = freePort();
+        ServerSetting setting = new ServerSetting();
+        setting.setHost("127.0.0.1");
+        setting.setPort(port);
+        setting.setAuto(false);
+        WebSocketSyncServer server = new WebSocketSyncServer(setting);
+
+        BlockingQueue<String> sessionIds = new LinkedBlockingQueue<>();
+        server.addListener(new SyncServerListener() {
+            @Override
+            public void onClientConnected(String clientId, java.util.Map<String, Object> metadata) {
+                sessionIds.add(clientId);
+            }
+        });
+
+        Socket slow = null;
+        try {
+            server.start();
+            // 接收缓冲压到 4KB 且完全不去读：写满内核缓冲后同步写必然阻塞
+            slow = wsConnect(port, 4096);
+            String slowId = sessionIds.poll(10, TimeUnit.SECONDS);
+            assertNotNull(slowId, "未收到 onClientConnected");
+            Thread.sleep(200L);
+
+            String big = "x".repeat(64 * 1024);
+            AtomicLong elapsed = new AtomicLong(-1L);
+            Thread publisher = new Thread(() -> {
+                long start = System.nanoTime();
+                for (int i = 0; i < 50; i++) {
+                    server.send(slowId, "topic", big);
+                }
+                elapsed.set((System.nanoTime() - start) / 1_000_000L);
+            }, "ws-send-probe");
+            publisher.setDaemon(true);
+            publisher.start();
+            publisher.join(5000L);
+
+            assertFalse(publisher.isAlive(),
+                    "定向 send 在慢消费者上 5s 内未返回：仍在调用线程同步 write+flush，"
+                            + "百万连接下会把业务线程卡死");
+            System.out.println("[ws-send] 50 次 64KB 定向发送 elapsedMs=" + elapsed.get());
+            System.out.flush();
+        } finally {
+            closeQuietly(slow);
+            server.stop();
+        }
+    }
+
+    /**
+     * 静默关闭连接。
+     *
+     * @param socket 连接，可为 null
+     */
+    private static void closeQuietly(Socket socket) {
+        if (socket == null) {
+            return;
+        }
+        try {
+            socket.close();
+        } catch (Exception ignored) {
+            // 清理失败不影响断言
         }
     }
 }
