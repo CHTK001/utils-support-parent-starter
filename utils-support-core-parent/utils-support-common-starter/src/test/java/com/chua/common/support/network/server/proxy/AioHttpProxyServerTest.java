@@ -7,12 +7,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 import static com.chua.common.support.network.server.proxy.ProxyTestSupport.HTTP_BODY;
 import static com.chua.common.support.network.server.proxy.ProxyTestSupport.readToEof;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,5 +80,83 @@ class AioHttpProxyServerTest {
                 proxy.stop();
             }
         }
+    }
+
+    /**
+     * CONNECT 隧道：建立后应能双向透传任意字节。
+     *
+     * <p>这是 HTTPS 经正向代理的必经路径，也是 AioHttpProxyServer 里最容易写坏的
+     * （异步双向泵 + 两段 Channel 生命周期）。用回声后端当隧道另一端即可验证。</p>
+     *
+     * @throws Exception 套接字失败
+     */
+    @Test
+    @Timeout(60)
+    @DisplayName("AioHttpProxyServer：CONNECT 隧道双向透传")
+    void tunnelsViaConnect() throws Exception {
+        try (ProxyTestSupport.EchoBackend backend = new ProxyTestSupport.EchoBackend()) {
+            AioHttpProxyServer proxy = new AioHttpProxyServer(setting());
+            proxy.start();
+            try {
+                String target = "127.0.0.1:" + backend.port();
+                String request = "CONNECT " + target + " HTTP/1.1\r\n"
+                        + "Host: " + target + "\r\n"
+                        + "\r\n";
+                try (Socket client = new Socket("127.0.0.1", proxy.getPort())) {
+                    client.setSoTimeout(15000);
+                    OutputStream out = client.getOutputStream();
+                    out.write(request.getBytes(StandardCharsets.US_ASCII));
+                    out.flush();
+
+                    String head = readHead(client.getInputStream());
+                    assertTrue(head.contains("200"),
+                            "CONNECT 未成功，响应头：" + head.replace("\r\n", "|"));
+
+                    String payload = "tunnel-echo";
+                    out.write(payload.getBytes(StandardCharsets.UTF_8));
+                    out.flush();
+                    byte[] buffer = new byte[64];
+                    int read = ProxyTestSupport.readFully(client.getInputStream(),
+                            buffer, payload.length());
+                    assertEquals(payload, new String(buffer, 0, read, StandardCharsets.UTF_8),
+                            "隧道内回传内容不一致");
+                }
+            } finally {
+                proxy.stop();
+            }
+        }
+    }
+
+    /**
+     * 读到 HTTP 响应头结束（空行）为止。
+     *
+     * @param in 输入流
+     * @return 响应头文本
+     * @throws Exception 读取失败
+     */
+    private static String readHead(InputStream in) throws Exception {
+        StringBuilder builder = new StringBuilder();
+        int matched = 0;
+        int read;
+        while ((read = in.read()) >= 0) {
+            builder.append((char) read);
+            if (read == '\r') {
+                matched = matched == 2 ? 3 : 1;
+            } else if (read == '\n') {
+                if (matched == 1) {
+                    matched = 2;
+                } else if (matched == 3) {
+                    return builder.toString();
+                } else {
+                    matched = 0;
+                }
+            } else {
+                matched = 0;
+            }
+            if (builder.length() > 8192) {
+                break;
+            }
+        }
+        return builder.toString();
     }
 }

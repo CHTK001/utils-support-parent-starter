@@ -51,4 +51,44 @@ public class ModbusUdpServer extends AbstractModbusSlaveServer {
     protected ModbusSlave createSlave(InetAddress address, int port) throws Exception {
         return ModbusSlaveFactory.createUDPSlave(address, port);
     }
+
+    @Override
+    protected void doStop() {
+        interruptListener();
+        super.doStop();
+    }
+
+    /**
+     * 中断阻塞在接收队列上的 j2mod UDP 监听线程。
+     *
+     * <p>j2mod 3.2.1 的 UDP 监听线程阻塞在 {@code LinkedBlockingQueue.take()}，
+     * 而 {@code stop()} 只关闭套接字、不唤醒该队列，导致 {@code ModbusSlave.close()}
+     * 固定等待 5 秒后调用废弃的 {@code Thread.stop()}。这里按线程名（含端口）与调用栈
+     * 精确定位本实例的监听线程并中断，让其从 {@code take()} 抛出中断异常后退出循环。</p>
+     */
+    private void interruptListener() {
+        String expectedName = "Modbus UDP Listener [port:" + setting.getPort() + "]";
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (expectedName.equals(thread.getName()) && waitsInUdpReceive(thread.getStackTrace())) {
+                thread.interrupt();
+            }
+        }
+    }
+
+    /**
+     * 判断线程是否阻塞在 j2mod UDP 接收队列。
+     *
+     * @param stack 线程调用栈
+     * @return 命中返回 {@code true}
+     */
+    private static boolean waitsInUdpReceive(StackTraceElement[] stack) {
+        for (StackTraceElement element : stack) {
+            if ("com.ghgande.j2mod.modbus.net.UDPSlaveTerminal".equals(element.getClassName())
+                    && "receiveMessage".equals(element.getMethodName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
+

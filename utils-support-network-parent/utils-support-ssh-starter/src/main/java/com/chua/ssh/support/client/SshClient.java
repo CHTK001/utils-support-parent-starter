@@ -863,6 +863,14 @@ public class SshClient implements AutoCloseable {
          */
         private int height = 24;
         /**
+         * 终端类型（TERM）。远端据此决定颜色数量与转义序列能力。
+         *
+         * <p>原来固定 {@code vt100}：那是 8 色、无 Unicode 宽度概念的终端，
+         * `ls --color`、vim、htop 都会退化。默认值保持不变以免静默改变现有调用方，
+         * 平台侧通过 {@link #ptyType(String)} 显式下发（配置项 {@code ssh.terminal-type}）。
+         */
+        private String ptyType = "vt100";
+        /**
          * channel
          */
         private ChannelShell channel;
@@ -944,6 +952,16 @@ public class SshClient implements AutoCloseable {
             return this;
         }
         /**
+         * 终端类型（TERM），如 xterm-256color / xterm / screen-256color / vt100。
+         *
+         * @param v 终端类型；空值或空串时沿用 {@code vt100}
+         * @return 返回值
+        */
+        public TerminalOperation ptyType(String v) {
+            this.ptyType = v;
+            return this;
+        }
+        /**
          * OnOutput
          * @param callback 参数
          * @return 返回值
@@ -969,7 +987,7 @@ public class SshClient implements AutoCloseable {
         public TerminalOperation connect() {
             try {
                 PtyChannelConfiguration ptyConfig = new PtyChannelConfiguration();
-                ptyConfig.setPtyType("vt100");
+                ptyConfig.setPtyType(ptyType == null || ptyType.isBlank() ? "vt100" : ptyType);
                 ptyConfig.setPtyColumns(width);
                 ptyConfig.setPtyLines(height);
 
@@ -981,7 +999,7 @@ public class SshClient implements AutoCloseable {
                 outputStream = channel.getInvertedIn();
                 connected = true;
                 startReaderThread();
-                log.info("PTY 终端连接成功: {}x{}", width, height);
+                log.info("PTY 终端连接成功: {}x{} term={}", width, height, ptyConfig.getPtyType());
             } catch (Exception e) {
                 throw new SshClientException("PTY 连接失败", e);
             }

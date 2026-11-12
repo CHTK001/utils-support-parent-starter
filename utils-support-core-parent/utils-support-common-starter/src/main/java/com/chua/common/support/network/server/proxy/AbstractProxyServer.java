@@ -447,11 +447,13 @@ public abstract class AbstractProxyServer extends AbstractServer {
      *
      * @param in    输入流
      * @param count 字节数
-     * @return 字节数组
+     * @return 字节数组（长度恰好为 {@code count}）
      * @throws IOException IO 异常
      *
-     * readBytes 复用缓冲：调用点均立即消费返回值（不跨调用持有），
-     * 避免热路径（每连接多次小结构读取）反复分配小数组。
+     * 内部仍复用线程内缓冲以减少中间分配，但返回值是精确长度的副本：
+     * 早先直接返回复用缓冲，导致 SOCKS5 的 IPv4/IPv6 目标地址长度非法
+     * （getByAddress 抛异常 → target 为空 → 回 4 host unreachable），
+     * 域名也会带上缓冲里的残留字节。
      */
     private static final ThreadLocal<byte[]> READ_BUFFER =
             ThreadLocal.withInitial(() -> new byte[64]);
@@ -478,7 +480,11 @@ public abstract class AbstractProxyServer extends AbstractServer {
             }
             offset += n;
         }
-        return bytes;
+        // 必须返回精确长度的副本：缓冲是线程内复用的，直接把它交出去会让调用方拿到 64 字节，
+        // 于是 InetAddress.getByAddress(...) 因长度非法抛 UnknownHostException，
+        // new String(...) 也会把缓冲里的残留字节解进结果（SOCKS5 域名就是这样被污染的）。
+        // 代价是每次握手多几次小对象分配，与转发热路径无关。
+        return java.util.Arrays.copyOf(bytes, count);
     }
 
     /**

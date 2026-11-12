@@ -139,6 +139,9 @@ public class JdkTelnetServer extends AbstractServer {
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
                     setting.resolveBacklog(1024));
+            // 回写实际端口：port=0 时由内核分配，不回写的话 getPort() 恒为 0，
+            // 调用方（含测试）拿不到真实端口。家族里其余实现都是这个口径。
+            setting.setPort(serverSocket.getLocalPort());
             // Telnet 是长连接：旧实现用固定平台线程池（workerThreads），
             // 每条连接独占一个平台线程，连接数一多就卡在池容量上排队。
             // 改为虚拟线程池，连接数与平台线程数解耦（百万连接目标的前提）。

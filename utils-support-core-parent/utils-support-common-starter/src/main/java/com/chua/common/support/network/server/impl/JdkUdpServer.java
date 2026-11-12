@@ -82,6 +82,8 @@ public class JdkUdpServer extends AbstractServer {
             int bufferSize = (int) Math.min(setting.getMaxRequestSize() > 0 ? setting.getMaxRequestSize() : 65535,
                     65535);
             datagramSocket = new DatagramSocket(addr);
+            // 回写实际端口：port=0 时由内核分配，不回写的话 getPort() 恒为 0。
+            setting.setPort(datagramSocket.getLocalPort());
             datagramSocket.setReceiveBufferSize(bufferSize);
             datagramSocket.setSoTimeout(1000);
 // [P3C C1 豁免] 场景化创建线程，需文档化

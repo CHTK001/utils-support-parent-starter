@@ -6,6 +6,8 @@ import com.chua.modbus.support.ModbusException;
 import com.chua.modbus.support.ModbusSetting;
 import com.ghgande.j2mod.modbus.ModbusSlaveException;
 import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleCoilsRequest;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -37,6 +39,10 @@ public abstract class AbstractJ2ModClient implements ModbusClient {
      * 寄存器值上限
      */
     private static final int MAX_REGISTER_VALUE = 0xFFFF;
+    /**
+     * 写多个线圈请求的固定数据长度：地址 2 + 数量 2 + 字节数 1
+     */
+    private static final int COILS_HEADER_BYTES = 5;
 
     /**
      * 生命周期锁：保护建连与断线复位
@@ -151,7 +157,7 @@ public abstract class AbstractJ2ModClient implements ModbusClient {
     @Override
     public void writeMultipleCoils(int unitId, int address, boolean[] values) {
         BitVector bits = toBitVector(values);
-        executeVoid("writeMultipleCoils", current -> current.writeMultipleCoils(unitId, address, bits));
+        executeVoid("writeMultipleCoils", current -> issueWriteMultipleCoils(current, unitId, address, bits));
     }
 
     @Override
@@ -200,6 +206,40 @@ public abstract class AbstractJ2ModClient implements ModbusClient {
             call.call(current);
             return Boolean.TRUE;
         });
+    }
+
+    /**
+     * 发送写多个线圈请求（功能码 0x0F）。
+     *
+     * <p>不直接调用 j2mod 门面的 {@code writeMultipleCoils}，原因有两个：</p>
+     * <ul>
+     *   <li>3.2.1 的 {@code WriteMultipleCoilsRequest.setCoils()} 不刷新 dataLength，
+     *       UDP 传输按旧长度发送会截掉最后一个数据字节；</li>
+     *   <li>UDP 事务在重试耗尽后只记录日志、不抛异常，void 写入会表现为“成功”。</li>
+     * </ul>
+     * <p>这里显式修正长度，并在事务结束后校验响应是否真的到达。</p>
+     *
+     * @param current 主站
+     * @param unitId  从站地址
+     * @param address 起始地址
+     * @param bits    线圈值
+     * @throws Exception 发送失败或未收到响应
+     */
+    private void issueWriteMultipleCoils(AbstractModbusMaster current, int unitId, int address, BitVector bits)
+            throws Exception {
+        WriteMultipleCoilsRequest request = new WriteMultipleCoilsRequest();
+        request.setUnitID(unitId);
+        request.setReference(address);
+        request.setCoils(bits);
+        request.setDataLength(bits.byteSize() + COILS_HEADER_BYTES);
+
+        ModbusTransaction transaction = current.getTransport().createTransaction();
+        transaction.setRetries(Math.max(0, getSetting().getRetries()));
+        transaction.setRequest(request);
+        transaction.execute();
+        if (transaction.getResponse() == null) {
+            throw new ModbusException("Modbus writeMultipleCoils 未收到响应");
+        }
     }
 
     /**
