@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author CH
  * @since 4.0.0.50
  */
-class ModbusTcpExchangeTest {
+class ModbusExchangeTest {
 
     /**
      * 测试数据区大小：故意小于 65536，便于验证越界

@@ -38,7 +38,7 @@ public class ModbusTcpClient extends AbstractJ2ModClient {
     @Override
     protected AbstractModbusMaster createMaster() {
         ModbusSetting setting = getSetting();
-        setting.validateTcp();
+        setting.validateNetwork();
         // reconnect=false：保持长连接；断线由基类复位后按需重连，避免每个事务都重新握手
         return new ModbusTCPMaster(setting.getHost(), setting.getPort(), setting.getReadTimeout(), false);
     }

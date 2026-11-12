@@ -10,10 +10,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-modbus-starter</artifactId>
-    <name>Utils Support Modbus Starter - Modbus 客户端与服务端（TCP/RTU）</name>
+    <name>Utils Support Modbus Starter - Modbus 客户端与服务端（TCP/UDP/RTU）</name>
     <description>
-        基于 j2mod 的 Modbus 客户端与服务端：客户端以 ModbusClient SPI 暴露（modbus-tcp / modbus-rtu），
-        服务端以 ModbusServer SPI 暴露（modbus-tcp / modbus-rtu），TCP 服务端同时注册到 common-starter 的 Server SPI。
+        基于 j2mod 的 Modbus 客户端与服务端：客户端与服务端均通过 ModbusClient / ModbusServer SPI 暴露
+        modbus-tcp、modbus-udp、modbus-rtu、modbus-ascii 四种实现，协议由 ModbusSetting 选择；
+        TCP/UDP 服务端同时注册到 common-starter 的 Server SPI。
     </description>
     <dependencies>
         <dependency>

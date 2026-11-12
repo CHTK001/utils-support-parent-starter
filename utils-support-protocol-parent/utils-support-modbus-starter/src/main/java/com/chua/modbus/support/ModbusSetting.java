@@ -618,7 +618,7 @@ public class ModbusSetting {
             validateSerial();
             return;
         }
-        validateTcp();
+        validateNetwork();
     }
 
     /**
@@ -639,11 +639,11 @@ public class ModbusSetting {
     }
 
     /**
-     * 校验 TCP 配置。
+     * 校验网络（TCP/UDP）配置。
      *
      * @throws ModbusException 配置非法时抛出
      */
-    public void validateTcp() {
+    public void validateNetwork() {
         validateCommon();
         if (host == null || host.isEmpty()) {
             throw new ModbusException("Modbus 主机地址不能为空");

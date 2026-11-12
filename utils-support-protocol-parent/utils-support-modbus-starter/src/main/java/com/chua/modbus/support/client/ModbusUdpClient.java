@@ -38,7 +38,7 @@ public class ModbusUdpClient extends AbstractJ2ModClient {
     @Override
     protected AbstractModbusMaster createMaster() {
         ModbusSetting setting = getSetting();
-        setting.validateTcp();
+        setting.validateNetwork();
         return new ModbusUDPMaster(setting.getHost(), setting.getPort(), setting.getReadTimeout());
     }
 
