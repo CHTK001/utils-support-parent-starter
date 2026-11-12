@@ -99,6 +99,15 @@
     "allPublicFields": true
   },
   {
+    "name": "com.chua.network.support.tshark.restorer.ImAppProtocolRestorer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
     "name": "com.chua.network.support.tshark.restorer.KafkaProtocolRestorer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -181,6 +190,24 @@
   },
   {
     "name": "com.chua.network.support.tshark.restorer.RedisProtocolRestorer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.network.support.tshark.restorer.RdpProtocolRestorer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.network.support.tshark.restorer.SmppProtocolRestorer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,

@@ -1,0 +1,3 @@
+com.chua.modbus.support.client.ModbusTcpClient
+com.chua.modbus.support.client.ModbusUdpClient
+com.chua.modbus.support.client.ModbusRtuClient

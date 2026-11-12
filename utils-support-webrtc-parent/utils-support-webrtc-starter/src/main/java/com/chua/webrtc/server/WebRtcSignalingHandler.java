@@ -55,6 +55,7 @@ public class WebRtcSignalingHandler implements ServerHandler {
      */
     public static void handleConnection(Socket socket, WebRtcServer server) {
         AtomicBoolean running = new AtomicBoolean(true);
+        String sessionId = null;
         try {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
@@ -63,10 +64,15 @@ public class WebRtcSignalingHandler implements ServerHandler {
                 socket.close();
                 return;
             }
+            // 信令通道不经过 Spring 鉴权过滤器，必须在这里校验令牌；否则同网任何人可看屏/控键鼠
+            if (!isAuthorized(handshake, server.getSignalingToken())) {
+                writeForbidden(out);
+                socket.close();
+                return;
+            }
             writeHandshakeResponse(out, secWebSocketKey(handshake));
 
             // 通过 URL 查询参数或首个帧获取 sessionId
-            String sessionId = null;
             byte[] frame;
             while (running.get()) {
                 frame = readFrame(in, out);
@@ -89,12 +95,69 @@ public class WebRtcSignalingHandler implements ServerHandler {
         } catch (Exception e) {
             // 忽略
         } finally {
+            if (sessionId != null) {
+                server.unregister(sessionId, socket);
+            }
             try {
                 socket.close();
             } catch (Exception ignored) {
                 // ignore
             }
         }
+    }
+
+    /**
+     * 校验信令令牌。服务端未配置令牌时放行（仅限本机/受信网络的旧用法）。
+     *
+     * @param handshake 握手请求
+     * @param expected  服务端令牌
+     * @return true 表示通过
+     */
+    private static boolean isAuthorized(String handshake, String expected) {
+        if (expected == null || expected.isEmpty()) {
+            return true;
+        }
+        String actual = queryParam(handshake, "token");
+        return actual != null && MessageDigest.isEqual(
+                expected.getBytes(StandardCharsets.UTF_8),
+                actual.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 从握手请求行里取查询参数。
+     *
+     * @param handshake 握手请求
+     * @param name      参数名
+     * @return 参数值；不存在时为 null
+     */
+    private static String queryParam(String handshake, String name) {
+        int lineEnd = handshake.indexOf("\r\n");
+        String requestLine = lineEnd > 0 ? handshake.substring(0, lineEnd) : handshake;
+        int queryStart = requestLine.indexOf('?');
+        if (queryStart < 0) {
+            return null;
+        }
+        int space = requestLine.indexOf(' ', queryStart);
+        String query = space > 0 ? requestLine.substring(queryStart + 1, space) : requestLine.substring(queryStart + 1);
+        for (String part : query.split("&")) {
+            int eq = part.indexOf('=');
+            if (eq > 0 && name.equals(part.substring(0, eq))) {
+                return java.net.URLDecoder.decode(part.substring(eq + 1), StandardCharsets.UTF_8);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 回写 403（令牌不匹配）。
+     *
+     * @param out 输出流
+     * @throws Exception 写出失败
+     */
+    private static void writeForbidden(OutputStream out) throws Exception {
+        String response = "HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+        out.write(response.getBytes(StandardCharsets.ISO_8859_1));
+        out.flush();
     }
 
     /**

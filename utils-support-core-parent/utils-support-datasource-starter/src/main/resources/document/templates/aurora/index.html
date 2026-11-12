@@ -260,10 +260,10 @@
     function setSidebarHidden(hidden){
       if(hidden){
         appLayout.classList.add('sidebar-hidden');
-        localStorage.setItem('doc-sidebar-hidden', 'true');
+        try{ localStorage.setItem('doc-sidebar-hidden', 'true'); }catch(e){}
       }else{
         appLayout.classList.remove('sidebar-hidden');
-        localStorage.setItem('doc-sidebar-hidden', 'false');
+        try{ localStorage.setItem('doc-sidebar-hidden', 'false'); }catch(e){}
       }
     }
 

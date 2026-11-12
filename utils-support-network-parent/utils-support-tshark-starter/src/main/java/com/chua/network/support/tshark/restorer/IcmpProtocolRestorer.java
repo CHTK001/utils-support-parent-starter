@@ -35,6 +35,12 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 8) {
             return false;
         }
+        // 必须有 icmp / icmpv6 层。此前只判「首字节在 0..43」，
+        // 结果任何载荷（甚至 TCP 空载荷退回的整帧字节）都会被标成 [ICMP] type=2，
+        // 把真正的协议还原结果挤到了后面。
+        if (!contains(protocolInfo, "icmp") && !contains(protocolInfo, "icmpv6")) {
+            return false;
+        }
         int type = rawData[0] & 0xff;
         return type >= 0 && type <= 43;
     }

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-protocol-parent</artifactId>
+        <version>4.0.0.50</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-modbus-starter</artifactId>
+    <name>Utils Support Modbus Starter - Modbus 客户端与服务端（TCP/RTU）</name>
+    <description>
+        基于 j2mod 的 Modbus 客户端与服务端：客户端以 ModbusClient SPI 暴露（modbus-tcp / modbus-rtu），
+        服务端以 ModbusServer SPI 暴露（modbus-tcp / modbus-rtu），TCP 服务端同时注册到 common-starter 的 Server SPI。
+    </description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <!-- Modbus 协议框架：TCP/串口主站与从站、PDU/CRC/异常响应统一由 j2mod 处理 -->
+        <dependency>
+            <groupId>com.ghgande</groupId>
+            <artifactId>j2mod</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

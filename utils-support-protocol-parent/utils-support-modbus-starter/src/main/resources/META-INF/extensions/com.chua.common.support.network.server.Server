@@ -1,0 +1,3 @@
+modbus=com.chua.modbus.support.server.ModbusTcpServer
+modbus-tcp=com.chua.modbus.support.server.ModbusTcpServer
+modbus-udp=com.chua.modbus.support.server.ModbusUdpServer

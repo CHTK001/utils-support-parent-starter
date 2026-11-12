@@ -72,6 +72,8 @@ public enum ProtocolType {
     SSH(ServerCategory.APPLICATION),
     /** SMB 文件共享协议 */
     SMB(ServerCategory.APPLICATION),
+    /** Modbus 工业现场总线协议（TCP 传输） */
+    MODBUS(ServerCategory.APPLICATION),
     /**
      * 构造方法，创建 UNKNOWN 实例。
      *

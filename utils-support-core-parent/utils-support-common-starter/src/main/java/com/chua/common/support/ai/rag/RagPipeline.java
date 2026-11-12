@@ -15,13 +15,19 @@ import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,6 +108,21 @@ public class RagPipeline implements RagClient {
      */
     private static final String CHUNK_CONTENT_CACHE_FILE = "chunk-content-cache.tsv";
     /**
+     * 文档登记表文件名（uploadDir 下）。此前登记表只存在于进程内存，重启后
+     * {@link #listDocuments} 返回空表，知识库页会把已索引文件全部显示成「待重建索引」；
+     * 这里落盘以便重启后恢复。
+     */
+    private static final String DOCUMENTS_DB_FILE = "documents.json";
+    /**
+     * 文档登记表 JSON 映射器（线程安全，仅用于读写 documents.json）
+     */
+    private static final ObjectMapper DOCUMENTS_MAPPER = new ObjectMapper();
+    /**
+     * 文档登记表反序列化类型
+     */
+    private static final TypeReference<List<RagDocument>> DOCUMENT_LIST_TYPE = new TypeReference<>() {
+    };
+    /**
      * 向量元数据键：分块原文
      */
     private static final String META_CONTENT = "content";
@@ -146,6 +167,10 @@ public class RagPipeline implements RagClient {
      * 文档处理状态：就绪
      */
     private static final String STATUS_READY = "READY";
+    /**
+     * 文档处理状态：处理中
+     */
+    private static final String STATUS_PROCESSING = "PROCESSING";
     /**
      * UUID 字符串中的短横线
      */
@@ -192,6 +217,10 @@ public class RagPipeline implements RagClient {
      */
     private final Path filesDir;
     /**
+     * 文档登记表落盘路径（uploadDir/documents.json）
+     */
+    private final Path documentsDbPath;
+    /**
      * 已入库文档元数据列表（线程安全，按入库顺序追加）
      */
     private final List<RagDocument> documents;
@@ -233,6 +262,7 @@ public class RagPipeline implements RagClient {
         this.uploadProvider = new LocalFileUploadProvider(setting.getUploadDir());
         this.uploadDir = Path.of(setting.getUploadDir());
         this.filesDir = this.uploadDir.resolve(UPLOAD_FILES_SUBDIR);
+        this.documentsDbPath = this.uploadDir.resolve(DOCUMENTS_DB_FILE);
         try {
             Files.createDirectories(this.filesDir);
         } catch (IOException e) {
@@ -241,6 +271,7 @@ public class RagPipeline implements RagClient {
         this.documents = new CopyOnWriteArrayList<>();
         this.chunkContentCache = new ConcurrentHashMap<>();
         loadChunkContentCache();
+        loadDocuments();
         this.ingestPipeline = buildIngestPipeline();
         this.queryPipeline = buildQueryPipeline();
         log.info("[RagPipeline] 初始化完成, uploadDir={}", setting.getUploadDir());
@@ -342,6 +373,7 @@ public class RagPipeline implements RagClient {
                                 .withChunkCount(rc.currentChunkCount());
                     }
                     documents.add(doc);
+                    persistDocuments();
                     rc.currentDocument(doc);
                     return null;
                 }).taskEnd()
@@ -905,7 +937,12 @@ public class RagPipeline implements RagClient {
         }
         // 清理分块内容缓存
         chunkContentCache.keySet().removeIf(k -> k.startsWith(docId + FILE_NAME_SEPARATOR));
-        return documents.removeIf(d -> d.id().equals(docId));
+        persistChunkContentCache();
+        boolean removed = documents.removeIf(d -> d.id().equals(docId));
+        if (removed) {
+            persistDocuments();
+        }
+        return removed;
     }
 
     @Override
@@ -968,6 +1005,7 @@ public class RagPipeline implements RagClient {
                 log.warn("[RagPipeline] 重新索引失败: {}", e.getMessage(), e);
             }
         }
+        persistDocuments();
         return count;
     }
 
@@ -1080,9 +1118,182 @@ public class RagPipeline implements RagClient {
         }
     }
 
+    /**
+     * 从磁盘恢复文档登记表，并与分块内容缓存交叉校验。
+     *
+     * <p>登记表原先是纯内存的 {@code CopyOnWriteArrayList}：进程重启后
+     * {@link #listDocuments} 返回空表，而向量与上传文件都还在磁盘上，知识库页面只能把
+     * 已索引的文件全部显示成「待重建索引」。这里把登记表落到 {@code uploadDir/documents.json}，
+     * 启动时读回。</p>
+     *
+     * <p>恢复不是无条件照抄历史状态：</p>
+     * <ul>
+     *     <li>{@code PROCESSING} 表示进程在入库途中断掉，改判 {@code FAILED} 并写明原因，
+     *     避免永远停在「解析中」；</li>
+     *     <li>{@code READY} 但分块内容缓存里没有任何对应分块，说明引用原文已不可回读，
+     *     同样改判 {@code FAILED} 并提示重建索引——宁可报「索引缺失」，也不能谎报「已完成」；</li>
+     *     <li>登记表不存在（老版本升级上来的库）但分块缓存有记录时，按缓存反推文档，
+     *     有分块即视为已索引，避免存量库重启后集体变「待重建」。</li>
+     * </ul>
+     */
+    private void loadDocuments() {
+        Map<String, Integer> chunkCounts = countCachedChunks();
+        List<RagDocument> stored = readDocumentsDb();
+        Map<String, RagDocument> merged = new LinkedHashMap<>();
+        for (RagDocument doc : stored) {
+            if (doc == null || StringUtils.isBlank(doc.id())) {
+                continue;
+            }
+            RagDocument fixed = normalizeRestored(doc, chunkCounts);
+            merged.merge(fixed.id(), fixed,
+                    (older, newer) -> older.createTime() >= newer.createTime() ? older : newer);
+        }
+        for (Map.Entry<String, Integer> entry : chunkCounts.entrySet()) {
+            if (merged.containsKey(entry.getKey())) {
+                continue;
+            }
+            merged.put(entry.getKey(), documentFromDocId(entry.getKey(), entry.getValue()));
+        }
+        documents.addAll(merged.values());
+        if (!merged.isEmpty()) {
+            log.info("[RagPipeline] 恢复文档登记表 {} 篇（落盘 {} 篇，分块缓存 {} 篇）",
+                    merged.size(), stored.size(), chunkCounts.size());
+        }
+    }
+
+    /**
+     * 校正恢复出来的文档状态，避免把「已不可回读」谎报成「已完成」。
+     *
+     * @param doc         登记表里的文档记录
+     * @param chunkCounts 文档 ID → 已缓存分块数
+     * @return 校正后的文档记录
+     */
+    private static RagDocument normalizeRestored(RagDocument doc, Map<String, Integer> chunkCounts) {
+        int chunks = chunkCounts.getOrDefault(doc.id(), 0);
+        if (STATUS_PROCESSING.equals(doc.status())) {
+            return doc.withError("进程重启导致索引中断，请重建索引");
+        }
+        if (STATUS_READY.equals(doc.status()) && chunks == 0) {
+            return doc.withError("分块内容缓存缺失，引用原文不可回读，请重建索引");
+        }
+        return doc;
+    }
+
+    /**
+     * 按文档 ID 合成一条已索引记录（用于登记表缺失、只有分块缓存的存量数据）。
+     *
+     * @param docId      文档 ID（{@code <知识库ID>/<相对路径>}）
+     * @param chunkCount 已缓存分块数
+     * @return 合成的文档记录，状态为 READY
+     */
+    private RagDocument documentFromDocId(String docId, int chunkCount) {
+        int slash = docId.lastIndexOf('/');
+        String fileName = slash >= 0 ? docId.substring(slash + 1) : docId;
+        String fileType = fileName.contains(".")
+                ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+                : EMPTY;
+        long fileSize = 0L;
+        try {
+            byte[] data = uploadProvider.read(docId);
+            fileSize = data == null ? 0L : data.length;
+        } catch (Exception e) {
+            log.debug("[RagPipeline] 恢复文档时读取原文件失败: {} - {}", docId, e.getMessage());
+        }
+        return new RagDocument(docId, fileName, fileType, fileSize, chunkCount, STATUS_READY, null,
+                System.currentTimeMillis(), Map.of());
+    }
+
+    /**
+     * 统计分块缓存里每篇文档的分块数。
+     *
+     * <p>分块缓存是唯一持久化的「分块是否真的入了向量库」证据：每个成功写向量的分块
+     * 都会在缓存里留一行（见 {@code NODE_EMBED} 的落盘逻辑），删除文档时同步清理。
+     * 因此可用它校验登记表里的 READY 是否仍然站得住。</p>
+     *
+     * @return 文档 ID → 分块数
+     */
+    private Map<String, Integer> countCachedChunks() {
+        Map<String, Integer> counts = new HashMap<>();
+        for (String chunkId : chunkContentCache.keySet()) {
+            String docId = docIdFromChunkId(chunkId);
+            if (docId == null) {
+                continue;
+            }
+            counts.merge(docId, 1, Integer::sum);
+        }
+        return counts;
+    }
+
+    /**
+     * 从分块 ID 反推文档 ID（分块 ID 规则：{@code <docId>_<块号>}）。
+     *
+     * <p>文档 ID 本身可能含下划线（相对路径里的文件名），所以只能从最后一段判断：
+     * 末段必须全是数字才认作块号，否则不是分块 ID。</p>
+     *
+     * @param chunkId 分块 ID
+     * @return 文档 ID，无法反推时为 null
+     */
+    private static String docIdFromChunkId(String chunkId) {
+        if (chunkId == null) {
+            return null;
+        }
+        int sep = chunkId.lastIndexOf(FILE_NAME_SEPARATOR);
+        if (sep <= 0 || sep == chunkId.length() - 1) {
+            return null;
+        }
+        for (int i = sep + 1; i < chunkId.length(); i++) {
+            if (!Character.isDigit(chunkId.charAt(i))) {
+                return null;
+            }
+        }
+        return chunkId.substring(0, sep);
+    }
+
+    /**
+     * 读取文档登记表。
+     *
+     * @return 文档列表；文件不存在或解析失败时返回空列表（按「无历史记录」处理）
+     */
+    private List<RagDocument> readDocumentsDb() {
+        if (!Files.exists(documentsDbPath)) {
+            return List.of();
+        }
+        try {
+            List<RagDocument> docs = DOCUMENTS_MAPPER.readValue(documentsDbPath.toFile(), DOCUMENT_LIST_TYPE);
+            return docs == null ? List.of() : docs;
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 读取文档登记表失败，按空表处理: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    /**
+     * 把文档登记表落盘。
+     *
+     * <p>先写临时文件再原子替换：进程被强杀时不会留下半截 JSON，下次启动仍能读到
+     * 上一个完整版本，而不是整表丢失。</p>
+     */
+    private synchronized void persistDocuments() {
+        try {
+            Files.createDirectories(documentsDbPath.getParent());
+            Path tmp = documentsDbPath.resolveSibling(DOCUMENTS_DB_FILE + ".tmp");
+            DOCUMENTS_MAPPER.writeValue(tmp.toFile(), new ArrayList<>(documents));
+            try {
+                Files.move(tmp, documentsDbPath,
+                        StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException atomicUnsupported) {
+                // 部分文件系统不支持原子移动，退化为普通替换
+                Files.move(tmp, documentsDbPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 文档登记表落盘失败: {}", e.getMessage(), e);
+        }
+    }
+
     @Override
     public void close() {
         // 关闭前落盘并关闭向量存储：不 close 时部分实现（jvector ON_DISK）不会 flush 索引。
+        persistDocuments();
         persistChunkContentCache();
         try {
             if (vectorStorage != null) {

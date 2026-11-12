@@ -1,0 +1,8 @@
+modbus-tcp=com.chua.modbus.support.client.ModbusTcpClient
+modbus=com.chua.modbus.support.client.ModbusTcpClient
+modbus-udp=com.chua.modbus.support.client.ModbusUdpClient
+udp=com.chua.modbus.support.client.ModbusUdpClient
+modbus-rtu=com.chua.modbus.support.client.ModbusRtuClient
+rtu=com.chua.modbus.support.client.ModbusRtuClient
+modbus-ascii=com.chua.modbus.support.client.ModbusRtuClient
+ascii=com.chua.modbus.support.client.ModbusRtuClient

@@ -3,20 +3,25 @@ package com.chua.common.support.network.ssl;
 import com.chua.common.support.network.server.ServerSetting;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * SSL/TLS 工具类，统一 KeyStore 加载、SSLContext 创建、自签名证书生成等逻辑。
@@ -308,5 +313,188 @@ public final class SslUtils {
     public static char[] getKeyPassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyPassword() != null
                 ? ssl.getKeyPassword().toCharArray() : new char[0];
+    }
+
+    // ==================== TLS keylog（纯 Java 导出会话密钥） ====================
+
+    /**
+     * keylog 文件路径的系统属性名。
+     *
+     * <p>{@code -Dchua.tls.keylog=D:\keys\sslkeys.log}；也兼容环境变量
+     * {@link #KEY_LOG_ENV}。</p>
+     */
+    public static final String KEY_LOG_PROPERTY = "chua.tls.keylog";
+
+    /**
+     * keylog 文件路径的环境变量名（与浏览器/curl 的通用约定一致）。
+     */
+    public static final String KEY_LOG_ENV = "SSLKEYLOGFILE";
+
+    /**
+     * 反射失败只提示一次，避免每次握手都刷日志。
+     */
+    private static final AtomicBoolean KEY_LOG_WARNED = new AtomicBoolean(false);
+
+    /**
+     * 取配置的 keylog 文件路径。
+     *
+     * @return 绝对路径；未配置或路径非法返回 null
+     */
+    public static Path keyLogFile() {
+        String configured = System.getProperty(KEY_LOG_PROPERTY);
+        if (configured == null || configured.isBlank()) {
+            configured = System.getenv(KEY_LOG_ENV);
+        }
+        if (configured == null || configured.isBlank()) {
+            return null;
+        }
+        try {
+            return Path.of(configured.trim()).toAbsolutePath().normalize();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 当前 JVM 能否读出 TLS1.2 会话密钥。
+     *
+     * <p>只检查字段是否存在，不做握手；未加
+     * {@code --add-opens java.base/sun.security.ssl=ALL-UNNAMED} 时仍然返回 true，
+     * 真正的拦截发生在 {@link #keyLogLine} 的 {@code setAccessible}。</p>
+     *
+     * @return true 表示会话实现类可访问
+     */
+    public static boolean keyLogAvailable() {
+        try {
+            Class<?> impl = Class.forName("sun.security.ssl.SSLSessionImpl");
+            impl.getDeclaredField("clientRandom");
+            impl.getDeclaredField("masterSecret");
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    /**
+     * 生成一行 NSS key log（不落盘）。
+     *
+     * <p>只支持 TLS1.2：{@code CLIENT_RANDOM <client_random_hex> <master_secret_hex>}。
+     * TLS1.3 的 traffic secret 不在 {@code SSLSessionImpl} 上，JSSE 也没有暴露，
+     * 这里直接返回 null，不猜。</p>
+     *
+     * @param session 已完成握手的会话
+     * @return 行；非 TLS1.2 或反射不可用时返回 null
+     */
+    public static String keyLogLine(SSLSession session) {
+        if (session == null || !"TLSv1.2".equalsIgnoreCase(session.getProtocol())) {
+            return null;
+        }
+        try {
+            Class<?> impl = Class.forName("sun.security.ssl.SSLSessionImpl");
+            java.lang.reflect.Field randomField = impl.getDeclaredField("clientRandom");
+            randomField.setAccessible(true);
+            Object randomCookie = randomField.get(session);
+            java.lang.reflect.Field bytesField = randomCookie.getClass().getDeclaredField("randomBytes");
+            bytesField.setAccessible(true);
+            byte[] clientRandom = (byte[]) bytesField.get(randomCookie);
+            java.lang.reflect.Field masterField = impl.getDeclaredField("masterSecret");
+            masterField.setAccessible(true);
+            javax.crypto.SecretKey master = (javax.crypto.SecretKey) masterField.get(session);
+            if (master == null || clientRandom == null || clientRandom.length != 32) {
+                return null;
+            }
+            byte[] secret = master.getEncoded();
+            if (secret == null || secret.length != 48) {
+                return null;
+            }
+            return "CLIENT_RANDOM " + toHex(clientRandom) + " " + toHex(secret);
+        } catch (Throwable e) {
+            if (KEY_LOG_WARNED.compareAndSet(false, true)) {
+                log.warn("[SslUtils] 读不到 TLS1.2 会话密钥，需要启动参数 "
+                        + "--add-opens java.base/sun.security.ssl=ALL-UNNAMED：{}", e.getClass().getSimpleName());
+            }
+            return null;
+        }
+    }
+
+    /**
+     * 把一次会话的密钥追加写入配置的 keylog 文件。
+     *
+     * <p>未配置文件、TLS1.3、反射被模块系统拦住时静默返回 null，
+     * 调用方可以直接挂在握手完成处，不需要 try/catch。</p>
+     *
+     * @param session 已完成握手的会话
+     * @return 写入的行；未写入返回 null
+     */
+    public static String writeKeyLog(SSLSession session) {
+        Path file = keyLogFile();
+        if (file == null) {
+            return null;
+        }
+        String line = keyLogLine(session);
+        if (line == null) {
+            return null;
+        }
+        try {
+            Files.writeString(file, line + System.lineSeparator(), StandardCharsets.US_ASCII,
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            return line;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 生成握手完成监听器，挂到 {@link javax.net.ssl.SSLSocket} 上即可自动写 keylog。
+     *
+     * <p>用法：{@code socket.addHandshakeCompletedListener(SslUtils.keyLogListener());}</p>
+     *
+     * @return 监听器
+     */
+    public static HandshakeCompletedListener keyLogListener() {
+        return event -> writeKeyLog(event.getSession());
+    }
+
+    /**
+     * 解析 NSS key log 文本（注释行与空行忽略）。
+     *
+     * <p>交给编解码 SPI 的实现 {@code TlsKeyLogDecoder} 做结构化输出；
+     * 这里保留一个轻量入口，便于不引 SPI 的调用方直接解析。</p>
+     *
+     * @param text keylog 文本
+     * @return 每条记录为 {label, clientRandom, secret} 三元组
+     */
+    public static List<String[]> parseKeyLog(String text) {
+        List<String[]> entries = new ArrayList<>();
+        if (text == null || text.isBlank()) {
+            return entries;
+        }
+        for (String line : text.split("\\R")) {
+            String value = line.trim();
+            if (value.isEmpty() || value.startsWith("#")) {
+                continue;
+            }
+            String[] parts = value.split("\\s+");
+            if (parts.length < 3) {
+                continue;
+            }
+            entries.add(new String[]{parts[0], parts[1], parts[2]});
+        }
+        return entries;
+    }
+
+    /**
+     * 字节转小写十六进制。
+     *
+     * @param bytes 字节
+     * @return 十六进制串
+     */
+    private static String toHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(Character.forDigit((b >> 4) & 0xf, 16));
+            sb.append(Character.forDigit(b & 0xf, 16));
+        }
+        return sb.toString();
     }
 }

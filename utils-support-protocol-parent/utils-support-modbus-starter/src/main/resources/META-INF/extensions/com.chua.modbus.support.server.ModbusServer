@@ -1,0 +1,4 @@
+modbus-tcp=com.chua.modbus.support.server.ModbusTcpServer
+modbus-udp=com.chua.modbus.support.server.ModbusUdpServer
+modbus-rtu=com.chua.modbus.support.server.ModbusRtuServer
+modbus-ascii=com.chua.modbus.support.server.ModbusRtuServer

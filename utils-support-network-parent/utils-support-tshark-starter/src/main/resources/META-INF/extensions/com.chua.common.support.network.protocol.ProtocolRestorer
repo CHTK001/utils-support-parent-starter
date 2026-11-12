@@ -28,3 +28,7 @@ sip=com.chua.network.support.tshark.restorer.SipProtocolRestorer
 websocket=com.chua.network.support.tshark.restorer.WebSocketProtocolRestorer
 modbus=com.chua.network.support.tshark.restorer.ModbusProtocolRestorer
 coap=com.chua.network.support.tshark.restorer.CoapProtocolRestorer
+im=com.chua.network.support.tshark.restorer.ImAppProtocolRestorer
+rdp=com.chua.network.support.tshark.restorer.RdpProtocolRestorer
+smpp=com.chua.network.support.tshark.restorer.SmppProtocolRestorer
+msrp=com.chua.network.support.tshark.restorer.MsrpProtocolRestorer

@@ -15,6 +15,7 @@
     <modules>
         <module>utils-support-protocol-starter</module>
         <module>utils-support-nmap-starter</module>
+        <module>utils-support-modbus-starter</module>
     </modules>
     <dependencies>
         <dependency>

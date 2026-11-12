@@ -41,7 +41,25 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     protected abstract String markdownTemplatePath();
 
     /**
+     * HTML 输出中需要按 HTML 文本转义的变量。
+     *
+     * <p>这些值全部来自数据库元数据（库名、表备注、产品名……），会直接落进
+     * 模板的文本节点或属性里。不转义时一个 {@code <} 就能把版面顶坏，
+     * 一个 {@code <script>} 就能在导出文件里执行任意脚本。</p>
+     *
+     * <p>{@code dataJson} / {@code tablesMarkdown} 不在此列：前者走
+     * {@link #toScriptJson(String)}，后者是 Markdown 原文，各自有专门口径。</p>
+     */
+    private static final String[] HTML_TEXT_KEYS = {
+            "title", "databaseName", "productName", "productVersion",
+            "url", "version", "description", "exportTime"
+    };
+
+    /**
      * 渲染 HTML 文档。
+     *
+     * <p>HTML 模板的文本型占位符必须先做 HTML 转义再替换：这些值来自库表元数据，
+     * 未转义时会被当成标签解析（轻则版面错乱，重则注入脚本）。</p>
      *
      * @param data   文档数据
      * @param config 导出配置
@@ -49,10 +67,12 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
      */
     @Override
     public String renderHtml(DocumentData data, DocumentExportConfig config) {
+        Map<String, Object> vars = buildVariables(data, config);
+        escapeHtmlVars(vars);
         if (config != null && config.getCustomHtmlTemplate() != null && !config.getCustomHtmlTemplate().isBlank()) {
-            return resolve(config.getCustomHtmlTemplate(), buildVariables(data, config));
+            return resolve(config.getCustomHtmlTemplate(), vars);
         }
-        return resolve(loadTemplate(htmlTemplatePath()), buildVariables(data, config));
+        return resolve(loadTemplate(htmlTemplatePath()), vars);
     }
 
     /**
@@ -83,7 +103,9 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         vars.put("url", nullToEmpty(data.getUrl()));
         vars.put("version", nullToEmpty(data.getVersion()));
         vars.put("description", nullToEmpty(data.getDescription()));
-        vars.put("dataJson", toDataJson(data));
+        // 内联进 <script> 的 JSON 必须做脚本级转义：JSON 本身合法不代表能安全
+        // 放进 script 元素 —— 备注里的 </script> 会提前闭合脚本块，把文档截断。
+        vars.put("dataJson", toScriptJson(toDataJson(data)));
         vars.put("tablesMarkdown", toTablesMarkdown(data));
         vars.put("exportTime", new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
         if (config != null && config.getOptions() != null) {
@@ -277,9 +299,9 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
             return "";
         }
         for (TableData table : data.getTables()) {
-            String title = nullToEmpty(table.getTableName());
+            String title = mdCell(table.getTableName());
             if (table.getRemark() != null && !table.getRemark().isEmpty()) {
-                title = title.concat("（" + table.getRemark() + "）");
+                title = title.concat("（" + mdCell(table.getRemark()) + "）");
             }
             sb.append("## ").append(title).append("\n\n");
             sb.append("| 序号 | 列名 | 类型 | 大小 | 小数位 | 可空 | 主键 | 默认值 | 备注 |\n");
@@ -287,14 +309,14 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
             if (table.getColumns() != null) {
                 for (ColumnData col : table.getColumns()) {
                     sb.append("| ").append(col.getOrdinalPosition())
-                            .append(" | ").append(nullToEmpty(col.getColumnName()))
-                            .append(" | ").append(nullToEmpty(col.getTypeName()))
+                            .append(" | ").append(mdCell(col.getColumnName()))
+                            .append(" | ").append(mdCell(col.getTypeName()))
                             .append(" | ").append(col.getColumnSize())
                             .append(" | ").append(col.getDecimalDigits() != null ? col.getDecimalDigits() : "")
                             .append(" | ").append(col.isNullable() ? "是" : "否")
                             .append(" | ").append(col.isPrimaryKey() ? "是" : "否")
-                            .append(" | ").append(nullToEmpty(col.getDefaultValue()))
-                            .append(" | ").append(nullToEmpty(col.getRemark()))
+                            .append(" | ").append(mdCell(col.getDefaultValue()))
+                            .append(" | ").append(mdCell(col.getRemark()))
                             .append(" |\n");
                 }
             }
@@ -345,6 +367,70 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * 把构建好的变量表里的文本型值做 HTML 转义（就地修改）。
+     *
+     * @param vars 变量表
+     */
+    private static void escapeHtmlVars(Map<String, Object> vars) {
+        for (String key : HTML_TEXT_KEYS) {
+            Object value = vars.get(key);
+            if (value != null) {
+                vars.put(key, escapeHtml(value.toString()));
+            }
+        }
+    }
+
+    /**
+     * HTML 文本转义。
+     *
+     * @param value 原值
+     * @return 转义后的文本
+     */
+    private static String escapeHtml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    /**
+     * JSON 的脚本级转义，用于把 JSON 内联进 {@code <script>}。
+     *
+     * <p>把 {@code < > &} 换成对应的 {@code \}{@code uXXXX} 形式：
+     * 对 JSON 解析结果没有影响，但 HTML 解析器再也看不到 {@code </script>}
+     * 这个结束标记。{@code U+2028/2029} 也要转义，它们在 JS 字符串里是换行符。</p>
+     *
+     * @param json JSON 文本
+     * @return 可安全内联的 JSON
+     */
+    private static String toScriptJson(String json) {
+        String lineSeparator = String.valueOf((char) 0x2028);
+        String paragraphSeparator = String.valueOf((char) 0x2029);
+        return json.replace("&", "\\u0026")
+                .replace("<", "\\u003c")
+                .replace(">", "\\u003e")
+                .replace(lineSeparator, "\\u2028")
+                .replace(paragraphSeparator, "\\u2029");
+    }
+
+    /**
+     * Markdown 表格单元格转义：竖线会拆列，换行会断行。
+     *
+     * @param value 原值
+     * @return 可安全放进单元格的文本
+     */
+    private static String mdCell(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\")
+                .replace("|", "\\|")
+                .replace("\r", " ")
+                .replace("\n", " ");
     }
 
     /**

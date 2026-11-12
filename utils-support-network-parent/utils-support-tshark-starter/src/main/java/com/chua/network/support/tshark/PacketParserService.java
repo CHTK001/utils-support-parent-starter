@@ -205,6 +205,12 @@ public final class PacketParserService {
         aliases.put("https", List.of(PROTOCOL_TLS.toLowerCase()));
         aliases.put("postgresql", List.of("pgsql"));
         aliases.put("email", List.of("smtp", "imap", "pop"));
+        // 微信/QQ/钉钉这类私有 IM 协议跑在 TLS 上（微信还是自研 MMTLS），
+        // 层里只有 tls / http，靠 SNI 与 Host 认应用，所以层引导必须允许它们被这两层触发。
+        // 还原器自身会再校验域名，不会把任意 TLS 流量标成某个应用。
+        aliases.put("wechat", List.of(PROTOCOL_TLS.toLowerCase(), PROTOCOL_HTTP.toLowerCase()));
+        aliases.put("qq", List.of(PROTOCOL_TLS.toLowerCase(), PROTOCOL_HTTP.toLowerCase()));
+        aliases.put("im", List.of(PROTOCOL_TLS.toLowerCase(), PROTOCOL_HTTP.toLowerCase()));
         RESTORER_LAYER_ALIASES = Collections.unmodifiableMap(aliases);
     }
 
