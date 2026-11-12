@@ -46,7 +46,8 @@ final class ImageOptBridge {
     static Quantized quantize(byte[] rgba, int width, int height, int maxColors, int ditherLevel, int speed) {
         ImageOptSpi.Quantized quantized = require().quantize(rgba, width, height, maxColors,
                 ditherLevel, speed);
-        return new Quantized(quantized.palette(), quantized.colors(), quantized.indices());
+        return quantized == null ? null
+                : new Quantized(quantized.palette(), quantized.colors(), quantized.indices());
     }
 
     private static ImageOptSpi require() {
