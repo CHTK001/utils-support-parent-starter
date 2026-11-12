@@ -1,103 +1,81 @@
 package com.chua.sqlite.support.engine;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.chua.common.support.nativeapi.NativeServices;
+import com.chua.common.support.nativeapi.SqliteHookSpi;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
+/**
+ * SQLite CDC 原生钩子门面。
+ *
+ * <p>实现由 {@code utils-support-native-sqlite} 通过 SPI 注册；本类只依赖
+ * {@link SqliteHookSpi} 契约，不再反射 native 类。</p>
+ *
+ * @author CH
+ * @since 4.0.0.50
+ */
 final class SqliteHookBridge {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SqliteHookBridge.class);
-    private static final String TARGET = "com.chua.nativesqlite.support.SqliteHookBridge";
-    private static final String DEPENDENCY = "com.chua:utils-support-native-sqlite:4.0.0.43";
-
-    private static volatile boolean resolved;
-    private static volatile Class<?> type;
 
     private SqliteHookBridge() {
     }
 
     static boolean isAvailable() {
-        return Boolean.TRUE.equals(call(method("isAvailable")));
+        SqliteHookSpi spi = NativeServices.get(SqliteHookSpi.class);
+        return spi != null && spi.isAvailable();
     }
 
     static MethodHandle hookOpen() {
-        return (MethodHandle) call(method("hookOpen"));
+        return call(SqliteHookSpi::hookOpen);
     }
 
     static MethodHandle hookPoll() {
-        return (MethodHandle) call(method("hookPoll"));
+        return call(SqliteHookSpi::hookPoll);
     }
 
     static MethodHandle hookExec() {
-        return (MethodHandle) call(method("hookExec"));
+        return call(SqliteHookSpi::hookExec);
     }
 
     static MethodHandle hookClose() {
-        return (MethodHandle) call(method("hookClose"));
+        return call(SqliteHookSpi::hookClose);
     }
 
     static MethodHandle hookOpenAsync() {
-        return (MethodHandle) call(method("hookOpenAsync"));
+        return call(SqliteHookSpi::hookOpenAsync);
     }
 
     static MethodHandle hookExecAsync() {
-        return (MethodHandle) call(method("hookExecAsync"));
+        return call(SqliteHookSpi::hookExecAsync);
     }
 
     static MethodHandle hookCloseAsync() {
-        return (MethodHandle) call(method("hookCloseAsync"));
+        return call(SqliteHookSpi::hookCloseAsync);
     }
 
     static MemorySegment eventCallbackStub(MethodHandle target, Arena arena) {
-        Object value = call(method("eventCallbackStub", MethodHandle.class, Arena.class), target, arena);
-        return value instanceof MemorySegment segment ? segment : MemorySegment.NULL;
+        SqliteHookSpi spi = NativeServices.get(SqliteHookSpi.class);
+        return spi == null ? MemorySegment.NULL : spi.eventCallbackStub(target, arena);
     }
 
-    private static Object call(Method method, Object... args) {
-        if (method == null) {
-            return null;
-        }
-        try {
-            return method.invoke(null, args);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException("SQLite CDC 原生调用失败: " + e.getTargetException(), e.getTargetException());
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("SQLite CDC 原生调用失败: " + e, e);
-        }
+    private static MethodHandle call(HandleAccessor accessor) {
+        SqliteHookSpi spi = NativeServices.get(SqliteHookSpi.class);
+        return spi == null ? null : accessor.get(spi);
     }
 
-    private static Method method(String name, Class<?>... parameterTypes) {
-        Class<?> target = type();
-        if (target == null) {
-            return null;
-        }
-        try {
-            return target.getMethod(name, parameterTypes);
-        } catch (NoSuchMethodException e) {
-            LOG.warn("native 模块 {} 缺少方法 {}，请确认依赖 {} 的版本", TARGET, name, DEPENDENCY);
-            return null;
-        }
-    }
+    /**
+     * 句柄访问器。
+     */
+    @FunctionalInterface
+    private interface HandleAccessor {
 
-    private static Class<?> type() {
-        if (!resolved) {
-            synchronized (SqliteHookBridge.class) {
-                if (!resolved) {
-                    try {
-                        type = Class.forName(TARGET, true, SqliteHookBridge.class.getClassLoader());
-                    } catch (Throwable e) {
-                        LOG.warn("未引入 native 模块 {}，SQLite CDC 能力不可用；请自行添加依赖 {}",
-                                TARGET, DEPENDENCY);
-                    }
-                    resolved = true;
-                }
-            }
-        }
-        return type;
+        /**
+         * 从实现取句柄。
+         *
+         * @param spi 原生实现
+         * @return 方法句柄
+         */
+        MethodHandle get(SqliteHookSpi spi);
     }
 }

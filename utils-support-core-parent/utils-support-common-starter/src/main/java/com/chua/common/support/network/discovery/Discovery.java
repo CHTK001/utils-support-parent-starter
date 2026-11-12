@@ -31,12 +31,18 @@ public class Discovery implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 服务唯一标识符
+     * 实例唯一标识符。
+     *
+     * <p>取值：配置项 {@code serverId}，未配置时用应用 UUID（{@code Project.calcApplicationUuid()}）。
+     * 它在实例生命周期内稳定，适合作为注册/反注册的身份。</p>
      */
     private String id;
 
     /**
-     * 服务器唯一标识符
+     * 地址指纹：{@code md5(host + port)}。
+     *
+     * <p><b>注意</b>：它随端口变化而变，<b>不要</b>拿它做反注册键——改端口会留下孤儿注册。
+     * 反注册请用 {@link #id} 或直接传整个实例。</p>
      */
     private String serverId;
 

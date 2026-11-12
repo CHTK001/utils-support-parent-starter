@@ -18,6 +18,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->
         <dependency>
             <groupId>com.chua</groupId>

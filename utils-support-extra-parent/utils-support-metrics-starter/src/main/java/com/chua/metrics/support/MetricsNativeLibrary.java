@@ -1,83 +1,57 @@
 package com.chua.metrics.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.chua.common.support.nativeapi.MetricsNativeSpi;
+import com.chua.common.support.nativeapi.NativeServices;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+/**
+ * 指标原生库门面。
+ *
+ * <p>实现由 {@code utils-support-native-metrics} 通过 SPI 注册；本类只依赖
+ * {@link MetricsNativeSpi} 契约，不再反射 native 类。</p>
+ *
+ * @author CH
+ * @since 4.0.0.50
+ */
 final class MetricsNativeLibrary {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MetricsNativeLibrary.class);
-    private static final String TARGET = "com.chua.nativemetrics.support.MetricsNativeLibrary";
-    private static final String DEPENDENCY = "com.chua:utils-support-native-metrics:4.0.0.43";
+    private final MetricsNativeSpi delegate;
 
-    private static volatile boolean resolved;
-    private static volatile Class<?> type;
-
-    private final Object delegate;
-
-    private MetricsNativeLibrary(Object delegate) {
+    private MetricsNativeLibrary(MetricsNativeSpi delegate) {
         this.delegate = delegate;
     }
 
+    /**
+     * 查找可用的指标原生实现。
+     *
+     * @return 门面实例；未引入 native 制品或加载失败时返回 {@code null}
+     */
     static MetricsNativeLibrary create() {
-        Class<?> target = type();
-        if (target == null) {
-            return null;
-        }
-        try {
-            Object instance = target.getMethod("create").invoke(null);
-            return instance == null ? null : new MetricsNativeLibrary(instance);
-        } catch (InvocationTargetException e) {
-            LOG.warn("metrics 原生库实例化失败: {}", e.getTargetException().toString());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            LOG.warn("metrics 原生库实例化失败: {}", e.toString());
-            return null;
-        }
+        MetricsNativeSpi spi = NativeServices.get(MetricsNativeSpi.class);
+        return spi == null ? null : new MetricsNativeLibrary(spi);
     }
 
+    /**
+     * 启动采样器。
+     *
+     * @param intervalMs 采样间隔（毫秒）
+     */
     void start(long intervalMs) {
-        invoke("start", new Class<?>[]{long.class}, intervalMs);
+        delegate.start(intervalMs);
     }
 
+    /**
+     * 拉取当前快照。
+     *
+     * @return JSON 快照
+     */
     String poll() {
-        Object value = invoke("poll", new Class<?>[0]);
-        return value instanceof String json ? json : null;
+        return delegate.poll();
     }
 
+    /**
+     * 停止采样器。
+     */
     void close() {
-        invoke("close", new Class<?>[0]);
-    }
-
-    private Object invoke(String name, Class<?>[] parameterTypes, Object... args) {
-        try {
-            Method method = delegate.getClass().getMethod(name, parameterTypes);
-            return method.invoke(delegate, args);
-        } catch (InvocationTargetException e) {
-            LOG.warn("metrics 原生调用 {} 失败: {}", name, e.getTargetException().toString());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            LOG.warn("metrics 原生调用 {} 失败: {}", name, e.toString());
-            return null;
-        }
-    }
-
-    private static Class<?> type() {
-        if (!resolved) {
-            synchronized (MetricsNativeLibrary.class) {
-                if (!resolved) {
-                    try {
-                        type = Class.forName(TARGET, true, MetricsNativeLibrary.class.getClassLoader());
-                    } catch (Throwable e) {
-                        LOG.warn("未引入 native 模块 {}，指标采集能力不可用；请自行添加依赖 {}",
-                                TARGET, DEPENDENCY);
-                    }
-                    resolved = true;
-                }
-            }
-        }
-        return type;
+        delegate.close();
     }
 }

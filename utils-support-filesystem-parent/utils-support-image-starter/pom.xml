@@ -43,6 +43,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- turbojpeg / libdeflate / libimagequant 加速为可选运行时依赖：
              编译期不引入 utils-support-native-libjpeg-turbo、utils-support-native-imageopt，
              代码通过 TurboJpegBridge / ImageOptBridge 反射加载；缺失时自动回退纯 Java 并打印告警。 -->

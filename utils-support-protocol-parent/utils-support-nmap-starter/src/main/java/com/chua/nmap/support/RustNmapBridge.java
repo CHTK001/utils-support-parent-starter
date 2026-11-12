@@ -1,108 +1,53 @@
 package com.chua.nmap.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.chua.common.support.nativeapi.NativeServices;
+import com.chua.common.support.nativeapi.NmapSpi;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+/**
+ * Nmap 原生库门面。
+ *
+ * <p>实现由 {@code utils-support-native-nmap} 通过 SPI 注册；本类只依赖
+ * {@link NmapSpi} 契约，不再反射 native 类。</p>
+ *
+ * @author CH
+ * @since 4.0.0.50
+ */
 final class RustNmapBridge {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RustNmapBridge.class);
-    private static final String TARGET = "com.chua.nmap.support.bridge.RustNmapBridge";
-    private static final String DEPENDENCY = "com.chua:utils-support-native-nmap:4.0.0.43";
-
-    private static volatile boolean resolved;
-    private static volatile Class<?> type;
+    private static final String CAPABILITY = "Nmap 扫描能力";
 
     private RustNmapBridge() {
     }
 
     static void ensureLoaded() {
-        Method method = require("ensureLoaded");
-        call(method);
-        if (!Boolean.TRUE.equals(call(method("isLoaded")))) {
-            throw new IllegalStateException("Nmap 扫描能力不可用：请自行添加依赖 " + DEPENDENCY);
+        NmapSpi spi = require();
+        spi.ensureLoaded();
+        if (!spi.isLoaded()) {
+            throw new IllegalStateException(CAPABILITY + "不可用：原生库未加载");
         }
     }
 
     static int scanSingleTcpPort(String host, int port, int timeout) {
-        Object value = call(require("scanSingleTcpPort", String.class, int.class, int.class),
-                host, port, timeout);
-        return value instanceof Integer code ? code : -1;
+        return require().scanSingleTcpPort(host, port, timeout);
     }
 
     static String scanTcpPortRange(String host, int startPort, int endPort, int timeout, int concurrency) {
-        Object value = call(require("scanTcpPortRange", String.class, int.class, int.class,
-                int.class, int.class), host, startPort, endPort, timeout, concurrency);
-        return value instanceof String json ? json : null;
+        return require().scanTcpPortRange(host, startPort, endPort, timeout, concurrency);
     }
 
     static String pingHost(String host, int timeout) {
-        Object value = call(require("pingHost", String.class, int.class), host, timeout);
-        return value instanceof String json ? json : null;
+        return require().pingHost(host, timeout);
     }
 
     static String scanSubnet(String subnet, int timeout, int concurrency) {
-        Object value = call(require("scanSubnet", String.class, int.class, int.class),
-                subnet, timeout, concurrency);
-        return value instanceof String json ? json : null;
+        return require().scanSubnet(subnet, timeout, concurrency);
     }
 
     static String detectService(String host, int port, int timeout) {
-        Object value = call(require("detectService", String.class, int.class, int.class),
-                host, port, timeout);
-        return value instanceof String json ? json : null;
+        return require().detectService(host, port, timeout);
     }
 
-    private static Method require(String name, Class<?>... parameterTypes) {
-        Method method = method(name, parameterTypes);
-        if (method == null) {
-            throw new IllegalStateException("Nmap 扫描能力不可用：请自行添加依赖 " + DEPENDENCY);
-        }
-        return method;
-    }
-
-    private static Object call(Method method, Object... args) {
-        if (method == null) {
-            return null;
-        }
-        try {
-            return method.invoke(null, args);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException("Nmap 原生调用失败: " + e.getTargetException(), e.getTargetException());
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Nmap 原生调用失败: " + e, e);
-        }
-    }
-
-    private static Method method(String name, Class<?>... parameterTypes) {
-        Class<?> target = type();
-        if (target == null) {
-            return null;
-        }
-        try {
-            return target.getMethod(name, parameterTypes);
-        } catch (NoSuchMethodException e) {
-            LOG.warn("native 模块 {} 缺少方法 {}，请确认依赖 {} 的版本", TARGET, name, DEPENDENCY);
-            return null;
-        }
-    }
-
-    private static Class<?> type() {
-        if (!resolved) {
-            synchronized (RustNmapBridge.class) {
-                if (!resolved) {
-                    try {
-                        type = Class.forName(TARGET, true, RustNmapBridge.class.getClassLoader());
-                    } catch (Throwable e) {
-                        LOG.warn("未引入 native 模块 {}，Nmap 扫描能力不可用；请自行添加依赖 {}",
-                                TARGET, DEPENDENCY);
-                    }
-                    resolved = true;
-                }
-            }
-        }
-        return type;
+    private static NmapSpi require() {
+        return NativeServices.require(NmapSpi.class, CAPABILITY);
     }
 }

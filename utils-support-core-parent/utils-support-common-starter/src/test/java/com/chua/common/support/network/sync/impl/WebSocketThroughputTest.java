@@ -325,39 +325,56 @@ class WebSocketThroughputTest {
     void broadcastFanoutExternal() throws Exception {
         final int clientCount = fanoutClients();
         final int frameCount = fanoutFrames();
+        // 单进程超过 ~2 万条时客户端自身会吃紧；大连接数用多进程分摊
+        final int processes = Math.max(1, Integer.getInteger("bench.ws.processes", 1));
         ServerSetting setting = setting();
         setting.setPort(freePort());
         setting.setMaxConnections(clientCount + 1000);
         WebSocketSyncServer server = new WebSocketSyncServer(setting);
         server.start();
-        Process child = null;
+        java.util.List<Process> children = new java.util.ArrayList<>();
         try {
             String testClasses = new java.io.File("target/test-classes").getAbsolutePath();
             String mainClasses = new java.io.File("target/classes").getAbsolutePath();
             String classpath = testClasses + java.io.File.pathSeparator
                     + mainClasses + java.io.File.pathSeparator
                     + System.getProperty("java.class.path");
-            ProcessBuilder builder = new ProcessBuilder(
-                    System.getProperty("java.home") + java.io.File.separator + "bin"
-                            + java.io.File.separator + "java",
-                    "-Xmx2g",
-                    "-cp", classpath,
-                    WebSocketFanoutClient.class.getName(),
-                    String.valueOf(server.getPort()),
-                    String.valueOf(clientCount),
-                    String.valueOf(frameCount),
-                    "100", "250");
-            builder.redirectErrorStream(true);
-            child = builder.start();
-            java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(child.getInputStream(), StandardCharsets.UTF_8));
-
-            String ready = waitForLine(reader, "READY", 300_000L);
-            System.out.println("BENCH|ws-fanout-child|" + ready);
-            System.out.flush();
-            if (ready == null) {
-                return;
+            java.util.List<java.io.BufferedReader> readers = new java.util.ArrayList<>();
+            int remaining = clientCount;
+            for (int p = 0; p < processes && remaining > 0; p++) {
+                int share = Math.min(remaining, (clientCount + processes - 1) / processes);
+                remaining -= share;
+                ProcessBuilder builder = new ProcessBuilder(
+                        System.getProperty("java.home") + java.io.File.separator + "bin"
+                                + java.io.File.separator + "java",
+                        "-Xmx2g",
+                        "-cp", classpath,
+                        WebSocketFanoutClient.class.getName(),
+                        String.valueOf(server.getPort()),
+                        String.valueOf(share),
+                        String.valueOf(frameCount),
+                        "100", "250");
+                builder.redirectErrorStream(true);
+                Process child = builder.start();
+                children.add(child);
+                readers.add(new java.io.BufferedReader(
+                        new java.io.InputStreamReader(child.getInputStream(), StandardCharsets.UTF_8)));
             }
+
+            long readyStart = System.currentTimeMillis();
+            int connectedTotal = 0;
+            for (java.io.BufferedReader reader : readers) {
+                String ready = waitForLine(reader, "READY", 300_000L);
+                System.out.println("BENCH|ws-fanout-child|" + ready);
+                if (ready == null) {
+                    return;
+                }
+                connectedTotal += parseCount(ready, "connected=");
+            }
+            System.out.println("BENCH|ws-fanout-ready|processes=" + processes
+                    + "|connected=" + connectedTotal + "/" + clientCount
+                    + "|waitMs=" + (System.currentTimeMillis() - readyStart));
+            System.out.flush();
 
             long start = System.nanoTime();
             String payload = "x".repeat(64);
@@ -365,20 +382,52 @@ class WebSocketThroughputTest {
                 server.publish("t", payload);
             }
             long publishMs = (System.nanoTime() - start) / 1_000_000L;
-            String done = waitForLine(reader, "DONE", 300_000L);
+
+            long deliveredTotal = 0;
+            for (java.io.BufferedReader reader : readers) {
+                String done = waitForLine(reader, "DONE", 300_000L);
+                deliveredTotal += parseCount(done, "delivered=");
+            }
             long totalMs = (System.nanoTime() - start) / 1_000_000L;
+            long expected = (long) clientCount * frameCount;
             System.out.println("BENCH|ws-fanout-external|clients=" + clientCount
+                    + "|processes=" + processes
                     + "|frames=" + frameCount
+                    + "|delivered=" + deliveredTotal + "/" + expected
                     + "|publishMs=" + publishMs
                     + "|totalMs=" + totalMs
-                    + "|child=" + done);
+                    + "|framesPerSec=" + String.format(java.util.Locale.ROOT, "%.0f",
+                    deliveredTotal * 1000.0 / Math.max(1L, totalMs)));
             System.out.flush();
         } finally {
-            if (child != null) {
+            for (Process child : children) {
                 child.destroy();
             }
             server.stop();
         }
+    }
+
+    /**
+     * 从子进程输出行里取 {@code key} 后的数字。
+     *
+     * @param line 行内容，可为 null
+     * @param key  键（含等号）
+     * @return 数值；取不到返回 0
+     */
+    private static long parseCount(String line, String key) {
+        if (line == null) {
+            return 0;
+        }
+        int at = line.indexOf(key);
+        if (at < 0) {
+            return 0;
+        }
+        int i = at + key.length();
+        int j = i;
+        while (j < line.length() && Character.isDigit(line.charAt(j))) {
+            j++;
+        }
+        return j > i ? Long.parseLong(line.substring(i, j)) : 0;
     }
 
     /**
