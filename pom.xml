@@ -23,6 +23,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <java.version>25</java.version>
+        <jacoco.skip>true</jacoco.skip>
         <utils.version>4.0.0.50</utils.version>
         <!-- 反向依赖的 spring 制品版本：utils 版本始终比 spring 低一个补丁位，跨仓引用必须显式指定 spring 版本 -->
         <spring.support.version>4.0.0.51</spring.support.version>
@@ -2293,7 +2294,7 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.15</version>
                     <configuration>
-                        <skip>true</skip>
+                        <skip>${jacoco.skip}</skip>
                     </configuration>
                     <executions>
                         <execution>
