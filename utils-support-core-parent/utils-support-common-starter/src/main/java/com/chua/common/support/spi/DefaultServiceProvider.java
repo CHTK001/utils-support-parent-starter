@@ -120,14 +120,13 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     /**
      * 缓存存活扩展实例
      */
-    Cache<String, Value<T>> keepAlive = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES)
-            .removalListener((RemovalListener<String, Value<T>>) notification -> {
-                RemovalCause cause = notification.getCause();
-                if (cause == RemovalCause.EXPIRED) {
-                    closeKeepExtension(notification.getKey());
-                }
-            })
-            .build();
+    /**
+     * 缓存存活扩展实例。
+     *
+     * <p><b>到期不 close</b>：调用方可能长期持有取到的实例，到期就 close 会让它在背后被关掉
+     * （表现为"跑一段时间后突然报连接已关闭"）。生命周期交给容器/调用方，这里只做缓存淘汰。</p>
+     */
+    Cache<String, Value<T>> keepAlive = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     /**
      * 默认实现
@@ -674,7 +673,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         serviceDefinition.setObj(ref);
         serviceDefinition.setType(type);
         serviceDefinition.setImplClass(ref.getClass());
-        definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+        SortedList<ServiceDefinition> list =
+                definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+        synchronized (list) {
+            list.add(serviceDefinition);
+        }
+        definitionFinder.clearMissCache();
     }
 
     /**
@@ -686,7 +690,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         ServiceDefinition serviceDefinition = new ServiceDefinition();
         serviceDefinition.setImplClass(ref);
         serviceDefinition.setType(type);
-        definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+        SortedList<ServiceDefinition> list =
+                definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+        synchronized (list) {
+            list.add(serviceDefinition);
+        }
+        definitionFinder.clearMissCache();
     }
 
     /**
@@ -985,7 +994,13 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             }
 
             // 将服务定义存入按优先级排序的列表中
-            definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
+            SortedList<ServiceDefinition> list =
+                    definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR));
+            synchronized (list) {
+                list.add(serviceDefinition);
+            }
+            // 注册后清未命中缓存：否则之前查不到的名字会一直被缓存成"不存在"
+            definitionFinder.clearMissCache();
 
             // 如果该定义是默认实现，则执行默认注册的逻辑
             if (serviceDefinition.isDefault()) {

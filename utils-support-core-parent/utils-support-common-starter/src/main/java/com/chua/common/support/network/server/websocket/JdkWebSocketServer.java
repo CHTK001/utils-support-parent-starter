@@ -116,6 +116,8 @@ public class JdkWebSocketServer extends AbstractServer {
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
             serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()),
                     setting.resolveBacklog(2048));
+            // 回写实际端口：port=0 时由内核分配，不回写会让 getPort() 恒为 0
+            setting.setPort(serverSocket.getLocalPort());
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             int shards = Math.min(8, Math.max(2, Runtime.getRuntime().availableProcessors()));
@@ -399,6 +401,14 @@ public class JdkWebSocketServer extends AbstractServer {
                         SimpleServerResponse response = new SimpleServerResponse(conn);
                         try {
                             handler.handle(request, response);
+                            // 回写结果：handler 通过 setResult 设置的内容原先只存在对象里，
+                            // 从来没有写回连接，表现为"handler 能收到消息但客户端永远收不到回复"。
+                            Object result = response.getResult();
+                            if (null != result) {
+                                conn.writeFrame(buildTextFrame(result.toString())
+                                        .getBytes(StandardCharsets.ISO_8859_1));
+                                response.reset();
+                            }
                         } catch (Exception e) {
                             log.warn("WebSocket handler error: {}", e.getMessage(), e);
                         }
@@ -426,11 +436,13 @@ public class JdkWebSocketServer extends AbstractServer {
             out.write(data.length & 0xFF);
         } else {
             out.write(127);
-            for (int i = 3; i >= 0; i--) {
-                out.write((data.length >> (i * 8)) & 0xFF);
+            // 64 位长度：高 4 字节为 0，再写低 4 字节。
+            // 原实现先写低 4 字节再写 4 个 0，长度字段顺序是反的——>64KB 的帧会带错误长度。
+            for (int i = 0; i < 4; i++) {
+                out.write(0);
             }
             for (int i = 3; i >= 0; i--) {
-                out.write(0);
+                out.write((data.length >> (i * 8)) & 0xFF);
             }
         }
         out.write(data, 0, data.length);

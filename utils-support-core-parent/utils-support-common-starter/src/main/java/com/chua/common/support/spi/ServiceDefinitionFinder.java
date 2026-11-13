@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COLON;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
@@ -47,6 +49,12 @@ public class ServiceDefinitionFinder {
      * 服务定义映射
      */
     private final Map<String, SortedList<ServiceDefinition>> definitions;
+
+    /**
+     * 未命中缓存：避免不存在/拼错的名字反复触发动态解析（每次都会扫 classpath）。
+     * 注册新定义时由 {@link DefaultServiceProvider} 调用 {@link #clearMissCache()} 清空。
+     */
+    private final Set<String> missCache = ConcurrentHashMap.newKeySet();
 
     /**
      * 自动装配器
@@ -117,6 +125,11 @@ public class ServiceDefinitionFinder {
             String[] split = name.split(SYMBOL_COLON, 2);
             type = split[0];
             name1 = split[1];
+        }
+        String cacheKey = (null == type ? "" : type) + ':' + name1.toUpperCase();
+        if (missCache.contains(cacheKey)) {
+            // 已确认不存在：直接返回，不再触发动态解析（每次解析都会扫 classpath）
+            return DEFAULT_DEFINITION;
         }
         SortedList<ServiceDefinition> definitions = new SortedArrayList<>(COMPARATOR);
 
@@ -195,8 +208,17 @@ public class ServiceDefinitionFinder {
             if (name1.startsWith(METHOD_GETTER)) {
                 return getServiceDefinition(name1.substring(METHOD_GETTER.length()), args);
             }
+            // 连动态解析也没找到：记下来，避免同名查询反复扫 classpath
+            missCache.add(cacheKey);
         }
         return definitions2.isEmpty() ? DEFAULT_DEFINITION : definitions2.first();
+    }
+
+    /**
+     * 清空未命中缓存（注册新定义后必须调用，否则之前查不到的名字会一直返回"不存在"）。
+     */
+    public void clearMissCache() {
+        missCache.clear();
     }
 
     /**

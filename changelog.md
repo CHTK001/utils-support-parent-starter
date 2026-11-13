@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0.52] - 2026-11-13
+
+### Added
+- 网络服务实现真实链路测试矩阵（此前代理全家 0 用例）：
+  - 代理：`TcpProxyServerTest`(5)、`AioTcpProxyServerTest`(4)、`HttpProxyServerTest`(3)、`AioHttpProxyServerTest`(2，含 CONNECT 隧道)、`Socks5ProxyServerTest`(3)
+  - 服务器：`JdkHttpServerTest`(2)、`JdkTelnetServerTest`(2)、`JdkUdpServerTest`(2)、`JdkWebSocketServerTest`(2)
+  - 其它：`ServiceDefinitionFinderTest`(3)、`DiscoveryLifecycleTest`(2)
+- 压测（默认跳过）：`ProxyThroughputTest`（`-Dbench.throughput=true`）、`WebSocketThroughputTest`（`-Dbench.ws=true`）以及独立进程客户端 `WebSocketFanoutClient`（`-Dbench.ws.processes` 可拆多进程）
+- `WebSocketSyncServer` 增加 accept/握手诊断计数：`getAcceptedTotal()` / `getHandshakeOkTotal()` / `getHandshakeFailTotal()` / `getLastHandshakeError()`
+
+### Fixed
+- `Socks5ProxyServer`：`AbstractProxyServer.readBytes` 返回线程内复用的 64 字节缓冲，被直接交给 `InetAddress.getByAddress(...)` → 长度非法抛异常 → `target=null` → CONNECT 回 4（host unreachable）。**即所有 SOCKS5 客户端的 IPv4/IPv6 连接都不可能成功**；域名分支还会把缓冲残留字节解进域名。改为返回精确长度副本。
+- `JdkWebSocketServer`：handler 通过 `setResult` 设置的内容**从不回写**（客户端能发不能收）；`>64KB` 帧的 64 位长度字段顺序写反（先低 4 字节再写 4 个 0）；绑定后未回写实际端口。
+- `JdkTelnetServer` / `JdkUdpServer`：绑定后未回写实际端口，`port=0` 时 `getPort()` 恒为 0。
+- `DiscoveryConfiguration`：`close()` 不反注册（实例残留在注册中心直到 TTL，滚动重启期间流量打到死节点）；环境元数据合并在 BFPP 阶段强制实例化业务 Bean，改到 `FactoryBean.start()`。
+- `DiscoveryService`：同协议第二个实例的 Bean 名 `serviceDiscovery#<protocol>#0` 不满足 `endsWith` 判断，解析永远回落默认实现；`defaultBalance` 写死为 `weight`，改为可配。
+- SPI：`getServiceDefinition` 每次都全表扫描（`definitions` 的 key 本来就是服务名），改为 key 快路径 + 扫描兜底；注册/查找并发无同步（`SortedArrayList` 非线程安全），补 `synchronized(list)`；未命中加 `missCache`，注册时清空。
+- `DefaultServiceProvider`：`keepAlive` 缓存 10 分钟到期会 `close` 实例，可能把调用方正在持有的实例关掉，改为只淘汰不关闭。
+
+### 测试与性能矩阵
+
+功能覆盖（Server 家族 9 个实现中 8 个有真实链路用例）：
+
+| 实现 | 用例 | 状态 |
+|---|---|---|
+| `NioHttpServer` | `HttpBackpressureWriteTest` / `DirectBufferReadTest` / `ConnectionScaleLoadTest` | ✅ |
+| `AioHttpServer` | `HttpBackpressureWriteTest`（含 TLS 流水线） | ✅ |
+| `JdkTcpServer` | `JdkTcpServerFixVerificationTest`(9) / `TcpServerNioIntegrationTest`(2) | ✅ |
+| `AioTcpServer` | `AioTcpFrameFramingTest` | ✅ |
+| `JdkHttpServer` / `JdkTelnetServer` / `JdkUdpServer` | 各 2 | ✅ |
+| `JdkWebSocketServer` | 2（本轮补齐） | ✅ |
+| `WebSocketSyncServer` | 规模 / 广播 / 扇出 / 吞吐 | ✅ |
+| `TcpProxyServer` | 5 | ✅ 回退必红 |
+| `AioTcpProxyServer` / `HttpProxyServer` / `JdkHttpProxyServer` / `AioHttpProxyServer` / `Socks5ProxyServer` | 4 / 3 / 1 / 2 / 3 | ✅ |
+
+性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
+
+| 场景 | 并发 | 结果 |
+|---|---|---|
+| NIO HTTP `/echo` | 64 | **113,216 QPS**，p50 381µs / p99 3.87ms，0 错误 |
+| AIO HTTP `/echo` | 256 | 77,922 QPS，p50 2.96ms / p99 9.80ms |
+| 直连 TCP 回环（基线） | 128 | 36,785 QPS |
+| `AioTcpProxyServer` 三层 | 128 | **31,440 QPS（基线 85.5%）**，p99 7.80ms |
+| `Socks5ProxyServer` 隧道 | 128 | 15,708 QPS（42.7%），p99 16.6ms |
+| `TcpProxyServer`（JDK 阻塞） | 128 | **9,828 QPS（26.7%）**，p99 34.0ms |
+| `JdkUdpServer` | 128 | 32,924 pps，失败 0.3% |
+| WS 连接容量 | — | 5k/10k/**50k** 全通过；50k 时 4.21KB/连接、205MB 堆、2,193 条/秒 |
+| WS 回环消息 | 64 conn | 35,217 条/秒 |
+| WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
+
+未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、HTTP 代理三层吞吐、过滤器单测。
+
+已知不稳定用例：`HttpBackpressureWriteTest#aioHttpServerTlsKeepsEveryPipelinedResponse`（满负载 60s+ 超时，单独复跑 4.6s 通过）、`TimeWheelExpirySchedulerTest#refailReschedulesDeadline`、`FtpServerPortBindingTest` FTPS 并发场景。
+
 ## [4.0.0.43] - 2026-09-04
 
 ### Added
