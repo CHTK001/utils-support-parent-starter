@@ -14,7 +14,6 @@
     </parent>
     <modules>
         <module>utils-support-common-starter</module>
-        <module>utils-support-native-spi</module>
         <module>utils-support-datasource-starter</module>
         <module>utils-support-flyway-starter</module>
         <module>utils-support-flyway-maven-plugin</module>

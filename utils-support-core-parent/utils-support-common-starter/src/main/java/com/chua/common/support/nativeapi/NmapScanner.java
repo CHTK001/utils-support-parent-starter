@@ -1,5 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
-package com.chua.nmap.support;
+package com.chua.common.support.nativeapi;
+
+import com.chua.common.support.spi.annotations.Spi;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +19,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 2024/12/30
  */
+@Spi
 public interface NmapScanner {
 
     // ==================== 端口扫描 ====================

@@ -21,11 +21,6 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-spi</artifactId>
-            <version>4.0.0.50</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-datasync-agent-starter</artifactId>
             <version>4.0.0.50</version>
         </dependency>
