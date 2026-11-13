@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,7 +63,7 @@ class ProxyThroughputTest {
     /**
      * 读取超时（毫秒）。
      */
-    private static final int SO_TIMEOUT_MS = 10_000;
+    private static final int SO_TIMEOUT_MS = Integer.getInteger("bench.soTimeoutMs", 10_000);
 
     /**
      * 代理监听配置。
@@ -469,6 +470,14 @@ class ProxyThroughputTest {
         byte[] request = requestHead.getBytes(StandardCharsets.US_ASCII);
 
         for (int i = 0; i < CONCURRENCY; i++) {
+            if (i > 0 && i % 64 == 0) {
+                // Windows listen backlog 约 200：分批建连避免 SYN 被丢/被 RST（会误计入 err）
+                try {
+                    Thread.sleep(100L);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             final int index = i;
             samples[index] = new long[SAMPLES];
             threads[index] = Thread.ofVirtual().start(() -> {
@@ -514,7 +523,9 @@ class ProxyThroughputTest {
     private static long loopHttpUntil(Socket socket, byte[] request, long deadline, long[] samples)
             throws IOException {
         OutputStream out = socket.getOutputStream();
-        InputStream in = socket.getInputStream();
+        // 高并发下逐字节 read() 每个字节一次系统调用，Windows 虚拟线程偶发连接异常，
+        // 把 err 计成「代理断连」；缓冲读消除该测试侧噪声（与 KeepAliveHttpBackend 同因）
+        InputStream in = new BufferedInputStream(socket.getInputStream(), 16384);
         long done = 0;
         int slot = 0;
         while (System.currentTimeMillis() < deadline) {

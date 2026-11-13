@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 测试夹具与协议常量含魔法值场景，豁免。
 package com.chua.common.support.network.server.proxy;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -270,7 +271,9 @@ final class ProxyTestSupport {
         private void serve(Socket socket) {
             try (socket) {
                 socket.setSoTimeout(30000);
-                InputStream in = socket.getInputStream();
+                // 逐字节 read() 在高并发(256)下每个字节一次系统调用，Windows 虚拟线程
+                // 会出现偶发连接异常；缓冲读把系统调用减少约两个数量级，消除测试噪声
+                InputStream in = new BufferedInputStream(socket.getInputStream(), 16384);
                 OutputStream out = socket.getOutputStream();
                 byte[] body = HTTP_BODY.getBytes(StandardCharsets.UTF_8);
                 byte[] header = ("HTTP/1.1 200 OK\r\n"

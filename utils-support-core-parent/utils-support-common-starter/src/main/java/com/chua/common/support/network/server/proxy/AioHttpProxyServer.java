@@ -97,7 +97,8 @@ public class AioHttpProxyServer extends AbstractServer {
     protected void doStart() {
         try {
             int threads = setting.getEventLoops() > 0
-                    ? setting.getEventLoops() : Runtime.getRuntime().availableProcessors();
+                    ? setting.getEventLoops()
+                    : Integer.getInteger("aio.http.proxy.threads", Runtime.getRuntime().availableProcessors());
             group = AsynchronousChannelGroup.withFixedThreadPool(threads, r -> {
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                 Thread t = new Thread(r, "aio-httpproxy-iocp");
@@ -473,7 +474,21 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private void readBackendResponse(ClientCtx ctx, AsynchronousSocketChannel backend) {
         ResponseParser parser = new ResponseParser();
-        ByteBuffer bbuf = ByteBuffer.allocateDirect(16384);
+        ByteBuffer bbuf = ctx.backendBuf;
+        // 上一请求可能预读了多余字节（粘包）：先喂给 parser，有残留则直接进入响应头解析
+        if (bbuf.position() > 0) {
+            bbuf.flip();
+            HeadParser.Result r = parser.feed(bbuf);
+            if (r != HeadParser.Result.NEED_MORE) {
+                if (r == HeadParser.Result.DONE) {
+                    onResponseHead(ctx, backend, parser.meta(), bbuf);
+                } else {
+                    finishClient(ctx);
+                }
+                return;
+            }
+            bbuf.compact();
+        }
         pumpParse(backend, bbuf, parser,
                 () -> onResponseHead(ctx, backend, parser.meta(), bbuf),
                 () -> finishClient(ctx),
@@ -486,7 +501,8 @@ public class AioHttpProxyServer extends AbstractServer {
     private void pumpParse(AsynchronousSocketChannel ch, ByteBuffer buf,
                            ResponseParser parser, Runnable onDone,
                            Runnable onEof, java.util.function.Consumer<Throwable> onError) {
-        buf.clear();
+        // 不清除已有残留：readBackendResponse 可能已 compact 留下未消费字节（粘包），
+        // 此时 position>0，read 从当前位置继续写，保留前段数据
         ch.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
             @Override
             public void completed(Integer n, ByteBuffer b) {
@@ -499,6 +515,10 @@ public class AioHttpProxyServer extends AbstractServer {
                 if (r == HeadParser.Result.NEED_MORE) {
                     b.compact();
                     pumpParse(ch, b, parser, onDone, onEof, onError);
+                    return;
+                }
+                if (r == HeadParser.Result.ERROR) {
+                    onError.accept(new java.io.IOException("非法后端响应头"));
                     return;
                 }
                 onDone.run();
@@ -516,14 +536,15 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private void onResponseHead(ClientCtx ctx, AsynchronousSocketChannel backend,
                                 ResponseMeta meta, ByteBuffer leftoverBuf) {
-        byte[] prefix = new byte[leftoverBuf.remaining()];
-        leftoverBuf.get(prefix);
         long cl = Math.max(0, meta.contentLength);
-        int take = (int) Math.min(prefix.length, cl);
-        byte[] bodyPart = new byte[take];
-        System.arraycopy(prefix, 0, bodyPart, 0, take);
+        // 仅消费本响应的 body 前缀；若首包还带着后续响应（粘包），剩余字节保留在
+        // leftoverBuf 中，由 afterResponse 移交下一请求（position 保留为下次解析起点）
+        int available = Math.min(leftoverBuf.remaining(), (int) Math.min(cl, Integer.MAX_VALUE));
+        byte[] bodyPart = new byte[available];
+        leftoverBuf.get(bodyPart);
         byte[] first = concat(meta.rawHeader, bodyPart);
-        long remaining = cl - take;
+        long remaining = cl - available;
+        leftoverBuf.compact();
 
         writeAll(ctx.client, ByteBuffer.wrap(first),
                 () -> {
@@ -534,7 +555,8 @@ public class AioHttpProxyServer extends AbstractServer {
                     new LimitedRelay(backend, ctx.client, remaining,
                             () -> afterResponse(ctx, backend, meta),
                             () -> finishClient(ctx),
-                            err -> finishClient(ctx)).start();
+                            err -> finishClient(ctx),
+                            ctx.backendBuf).start();
                 },
                 err -> finishClient(ctx));
     }
@@ -587,6 +609,10 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         private final ByteBuffer buf = ByteBuffer.allocateDirect(16384);
         /**
+         * 粘包溢出缓冲（可空）：本次 read 超过 left 的多余字节留到此缓冲供后续解析
+         */
+        private final ByteBuffer overflow;
+        /**
          * 完成回调
          */
         private final Runnable onDone;
@@ -616,12 +642,31 @@ public class AioHttpProxyServer extends AbstractServer {
         LimitedRelay(AsynchronousSocketChannel src, AsynchronousSocketChannel dst,
                      long n, Runnable onDone, Runnable onEof,
                      java.util.function.Consumer<Throwable> onError) {
+            this(src, dst, n, onDone, onEof, onError, null);
+        }
+
+        /**
+         * 创建限量中继（带溢出缓冲）。
+         *
+         * @param src      源
+         * @param dst      目标
+         * @param n        总字节数
+         * @param onDone   完成
+         * @param onEof    提前 EOF
+         * @param onError  异常
+         * @param overflow 粘包溢出缓冲，可为 null
+         */
+        LimitedRelay(AsynchronousSocketChannel src, AsynchronousSocketChannel dst,
+                     long n, Runnable onDone, Runnable onEof,
+                     java.util.function.Consumer<Throwable> onError,
+                     ByteBuffer overflow) {
             this.src = src;
             this.dst = dst;
             this.left = n;
             this.onDone = onDone;
             this.onEof = onEof;
             this.onError = onError;
+            this.overflow = overflow;
         }
 
         /**
@@ -643,6 +688,23 @@ public class AioHttpProxyServer extends AbstractServer {
                 return;
             }
             buf.flip();
+            int readBytes = buf.remaining();
+            int toForward = (int) Math.min(readBytes, left);
+            if (readBytes > left && overflow != null) {
+                // 粘包：本次 read 带回的字节超过本响应剩余量，多余部分留回后端缓冲
+                // 供同一后端连接的下一请求解析（否则响应头丢失 → 下一请求错位断连）
+                int extra = (int) (readBytes - left);
+                overflow.clear();
+                // 只把末尾 extra 字节拷给 overflow（[toForward, readBytes) 区间）
+                // 注意保持 write 模式语义：position=extra 即「有残留」，readBackendResponse 以此判断
+                buf.position(toForward);
+                buf.limit(readBytes);
+                overflow.put(buf);
+                // 回退：让 buf 只包含需要转发给客户端的 toForward 字节
+                buf.position(0).limit(toForward);
+            } else {
+                buf.position(0).limit(toForward);
+            }
             dst.write(buf, null, new CompletionHandler<Integer, Void>() {
                 @Override
                 public void completed(Integer w, Void attachment) {
@@ -650,7 +712,7 @@ public class AioHttpProxyServer extends AbstractServer {
                         dst.write(buf, null, this);
                         return;
                     }
-                    left -= buf.limit();
+                    left -= toForward;
                     if (left <= 0) {
                         onDone.run();
                     } else {
@@ -714,6 +776,13 @@ public class AioHttpProxyServer extends AbstractServer {
          * 最近一次请求的 keep-alive 意图
          */
         boolean lastKeepAlive = true;
+        /**
+         * 后端响应解析缓冲：连接级复用。
+         * 关键：KeepAlive 后端高速响应时一次 read 可能带回多个响应（TCP 粘包），
+         * 本请求只消费头+体前缀，剩余字节必须保留给下一请求的解析，否则响应头丢失
+         * → 下一请求从 body 中间解析 → ERROR → 断连（高并发下表现为偶发 10s 超时）。
+         */
+        final ByteBuffer backendBuf = ByteBuffer.allocateDirect(16384);
         /**
          * 关闭标志
          */
