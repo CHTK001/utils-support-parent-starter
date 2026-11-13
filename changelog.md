@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SshServer` 首个真实链路用例 `SshServerTest`(4)：用 **Apache MINA 客户端**验证握手 + 密码认证、交互式 shell 命令派发与响应回传、help、错误密码拒绝、端口关闭快速失败。`ssh-starter` 补 junit-jupiter（test scope）。
 - `RSocketServer` 首个真实链路用例 `RSocketServerTest`(3)：用 **RSocket 官方客户端**验证 requestResponse、fireAndForget、requestStream（服务端 publish 推送）。`rsocket-starter` 补 junit-jupiter（test scope）。
 - `JRebelHttpServer` 首个真实链路用例 `JRebelHttpServerTest`(3)：用 **JDK HttpClient** 验证 validate-connection / 创建 lease / ping、guid / obtainTicket / releaseTicket、未注册路径 404。`jrebel-starter` 补 junit-jupiter（test scope）。
+- `KcpServer` 首个真实链路用例 `KcpServerTest`(2)：用**模块自带 KcpClient** 走真实 UDP/KCP，验证注册握手（registered 应答）、上行 topic:payload 派发、服务端广播回传、双客户端广播；`KcpHttpServer` 委托同一链路。`kcp-starter` 补 junit-jupiter（test scope）。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
