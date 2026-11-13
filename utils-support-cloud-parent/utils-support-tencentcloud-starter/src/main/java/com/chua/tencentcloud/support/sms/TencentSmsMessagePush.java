@@ -1,4 +1,4 @@
-package com.chua.hunyuan.support.sms;
+package com.chua.tencentcloud.support.sms;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
@@ -60,16 +60,16 @@ public class TencentSmsMessagePush implements MessagePush {
 
     /**
      * 消息环境
-    */
+     */
     private final MessageEnvironment environment;
     /**
      * 模板映射
-    */
+     */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
      * 创建 tencentsms消息push 实例
-    */
+     */
     public TencentSmsMessagePush() {
         this(new MessageEnvironment());
     }
@@ -84,7 +84,7 @@ public class TencentSmsMessagePush implements MessagePush {
 
     /**
      * 获取提供者
-    */
+     */
     @Override
     public String getProvider() {
         return "tencent-sms";
@@ -99,6 +99,10 @@ public class TencentSmsMessagePush implements MessagePush {
         long start = System.currentTimeMillis();
 
         String secretId = environment.get("sms.secretId");
+        if (secretId == null || secretId.isBlank()) {
+            // 账号模块统一按 sms.accessKey 注入 AccessKeyId；腾讯云叫 SecretId。
+            secretId = environment.get("sms.accessKey");
+        }
         String secretKey = environment.get("sms.secretKey");
         String appId = environment.get("sms.appId");
         String signName = environment.get("sms.signName");
@@ -169,7 +173,7 @@ public class TencentSmsMessagePush implements MessagePush {
 
     /**
      * 列表templates
-    */
+     */
     @Override
     public List<TemplateInfo> listTemplates() {
         return Wraps.list(templates.values());

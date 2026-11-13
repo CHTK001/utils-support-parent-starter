@@ -5,6 +5,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
 import com.chua.common.support.ai.chat.AuthHeaders;
+import com.chua.common.support.ai.chat.ResponseHeaderCapture;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -848,7 +849,24 @@ public class OpenAiChatClient implements ChatClient {
                 }
             } else {
                 // 非流式请求：一次返回完整结果，避免部分中转服务商流式长连接挂起
-                ChatCompletion completion = client.chat().completions().create(params);
+                ChatCompletion completion;
+                List<String> passthrough = setting == null ? null : setting.getPassthroughResponseHeaders();
+                if (passthrough != null && !passthrough.isEmpty()) {
+                    // 透传响应头：只有非流式能拿到上游响应头（SSE 开流后头已发出）
+                    ResponseHeaderCapture.begin();
+                    try (com.openai.core.http.HttpResponseFor<ChatCompletion> raw =
+                                 client.chat().completions().withRawResponse().create(params)) {
+                        completion = raw.parse();
+                        for (String name : passthrough) {
+                            List<String> values = raw.headers().values(name);
+                            if (values != null && !values.isEmpty()) {
+                                ResponseHeaderCapture.put(name, String.join(", ", values));
+                            }
+                        }
+                    }
+                } else {
+                    completion = client.chat().completions().create(params);
+                }
                 if (completion.choices() != null && !completion.choices().isEmpty()) {
                     ChatCompletion.Choice choice = completion.choices().getFirst();
                     ChatCompletionMessage message = choice.message();

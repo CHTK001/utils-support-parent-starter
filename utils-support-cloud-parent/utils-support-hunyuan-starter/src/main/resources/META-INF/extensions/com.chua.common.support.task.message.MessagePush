@@ -1,2 +1,1 @@
 feishu=com.chua.hunyuan.support.message.FeishuMessagePush
-tencent-sms=com.chua.hunyuan.support.sms.TencentSmsMessagePush

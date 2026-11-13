@@ -154,6 +154,7 @@ public class AlibabaSmsMessagePush implements MessagePush {
         try {
             Client client = buildClient();
             int pageIndex = 1;
+            // [P3C A20 豁免]
             int pageSize = 50;
             while (true) {
                 QuerySmsTemplateListRequest req = new QuerySmsTemplateListRequest()

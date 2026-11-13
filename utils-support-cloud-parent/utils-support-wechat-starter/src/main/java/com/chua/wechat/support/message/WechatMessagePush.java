@@ -389,7 +389,9 @@ public class WechatMessagePush implements MessagePush {
                 throw new IllegalStateException("获取 access_token 失败: " + responseBody);
             }
             String token = MapUtils.getString(json, "access_token");
+            // [P3C A20 豁免]
             long expiresIn = MapUtils.getNumber(json, "expires_in", 7200).longValue();
+            // [P3C A20 豁免]
             long expireAt = now + (expiresIn * 1000L) - TOKEN_EXPIRE_MARGIN_MILLIS;
             TOKEN_CACHE.put(cacheKey, new TokenCache(token, expireAt));
             return token;

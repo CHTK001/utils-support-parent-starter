@@ -30,6 +30,7 @@
         <module>utils-support-modelscope-starter</module>
         <module>utils-support-hunyuan-starter</module>
         <module>utils-support-tencent-starter</module>
+        <module>utils-support-tencentcloud-starter</module>
         <module>utils-support-xunfei-starter</module>
         <module>utils-support-zai-starter</module>
         <module>utils-support-zhipu-starter</module>

@@ -569,6 +569,7 @@ public class OpenAiTranslateClient implements TranslateClient {
         }
         String[] parts = hostPort.split(":");
         String host = parts[0];
+        // [P3C A20 豁免]
         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
         return new Proxy(proxyType, new InetSocketAddress(host, port));
     }
