@@ -1,2 +1,0 @@
-systemd=com.chua.runtime.support.service.SystemdServiceManager
-windows=com.chua.runtime.support.service.WindowsServiceManager
