@@ -38,12 +38,12 @@ class ProxyThroughputTest {
     /**
      * 每个场景的测量时长（毫秒）。
      */
-    private static final int DURATION_MS = 10_000;
+    private static final int DURATION_MS = Integer.getInteger("bench.durationMs", 10_000);
 
     /**
      * 预热时长（毫秒）。
      */
-    private static final int WARMUP_MS = 3_000;
+    private static final int WARMUP_MS = Integer.getInteger("bench.warmupMs", 3_000);
 
     /**
      * 每线程环形采样容量（够统计 p99，又不会吃内存）。
