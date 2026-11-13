@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MqttServer` 首个真实链路用例 `MqttServerTest`(5)：用官方 **Eclipse Paho** 客户端验证手写 broker 的 CONNECT/CONNACK、SUBSCRIBE/SUBACK、上下行 QoS1（PUBACK）、PINGREQ/PINGRESP 保活、DISCONNECT 会话清理、端口关闭快速失败。`mqtt-starter` 补 junit-jupiter（test scope）。
 - `SshServer` 首个真实链路用例 `SshServerTest`(4)：用 **Apache MINA 客户端**验证握手 + 密码认证、交互式 shell 命令派发与响应回传、help、错误密码拒绝、端口关闭快速失败。`ssh-starter` 补 junit-jupiter（test scope）。
 - `RSocketServer` 首个真实链路用例 `RSocketServerTest`(3)：用 **RSocket 官方客户端**验证 requestResponse、fireAndForget、requestStream（服务端 publish 推送）。`rsocket-starter` 补 junit-jupiter（test scope）。
+- `JRebelHttpServer` 首个真实链路用例 `JRebelHttpServerTest`(3)：用 **JDK HttpClient** 验证 validate-connection / 创建 lease / ping、guid / obtainTicket / releaseTicket、未注册路径 404。`jrebel-starter` 补 junit-jupiter（test scope）。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
