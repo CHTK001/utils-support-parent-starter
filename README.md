@@ -194,20 +194,77 @@ String pretty = Json.toPrettyJson(user);
 List<User> users = Json.fromJson(jsonArr, new TypeReference<List<User>>(){});
 ```
 
-#### 加解密 — Codec / DigestUtils
+#### 加解密 — CipherFlow / DigestUtils
+
+统一入口是 `CipherFlow`：所有算法都按提供者走 SPI 解析（JDK 内置实现别名 `jdk`，
+其余实现需要 `utils-support-jdk15on-starter`，别名 `bc`）。
+
+| 入口 | 能力 | 实现来源 |
+|---|---|---|
+| `aes()` / `des()` | AES、DES 对称加解密 | JDK 内置（SPI 别名 `jdk`） |
+| `sm4()` / `desede()` / `twofish()` / `noekeon()` | 对称加解密 | `jdk15on-starter`（`bc`） |
+| `rsa()` / `sm2()` | 非对称：加解密 + 签名验签 + 生成密钥对 | `jdk15on-starter`（`bc`） |
+| `ecies()` / `hpke()` | 混合加密（KEM + AEAD，HPKE 遵循 RFC 9180） | `jdk15on-starter`（`bc`） |
+
+算法接口在 `com.chua.common.support.lang.algorithm.cipher`，摘要与 `Hex` 在
+`com.chua.common.support.utils`，流加密与会话加密（`AesGcmUtils` / `Hkdf` / `SessionCipher`）
+在 `com.chua.common.support.network.crypto`。
 
 ```java
-// AES
-Codec aes = CodecBuilder.newBuilder().type(CryptoType.AES).key("1234567890123456").build();
-String encrypted = aes.encodeHex("hello");
+// 对称：byte[] 密文前 16 字节为随机 IV，字符串模式结果为 Base64
+AesCipher aes = CipherFlow.of("aes").aes();
+byte[] ciphertext = aes.encrypt(key, plaintext);
+String base64Text = aes.encryptToString(key, "hello");
 
-// MD5 / SHA / SM
+// 国密
+Sm4Cipher sm4 = CipherFlow.of("sm4").provider("bc").sm4();
+byte[] sm4Ct = sm4.encrypt(key16, plaintext);   // SM4 密钥固定 16 字节
+
+// 非对称
+RsaCipher rsa = CipherFlow.of("rsa").rsa();
+KeyPair kp = rsa.generateKeyPair(2048);
+byte[] ct = rsa.encrypt(kp.getPublic().getEncoded(), plaintext);
+boolean ok = rsa.verify(kp.getPublic().getEncoded(), plaintext,
+                        rsa.sign(kp.getPrivate().getEncoded(), plaintext));
+
+// 按算法名统一解析，未知算法抛 IllegalArgumentException
+Cipher cipher = CipherFlow.of("sm2").provider("bc").resolve();
+
+// 摘要 / HMAC（返回小写十六进制）
 String md5 = DigestUtils.md5Hex("hello");
-String sm3 = DigestUtils.sm3Hex("abc".getBytes());
+String sha256 = DigestUtils.sha256("hello");
+String sm3 = DigestUtils.sm3("hello");            // 需 BouncyCastle Provider
+String mac = DigestUtils.hmacSha256("data", "key");
+byte[] digest = DigestUtils.hash("SHA3-512", "hello");   // SHA3 需 JDK 9+
 
-// Base64
-String base64 = Base64Codec.encode("hello".getBytes());
+// 编码
+String base64 = Base64.encode("hello");
+byte[] raw = Base64.decode(base64);
 ```
+
+TCP 长连接要整段加密时用 `AesGcmUtils`：AES-256-GCM 帧式流加密，
+帧格式 `[4B 长度][12B nonce][密文+16B 认证标签]`，篡改即断链。
+
+```java
+SecretKeySpec key = AesGcmUtils.deriveKey("shared-secret");   // SHA-256 派生
+OutputStream out = AesGcmUtils.encrypting(socket.getOutputStream(), key);
+InputStream in = AesGcmUtils.decrypting(socket.getInputStream(), key);
+```
+
+要「每条连接一把钥」，用 `SessionCipher`：根密钥只在两端内存里，线路上只交换随机盐，
+子密钥经 HKDF-SHA256 按方向隔离派生，序号与 AAD 一起挡住重放、乱序与篡改。
+
+```java
+byte[] salt = SessionCipher.newSalt();                  // 随握手发送，每次连接随机
+SessionCipher client = SessionCipher.initiator(rootKey, salt);
+SessionCipher server = SessionCipher.responder(rootKey, salt);
+
+byte[] frame = client.seal("hello".getBytes(StandardCharsets.UTF_8));
+byte[] plain = server.open(frame);                       // 篡改 / 重放 / 乱序都会抛异常
+```
+
+> 配置文件整文件加密、单值 `ENC(...)`、密钥载体与程序包（FatJar）加密见
+> [crypto-starter](utils-support-extra-parent/utils-support-crypto-starter/README.md)。
 
 #### SPI 扩展机制 — ServiceProvider
 

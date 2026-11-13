@@ -1,2472 +1,1786 @@
-# Utils Support Common Starter
+# utils-support-common-starter
 
-> 通用工具库，提供丰富的 Java 工具类和功能模块，涵盖字符串处理、集合操作、HTTP 客户端、JSON 处理、加密解密、文件系统、SPI 服务发现等核心功能。
+> utils 体系的**契约层 + 基础实现层**：全部 SPI 接口、通用工具类、文件系统抽象、网络/任务/AI/存储等子系统的公共门面都在这里；具体协议、驱动、平台能力由同仓各 `*-starter` 模块通过 SPI 扩展。
+>
+> 版本：`4.0.0.50`｜JDK：`25`（`maven.compiler.release=25`，含 `--enable-preview`）｜包名：`com.chua.common.support`
 
 ---
 
 ## 目录
 
-- [快速开始](#快速开始)
-- [工具类模块](#工具类模块)
-  - [StringUtils 字符串工具](#stringutils-字符串工具)
-  - [MapUtils Map 工具](#maputils-map工具)
-  - [CollectionUtils 集合工具](#collectionutils-集合工具)
-  - [ArrayUtils 数组工具](#arrayutils-数组工具)
-  - [ClassUtils 类工具](#classutils-类工具)
-  - [FileUtils 文件工具](#fileutils-文件工具)
-  - [IoUtils IO 工具](#ioutils-io工具)
-  - [DigestUtils 摘要加密工具](#digestutils-摘要加密工具)
-  - [ImageUtils 图像工具](#imageutils-图像工具)
-  - [IdUtils ID 生成工具](#idutils-id生成工具)
-- [JSON 处理模块](#json-处理模块)
-- [HTTP 客户端模块](#http-客户端模块)
-- [Bean 操作模块](#bean-操作模块)
-- [类型转换模块](#类型转换模块)
-- [加密解密模块](#加密解密模块)
-- [SPI 服务发现模块](#spi-服务发现模块)
-- [集合扩展模块](#集合扩展模块)
-- [文件系统模块](#文件系统模块)
-- [缓存下载器模块](#缓存下载器模块)
-- [进度条模块](#进度条模块)
-- [统一返回结果模块](#统一返回结果模块)
-- [版本号工具](#版本号工具)
-- [日期时间模块](#日期时间模块)
-- [对象池模块](#对象池模块)
-- [ACME 证书模块](#acme-证书模块)
-- [AI 图像生成模块](#ai-图像生成模块)
-- [协议服务器模块](#协议服务器模块)
-- [死信队列模块](#死信队列模块)
-- [ObjectContext IoC容器模块](#objectcontext-ioc容器模块)
-- [Sync 数据同步模块](#sync-数据同步模块)
-- [Task 任务调度模块](#task-任务调度模块)
-- [Orchestrator 任务编排模块](#orchestrator-任务编排模块)
-- [Data 数据查询模块](#data-数据查询模块)
-- [Lang 语言特性模块](#lang-语言特性模块)
-- [文档中心](#文档中心)
-- [依赖要求](#依赖要求)
-- [许可证](#许可证)
+- [1. 模块定位](#1-模块定位)
+- [2. 包地图](#2-包地图)
+- [3. 核心机制](#3-核心机制)
+  - [3.1 SPI 服务发现](#31-spi-服务发现)
+  - [3.2 类型转换 Converter](#32-类型转换-converter)
+  - [3.3 序列化](#33-序列化)
+  - [3.4 轻量 IoC 容器 ObjectContext](#34-轻量-ioc-容器-objectcontext)
+  - [3.5 配置解析与属性源](#35-配置解析与属性源)
+- [4. 基础工具（utils 包）](#4-基础工具utils-包)
+- [5. 集合与并发](#5-集合与并发)
+- [6. 文件、归档与存储](#6-文件归档与存储)
+- [7. 网络](#7-网络)
+- [8. 任务与流程](#8-任务与流程)
+- [9. AI](#9-ai)
+- [10. 数据、WAL 与向量](#10-数据wal-与向量)
+- [11. 导出、文档与图像](#11-导出文档与图像)
+- [12. 平台与运维](#12-平台与运维)
+- [13. 其它子系统](#13-其它子系统)
+- [14. SPI 扩展点总表](#14-spi-扩展点总表)
+- [15. 配置项与系统属性](#15-配置项与系统属性)
+- [16. 扩展开发](#16-扩展开发)
+- [17. 构建与依赖](#17-构建与依赖)
+- [18. 边界：这些能力不在本模块](#18-边界这些能力不在本模块)
+- [19. 文档索引](#19-文档索引)
 
 ---
 
-## 快速开始
+## 1. 模块定位
 
-### Maven 依赖
+### 1.1 Maven 坐标
 
 ```xml
 <dependency>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-common-starter</artifactId>
-    <version>${version}</version>
+    <version>4.0.0.50</version>
 </dependency>
 ```
 
-## 包迁移脚本
+### 1.2 它是什么 / 不是什么
 
-- `python migrate.py`：按阶段迁移包结构（覆盖 core/base/io/text/crypto/network/data/concurrent/storage/media/ui 及 lang、task 目录），留意终端输出的异常提示。
-- `python cleanup.py`：迁移后清理同名嵌套目录（如 `io/stream/stream`），确保目录结构干净。
+| 维度 | 是 | 不是 |
+| --- | --- | --- |
+| 抽象 | 定义 SPI 接口与统一门面（`FileSystem`、`Server`、`ChatClient`、`VectorStorage`、`WalLog`、`FileStorage` 等） | 不绑定具体厂商 |
+| 实现 | 默认实现（JDK 文件系统、JDK HttpServer、内存向量库、JSON 序列化等纯 JDK 能力） | 不追求覆盖所有平台 |
+| 依赖 | 只依赖 guava / jackson / reactor / eclipse-collections / slf4j / lombok | 不依赖 Spring、不依赖数据库驱动、不依赖 AI SDK |
 
----
+**判断口径**：只与 JDK 有关的通用能力放本模块；需要第三方协议栈、驱动或平台账号的，放对应 `*-starter` 并用 SPI 注册。
 
-## 工具类模块
+### 1.3 规模
 
-### StringUtils 字符串工具
+- Java 源文件约 **1880** 个，顶层包 **51** 个。
+- SPI 扩展声明文件 **50+** 个（`src/main/resources/META-INF/extensions/`）。
+- 同时内置 GraalVM `native-image` 的 `reflect-config.json` / `proxy-config.json` / `resource-config.json`。
 
-#### 功能说明
+### 1.4 常用能力速查
 
-提供全面的字符串处理能力，包括空值判断、截取、填充、格式化、编码转换、模式匹配等常用操作。
-
-#### 适用场景
-
-- 表单数据校验与清洗
-- 文本格式化与模板处理
-- URL 编解码
-- SQL 注入防护
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.StringUtils;
-
-// 空值判断
-StringUtils.isEmpty(null);        // true
-StringUtils.isEmpty("");          // true
-StringUtils.isBlank("  ");        // true
-StringUtils.isNotEmpty("hello");  // true
-
-// 字符串截取
-StringUtils.substring("hello world", 0, 5);  // "hello"
-StringUtils.left("hello", 3);                // "hel"
-StringUtils.right("hello", 3);               // "llo"
-
-// 字符串填充
-StringUtils.leftPad("123", 5, '0');   // "00123"
-StringUtils.rightPad("123", 5, '0');  // "12300"
-StringUtils.center("abc", 7, '*');    // "**abc**"
-
-// 字符串替换
-StringUtils.replace("hello world", "world", "java");  // "hello java"
-StringUtils.removeAll("a1b2c3", "\\d");               // "abc"
-
-// 字符串拼接与分割
-StringUtils.join(Arrays.asList("a", "b", "c"), ",");  // "a,b,c"
-StringUtils.split("a,b,c", ",");                      // ["a", "b", "c"]
-
-// URL 编解码
-StringUtils.urlEncode("中文");   // "%E4%B8%AD%E6%96%87"
-StringUtils.urlDecode("%E4%B8%AD%E6%96%87");  // "中文"
-```
+| 需求 | 入口 | 说明 |
+| --- | --- | --- |
+| 发 HTTP 请求 | `network.client.HttpClientFactory` | 链式 + 同步/异步（`Mono`）+ cURL 互转 |
+| 换 HTTP 底层 | `HttpClientFactory.getClient("okhttp")` | 执行器 SPI：okhttp / httpclient5 / jdk |
+| 起 HTTP/TCP 服务 | `network.server.ServerBuilder` | IP、端口、路由、过滤器一步配 |
+| 文件读写/压缩 | `file.FileSystem` | csv/json/xml/txt/zip/tar，按扩展名自动推断 |
+| 下载大文件 | `network.download.Downloader` | 多线程、限速、断点、MD5、自动解压 |
+| 对象存储 | `storage.FileStorage` | S3/OSS/COS/MinIO 统一模型 |
+| AI 对话 | `ai.chat.ChatClient` | 同步/流式/异步、工具、图片、视频 |
+| 知识库/RAG | `ai.rag.RagClient` | 文档导入、切分、检索 |
+| 定时任务 | `task.scheduler.TimeScheduler` | cron / 固定频率 / 固定延迟 |
+| 任务分发 | `taskdistribution.manager.TaskManager` | 状态机、重试、持久化、恢复 |
+| 轻量 IoC | `objects.DefaultObjectContext` | `createWithInitize()` 拿到即用 |
+| 类型转换 | `converter.Converter` | 标量/集合/枚举/日期/Bean |
+| SPI 扩展 | `spi.ServiceProvider` | `getExtension("name")`、优先级、降级代理 |
+| 配置读取 | `config.parser.ConfigParser` + `PropertySource` | properties/xml/json/jsonl/环境变量 |
+| 数据大小 | `math.unit.size.SizeValue` | `SizeValue.parse("12MB")` |
+| 目录监听 | `lang.directory.DirectoryWatcher` | 新增/修改/删除事件 |
+| 二维码 | `image.QrCode` + `lang.qr.*` | 接口与样式；生成实现在 zxing-starter |
+| 命令执行 | `lang.cmd.Cmd` / `CliTool` | 外部命令、tshark/aria2/nvidia-smi |
+| 主机指纹 | `utils.SystemUtils` / `host.HostIdentity` | 不可变信息 + 相似度校验 |
+| 数据库连接池 | `concurrent.pool.ConnectionPool` | 自带池化、校验、空闲回收 |
 
 ---
 
-### MapUtils Map 工具
+## 2. 包地图
 
-#### 功能说明
+按源文件数量排序，括号内为 `.java` 文件数。
 
-提供 Map 集合的创建、转换、扁平化、嵌套解析等操作。
-
-#### 适用场景
-
-- 配置文件解析与处理
-- 嵌套数据结构扁平化
-- Map 与 Bean 互转
-- 参数映射与转换
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.MapUtils;
-
-// 创建 Map
-Map<String, Object> map = MapUtils.newHashMap();
-Map<String, Object> linkedMap = MapUtils.newLinkedHashMap();
-
-// 扁平化嵌套 Map
-Map<String, Object> nested = new HashMap<>();
-nested.put("user", Map.of("name", "张三", "age", 25));
-Map<String, Object> flat = MapUtils.flattenMap(nested);
-// 结果: {"user.name": "张三", "user.age": 25}
-
-// 反向嵌套
-Map<String, Object> unflat = MapUtils.unflattenMap(flat);
-// 结果: {"user": {"name": "张三", "age": 25}}
-
-// 获取嵌套值
-Object name = MapUtils.getNestedValue(nested, "user.name");  // "张三"
-
-// 类型安全获取
-String value = MapUtils.getString(map, "key", "默认值");
-Integer num = MapUtils.getInteger(map, "count", 0);
-Boolean flag = MapUtils.getBoolean(map, "enabled", false);
-```
-
----
-
-### CollectionUtils 集合工具
-
-#### 功能说明
-
-提供集合的判空、转换、分组、排序、去重、交集并集差集等操作。
-
-#### 适用场景
-
-- 集合数据处理与转换
-- 批量数据分组统计
-- 集合运算（交集、并集、差集）
-- 安全的集合操作
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.CollectionUtils;
-
-// 空值判断
-CollectionUtils.isEmpty(null);       // true
-CollectionUtils.isEmpty(new ArrayList<>());  // true
-CollectionUtils.isNotEmpty(list);    // true
-
-// 集合转换
-List<String> names = CollectionUtils.toList(set);
-Set<String> uniqueNames = CollectionUtils.toSet(list);
-
-// 集合运算
-List<String> union = CollectionUtils.union(list1, list2);         // 并集
-List<String> intersection = CollectionUtils.intersection(list1, list2);  // 交集
-List<String> difference = CollectionUtils.subtract(list1, list2);  // 差集
-
-// 安全获取第一个/最后一个元素
-String first = CollectionUtils.getFirst(list);
-String last = CollectionUtils.getLast(list);
-
-// 分批处理
-CollectionUtils.partition(largeList, 100).forEach(batch -> {
-    // 每批处理100条数据
-    processBatch(batch);
-});
-```
+| 包 | 数量 | 职责 | 代表类型 |
+| --- | --- | --- | --- |
+| `lang` | 341 | 语言层：算法、AST/表达式、Bean 路径、基准、CLI、数据源引擎、日期、目录轮询、文档、JSON、占位符、进程、二维码、脚本、模板、视图解析 | `lang.json.Json`、`lang.datasource.engine.Engine`、`lang.process.ProgressBar`、`lang.view.ViewParser` |
+| `network` | 319 | HTTP 客户端、服务端、协议、RPC、发现、下载、SSE、SIP、隧道、TLS、同步 | `network.client.HttpClientFactory`、`network.server.Server`、`network.discovery.ServiceDiscovery` |
+| `ai` | 252 | 对话、Agent、RAG、Embedding、图像/音频/视频生成、MCP、技能、规则、校准、探测 | `ai.chat.ChatClient`、`ai.agent.*`、`ai.rag.RagClient` |
+| `task` | 137 | 调度、流程、管道、重试、冷却、去重、备份恢复、脚本 | `task.scheduler.TimeScheduler`、`task.flow.Flow`、`task.pipeline.*` |
+| `concurrent` | 91 | 锁、限流、熔断、舱壁、批量合并、派发、队列、线程流、结构化并发 | `concurrent.lock.LockProvider`、`concurrent.rate.RateLimiter` |
+| `objects` | 75 | 轻量 IoC：BeanDefinition、注册器、注入器、生命周期、事件、环境 | `objects.ObjectContext`、`objects.DefaultObjectContext` |
+| `file` | 51 | 文件系统 SPI、读写构建器、归档、资源、文本抽取 | `file.FileSystem`、`file.impl.ZipFileSystem` |
+| `converter` | 52 | 类型转换器定义与统一入口 | `converter.Converter` |
+| `collection` | 42 | 增强集合：多值 Map、环形结构、位图、堆外存储、大小写不敏感 | `collection.MultiValueMap`、`collection.BitList` |
+| `utils` | 41 | 静态工具类 | `utils.StringUtils`、`utils.MapUtils`、`utils.DigestUtils` |
+| `export` | 30 | 数据导出与模板填充 SPI | `export.Documents`、`export.spi.DocumentGenerator` |
+| `spi` | 30 | SPI 注解、条件、解析器、自动注入 | `spi.ServiceProvider`、`spi.annotations.Spi` |
+| `scatter` | 25 | 无中心化对等网格：发现、节点、帧协议、TCP/UDP 传输 | `scatter.Scatter`、`scatter.ScatterBuilder` |
+| `apm` | 25 | Otnl 可观测引擎 SPI 与 SkyWalking 对齐的模型 | `apm.OtnlEngine`、`apm.model.*` |
+| `wal` | 21 | 预写日志：单文件/分片、checkpoint、回放、链式事务 | `wal.WalLog`、`wal.WalFactory` |
+| `taskdistribution` | 24 | 分布式任务：manager/store/dispatcher/node/strategy | `taskdistribution.manager.TaskManager` |
+| `storage` | 18 | 对象存储 SPI 与请求/结果模型、分片上传 | `storage.FileStorage`、`storage.MultipartStorage` |
+| `vector` | 17 | 向量存储 SPI、距离算法、JUMP 加速 | `vector.VectorStorage`、`vector.VectorStorageBuilder` |
+| `datasource` | 14 | 数据源 JOIN 策略、WAL 存储引擎 | `datasource.join.JoinStrategy`、`datasource.wal.WalStoreSystem` |
+| `proxy` | 15 | 动态代理、方法拦截、注解切面 | `proxy.ProxyFactory`、`proxy.intercept.MethodIntercept` |
+| `config` | 26 | 配置中心、加载器、解析器、配置源 | `config.parser.ConfigParser`、`config.source.*` |
+| `constant` | 12 | 常量 | — |
+| `exception` | 11 | 异常体系 | — |
+| `function` | 11 | 安全函数式接口、`SafeOptional`、命名线程工厂 | `function.SafeOptional` |
+| `codec` | 10 | 编解码 SPI（图像/视频） | `codec.Decoder`、`codec.VideoEncoder` |
+| `serialize` | 9 | 序列化 SPI 与反序列化白名单策略 | `serialize.Serializer`、`serialize.DeserializationPolicy` |
+| `base` | 8 | 校验分组、序列化/转换基础接口 | `base.Options`、`base.Serialization` |
+| `host` | 8 | 主机指纹与不可变信息采集 | `host.HostIdentity`、`host.HostInfoProvider` |
+| `image` | 7 | 图像处理管线与图像处理器 SPI | `image.ImageProcessors`、`image.ImageProcessor` |
+| `sync` | 7 | 旧版同步模型（Input/Output/Sink）；新同步在 `datasync-starter` | `sync.Input`、`sync.Sink` |
+| `tree` | 7 | B/B+ 树与二叉树互转 | `tree.TreeEngine`、`tree.BPlusTree` |
+| `browser` | 7 | 浏览器引擎 SPI（CDP 实现） | `browser.BrowserEngine`、`browser.BrowserPage` |
+| `language` | 6 | 拼音、分词 | `language.Pinyin`、`language.tokenizer.Tokenizer` |
+| `service` | 6 | 本地/远程服务进程管理 | `service.ServiceBuilder`、`service.ServiceManager` |
+| `value` | 6 | 值包装（懒加载、过期、数字） | `value.Value`、`value.LazyValue` |
+| `io` | 6 | 归档/压缩流接口 | `io.ArchiveInputStream`、`io.CompressInputStream` |
+| `annotation` | 5 | 通用注解 | — |
+| `document` | 3 | 文档生成请求/结果 + Provider | `document.DocumentProvider` |
+| `shmqueue` | 3 | 共享内存队列 | `shmqueue.ShmQueue` |
+| `matcher` | 3 | Ant 风格路径匹配 | `matcher.MatcherUtils` |
+| `osgi` | 8 | OSGi 启动器与 Bundle 抽象 | `osgi.OsgiLauncher` |
+| `probability` | 2 | 概率碰撞（布隆/计数） | `probability.ProbabilityCollision` |
+| `pool` | 2 | 可池化对象 | `pool.PooledObjectClient` |
+| `math` | 2 | 数据大小单位与解析 | `math.unit.size.SizeValue`、`math.unit.size.SizeUnit` |
+| `mock` | 2 | Mock 环境与字符串生成 | `mock.MockString` |
+| `env` | 2 | CUDA 环境安装 | `env.CudaEnvLoader` |
+| `content` | 2 | 通用内容上下文 | `content.ObjectContent` |
+| `setting` | 1 | 全局设置注解 | `setting.GlobalSettingGroup` |
+| `modules` | 1 | JPMS 模块导出 | `modules.ModuleLoader` |
+| `expression` | 3 | 表达式解析 SPI | `expression.ExpressionResolver` |
+| `reflection` | 2 | 反射工具 | `reflection.ReflectUtils` |
+| `stream` | 1 | 流压缩 SPI | `stream.StreamCompressor` |
+| `enums` | 1 | 业务动作枚举 | `enums.Action` |
+| `application` | 1 | 应用入口辅助 | — |
 
 ---
 
-### ArrayUtils 数组工具
+## 3. 核心机制
 
-#### 功能说明
+### 3.1 SPI 服务发现
 
-提供数组的创建、判空、查找、合并、转换等操作。
+SPI 是整个模块的主干：**接口在本模块，实现在各 starter，按名字装配**。
 
-#### 适用场景
-
-- 数组数据处理
-- 数组与集合互转
-- 数组元素查找与过滤
-- 数组拼接与拆分
-
-#### 使用示例
+#### 3.1.1 声明扩展
 
 ```java
-import com.chua.common.support.core.utils.ArrayUtils;
-
-// 空值判断
-ArrayUtils.isEmpty(null);           // true
-ArrayUtils.isEmpty(new String[0]);  // true
-ArrayUtils.isNotEmpty(arr);         // true
-
-// 数组操作
-String[] arr = ArrayUtils.add(new String[]{"a", "b"}, "c");  // ["a", "b", "c"]
-String[] sub = ArrayUtils.subarray(arr, 0, 2);               // ["a", "b"]
-boolean contains = ArrayUtils.contains(arr, "a");            // true
-
-// 数组合并
-String[] merged = ArrayUtils.addAll(arr1, arr2);
-
-// 数组转换
-List<String> list = ArrayUtils.toList(arr);
-String[] newArr = ArrayUtils.toArray(list, String.class);
-```
-
----
-
-### ClassUtils 类工具
-
-#### 功能说明
-
-提供类加载、类型判断、反射操作、泛型解析等功能。
-
-#### 适用场景
-
-- 动态类加载与实例化
-- 类型兼容性检查
-- 泛型类型解析
-- 反射工具封装
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.ClassUtils;
-
-// 类加载检查
-boolean present = ClassUtils.isPresent("com.example.MyClass");
-
-// 动态加载类
-Class<?> clazz = ClassUtils.forName("com.example.MyClass");
-
-// 创建实例
-Object instance = ClassUtils.forObject(MyClass.class);
-Object instanceWithArgs = ClassUtils.forObject(MyClass.class, "arg1", 123);
-
-// 类型判断
-ClassUtils.isPrimitive(int.class);      // true
-ClassUtils.isAssignable(ArrayList.class, List.class);  // true
-
-// 获取所有接口
-Set<Class<?>> interfaces = ClassUtils.getAllInterfaces(clazz);
-
-// 获取类路径
-String path = ClassUtils.getClassPath(MyClass.class);
-```
-
----
-
-### FileUtils 文件工具
-
-#### 功能说明
-
-提供文件读写、复制、删除、目录遍历、文件类型判断等操作。
-
-#### 适用场景
-
-- 文件批量处理
-- 目录结构操作
-- 文件内容读写
-- 文件类型识别
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.FileUtils;
-
-// 文件读取
-String content = FileUtils.readFileToString(new File("test.txt"), "UTF-8");
-List<String> lines = FileUtils.readLines(new File("test.txt"), "UTF-8");
-byte[] bytes = FileUtils.readFileToByteArray(new File("test.bin"));
-
-// 文件写入
-FileUtils.writeStringToFile(new File("output.txt"), "内容", "UTF-8");
-FileUtils.writeLines(new File("output.txt"), lines, "UTF-8");
-FileUtils.writeByteArrayToFile(new File("output.bin"), bytes);
-
-// 文件复制与移动
-FileUtils.copyFile(srcFile, destFile);
-FileUtils.copyDirectory(srcDir, destDir);
-FileUtils.moveFile(srcFile, destFile);
-
-// 文件删除
-FileUtils.deleteQuietly(file);
-FileUtils.deleteDirectory(dir);
-
-// 获取文件扩展名
-String ext = FileUtils.getExtension("test.txt");  // "txt"
-
-// 获取文件大小（人类可读格式）
-String size = FileUtils.byteCountToDisplaySize(1024 * 1024);  // "1 MB"
-```
-
----
-
-### IoUtils IO 工具
-
-#### 功能说明
-
-提供输入输出流的读写、复制、关闭等操作。
-
-#### 适用场景
-
-- 流数据处理
-- 资源安全关闭
-- 流转换与复制
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.IoUtils;
-
-// 流转字符串
-String content = IoUtils.toString(inputStream, "UTF-8");
-
-// 流转字节数组
-byte[] bytes = IoUtils.toByteArray(inputStream);
-
-// 流复制
-IoUtils.copy(inputStream, outputStream);
-
-// 安全关闭资源
-IoUtils.closeQuietly(inputStream);
-IoUtils.closeQuietly(outputStream);
-
-// 读取行
-List<String> lines = IoUtils.readLines(reader);
-```
-
----
-
-### DigestUtils 摘要加密工具
-
-#### 功能说明
-
-提供 MD5、SHA、HMAC、TOTP、国密(SM2/SM3/SM4)、RSA 等多种加密和摘要算法。
-
-#### 适用场景
-
-- 密码加密存储
-- 数据签名验证
-- 文件完整性校验
-- 双因素认证(TOTP)
-- 国密算法应用
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.DigestUtils;
-
-// MD5
-String md5 = DigestUtils.md5Hex("hello");
-String md5File = DigestUtils.md5Hex(new File("test.txt"));
-
-// SHA系列
-String sha256 = DigestUtils.sha256Hex("hello");
-String sha512 = DigestUtils.sha512Hex("hello");
-
-// HMAC
-byte[] hmac = DigestUtils.hmacSha256("data".getBytes(), "secret".getBytes());
-
-// TOTP (基于时间的一次性密码)
-byte[] secret = "MYSECRET".getBytes(StandardCharsets.UTF_8);
-String code = DigestUtils.totpNow(secret);
-
-// MAC
-byte[] tag = DigestUtils.mac("HmacSHA256", "data".getBytes(), secret);
-
-// 国密 SM3
-String sm3 = DigestUtils.sm3Hex("abc".getBytes());
-
-// 国密 SM4 加解密
-byte[] encrypted = DigestUtils.sm4EncryptEcb(data, key);
-byte[] decrypted = DigestUtils.sm4DecryptEcb(encrypted, key);
-
-// RSA 加解密
-byte[] rsaEncrypted = DigestUtils.rsaEncrypt(data, publicKey);
-byte[] rsaDecrypted = DigestUtils.rsaDecrypt(rsaEncrypted, privateKey);
-```
-
----
-
-### ImageUtils 图像工具
-
-#### 功能说明
-
-提供图像缩放、裁剪、旋转、水印、格式转换等操作。
-
-#### 适用场景
-
-- 图片处理与优化
-- 缩略图生成
-- 水印添加
-- 图片格式转换
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.ImageUtils;
-
-// 图片缩放
-BufferedImage scaled = ImageUtils.scale(image, 200, 150);
-
-// 图片裁剪
-BufferedImage cropped = ImageUtils.crop(image, 10, 10, 100, 100);
-
-// 图片旋转
-BufferedImage rotated = ImageUtils.rotate(image, 90);
-
-// 添加文字水印
-BufferedImage watermarked = ImageUtils.addTextWatermark(image, "© 版权所有", font, color);
-
-// Swing弹窗展示图片
-BufferedImage img = ImageIO.read(new File("demo.png"));
-ImageUtils.showImage(img, "示例预览");
-```
-
----
-
-### IdUtils ID 生成工具
-
-#### 功能说明
-
-提供 UUID、雪花算法、短 ID 等多种 ID 生成方式。
-
-#### 适用场景
-
-- 分布式唯一 ID 生成
-- 数据库主键生成
-- 订单号、流水号生成
-
-#### 使用示例
-
-```java
-import com.chua.common.support.core.utils.IdUtils;
-
-// UUID
-String uuid = IdUtils.randomUUID();            // 标准UUID
-String simpleUuid = IdUtils.simpleUUID();      // 无连字符UUID
-
-// 雪花算法ID
-long snowflakeId = IdUtils.getSnowflakeNextId();
-String snowflakeIdStr = IdUtils.getSnowflakeNextIdStr();
-
-// 短ID
-String shortId = IdUtils.shortUuid();
-```
-
----
-
-## JSON 处理模块
-
-### 功能说明
-
-基于 Jackson 封装的 JSON 工具类，支持 JSON5 特性，提供序列化、反序列化、类型转换等功能。
-
-### 适用场景
-
-- API 数据序列化与反序列化
-- 配置文件解析（支持 JSON5 注释）
-- 对象与 JSON 互转
-- 复杂泛型类型处理
-
-### 使用示例
-
-```java
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonObject;
-import com.chua.common.support.json.JsonArray;
-
-// 对象转 JSON 字符串
-User user = new User("张三", 25);
-String json = Json.toJson(user);
-
-// 格式化输出
-String prettyJson = Json.toPrettyJson(user);
-
-// JSON 字符串转对象
-User user = Json.fromJson(json, User.class);
-
-// 泛型类型转换
-List<User> users = Json.fromJson(jsonArray, new TypeReference<List<User>>(){});
-
-// JsonObject 操作
-JsonObject obj = Json.parse(json);
-String name = obj.getString("name");
-int age = obj.getInteger("age");
-obj.put("email", "test@example.com");
-
-// JsonArray 操作
-JsonArray arr = Json.parseArray(jsonArrayStr);
-for (int i = 0; i < arr.size(); i++) {
-    JsonObject item = arr.getJsonObject(i);
+package com.example;
+
+import com.chua.common.support.spi.annotations.Extension;
+import com.chua.common.support.spi.annotations.SpiOrder;
+
+@Extension("mysql")
+@SpiOrder(100)
+public class MyFileSystem implements FileSystem {
+    @Override public String getType() { return "mysql"; }
+    @Override public ReadBuilder read(File file) { /* ... */ }
+    @Override public WriteBuilder write(File file) { /* ... */ }
 }
-
-// Map 转 JSON
-Map<String, Object> map = new HashMap<>();
-map.put("key", "value");
-String mapJson = Json.toJson(map);
-
-// JSON 转 Map
-Map<String, Object> result = Json.fromJson(json, Map.class);
 ```
+
+并在 `src/main/resources/META-INF/extensions/<接口全限定名>` 中登记：
+
+```
+mysql=com.example.MyFileSystem
+```
+
+> `@Spi` 也可直接标注在实现类上（`value` 为名称/别名数组，`order` 为优先级）；`@Extension` 是 4.0.0.42 之后更轻量的写法。`@SpiDefault`、`@SpiDescribe`、`@SpiParam`、`@ConditionalOnClass`、`@ConditionalOnProperty` 用于默认实现、描述、参数与条件加载。
+
+#### 3.1.2 获取实现
+
+```java
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.file.FileSystem;
+
+ServiceProvider<FileSystem> provider = ServiceProvider.of(FileSystem.class);
+
+FileSystem zip = provider.getExtension("zip");          // 按名字
+FileSystem def = provider.getDefault();                 // 默认实现
+List<FileSystem> all = provider.collect();              // 全部实例
+Map<String, FileSystem> map = provider.list();          // 名称 → 实例
+Set<String> names = provider.getExtensions();           // 全部名称
+boolean has = provider.isSupport("zip");                // 是否存在
+
+provider.register("my-impl", new MyFileSystem());       // 运行期注册
+provider.forEach((name, fs) -> System.out.println(name));
+```
+
+`ServiceProvider` 的关键能力（均为接口上已验证的方法）：
+
+| 方法 | 说明 |
+| --- | --- |
+| `of(Class)` / `of(Class, ClassLoader)` | 获取并提供缓存（弱引用缓存，避免类加载器泄漏） |
+| `getExtension(String)` | 取单个实例，找不到返回 `null` |
+| `getNewExtension(String, Object...)` / `getNewExtensions` | 每次新建（构造参数透传） |
+| `getKeepExtension(uid, name, args)` / `closeKeepExtension(uid)` | 按 uid 复用并持有实例 |
+| `collect()` / `collect(args)` | 收集所有实现 |
+| `list()` / `mapping()` / `listType()` | 名称 → 实例 / 名称 → 类型 |
+| `getExtensionFactory(name)` | 生成**按优先级自动降级**的代理：某个实现抛异常会切到下一个 |
+| `getPriority()` / `getPriorityServiceDefinitions()` | 按 `@SpiOrder` 取最高优先级 |
+| `register(...)` / `unregister(...)` | 运行期注册实现、定义或解析器 |
+| `monitor(boolean)` | 开启调用监控 |
+
+`FileSystem` 自带三个静态入口：
+
+```java
+FileSystem fs1 = FileSystem.create("zip");                       // 按 SPI 名
+FileSystem fs2 = FileSystem.auto(new File("data.xlsx"));          // 按扩展名推断
+ZipFileSystem fs3 = FileSystem.create("zip", ZipFileSystem.class); // 带类型，免强转
+```
+
+### 3.2 类型转换 Converter
+
+统一入口 `com.chua.common.support.converter.Converter`，覆盖标量、集合、数组、枚举、日期、Bean、图片：
+
+```java
+import com.chua.common.support.converter.Converter;
+
+Integer n   = Converter.convertIfNecessary("123", Integer.class);
+int n2      = Converter.intOf("123", 0);
+BigDecimal d= Converter.toBigDecimal("3.14");
+LocalDate ld= Converter.parseLocalDate("2024-01-01", "yyyy-MM-dd");
+Status st   = Converter.toEnum("ACTIVE", Status.class);
+
+List<User> users = Converter.convertList(rows, User.class);
+List<String> list = Converter.convertIfListNecessary(value, String.class);
+Map<String, Object> map = Converter.convertIfMapNecessary(value, String.class, Object.class);
+
+Converter.registerConverter(Money.class, v -> Money.of(v.toString()));  // 自定义
+boolean ok = Converter.canConvert(String.class, Integer.class);
+```
+
+### 3.3 序列化
+
+```java
+import com.chua.common.support.serialize.DefaultSerializerProvider;
+import com.chua.common.support.serialize.Serializer;
+import com.chua.common.support.serialize.SerializerProvider;
+
+SerializerProvider provider = new DefaultSerializerProvider();   // 默认走 JSON
+Serializer<User> serializer = provider.getSerializer(User.class);
+
+byte[] data = serializer.serialize(user);
+User back = serializer.deserialize(data);
+```
+
+> `Serializer<T>` 的泛型上界是 `Serializable`，被序列化的类型需实现该接口。
+
+安全侧：`DeserializationPolicy` 可插拔，内置 `DenyListDeserializationPolicy`（SPI key `denylist`），由 `DeserializationGuard` 在反序列化前做类名校验。
+
+### 3.4 轻量 IoC 容器 ObjectContext
+
+`com.chua.common.support.objects.ObjectContext` 对齐 Spring 的使用习惯，但不依赖 Spring。
+
+```java
+import com.chua.common.support.objects.DefaultObjectContext;
+import com.chua.common.support.objects.ObjectContextConfig;
+
+// createWithInitize() = 创建 + init()，拿到即可用
+try (DefaultObjectContext context = DefaultObjectContext.createWithInitize()) {
+
+    context.registerBean("myService", new MyService());          // 实例
+    context.registerBean(MyService.class);                       // 类型（自动生成 BeanDefinition）
+    context.scan("com.example.service");                         // 包扫描
+
+    MyService s1 = context.getBean("myService", MyService.class);
+    MyService s2 = context.getBeanOfType(MyService.class);
+    Collection<MyService> all = context.getBeanOfTypeCollection(MyService.class);
+    Map<String, Object> withAnno = context.getBeansWithAnnotation(Deprecated.class);
+
+    context.autowire(existingObject);                            // 对已存在对象注入
+    context.publish(new MyEvent());                              // 事件
+}
+```
+
+创建容器有三个等价入口：
+
+| 方法 | 行为 |
+| --- | --- |
+| `new DefaultObjectContext()` | 只创建，不初始化；需要时再 `init()` |
+| `DefaultObjectContext.create()` | 创建后立即 `init()`（默认配置） |
+| `DefaultObjectContext.createWithInitize()` | 与 `create()` 相同，方法名显式表达「创建即可用」 |
+| `DefaultObjectContext.createWithInitize(config)` | 创建后立即用指定配置 `init(config)` |
+
+> `init()` 会创建注册中心、执行包扫描（`ObjectContextConfig.shouldScan()`）并给所有 BeanDefinition 挂上容器回调；重复调用没有额外收益。
+
+体系结构（与源码注释一致）：
+
+```
+Class 来源（SPI / 注解扫描 / registerBean / scan）
+      → BeanDefinitionGenerator → BeanDefinition
+      → BeanDefinitionRegister（name→register、type→names 缓存）
+      → createInstance()（ServiceInjector / ConfigInjector / Lifecycle）
+      → getBean() / getBeanOfType()
+```
+
+扩展点（均可 SPI 替换）：`BeanDefinitionGenerator`、`BeanDefinitionRegister`、`BeanConstructorResolver`、`BeanDefinitionServiceInjector`、`BeanDefinitionConfigInjector`、`BeanDefinitionMethodInjector`、`BeanDefinitionLifecycle`、`BeanScopeDetector`、`ConfigValueExpressionResolver`。
+
+### 3.5 配置解析与属性源
+
+`ConfigParser` 把 properties / xml / json / jsonl 解析成统一的 `PropertySource`；`PropertySource` 则负责**键名归一化**与**类型化读取**。
+
+```java
+import com.chua.common.support.config.parser.ConfigParser;
+import com.chua.common.support.config.source.PropertySource;
+import com.chua.common.support.spi.ServiceProvider;
+
+ConfigParser parser = ServiceProvider.of(ConfigParser.class).getExtension("properties");
+try (InputStream in = Files.newInputStream(Path.of("app.properties"))) {
+    PropertySource cfg = parser.parse("app.properties", in);
+
+    String host = cfg.getString("server.host", "0.0.0.0");
+    Integer port = cfg.getInteger("server.port", 8080);
+    Boolean ssl  = cfg.getBoolean("server.ssl", false);
+    List<String> hosts = cfg.getList("cluster.hosts");
+    Map<String, Object> all = cfg.toMap();
+}
+```
+
+| 能力 | 说明 |
+| --- | --- |
+| 键名变体 | `server.port` / `SERVER_PORT` / `server-port` / `serverPort` / `list[0]` 均可命中 |
+| 类型读取 | `getString` / `getInteger` / `getLong` / `getDouble` / `getBoolean` / `getBigDecimal` / `getBigInteger` / `getList` |
+| 默认值 | 每个读取方法都有带 `defaultValue` 的重载 |
+| 多源合并 | `MutiPropertySource`、`PropertiesMutiPropertySource` |
+| 内置源 | `MapPropertySource`、`PropertiesPropertySource`、`SystemPropertySource`、`SystemEnvironmentPropertySource` |
+| 优先级 | `getPriority()`，多源合并时按优先级取值 |
+| 保存/绑定 | `config.loader.ConfigSaveOrLoader`、`ConfigValueBinding` |
+| 配置中心 | `config.center.ConfigCenter` + `ConfigListener`（Nacos/Apollo 等由对应 starter 实现） |
 
 ---
 
-## HTTP 客户端模块
+## 4. 基础工具（utils 包）
 
-### 功能说明
+> 全部位于 `com.chua.common.support.utils`。以下方法名均与源码一致。
 
-提供简洁、强大的 HTTP 客户端，支持 GET、POST、PUT、DELETE、PATCH、HEAD、OPTIONS 等请求方式，
-支持 JSON、表单、文件上传（multipart）、流式输出等多种内容类型。
+### 4.1 StringUtils
 
-### 核心特性
+```java
+import com.chua.common.support.utils.StringUtils;
 
-| 特性 | 说明 |
+StringUtils.isEmpty(null);              // true
+StringUtils.isBlank("  ");              // true
+StringUtils.isNotBlank("x");            // true
+
+StringUtils.sub("hello world", 0, 5);   // "hello"（左闭右开）
+StringUtils.subPre("a/b/c", 3);         // "a/b"
+StringUtils.subSuf("a/b/c", 2);         // "/b/c"
+StringUtils.subBefore("a.b.c", ".", true);   // "a.b"（最后一个分隔符之前）
+StringUtils.subAfter("a.b.c", ".", false);   // "b.c"
+
+StringUtils.leftPad("123", 5, '0');     // "00123"
+StringUtils.rightPad("123", 5, '0');    // "12300"
+StringUtils.repeat('*', 5);             // "*****"
+StringUtils.repeat("ab", "-", 3);       // "ab-ab-ab"
+
+StringUtils.format("你好 {}", "世界");   // 支持 {} 与格式化说明符
+StringUtils.defaultString(null, "x");   // "x"
+StringUtils.removePrefix("prefix-a", "prefix-");  // "a"
+StringUtils.tokenizeToStringArray("a,b;c", ",;"); // [a, b, c]
+StringUtils.escapeHtml("<a>");          // "&lt;a&gt;"
+```
+
+常用还有：`trimToEmpty` / `trimToNull` / `trimWhitespace` / `trimAllWhitespace`、`startWith` / `endWith`（含 `IgnoreCase` 版本）、`indexOf`、`padding`、`utf8Str`、`str(byte[], Charset)`。
+
+### 4.2 MapUtils
+
+```java
+import com.chua.common.support.utils.MapUtils;
+
+Map<String, Object> flat = MapUtils.flattenMap(nested);   // {"user.name": "张三"}
+String name  = MapUtils.getString(map, "name", "默认值");
+int count    = MapUtils.getIntValue(map, "count", 0);
+boolean on   = MapUtils.getBoolean(map, "enabled", false);
+List<X> list = MapUtils.getList(map, "items");
+Map<K,V> sub = MapUtils.getMap(map, "config");
+T typed      = MapUtils.getType(map, "payload", T.class);
+Properties p = MapUtils.asProp(map);
+```
+
+另有 `merge(Map...)`、`putAll(Map...)`、`getFirstValue`、`getComputeIfAbsent`、`asMap("a=1,b=2", ',', '=')`。
+
+### 4.3 CollectionUtils
+
+```java
+import com.chua.common.support.utils.CollectionUtils;
+
+CollectionUtils.isEmpty(null);              // true
+CollectionUtils.isEmpty(map);               // 支持 Map / 数组 / Iterable
+CollectionUtils.size(list);
+
+List<List<T>> batches = CollectionUtils.averageAssign(largeList, 100);  // 均分 N 份
+CollectionUtils.page(list, 100, batch -> handle(batch));                // 按页消费
+List<T> page = CollectionUtils.page(1, 20, list);                       // 第 1 页，每页 20
+
+List<T> diff = CollectionUtils.subtractToList(a, b);   // 差集
+T first = CollectionUtils.findFirst(list, null);
+T last  = CollectionUtils.findLast(list);
+List<T> sub = CollectionUtils.sub(list, 0, 10);
+Map<R, T>   byId    = CollectionUtils.convertMap(list, User::getId);
+Map<R, List<T>> group = CollectionUtils.convertMaps(list, User::getDept);
+List<T> descartes = CollectionUtils.descartes(a, b);   // 笛卡尔积
+```
+
+> 注意：本模块**没有** `union` / `intersection` 方法，集合运算请用 `subtractToList`（差集）或 JDK `Stream`。
+
+### 4.4 ArrayUtils
+
+```java
+import com.chua.common.support.utils.ArrayUtils;
+
+ArrayUtils.isEmpty(arr);  ArrayUtils.isNotEmpty(arr);  ArrayUtils.hasNull(a, b);
+ArrayUtils.contains(arr, "a");  ArrayUtils.containsIgnoreCase(arr, "A");
+String[] merged = ArrayUtils.merge(arr1, "c");
+String[] unique = ArrayUtils.mergeOfDistince(arr1, "c");
+String[] added  = ArrayUtils.addLastElement(arr, "z");
+String[] asStr  = ArrayUtils.toArrayString(list, String::valueOf);
+byte[]   bytes  = ArrayUtils.transToByteArray(list);
+```
+
+### 4.5 ClassUtils
+
+```java
+import com.chua.common.support.utils.ClassUtils;
+
+ClassUtils.isPresent("com.example.Foo");
+Class<?> c = ClassUtils.forName("com.example.Foo");
+User u = ClassUtils.forObject(User.class, "张三", 25);   // 按构造参数匹配
+
+List<Field>  fields  = ClassUtils.getFields(User.class);
+List<Method> methods = ClassUtils.getMethods(user);
+Field f = ClassUtils.findField(User.class, "id");
+
+ClassUtils.isPrimitive(int.class);
+ClassUtils.isJavaType(String.class);
+ClassUtils.getClassPath();
+ClassUtils.registerClassLoader(loader);   // 显式托管，避免泄漏
+```
+
+构造失败时可通过 `consumeLastInstantiationFailure()` 取最近一次失败原因（`NewInstanceFailure`）。
+
+### 4.6 FileUtils / IoUtils
+
+```java
+import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.IoUtils;
+
+FileUtils.getExtension("a.tar.gz");      // "gz"
+FileUtils.getBaseName("/x/a.txt");       // "a"
+FileUtils.removeExtension("a.txt");      // "a"
+FileUtils.readableFileSize(1048576);     // "1 MB"
+FileUtils.normalize("a", "b", "c.txt");  // "a/b/c.txt"
+FileUtils.mkParentDirs(file);
+FileUtils.deleteQuietly(dir);
+
+byte[] bytes = IoUtils.asBytes(file);            // 也支持 URL / Path / InputStream
+String text  = IoUtils.asString(inputStream, StandardCharsets.UTF_8);
+IoUtils.copy(input, output);
+IoUtils.copyLarge(reader, writer);
+IoUtils.closeQuietly(stream);
+```
+
+> 本模块的 `FileUtils` **只做路径/命名/大小/删除**这类轻量操作，没有 `readFileToString` / `writeStringToFile`；读写请用 `IoUtils` 或 `FileSystem`。
+
+### 4.7 DigestUtils
+
+```java
+import com.chua.common.support.utils.DigestUtils;
+
+DigestUtils.md5("abc");
+DigestUtils.md5Hex("abc");
+DigestUtils.sha256("abc");
+DigestUtils.sha512("abc");
+DigestUtils.sm3("abc");
+DigestUtils.hmacSha256("data", "secret");
+byte[] raw = DigestUtils.hash("SHA-256", "abc");
+
+DigestUtils.hash(byte[] data);       // 默认 SHA-256
+DigestUtils.md2 / sha1 / sha224 / sha384 ...
+```
+
+算法常量齐全：MD2/MD5、SHA-1/224/256/384/512、SHA3、SM2/SM3/SM4、AES/DES/3DES、CRC32/Adler32、HmacMD5/HmacSHA1/HmacSHA256/HmacSHA512、PBKDF2WithHmacSHA256。
+
+### 4.8 IdUtils
+
+```java
+import com.chua.common.support.utils.IdUtils;
+
+IdUtils.uuid();             // 标准 UUID
+IdUtils.uuidv7();           // UUID v7（时间有序）
+IdUtils.simpleUuid();       // 无连字符
+IdUtils.fastUuid();         // 无连字符、更快
+IdUtils.timeId();
+IdUtils.createSnowflakeId();
+IdUtils.createDailySequenceId("ORD");   // ORD202601010001
+IdUtils.createDeviceCode("CAM");
+IdUtils.createDataFinger();             // 内容指纹
+IdUtils.isSameData(a, b);
+```
+
+### 4.9 BufferedImageUtils
+
+`java.awt` 图像处理（不是第三方图像库）：
+
+```java
+import com.chua.common.support.utils.BufferedImageUtils;
+
+BufferedImage img = BufferedImageUtils.toBufferedImage(file);   // 也支持 byte[]/URL/Path/Stream
+BufferedImage small = BufferedImageUtils.scaleImage(img, 200, 150);
+BufferedImage crop  = BufferedImageUtils.cropImage(options);    // CropImageOptions
+BufferedImage rot   = BufferedImageUtils.rotate(img, 90);
+BufferedImage gray  = BufferedImageUtils.grayImage(img);
+BufferedImage blur  = BufferedImageUtils.blurImage(img, 3f);
+BufferedImage mark  = BufferedImageUtils.addTextWatermark(img, "© chua");
+BufferedImage[] gif  = BufferedImageUtils.readGifFrames(file);
+BufferedImageUtils.writeGif(frames, 100, out);
+BufferedImageUtils.writeToFile(img, "png", file);
+```
+
+### 4.10 其它工具速查
+
+| 类 | 能力 |
 | --- | --- |
-| **链式构建器** | 流畅的 Fluent API，通过 `HttpClientFactory.of(url)` 链式构建请求 |
-| **同步/异步双模式** | 同步方法 `get()/post()` 直接返回结果；异步方法 `getAsync()/postAsync()` 支持 CompletableFuture 和 Callback 两种回调 |
-| **文件上传** | 原生 multipart/form-data 支持（含 boundary 分隔符），零依赖 |
-| **鉴权快捷方法** | `auth(token)` Bearer Token、`authBasic(user, pass)` Basic 认证 |
-| **重定向控制** | `onRedirect(callback)` 自定义重定向处理 |
-| **超时控制** | 分别设置连接超时 `connectTimeout` 和读取超时 `readTimeout` |
-| **SPI 多实现** | 自动选择 JDK HttpClient / OkHttp3 / Apache HttpClient5（按优先级） |
-| **原生异步 I/O** | JDK 执行器使用 `sendAsync()` 实现零阻塞 NIO 异步请求 |
+| `NumberUtils` | 加减乘除（自动 BigDecimal）、四舍五入、`isNumber`/`isInteger`、中文数字、方差/标准差 |
+| `DateUtils` | `Date`/`LocalDate*`/`Instant`/`ZonedDateTime` 互转，`format`/`parseDateSafe`、周/月首末天 |
+| `BeanUtils` | `copyProperties`（含忽略字段、Map↔Bean）、`copyPropertiesList`、`objectToMap` |
+| `TreeUtils` | `build` 列表转树、`findNode`/`findById`、`getParents`/`getDepth`、`flatten` |
+| `Validator` | 手机号、邮箱、身份证、IP、URL、纯数字/字母、含中文 |
+| `UrlUtils` | URL 编解码、路径规范化、`SimpleUrlEncoder` |
+| `SystemUtils` | 主机指纹：`uniqueId()`、`verifyId()`、`hostFacts()` |
+| `RandomUtils` / `ThreadUtils` / `MathUtils` / `ByteUtils` / `CharUtils` / `BitUtils` | 随机、线程池命名与等待、数学、字节/字符/位操作 |
+| `PrivacyUtils` / `SignUtils` / `PageUtils` / `MediaTypeUtils` | 脱敏、签名、分页、MIME 推断 |
+| `GzipBombUtils` | GZIP 炸弹检测 |
 
-### 适用场景
+---
 
-- RESTful API 调用
-- 文件上传下载
-- 第三方服务集成
-- 高并发 HTTP 请求
+## 5. 集合与并发
 
-### 使用示例
+### 5.1 集合增强（`collection`）
 
-#### 1. 同步 GET 请求
+| 类型 | 说明 |
+| --- | --- |
+| `MultiValueMap` / `MultiLinkedValueMap` | 一键多值 |
+| `CaseInsensitiveMap`（`lang.bean` 侧）/ `FlatMap` / `FlatHashMap` | 大小写不敏感、扁平化 |
+| `ConcurrentReferenceHashMap` | 软/弱引用，防内存泄漏（SPI 缓存即用此实现） |
+| `CircularArrayList` / `CircularQueue` / `CircularLinkedSet` | 环形结构 |
+| `BitList` / `IntList` / `LongList` | 原始类型列表 |
+| `SortedArrayList` / `SortedList` | 有序列表 |
+| `BoundedCollection` / `OverflowPolicy` | 有界集合与溢出策略 |
+| `DataStore` / `OnHeapDataStore` / `OffHeapDataStore` | 堆内/堆外数据存储 |
+| `Multiset` | 计数集合 |
+| `collection.wrap.Wraps` | 统一集合创建入口，底层可切 Eclipse Collections（`CollectionBackend` SPI） |
+
+```java
+import com.chua.common.support.collection.MultiValueMap;
+import com.chua.common.support.collection.MultiLinkedValueMap;
+import com.chua.common.support.collection.ConcurrentReferenceHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
+
+// 一键多值
+MultiValueMap<String, String> tags = new MultiLinkedValueMap<>();
+tags.add("tag", "a");
+tags.add("tag", "b");
+tags.get("tag");          // [a, b]
+tags.getFirst("tag");     // a
+tags.toSingleValueMap();  // 取每个 key 的第一个值
+
+// 弱引用缓存（SPI 缓存同款）
+Map<String, Object> cache = new ConcurrentReferenceHashMap<>(256);
+
+// 统一创建入口（后端可切换）
+List<String> list = Wraps.list();
+Map<String, Object> map = Wraps.map();
+```
+
+### 5.2 并发（`concurrent`）
+
+| 子包 | 能力 |
+| --- | --- |
+| `lock` | `LockProvider` SPI：`semaphore`、`circular`，另有文件锁 / 对象锁 |
+| `rate` | `RateLimiter`，Guava 实现（SPI `guava`） |
+| `circuitbreaker` / `circuit` | 熔断器与判定器，内存实现 |
+| `bulkhead` | 舱壁隔离 |
+| `collapse` | 请求合并 |
+| `dispatcher` | 统一缓冲派发（内存实现 + Jackson 序列化） |
+| `queue` | 并发队列封装 |
+| `threadflow` / `structured` | 线程流与结构化并发 |
+| `timeout` / `backoff` | 超时与退避策略 |
+| `offset` | `OffsetStore`（文件实现），用于断点消费 |
+| `pool` | `pool.PooledObjectClient`、`concurrent.pool` 连接池 |
+
+```java
+import com.chua.common.support.concurrent.lock.LockProvider;
+import com.chua.common.support.spi.ServiceProvider;
+
+LockProvider lock = ServiceProvider.of(LockProvider.class).getExtension("semaphore");
+```
+
+限流与熔断：
+
+```java
+import com.chua.common.support.concurrent.rate.RateLimiterFlow;
+import com.chua.common.support.concurrent.circuit.CircuitBreaker;
+import java.util.concurrent.TimeUnit;
+
+// 限流：100 QPS，拿不到许可时走降级
+RateLimiterFlow.of("api", 100.0)
+        .timeout(500, TimeUnit.MILLISECONDS)
+        .fallback(() -> "busy")
+        .execute(() -> doSomething());
+
+// 表达式熔断/规则判定
+boolean allow = CircuitBreaker.evaluate("age > 18 AND status == 'active'",
+        Map.of("age", 25, "status", "active"));
+```
+
+| 组件 | 说明 |
+| --- | --- |
+| `RateLimiterFlow` | 限流门面：`tryAcquire`、`timeout`、`fallback`、`execute` |
+| `CircuitBreaker` | 表达式驱动的断路器（B-Tree 遍历 + 短路 + 异常保守断路） |
+| `circuitbreaker.*` | 统计型断路器 Provider（失败率/慢调用） |
+| `BulkheadFlow` | 舱壁隔离（信号量） |
+| `CollapseFlow` | 请求合并（同一 key 的并发请求合并为一次） |
+| `StructuredConcurrencyFlow` | `StructuredTaskScope` 封装 |
+
+### 5.3 对象池与连接池（`concurrent.pool`）
+
+```java
+import com.chua.common.support.concurrent.pool.ConnectionPool;
+
+try (ConnectionPool pool = ConnectionPool.builder()
+        .url("jdbc:mysql://127.0.0.1:3306/demo")
+        .username("root")
+        .password("123456")
+        .maxTotal(20)
+        .maxIdle(8)
+        .minIdle(2)
+        .borrowTimeoutMillis(3_000)
+        .validationQuery("SELECT 1")
+        .testOnBorrow(true)
+        .build()) {
+
+    try (Connection conn = pool.borrow()) {
+        // 使用连接；关闭时归还
+    }
+    pool.getStats();
+
+    // 或使用守卫自动归还任意对象
+    try (var guard = pool.guard()) {
+        Connection c = guard.get();
+    }
+}
+```
+
+`GenericObjectPool` + `ObjectPoolConfig` + `ObjectFactory` 提供通用对象池：`borrow` / `returnObject` / `invalidateObject` / `guard`，含空闲回收、耗尽/超时异常（`PoolExhaustedException`、`PoolTimeoutException`）。
+
+---
+
+## 6. 文件、归档与存储
+
+### 6.1 文件系统 SPI（`file`）
+
+内置实现（`META-INF/extensions/...FileSystem`）：
+
+| key | 实现 | 说明 |
+| --- | --- | --- |
+| `csv` | `CsvFileSystem` | CSV/TSV 读写 |
+| `json` | `JsonFileSystem` | JSON / JSON5 |
+| `xml` | `XmlFileSystem` | XML |
+| `txt` | `TxtFileSystem` | 纯文本 |
+| `zip` / `archive` | `ZipFileSystem` | ZIP，支持分卷 |
+| `tar` | `TarFileSystem` | TAR，支持 gz 与分卷 |
+
+外部模块补充：`zip4j`（密码+分卷）、`7z`、`yaml`、`excel`、`pdf`、`word` 等，见 `utils-support-filesystem-starter`。
+
+```java
+FileSystem zip = FileSystem.create("zip");
+
+zip.write(new File("out.zip"))
+   .addFile("a.txt", bytes)
+   .addDirectory(new File("./assets"), "")
+   .finish();
+
+zip.read(new File("out.zip"))
+   .extractAll(new File("./out"));
+```
+
+`ReadBuilder` / `WriteBuilder` 是统一读写 DSL；`FileSystem.auto(file)` 按扩展名推断实现。
+
+### 6.2 归档与压缩流（`io`）
+
+`ArchiveInputStream` / `ArchiveEntry` / `CompressInputStream` / `CompressArchiveOutputStream` 等接口由各格式实现，供下载解压与文件系统复用；`stream.StreamCompressor` 提供流式压缩 SPI。
+
+### 6.3 对象存储（`storage`）
+
+```java
+import com.chua.common.support.storage.FileStorage;
+import com.chua.common.support.storage.request.*;
+import com.chua.common.support.storage.setting.BucketSetting;
+
+BucketSetting setting = new BucketSetting();
+FileStorage storage = FileStorage.createStorage("s3", setting);
+
+storage.putObject(PutObjectRequest.of(new File("a.png"), "dir/a.png"));
+GetObjectResult got = storage.getObject("dir/a.png");
+boolean exists = storage.existObject(
+        ExistObjectRequest.builder().fileName("a.png").filePath("dir").build()).isExists();
+ListObjectResult list = storage.listObject(
+        ListObjectRequest.builder().filePath("dir").limit(100).build());
+storage.deleteObject("dir/a.png");
+```
+
+`supportsRange()` 表示实现是否原生支持 `offset/length`；`createMultipartStorage()` 返回分片上传能力。
+
+### 6.4 WAL（`wal`）
+
+预写日志，三种分片形态共用 `WalLog` 契约：
+
+```java
+import com.chua.common.support.wal.*;
+
+try (WalLog wal = WalFactory.open(WalConfig.builder()
+        .walDir(Path.of("./wal"))
+        .namespace("orders")
+        .impl(WalConfig.WalImpl.SEGMENT)
+        .syncOnWrite(true)
+        .maxSegmentBytes(64L * 1024 * 1024)
+        .build())) {
+
+    long lsn = wal.append((byte) 1, payload);           // byte op + payload
+    wal.appendChain(chain -> {                          // 链式事务：回调内追加，返回后统一刷盘
+        chain.add((byte) 1, payloadA);
+        chain.add((byte) 2, payloadB);
+    });
+
+    WalReplayResult result = wal.replay((lsn0, op, bytes) -> {
+        restore(lsn0, op, bytes);
+        return true;                                    // false = 中止回放
+    });
+
+    wal.markCheckpoint(result.lastLsn());               // 业务持久化完成后推进
+    wal.purgeCheckpointed(1);                            // 清理旧分片
+}
+```
+
+| 能力 | 说明 |
+| --- | --- |
+| `append(byte op, byte[] payload)` | 追加，返回 LSN |
+| `appendChain(WalChainHandler)` | 链式事务，回调内 `chain.add(op, payload)` |
+| `replay(handler)` | 从 checkpoint 之后回放，成功后自动推进 checkpoint |
+| `replay(long fromLsn, handler)` / `replay(long, long, handler)` | 指定范围回放 |
+| `loadCheckpoint` / `markCheckpoint` / `resetCheckpoint` / `forceCheckpoint` | checkpoint 管理 |
+| `findByLsn` / `listSegments` / `currentSegment` | 定位与分片信息 |
+| `purgeCheckpointed(keep)` | 删除已 checkpoint 的旧分片 |
+| 实现 | `SimpleWalLog`（单文件）、`SegmentWalLog`（分片+索引）、`CHRONICLE`/`KAFKA`（由外部 starter 提供） |
+
+存储侧另有 `datasource.wal.WalStoreSystem`（`wal-kv` / `wal-ts` / `wal-vec` / `wal-filesearch`），把 WAL 与分片 B+Tree 索引组合成 KV/时序/向量/文件检索存储。
+
+### 6.5 目录监听（`lang.directory`）
+
+```java
+import com.chua.common.support.lang.directory.*;
+
+DirectoryWatcher watcher = new DirectoryWatcher("./watch")
+        .addListener(new SimplePolledListener() {
+            @Override
+            public void onCreate(WatcherEvent event, EventObserver observer) {
+                System.out.println("新增: " + observer.getFullPath());
+            }
+
+            @Override
+            public void onModify(WatcherEvent event, EventObserver observer) {
+                System.out.println("修改: " + observer.getFullPath());
+            }
+
+            @Override
+            public void onDelete(WatcherEvent event, EventObserver observer) {
+                System.out.println("删除: " + observer.getFullPath());
+            }
+        });
+
+watcher.start();   // 后台线程消费 WatchService
+// ...
+watcher.stop();
+```
+
+`PolledListener` 的 5 个回调全部是 `default`：`onCreate` / `onModify` / `onDelete` / `onOverflow` / `onError`，按需覆写。`DiffPolledDirectory` 与 `PolledDirectory`（SPI `filesystem`）提供「快照 + 差分」的轮询式实现；`EventObserver` 携带路径、文件名、时间戳。
+
+---
+
+## 7. 网络
+
+### 7.1 HTTP 客户端（`network.client`）
+
+同步返回 `ClientResponse`，异步返回 **Reactor `Mono`**（不是 `CompletableFuture`）。
 
 ```java
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.client.ClientResponse;
 
 ClientResponse resp = HttpClientFactory.of("https://api.example.com/users")
-    .header("Authorization", "Bearer token")
-    .query("page", "1")
-    .query("size", "20")
-    .get();
+        .header("Authorization", "Bearer token")
+        .query("page", "1")
+        .readTimeout(10_000)
+        .get();
 
 if (resp.isSuccess()) {
-    String json = resp.getBodyString();
-    System.out.println(json);
+    System.out.println(resp.getBodyString());
+    String trace = resp.getHeader("X-Trace-Id");
 }
 ```
 
-#### 2. 同步 POST JSON
-
 ```java
-ClientResponse resp = HttpClientFactory.of("https://api.example.com/users")
-    .json()  // Content-Type: application/json
-    .body("{\"name\": \"张三\", \"age\": 25}")
-    .post();
-```
-
-#### 3. 异步请求（CompletableFuture 模式）
-
-```java
-// 返回 CompletableFuture<ClientResponse>，可链式组合
+// POST JSON
 HttpClientFactory.of("https://api.example.com/users")
-    .accept("application/json")
-    .getAsync()
-    .thenApply(ClientResponse::getBodyString)
-    .thenAccept(System.out::println)
-    .exceptionally(err -> {
-        System.err.println("请求失败: " + err.getMessage());
-        return null;
-    });
+        .json()
+        .body("{\"name\":\"张三\"}")
+        .post();
+
+// 表单 / 文件上传
+HttpClientFactory.of("https://api.example.com/upload")
+        .formData("file", bytes, "image/png", "photo.png")
+        .formData("desc", "hello")
+        .post();
+
+// 鉴权
+HttpClientFactory.of(url).auth(token).get();          // Bearer
+HttpClientFactory.of(url).authBasic("admin", "123").get();
+
+// 异步（Mono）
+HttpClientFactory.of(url)
+        .getAsync()
+        .map(ClientResponse::getBodyString)
+        .subscribe(System.out::println);
+
+// 回调
+HttpClientFactory.of(url).getAsync(r -> System.out.println(r.getBodyString()));
+
+// cURL 互转
+ClientResponse r = HttpClientFactory.curl("curl -X POST https://x -d 'a=1'");
+String curl = HttpClientFactory.of(url).header("A", "b").toCurl();
 ```
 
-#### 4. 异步请求（Callback 回调模式）
+#### 底层执行器 SPI：实现可以换
 
-```java
-// Lambda 风格回调
-HttpClientFactory.of("https://api.example.com/users")
-    .getAsync(
-        resp -> System.out.println("成功: " + resp.getBodyString()),
-        err  -> System.err.println("失败: " + err.getMessage())
-    );
+HTTP 客户端是**两层**结构，日常用的 `HttpClient` 不绑定具体库：
+
+```
+HttpClient（统一接口，返回 ClientResponse / Mono）
+   └── DefaultHttpClient（拦截器链 + 委托）
+         └── HttpClientExecutor（SPI：okhttp / httpclient5 / httpclient / jdk）
 ```
 
-#### 5. 文件上传（multipart/form-data）
+| SPI 名称 | 实现 | 提供模块 | 说明 |
+| --- | --- | --- | --- |
+| `okhttp` | `com.chua.okhttp.support.executor.OkHttpExecutor` | `utils-support-okhttp-starter` | 需 okhttp3 依赖 |
+| `httpclient5` | `HttpClient5Executor` | `utils-support-httpclient-starter` | Apache HttpClient5 |
+| `httpclient` | 预留名称（HttpClient4） | 无内置实现 | 未注册时被跳过 |
+| `jdk` | `JdkHttpClientExecutor` | 本模块内置 | 无外部依赖，始终可用；异步走 `sendAsync()` |
 
-```java
-import java.nio.file.Files;
-import java.nio.file.Paths;
+选择规则：
 
-byte[] fileBytes = Files.readAllBytes(Paths.get("photo.png"));
-
-ClientResponse resp = HttpClientFactory.of("https://api.example.com/upload")
-    .formData("file", fileBytes, "image/png", "photo.png")
-    .formData("description", "A beautiful photo")
-    .post();
-```
-
-#### 6. Bearer Token 和 Basic 认证
-
-```java
-// Bearer Token（JWT / OAuth2）
-HttpClientFactory.of("https://api.example.com/protected")
-    .auth("eyJhbGciOiJIUzI1NiIs...")
-    .get();
-
-// HTTP Basic 认证
-HttpClientFactory.of("https://api.example.com/protected")
-    .authBasic("admin", "123456")
-    .get();
-```
-
-#### 7. 自定义重定向处理
-
-```java
-HttpClientFactory.of("https://httpbin.org/redirect/3")
-    .onRedirect(resp -> {
-        String location = resp.getHeader("Location");
-        System.out.println("重定向至: " + location);
-    })
-    .get();
-```
-
-#### 8. 超时设置
-
-```java
-HttpClientFactory.of("https://api.example.com/slow-api")
-    .connectTimeout(5000)   // 连接超时 5 秒
-    .readTimeout(10000)     // 读取超时 10 秒
-    .get();
-```
-
-#### 9. 异步请求链式组合
-
-```java
-// 组合两个异步请求
-HttpClientFactory.of("https://api.example.com/auth")
-    .authBasic("admin", "123456")
-    .getAsync()
-    .thenCompose(resp -> {
-        String token = resp.getBodyString();
-        return HttpClientFactory.of("https://api.example.com/data")
-            .auth(token)
-            .getAsync();
-    })
-    .thenAccept(resp -> System.out.println("数据: " + resp.getBodyString()));
-```
-
-#### 10. 直接使用 HttpClient 接口
+1. `HttpClientFactory.getClient()` 按 **okhttp → httpclient5 → httpclient → jdk** 顺序找第一个 `isAvailable() == true` 的执行器；
+2. 全部不可用（例如没引入 okhttp/httpclient5）时回退 JDK；
+3. 想强制指定，用 `getClient("okhttp")`；指定名称不可用时同样回退 JDK，不会抛错。
 
 ```java
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
-import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.http.HttpMethod;
 
-// 获取全局客户端实例
-HttpClient client = HttpClientFactory.getClient();
+HttpClient okhttp = HttpClientFactory.getClient("okhttp");       // 强制 OkHttp
+HttpClient hc5    = HttpClientFactory.getClient("httpclient5");  // 强制 HttpClient5
+HttpClient jdk    = HttpClientFactory.getClient("jdk");          // 强制 JDK
+HttpClient fresh  = HttpClientFactory.newClient();               // 不缓存的新实例
+HttpClient global = HttpClientFactory.getClient();               // 全局单例（自动选）
 
-// 同步调用
-ClientResponse resp = client.get("https://api.example.com/health");
-
-// 异步调用
-client.executeAsync(ClientRequest.of("https://api.example.com/data"))
-    .thenAccept(r -> System.out.println(r.getBodyString()));
+// 强制实现 + 链式请求（HttpClientFactory.of(...) 用的是全局单例）
+ClientResponse resp = okhttp.request("https://api.example.com/users", HttpMethod.GET)
+        .header("Authorization", "Bearer token")
+        .query("page", "1")
+        .execute();
 ```
 
-### 异步实现原理
+自定义执行器（例如接入 Netty 或公司内部 HTTP 栈）：
 
-| 层级 | 实现方式 | 说明 |
+```java
+@Spi("my-http")
+public class MyExecutor implements HttpClientExecutor {
+    @Override public String getName() { return "my-http"; }
+    @Override public boolean isAvailable() { return true; }
+    @Override public int getOrder() { return 50; }   // 越小越优先
+    @Override public ClientResponse execute(ClientRequest request) throws Exception {
+        // 发请求并转换成 ClientResponse
+    }
+}
+```
+
+```text
+src/main/resources/META-INF/extensions/com.chua.common.support.network.client.spi.HttpClientExecutor
+my-http=com.example.MyExecutor
+```
+
+注册后即可 `HttpClientFactory.getClient("my-http")`；`DefaultHttpClient` 会自动套上应用层/网络层拦截器链。
+
+其它能力：`connectTimeout` / `readTimeout` / `keepAliveTimeout`、`proxy(host, port)`、`interceptor(...)`、`onRedirect(...)`、`path(...)`、`params(Map)`、`method(HttpMethod)`、`CollapseHttpClient`（请求合并）、`TtlResponseCache`（TTL 缓存）、`HttpApiFactory`（接口式声明）。
+
+### 7.2 服务端（`network.server`）
+
+`Server` 是协议无关接口（`start/stop/isRunning/getPort/getServerUrl`），实现按 SPI 名称装配：
+
+| 类别 | SPI 名称 | 实现 |
 | --- | --- | --- |
-| `HttpClient` 接口 | `default CompletableFuture` | 接口默认方法，虚拟线程包装同步调用 |
-| `AbstractHttpClient` | 模板方法 + 虚拟线程 | 保留 `beforeExecute`/`afterExecute` 扩展点 |
-| `JdkHttpClientExecutor` | 原生 `sendAsync()` | 使用 JDK NIO 事件驱动，零阻塞 |
-| `HttpClientBuilder` | `getAsync()/postAsync()` 等快捷方法 | 14 个异步快捷方法（7 方法 × 2 模式） |
-
----
-
-## Bean 操作模块
-
-### 功能说明
-
-提供 Bean 属性复制、Map 与 Bean 互转、属性访问等功能，内置反射缓存优化性能。
-
-### 适用场景
-
-- DTO/VO/Entity 对象转换
-- 动态属性访问
-- 批量属性复制
-- 配置对象填充
-
-### 使用示例
+| HTTP | `jdk` / `jdk-http`、`nio` / `nio-http`、`aio` / `aio-http` / `iocp` | `JdkHttpServer`、`NioHttpServer`、`AioHttpServer` |
+| TCP | `jdk-tcp` / `tcp`、`aio-tcp` / `tcp-aio` | `JdkTcpServer`、`AioTcpServer` |
+| UDP | `jdk-udp` | `JdkUdpServer` |
+| Telnet | `jdk-telnet` | `JdkTelnetServer` |
+| WebSocket | `jdk-websocket` | `JdkWebSocketServer` |
+| FTP | `ftp` / `ftps` | `FtpServer` / `FtpsServer` |
+| SIP | `sip` | `SipServer` |
+| 协议嗅探 | `sniff-tcp` | `ProtocolSniffingTcpServer` |
+| 代理 | `http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` | 对应 `*ProxyServer` |
 
 ```java
-import com.chua.common.support.lang.bean.BeanUtils;
-import com.chua.common.support.lang.bean.BeanMap;
+import com.chua.common.support.network.server.Server;
+import com.chua.common.support.network.server.ServerBuilder;
+import com.chua.common.support.network.http.HttpMethod;
+
+Server server = ServerBuilder.create()
+        .type("jdk")                 // jdk / nio / aio
+        .host("0.0.0.0")
+        .port(8080)
+        .mapping("/hello", HttpMethod.GET, (req, resp) -> resp.setResult("Hello"))
+        .mapping("/api/users", HttpMethod.POST, userHandler)
+        .build();
 
-// 属性复制
-UserDTO dto = new UserDTO();
-BeanUtils.
-
-        copyProperties(user, dto);
-
-// 带忽略属性的复制
-BeanUtils.
-
-        copyProperties(source, target, "id","createTime");
-
-        // Bean 转 Map
-        Map<String, Object> map = BeanUtils.toMap(user);
-
-        // Map 转 Bean
-        User user = BeanUtils.toBean(map, User.class);
-
-        // BeanMap 操作（高性能）
-        BeanMap beanMap = BeanMap.create(user);
-        Object name = beanMap.get("name");
-beanMap.
-
-        put("name","新名称");
-
-        // 属性扁平化
-        Map<String, Object> flat = BeanUtils.flattenToProperties(user);
-// 结果: {"name": "张三", "address.city": "北京", "address.street": "朝阳区"}
-
-        // 属性反扁平化
-        User user = BeanUtils.unflattenFromProperties(flat, User.class);
-```
-
----
-
-## 类型转换模块
-
-### 功能说明
-
-提供统一的类型转换机制，支持基本类型、日期、集合、泛型等多种类型的自动转换。
-
-### 适用场景
-
-- 配置值类型转换
-- 请求参数绑定
-- 数据库字段映射
-- 通用数据处理
-
-### 使用示例
-
-```java
-import com.chua.common.support.converter.Converter;
-
-// 基本类型转换
-Integer num = Converter.convertIfNecessary("123", Integer.class);
-Long longVal = Converter.convertIfNecessary("9999999999", Long.class);
-Double doubleVal = Converter.convertIfNecessary("3.14", Double.class);
-Boolean boolVal = Converter.convertIfNecessary("true", Boolean.class);
-
-// 日期转换
-Date date = Converter.convertIfNecessary("2024-01-01", Date.class);
-LocalDateTime dateTime = Converter.convertIfNecessary("2024-01-01 12:00:00", LocalDateTime.class);
-
-// 集合转换
-List<String> list = Converter.convertIfNecessary("a,b,c", List.class);
-
-// 枚举转换
-Status status = Converter.convertIfNecessary("ACTIVE", Status.class);
-
-// Map 转 Bean
-User user = Converter.convertIfNecessary(map, User.class);
-
-// 带默认值转换
-Integer value = Converter.convertIfNecessary(null, Integer.class, 0);
-```
-
----
-
-## 加密解密模块
-
-### 功能说明
-
-提供多种加密算法实现，包括对称加密(AES/DES/SM4)、非对称加密(RSA/ECC/SM2)、摘要算法(MD5/SHA/SM3)、编码(Base64/Base32/Hex)等。
-
-### 适用场景
-
-- 敏感数据加密存储
-- 数据传输加密
-- 数字签名与验证
-- 密钥交换
-
-### 使用示例
-
-```java
-import com.chua.common.support.crypto.*;
-
-// AES 加解密
-Codec aes = CodecBuilder.newBuilder()
-    .type(CryptoType.AES)
-    .key("1234567890123456")
-    .build();
-String encrypted = aes.encodeHex("明文数据");
-String decrypted = aes.decodeHex(encrypted);
-
-// RSA 加解密
-CodecKeyPair rsa = CodecBuilder.newBuilder()
-    .type(CryptoType.RSA)
-    .keySize(2048)
-    .buildKeyPair();
-String publicKey = rsa.getPublicKeyBase64();
-String privateKey = rsa.getPrivateKeyBase64();
-
-byte[] encrypted = rsa.encrypt("数据".getBytes());
-byte[] decrypted = rsa.decrypt(encrypted);
-
-// 数字签名
-byte[] signature = rsa.sign("数据".getBytes());
-boolean valid = rsa.verify("数据".getBytes(), signature);
-
-// Base64 编解码
-String base64 = Base64Codec.encode("hello".getBytes());
-byte[] decoded = Base64Codec.decode(base64);
-
-// MD5
-String md5 = Md5Codec.md5Hex("hello");
-
-// Hex 编解码
-String hex = Hex.encodeHexString(bytes);
-byte[] bytes = Hex.decodeHex(hex);
-```
-
----
-
-## SPI 服务发现模块
-
-### 功能说明
-
-增强版的 SPI 服务发现机制，支持按名称/别名获取、优先级排序、条件过滤、依赖注入等功能。
-
-### 适用场景
-
-- 插件化架构
-- 策略模式实现
-- 扩展点机制
-- 依赖解耦
-
-### 使用示例
-
-```java
-import com.chua.common.support.core.spi.ServiceProvider;
-
-// 获取服务提供者
-ServiceProvider<MyService> provider = ServiceProvider.of(MyService.class);
-
-// 获取默认实现
-MyService service = provider.getDefault();
-
-// 按名称获取
-MyService service = provider.getExtension("impl1");
-
-// 获取所有实现
-List<MyService> services = provider.list();
-
-// 获取所有实现名称
-Set<String> names = provider.names();
-
-// 条件过滤
-MyService service = provider.getExtension(impl -> impl.supports(context));
-
-// 遍历所有实现
-provider.forEach((name, service) -> {
-    System.out.println(name + ": " + service);
-});
-```
-
-#### SPI 注解使用
-
-```java
-// 定义 SPI 接口
-@Spi("default")
-public interface MyService {
-    void execute();
-}
-
-// 实现类
-@Extension("impl1")
-@SpiOrder(1)
-public class MyServiceImpl1 implements MyService {
-    @Override
-    public void execute() { }
-}
-
-@Extension("impl2")
-@SpiOrder(2)
-public class MyServiceImpl2 implements MyService {
-    @Override
-    public void execute() { }
-}
-```
-
----
-
-## 集合扩展模块
-
-### 功能说明
-
-提供多种增强集合实现，包括多值 Map、双向链表、大小写不敏感 Map、位图等。
-
-### 适用场景
-
-- 复杂数据结构需求
-- 性能优化场景
-- 特殊集合操作
-
-### 使用示例
-
-```java
-import com.chua.common.support.collection.*;
-
-// 多值 Map（一个键对应多个值）
-MultiValueMap<String, String> multiMap = new MultiLinkedValueMap<>();
-multiMap.add("key", "value1");
-multiMap.add("key", "value2");
-List<String> values = multiMap.get("key");  // ["value1", "value2"]
-
-// 大小写不敏感 Map
-Map<String, Object> caseInsensitiveMap = new CaseInsensitiveMap<>();
-caseInsensitiveMap.put("Key", "value");
-caseInsensitiveMap.get("key");   // "value"
-caseInsensitiveMap.get("KEY");   // "value"
-
-// 并发引用 Map（软引用，内存不足时自动回收）
-Map<String, Object> refMap = new ConcurrentReferenceHashMap<>();
-
-// 双向链表
-DoubleLinkedList<String> list = new DoubleLinkedList<>();
-list.addFirst("a");
-list.addLast("b");
-
-// 位图
-Bitmap bitmap = new Bitmap(1000);
-bitmap.set(5);
-bitmap.set(100);
-boolean exists = bitmap.get(5);  // true
-
-// 键值对
-KeyValue<String, Integer> kv = new KeyValue<>("name", 123);
-```
-
----
-
-## 文件系统模块
-
-### 功能说明
-
-提供统一的文件系统抽象，支持本地文件、压缩包、远程文件等多种来源，支持流式检索、打包解包、链式过滤等操作。
-
-### 支持的文件系统类型
-
-| SPI Key | 实现类 | 模块 | 特性 |
-|---------|--------|------|------|
-| `csv` | CsvFileSystem | common-starter | CSV 文件读写 |
-| `json` | JsonFileSystem | common-starter | JSON 文件读写 |
-| `xml` | XmlFileSystem | common-starter | XML 文件读写 |
-| `txt` | TxtFileSystem | common-starter | 文本文件读写 |
-| `zip` | ZipFileSystem | common-starter | ZIP 压缩（含分卷） |
-| `archive` | ZipFileSystem | common-starter | ZIP 压缩（别名） |
-| `tar` | TarFileSystem | common-starter | TAR 归档（含分卷） |
-| `zip4j` | Zip4jFileSystem | filesystem-starter | ZIP4J（密码+分卷） |
-| `7z` | SevenZFileSystem | filesystem-starter | 7Z 压缩（含分卷） |
-| `yaml` | YamlFileSystem | filesystem-starter | YAML 文件读写 |
-
-### 分卷压缩支持
-
-以下文件系统实现支持分卷压缩功能：
-
-| 实现类 | 写入分卷 | 读取分卷 | 分卷命名格式 |
-|--------|----------|----------|-------------|
-| ZipFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.z01`, `.z02`, ... `.zip` |
-| Zip4jFileSystem | ✅ `splitSize(long)` | ✅ 原生支持 | `.z01`, `.z02`, ... `.zip` |
-| TarFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.tar.gz.01`, `.tar.gz.02`, ... `.tar.gz` |
-| SevenZFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.7z.001`, `.7z.002`, ... `.7z` |
-
-#### 分卷写入示例
-
-```java
-// ZIP 分卷
-FileSystem zip = FileSystem.create("zip");
-zip.write(new File("output.zip"))
-    .splitSize(1024 * 1024 * 100) // 100MB 每卷
-    .addFile("large-file.bin", new File("large-file.bin"))
-    .finish();
-// 生成: output.z01, output.z02, ..., output.zip
-
-// TAR.GZ 分卷
-FileSystem tar = FileSystem.create("tar");
-tar.write(new File("output.tar.gz"))
-    .gz()
-    .splitSize(1024 * 1024 * 100) // 100MB 每卷
-    .addFile("large-file.bin", new File("large-file.bin"))
-    .finish();
-// 生成: output.tar.gz.01, output.tar.gz.02, ..., output.tar.gz
-
-// 7Z 分卷
-FileSystem sevenZ = FileSystem.create("7z");
-sevenZ.write(new File("output.7z"))
-    .splitSize(1024 * 1024 * 100) // 100MB 每卷
-    .addFile("large-file.bin", new File("large-file.bin"))
-    .finish();
-// 生成: output.7z.001, output.7z.002, ..., output.7z
-
-// ZIP4J 分卷（支持密码保护）
-FileSystem zip4j = FileSystem.create("zip4j");
-zip4j.write(new File("output.zip"))
-    .password("mypassword")
-    .splitSize(1024 * 1024 * 100) // 100MB 每卷
-    .addFile("large-file.bin", new File("large-file.bin"))
-    .finish();
-```
-
-#### 分卷读取示例
-
-```java
-// ZIP 分卷读取
-FileSystem zip = FileSystem.create("zip");
-zip.read(new File("output.zip"))
-    .split() // 启用分卷模式
-    .extractAll(targetDir);
-
-// TAR.GZ 分卷读取
-FileSystem tar = FileSystem.create("tar");
-tar.read(new File("output.tar.gz"))
-    .gz()
-    .split() // 启用分卷模式
-    .extractAll(targetDir);
-
-// 7Z 分卷读取
-FileSystem sevenZ = FileSystem.create("7z");
-sevenZ.read(new File("output.7z"))
-    .split() // 启用分卷模式
-    .extractAll(targetDir);
-```
-
-### 适用场景
-
-- 文件批量处理
-- 压缩包操作
-- 文件搜索与过滤
-- 跨文件系统操作
-- 大文件分卷压缩传输
-
-### 使用示例
-
-```java
-import com.chua.common.support.lang.file.*;
-
-// 文件夹文件系统
-FolderFileSystem fs = new FolderFileSystem(new File("/data/project"));
-
-// 流式检索：递归查找所有 .java 文件，按扩展名排序，取前100条
-List<String> names = fs.createSearchStream()
-    .maxDepth(Integer.MAX_VALUE)
-    .filesOnly()
-    .filterByExtension("java")
-    .sortByExtension().thenBySizeDesc()
-    .page(0, 100)
-    .stream()
-    .map(SearchFileEntry::getPath)
-    .collect(Collectors.toList());
-
-// 进入子目录获取对应 FileSystem
-FileSystem sub = fs.getFileSystem("src/main/resources");
-
-// Pack：流式打包为 zip
-FileSystem zipFs = PackFileStream.zip("demo.zip")
-    .addFile("README.md", Files.readAllBytes(Path.of("README.md")))
-    .addDirectory(new File("./assets"), "")
-    .build();
-
-// Unpack：过滤解包到目录
-new ZipUnpackFileStream(new File("demo.zip"))
-    .include("**/*.md")
-    .exclude("**/test/**")
-    .filesOnly()
-    .toDirectory("./out");
-
-// GIF 文件系统：按帧访问
-MultiPartFileSystem gif = new GifFileSystem(new File("a.gif"));
-gif.extractFile("frames/frame-0001.png", "./out");
-
-// 链接过滤并输出为压缩包
-FileSystem linked = gif.link()
-    .include("frames/**")
-    .toZip("gif-frames.zip");
-```
-
----
-
-## 缓存下载器模块
-
-### 功能说明
-
-高性能文件下载器，支持智能缓存、哈希验证、多线程下载、断点续传、多平台适配、自动解压等功能。
-
-### 适用场景
-
-- 大文件下载
-- 软件分发与更新
-- 依赖资源下载
-- 跨平台部署
-
-### 使用示例
-
-```java
-import com.chua.common.support.io.download.*;
-
-// 基本使用
-CachedDownloader downloader = Downloader.createDefault();
-DownloadFile file = downloader.downloadTo("https://example.com/file.zip", "./downloads/file.zip");
-
-// 链式构建器配置
-CachedDownloader downloader = Downloader.builder()
-    .threads(4)                              // 4个下载线程
-    .buffer(8 * 1024 * 1024)                 // 8MB缓冲区
-    .cacheDirectory("./my-cache")            // 自定义缓存目录
-    .cacheExpiration(Duration.ofHours(12))   // 12小时过期
-    .maxCacheSize(1024L * 1024L * 1024L)     // 1GB最大缓存
-    .enableHashValidation(true)              // 启用哈希验证
-    .build();
-
-// 多平台下载
-FileInfo fileInfo = CachedDownloaderBuilder.create()
-    .windows("https://example.com/tool-windows-x64.exe")
-    .linux("https://example.com/tool-linux-x64")
-    .macos("https://example.com/tool-macos-x64")
-    .macosArm("https://example.com/tool-macos-arm64")
-    .buildFileInfo("cross-platform-tool", "1.0.0", "跨平台工具");
-
-// 自动检测当前平台并下载
-DownloadFile result = downloader.downloadTo(fileInfo, "./downloads");
-
-// 压缩包自动解压
-CachedDownloader extractorDownloader = CachedDownloaderBuilder.create()
-    .enableAutoExtraction(true)
-    .extractionDirectory("./extracted")
-    .keepOriginalAfterExtraction(false)
-    .build();
-```
-
-### 配置参数
-
-| 参数                   | 类型     | 默认值    | 说明             |
-| ---------------------- | -------- | --------- | ---------------- |
-| `cacheDirectory`       | String   | "./cache" | 缓存目录路径     |
-| `cacheExpirationTime`  | Duration | 24 小时   | 缓存过期时间     |
-| `maxCacheSize`         | Long     | 512MB     | 最大缓存大小     |
-| `enableHashValidation` | Boolean  | false     | 是否启用哈希验证 |
-| `threads`              | int      | 1         | 下载线程数       |
-| `enableAutoExtraction` | Boolean  | false     | 是否启用自动解压 |
-
----
-
-## 进度条模块
-
-### 功能说明
-
-提供丰富的终端进度条样式，支持多种视觉效果，包括 ASCII、Unicode、渐变色等。
-
-### 适用场景
-
-- 长时间任务进度展示
-- 下载进度显示
-- 批量处理进度反馈
-
-### 使用示例
-
-```java
-import com.chua.common.support.printer.*;
-
-// 创建进度条
-ProgressBar pb = ProgressBarBuilder.newBuilder()
-    .setTaskName("下载文件")
-    .setInitialMax(100)
-    .setStyle(ProgressBarStyle.SMOOTH)
-    .build();
-
-// 更新进度
-for (int i = 0; i <= 100; i++) {
-    pb.stepTo(i);
-    Thread.sleep(50);
-}
-pb.close();
-
-// 使用预定义样式
-ProgressBarStyle.ASCII           // [=====     ] 50%
-ProgressBarStyle.UNICODE_BLOCK   // |█████     | 50%
-ProgressBarStyle.SMOOTH          // ▕█████▏ 50%
-ProgressBarStyle.RAINBOW         // 彩虹渐变
-ProgressBarStyle.PYTHON_DOWNLOAD // Python下载风格
-ProgressBarStyle.PYTHON_LOADING  // Python加载风格
-
-// 自定义样式
-ProgressBarStyle customStyle = ProgressBarStyle.builder()
-    .leftBracket("[")
-    .rightBracket("]")
-    .block('█')
-    .space(' ')
-    .build();
-```
-
-### 样式对比
-
-| 样式名称       | 视觉效果   | 推荐场景         |
-| -------------- | ---------- | ---------------- |
-| ASCII          | 简单字符   | 终端兼容性要求高 |
-| UNICODE_BLOCK  | 块状字符   | 现代终端         |
-| SMOOTH         | 平滑边缘   | 现代 UI          |
-| RAINBOW        | 彩虹渐变   | 炫酷效果         |
-| PYTHON_LOADING | 粉红色线条 | Python 风格      |
-
----
-
-## 统一返回结果模块
-
-### 功能说明
-
-提供标准化的 API 响应封装，包括成功/失败状态、数据载体、分页结果等。
-
-### 适用场景
-
-- RESTful API 响应统一
-- 前后端数据交互
-- 分页数据返回
-
-### 使用示例
-
-```java
-import com.chua.common.support.lang.code.*;
-
-// 成功返回
-ReturnResult<User> success = ReturnResult.success(user);
-ReturnResult<Void> ok = ReturnResult.ok();
-
-// 失败返回
-ReturnResult<Void> error = ReturnResult.error("操作失败");
-ReturnResult<Void> error = ReturnResult.error(500, "服务器错误");
-
-// 分页结果
-PageResult<User> pageResult = PageResult.of(userList, total, page, size);
-ReturnPageResult<User> pageResponse = ReturnPageResult.success(pageResult);
-
-// 判断状态
-if (result.isSuccess()) {
-    User data = result.getData();
-}
-
-// 转换为字节数组（JSON）
-byte[] bytes = result.toByteArray();
-
-// 链式构建
-ReturnResult<User> result = ReturnResultBuilder.newBuilder()
-    .code(200)
-    .msg("操作成功")
-    .data(user)
-    .build();
-```
-
----
-
-## 版本号工具
-
-### 功能说明
-
-语义化版本号解析与比较工具，支持预发布版本、构建元数据等。
-
-### 适用场景
-
-- 版本升级检查
-- 依赖版本比较
-- 脚本版本管理
-
-### 使用示例
-
-```java
-import com.chua.common.support.lang.version.Version;
-
-// 创建版本
-Version v1 = Version.of("1.0.0");
-Version v2 = Version.of("2.0.0-beta");
-Version v3 = Version.of(1, 2, 3);
-
-// 版本比较
-v2.isHigherThan(v1);    // true
-v1.isLowerThan(v2);     // true
-v1.isEqual("1.0.0");    // true
-v1.isAtLeast("0.9.0");  // true
-
-// 获取版本组件
-v1.getMajor();          // 1
-v1.getMinor();          // 0
-v1.getPatch();          // 0
-v2.getSuffix();         // "-beta"
-
-// 从 Maven JAR 文件名解析
-Version v = Version.parseFromMaven("spring-core-5.3.21.jar");  // 5.3.21
-
-// 版本排序
-List<Version> versions = Arrays.asList(
-    Version.of("1.0.0"),
-    Version.of("2.0.0-beta"),
-    Version.of("1.5.0")
-);
-Collections.sort(versions);  // [1.0.0, 1.5.0, 2.0.0-beta]
-```
-
-### 版本优先级
-
-```
-SNAPSHOT < ALPHA < BETA < RC < STABLE
-1.0.0-snapshot < 1.0.0-alpha < 1.0.0-beta < 1.0.0-rc1 < 1.0.0
-```
-
----
-
-## 日期时间模块
-
-### 功能说明
-
-提供日期时间处理、格式化、解析、计算等功能。
-
-### 适用场景
-
-- 日期时间格式转换
-- 时间计算与比较
-- 时区处理
-
-### 使用示例
-
-```java
-import com.chua.common.support.time.date.DateTime;
-import com.chua.common.support.time.date.DateUtils;
-
-// 当前时间
-DateTime now = DateTime.now();
-
-// 格式化
-String formatted = now.format("yyyy-MM-dd HH:mm:ss");
-
-// 解析
-DateTime dt = DateTime.parse("2024-01-01 12:00:00");
-
-// 时间计算
-DateTime tomorrow = now.plusDays(1);
-DateTime lastMonth = now.minusMonths(1);
-
-// 时间比较
-now.isBefore(tomorrow);  // true
-now.isAfter(lastMonth);  // true
-
-// 获取时间戳
-long timestamp = now.getTime();
-
-// 工具方法
-DateUtils.format(new Date(), "yyyy-MM-dd");
-DateUtils.parse("2024-01-01", "yyyy-MM-dd");
-```
-
----
-
-## 对象池模块
-
-### 功能说明
-
-提供通用对象池实现，支持连接池化管理。
-
-### 适用场景
-
-- 数据库连接池
-- HTTP 连接复用
-- 重量级对象复用
-
-### 使用示例
-
-```java
-import com.chua.common.support.concurrent.pool.*;
-
-// 创建连接池
-ConnectionPool<MyConnection> pool = new DynamicConnectionPool<>(
-    () -> new MyConnection(),  // 创建工厂
-    10,                        // 最大连接数
-    5                          // 最小连接数
-);
-
-// 获取连接
-PooledConnection<MyConnection> pooled = pool.borrow();
-try {
-    MyConnection conn = pooled.get();
-    // 使用连接
-} finally {
-    pooled.returnToPool();
-}
-
-// 使用 try-with-resources
-try (PooledConnection<MyConnection> pooled = pool.borrow()) {
-    MyConnection conn = pooled.get();
-    // 使用连接
-}
-```
-
----
-
-## ACME 证书模块
-
-### 功能说明
-
-支持 ACME 协议的 SSL 证书自动申请，包括 Let's Encrypt 等 CA 证书和基于 JDK 的自签名证书。
-
-### 适用场景
-
-- 自动化 HTTPS 证书申请
-- 开发/测试环境自签名证书
-- 证书自动续期
-
-### 使用示例
-
-```java
-import com.chua.common.support.lang.acme.*;
-
-// 一键申请 Let's Encrypt 证书
-var adaptor = StandardAcmeServerAdaptor.builder().build();
-adaptor.initAccountForAcme(
-    "https://acme-v02.api.letsencrypt.org/directory",
-    "admin@example.com",
-    AcmeBackendType.ACME4J
-);
-String certPath = adaptor.applyAndReturnPathForAcme(
-    List.of("example.com", "www.example.com"),
-    AcmeValidationType.HTTP_01,
-    "./acme-certs"
-);
-
-// JDK 自签名证书（开发环境）
-JdkAcme acme = new JdkAcme();
-AcmeCertificate cert = acme.requestCertificate(
-    List.of("localhost", "127.0.0.1"),
-    AcmeValidationType.HTTP_01
-);
-System.out.println(cert.getCertificateContent());  // PEM 证书
-System.out.println(cert.getPrivateKey());          // PKCS#8 私钥
-```
-
-> **注意**：JDK 自签名证书需添加 JVM 参数：`--add-exports java.base/sun.security.x509=ALL-UNNAMED`
-
----
-
-## AI 图像生成模块
-
-### 功能说明
-
-对接主流 AI 图像生成服务，支持 Stable Diffusion WebUI、即梦等平台。同时提供 `TextChat` 和 `ImageChat`
-统一门面，按 SPI 自动封装聊天、文生图、图生图、文生音频、人脸、OCR、通用检测和图像理解等能力。
-
-### 适用场景
-
-- AI 文生图应用
-- 图像创意生成
-- 批量图片生成
-- 统一 SPI 能力入口
-- 文本、图片、多模态能力组合调用
-
-### TextChat / ImageChat 统一门面
-
-`TextChat` 面向文本输入，聚合 `ChatClient`、`ImageGenerationsClient`、`TextToImageGenerator`、
-`TextToAudioGenerator`、`SpeechSynthesizer`。`ImageChat` 面向图片输入，聚合 `ImageToImageGenerator`、
-`ImageGenerationsClient`、`FaceClient`、`OcrClient`、`Detector`、`ImageUnderstandingClient`。
-
-#### TextChat 链式调用示例
-
-```java
-TextChat textChat = TextChat.builder()
-    .provider("safetensors")
-    .config(configuration)
-    .model("facade-image")
-    .size("1024*1024")
-    .number(1)
-    .languageCode("zh-CN")
-    .voiceName("zf_xiaoxiao")
-    .audioEncoding("wav")
-    .build();
-
-String answer = textChat.chatSync("你好");
-ImageGenerationsAddTaskV1Response image = textChat.image("a small blue square");
-ImageGenerationsAddTaskV1Response refObject = textChat.image((Object) referenceBytes, "make it warmer");
-ImageGenerationsAddTaskV1Response refUrl = textChat.image(url, "make it warmer");
-ImageGenerationsAddTaskV1Response refString = textChat.image("tmp/source.png", "make it warmer");
-ImageGenerationsAddTaskV1Response refFile = textChat.image(file, "make it warmer");
-ImageGenerationsAddTaskV1Response refPath = textChat.image(path, "make it warmer");
-ImageGenerationsAddTaskV1Response refBytes = textChat.image(referenceBytes, "make it warmer");
-ImageGenerationsAddTaskV1Response refBuffered = textChat.image(bufferedImage, "make it warmer");
-ImageGenerationsAddTaskV1Response refStream = textChat.image(inputStream, "make it warmer");
-ImageGenerationsSearchTaskV1Response search = textChat.image(
-    ImageGenerationsSearchTaskV1Request.builder().taskId(image.getTaskId()).build()
-);
-BufferedImage bufferedImage = textChat.imageSync("a simple icon");
-byte[] audio = textChat.audio("你好，这是一次语音合成测试。");
-```
-
-#### ImageChat 链式调用示例
-
-```java
-ImageChat imageChat = ImageChat.builder()
-    .provider("safetensors")
-    .config(configuration)
-    .model("facade-image2image")
-    .size("1024*1024")
-    .number(1)
-    .build();
-
-ImageGenerationsAddTaskV1Response imageObject = imageChat.image((Object) referenceBytes, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageUrl = imageChat.image(url, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageString = imageChat.image("tmp/source.png", "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageFile = imageChat.image(file, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imagePath = imageChat.image(path, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageBytes = imageChat.image(referenceBytes, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageBuffered = imageChat.image(bufferedImage, "slightly more contrast");
-ImageGenerationsAddTaskV1Response imageStream = imageChat.image(inputStream, "slightly more contrast");
-ImageGenerationsSearchTaskV1Response search = imageChat.image(
-    ImageGenerationsSearchTaskV1Request.builder().taskId(imageString.getTaskId()).build()
-);
-FaceClient.FaceDetectionResult face = imageChat.face("tmp/lena.jpg");
-FaceClient.FeatureResult feature = imageChat.faceFeature("tmp/lena.jpg");
-double score = imageChat.faceCompare("tmp/lena.jpg", "tmp/lena.jpg");
-String ocrText = imageChat.ocr("tmp/ocr.png");
-OcrClient.OcrResult ocrDetail = imageChat.ocrDetail("tmp/ocr.png");
-PredictResultObject<PredictResult> detect = imageChat.detect("tmp/detect.png");
-PredictResultObject<PredictResult> dect = imageChat.dect("tmp/detect.png");
-String summary = imageChat.understand(imageBytes, "描述图片");
-```
-
-#### 创建方法
-
-| 类型 | 方法 | 说明 |
-| --- | --- | --- |
-| `TextChat` / `ImageChat` | `auto()` | 使用默认 SPI 配置自动创建门面 |
-| `TextChat` / `ImageChat` | `auto(DetectionConfiguration configuration)` | 使用检测配置自动创建门面 |
-| `TextChat` / `ImageChat` | `create(DetectionConfiguration configuration)` | `auto(configuration)` 的语义别名 |
-| `TextChat` / `ImageChat` | `create(String provider, Object config)` | 指定 SPI provider 和配置对象创建 |
-| `TextChat` / `ImageChat` | `create(String provider, String apiKey)` | 使用 provider 和 apiKey 创建 |
-| `TextChat` / `ImageChat` | `create(String provider, String apiKey, String baseUrl)` | 使用 provider、apiKey、baseUrl 创建 |
-| `TextChat` / `ImageChat` | `of(DetectionConfiguration configuration)` | `create(configuration)` 的语义别名 |
-| `TextChat` / `ImageChat` | `of(String provider, String apiKey, String model)` | 指定 provider、apiKey、model 创建 |
-| `TextChat` / `ImageChat` | `of(String provider, String apiKey, String baseUrl, String model)` | 指定 provider、apiKey、baseUrl、model 创建 |
-| `TextChat` / `ImageChat` | `builder()` | 进入链式构建模式 |
-
-#### TextChat Builder 链式方法
-
-| 方法 | 说明 |
-| --- | --- |
-| `provider(String provider)` | 指定 SPI provider，例如 `safetensors`、`openai`、`zhipu` 等 |
-| `config(Object config)` | 指定配置对象，通常为 `DetectionConfiguration` 或 provider 自定义配置 |
-| `model(String model)` | 指定模型名称，传递给底层 SPI 实现 |
-| `size(String size)` | 指定图片尺寸，例如 `1024*1024` |
-| `number(int number)` | 指定图片生成数量 |
-| `languageCode(String languageCode)` | 指定音频语言，例如 `zh-CN` |
-| `voiceName(String voiceName)` | 指定音色名称 |
-| `audioEncoding(String audioEncoding)` | 指定音频编码，例如 `wav`、`mp3` |
-| `build()` | 创建 `TextChat` 实例 |
-
-#### ImageChat Builder 链式方法
-
-| 方法 | 说明 |
-| --- | --- |
-| `provider(String provider)` | 指定 SPI provider，例如 `safetensors` |
-| `config(Object config)` | 指定配置对象，通常为 `DetectionConfiguration` 或 provider 自定义配置 |
-| `model(String model)` | 指定图生图或图像处理模型名称 |
-| `size(String size)` | 指定输出图片尺寸，例如 `1024*1024` |
-| `number(int number)` | 指定图片生成数量 |
-| `build()` | 创建 `ImageChat` 实例 |
-
-#### TextChat 能力方法
-
-| 方法 | 说明 | 底层 SPI |
-| --- | --- | --- |
-| `chatSync(String prompt)` | 同步文本聊天，返回模型文本响应 | `ChatClient` |
-| `image(String prompt)` | 文生图，提交任务或直接返回同步生成结果 | `ImageGenerationsClient` / `TextToImageGenerator` |
-| `image(Object refImage, String prompt)` | 通用参考图入口；保留对象参数，便于框架层动态传参 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(URL refImage, String prompt)` | 使用 URL 参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(String refImage, String prompt)` | 使用路径、URL 或 base64 字符串参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(File refImage, String prompt)` | 使用文件参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(Path refImage, String prompt)` | 使用路径参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(byte[] refImage, String prompt)` | 使用图片字节参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(BufferedImage refImage, String prompt)` | 使用内存图片参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(InputStream refImage, String prompt)` | 使用图片输入流参考图执行文生图/图生图 | `ImageGenerationsClient` / provider 图生图实现 |
-| `image(ImageGenerationsAddTaskV1Request request)` | 使用完整任务请求生成图片 | `ImageGenerationsClient` |
-| `image(ImageGenerationsSearchTaskV1Request request)` | 查询图片生成任务，优先读取门面任务缓存 | `ImageGenerationsClient` |
-| `imageSync(String prompt)` | 同步文生图，直接返回 `BufferedImage` | `TextToImageGenerator` |
-| `audio(String prompt)` | 文生音频，使用默认语言、音色和编码 | `TextToAudioGenerator` / `SpeechSynthesizer` |
-| `audio(String prompt, String languageCode, String voiceName, String audioEncoding)` | 文生音频，显式指定语言、音色和编码 | `TextToAudioGenerator` / `SpeechSynthesizer` |
-
-#### ImageChat 能力方法
-
-| 方法 | 说明 | 底层 SPI |
-| --- | --- | --- |
-| `image(Object image, String prompt)` | 通用图生图入口；保留对象参数，便于框架层动态传参 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(URL image, String prompt)` | 使用 URL 参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(String image, String prompt)` | 使用路径、URL 或 base64 字符串参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(File image, String prompt)` | 使用文件参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(Path image, String prompt)` | 使用路径参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(byte[] image, String prompt)` | 使用图片字节参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(BufferedImage image, String prompt)` | 使用内存图片参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(InputStream image, String prompt)` | 使用图片输入流参考图执行图生图 | `ImageToImageGenerator` / `ImageGenerationsClient` |
-| `image(ImageGenerationsAddTaskV1Request request)` | 使用完整任务请求执行图生图 | `ImageGenerationsClient` |
-| `image(ImageGenerationsSearchTaskV1Request request)` | 查询图生图任务，优先读取门面任务缓存 | `ImageGenerationsClient` |
-| `face(Object image)` | 人脸检测，返回人脸数量和位置 | `FaceClient` |
-| `faceFeature(Object image)` | 提取人脸特征向量 | `FaceClient` |
-| `faceCompare(Object image1, Object image2)` | 比对两张图片的人脸相似度 | `FaceClient` |
-| `ocr(Object image)` | OCR 识别，返回文本 | `OcrClient` |
-| `ocrDetail(Object image)` | OCR 详细识别，返回文本、文本块和坐标 | `OcrClient` |
-| `detect(Object image)` | 通用目标检测 | `Detector` |
-| `dect(Object image)` | `detect(image)` 的兼容拼写入口 | `Detector` |
-
-#### safetensors 真实测试记录
-
-| 能力 | 调用 | 结果 |
-| --- | --- | --- |
-| 参考图文生图 | `TextChat.image(byte[], prompt)` | 成功，输出 `tmp/textchat-ref-real-image.png`，约 303KB |
-| 通用检测 | `ImageChat.detect()` | 成功，返回 1 个目标 |
-| 通用检测兼容入口 | `ImageChat.dect()` | 成功，返回 1 个目标 |
-| 人脸检测 | `ImageChat.face()` | 成功，返回 1 张脸 |
-| 人脸特征 | `ImageChat.faceFeature()` | 成功，特征维度 64 |
-| 人脸比对 | `ImageChat.faceCompare()` | 成功，同图相似度 1.0 |
-| OCR 详细结果 | `ImageChat.ocrDetail()` | 成功返回文本区域；低资源环境未安装完整 OCR 文本识别引擎，文本长度为 0 |
-| 图像理解 | `ImageChat.understand()` | 成功返回图像摘要 |
-| 文生音频 | `TextChat.audio()` | 成功，输出 `tmp/textchat-real-audio.wav`，约 522KB |
-| 文生图任务查询 | `TextChat.image(searchTask)` | 成功，状态 `SUCCESS` |
-| 图生图任务查询 | `ImageChat.image(searchTask)` | 成功，状态 `SUCCESS` |
-
-### Stable Diffusion (WebUI)
-
-```java
-import com.chua.common.support.ai.image.*;
-
-// 配置
-VincentDiagramSetting setting = new VincentDiagramSetting();
-setting.setHost("http://127.0.0.1:7860");
-
-// 创建客户端
-StableDiffusionImageGenerationsClient client = new StableDiffusionImageGenerationsClient(setting);
-
-// 生成图片
-ImageGenerationRequest request = ImageGenerationRequest.builder()
-    .prompt("a beautiful sunset over the ocean")
-    .negativePrompt("blurry, low quality")
-    .size(512)
-    .seed(42)
-    .build();
-
-ImageGenerationResponse response = client.generate(request);
-List<String> images = response.getImages();  // base64 dataURL
-```
-
-### 即梦 API
-
-```java
-// 配置
-VincentDiagramSetting setting = new VincentDiagramSetting();
-setting.setHost("https://jimeng-api.example.com");
-setting.setAppKey("your-session-id");
-
-// 创建客户端
-JimengImageGenerationsClient client = new JimengImageGenerationsClient(setting);
-
-// 生成图片
-ImageGenerationRequest request = ImageGenerationRequest.builder()
-    .model("jimeng-2.1")
-    .prompt("一只可爱的猫咪")
-    .size("1024x1024")
-    .build();
-
-ImageGenerationResponse response = client.generate(request);
-```
-
----
-
-## 协议服务器模块
-
-### 功能说明
-
-提供多种高性能协议服务器实现，包括 HTTP、WebSocket 等，支持连接管理、线程池配置、TCP 参数优化等功能。
-
-### 性能配置参数
-
-通过 `ServerSetting` 可以配置以下性能相关参数：
-
-| 参数                     | 类型    | 默认值        | 说明                       |
-| ------------------------ | ------- | ------------- | -------------------------- |
-| `workerThreads`          | int     | CPU核心数*2   | 工作线程数                 |
-| `bossThreads`            | int     | CPU核心数     | Boss线程数（Netty）        |
-| `maxConnections`         | int     | 1000          | 最大连接数                 |
-| `backlog`                | int     | 128           | 连接队列大小               |
-| `tcpNoDelay`             | boolean | true          | 禁用Nagle算法，降低延迟    |
-| `reuseAddress`           | boolean | true          | 允许地址重用               |
-| `receiveBufferSize`      | int     | 65536         | 接收缓冲区大小（字节）     |
-| `sendBufferSize`         | int     | 65536         | 发送缓冲区大小（字节）     |
-| `connectionTimeoutMillis`| long    | 30000         | 连接超时时间（毫秒）       |
-| `idleTimeout`            | int     | 5000          | 空闲超时时间（毫秒）       |
-
-### 使用示例
-
-```java
-import com.chua.common.support.protocol.ServerSetting;
-import com.chua.common.support.protocol.server.impl.HttpProtocolServer;
-import com.chua.common.support.protocol.server.impl.WebSocketProtocolServer;
-
-// 高性能配置示例
-ServerSetting setting = ServerSetting.builder()
-    .host("0.0.0.0")
-    .port(8080)
-    // 线程配置
-    .workerThreads(32)                    // 32个工作线程
-    .bossThreads(8)                       // 8个Boss线程
-    // 连接配置
-    .maxConnections(10000)                // 最大1万连接
-    .backlog(1024)                        // 连接队列1024
-    // TCP参数优化
-    .tcpNoDelay(true)                     // 禁用Nagle算法
-    .reuseAddress(true)                   // 允许地址重用
-    .receiveBufferSize(131072)            // 128KB接收缓冲区
-    .sendBufferSize(131072)               // 128KB发送缓冲区
-    // 超时配置
-    .connectionTimeoutMillis(30000)       // 30秒连接超时
-    .idleTimeout(60000)                   // 60秒空闲超时
-    .build();
-
-// HTTP服务器
-HttpProtocolServer httpServer = new HttpProtocolServer(setting);
-httpServer.start();
-
-// WebSocket服务器
-WebSocketProtocolServer wsServer = new WebSocketProtocolServer(setting);
-wsServer.start();
-
-// 获取服务器状态
-System.out.println("活跃连接: " + httpServer.getActiveConnections());
-System.out.println("总请求数: " + httpServer.getTotalRequests());
-System.out.println("线程池状态: " + httpServer.getThreadPoolStatus());
-```
-
-### 支持的协议服务器
-
-| 服务器类                     | 协议              | 说明                         |
-| ---------------------------- | ----------------- | ---------------------------- |
-| `HttpProtocolServer`         | HTTP/HTTPS        | 基于JDK HttpServer的HTTP服务 |
-| `WebSocketProtocolServer`    | WebSocket         | 基于JDK HttpServer的WS服务   |
-| `WebSocketSyncProtocolServer`| WebSocket Sync    | WebSocket同步数据协议服务    |
-| `HttpStreamingSyncServer`    | HTTP Streaming Sync | HTTP流式同步数据服务        |
-
-### HTTP Streaming Sync
-
-#### 接口说明
-
-| 接口 | 方法 | 默认路径 | 说明 |
-| --- | --- | --- | --- |
-| 流式订阅 | GET | `/stream` | SSE 长连接订阅同步消息 |
-| 发布消息 | POST | `/sync` | 发布 `SyncMessage` JSON 数据 |
-
-#### 消息字段
-
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `topic` | String | 主题 |
-| `data` | Object | 消息体 |
-| `clientId` | String | 客户端标识 |
-
-#### 客户端配置参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `streamPath` | String | `/stream` | SSE 订阅路径 |
-| `syncPath` | String | `/sync` | 发布路径 |
-| `connectTimeoutMillis` | long | 10000 | 连接超时时间 |
-| `readTimeoutMillis` | long | 60000 | 读取超时时间 |
-
-#### 使用示例
-
-```java
-import com.chua.common.support.network.protocol.ClientSetting;
-import com.chua.common.support.network.protocol.ServerSetting;
-import com.chua.common.support.network.protocol.sync.http.HttpStreamingSyncClient;
-import com.chua.common.support.network.protocol.sync.http.HttpStreamingSyncServer;
-
-ServerSetting serverSetting = ServerSetting.builder()
-    .host("0.0.0.0")
-    .port(8080)
-    .build();
-
-HttpStreamingSyncServer server = new HttpStreamingSyncServer(serverSetting);
 server.start();
+System.out.println(server.getServerUrl());   // http://localhost:8080/
+server.isRunning();
+server.stop();
 
-ClientSetting clientSetting = ClientSetting.builder()
-    .host("127.0.0.1")
-    .port(8080)
-    .option("streamPath", "/stream")
-    .option("syncPath", "/sync")
-    .connectTimeoutMillis(10000)
-    .readTimeoutMillis(60000)
-    .build();
-
-HttpStreamingSyncClient client = new HttpStreamingSyncClient(clientSetting);
-client.connect();
-client.subscribe("device.status");
-client.publish("device.status", "ok");
+// 或：Server server = Server.builder().port(8080).build();
 ```
 
----
+- `ServerSetting`：线程数、`maxConnections`、`backlog`、`tcpNoDelay`、空闲超时、缓冲区、CORS、安全头、SSL、HTTP/2、Reactor 模式等。
+- 共享容器：`ServerBuilder.objectContext(ctx)`，多个 Server 复用同一套 Bean。
+- 过滤器 SPI：`ServerFilter`（`ip`、`firewall`、`rate-limit`、`routing`、`request-id`、`request-timeout`、`ipc`、`response-rewrite`、`gzip`、`cors`、`ws-proxy`、`url-mapping`、`invoker_inject`、`ai_token`）。
+- 注解驱动：`ServerHandlerAnnotationParser`（`request-method`、`ipc-method`）、`HandlerMethodArgumentResolver`、`ListenerParser`（`javax` / `custom` / `objectcontext`）。
 
-## 死信队列模块
+### 7.3 同步（`network.sync`）
 
-### 功能说明
+`SyncServer` / `SyncClient` 四套传输：`http`、`websocket`、`tcp`、`udp`。旧版 `com.chua.common.support.sync`（Input/Output/Sink）仍保留，但新项目请用 `utils-support-datasync-starter`。
 
-提供通用的死信队列功能，支持多种存储方式，包括内存、JDBC 数据库、文件系统等。用于保存无法正常处理的消息，支持持久化、TTL、重试、回调等高级功能。
+### 7.4 发现与对等网格（`network.discovery`、`scatter`）
 
-### 适用场景
-
-- 消息处理失败后的兜底存储
-- 异步任务的错误重试机制
-- 数据处理流程的容错设计
-- 工作流状态转移的异常记录
-- 消息队列消费失败处理
-
-### 核心类说明
-
-#### 死信队列实现
-
-| 类名 | 存储方式 | 说明 |
-| --- | --- | --- |
-| `DeadLetterQueue<T>` | - | 死信队列接口，定义基本操作 |
-| `DefaultDeadLetterQueue<T>` | 内存 | 默认内存实现，支持可选持久化策略 |
-| `JdbcDeadLetterQueue<T>` | 数据库 | 基于 JdbcEngine 的数据库实现，自动建表 |
-| `FileDeadLetterQueue<T>` | 文件 | 基于文件系统的实现，每条消息独立文件 |
-
-#### 持久化策略
-
-| 类名 | 说明 |
-| --- | --- |
-| `PersistenceStrategy<T>` | 持久化策略接口 |
-| `AbstractPersistenceStrategy<T>` | 抽象基类，提供后台线程管理和过期处理 |
-| `PropertiesPersistenceStrategy<T>` | 基于 Properties 文件的持久化 |
-| `DataSourcePersistenceStrategy<T>` | 基于 DataSource 的持久化 |
-
-#### 辅助类
-
-| 类名 | 说明 |
-| --- | --- |
-| `DeadLetterMessage<T>` | 死信消息包装类，包含标识、内容、原因、时间戳、重试次数 |
-| `IdentifierExtractor<T>` | 消息唯一标识提取器（函数式接口） |
-| `DeadLetterCallback<T>` | TTL 到期回调处理器 |
-| `PersistenceConfig<T>` | 持久化配置类 |
-| `PersistenceMode` | 持久化模式枚举 |
-
-### 使用示例
-
-#### 1. 基于 JdbcEngine 的死信队列
-
-直接使用 JdbcEngine 进行数据库操作，消息实时持久化到 `sys_dead_letter_message` 表。
+- `ServiceDiscovery` SPI：`peermesh` 实现，自带节点表与故障剔除。
+- `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输，seed 引导 + 自动发现。
 
 ```java
-import com.chua.common.support.task.queue.JdbcDeadLetterQueue;
-import com.chua.common.support.task.queue.reject.DiscardOldestRejectedStrategy;
-import javax.sql.DataSource;
+import com.chua.common.support.scatter.Scatter;
+import com.chua.common.support.scatter.ScatterBuilder;
 
-// 创建 JDBC 死信队列
-DataSource dataSource = ... // 获取数据源
-JdbcDeadLetterQueue<Order> queue = new JdbcDeadLetterQueue<>(dataSource, Order.class);
-
-// 配置队列
-queue.withIdentifierExtractor(order -> order.getOrderId())  // 设置标识提取器（必需）
-     .withMessageType(Order.class)                          // 设置消息类型
-     .withMaxCapacity(10000)                                 // 设置最大容量
-     .withRejectedHandler(new DiscardOldestRejectedStrategy<>());  // 设置拒绝策略
-
-// 启动队列（自动创建表）
-queue.start();
-
-// 放入死信
-Order failedOrder = new Order("ORD-001", "处理失败的订单");
-queue.put(failedOrder, "支付超时");
-
-// 获取死信（FIFO）
-Order msg = queue.poll();
-
-// 根据标识删除死信
-queue.remove("ORD-001");
-
-// 清空队列
-queue.clear();
-
-// 停止队列
-queue.stop();
-```
-
-#### 2. 基于文件的死信队列
-
-每条消息保存为独立的 JSON 文件，文件名为 `{identifier}.json`。
-
-```java
-import com.chua.common.support.task.queue.FileDeadLetterQueue;
-import com.chua.common.support.task.queue.reject.RejectRejectedStrategy;
-
-// 创建文件死信队列
-FileDeadLetterQueue<Task> queue = new FileDeadLetterQueue<>("./data/dead-letters", Task.class);
-
-// 配置队列
-queue.withIdentifierExtractor(task -> task.getTaskId())
-     .withMaxCapacity(5000)
-     .withRejectedHandler(new RejectRejectedStrategy<>());  // 满时抛异常
-
-// 启动队列（自动创建目录，加载已有文件）
-queue.start();
-
-// 放入死信（保存为 ./data/dead-letters/dead-letters/TASK-001.json）
-Task failedTask = new Task("TASK-001", "执行失败的任务");
-queue.put(failedTask, "资源不足");
-
-// 获取死信
-Task task = queue.poll();
-
-// 停止队列
-queue.stop();
-```
-
-#### 3. 内存死信队列（带持久化）
-
-使用内存队列配合持久化策略，支持实时或定时持久化。
-
-```java
-import com.chua.common.support.task.queue.DefaultDeadLetterQueue;
-import com.chua.common.support.task.queue.strategy.*;
-
-// 创建内存死信队列
-DefaultDeadLetterQueue<Message> queue = new DefaultDeadLetterQueue<>();
-
-// 配置持久化
-queue.withIdentifierExtractor(msg -> msg.getMsgId())
-     .withMaxCapacity(1000)
-     .withPersistence(
-         new PropertiesPersistenceStrategy<>("./data"),
-         PersistenceConfig.<Message>builder()
-             .mode(PersistenceMode.REALTIME)           // 实时持久化
-             .ttlMillis(3600000L)                       // 1小时TTL
-             .maxRetryTimes(3)                          // 最多重试3次
-             .callback(new MyDeadLetterCallback())      // TTL到期回调
-             .build()
-     );
-
-// 启动队列
-queue.start();
-
-// ... 使用队列 ...
-
-// 停止队列（自动持久化）
-queue.stop();
-```
-
-#### 4. 使用 DataSource 持久化策略
-
-```java
-import com.chua.common.support.task.queue.DefaultDeadLetterQueue;
-import com.chua.common.support.task.queue.strategy.*;
-
-// 创建内存队列 + DataSource 持久化
-DefaultDeadLetterQueue<Event> queue = new DefaultDeadLetterQueue<>();
-
-queue.withIdentifierExtractor(event -> event.getEventId())
-     .withPersistence(
-         new DataSourcePersistenceStrategy<>(dataSource),
-         PersistenceConfig.<Event>builder()
-             .mode(PersistenceMode.SCHEDULED)           // 定时持久化
-             .scheduledIntervalMillis(30000L)           // 每30秒持久化一次
-             .ttlMillis(86400000L)                      // 24小时TTL
-             .build()
-     );
-
-queue.start();
-```
-
-#### 5. TTL 回调处理
-
-当消息在死信队列中存放超过指定时间后，自动触发回调。
-
-```java
-import com.chua.common.support.task.queue.DeadLetterCallback;
-
-// 实现回调处理器
-DeadLetterCallback<Order> callback = new DeadLetterCallback<Order>() {
-    @Override
-    public boolean onExpired(Order order, String identifier, String reason, 
-                             int retryCount, long timestamp) {
-        // 尝试重新处理订单
-        try {
-            orderService.reprocess(order);
-            return true;  // 处理成功，消息将被删除
-        } catch (Exception e) {
-            return false; // 处理失败，消息保留，重试次数+1
-        }
-    }
-
-    @Override
-    public void onMaxRetryExceeded(Order order, String identifier, String reason,
-                                   int maxRetryTimes, long timestamp) {
-        // 达到最大重试次数，需要人工处理
-        alertService.sendAlert("订单处理失败，需人工介入: " + identifier);
-    }
-};
-
-// 配置使用回调
-PersistenceConfig<Order> config = PersistenceConfig.<Order>builder()
-    .mode(PersistenceMode.REALTIME)
-    .ttlMillis(60000L)      // 1分钟后触发回调
-    .maxRetryTimes(3)       // 最多重试3次
-    .callback(callback)
-    .build();
-```
-
-### 配置参数
-
-#### DeadLetterQueue 配置方法
-
-| 方法 | 参数 | 说明 |
-| --- | --- | --- |
-| `withIdentifierExtractor()` | `IdentifierExtractor<T>` | 设置消息唯一标识提取器（**必需**） |
-| `withMaxCapacity()` | `long` | 设置最大容量，0 表示无限制 |
-| `withRejectedHandler()` | `RejectedStrategy<T>` | 设置容量满时的拒绝策略 |
-| `withPersistence()` | `PersistenceStrategy<T>, PersistenceConfig<T>` | 设置持久化策略和配置 |
-| `withMessageType()` | `Class<T>` | 设置消息类型用于反序列化（JDBC/File 实现） |
-
-#### PersistenceConfig 配置项
-
-| 属性 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `mode` | `PersistenceMode` | `NONE` | 持久化模式 |
-| `ttlMillis` | `Long` | `0` | 消息生存时间（毫秒），0 表示永不过期 |
-| `maxRetryTimes` | `Integer` | `0` | 最大重试次数，0 表示不限制 |
-| `callback` | `DeadLetterCallback<T>` | `null` | TTL 到期回调处理器 |
-| `scheduledIntervalMillis` | `Long` | `30000` | 定时持久化间隔（毫秒） |
-
-#### PersistenceMode 持久化模式
-
-| 模式 | 说明 | 适用场景 |
-| --- | --- | --- |
-| `NONE` | 无持久化，数据仅在内存 | 临时数据，允许丢失 |
-| `REALTIME` | 实时持久化，每次操作立即保存 | 数据安全性要求高 |
-| `SCHEDULED` | 定时持久化，后台线程定期保存 | 性能优先，可容忍少量丢失 |
-
-### 拒绝策略
-
-当队列达到最大容量时，由拒绝策略决定如何处理新消息。
-
-| 策略类 | 名称 | 行为 |
-| --- | --- | --- |
-| `UnlimitedRejectedStrategy<T>` | 无限制 | 忽略容量限制，始终添加（默认） |
-| `DiscardRejectedStrategy<T>` | 丢弃新消息 | 直接丢弃新消息，记录警告日志 |
-| `DiscardOldestRejectedStrategy<T>` | 丢弃最旧消息 | 删除队列中最旧的消息，添加新消息 |
-| `RejectRejectedStrategy<T>` | 拒绝 | 抛出 `RuntimeException` 异常 |
-
-### 数据库表结构
-
-`JdbcDeadLetterQueue` 和 `DataSourcePersistenceStrategy` 使用以下表结构：
-
-```sql
-CREATE TABLE sys_dead_letter_message (
-    sys_dead_letter_message_identifier VARCHAR(255) PRIMARY KEY,  -- 消息唯一标识
-    sys_dead_letter_message_message_json TEXT,                     -- 消息 JSON 内容
-    sys_dead_letter_message_reason VARCHAR(500),                   -- 失败原因
-    sys_dead_letter_message_timestamp BIGINT,                      -- 消息产生时间戳
-    sys_dead_letter_message_retry_count INT DEFAULT 0,             -- 重试次数
-    sys_dead_letter_message_created_at TIMESTAMP,                  -- 创建时间
-    sys_dead_letter_message_updated_at TIMESTAMP                   -- 更新时间
-);
-```
-
-> **注意**：表会在队列启动时自动创建（如果不存在）。
-
-### 文件存储结构
-
-`FileDeadLetterQueue` 的文件存储结构：
-
-```
-{baseDirectory}/
-└── dead-letters/
-    ├── ORDER_001.json
-    ├── ORDER_002.json
-    └── TASK_ABC.json
-```
-
-每个 JSON 文件内容格式：
-
-```json
-{
-  "identifier": "ORDER_001",
-  "message": { ... },
-  "reason": "支付超时",
-  "timestamp": 1702123456789,
-  "retryCount": 0
+try (Scatter scatter = ScatterBuilder.tcp()
+        .nodeId("node-1")
+        .groupId("order")
+        .port(19001)
+        .seeds("192.168.1.10:19001")
+        .build()) {
+    scatter.start();
 }
 ```
 
-### 生命周期
-
-```
-创建队列 → 配置参数 → start() → 使用(put/poll/remove/clear) → stop()
-```
-
-- `start()`: 初始化资源，创建表/目录，加载已有数据
-- `stop()`: 持久化数据，释放资源，关闭后台线程
-
----
-
-## ObjectContext IoC容器模块
-
-### 功能说明
-
-轻量级IoC容器，提供Bean管理、自动装配、插件管理、事件处理等功能，支持SPI驱动的注册器机制。
-
-### 适用场景
-
-- 轻量级应用依赖注入
-- 插件化架构
-- 事件驱动架构
-- 动态Bean管理
-
-### 核心特性
-
-- **多注册器支持**: 默认、注解、Spring、SPI、插件、映射等6种注册器
-- **SPI驱动**: 基于SPI机制自动发现和加载注册器
-- **生命周期管理**: 支持Bean的初始化、销毁等生命周期
-- **事件发布**: 支持事件发布和监听机制
-- **映射管理**: 支持HTTP映射定义和管理
-
-### 使用示例
+### 7.5 下载（`network.download`）
 
 ```java
-import com.chua.common.support.objects.ConfigureObjectContext;
-import com.chua.common.support.objects.impl.DefaultConfigureObjectContext;
+import com.chua.common.support.network.download.Downloader;
+import com.chua.common.support.network.download.DownloadResult;
 
-// 创建上下文
-ConfigureObjectContext context = new DefaultConfigureObjectContext();
-context.initialize();
-
-// 注册Bean
-context.registerBean("myService", new MyService());
-
-// 获取Bean
-MyService service = context.getBean("myService", MyService.class);
-
-// 按类型获取
-MyService service2 = context.getBeanOfType(MyService.class);
+DownloadResult r = Downloader.create()
+        .url("https://example.com/tool.zip")
+        .target(Path.of("./downloads"))
+        .filename("tool.zip")
+        .concurrency(4)
+        .maxSpeed(20L * 1024 * 1024)     // 20MB/s
+        .expectedMd5("...")              // 校验；配合 skipMd5Check(false)
+        .autoExtract(true)
+        .extractTo(Path.of("./tools"))
+        .showProgress(true)
+        .connectTimeout(10_000)
+        .readTimeout(60_000)
+        .header("User-Agent", "chua")
+        .execute();
 ```
 
-### 详细文档
+| 能力 | 说明 |
+| --- | --- |
+| 多线程 | `concurrency(n)` |
+| 限速 | `maxSpeed(bytesPerSecond)` |
+| 断点/续传 | `resumeOffset`（`DownloadConfig`） |
+| 校验 | `expectedMd5` + `skipMd5Check` |
+| 自动解压 | `autoExtract` + `extractTo`，内置 `zip` / `tar` / `tar.gz` / `tgz` / `gz` 解压器 |
+| 代理 | `proxy(Proxy)` |
+| 实现 | `DownloadService` SPI：`default`、`aria2`（需 aria2c） |
 
-- [架构文档](./docs/architecture/ObjectContext.md)
-- [初始化流程](./docs/flow/ObjectContext.md)
+### 7.6 其它网络能力
+
+| 子包 | 能力 |
+| --- | --- |
+| `network.sse` | `SseClient` / `JdkSseClient`、`SseConnection`、`SseEvent`、`SseListener`，SSE 长连接与事件解析 |
+| `network.dns` | `DnsProvider`、`DnsConfig`、`DnsRecord`（阿里/腾讯/Cloudflare 等由 starter 实现） |
+| `network.ip` | `IpLocation`、`IpPosition`、`GeoCity`、`GeoSetting`（IP 归属地） |
+| `network.ssl` | `JdkCertificateProvider`、`TlsKeyLogDecoder`（TLS 解密调试） |
+| `network.ftp` | `FtpConfig`、FTP/FTPS 服务端与客户端 |
+| `network.sip` | `SipServer`、SIP 压缩器 |
+| `network.rpc` | `RpcClient` / `RpcServer`（`native`）、`RpcInvoker` |
+| `network.invoker` | HTTP / IPC / RPC 统一调用器 |
+| `network.tunnel` | 内网穿透隧道抽象 |
+| `network.filepush` | 文件推送 |
+| `network.voice` | 语音通道 |
+| `network.bench` | `HttpBench` HTTP 压测 |
 
 ---
 
-## Task 任务调度模块
+## 8. 任务与流程
 
-### 功能说明
-
-提供任务调度、执行、重试、限流、熔断等功能，支持多种调度策略和执行器。
-
-### 适用场景
-
-- 定时任务调度
-- 异步任务执行
-- 任务重试机制
-- 限流和熔断
-
-### 核心特性
-
-- **多种调度策略**: 支持Cron、固定延迟、固定频率等
-- **任务重试**: 支持可配置的重试策略
-- **限流熔断**: 支持限流和熔断器
-- **任务监控**: 支持任务执行监控和统计
-
-### 使用示例
+### 8.1 调度（`task.scheduler`）
 
 ```java
 import com.chua.common.support.task.scheduler.TimeScheduler;
+import java.util.concurrent.TimeUnit;
 
-// 创建调度器
-TimeScheduler scheduler = new JavaTimeScheduler();
+TimeScheduler scheduler = TimeScheduler.of();
 
-// 注册定时任务
-scheduler.register("task1", "0 0 12 * * ?", () -> {
-    System.out.println("执行任务");
+ScheduledTask t1 = scheduler.scheduleCron("nightly", () -> sync(), "0 0 2 * * ?");
+ScheduledTask t2 = scheduler.scheduleFixedRate("poll", () -> poll(), 10, TimeUnit.SECONDS);
+
+scheduler.isRunning("poll");
+scheduler.cancel("poll");
+scheduler.shutdown();
+```
+
+底层 `SchedulerProvider`（JDK 实现）+ `Trigger`（`Cron` / `Fixed` / `Simple`），`CronExpression` 内置解析。
+
+### 8.2 流程（`task.flow`）
+
+本模块只定义流程契约与节点模型，**执行实现位于 `utils-support-flow-starter`**：
+
+- `Flow`：注册节点、`createGraph()`、`exportJson()` / `importJson()`（与前端 ReFlow 画布格式一致）。
+- `FlowGraph` / `FlowInstance` / `FlowContext` / `FlowTrace`。
+- 内置节点：`StartNode`、`EndNode`、`ConditionNode`、`TransformNode`、`LogNode`、`HttpCallNode`、`SpiderNode`。
+- `FlowJson`、`FlowDefinition`、`FlowProps`、`FlowNodeRegistry` 负责序列化与节点登记。
+
+> 旧版 `com.chua.common.support.orchestrator.Orchestrator` 已移除，请改用 flow-starter。
+
+### 8.3 管道与重试（`task.pipeline`、`task.retry`、`task.cooldown` 等）
+
+| 子包 | 能力 |
+| --- | --- |
+| `pipeline` | 管道编排（30 个类型） |
+| `retry` | 重试策略与退避 |
+| `cooldown` | 冷却/节流 |
+| `deduplicate` | 去重（内存实现） |
+| `backup` / `restore` | 备份恢复 |
+| `script` | 脚本任务（Java、Python 提供者） |
+| `classifier` | 任务分类 |
+| `message` | 任务消息 |
+| `taskrunner` | 结构化执行器 |
+| `async` / `timer` / `branch` / `loader` | 异步、定时器、分支、加载器 |
+
+### 8.4 分布式任务（`taskdistribution`）
+
+`TaskManager`（内存/持久存储）+ `TaskStore`（`FileTaskStore` / `InMemoryTaskStore`）+ `DispatcherProvider` + `TaskExecutor` SPI。
+
+```java
+import com.chua.common.support.taskdistribution.manager.TaskManager;
+import com.chua.common.support.taskdistribution.store.FileTaskStore;
+import com.chua.common.support.taskdistribution.task.Task;
+
+TaskManager manager = new TaskManager();
+manager.setStore(new FileTaskStore("./tasks"));
+manager.addStateListener(new TaskStateListener() {
+    @Override
+    public void onStateChanged(String id, TaskStatus from, TaskStatus to) {
+        log.info("{}: {} -> {}", id, from, to);
+    }
 });
 
-// 启动调度器
-scheduler.start();
+Task<String> task = Task.<String>builder()
+        .taskId("t-1")
+        .taskType("demo")
+        .payload("hello")
+        .build();
+
+manager.addTask(task, result -> onDone(result));
+manager.pause("t-1");
+manager.resume("t-1");
+manager.cancel("t-1");
+manager.getAllTasks();      // List<TaskView>
+manager.recover();          // 重启后恢复
+manager.cleanCompleted();
 ```
 
-### 详细文档
+### 8.5 流水线（`task.pipeline`）
 
-- [架构文档](./docs/architecture/Task.md)
-- [执行流程](./docs/flow/Task.md)
-
----
-
-## Orchestrator 任务编排模块
-
-### 功能说明
-
-提供基于依赖图的任务编排能力，支持同步/异步执行、并行分叉与汇聚策略、超时控制、事件监听等能力。
-
-### 核心特性
-
-- **依赖图校验**：自动校验依赖关系并提供循环检测能力
-- **并行汇聚**：支持 ALL/ANY/COUNT 多种汇聚策略
-- **超时控制**：并行节点支持超时控制，超时未完成的子节点将标记为超时
-- **事件监听**：支持编排过程事件监听与日志记录
-- **依赖失败自动完成**：任务节点支持依赖失败时自动完成策略
-- **循环执行**：循环节点支持多次迭代执行
-
-### 并行汇聚参数
-
-- **joinStrategy**：汇聚策略，可选 ALL/ANY/COUNT
-- **joinCount**：COUNT 策略下的最少完成数量
-- **timeout**：并行节点超时时间（默认 5 分钟）
-- **fork 节点**：由并行节点统一调度执行，不作为入口节点单独调度
-
-### 使用示例
+与 `task.flow`（图编排、可导出 JSON）不同，`Pipeline` 是**任务级**的顺序/分支/并行执行器，自带 WAL 与恢复。
 
 ```java
-import com.chua.common.support.orchestrator.Orchestrator;
-import com.chua.common.support.orchestrator.builder.FlowNodeBuilder;
-import com.chua.common.support.orchestrator.node.ParallelFlowNode;
-import com.chua.common.support.orchestrator.node.impl.DefaultParallelFlowNode;
+import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
+import com.chua.common.support.task.pipeline.core.Pipeline;
+import com.chua.common.support.task.pipeline.core.PipelineContext;
 
-import java.time.Duration;
+Pipeline pipeline = PipelineBuilder.newBuilder("order")
+        .task("validate", ctx -> { validate(ctx.getCurrentData()); return null; })
+        .taskEnd()
+        .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
+        .task("process", ctx -> { process(ctx.getCurrentData()); return null; })
+        .taskEnd()
+        .task("error", ctx -> { log.warn("invalid"); return null; })
+        .taskEnd()
+        .onStart(ctx -> log.info("start"))
+        .onComplete(ctx -> log.info("done"))
+        .onError((ctx, e) -> "error")     // 返回恢复节点；null = 终止
+        .build();
 
-var taskA = FlowNodeBuilder.task("taskA", "准备A")
-    .run(ctx -> ctx.setVariable("a", "ok"))
-    .build();
-var taskB = FlowNodeBuilder.task("taskB", "准备B")
-    .run(ctx -> ctx.setVariable("b", "ok"))
-    .build();
-var taskC = FlowNodeBuilder.task("taskC", "汇总")
-    .run(ctx -> {
-        var a = ctx.getVariable("a", String.class);
-        var b = ctx.getVariable("b", String.class);
-    })
-    .build();
-
-DefaultParallelFlowNode parallel = new DefaultParallelFlowNode("parallel", "并行汇聚");
-parallel.addForkNode("taskA");
-parallel.addForkNode("taskB");
-parallel.setJoinStrategy(ParallelFlowNode.JoinStrategy.COUNT);
-parallel.setJoinCount(1);
-parallel.setTimeout(Duration.ofSeconds(30));
-parallel.setNext("taskC");
-
-var orchestrator = Orchestrator.builder("demo-flow")
-    .addNodes(parallel, taskA, taskB, taskC)
-    .addDependency("taskA", "parallel")
-    .addDependency("taskB", "parallel")
-    .sync()
-    .build();
-
-var result = orchestrator.execute();
+PipelineContext<String> ctx = pipeline.execute("payload");
+ctx.getHistory();
 ```
 
-### 循环节点示例
+| 能力 | 说明 |
+| --- | --- |
+| 节点 | `StartNode`、`EndNode`、`TaskNode`、`DecisionNode`、`ForkNode`、`ParallelNode`、`SubPipelineNode` |
+| 动态路由 | `task` 返回节点 id 即跳转；`RouteStrategy` 控制目标不存在时的行为 |
+| 并行/分叉 | `Parent`/`Fork` 定义 + `ForkErrorStrategy` |
+| 异步 | `pipeline.executeAsync(input)` 返回 `Mono<PipelineContext<T>>` |
+| 事件 | `PipelineListener`、`LoggingListener` |
+| 持久化 | `PipelineWal` 记录执行进度，支持恢复 |
+| JSON | `PipelineJsonParser`、`PipelineBuilder.fromJson(json)` |
+
+---
+
+## 9. AI
+
+### 9.1 ChatClient
+
+`ai.chat.ChatClient` 是统一对话门面，provider 由 SPI 决定（`openai`、`claude`、`gemini`、`deepseek`、`zhipu`、`qwen` 等由 `cloud-parent` 各模块注册）。
 
 ```java
-import com.chua.common.support.orchestrator.Orchestrator;
-import com.chua.common.support.orchestrator.builder.FlowNodeBuilder;
+import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientSetting;
 
-var syncTask = FlowNodeBuilder.task("sync-task", "同步数据")
-    .run(ctx -> ctx.setVariable("sync_complete", true))
-    .build();
+ChatClient client = ChatClient.create("openai", "sk-xxx");
 
-var loop = FlowNodeBuilder.loop("loop-1", "数据同步循环")
-    .body("sync-task")
-    .until(ctx -> ctx.getVariable("sync_complete", Boolean.class))
-    .maxIterations(10)
-    .then("end")
-    .build();
+String answer = client
+        .model("gpt-4o-mini")
+        .system("你是一名严谨的工程师")
+        .temperature(0.7)
+        .maxTokens(2048)
+        .chatSync("解释一下 WAL");
 
-var end = FlowNodeBuilder.task("end", "结束")
-    .run(ctx -> ctx.setVariable("done", true))
-    .build();
+// 带用量
+ChatSyncResponse r = client.chatSyncWithResponse("你好");
+r.getText();
+r.getUsage();
 
-var orchestrator = Orchestrator.builder("loop-flow")
-    .addNodes(loop, syncTask, end)
-    .addDependency("sync-task", "loop-1")
-    .sync()
-    .build();
+// 流式
+client.chat("讲个故事", resp -> {
+    switch (resp.getState()) {
+        case START -> System.out.println("[start]");
+        case STREAMING -> System.out.print(resp.getContent());
+        case STOP -> System.out.println("\n[done]");
+        case ERROR -> System.err.println(resp.getErrorMessage());
+    }
+});
 
-var result = orchestrator.execute();
+// 异步
+client.chatAsync("hi").thenAccept(resp -> System.out.println(resp.getText()));
+
+client.close();
 ```
 
----
+链式能力（均已验证）：`provider`、`model`、`system`、`temperature`、`maxTokens`、`topP`、`stop`、`seed`、`responseFormat`、`thinking` / `thinkingEffort`、`smartSearch`、`tools` / `tool` / `toolChoice`、`skill` / `skillPrompt`、`addImage`、`addAttachment` / `addAttachmentUrl`、`addUserHistory` / `addAssistantHistory` / `history`、`session` / `newChat`、`extraBody` / `extraHeaders`、`authScheme`。
 
-## Sync 数据同步模块
+扩展能力：`generateImage(...)` / `generateImage()`（`ImageGenerationSpec`）、`generateVideo(...)` / `generateVideo()`（`VideoGenerationSpec`）、`models()` / `listModels()` / `modelPricing()`、`indicator()`（模型指标端点）、`probe()`（中转站真伪探测）。
 
-> 数据同步功能已统一迁移至 **`utils-support-datasync-starter`** 模块，使用全新的 Agent/Distributor 架构。
-> 旧版 SyncFlow (Input/Output/Sink) 体系已废弃，common-starter 中不再包含 sync 模块。
+**兜底规则**：provider 未注册且设置了 `baseUrl` 时，自动按 OpenAI 兼容协议走 `openai` 扩展。
 
-### 新版架构 (datasync-starter)
+配套 SPI：`ChatClient`（`memory` 内置）、`EmbeddingClient`（`memory`）、`RagClient`（`memory` + `local` 上传）、`TextSplitterProvider`（`sentence`）、`RuleBuilder`（`native`）、`ProgressEstimator`（5 种进度估算）。
 
-- **Agent**: 负责数据采集与推送的独立单元
-- **Distributor**: 负责数据分发与负载均衡
-- **SyncDataPipeline**: 编排 Agent 与 Distributor 的执行流程
-- **配置驱动**: 支持 YAML/Properties 等外部配置加载
+### 9.2 其它 AI 子包
 
-### 快速指引
+| 包 | 能力 |
+| --- | --- |
+| `ai.agent` | Agent 定义、工具调用、执行循环 |
+| `ai.rag` | 检索增强、切分、上传 |
+| `ai.embedding` | 向量化 |
+| `ai.mcp` | MCP 协议客户端/服务端模型 |
+| `ai.skill` | 技能（提示词注入 + SkillManager） |
+| `ai.decision` | 决策问答协议 |
+| `ai.feature` / `ai.probe` / `ai.calibration` / `ai.branch` | 特征、探测、校准、分支 |
+| `ai.audio` / `ai.image` / `ai.video` / `ai.generation` | 音频、图像、视频生成 |
+| `ai.memory` / `ai.context` / `ai.runtime` | 记忆、上下文、运行时 |
+| `ai.rule` / `ai.translate` / `ai.bot` | 规则、翻译、机器人 |
 
-- 如需使用数据同步功能，请引入 `utils-support-datasync-starter` 依赖
-- 详细文档见对应模块下的 README
-
----
-
-## Data 数据查询模块
-
-### 功能说明
-
-提供数据库ORM、查询构建器、多数据源支持、分库分表等功能。
-
-### 适用场景
-
-- 数据库操作
-- 复杂查询构建
-- 多数据源管理
-- 分库分表
-
-### 核心特性
-
-- **ORM支持**: 类似MyBatis-Plus的ORM功能
-- **查询构建器**: 链式查询构建
-- **多数据源**: 支持多数据源切换
-- **分库分表**: 支持分库分表策略
-
-### 使用示例
+### 9.3 RAG（`ai.rag`）
 
 ```java
-import com.chua.common.support.data.query.Engine;
+import com.chua.common.support.ai.rag.RagClient;
+import com.chua.common.support.ai.rag.RagClientSetting;
+import com.chua.common.support.ai.rag.RagResponse;
 
-// 创建查询引擎
-Engine engine = Engine.create()
-    .addDataSource("db1", dataSource1)
-    .addDataSource("db2", dataSource2)
-    .setDefaultDataSource("db1");
+RagClientSetting setting = RagClientSetting.builder().build();
 
-// 执行查询
-List<User> users = engine.query(User.class)
-    .eq("age", 25)
-    .list();
+RagClient rag = RagClient.create("memory", setting)
+        .topK(10)
+        .similarityThreshold(0.5)
+        .system("你是一名技术文档助手，只依据给定文档回答");
+
+rag.uploadDocument("guide.pdf", pdfBytes);      // 导入
+RagResponse resp = rag.query("如何配置数据源？");
+resp.answer();
+resp.sources();                                  // 命中文档片段（documentId/content/score）
+
+rag.queryStream("如何配置数据源？", s -> System.out.print(s));
+rag.close();
 ```
 
-### 详细文档
-
-- [架构文档](./docs/architecture/Data.md)
+| 类型 | 说明 |
+| --- | --- |
+| `RagClient` | 统一门面：导入、查询、流式查询 |
+| `RagPipeline` | 切分 → 向量化 → 存储 → 检索 → 生成 |
+| `VectorService` | 向量写入/检索适配 |
+| `TextSplitter` / `TextSplitterProvider` | 文本切分（内置 `sentence`） |
+| `EmbeddingClient` | 向量化（内置 `memory`） |
+| `KnowledgeClient` | 知识库管理 |
+| `LocalFileUploadProvider` | 本地文件导入（SPI `local`） |
 
 ---
 
-## Lang 语言特性模块
+## 10. 数据、WAL 与向量
 
-### 功能说明
+### 10.1 数据源引擎（`lang.datasource.engine`）
 
-提供表达式解析、脚本执行、Lambda元数据、代理等功能。
+`Engine` 提供 ORM/查询能力，`DdlProvider`、`DslManager`、`EngineInterceptor` 可 SPI 扩展；`lang.datasource.flyway` 提供 `Flyway` / `ScriptConverter` 迁移；`lang.datasource.series` 提供 `SeriesEngine`（`datasource` 实现）。
 
-### 适用场景
+### 10.2 JOIN 策略（`datasource.join`）
 
-- 动态表达式计算
-- 脚本执行
-- 动态代理
-- Lambda表达式处理
+`JoinStrategy`：`none`、`inner`，用于多数据源内存 JOIN。
 
-### 核心特性
-
-- **表达式解析**: 支持EL表达式、SQL表达式等
-- **脚本执行**: 支持多种脚本语言
-- **Lambda元数据**: 支持Lambda表达式的元数据获取
-- **代理支持**: 支持动态代理和AOP
-
-### 使用示例
+### 10.3 向量存储（`vector`）
 
 ```java
-import com.chua.common.support.lang.expression.parser.ExpressionParser;
+import com.chua.common.support.vector.VectorStorage;
+import com.chua.common.support.vector.VectorStorageBuilder;
+import com.chua.common.support.vector.Vector;
 
-// 创建表达式解析器
-ExpressionParser parser = ExpressionParser.create("el");
+try (VectorStorage storage = VectorStorageBuilder.newBuilder()
+        .type("memory")
+        .dimension(768)
+        .algorithm("COSINE")
+        .build()) {
 
-// 设置变量
-parser.setVariable("x", 10);
-parser.setVariable("y", 20);
-
-// 解析表达式
-Object result = parser.parseExpression("x + y");
+    storage.add(new Vector("doc-1", new float[]{ /* ... */ }));
+    List<Vector> top = storage.search(query, 10);
+    storage.remove("doc-1");
+}
 ```
 
-### 详细文档
+实现：`MemoryVectorStorage`（测试/小规模）、`DefaultVectorStorage`（冷热混合 + B+ 树索引 + mmap 零拷贝）。`VectorMath` 基于 `jdk.incubator.vector` 做 SIMD 距离计算；`RuntimeDetector` 为 SPI（内置 CUDA / cuVS 检测）。
 
-- [架构文档](./docs/architecture/Lang.md)
+### 10.4 树（`tree`）
 
----
-
-## 文档中心
-
-详细的架构和流程文档请参考 [文档中心](./docs/README.md)
+`BTree` / `BPlusTree` 统一由 `TreeEngine` 抽象，`BinaryTreeConverter` 支持 B/B+ 树与二叉树互转，`TreeNode` 为转换节点。
 
 ---
 
-## 依赖要求
+## 11. 导出、文档与图像
 
-- **Java**: 8+
-- **Lombok**: 编译时依赖
-- **Jackson**: JSON 处理（可选）
-- **BouncyCastle**: 国密算法支持（可选）
-- **Apache Commons Compress**: TAR/GZ/XZ 解压支持（可选）
+### 11.1 导出（`export`）
+
+两个入口，均在 `Documents`：
+
+```java
+import com.chua.common.support.export.Documents;
+import com.chua.common.support.export.ExportResult;
+
+// 接口一：List → 文档
+ExportResult r1 = Documents.of(rows)
+        .format("xlsx")
+        .output(new File("out.xlsx"))
+        .export();
+
+// 接口二：模板替换
+ExportResult r2 = Documents.ofTemplate(new File("template.docx"))
+        .put("name", "张三")
+        .put("items", items)
+        .output(new File("out.docx"))
+        .export();
+```
+
+SPI：`DocumentGenerator`（数据直出）、`TemplateFiller`（模板填充）、`MetaResolver`（列元数据：`javabean` / `third-party` / `export`）、`ValueConverter`。`Engines` 负责把「格式 + 引擎别名」解析成实现；输出目标由 `Outputs` 统一处理。
+
+### 11.2 文档生成（`document`、`lang.document`）
+
+`DocumentProvider`（`html` / `markdown` / `benchmark-html`）、`OpenApiDocumentProvider`（`html`）、`DocumentParser`、`DocumentTemplate`、`HtmlRenderer`、`MarkdownRenderer`。
+
+### 11.3 图像（`image`、`codec.image`）
+
+```java
+import com.chua.common.support.image.ImageProcessors;
+
+byte[] out = ImageProcessors.from(bytes)
+        .resize(800, 600)
+        .grayscale()
+        .rotate(90)
+        .toBytes("png");
+```
+
+`ImageProcessor` SPI：`jdk`、`rust`（由 rust 模块提供）；`ImagePipeline` 负责管线；`QrCode` 为二维码/条形码编解码接口。
+
+### 11.4 视频编解码（`codec.video`）
+
+`VideoEncoder` / `VideoDecoder` / `VideoFrame` / `VideoPacket` / `PixelFormat`，为 ffmpeg 等外部实现提供中性帧表示。
+
+---
+
+## 12. 平台与运维
+
+| 包 | 能力 |
+| --- | --- |
+| `host` | 主机指纹：`HostAnchor` 锚点、`HostFacts` 快照、`HostIdentity.generate/verify/match`，支持 75% 相似度与最少匹配数 |
+| `apm` | `OtnlEngine` SPI + SkyWalking 对齐模型（Service/Instance/Endpoint/Trace/Span/Topology/Alarm/Profile/Log/Metric）与 ORM 通道 |
+| `service` | `ServiceBuilder`：本地/远程（SSH）启停、安装、卸载、状态；`PidFileProcessTracker` |
+| `browser` | `BrowserEngine` SPI（`cdp` 实现）、`BrowserPage`、截图 |
+| `osgi` | `OsgiLauncher`、`BundleContext`、`BundleLifecycleListener` |
+| `modules` | `ModuleLoader`（JPMS 模块导出） |
+| `env` | CUDA 环境下载与安装（`CudaEnvLoader` / `CudaEnvironmentInstaller`） |
+| `setting` | `@GlobalSettingGroup` 全局设置分组 |
+
+```java
+import com.chua.common.support.service.ServiceBuilder;
+
+ServiceBuilder.local()
+        .withJar("./app.jar")
+        .withServiceName("demo")
+        .withPidFile("./demo.pid")
+        .toLocation()
+        .start();
+
+ServiceBuilder.remote()
+        .withJar("./app.jar")
+        .withServiceName("demo")
+        .toRemoteKey("10.0.0.8", 22, "root", "/root/.ssh/id_rsa")
+        .connect()
+        .start();
+```
+
+---
+
+## 13. 其它子系统
+
+| 包 | 说明 |
+| --- | --- |
+| `shmqueue` | 共享内存队列：`ShmQueue.create(name, capacity, slotSize, mode)` / `attach(name)`，`send` / `recv` / `recvTimeout`，带错误码常量 |
+| `probability` | `ProbabilityCollision`（SPI `simple`），用于布隆/计数碰撞 |
+| `value` | `Value` / `LazyValue` / `ExpireValue` / `NumberValue` |
+| `tree` | B/B+ 树（见 10.4） |
+| `matcher` | `MatcherUtils.matchPath` / `matchStart` / `extractTemplateVariables` / `getMatchingPattern` |
+| `mock` | `MockEnvironment`、`MockString` |
+| `math` | `math.unit.size.SizeValue.parse("12MB")`、`SizeUnit` |
+| `language` | 拼音（`Pinyin`、`PinyinFactory`、`PinyinConverter`）、分词（`Tokenizer`、`Word`） |
+| `sync` | 旧版同步模型（Input/Output/Sink/SyncFlow） |
+| `proxy` | `ProxyFactory`、`ProxyUtils`、方法拦截（`Around`、`DelegateMethodIntercept`、`VoidMethodIntercept`、`BridgingMethodIntercept`） |
+| `serialize` | `Serializer` / `SerializerProvider` / 反序列化策略 |
+| `function` | `SafeOptional`、`SafeConsumer` / `SafeFunction` / `SafeSupplier` / `SafePredicate`、`NamedThreadFactory` |
+| `base` | `Options`（字符串选项）、`Serialization`、`StringToConfigConverter`、校验分组 |
+| `config` | 配置中心、加载器、`ConfigParser`（json / jsonl / properties / xml）、配置源 |
+| `expression` | `ExpressionResolver`（`default`） |
+| `document` | 文档生成请求/结果 |
+| `enums` | `Action` 业务动作 |
+| `stream` | `StreamCompressor` |
+| `reflection` | `ReflectUtils`、`FieldStation` |
+| `pool` | `PooledObjectClient` |
+| `content` | `ObjectContent`（Map 底座） |
+
+### 13.1 终端视图与表格渲染（`lang.view`）
+
+```java
+import com.chua.common.support.lang.view.ViewFormatter;
+
+String box   = ViewFormatter.drawBoxedTable(ViewFormatter.extractRows(rows), 1);
+String plain = ViewFormatter.drawBorderlessTable(ViewFormatter.extractRows(rows), 1);
+String md    = ViewFormatter.drawMarkdownTable(ViewFormatter.extractRows(rows), 1);
+```
+
+`extractRows` 自动识别四种数据形态：
+
+| 入参 | 渲染结果 |
+| --- | --- |
+| `Map` | 两列 `Key` / `Value` |
+| `List<Map>` | 所有 key 的并集作为表头 |
+| `List<POJO>` | 反射字段作为列（含父类） |
+| `List<简单类型>` | 单列 `#` |
+
+`ViewParser` SPI 提供更高层封装：`list`、`table`、`kv`、`card`、`tree`、`md`、`plain`、`json`、`barchart`。
+
+### 13.2 模板抽取（`lang.template`、`lang.json`）
+
+用「带占位符的模板」从另一份文本中反向取值：
+
+```java
+import com.chua.common.support.lang.json.JsonTemplateExtractor;
+import com.chua.common.support.lang.template.TemplateExtractor;
+
+TemplateExtractor extractor = new JsonTemplateExtractor();
+
+Map<String, Object> vars = extractor.extract(
+        "{\"id\":\"{id}\",\"name\":\"{name}\"}",     // 模板
+        "{\"name\":\"张三\",\"id\":123}");            // 输入（顺序可不同）
+
+boolean full = extractor.matches(template, input);
+var result = extractor.extractResult(template, input);  // 含 missing()
+var ordered = extractor.extractVars(template, input);   // 带路径，按模板顺序
+```
+
+`{变量名}` 支持整值占位与内嵌（`前缀{变量}后缀`），值保留原始类型。
+
+### 13.3 表达式与脚本（`lang.ast`、`task.script`）
+
+```java
+import com.chua.common.support.lang.ast.ExpressionParser;
+import com.chua.common.support.lang.ast.BTreeNode;
+import com.chua.common.support.spi.ServiceProvider;
+
+ExpressionParser sql = ServiceProvider.of(ExpressionParser.class).getExtension("sql");
+BTreeNode tree = sql.parse("age > 18 AND status = 'active'");
+String back = sql.generate(tree);
+```
+
+| 能力 | 入口 |
+| --- | --- |
+| 表达式 AST | `ExpressionParser`：`sql`、`cypher`、`lucene`、`expr`（正反向解析） |
+| 表达式求值 | `expression.ExpressionResolver`（SPI `default`） |
+| 脚本执行 | `task.script.ScriptFlow.of("java")` / `of("python")`，`execute(Path, context)` / `executeBatch(Path, context)` |
+| 脚本提供者 | `ScriptProvider`：`java`、`python`；`ScriptProviders.engines()` 查询可用引擎 |
+| CLI 工具 | `lang.cmd.CliTool`：`tshark`、`aria2c`、`nvidia-smi`；`Cmd` / `Commands` 注册自定义命令 |
+
+### 13.4 二维码与条码
+
+`image.QrCode` 是编解码接口（`encode` / `decode`，支持 `QR_CODE`、`BARCODE`）；`lang.qr` 提供样式配置（前景/背景、码眼、圆点、Logo、容错级别）。
+
+具体生成实现在 `utils-support-zxing-starter`：
+
+```java
+import com.chua.common.support.lang.qr.QrSetting;
+import com.chua.zxing.support.qr.DefaultQrCode;
+
+DefaultQrCode qr = new DefaultQrCode(new QrSetting());
+qr.out("https://example.com", outputStream);
+```
+
+### 13.5 树、值包装、代理、共享内存、概率
+
+```java
+// B+ 树
+import com.chua.common.support.tree.BPlusTree;
+BPlusTree<String, String> tree = new BPlusTree<>(64);
+tree.put("k", "v");
+tree.get("k");                 // Optional<String>
+tree.range("a", "z");
+tree.toBinaryTree();
+
+// 值包装
+import com.chua.common.support.value.LazyValue;
+import com.chua.common.support.value.Value;
+Value<String> lazy = LazyValue.of(() -> load());
+lazy.getValue();
+
+// 动态代理
+import com.chua.common.support.proxy.ProxyUtils;
+MyService proxy = ProxyUtils.proxy(MyService.class, MyService.class.getClassLoader(), handler);
+
+// 共享内存队列（SPIN / BLOCK / HYBRID）
+import com.chua.common.support.shmqueue.ShmQueue;
+try (ShmQueue q = ShmQueue.create("/demo", 1024, 256, ShmQueue.Mode.HYBRID)) {
+    q.send(1, bytes);
+    ShmQueue.Message msg = q.recvTimeout(1_000_000_000L);
+}
+
+// 概率碰撞
+import com.chua.common.support.probability.ProbabilityCollision;
+ProbabilityCollision pc = ServiceProvider.of(ProbabilityCollision.class).getExtension("simple");
+pc.hit(0.1);
+pc.hitPercent(5);
+```
+
+### 13.6 SQL 格式化与高亮（`lang.format`）
+
+```java
+import com.chua.common.support.lang.format.Formatter;
+import com.chua.common.support.lang.format.HighlightConfig;
+import com.chua.common.support.lang.format.SqlFormatterFactory;
+import com.chua.common.support.lang.format.SqlHighlighter;
+
+Formatter formatter = SqlFormatterFactory.getFormatter(sql);   // 自动识别 DDL/DML
+String pretty = formatter.format(sql);
+
+String highlighted = SqlHighlighter.highlight(sql, new HighlightConfig());
+```
+
+### 13.7 主机指纹（`host`）
+
+```java
+import com.chua.common.support.host.HostIdentity;
+import com.chua.common.support.utils.SystemUtils;
+
+String id = SystemUtils.uniqueId();                 // 由不可变锚点生成
+boolean same = SystemUtils.verifyUniqueId(id);       // 同机校验
+HostIdentity.Match m = SystemUtils.verifyId(id);     // 相似度明细（matched/ratio/mismatchedFields）
+```
+
+锚点由 `HostAnchor` 声明（主板/CPU/磁盘/网卡等），`HostFacts` 是一次采集的快照；`HostIdentity` 支持 75% 相似度 + 最少 2 项匹配的容错判定。
+
+### 13.8 统一返回、分页与版本（`lang.code`、`lang.version`）
+
+```java
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.code.PageResult;
+import com.chua.common.support.lang.version.Version;
+
+ReturnResult<User> ok = ReturnResult.ok(user);
+ReturnResult<Void> err = ReturnResult.error("500", "服务器错误");
+
+ok.isSuccess();
+ok.map(User::getName);                 // 映射不影响成败
+ok.ifOk(u -> log.info("{}", u)).ifError(msg -> log.warn(msg));
+ok.orElseGet(() -> fallback).getData();
+
+PageResult<User> page = PageResult.<User>builder()
+        .pageNo(1)
+        .pageSize(20)
+        .total(100)
+        .totalPages(5)
+        .data(list)
+        .build();
+
+Version v = Version.of("2.0.0-beta");
+v.isHigherThan("1.9.9");
+v.isAtLeast("2.0.0");
+v.getMajor();                                   // 2
+Version.parseFromMaven("spring-core-5.3.21.jar"); // 5.3.21
+```
+
+> `ReturnResult` 的 `code` 是 `String`（不是 int），便于和业务错误码体系对齐。
+
+### 13.9 进度条（`lang.process`）
+
+```java
+import com.chua.common.support.lang.process.ProgressBar;
+
+try (ProgressBar pb = new ProgressBar("下载", 100)) {
+    for (int i = 0; i <= 100; i++) {
+        pb.stepTo(i);
+    }
+    pb.setExtraMessage("校验中");
+}
+
+// 直接包装集合/流，自动按元素推进
+ProgressBar.wrap(list, "处理").forEach(this::handle);
+ProgressBar.wrap(inputStream, "读取");
+```
+
+内置样式：`COLORFUL_UNICODE_BLOCK`、`UNICODE_BLOCK`、`ASCII`、`PYTHON_DOWNLOAD`、`PYTHON_LOADING`、`RAINBOW`、`MATRIX`、`FIRE`、`OCEAN`、`NEON`、`SUNSET` 等；`ProgressBar.builder()` 可定制。
+
+### 13.10 日期与占位符（`lang.date`、`lang.placeholder`）
+
+```java
+import com.chua.common.support.lang.date.DateTime;
+
+DateTime.now();
+DateTime.parse("2024-01-01 12:00:00");
+DateTime.format(DateTime.now(), "yyyy-MM-dd");
+DateTime.betweenDays(start, end);
+DateTime.isToday(DateTime.now());
+```
+
+```java
+import com.chua.common.support.lang.placeholder.*;
+import java.util.Map;
+
+PropertyResolver resolver = CompositePropertyResolver.createDefault(
+        new MapMixSystemPlaceholderResolver(Map.of("app.name", "demo")));
+
+String text = resolver.resolvePlaceholders("${app.name} 启动于 ${app.port:8080}");
+```
+
+支持 `${key}`、`${key:默认值}`、函数调用、三目与数组下标；解析源可叠加 Map、Properties、系统属性、环境变量。
+
+---
+
+## 14. SPI 扩展点总表
+
+下表来自 `src/main/resources/META-INF/extensions/`，key 为调用 `getExtension(key)` 时使用的名字。
+
+| 接口 | key → 实现 |
+| --- | --- |
+| `file.FileSystem` | `csv`、`json`、`xml`、`txt`、`zip`、`archive`、`tar` |
+| `network.client.spi.HttpClientExecutor` | `okhttp`、`httpclient5`；`jdk` 内置（不写扩展文件）；`httpclient` 为预留名 |
+| `network.server.Server` | `jdk` / `jdk-http`、`nio` / `nio-http`、`aio` / `aio-http` / `iocp`、`jdk-tcp` / `tcp`、`aio-tcp` / `tcp-aio`、`jdk-udp`、`jdk-telnet`、`jdk-websocket`、`ftp`、`ftps`、`sip`、`sniff-tcp`、`http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` |
+| `network.server.SyncServer` | `http`、`websocket`、`tcp`、`udp` |
+| `network.sync.SyncClient` | `http`、`websocket`、`tcp`、`udp` |
+| `network.server.filter.ServerFilter` | `ip`、`firewall`、`rate-limit`、`routing`、`request-id`、`request-timeout`、`ipc`、`response-rewrite`、`gzip`、`cors`、`ws-proxy`、`url-mapping`、`shell-url-mapping`、`invoker_inject`、`ai_token` |
+| `network.server.filter.rate.RateLimitProvider` | `guava` |
+| `network.server.parser.ServerHandlerAnnotationParser` | `request-method`、`ipc-method` |
+| `network.server.resolver.HandlerMethodArgumentResolver` | `default` |
+| `network.annotations.ListenerParser` | `javax`、`custom`、`objectcontext` |
+| `network.discovery.ServiceDiscovery` | `peermesh` |
+| `network.download.DownloadService` | `default`、`aria2` |
+| `network.download.extractor.Extractor` | `zip`、`tar`、`tar.gz`、`tgz`、`gz` |
+| `network.rpc.RpcClient` / `RpcServer` | `native` |
+| `scatter.ScatterRemoteClient` | `tcp`、`udp` |
+| `ai.chat.ChatClient` | `memory`（+ 各 cloud starter） |
+| `ai.embedding.EmbeddingClient` | `memory` |
+| `ai.rag.RagClient` | `memory` |
+| `ai.rag.RagClient$UploadProvider` | `local` |
+| `ai.splitter.TextSplitterProvider` | `sentence` |
+| `ai.rule.RuleBuilder` | `native` |
+| `browser.BrowserEngine` | `cdp` |
+| `codec.Decoder` | `keylog` |
+| `config.parser.ConfigParser` | `properties`、`xml`、`json` / `json5`、`jsonl`（注解注册，无扩展文件） |
+| `collection.wrap.CollectionBackend` | JDK / Eclipse Collections |
+| `concurrent.lock.LockProvider` | `semaphore`、`circular` |
+| `concurrent.offset.OffsetStore` | 文件实现 |
+| `concurrent.rate.RateLimiter`（provider） | `guava` |
+| `datasource.join.JoinStrategy` | `none`、`inner` |
+| `document.DocumentProvider` | `html`、`markdown`、`benchmark-html` |
+| `export.spi.MetaResolver` | `javabean`、`third-party`、`export` |
+| `image.ImageProcessor` | `jdk`、`rust` |
+| `lang.benchmark.Benchmark` | `k6`、`java` |
+| `lang.cmd.CliTool` | `tshark`、`aria2c`、`nvidia-smi` |
+| `lang.datasource.flyway.Flyway` | `flyway` |
+| `lang.datasource.flyway.ScriptConverter` | `default` |
+| `lang.datasource.series.SeriesEngine` | `datasource` |
+| `lang.directory.PolledDirectory` | `filesystem` |
+| `lang.document.OpenApiDocumentProvider` | `html` |
+| `lang.view.ViewParser` | `list`、`table`、`kv`、`card`、`tree`、`md`、`plain`、`json`、`barchart` |
+| `objects.creator.Quick` | `quick` |
+| `objects.environment.ConfigValueExpressionResolver` | `default` |
+| `objects.inject.BeanDefinitionConfigInjector` | `default` |
+| `objects.inject.BeanDefinitionMethodInjector` | `default`、`jsr` |
+| `objects.inject.BeanDefinitionServiceInjector` | `default` |
+| `objects.register.BeanDefinitionRegister` | `default`、`annotation`、`spi` |
+| `objects.resolver.BeanConstructorResolver` | `default` |
+| `probability.ProbabilityCollision` | `simple` |
+| `serialize.DeserializationPolicy` | `denylist` |
+| `storage.FileStorage` | 各对象存储 starter 注册 |
+| `vector.VectorStorageProvider` | `memory` |
+| `vector.RuntimeDetector` | `wal-store-detector` |
+| `wal.WalFileSystem` | `wal-kv`、`wal-ts`、`wal-vec`、`wal-filesearch` |
+
+> 另有 `META-INF/services/` 下的标准 `ServiceLoader` 登记：`Serialization`、`CollectionBackend`、`ImageProcessor`、`ServiceDiscovery`、`Server`、`ProbabilityCollision`。
+
+---
+
+## 15. 配置项与系统属性
+
+| 项 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `chua.host.id.salt` | 系统属性 | 空 | 主机指纹盐值（`HostIdentity.SALT_PROPERTY`） |
+| `ServerSetting.workerThreads` | int | CPU×2 | 服务端工作线程 |
+| `ServerSetting.bossThreads` | int | CPU | Boss 线程 |
+| `ServerSetting.maxConnections` | int | 1000 | 最大连接数 |
+| `ServerSetting.backlog` | int | 128 | 连接队列 |
+| `ServerSetting.tcpNoDelay` | boolean | true | 禁用 Nagle |
+| `ServerSetting.idleTimeout` | int | 5000 | 空闲超时（ms） |
+| `WalConfig.syncOnWrite` | boolean | true | 每次写入 fsync |
+| `WalConfig.fsyncBatchSize` | int | 100 | 批量 fsync 条数 |
+| `WalConfig.fsyncBatchIntervalMs` | long | 50 | 批量 fsync 间隔 |
+| `WalConfig.maxSegmentBytes` | long | 64MB | 分片大小 |
+| `WalConfig.keepCheckpointedSegments` | int | 1 | 保留 checkpoint 分片数 |
+| `HttpClientBuilder.connectTimeout` / `readTimeout` | long | 实现默认 | 连接/读取超时（ms） |
+
+---
+
+## 16. 扩展开发
+
+新增一个扩展只需三步（以新增文件系统为例）：
+
+1. 实现接口（可加 `@Extension` / `@SpiOrder`）。
+2. 建 `src/main/resources/META-INF/extensions/com.chua.common.support.file.FileSystem`。
+3. 写一行 `mytype=com.example.MyFileSystem`。
+
+```text
+src/main/resources/META-INF/extensions/com.chua.common.support.file.FileSystem
+mytype=com.example.MyFileSystem
+```
+
+调用方无需改代码：
+
+```java
+FileSystem fs = FileSystem.create("mytype");
+```
+
+**条件加载**：实现类上加 `@ConditionalOnClass`（依赖类存在才加载）、`@ConditionalOnProperty`（配置开关）、`@ConditionalOnMissingClass`，避免可选依赖缺失时启动失败。
+
+**优先级**：`@SpiOrder(n)` 或 `@Spi(order = n)`，数值越大越优先；`getExtensionFactory(name)` 会按此顺序做故障降级。
+
+---
+
+## 17. 构建与依赖
+
+### 17.1 编译要求
+
+- JDK 25（`<release>25</release>`）。
+- 编译器显式开启 `--enable-preview`、`--add-modules=jdk.incubator.vector`，并为 `jdk.compiler` 打开 `--add-exports/--add-opens`（注解处理与 AST 能力需要）。
+- 源码 UTF-8、无 BOM；Lombok 作为注解处理器参与编译。
+
+```bash
+mvn -pl utils-support-core-parent/utils-support-common-starter -am clean package
+```
+
+### 17.2 运行期依赖
+
+| 依赖 | 用途 | 是否可排除 |
+| --- | --- | --- |
+| `slf4j-api` | 日志 | 否 |
+| `guava` | 集合/缓存/限流 | 否 |
+| `jackson-databind` + `jackson-datatype-jsr310` | JSON / 时间类型 | 否（可换 `gson` / `fastjson` starter） |
+| `reactor-core` | HTTP 异步返回 `Mono` | 否 |
+| `eclipse-collections` | `collection.wrap` 默认后端 | 可排除，自动回退 JDK |
+| `lombok` | 编译期 | `provided` |
+
+---
+
+## 18. 边界：这些能力不在本模块
+
+旧版 README 中曾出现、但当前代码已**移除或迁出**的能力，请勿在本模块中查找：
+
+| 能力 | 现状 |
+| --- | --- |
+| 加密编解码 `CodecBuilder` / `CryptoType` | 迁至 `utils-support-crypto-starter` |
+| 死信队列 `DeadLetterQueue` | 已移除 |
+| 缓存下载器 `CachedDownloader` | 已移除；下载用 `network.download.DownloadService` |
+| `TextChat` / `ImageChat` 门面 | 已移除；统一用 `ai.chat.ChatClient` 的 `generateImage` / `generateVideo` |
+| `Orchestrator` 任务编排 | 已移除；用 `utils-support-flow-starter` 的 `Flow` |
+| ACME 证书 | 迁至 `utils-support-acme-starter` |
+| 进度条 | 在 `lang.process.ProgressBar`（不是 `printer` 包） |
+| 7z / zip4j / yaml / excel / pdf / word 文件系统 | 在 `utils-support-filesystem-starter` |
+| 数据库驱动与连接池 | 在 `utils-support-datasource-parent` 各模块 |
+| AI 厂商协议 | 在 `utils-support-cloud-parent` 各模块（`openai`、`claude`、`zhipu` 等） |
+
+---
+
+## 19. 文档索引
+
+| 文档 | 路径 |
+| --- | --- |
+| 父模块说明 | [../README.md](../README.md) |
+| utils 仓库总览 | [../../README.md](../../README.md) |
+| 文件系统实现 | [../utils-support-filesystem-starter/README.md](../utils-support-filesystem-starter/README.md) |
+| 网络实现 | [../utils-support-network-starter/README.md](../utils-support-network-starter/README.md) |
+| 流程执行 | [../utils-support-flow-starter/README.md](../utils-support-flow-starter/README.md) |
+| 数据同步 | [../../utils-support-datatask-parent/utils-support-datasync-starter/README.md](../../utils-support-datatask-parent/utils-support-datasync-starter/README.md) |
+| 任务分发说明 | [src/main/java/com/chua/common/support/taskdistribution/README.md](src/main/java/com/chua/common/support/taskdistribution/README.md) |
 
 ---
 
 ## 许可证
 
-本项目采用 Apache License 2.0 许可证。
-
----
-
-## 更新日志
-
-详见 [CHANGELOG.md](CHANGELOG.md)
+Apache License 2.0
