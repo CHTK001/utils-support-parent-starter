@@ -18,6 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>用法：{@code java SocketIoLoadClient <port> <clients> <holdSeconds>}</p>
  * <p>输出：连接完成后打印 {@code [sio-client] CONNECTED ok=N/N}，保持期后再打印存活数。</p>
+ *
+ * @author CH
+ * @since 2026-11-13
  */
 public final class SocketIoLoadClient {
 
@@ -60,6 +63,7 @@ public final class SocketIoLoadClient {
         // 且 websocket 握手是 AsyncCall、跑在 Dispatcher 的 executor 上：
         // 用固定 64 线程池会把并发连接卡死在 64 条（实测正好 64，其余全部 connect timeout）。
         okhttp3.Dispatcher dispatcher = new okhttp3.Dispatcher(
+                // [P3C C1 豁免]
                 java.util.concurrent.Executors.newCachedThreadPool());
         dispatcher.setMaxRequests(65536);
         dispatcher.setMaxRequestsPerHost(65536);
@@ -74,6 +78,7 @@ public final class SocketIoLoadClient {
         // 并发建连：串行建连的耗时会随连接数线性增长，本身就会压出假故障
         int parallelism = Math.min(32, Math.max(1, clients));
         java.util.concurrent.ExecutorService pool =
+                // [P3C C1 豁免]
                 java.util.concurrent.Executors.newFixedThreadPool(parallelism);
         List<java.util.concurrent.Future<?>> tasks = new ArrayList<>(clients);
         for (int i = 0; i < clients; i++) {
@@ -83,12 +88,14 @@ public final class SocketIoLoadClient {
                 socket.on(Socket.EVENT_DISCONNECT, a -> disconnected.incrementAndGet());
                 socket.on("error", a -> {
                     if (errors.incrementAndGet() <= 5) {
+                        // [P3C E1 豁免]
                         System.out.println("[sio-client] ERROR "
                                 + (a != null && a.length > 0 ? a[0] : "?"));
                     }
                 });
                 socket.on("connect_error", a -> {
                     if (connectErrors.incrementAndGet() <= 5) {
+                        // [P3C E1 豁免]
                         System.out.println("[sio-client] CONNECT_ERROR "
                                 + (a != null && a.length > 0 ? a[0] : "?"));
                     }
@@ -107,10 +114,12 @@ public final class SocketIoLoadClient {
             Thread.sleep(100L);
         }
         long connectMs = (System.nanoTime() - startNs) / 1_000_000L;
+        // [P3C E1 豁免]
         System.out.println("[sio-client] CONNECTED ok=" + connected.get() + "/" + clients
                 + " disconnected=" + disconnected.get()
                 + " errors=" + errors.get() + " connectErrors=" + connectErrors.get()
                 + " connectMs=" + connectMs);
+        // [P3C E1 豁免]
         System.out.flush();
 
         Thread.sleep(holdSeconds * 1000L);
@@ -121,7 +130,9 @@ public final class SocketIoLoadClient {
                 alive++;
             }
         }
+        // [P3C E1 豁免]
         System.out.println("[sio-client] ALIVE after hold = " + alive + "/" + clients);
+        // [P3C E1 豁免]
         System.out.flush();
 
         for (Socket socket : sockets) {
@@ -132,7 +143,9 @@ public final class SocketIoLoadClient {
                 // 清理失败不影响统计
             }
         }
+        // [P3C E1 豁免]
         System.out.println("[sio-client] DONE");
+        // [P3C E1 豁免]
         System.out.flush();
         Runtime.getRuntime().halt(0);
     }

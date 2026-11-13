@@ -133,6 +133,7 @@ class SocketIoScaleTest {
             if (line == null) {
                 return null;
             }
+            // [P3C E1 豁免]
             System.out.println("[child] " + line);
             if (line.startsWith(prefix)) {
                 return line;
@@ -151,6 +152,7 @@ class SocketIoScaleTest {
     @DisplayName("Socket.IO 规模压测（默认跳过，用 -Dsio.scale.connections 开启）")
     void scaleConnections() throws Exception {
         if (CLIENTS <= 0) {
+            // [P3C E1 豁免]
             System.out.println("[sio-scale] SKIPPED: 未设置 -Dsio.scale.connections（容量验收不跑在常规回归里）");
             return;
         }
@@ -182,6 +184,7 @@ class SocketIoScaleTest {
             long active = server.getMetrics().getActiveConnections();
             long perConnBytes = (heapAfter - heapBefore + directDelta) / Math.max(1, active);
 
+            // [P3C E1 豁免]
             System.out.println("[sio-scale] clients=" + CLIENTS
                     + " active=" + active
                     + " rejected=" + server.getMetrics().getRejectedConnections()
@@ -189,6 +192,7 @@ class SocketIoScaleTest {
                     + " directDeltaMb=" + (directDelta / (1024 * 1024))
                     + " perConnKb=" + String.format("%.2f", perConnBytes / 1024.0)
                     + " projected1mGb=" + String.format("%.2f", perConnBytes * 1_000_000.0 / (1024 * 1024 * 1024)));
+            // [P3C E1 豁免]
             System.out.flush();
 
             assertEquals(CLIENTS, active,

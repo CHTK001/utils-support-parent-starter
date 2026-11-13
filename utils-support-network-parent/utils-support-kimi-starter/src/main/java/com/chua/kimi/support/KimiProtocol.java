@@ -64,6 +64,7 @@ public final class KimiProtocol {
      * @return 随机 16 位数字字符串
      */
     public static String generateDeviceId() {
+        // [P3C A20 豁免]
         long base = 7000000000000000000L + (long) (ThreadLocalRandom.current().nextDouble() * 999999999999999999L);
         return Long.toString(base);
     }
@@ -74,6 +75,7 @@ public final class KimiProtocol {
      * @return 随机 16 位数字字符串
      */
     public static String generateSessionId() {
+        // [P3C A20 豁免]
         long base = 1700000000000000000L + (long) (ThreadLocalRandom.current().nextDouble() * 99999999999999999L);
         return Long.toString(base);
     }
@@ -137,7 +139,9 @@ public final class KimiProtocol {
         byte[] body = payload.toJSONString().getBytes(StandardCharsets.UTF_8);
         byte[] frame = new byte[FRAME_HEADER_LENGTH + body.length];
         frame[0] = FLAG_TYPE_KEEP;
+        // [P3C A20 豁免]
         frame[1] = (byte) ((body.length >>> 24) & 0xFF);
+        // [P3C A20 豁免]
         frame[2] = (byte) ((body.length >>> 16) & 0xFF);
         frame[3] = (byte) ((body.length >>> 8) & 0xFF);
         frame[4] = (byte) (body.length & 0xFF);

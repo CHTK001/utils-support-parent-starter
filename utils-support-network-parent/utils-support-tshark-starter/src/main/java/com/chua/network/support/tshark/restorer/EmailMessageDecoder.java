@@ -197,6 +197,7 @@ public final class EmailMessageDecoder {
         if (message == null) {
             return "[Email Message] empty";
         }
+        // [P3C A20 豁免]
         StringBuilder sb = new StringBuilder(256);
         sb.append("[Email Message]");
         appendHeader(sb, "Subject", message.header("subject"));
@@ -334,7 +335,9 @@ public final class EmailMessageDecoder {
                 continue;
             }
             if (i + 2 < body.length()) {
+                // [P3C A20 豁免]
                 int hi = Character.digit(body.charAt(i + 1), 16);
+                // [P3C A20 豁免]
                 int lo = Character.digit(body.charAt(i + 2), 16);
                 if (hi >= 0 && lo >= 0) {
                     out.write((hi << 4) | lo);

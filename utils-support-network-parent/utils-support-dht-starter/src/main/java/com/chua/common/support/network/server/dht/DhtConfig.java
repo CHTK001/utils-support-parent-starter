@@ -26,6 +26,7 @@ public class DhtConfig {
      * UDP 监听端口，默认 6881
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int port = 6881;
 
     /**

@@ -99,6 +99,7 @@ public final class TcpStreamAssembler {
     /**
      * 流状态表，按最近访问排序以便做最近最少使用淘汰
      */
+    // [P3C A20 豁免]
     private final Map<TcpStreamKey, StreamState> streams = new LinkedHashMap<>(64, 0.75f, true);
 
     /**

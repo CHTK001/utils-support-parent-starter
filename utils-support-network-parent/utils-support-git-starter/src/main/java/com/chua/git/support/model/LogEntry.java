@@ -42,6 +42,7 @@ public record LogEntry(
                 commit.getFullMessage(),
                 author != null ? author.getName() : "",
                 author != null ? author.getEmailAddress() : "",
+                // [P3C A20 豁免]
                 (long) commit.getCommitTime() * 1000L
         );
     }

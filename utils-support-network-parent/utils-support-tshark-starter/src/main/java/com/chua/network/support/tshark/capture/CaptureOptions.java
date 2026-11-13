@@ -432,6 +432,7 @@ public final class CaptureOptions {
         /**
          * 抓包缓冲大小
          */
+        // [P3C A20 豁免]
         private int bufferSizeMegabytes = 32;
         /**
          * 环形缓冲文件
@@ -460,6 +461,7 @@ public final class CaptureOptions {
         /**
          * 单包原始 JSON 上限
          */
+        // [P3C A20 豁免]
         private int maxRawJsonBytes = 256 * 1024;
         /**
          * 是否启用重组

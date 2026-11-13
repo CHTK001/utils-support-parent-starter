@@ -66,6 +66,7 @@ public class SmbFileStorage extends AbstractFileStorage {
         String user = accessKeyId != null ? accessKeyId : "guest";
         String pass = accessKeySecret != null ? accessKeySecret : "";
 
+        // [P3C A20 豁免]
         int port = 445;
         int slash = host.indexOf('/');
         if (slash > 0) {

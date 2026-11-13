@@ -236,6 +236,7 @@ public class SymmetricEnvironment {
         /**
          * polling间隔
          */
+        // [P3C A20 豁免]
         private long pollingInterval = 10;
         /**
          * 时间 Unit

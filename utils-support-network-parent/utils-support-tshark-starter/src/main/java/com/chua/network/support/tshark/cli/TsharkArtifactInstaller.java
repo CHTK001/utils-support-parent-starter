@@ -164,7 +164,9 @@ public final class TsharkArtifactInstaller {
                     .url(artifact.url())
                     .target(downloadDir)
                     .filename(artifact.fileName())
+                    // [P3C A20 豁免]
                     .connectTimeout((int) Math.min(timeoutSeconds * 1000L, 60_000L))
+                    // [P3C A20 豁免]
                     .readTimeout((int) Math.min(timeoutSeconds * 1000L, 300_000L))
                     .forceDownload(force)
                     .skipMd5Check(true)
@@ -214,6 +216,7 @@ public final class TsharkArtifactInstaller {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             try (InputStream in = Files.newInputStream(file)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int read;
                 while ((read = in.read(buffer)) != -1) {

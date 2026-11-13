@@ -70,6 +70,7 @@ public class EmailProtocolRestorer extends AbstractProtocolRestorer {
      */
     @Override
     public int getPriority() {
+        // [P3C A20 豁免]
         return 110;
     }
 

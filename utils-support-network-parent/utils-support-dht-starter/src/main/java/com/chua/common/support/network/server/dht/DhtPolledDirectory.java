@@ -333,6 +333,7 @@ public class DhtPolledDirectory implements PolledDirectory {
             }
 
             String host = "0.0.0.0";
+            // [P3C A20 豁免]
             int port = 6881;
             if (hostPort.contains(":")) {
                 String[] parts = hostPort.split(":");

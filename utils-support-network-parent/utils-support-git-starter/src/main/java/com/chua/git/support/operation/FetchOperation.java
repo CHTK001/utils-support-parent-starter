@@ -61,6 +61,7 @@ public class FetchOperation {
     /**
      * 定时轮询间隔（秒），默认 30。
      */
+    // [P3C A20 豁免]
     private long watchInterval = 30;
 
     /**

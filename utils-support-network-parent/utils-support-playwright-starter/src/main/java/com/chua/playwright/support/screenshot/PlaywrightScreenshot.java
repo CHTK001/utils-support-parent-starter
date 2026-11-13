@@ -242,10 +242,12 @@ public class PlaywrightScreenshot {
         /**
          * viewport Width
          */
+        // [P3C A20 豁免]
         private int viewportWidth = 1280;
         /**
          * viewport Height
          */
+        // [P3C A20 豁免]
         private int viewportHeight = 720;
         /**
          * 完整 Page
@@ -258,6 +260,7 @@ public class PlaywrightScreenshot {
         /**
          * wait超时时间
          */
+        // [P3C A20 豁免]
         private long waitTimeout = 30000;
         /**
          * extrawait（毫秒）

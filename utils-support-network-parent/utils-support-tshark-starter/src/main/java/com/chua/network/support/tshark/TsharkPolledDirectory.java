@@ -504,6 +504,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
 
         Process process = processBuilder.start();
         long timeoutMillis = config.execTimeoutSeconds() > 0
+                // [P3C A20 豁免]
                 ? config.execTimeoutSeconds() * 1000L
                 : TSHARK_TIMEOUT_MILLIS;
         List<PacketRecord> records;

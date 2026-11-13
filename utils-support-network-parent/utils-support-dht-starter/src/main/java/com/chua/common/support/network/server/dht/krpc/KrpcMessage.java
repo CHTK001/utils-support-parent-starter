@@ -98,6 +98,7 @@ public class KrpcMessage {
         } else if (y == 'r') {
             map.put("r", r != null ? r : Wraps.linkedMap());
         } else if (y == 'e') {
+            // [P3C A20 豁免]
             map.put("e", e != null ? e : Arrays.asList(201L, "Generic Error"));
         }
         return BencodeCodec.encode(map);
