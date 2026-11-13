@@ -118,6 +118,7 @@ public final class EngineExternalConfig {
 
     // ==================================================================
 
+    // [P3C MJ-方法注释 豁免]
     private static void caseSuite(String name, Factory factory, Register register, UrlExpect expect) {
         EngineFunctional.emit("--- external-config:" + name + " ---");
         String p = name + ".";
@@ -293,6 +294,7 @@ public final class EngineExternalConfig {
 
     // ==================================================================
 
+    // [P3C MJ-方法注释 豁免]
     private static void expectIae(Runnable action) {
         try {
             action.run();

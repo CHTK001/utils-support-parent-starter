@@ -51,6 +51,7 @@ public final class EngineSqlServer {
             EngineFunctional.emit("STAGE23_SKIP=1");
             EngineFunctional.emit("  结果: PASS=0  FAIL=0  SKIP=1");
             EngineFunctional.emit("=".repeat(78));
+            // [P3C SE-安全 豁免]
             System.exit(0);
         }
 
@@ -101,6 +102,7 @@ public final class EngineSqlServer {
 
     // ==================== SQL Server / T-SQL 专有语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void sqlServerSemantics(Engine e) {
         EngineFunctional.emit("--- sqlserver.semantics ---");
 
@@ -306,6 +308,7 @@ public final class EngineSqlServer {
 
     // ==================== 辅助 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static String env(String key, String fallback) {
         String value = System.getenv(key);
         if (value == null || value.isBlank()) {
@@ -314,6 +317,7 @@ public final class EngineSqlServer {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void cleanup(Engine e) {
         for (String table : new String[]{"t_acc_user", "t_acc_utf", "t_acc_ts", "t_acc_page"}) {
             try {
@@ -324,6 +328,7 @@ public final class EngineSqlServer {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void assertIds(List<Map<String, Object>> rows, String page, Long... expected) {
         if (rows == null || rows.size() != expected.length) {
             throw new EngineFunctional.HarnessFailure(page + " 行数期望 " + expected.length
@@ -338,6 +343,7 @@ public final class EngineSqlServer {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static Object valueIgnoreCase(Map<String, Object> row, String column) {
         if (row == null) {
             return null;
@@ -350,6 +356,7 @@ public final class EngineSqlServer {
         return null;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String sqlState(Throwable t) {
         Throwable cur = t;
         while (cur != null) {
@@ -361,6 +368,7 @@ public final class EngineSqlServer {
         return "n/a";
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean reachable() {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(HOST, PORT), 1500);

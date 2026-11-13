@@ -69,6 +69,7 @@ public final class EngineInfluxDbEngine {
 
     // ==================== store 语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void storeSuite() {
         EngineFunctional.emit("--- influxdb-engine:store (表名解析与回退) ---");
         String p = "store.";
@@ -128,6 +129,7 @@ public final class EngineInfluxDbEngine {
 
     // ==================== 查询语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void querySuite() {
         EngineFunctional.emit("--- influxdb-engine:query (WHERE 求值与类型化映射) ---");
         String p = "query.";
@@ -179,6 +181,7 @@ public final class EngineInfluxDbEngine {
 
     // ==================== Lambda 终端 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void lambdaSuite() {
         EngineFunctional.emit("--- influxdb-engine:lambda (count / 包装器终端) ---");
         String p = "lambda.";
@@ -207,6 +210,7 @@ public final class EngineInfluxDbEngine {
 
     // ==================== 分页 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void pagingSuite() {
         EngineFunctional.emit("--- influxdb-engine:paging (skip 先于 limit) ---");
         String p = "page.";
@@ -255,6 +259,7 @@ public final class EngineInfluxDbEngine {
 
     // ==================== 写路径 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void writePathSuite() {
         EngineFunctional.emit("--- influxdb-engine:write-path (全表守卫 + 内存写真实生效) ---");
         String p = "write.";
@@ -318,6 +323,7 @@ public final class EngineInfluxDbEngine {
         return list;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void expectType(Class<? extends Throwable> type, Runnable action) {
         try {
             action.run();
@@ -331,6 +337,7 @@ public final class EngineInfluxDbEngine {
         throw new EngineFunctional.HarnessFailure("未抛 " + type.getSimpleName());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void runQuietly(String name, Runnable body) {
         try {
             body.run();

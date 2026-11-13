@@ -57,14 +57,17 @@ public final class EngineFunctional {
             return name;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setName(String name) {
             this.name = name;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public Integer getAge() {
             return age;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setAge(Integer age) {
             this.age = age;
         }
@@ -140,6 +143,7 @@ public final class EngineFunctional {
         }
         emit("=".repeat(78));
         writeReport();
+        // [P3C SE-安全 豁免]
         System.exit(fail);
     }
 
@@ -550,6 +554,7 @@ public final class EngineFunctional {
         } catch (Exception e) {
             System.err.println("报告落盘失败: " + e); // [P3C E1 豁免]
         }
+        // [P3C SE-安全 豁免]
         System.exit(fail);
     }
 

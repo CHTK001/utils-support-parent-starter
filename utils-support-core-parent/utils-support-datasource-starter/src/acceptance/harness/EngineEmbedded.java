@@ -52,22 +52,27 @@ public final class EngineEmbedded {
             return title;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setTitle(String title) {
             this.title = title;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public String getBody() {
             return body;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setBody(String body) {
             this.body = body;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public Integer getAge() {
             return age;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setAge(Integer age) {
             this.age = age;
         }
@@ -361,6 +366,7 @@ public final class EngineEmbedded {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void closeQuietly(Object o) {
         if (o instanceof AutoCloseable ac) {
             try {

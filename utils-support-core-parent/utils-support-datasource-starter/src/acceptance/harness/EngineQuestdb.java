@@ -90,10 +90,12 @@ public final class EngineQuestdb {
 
     // ==================== 桩服务 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static String baseUrl() {
         return "http://127.0.0.1:" + port;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void startStub() throws Exception {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/write", ex -> {
@@ -129,6 +131,7 @@ public final class EngineQuestdb {
         EngineFunctional.emit("  [stub] 已启动 127.0.0.1:" + port);
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void stopStub() {
         if (server != null) {
             server.stop(0);
@@ -136,16 +139,19 @@ public final class EngineQuestdb {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String auth(HttpExchange ex) {
         return ex.getRequestHeaders().getFirst("Authorization");
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String read(InputStream in) throws java.io.IOException {
         try (InputStream is = in) {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void respond(HttpExchange ex, int status, String body) throws java.io.IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         ex.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
@@ -155,16 +161,19 @@ public final class EngineQuestdb {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void script(String... bodies) {
         for (String body : bodies) {
             SCRIPT.addLast(new Resp(200, body));
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void scriptStatus(int status, String body) {
         SCRIPT.addLast(new Resp(status, body));
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void reset() {
         CALLS.clear();
         SCRIPT.clear();
@@ -258,6 +267,7 @@ public final class EngineQuestdb {
 
     // ==================== 守卫 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void guardSuite() {
         EngineFunctional.emit("--- questdb:guard (参数与白名单，调用前即拒绝) ---");
         String p = "guard.";
@@ -313,6 +323,7 @@ public final class EngineQuestdb {
 
     // ==================== 写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void writeSuite() {
         EngineFunctional.emit("--- questdb:write (真实 ILP 报文) ---");
         String p = "write.";
@@ -391,6 +402,7 @@ public final class EngineQuestdb {
 
     // ==================== 鉴权 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void authSuite() {
         EngineFunctional.emit("--- questdb:auth (写入与 /exec 必须携带同一份凭据) ---");
         String p = "auth.";
@@ -449,6 +461,7 @@ public final class EngineQuestdb {
 
     // ==================== 指标发现 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void metricsSuite() {
         EngineFunctional.emit("--- questdb:metrics (探测 SQL 与列类型收窄) ---");
         String p = "metrics.";
@@ -542,6 +555,7 @@ public final class EngineQuestdb {
 
     // ==================== 曲线 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void seriesSuite() {
         EngineFunctional.emit("--- questdb:series (SQL 拼装、降采样、坏点丢弃) ---");
         String p = "series.";
@@ -698,6 +712,7 @@ public final class EngineQuestdb {
 
     // ==================== 清理 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void purgeSuite() {
         EngineFunctional.emit("--- questdb:purge (DELETE 语义) ---");
         String p = "purge.";
@@ -766,6 +781,7 @@ public final class EngineQuestdb {
 
     // ==================== 生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void lifecycleSuite() {
         EngineFunctional.emit("--- questdb:lifecycle (关闭语义) ---");
         String p = "lifecycle.";
@@ -870,18 +886,22 @@ public final class EngineQuestdb {
 
     // ==================== 辅助 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static long minuteStart(long millis) {
         return (millis / 60_000L) * 60_000L;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean eqNum(Object actual, long expected) {
         return actual instanceof Number n && n.longValue() == expected;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean eqNum(Object actual, double expected) {
         return actual instanceof Number n && Math.abs(n.doubleValue() - expected) < 1e-9;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void expectType(Class<? extends Throwable> type, Runnable action) {
         try {
             action.run();
@@ -895,6 +915,7 @@ public final class EngineQuestdb {
         throw new EngineFunctional.HarnessFailure("未抛 " + type.getSimpleName());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void runQuietly(String name, Runnable body) {
         try {
             body.run();

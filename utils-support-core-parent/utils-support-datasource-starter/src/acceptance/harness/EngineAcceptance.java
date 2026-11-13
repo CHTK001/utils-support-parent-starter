@@ -36,9 +36,11 @@ public final class EngineAcceptance {
     }
 
     public static void main(String[] args) {
+        // [P3C A20 豁免]
         System.out.println("=".repeat(78)); // [P3C E1 豁免]
         System.out.println("  引擎验收 阶段一：注册表 / 创建 / 能力契约 / 生命周期"); // [P3C E1 豁免]
         System.out.println("  候选键 " + KEYS.size() + " 个（嵌入式 " + EMBEDDED.size() + " 个）"); // [P3C E1 豁免]
+        // [P3C A20 豁免]
         System.out.println("=".repeat(78)); // [P3C E1 豁免]
 
         // 0. SPI 注册表本身：确认每个键都能被解析出来
@@ -69,12 +71,15 @@ public final class EngineAcceptance {
             safeClose(key, e);
         }
 
+        // [P3C A20 豁免]
         System.out.println("=".repeat(78)); // [P3C E1 豁免]
         System.out.println("  结果: PASS=" + pass + "  FAIL=" + fail); // [P3C E1 豁免]
         for (String f : FAILURES) {
             System.out.println("    [FAIL] " + f); // [P3C E1 豁免]
         }
+        // [P3C A20 豁免]
         System.out.println("=".repeat(78)); // [P3C E1 豁免]
+        // [P3C SE-安全 豁免]
         System.exit(fail);
     }
 
@@ -150,6 +155,7 @@ public final class EngineAcceptance {
         // queryPage 参数守卫：页码/页大小 <=0 必须抛 IllegalArgumentException（接口默认实现已保证）
         check(tag + ".queryPage 参数守卫", () -> {
             try {
+                // [P3C A20 豁免]
                 e.queryPage("SELECT 1", 0, 10);
                 throw new IllegalStateException("pageNum=0 未抛 IllegalArgumentException");
             } catch (IllegalArgumentException expected) {
@@ -180,6 +186,7 @@ public final class EngineAcceptance {
         });
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void safeClose(String key, Engine e) {
         check(key + ".close 幂等", () -> {
             e.close();

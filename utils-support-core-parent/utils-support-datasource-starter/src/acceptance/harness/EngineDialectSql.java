@@ -101,6 +101,7 @@ public final class EngineDialectSql {
 
     // ==================== LIMIT 方言的渲染 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void limitStyleSuite() {
         EngineFunctional.emit("--- dialect.limit-style ---");
 
@@ -144,6 +145,7 @@ public final class EngineDialectSql {
 
     // ==================== 模板渲染（无 LIMIT 方言） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void templateSuite() {
         EngineFunctional.emit("--- dialect.template ---");
 
@@ -227,6 +229,7 @@ public final class EngineDialectSql {
 
     // ==================== ORDER BY 注入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void orderBySuite() {
         EngineFunctional.emit("--- dialect.order-by ---");
 
@@ -275,6 +278,7 @@ public final class EngineDialectSql {
 
     // ==================== 与引擎的接线 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void engineWiringSuite() {
         EngineFunctional.emit("--- dialect.engine-wiring ---");
 
@@ -348,6 +352,7 @@ public final class EngineDialectSql {
 
     // ==================== 断言辅助 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static Pagination page(int pageNum, int pageSize) {
         return new Pagination().setPageNum(pageNum).setPageSize(pageSize);
     }
@@ -394,6 +399,7 @@ public final class EngineDialectSql {
         return a.protocol() + "/" + b.protocol();
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String assertSupportsLimit(Dialect a, boolean av, Dialect b, boolean bv,
                                               Dialect c, boolean cv) {
         assertSupportsLimit(a, av, b, bv);
@@ -403,6 +409,7 @@ public final class EngineDialectSql {
         return a.protocol() + "/" + b.protocol() + "/" + c.protocol();
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String assertFirstPageIsTemplate() {
         String oracle = new OracleDialect().processSql("SELECT 1", page(1, 10));
         assertContains(oracle, "ROWNUM <= 0 + 10", "oracle");
@@ -412,6 +419,7 @@ public final class EngineDialectSql {
         return "offset=0 ok";
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void assertContains(String text, String fragment, String who) {
         if (text == null || !text.contains(fragment)) {
             throw new EngineFunctional.HarnessFailure(
@@ -419,6 +427,7 @@ public final class EngineDialectSql {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void assertNotContains(String text, String fragment, String who) {
         if (text != null && text.contains(fragment)) {
             throw new EngineFunctional.HarnessFailure(

@@ -84,10 +84,12 @@ public final class EnginePrometheus {
 
     // ==================== 桩服务 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static String baseUrl() {
         return "http://127.0.0.1:" + port;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void startStub() throws Exception {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/api/v1/query_range", ex -> {
@@ -121,6 +123,7 @@ public final class EnginePrometheus {
         EngineFunctional.emit("  [stub] 已启动 127.0.0.1:" + port);
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void stopStub() {
         if (server != null) {
             server.stop(0);
@@ -128,6 +131,7 @@ public final class EnginePrometheus {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void respond(HttpExchange ex, int status, String body) throws java.io.IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         ex.getResponseHeaders().add("Content-Type", "application/json");
@@ -139,6 +143,7 @@ public final class EnginePrometheus {
 
     // ==================== PrometheusClient 直连 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void clientSuite() {
         EngineFunctional.emit("--- prometheus:client (PrometheusClient 直连桩服务) ---");
         String p = "client.";
@@ -393,6 +398,7 @@ public final class EnginePrometheus {
 
     // ==================== PrometheusEngine 经 SPI ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void engineSuite() {
         EngineFunctional.emit("--- prometheus:engine (PrometheusEngine 经 SPI，桩服务) ---");
         String p = "engine.";

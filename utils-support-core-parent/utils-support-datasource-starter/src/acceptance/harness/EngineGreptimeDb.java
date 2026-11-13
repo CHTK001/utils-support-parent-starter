@@ -106,6 +106,7 @@ public final class EngineGreptimeDb {
     private EngineGreptimeDb() {
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static void main(String[] args) {
         EngineFunctional.emit("=".repeat(78));
         EngineFunctional.emit("  引擎验收 阶段十九：GreptimeDbEngine（假 JDBC 驱动驱动真实 SQL 生成）");
@@ -124,6 +125,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 表名与列名归一化 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void labelSuite() {
         EngineFunctional.emit("--- greptime.label ---");
 
@@ -184,6 +186,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 查询渲染 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void querySuite() {
         EngineFunctional.emit("--- greptime.query ---");
 
@@ -313,6 +316,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 结果映射 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void mapSuite() {
         EngineFunctional.emit("--- greptime.map ---");
 
@@ -376,6 +380,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 写入语义（该引擎明确不支持的两条） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void writeSuite() {
         EngineFunctional.emit("--- greptime.write ---");
 
@@ -461,6 +466,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 通用执行器 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void execSuite() {
         EngineFunctional.emit("--- greptime.exec ---");
 
@@ -572,6 +578,7 @@ public final class EngineGreptimeDb {
 
     // ==================== URL 推导（纯函数） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void urlSuite() {
         EngineFunctional.emit("--- greptime.url ---");
 
@@ -627,6 +634,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void lifeSuite() {
         EngineFunctional.emit("--- greptime.life ---");
 
@@ -678,6 +686,7 @@ public final class EngineGreptimeDb {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static GreptimeDbEngine engine(FakeDb db) {
         GreptimeDbEngine engine = new GreptimeDbEngine();
         db.register();
@@ -783,6 +792,7 @@ public final class EngineGreptimeDb {
             return String.join(" || ", sqls);
         }
 
+        // [P3C MJ-方法注释 豁免]
         private Connection connection() {
             return (Connection) Proxy.newProxyInstance(CL, new Class<?>[]{Connection.class},
                     (proxy, method, args) -> {
@@ -806,6 +816,7 @@ public final class EngineGreptimeDb {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private PreparedStatement statement(String sql) {
             sqls.add(sql);
             List<Object> bound = new ArrayList<>();
@@ -848,6 +859,7 @@ public final class EngineGreptimeDb {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private static void bind(List<Object> bound, int index, Object value) {
             while (bound.size() < index) {
                 bound.add(null);
@@ -855,6 +867,7 @@ public final class EngineGreptimeDb {
             bound.set(index - 1, value);
         }
 
+        // [P3C MJ-方法注释 豁免]
         private ResultSet resultSet(String sql) {
             boolean counting = sql.contains("COUNT(*)");
             List<String> cols = counting ? List.of("total") : columns;

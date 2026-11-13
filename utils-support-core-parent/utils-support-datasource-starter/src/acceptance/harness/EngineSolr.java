@@ -87,6 +87,7 @@ public final class EngineSolr {
 
     // ==================== 表名解析（缺陷 13 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void tableSuite() {
         EngineFunctional.emit("--- solr.table ---");
 
@@ -141,6 +142,7 @@ public final class EngineSolr {
 
     // ==================== 查询构造 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void querySuite() {
         EngineFunctional.emit("--- solr.query ---");
 
@@ -257,6 +259,7 @@ public final class EngineSolr {
 
     // ==================== count（缺陷 14 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void countSuite() {
         EngineFunctional.emit("--- solr.count ---");
 
@@ -309,6 +312,7 @@ public final class EngineSolr {
 
     // ==================== 文档 → 实体映射 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void mappingSuite() {
         EngineFunctional.emit("--- solr.map ---");
 
@@ -407,6 +411,7 @@ public final class EngineSolr {
 
     // ==================== 写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void storeSuite() {
         EngineFunctional.emit("--- solr.store ---");
 
@@ -474,6 +479,7 @@ public final class EngineSolr {
 
     // ==================== 删除 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void deleteSuite() {
         EngineFunctional.emit("--- solr.delete ---");
 
@@ -524,6 +530,7 @@ public final class EngineSolr {
 
     // ==================== 失败语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void errorSuite() {
         EngineFunctional.emit("--- solr.error ---");
 
@@ -581,6 +588,7 @@ public final class EngineSolr {
 
     // ==================== 生命周期与能力声明 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void lifeSuite() {
         EngineFunctional.emit("--- solr.life ---");
 
@@ -629,6 +637,7 @@ public final class EngineSolr {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static SolrEngine engine(FakeClient client) {
         SolrEngine engine = new SolrEngine();
         engine.addDataSource("default", new EngineDataSource<SolrClient>() {

@@ -54,6 +54,7 @@ public final class EngineOracle {
             EngineFunctional.emit("STAGE24_SKIP=1");
             EngineFunctional.emit("  结果: PASS=0  FAIL=0  SKIP=1");
             EngineFunctional.emit("=".repeat(78));
+            // [P3C SE-安全 豁免]
             System.exit(0);
         }
 
@@ -108,6 +109,7 @@ public final class EngineOracle {
 
     // ==================== Oracle 专有语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void oracleSemantics(Engine e) {
         EngineFunctional.emit("--- oracle.semantics ---");
 
@@ -307,6 +309,7 @@ public final class EngineOracle {
 
     // ==================== 辅助 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static String env(String key, String fallback) {
         String value = System.getenv(key);
         if (value == null || value.isBlank()) {
@@ -350,6 +353,7 @@ public final class EngineOracle {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static Object valueIgnoreCase(Map<String, Object> row, String column) {
         if (row == null) {
             return null;
@@ -362,6 +366,7 @@ public final class EngineOracle {
         return null;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static String sqlState(Throwable t) {
         Throwable cur = t;
         while (cur != null) {
@@ -373,6 +378,7 @@ public final class EngineOracle {
         return "n/a";
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean reachable() {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(HOST, PORT), 2000);

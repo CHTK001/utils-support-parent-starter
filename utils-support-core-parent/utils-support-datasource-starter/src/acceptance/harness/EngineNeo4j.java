@@ -81,6 +81,7 @@ public final class EngineNeo4j {
     private EngineNeo4j() {
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static void main(String[] args) {
         EngineFunctional.emit("=".repeat(78));
         EngineFunctional.emit("  引擎验收 阶段十八：Neo4jEngine（动态代理假驱动驱动真实 Cypher 生成）");
@@ -99,6 +100,7 @@ public final class EngineNeo4j {
 
     // ==================== 标签解析（缺陷 23 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void labelSuite() {
         EngineFunctional.emit("--- neo4j.label ---");
 
@@ -194,6 +196,7 @@ public final class EngineNeo4j {
 
     // ==================== 查询构造 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void querySuite() {
         EngineFunctional.emit("--- neo4j.query ---");
 
@@ -345,6 +348,7 @@ public final class EngineNeo4j {
 
     // ==================== 结果映射 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void mapSuite() {
         EngineFunctional.emit("--- neo4j.map ---");
 
@@ -394,6 +398,7 @@ public final class EngineNeo4j {
 
     // ==================== 写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void storeSuite() {
         EngineFunctional.emit("--- neo4j.store ---");
 
@@ -441,6 +446,7 @@ public final class EngineNeo4j {
 
     // ==================== 更新 / 删除 / 原生 Cypher ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void writeSuite() {
         EngineFunctional.emit("--- neo4j.write ---");
 
@@ -520,6 +526,7 @@ public final class EngineNeo4j {
 
     // ==================== 失败语义（缺陷 25 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void errorSuite() {
         EngineFunctional.emit("--- neo4j.error ---");
 
@@ -563,6 +570,7 @@ public final class EngineNeo4j {
 
     // ==================== 生命周期与能力声明 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void lifeSuite() {
         EngineFunctional.emit("--- neo4j.life ---");
 
@@ -617,6 +625,7 @@ public final class EngineNeo4j {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static Neo4jEngine engine(FakeGraph graph) {
         Neo4jEngine engine = new Neo4jEngine();
         engine.addDataSource("default", new EngineDataSource<Driver>() {
@@ -759,6 +768,7 @@ public final class EngineNeo4j {
             return params.isEmpty() ? Map.of() : params.get(params.size() - 1);
         }
 
+        // [P3C MJ-方法注释 豁免]
         private Session session() {
             return (Session) Proxy.newProxyInstance(CL, new Class<?>[]{Session.class},
                     (proxy, method, args) -> {
@@ -782,6 +792,7 @@ public final class EngineNeo4j {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private Transaction tx() {
             return (Transaction) Proxy.newProxyInstance(CL, new Class<?>[]{Transaction.class},
                     (proxy, method, args) -> {
@@ -910,6 +921,7 @@ public final class EngineNeo4j {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private static Record record(Map<String, Object> values) {
             return (Record) Proxy.newProxyInstance(CL, new Class<?>[]{Record.class},
                     (proxy, method, args) -> {
@@ -942,6 +954,7 @@ public final class EngineNeo4j {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private static Value value(Object raw) {
             return (Value) Proxy.newProxyInstance(CL, new Class<?>[]{Value.class},
                     (proxy, method, args) -> {

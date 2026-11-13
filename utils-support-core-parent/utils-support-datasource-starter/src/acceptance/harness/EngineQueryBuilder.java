@@ -176,6 +176,7 @@ public final class EngineQueryBuilder {
 
     // ==================== InMemoryEngine：真实执行 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void memorySuite(Engine e) {
         EngineFunctional.emit("--- query:memory (InMemoryEngine，真实执行) ---");
         String p = "memory.";
@@ -296,6 +297,7 @@ public final class EngineQueryBuilder {
 
     // ==================== H2：真实 SQL ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void h2Suite() {
         EngineFunctional.emit("--- query:h2 (H2Engine，真实 SQL) ---");
         String p = "h2.";
@@ -460,6 +462,7 @@ public final class EngineQueryBuilder {
 
     // ==================== SQLite：第二方言 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void sqliteSuite() {
         EngineFunctional.emit("--- query:sqlite (SqliteEngine，第二方言) ---");
         String p = "sqlite.";

@@ -92,14 +92,17 @@ public final class EngineRedisEntity {
             return name;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setName(String name) {
             this.name = name;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public Integer getAge() {
             return age;
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void setAge(Integer age) {
             this.age = age;
         }
@@ -113,6 +116,7 @@ public final class EngineRedisEntity {
     private EngineRedisEntity() {
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static void main(String[] args) {
         EngineFunctional.emit("=".repeat(78));
         EngineFunctional.emit("  引擎验收 阶段十六：RediSearchEngine 实体 CRUD（真实 Redis 6379）");
@@ -135,6 +139,7 @@ public final class EngineRedisEntity {
 
     // ==================== 表名解析（缺陷 15 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void tableSuite() {
         EngineFunctional.emit("--- redis.table ---");
 
@@ -211,6 +216,7 @@ public final class EngineRedisEntity {
 
     // ==================== 条件查询（缺陷 16 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void querySuite() {
         EngineFunctional.emit("--- redis.query ---");
 
@@ -311,6 +317,7 @@ public final class EngineRedisEntity {
 
     // ==================== count（缺陷 17 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void countSuite() {
         EngineFunctional.emit("--- redis.count ---");
 
@@ -365,6 +372,7 @@ public final class EngineRedisEntity {
 
     // ==================== 分页 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void pageSuite() {
         EngineFunctional.emit("--- redis.page ---");
 
@@ -409,6 +417,7 @@ public final class EngineRedisEntity {
 
     // ==================== 能力声明与生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void capabilitySuite() {
         EngineFunctional.emit("--- redis.capability ---");
 
@@ -491,6 +500,7 @@ public final class EngineRedisEntity {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static RediSearchEngine engine() {
         RediSearchEngine engine = new RediSearchEngine();
         engine.addDataSource("default", HOST, PORT);
@@ -505,6 +515,7 @@ public final class EngineRedisEntity {
         return data;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean redisReachable() {
         try (Jedis jedis = new Jedis(HOST, PORT)) {
             return "PONG".equalsIgnoreCase(jedis.ping());
@@ -519,6 +530,7 @@ public final class EngineRedisEntity {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void cleanup(String prefix) {
         try (Jedis jedis = new Jedis(HOST, PORT)) {
             Set<String> keys = jedis.keys(prefix + ":*");

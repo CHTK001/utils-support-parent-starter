@@ -57,8 +57,10 @@ public final class EngineInfluxdb {
     }
 
     public static void main(String[] args) {
+        // [P3C A20 豁免]
         EngineFunctional.emit("=".repeat(78));
         EngineFunctional.emit("  引擎验收 阶段九：InfluxdbSeriesEngine（注入客户端）");
+        // [P3C A20 豁免]
         EngineFunctional.emit("=".repeat(78));
 
         try {
@@ -81,6 +83,7 @@ public final class EngineInfluxdb {
 
     // ==================== 桩客户端 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static InfluxDB fakeClient() {
         return (InfluxDB) Proxy.newProxyInstance(
                 EngineInfluxdb.class.getClassLoader(),
@@ -122,6 +125,7 @@ public final class EngineInfluxdb {
                 });
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void reset() {
         QUERIES.clear();
         WRITES.clear();
@@ -130,6 +134,7 @@ public final class EngineInfluxdb {
         responder = cmd -> noSeries();
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static InfluxdbSeriesEngine freshEngine() {
         reset();
         return new InfluxdbSeriesEngine(fake, "monitor");
@@ -137,6 +142,7 @@ public final class EngineInfluxdb {
 
     // ==================== 1. 装配与守卫 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void guardSuite() {
         EngineFunctional.emit("--- influxdb:guard (装配判定与参数守卫) ---");
         String p = "guard.";
@@ -202,6 +208,7 @@ public final class EngineInfluxdb {
 
         EngineFunctional.check(p + "数字开头的 measurement/field 合法（SqlName.isWord 契约）", () -> {
             InfluxdbSeriesEngine e = freshEngine();
+            // [P3C A20 豁免]
             e.writePoint("1metric", 7L, "2field", 1.0, 1700000000000L);
             if (WRITES.size() != 1) {
                 throw new EngineFunctional.HarnessFailure("数字开头应被接受: " + WRITES);
@@ -216,12 +223,14 @@ public final class EngineInfluxdb {
 
     // ==================== 2. 写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void writeSuite() {
         EngineFunctional.emit("--- influxdb:write (点位写入) ---");
         String p = "write.";
 
         EngineFunctional.check(p + "单点写入：measurement / tag / field / 毫秒转纳秒", () -> {
             InfluxdbSeriesEngine e = freshEngine();
+            // [P3C A20 豁免]
             e.writePoint("cpu", 7L, "cpu_usage", 25.5, 1700000000123L);
             if (WRITES.size() != 1) {
                 throw new EngineFunctional.HarnessFailure("写入次数: " + WRITES.size());
@@ -244,6 +253,7 @@ public final class EngineInfluxdb {
             Map<String, Double> metrics = new LinkedHashMap<>();
             metrics.put("cpu_usage", 1.5);
             metrics.put("mem_usage", 2.5);
+            // [P3C A20 豁免]
             e.writeBatch("cpu", 7L, metrics, 1700000000000L);
             if (WRITES.size() != 2) {
                 throw new EngineFunctional.HarnessFailure("写入次数: " + WRITES.size());
@@ -269,6 +279,7 @@ public final class EngineInfluxdb {
 
     // ==================== 3. 指标发现 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void metricsSuite() {
         EngineFunctional.emit("--- influxdb:metrics (指标发现) ---");
         String p = "metrics.";
@@ -277,6 +288,7 @@ public final class EngineInfluxdb {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> matrix("cpu",
                     List.of("time", "mem_usage", "cpu_usage"),
+                    // [P3C A20 豁免]
                     List.of(row(1700000000000L, 1.0, 2.0)));
             List<String> metrics = e.metrics("cpu", 7L);
             String expected = "SELECT * FROM \"cpu\" WHERE \"monitor_id\" = '7' LIMIT 1";
@@ -310,6 +322,7 @@ public final class EngineInfluxdb {
 
     // ==================== 4. 曲线查询 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void seriesSuite() {
         EngineFunctional.emit("--- influxdb:series (曲线查询与降采样) ---");
         String p = "series.";
@@ -318,6 +331,7 @@ public final class EngineInfluxdb {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> matrix("cpu",
                     List.of("time", "cpu_usage"),
+                    // [P3C A20 豁免]
                     List.of(row(1700000000000L, 10.0)));
             List<List<Object>> curve = e.series("cpu", 7L, "cpu_usage", 1, "5m");
             if (QUERIES.size() != 1) {
@@ -330,7 +344,9 @@ public final class EngineInfluxdb {
             if (!ql.contains("AND time >= ") || !ql.contains("ms AND time <= ") || !ql.endsWith("ms")) {
                 throw new EngineFunctional.HarnessFailure("时间范围片段错误: " + ql);
             }
+            // [P3C A20 豁免]
             if (curve.size() != 1 || !equalNum(curve.get(0).get(0), 1699999800000L)
+                    // [P3C A20 豁免]
                     || !equalNum(curve.get(0).get(1), 10.0)) {
                 throw new EngineFunctional.HarnessFailure("曲线错误: " + curve);
             }
@@ -341,14 +357,17 @@ public final class EngineInfluxdb {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> matrix("cpu",
                     List.of("time", "cpu_usage"),
+                    // [P3C A20 豁免]
                     List.of(row(1700000000000L, 10.0), row(1700000001000L, 20.0), row(1700000300000L, 30.0)));
             List<List<Object>> curve = e.series("cpu", 7L, "cpu_usage", 1, "5m");
             if (curve.size() != 2) {
                 throw new EngineFunctional.HarnessFailure("桶数错误: " + curve);
             }
+            // [P3C A20 豁免]
             if (!equalNum(curve.get(0).get(0), 1699999800000L) || !equalNum(curve.get(0).get(1), 15.0)) {
                 throw new EngineFunctional.HarnessFailure("首桶错误: " + curve.get(0));
             }
+            // [P3C A20 豁免]
             if (!equalNum(curve.get(1).get(0), 1700000100000L) || !equalNum(curve.get(1).get(1), 30.0)) {
                 throw new EngineFunctional.HarnessFailure("次桶错误: " + curve.get(1));
             }
@@ -361,6 +380,7 @@ public final class EngineInfluxdb {
                     List.of("time", "cpu_usage"),
                     List.of(row("2024-01-01T00:00:00Z", 5.0)));
             List<List<Object>> curve = e.series("cpu", 7L, "cpu_usage", 1, "1m");
+            // [P3C A20 豁免]
             if (curve.size() != 1 || !equalNum(curve.get(0).get(0), 1704067200000L)
                     || !equalNum(curve.get(0).get(1), 5.0)) {
                 throw new EngineFunctional.HarnessFailure("结果错误: " + curve);
@@ -372,6 +392,7 @@ public final class EngineInfluxdb {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> matrix("cpu",
                     List.of("time", "cpu_usage"),
+                    // [P3C A20 豁免]
                     List.of(row(1700000000000L, "not-a-number"), row(1700000000001L, 8.0)));
             List<List<Object>> curve = e.series("cpu", 7L, "cpu_usage", 1, "5m");
             if (curve.size() != 1 || !equalNum(curve.get(0).get(1), 8.0)) {
@@ -383,7 +404,9 @@ public final class EngineInfluxdb {
         EngineFunctional.check(p + "metricName 为空且仅一个指标：先探测再查询该指标", () -> {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> cmd.startsWith("SELECT *")
+                    // [P3C A20 豁免]
                     ? matrix("cpu", List.of("time", "cpu_usage"), List.of(row(1700000000000L, 10.0)))
+                    // [P3C A20 豁免]
                     : matrix("cpu", List.of("time", "cpu_usage"), List.of(row(1700000000000L, 12.0)));
             List<List<Object>> curve = e.series("cpu", 7L, 1, "5m");
             if (QUERIES.size() != 2) {
@@ -392,6 +415,7 @@ public final class EngineInfluxdb {
             if (!QUERIES.get(1).startsWith("SELECT \"cpu_usage\" FROM \"cpu\"")) {
                 throw new EngineFunctional.HarnessFailure("第二次语句错误: " + QUERIES.get(1));
             }
+            // [P3C A20 豁免]
             if (curve.size() != 1 || !equalNum(curve.get(0).get(1), 12.0)) {
                 throw new EngineFunctional.HarnessFailure("曲线错误: " + curve);
             }
@@ -402,6 +426,7 @@ public final class EngineInfluxdb {
             InfluxdbSeriesEngine e = freshEngine();
             responder = cmd -> matrix("cpu",
                     List.of("time", "mem_usage", "cpu_usage"),
+                    // [P3C A20 豁免]
                     List.of(row(1700000000000L, 1.0, 2.0)));
             try {
                 e.series("cpu", 7L, 1, "5m");
@@ -417,6 +442,7 @@ public final class EngineInfluxdb {
 
         EngineFunctional.check(p + "metricName 为空且无指标：返回空曲线", () -> {
             InfluxdbSeriesEngine e = freshEngine();
+            // [P3C A20 豁免]
             responder = cmd -> matrix("cpu", List.of("time"), List.of(row(1700000000000L)));
             if (!e.series("cpu", 7L, 1, "5m").isEmpty()) {
                 throw new EngineFunctional.HarnessFailure("应返回空曲线");
@@ -463,12 +489,14 @@ public final class EngineInfluxdb {
 
     // ==================== 5. 保留期清理 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void purgeSuite() {
         EngineFunctional.emit("--- influxdb:purge (保留期清理) ---");
         String p = "purge.";
 
         EngineFunctional.check(p + "DELETE 语句正确且返回 -1（已清理、条数不可统计）", () -> {
             InfluxdbSeriesEngine e = freshEngine();
+            // [P3C A20 豁免]
             int n = e.purge("cpu", 7L, null, 123456L);
             String expected = "DELETE FROM \"cpu\" WHERE time < 123456ms AND \"monitor_id\" = '7'";
             if (!expected.equals(QUERIES.get(0))) {
@@ -482,6 +510,7 @@ public final class EngineInfluxdb {
 
         EngineFunctional.check(p + "monitorId 为空时不附加 tag 条件", () -> {
             InfluxdbSeriesEngine e = freshEngine();
+            // [P3C A20 豁免]
             e.purge("cpu", null, 999L);
             String expected = "DELETE FROM \"cpu\" WHERE time < 999ms";
             if (!expected.equals(QUERIES.get(0))) {
@@ -502,6 +531,7 @@ public final class EngineInfluxdb {
 
     // ==================== 6. 生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void lifecycleSuite() {
         EngineFunctional.emit("--- influxdb:lifecycle (关闭语义) ---");
         String p = "lifecycle.";
@@ -553,6 +583,7 @@ public final class EngineInfluxdb {
         return row;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static QueryResult matrix(String name, List<String> columns, List<List<Object>> values) {
         QueryResult.Series series = new QueryResult.Series();
         series.setName(name);
@@ -565,18 +596,21 @@ public final class EngineInfluxdb {
         return qr;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static QueryResult noSeries() {
         QueryResult qr = new QueryResult();
         qr.setResults(List.of());
         return qr;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static QueryResult errored(String message) {
         QueryResult qr = new QueryResult();
         qr.setError(message);
         return qr;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static QueryResult resultWithSeriesError(String message) {
         QueryResult.Result result = new QueryResult.Result();
         result.setError(message);
@@ -585,10 +619,12 @@ public final class EngineInfluxdb {
         return qr;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean equalNum(Object actual, double expected) {
         return actual instanceof Number n && Math.abs(n.doubleValue() - expected) < 1e-9;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void expectType(Class<? extends Throwable> type, Runnable action) {
         try {
             action.run();
@@ -602,6 +638,7 @@ public final class EngineInfluxdb {
         throw new EngineFunctional.HarnessFailure("未抛 " + type.getSimpleName());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void runQuietly(String name, Runnable body) {
         try {
             body.run();

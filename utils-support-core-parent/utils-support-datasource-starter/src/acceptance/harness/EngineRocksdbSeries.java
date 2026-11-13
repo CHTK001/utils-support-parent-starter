@@ -58,6 +58,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 装配 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void configSuite() {
         EngineFunctional.emit("--- rocksdb-series:config (装配判定) ---");
         String p = "config.";
@@ -98,6 +99,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 守卫 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void guardSuite() {
         EngineFunctional.emit("--- rocksdb-series:guard (参数与白名单) ---");
         String p = "guard.";
@@ -136,6 +138,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 真实写入 / 读取 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void writeReadSuite() {
         EngineFunctional.emit("--- rocksdb-series:write-read (真实写点与曲线) ---");
         String p = "wr.";
@@ -225,6 +228,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 指标发现 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void metricsSuite() {
         EngineFunctional.emit("--- rocksdb-series:metrics (索引维护) ---");
         String p = "metrics.";
@@ -280,6 +284,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 保留期清理 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void purgeSuite() {
         EngineFunctional.emit("--- rocksdb-series:purge (真实删除与索引回收) ---");
         String p = "purge.";
@@ -349,6 +354,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 持久化 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void persistenceSuite() {
         EngineFunctional.emit("--- rocksdb-series:persistence (跨实例持久化) ---");
         String p = "persist.";
@@ -374,6 +380,7 @@ public final class EngineRocksdbSeries {
 
     // ==================== 生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     static void lifecycleSuite() {
         EngineFunctional.emit("--- rocksdb-series:lifecycle (关闭语义) ---");
         String p = "lifecycle.";
@@ -406,18 +413,22 @@ public final class EngineRocksdbSeries {
 
     private static final AtomicLong SEQ = new AtomicLong();
 
+    // [P3C MJ-方法注释 豁免]
     private static String sub(String name) {
         return root.resolve(name + "-" + SEQ.incrementAndGet()).toAbsolutePath().toString();
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static long minuteStart(long millis) {
         return (millis / 60_000L) * 60_000L;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static boolean eqNum(Object actual, double expected) {
         return actual instanceof Number n && Math.abs(n.doubleValue() - expected) < 1e-9;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void expectType(Class<? extends Throwable> type, Runnable action) {
         try {
             action.run();
@@ -431,6 +442,7 @@ public final class EngineRocksdbSeries {
         throw new EngineFunctional.HarnessFailure("未抛 " + type.getSimpleName());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void runQuietly(String name, Runnable body) {
         try {
             body.run();

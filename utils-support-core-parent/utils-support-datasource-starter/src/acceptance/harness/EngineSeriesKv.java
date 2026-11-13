@@ -351,6 +351,7 @@ public final class EngineSeriesKv {
         });
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void closeQuietly(Object o) {
         if (o instanceof AutoCloseable ac) {
             try {

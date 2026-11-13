@@ -141,6 +141,7 @@ public final class EngineHBase {
 
     // ==================== 写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void putSuite() {
         EngineFunctional.emit("--- hbase.put ---");
 
@@ -210,6 +211,7 @@ public final class EngineHBase {
 
     // ==================== 读取 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void getSuite() {
         EngineFunctional.emit("--- hbase.get ---");
 
@@ -269,6 +271,7 @@ public final class EngineHBase {
 
     // ==================== 扫描 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void scanSuite() {
         EngineFunctional.emit("--- hbase.scan ---");
 
@@ -382,6 +385,7 @@ public final class EngineHBase {
 
     // ==================== 删除 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void deleteSuite() {
         EngineFunctional.emit("--- hbase.delete ---");
 
@@ -406,6 +410,7 @@ public final class EngineHBase {
 
     // ==================== 显式拒绝的 SQL/ORM 语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void rejectSuite() {
         EngineFunctional.emit("--- hbase.reject ---");
 
@@ -479,6 +484,7 @@ public final class EngineHBase {
 
     // ==================== 生命周期 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void lifeSuite() {
         EngineFunctional.emit("--- hbase.life ---");
 
@@ -536,6 +542,7 @@ public final class EngineHBase {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static HBaseEngine engine(FakeHBase fake) {
         HBaseEngine engine = new HBaseEngine();
         engine.addDataSource("default", new EngineDataSource<Connection>() {
@@ -728,6 +735,7 @@ public final class EngineHBase {
             return tableNames.isEmpty() ? "" : tableNames.get(tableNames.size() - 1);
         }
 
+        // [P3C MJ-方法注释 豁免]
         private Admin admin() {
             return (Admin) Proxy.newProxyInstance(CL, new Class<?>[]{Admin.class},
                     (proxy, method, args) -> {
@@ -750,6 +758,7 @@ public final class EngineHBase {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private Table table() {
             return (Table) Proxy.newProxyInstance(CL, new Class<?>[]{Table.class},
                     (proxy, method, args) -> {
@@ -780,6 +789,7 @@ public final class EngineHBase {
                     });
         }
 
+        // [P3C MJ-方法注释 豁免]
         private ResultScanner scanner() {
             return (ResultScanner) Proxy.newProxyInstance(CL, new Class<?>[]{ResultScanner.class},
                     (proxy, method, args) -> {

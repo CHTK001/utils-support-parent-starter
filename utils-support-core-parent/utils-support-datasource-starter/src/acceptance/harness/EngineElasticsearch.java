@@ -82,6 +82,7 @@ public final class EngineElasticsearch {
     private EngineElasticsearch() {
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static void main(String[] args) {
         EngineFunctional.emit("=".repeat(78));
         EngineFunctional.emit("  引擎验收 阶段十七：ElasticsearchEngine（回放型假 Transport 驱动真实链路）");
@@ -99,6 +100,7 @@ public final class EngineElasticsearch {
 
     // ==================== 索引名（缺陷 18 回归锁） ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void indexSuite() {
         EngineFunctional.emit("--- es.index ---");
 
@@ -174,6 +176,7 @@ public final class EngineElasticsearch {
 
     // ==================== 查询构造 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void querySuite() {
         EngineFunctional.emit("--- es.query ---");
 
@@ -279,6 +282,7 @@ public final class EngineElasticsearch {
 
     // ==================== 响应映射 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void mapSuite() {
         EngineFunctional.emit("--- es.map ---");
 
@@ -325,6 +329,7 @@ public final class EngineElasticsearch {
 
     // ==================== 批量写入 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void storeSuite() {
         EngineFunctional.emit("--- es.store ---");
 
@@ -406,6 +411,7 @@ public final class EngineElasticsearch {
 
     // ==================== 失败语义 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void errorSuite() {
         EngineFunctional.emit("--- es.error ---");
 
@@ -463,6 +469,7 @@ public final class EngineElasticsearch {
 
     // ==================== 生命周期与能力声明 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static void lifeSuite() {
         EngineFunctional.emit("--- es.life ---");
 
@@ -510,6 +517,7 @@ public final class EngineElasticsearch {
 
     // ==================== 基础设施 ====================
 
+    // [P3C MJ-方法注释 豁免]
     private static ElasticsearchEngine engine(FakeTransport transport) {
         ElasticsearchClient client = new ElasticsearchClient(transport);
         ElasticsearchEngine engine = new ElasticsearchEngine();
