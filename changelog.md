@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SmbServer` 首个真实链路用例（独立工程 `test/perf/smb-native-probe`，`SmbChainTest` 4 条）：用 **smbj 0.14 官方客户端**验证 SPI 发现、原生库监听、连接 + 认证 + Tree Connect、Create/Write/Read/Close 文件读写。`mvn -o test` → 4/4 通过。探针工程同时沉淀了 4 个可直接运行的 main 探针（SPI/诊断/全链路）。
 - `DHTServer` 首个真实链路用例 `DhtServerTest`(10)：**裸 `DatagramSocket` + 手工 bencode** 按 BEP 5 发 UDP 查询，验证 ping→PONG、连续 10 包保活、find_node 紧凑节点列表、get_peers token、announce_peer 响应、宣告 peer 可被 get_peers 查到（values）、implied_port、爬取集合、未知查询忽略、非法报文容错。`dht-starter` 补 junit-jupiter（test scope）。
 - `WebRtcServer` 首个信令链路用例 `WebRtcSignalingTest`(5)：**裸 Socket** 完成 RFC 6455 握手（校验 `Sec-WebSocket-Accept`）、token 403/101、answer 帧往返、ping→pong、同连接多帧、非 Upgrade 断开。`webrtc-starter` 补 junit-jupiter（test scope）。
+- `WebRtcServer` 的 OFFER/answer 用例 `WebRtcOfferNegotiationTest`(1)：用 **webrtc-java 原生 PeerConnection** 生成真实 offer（data channel 形态），经 WebSocket 信令发给服务端，服务端 `setRemoteDescription` + `createAnswer` 回 answer，客户端 `setRemoteDescription(answer)` 成功。视频采集/ICE 连通未验（headless 无采集源）。WebRTC 合计 6 条。
 - TLS 吞吐基准 `HttpTlsThroughputTest`（默认跳过，`-Dbench.throughput=true`）：明文/TLS × NIO/AIO 四场景，1024B 响应、64 连接串行 keep-alive、3s 预热 + 10s 测量，真实 `SSLSocket` 握手（trust-all 校验自签证书）。输出 `BENCH|场景|qps|p50us|p99us|err|errDetail`，错误按异常类型分类。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
@@ -85,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `NettyHttpSyncServer` + `NettyHttpSyncClient` | 3（端到端：上下行往返 / 405 / 204 / 随机端口） | ✅ 回退必红 |
 | `SmbServer` | 4（独立工程：SPI / 监听 / Tree Connect / 文件读写） | ✅ 回退必红（修复前 Tree Connect 60s 超时） |
 | `DHTServer` | 10（裸 UDP + 手工 bencode） | ✅ 回退必红（首轮 5 条里 4 红；BEP5 values 首轮 2 红；未知查询 1 红） |
-| `WebRtcServer`（信令） | 5（裸 Socket + RFC6455） | ✅（OFFER/媒体协商未验） |
+| `WebRtcServer`（信令 + OFFER/answer） | 6（裸 Socket + RFC6455 + 原生 PeerConnection） | ✅（video 采集/ICE 未验） |
 
 性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
 
