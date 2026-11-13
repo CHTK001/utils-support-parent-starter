@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RSocketServer` 首个真实链路用例 `RSocketServerTest`(3)：用 **RSocket 官方客户端**验证 requestResponse、fireAndForget、requestStream（服务端 publish 推送）。`rsocket-starter` 补 junit-jupiter（test scope）。
 - `JRebelHttpServer` 首个真实链路用例 `JRebelHttpServerTest`(3)：用 **JDK HttpClient** 验证 validate-connection / 创建 lease / ping、guid / obtainTicket / releaseTicket、未注册路径 404。`jrebel-starter` 补 junit-jupiter（test scope）。
 - `KcpServer` 首个真实链路用例 `KcpServerTest`(2)：用**模块自带 KcpClient** 走真实 UDP/KCP，验证注册握手（registered 应答）、上行 topic:payload 派发、服务端广播回传、双客户端广播；`KcpHttpServer` 委托同一链路。`kcp-starter` 补 junit-jupiter（test scope）。
+- `SmbServer` 首个真实链路用例（独立工程 `test/perf/smb-native-probe`，`SmbChainTest` 4 条）：用 **smbj 0.14 官方客户端**验证 SPI 发现、原生库监听、连接 + 认证 + Tree Connect、Create/Write/Read/Close 文件读写。`mvn -o test` → 4/4 通过。探针工程同时沉淀了 4 个可直接运行的 main 探针（SPI/诊断/全链路）。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
@@ -48,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 测试夹具加固（`ProxyTestSupport` / `ProxyThroughputTest`）：`KeepAliveHttpBackend` 与压测客户端原先**逐字节 `read()`** 解析头部，256 并发下每秒数十万次系统调用，在 Windows 虚拟线程上引发偶发连接异常，**被误记为「代理断连」**。改为 `BufferedInputStream`（16KB）。同时压测建连改为分批（64 条/100ms）：Windows 内核把 listen backlog 截断到约 200，一次性 256/512 并发建连会被 RST（表现为 `ConnectException`），这是平台限制而非代理缺陷。新增 `AioHttpProxyStressTest`（256 并发 keep-alive 全程零断开）与 `DirectBackendStressTest`（直连后端对照，用于区分代理与夹具问题）。
 - `ProxyThroughputTest` 增加 `-Dbench.durationMs` / `-Dbench.warmupMs` / `-Dbench.soTimeoutMs` 覆盖，支持长稳压测。60s 长稳（128 并发）：HTTP 正向 15,594 QPS、TCP 代理 23,132 QPS，**err 均为 0**，无累积退化。
 - `TcpProxyServer` / `JdkHttpProxyServer` / `Socks5ProxyServer`：双向转发泵从虚拟线程改为**平台线程**（accept 循环仍用虚拟线程，stop 时一并回收）。原因：每连接 2 条驻留虚拟线程在 Windows 上全挂在共享 poller 上，128 并发时 park/unpark 竞争把吞吐腰斩。同骨架对照实验（128 并发、隔离 JVM）：虚拟线程泵 14,618 QPS、去掉 SO_TIMEOUT 10,997（与超时无关）、平台线程泵 **27,984**。落地后：`tcp-proxy-jdk` 9,944 → **21,775**（2.19×，基线 25,721 的 84.7%）、`socks5` 11,166 → **26,827**、`http 透传` 12,450 → **14,430**。代价：每连接常驻 2 个平台线程（空闲 60s 回收），并发连接数建议上限约 2k，更大连接数用 `AioTcpProxyServer`（IOCP）。容量实测（新增 `ProxyConnectionScaleTest`，默认跳过）：`TcpProxyServer` 2k 连接保持期线程 **4,020**（≈2/连接）、堆增量 341MB；`AioTcpProxyServer` 同连接数线程恒 **37**（零驻留）、堆增量 53MB，5k / 10k 连接线程仍 37（堆 141 / 251MB），1 万连接存活率 100%。
+- `utils-support-native-smb`（Rust 原生库）：**SMB2 Tree Connect 无响应（客户端 60s 超时）根因定位并修复**。NEGOTIATE 阶段服务端宣告了 `SMB3_ENCRYPTION_CAPABILITIES`（AES-128-GCM），但 `local-smb` 从未实现 `SMB2_TRANSFORM_HEADER` 请求解密；客户端协商出加密后，Tree Connect 以 `FD 'S','M','B'` 加密帧发出 → `dispatch` 解析失败直接丢帧 → 客户端一直等到超时。服务端日志（`failed to parse compound sub-header ... bad SMB2 magic`）与帧首 64 字节 hex dump 是直接证据。修复：**不支持加密就不发 ENCRYPTION negotiate context**（能力声明与实现一致；smbj 0.14 对 `cipher_count=0` 的 context 会抛 "does not contain exactly 1 cipher"，只能整个省略），客户端自动降级为仅签名。A/B 实测：修复前 `connectShare` **60,019ms 超时**，修复后 **13ms 成功**；共享内 Create/Write/Read/Close、目录枚举全通。Windows x86_64 的 `rust_smb_server.dll` 已重建并重新打包（导入表只有 UCRT/kernel32/ws2_32/ntdll/bcryptprimitives，无 MinGW 运行时依赖）；macOS/Linux 三个库需在上游 CI 用同一份修复源码重建。
+- `utils-support-native-smb`：`STATUS_OBJECT_NAME_NOT_FOUND` 常量值写错（`0xC000_000F`，那是 `STATUS_NO_SUCH_FILE`；MS-ERREF 规定为 `0xC000_0034`）。该错误让 Create(FILE_OPEN) 命中不存在文件时返回码不符合规范，smbj 的 `fileExists()` 因此把异常抛给调用方而不是返回 `false`。修正常量后 `fileExists`、删除后重建、正常读写全部符合预期。
+- `utils-support-native-smb`：发布 jar 缺 `META-INF/services/com.chua.common.support.nativeapi.SmbServerSpi` 注册文件（源码里有，打包漏了），`SmbServer` 启动直接抛「SMB 原生库未安装」。已在源码工程内 `mvn install` 重新打包验证：jar 内 SPI 注册与 4 个平台原生库齐全，`ServiceProvider` 可直接解析（无需测试侧补注册）。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 > 本轮的 `AioHttpProxyServer` 粘包修复与泵模型改造**有实测收益**（128 并发 12,725 → 24,775 QPS、256/512 并发 err 归零），单独计。
@@ -70,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `VertxHttpServer` / `VertxTcpServer` / `VertxHttpProxyServer` / `VertxWebSocketServer` | 2 / 3 / 2 / 1 | ✅ |
 | `NettyWebSocketSyncServer` + `NettyWebSocketSyncClient` | 4 + 3（端到端：握手/掩码/大帧/UTF-8/并发长连接/随机端口） | ✅ 回退必红 |
 | `NettyHttpSyncServer` + `NettyHttpSyncClient` | 3（端到端：上下行往返 / 405 / 204 / 随机端口） | ✅ 回退必红 |
+| `SmbServer` | 4（独立工程：SPI / 监听 / Tree Connect / 文件读写） | ✅ 回退必红（修复前 Tree Connect 60s 超时） |
 
 性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
 
@@ -90,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
 
 未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、过滤器单测。
-非原生包仍未测：`KcpServer` / `KcpHttpServer`、`RSocketServer`、`MqttServer`、`SmbServer`、`DHTServer`、`SshServer`、`WebRtcServer`、`JRebelHttpServer`、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
+非原生包未测：`DHTServer`、`WebRtcServer`、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
 
 HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
 
