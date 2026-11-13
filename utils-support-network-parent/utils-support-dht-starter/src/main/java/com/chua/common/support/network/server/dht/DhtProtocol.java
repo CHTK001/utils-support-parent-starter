@@ -531,6 +531,9 @@ public class DhtProtocol implements AutoCloseable {
             case GET_PEERS:
                 handleGetPeers(msg, sender);
                 break;
+            case ANNOUNCE_PEER:
+                handleAnnouncePeer(msg, sender);
+                break;
             case NAT_DETECT:
                 handleNatDetect(msg, sender);
                 break;
@@ -698,6 +701,29 @@ public class DhtProtocol implements AutoCloseable {
                 .targetId(msg.getSenderId())
                 .senderHost(sender.getHostString())
                 .senderPort(sender.getPort())
+                .timestamp(System.currentTimeMillis())
+                .build();
+        sendResponse(msg, resp, sender);
+    }
+
+    /**
+     * 处理 宣告_PEER 消息（BEP 5：announce_peer 必须回 {"id": ...}）。
+     * <p>
+     * 此前只做了 KRPC 解码、没有处理分支，宣告方永远等不到响应（超时）。
+     * 这里按最小实现补上响应；peer 的持久化仍由后续 crawl/存储链路负责。
+     * </p>
+     *
+     * @param msg    接收到的宣告消息
+     * @param sender 发送者地址
+     */
+    private void handleAnnouncePeer(DhtMessage msg, InetSocketAddress sender) {
+        DhtMessage resp = DhtMessage.builder()
+                .type(DhtMessageType.ANNOUNCE_PEER_RESPONSE)
+                .senderId(selfId.toString())
+                .targetId(msg.getSenderId())
+                .senderHost(selfHost(msg))
+                .senderPort(selfPort(msg))
+                .infohash(msg.getInfohash())
                 .timestamp(System.currentTimeMillis())
                 .build();
         sendResponse(msg, resp, sender);

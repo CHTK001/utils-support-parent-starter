@@ -308,7 +308,10 @@ public class DhtNettyServer {
             ByteBuf buf = packet.content();
             byte[] data = new byte[buf.readableBytes()];
             buf.readBytes(data);
-            buf.release();
+            // 不要手动 release：SimpleChannelInboundHandler 会在 channelRead0 返回后自动释放
+            // packet（及其 content）。此前这里多 release 一次，首个数据报处理完即触发
+            // IllegalReferenceCountException → exceptionCaught → ctx.close()，
+            // 表现为「服务端只应答第一个 UDP 包，之后全部超时」。
 
             if (data.length > 0 && data[0] == '{') {
                 handleJsonMessage(data, (InetSocketAddress) sender);

@@ -146,7 +146,10 @@ public class DhtRoutingTable {
             KademliaNodeId pid = KademliaNodeId.fromHex(p.getNodeId());
             return pid.xor(target).getInt().bitLength();
         }));
-        return result.subList(0, Math.min(count, result.size()));
+        // 必须复制：result 是 Eclipse Collections FastList，subList 不被支持
+        // （返回视图后调用方 removeIf 会抛 UnsupportedOperationException），
+        // 且调用方会就地删掉请求者自己，不能共享底层列表。
+        return Wraps.list(result.subList(0, Math.min(count, result.size())));
     }
 
     /**
