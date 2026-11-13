@@ -115,6 +115,28 @@ public class DefaultObjectContext implements ObjectContext {
         return context;
     }
 
+    /**
+     * 创建容器并直接完成初始化。
+     *
+     * <p>与 {@link #create()} 语义一致，仅方法名显式表达「创建即可用」，
+     * 避免调用方在拿到实例后再手动调用 {@link #init()} 造成重复初始化。</p>
+     *
+     * @return 已初始化的上下文
+     */
+    public static DefaultObjectContext createWithInitize() {
+        return create();
+    }
+
+    /**
+     * 创建容器并使用指定配置直接完成初始化。
+     *
+     * @param config 容器配置
+     * @return 已初始化的上下文
+     */
+    public static DefaultObjectContext createWithInitize(ObjectContextConfig config) {
+        return create(config);
+    }
+
     // ==================== 生命周期 ====================
 
         /**

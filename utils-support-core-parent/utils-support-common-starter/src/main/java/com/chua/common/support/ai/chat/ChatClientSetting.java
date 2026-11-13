@@ -201,6 +201,13 @@ public class ChatClientSetting {
     private Map<String, RouteTarget> routes;
 
     /**
+     * 透传响应头名单：上游返回的这些响应头会被捕获，交给上层写回自己的 HTTP 响应。
+     *
+     * <p>只对同步调用生效（SSE 流式开流后无法再补响应头）。为空表示不捕获。</p>
+     */
+    private List<String> passthroughResponseHeaders;
+
+    /**
      * 是否使用 GPU（本地推理引擎专用：llama.cpp / onnxruntime / pytorch 等）
      *
      * <p>null 表示跟随 {@code deeplearning.device} 系统属性（默认 auto）。</p>

@@ -7,7 +7,6 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.function.MethodFilter;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.reflect.MethodInvoker;
-import com.chua.common.support.modules.ModuleLoader;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -63,6 +62,9 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
  * <p>
  * 该类封装了常见的 Java 反射操作，便于在框架层面统一处理类加载、
  * 构造函数匹配、字段赋值以及方法调用等场景。
+ * <p>
+ * 反射底层统一由 {@link ReflectUtils} 提供；本类保留类型/类名工具与历史 API 兼容入口，
+ * 新增反射能力请直接扩展 {@link ReflectUtils}。
  *
  * @author CH
  * @since 4.0.0
@@ -1880,36 +1882,8 @@ public class ClassUtils {
      * 允许在内部实现中直接使用 java.lang.reflect API。</p>
      */
     public static <T> Constructor<T> getConstructor(Class<T> tClass, Class<?>[] classes) {
-        if (null == tClass || null == classes) {
-            return null;
-        }
-        Constructor<?>[] declaredConstructors =
-                tClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getConstructor 构造器匹配）
-        Constructor<?> item = null;
-        root:
-        for (Constructor<?> declaredConstructor : declaredConstructors) {
-            Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
-            if (parameterTypes.length != classes.length) {
-                continue;
-            }
-            for (int i = 0; i < parameterTypes.length; i++) {
-                Class<?> parameterType = parameterTypes[i];
-                Class<?> aClass = classes[i];
-                boolean assignable = aClass == parameterType
-                        || parameterType.isAssignableFrom(aClass)
-                        || Void.class.isAssignableFrom(aClass)
-                        || void.class.isAssignableFrom(aClass);
-                if (assignable) {
-                    if (i == parameterTypes.length - 1) {
-                        item = declaredConstructor;
-                        break root;
-                    }
-                    continue;
-                }
-                break;
-            }
-        }
-        return (Constructor<T>) item;
+        // 反射底层统一由 ReflectUtils 提供，本方法仅保留历史 API
+        return ReflectUtils.getConstructor(tClass, classes);
     }
     /**
      * 对象.类
@@ -2271,12 +2245,7 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Method findDeclaredMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
-        try {
-            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（findDeclaredMethod 封装）
-            return clazz.getDeclaredMethod(name, paramTypes);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
+        return ReflectUtils.findDeclaredMethod(clazz, name, paramTypes);
     }
     /**
      * 获取-全部
@@ -2355,42 +2324,8 @@ public class ClassUtils {
      * @return 实际执行了 setAccessible(true) 时返回 true，否则返回 false
      */
     public static boolean setAccessible(Object object) {
-        try {
-            ModuleLoader.exportAllToAll();
-        } catch (Throwable t) {
- // graalvm NAT-镜像 / 模块化环境下模块导出不可用时静默忽略
-        }
-        if (null == object) {
-            return false;
-        }
-        if (object instanceof Method && !((Method) object).isAccessible()) {
-            //        return AccessController.doPrivileged(new SetAccessibleAction<>(object));
-            ((Method) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-            return true;
-        }
-        if (object instanceof Field && !((Field) object).isAccessible()) {
-            ((Field) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-            if (Modifier.isPrivate(((Field) object).getModifiers()) &&
-                    Modifier.isFinal(((Field) object).getModifiers())) {
-                try {
-                    Field modifiersField =
-                            // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
-                            Field.class.getDeclaredField("modifiers");
-                    modifiersField.setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-                    modifiersField.setInt( ((Field) object),  ((Field) object).getModifiers() & ~Modifier.FINAL);
-                    return true;
-                } catch (NoSuchFieldException e) {
-                    return false;
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("移除 final 修饰符失败: " + e.getMessage(), e);
-                }
-            }
-        }
-        if (object instanceof Constructor && !((Constructor) object).isAccessible()) {
-            ((Constructor) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-            return true;
-        }
-        return false;
+        // 反射底层统一由 ReflectUtils 提供，本方法仅保留历史 API
+        return ReflectUtils.setAccessible(object);
     }
     /**
      * 按名称读取目标类中的字段值（优先 getter 方法，回退直接字段访问）。
@@ -3269,9 +3204,7 @@ public class ClassUtils {
     public static <T>T newInstance(Constructor<T> declaredConstructor, Object...args) {
         LAST_INSTANTIATION_FAILURE.remove();
         try {
-            setAccessible(declaredConstructor);
-            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Constructor) 对外封装）
-            return (T) declaredConstructor.newInstance(args);
+            return ReflectUtils.newInstance(declaredConstructor, args);
         } catch (Exception e) {
             // 这是 SPI 实例化实现的主要入口（ServiceDefinition 直接调用本方法），
             // 此前吞掉异常返回 null，调用方只能看到「实例化结果为 null」，
@@ -3305,9 +3238,7 @@ public class ClassUtils {
             for (Constructor<?> declaredConstructor : declaredConstructors) {
                 if (declaredConstructor.getParameterCount() == args.length) {
                     try {
-                        setAccessible(declaredConstructor);
-                        // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
-                        return (T) declaredConstructor.newInstance(args);
+                        return (T) ReflectUtils.newInstance(declaredConstructor, args);
                     } catch (Exception e) {
                         lastError = e;
                     }
