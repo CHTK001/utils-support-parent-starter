@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 其它：`ServiceDefinitionFinderTest`(3)、`DiscoveryLifecycleTest`(2)
 - 压测（默认跳过）：`ProxyThroughputTest`（`-Dbench.throughput=true`）、`WebSocketThroughputTest`（`-Dbench.ws=true`）以及独立进程客户端 `WebSocketFanoutClient`（`-Dbench.ws.processes` 可拆多进程）
 - `WebSocketSyncServer` 增加 accept/握手诊断计数：`getAcceptedTotal()` / `getHandshakeOkTotal()` / `getHandshakeFailTotal()` / `getLastHandshakeError()`
-- 非原生包的首个服务端用例：`VertxHttpServerTest`(2)、`VertxTcpServerTest`(3)（`utils-support-network-starter` 原先连 junit 依赖都没有，本轮补上）
+- 非原生包的首个服务端用例：`VertxHttpServerTest`(2)、`VertxTcpServerTest`(3)、`VertxHttpProxyServerTest`(2)、`VertxWebSocketServerTest`(1)（`utils-support-network-starter` 原先连 junit 依赖都没有，本轮补上；合计 8 条）
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DefaultServiceProvider`：`keepAlive` 缓存 10 分钟到期会 `close` 实例，可能把调用方正在持有的实例关掉，改为只淘汰不关闭。
 - `HttpProxyServer`：后端响应头是逐字节读**原始 socket**（一个响应头 100~200 次系统调用），改为按 Socket 缓存 `BufferedInputStream`（关闭时同步清理，不能每请求新建否则会吞掉多余字节）。
 - `NioServerResponse`：`ECHO_HEADER_CACHE` 以 `Content-Length` 为键且无上限（可被撑爆），改为 >64KB 不缓存、条数上限 256。
+- `VertxWebSocketServer`：`onSubscribe` 注册的处理器**永远不会被调用**——消息回调里走的是 `handleRequest`（路由/过滤器链），那条路径不查 `topicHandlers`。改为直接调用订阅处理器（文本帧与二进制帧两条路径都修）。修复前用例 16.5s 读超时，修复后 1.1s 通过。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 

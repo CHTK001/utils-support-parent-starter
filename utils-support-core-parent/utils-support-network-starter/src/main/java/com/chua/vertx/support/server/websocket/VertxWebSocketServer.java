@@ -106,12 +106,16 @@ public class VertxWebSocketServer extends AbstractServer {
                 }
  // 事件循环直跑:WebSocket 回声 处理器 为非阻塞回调,无需 执行阻塞 切 工人 线程,
                 // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
-                VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                VertxServerResponse response = new VertxServerResponse(ws);
-                try {
-                    handleRequest(request, response);
-                } catch (Exception e) {
-                    log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                // 直接调用订阅处理器：原实现走 handleRequest（路由/过滤器链），
+                // 那条路径不查 topicHandlers，导致 onSubscribe 注册的处理器永远不会被调用。
+                for (ServerHandler handler : handlers) {
+                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
+                    VertxServerResponse response = new VertxServerResponse(ws);
+                    try {
+                        handler.handle(request, response);
+                    } catch (Exception e) {
+                        log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                    }
                 }
             });
 
@@ -133,12 +137,16 @@ public class VertxWebSocketServer extends AbstractServer {
                 }
  // 事件循环直跑:WebSocket 回声 处理器 为非阻塞回调,无需 执行阻塞 切 工人 线程,
                 // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
-                VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                VertxServerResponse response = new VertxServerResponse(ws);
-                try {
-                    handleRequest(request, response);
-                } catch (Exception e) {
-                    log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                // 直接调用订阅处理器：原实现走 handleRequest（路由/过滤器链），
+                // 那条路径不查 topicHandlers，导致 onSubscribe 注册的处理器永远不会被调用。
+                for (ServerHandler handler : handlers) {
+                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
+                    VertxServerResponse response = new VertxServerResponse(ws);
+                    try {
+                        handler.handle(request, response);
+                    } catch (Exception e) {
+                        log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                    }
                 }
             });
 
