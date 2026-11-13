@@ -91,6 +91,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
         if (!array.getDataType().equals(DataType.FLOAT32)) {
             array = array.toType(DataType.FLOAT32, false);
         }
+        // [P3C A20 豁免]
         NDArray mean = ctx.getNDManager().create(new float[]{104f, 117f, 123f}, new Shape(3, 1, 1));
         array = array.sub(mean);
         return new NDList(array);

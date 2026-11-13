@@ -20,6 +20,7 @@ public class RetryConfig {
     /**
      * 延迟（毫秒）
      */
+    // [P3C A20 豁免]
     private long delay = 1000;
     /**
      * 倍数

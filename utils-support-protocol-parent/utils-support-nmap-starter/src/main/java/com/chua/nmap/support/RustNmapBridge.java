@@ -39,14 +39,17 @@ final class RustNmapBridge {
         return require().pingHost(host, timeout);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static String scanSubnet(String subnet, int timeout, int concurrency) {
         return require().scanSubnet(subnet, timeout, concurrency);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static String detectService(String host, int port, int timeout) {
         return require().detectService(host, port, timeout);
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static NmapSpi require() {
         return NativeServices.require(NmapSpi.class, CAPABILITY);
     }

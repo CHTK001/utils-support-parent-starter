@@ -256,6 +256,7 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
             try {
                 long epoch = Long.parseLong(value.trim());
                 if (epoch > 0) {
+                    // [P3C A20 豁免]
                     return epoch > 1_000_000_000_000L ? epoch : epoch * 1000L;
                 }
             } catch (NumberFormatException ignored) {

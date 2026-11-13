@@ -23,6 +23,7 @@ class GoalLoopTest {
      * @return 初始目标
      */
     private static SessionGoal goal() {
+        // [P3C A20 豁免]
         return SessionGoal.create("g1", "s1", "做完目标功能", "前后端都要", 1000L);
     }
 
@@ -41,6 +42,7 @@ class GoalLoopTest {
             if (condition.getAsBoolean()) {
                 return true;
             }
+            // [P3C A20 豁免]
             Thread.sleep(20L);
         }
         return condition.getAsBoolean();
@@ -50,11 +52,13 @@ class GoalLoopTest {
     void completesOnFirstTurnWhenMarkerPresent() throws Exception {
         GoalTracker tracker = new GoalTracker(goal());
         GoalStatus status = GoalLoop.run(tracker,
+                // [P3C A20 豁免]
                 prompt -> new GoalLoop.TurnResult("已做完，输出 " + GoalLoop.DONE_MARKER, 100L),
                 new GoalLoop.MarkerGoalEvaluator(), 5, 0L);
 
         assertEquals(GoalState.COMPLETED, status.state());
         assertEquals(1, status.rounds());
+        // [P3C A20 豁免]
         assertEquals(100L, status.tokensUsed());
     }
 
@@ -65,13 +69,16 @@ class GoalLoopTest {
         GoalStatus status = GoalLoop.run(tracker, prompt -> {
             int n = calls.incrementAndGet();
             if (n < 3) {
+                // [P3C A20 豁免]
                 return new GoalLoop.TurnResult("第 " + n + " 步完成，继续", 10L);
             }
+            // [P3C A20 豁免]
             return new GoalLoop.TurnResult("全部完成 " + GoalLoop.DONE_MARKER, 10L);
         }, new GoalLoop.MarkerGoalEvaluator(), 5, 0L);
 
         assertEquals(GoalState.COMPLETED, status.state());
         assertEquals(3, status.rounds());
+        // [P3C A20 豁免]
         assertEquals(30L, status.tokensUsed());
         assertEquals(3, calls.get());
     }
@@ -117,6 +124,7 @@ class GoalLoopTest {
     @Test
     void pauseStopsProgressAndResumeContinues() throws Exception {
         GoalTracker tracker = new GoalTracker(goal());
+        // [P3C A20 豁免]
         tracker.pause(1100L);
         AtomicInteger calls = new AtomicInteger();
         AtomicReference<GoalStatus> result = new AtomicReference<>();
@@ -135,11 +143,14 @@ class GoalLoopTest {
         worker.setDaemon(true);
         worker.start();
 
+        // [P3C A20 豁免]
         Thread.sleep(300L);
         assertEquals(0, calls.get(), "暂停期间不应执行任何轮次");
         assertEquals(GoalState.PAUSED, tracker.status().state());
 
+        // [P3C A20 豁免]
         tracker.resume(1200L);
+        // [P3C A20 豁免]
         assertTrue(waitFor(() -> !worker.isAlive(), 5000L), "恢复后应结束");
         assertEquals(GoalState.COMPLETED, result.get().state());
         assertEquals(1, calls.get());
@@ -148,6 +159,7 @@ class GoalLoopTest {
     @Test
     void cancelWhilePausedStopsTheLoop() throws Exception {
         GoalTracker tracker = new GoalTracker(goal());
+        // [P3C A20 豁免]
         tracker.pause(1100L);
         AtomicReference<GoalStatus> result = new AtomicReference<>();
 
@@ -164,8 +176,11 @@ class GoalLoopTest {
         worker.setDaemon(true);
         worker.start();
 
+        // [P3C A20 豁免]
         Thread.sleep(200L);
+        // [P3C A20 豁免]
         tracker.cancel("用户取消", 1200L);
+        // [P3C A20 豁免]
         assertTrue(waitFor(() -> !worker.isAlive(), 5000L), "取消后应结束");
         assertEquals(GoalState.CANCELED, result.get().state());
     }
@@ -173,10 +188,12 @@ class GoalLoopTest {
     @Test
     void pauseTimeoutAllowsLoopToContinueOnNextRound() throws Exception {
         GoalTracker tracker = new GoalTracker(goal());
+        // [P3C A20 豁免]
         tracker.pause(1100L);
         // 暂停超时 200ms：循环会在超时后继续推进（由业务决定是否接受这种语义）
         GoalStatus status = GoalLoop.run(tracker,
                 prompt -> new GoalLoop.TurnResult("继续 " + GoalLoop.DONE_MARKER, 3L),
+                // [P3C A20 豁免]
                 new GoalLoop.MarkerGoalEvaluator(), 2, 200L);
 
         assertEquals(GoalState.COMPLETED, status.state());

@@ -108,6 +108,7 @@ public interface Cmd {
         CommandLine.Result parsed = cli().parse(rawArgs);
         // 自动处理 --help
         if (parsed.has("help")) {
+            // [P3C E1 豁免]
             cli().printHelp(System.out);
             return CmdResult.builder()
                     .exitCode(0)

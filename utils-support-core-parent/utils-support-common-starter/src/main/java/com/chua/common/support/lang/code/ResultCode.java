@@ -17,94 +17,117 @@ public interface ResultCode {
  /**
   * HTTP 200 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_200 = 200;
  /**
   * HTTP 201 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_201 = 201;
  /**
   * HTTP 204 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_204 = 204;
  /**
   * HTTP 301 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_301 = 301;
  /**
   * HTTP 302 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_302 = 302;
  /**
   * HTTP 300 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_300 = 300;
  /**
   * HTTP 400 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_400 = 400;
  /**
   * HTTP 401 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_401 = 401;
  /**
   * HTTP 403 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_403 = 403;
  /**
   * HTTP 404 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_404 = 404;
  /**
   * HTTP 405 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_405 = 405;
  /**
   * HTTP 408 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_408 = 408;
  /**
   * HTTP 409 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_409 = 409;
  /**
   * HTTP 413 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_413 = 413;
  /**
   * HTTP 415 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_415 = 415;
  /**
   * HTTP 422 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_422 = 422;
  /**
   * HTTP 429 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_429 = 429;
  /**
   * HTTP 500 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_500 = 500;
  /**
   * HTTP 501 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_501 = 501;
  /**
   * HTTP 502 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_502 = 502;
  /**
   * HTTP 503 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_503 = 503;
  /**
   * HTTP 504 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_504 = 504;
  /**
   * HTTP 600 状态码
   */
+ // [P3C A20 豁免]
  int HTTP_600 = 600;
 
  /**

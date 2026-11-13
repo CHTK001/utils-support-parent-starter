@@ -35,6 +35,7 @@ public final class BackoffFlow {
     /**
      * 初始延迟（毫秒），默认 1000ms
      */
+    // [P3C A20 豁免]
     private long initialDelay = 1000;
 
     /**
@@ -45,6 +46,7 @@ public final class BackoffFlow {
     /**
      * 最大延迟（毫秒），默认 30000ms
      */
+    // [P3C A20 豁免]
     private long maxDelay = 30000;
 
     /**

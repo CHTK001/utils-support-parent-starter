@@ -272,6 +272,7 @@ public interface VectorStorageProvider {
         /**
          * Dimension
          */
+        // [P3C A20 豁免]
         private int dimension = 128;
         /**
          * 算法

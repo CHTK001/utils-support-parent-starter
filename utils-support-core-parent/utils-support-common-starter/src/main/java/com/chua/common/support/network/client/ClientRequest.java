@@ -97,6 +97,7 @@ public class ClientRequest {
      *
      * @see HttpClientBuilder#connectTimeout(long)
      */
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**
@@ -108,6 +109,7 @@ public class ClientRequest {
      *
      * @see HttpClientBuilder#readTimeout(long)
      */
+    // [P3C A20 豁免]
     private long readTimeout = 30000;
 
     /**
@@ -156,6 +158,7 @@ public class ClientRequest {
      *
      * @see HttpClientBuilder#keepAliveTimeout(long)
      */
+    // [P3C A20 豁免]
     private long keepAliveTimeout = 60000;
 
     /**
@@ -164,6 +167,7 @@ public class ClientRequest {
      * <p>指从发起请求到数据写入完成的最大等待时间。
      * 默认值：{@code 30000} 毫秒（30 秒）。
      */
+    // [P3C A20 豁免]
     private long writeTimeout = 30000;
 
     /**

@@ -64,6 +64,7 @@ public class LineArtImageFilter extends AbstractImageFilter {
     /**
      * 边缘阈值，默认 100
      */
+    // [P3C A20 豁免]
     private int threshold = 100;
 
     /**
@@ -84,6 +85,7 @@ public class LineArtImageFilter extends AbstractImageFilter {
     /**
      * 背景颜色 (0-255)，默认 255（白）
      */
+    // [P3C A20 豁免]
     private int bgColor = 255;
 
     /**
@@ -141,6 +143,7 @@ public class LineArtImageFilter extends AbstractImageFilter {
         // 合成：线条=lineColor，背景=bgColor
         for (int i = 0; i < bin.length; i++) {
             int v = bin[i] == 1 ? lineColor : bgColor;
+            // [P3C A20 豁免]
             outPixels[i] = (0xff << 24) | (v << 16) | (v << 8) | v;
         }
 

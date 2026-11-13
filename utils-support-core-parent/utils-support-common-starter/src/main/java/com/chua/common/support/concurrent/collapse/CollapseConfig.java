@@ -26,6 +26,7 @@ public class CollapseConfig {
     /**
      * 批量收集的最小阈值，收集到该数量的调用后立即执行批量逻辑；0 表示不等待（每批立即执行），负值非法
      */
+    // [P3C A20 豁免]
     private int waitThreshold = 10;
 
     /**

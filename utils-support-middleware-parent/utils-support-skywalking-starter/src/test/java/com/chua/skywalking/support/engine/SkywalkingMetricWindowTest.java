@@ -76,6 +76,7 @@ class SkywalkingMetricWindowTest {
     void singleChunkWhenWithinLimit() throws Exception {
         long step = 60_000L;
         long start = 1_700_000_000_000L;
+        // [P3C A20 豁免]
         long end = start + 30 * step;
         List<long[]> chunks = chunks(start, end, "MINUTE");
 
@@ -101,6 +102,7 @@ class SkywalkingMetricWindowTest {
     void splitsOneOverLimit() throws Exception {
         long step = 60_000L;
         long start = 1_700_000_000_000L;
+        // [P3C A20 豁免]
         long end = start + 501 * step;
         List<long[]> chunks = chunks(start, end, "MINUTE");
 
@@ -113,6 +115,7 @@ class SkywalkingMetricWindowTest {
     void splitsDayOfMinutes() throws Exception {
         long step = 60_000L;
         long start = 1_700_000_000_000L;
+        // [P3C A20 豁免]
         long end = start + 1440 * step;
         List<long[]> chunks = chunks(start, end, "MINUTE");
 
@@ -126,6 +129,7 @@ class SkywalkingMetricWindowTest {
         long step = 1_000L;
         long start = 1_700_000_000_000L;
         // 800 秒 ≈ 13 分钟，墙钟上很短，但 800 个步长照样超限
+        // [P3C A20 豁免]
         long end = start + 800 * step;
         List<long[]> chunks = chunks(start, end, "SECOND");
 
@@ -138,6 +142,7 @@ class SkywalkingMetricWindowTest {
     void splitsDays() throws Exception {
         long step = 86_400_000L;
         long start = 1_700_000_000_000L;
+        // [P3C A20 豁免]
         long end = start + 1000 * step;
         List<long[]> chunks = chunks(start, end, "DAY");
 

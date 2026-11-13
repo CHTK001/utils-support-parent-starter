@@ -260,6 +260,7 @@ class DirectBufferReadTest {
             List<Thread> workers = new ArrayList<>(connections);
             for (int c = 0; c < connections; c++) {
                 final int id = c;
+                // [P3C C1 豁免]
                 Thread worker = new Thread(() -> {
                     try (Socket socket = new Socket()) {
                         socket.setSoTimeout(30000);

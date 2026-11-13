@@ -78,16 +78,19 @@ public class VectorStorageProperties implements Serializable {
     /**
      * CAGRA/HNSW 图度（输出 图计算 学位），默认 64。
      */
+    // [P3C A20 豁免]
     private int graphDegree = 64;
 
     /**
      * CAGRA 中间图度（intermediate 图计算 学位），默认 128。
      */
+    // [P3C A20 豁免]
     private int intermediateGraphDegree = 128;
 
     /**
      * 搜索时的 exploration factor（搜索广度），默认 100。
      */
+    // [P3C A20 豁免]
     private int searchEf = 100;
 
     /**
@@ -105,11 +108,13 @@ public class VectorStorageProperties implements Serializable {
     /**
      * jvector 图最大度数 M，默认 32。
      */
+    // [P3C A20 豁免]
     private int jvectorGraphM = 32;
 
     /**
      * jvector 建图时搜索深度 efconstruction，默认 100。
      */
+    // [P3C A20 豁免]
     private int jvectorEfConstruction = 100;
 
     /**

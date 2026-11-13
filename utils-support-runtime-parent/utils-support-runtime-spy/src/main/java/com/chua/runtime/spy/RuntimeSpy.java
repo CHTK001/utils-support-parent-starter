@@ -945,6 +945,7 @@ public class RuntimeSpy {
         synchronized V put(K key, V value) {
             // 容量超限：移除最旧的 10%
             if (map.size() >= maxSize) {
+                // [P3C A20 豁免]
                 int evict = Math.max(1, map.size() / 10);
                 Iterator<Map.Entry<K, V>> it = map.entrySet().iterator();
                 while (it.hasNext() && evict > 0) {

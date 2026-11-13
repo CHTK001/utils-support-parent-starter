@@ -50,6 +50,7 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     /**
      * 状态代码
      */
+    // [P3C A20 豁免]
     private int statusCode = 200;
     /**
      * Ended

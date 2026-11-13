@@ -49,7 +49,9 @@ public class SnowflakeMockString implements MockString {
             sequence = 0;
         }
         lastTimestamp = timestamp;
+        // [P3C A20 豁免]
         long machineId = environment.nextInt(1024);
+        // [P3C A20 豁免]
         long id = ((timestamp - 1420070400000L) << 22) | (machineId << 12) | sequence;
         return Long.toString(id);
     }

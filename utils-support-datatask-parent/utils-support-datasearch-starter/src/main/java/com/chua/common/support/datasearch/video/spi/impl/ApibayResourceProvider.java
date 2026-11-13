@@ -229,7 +229,9 @@ public class ApibayResourceProvider extends AbstractResourceProvider {
         double value = bytes;
         String[] units = {"B", "KB", "MB", "GB", "TB", "PB"};
         int unit = 0;
+        // [P3C A20 豁免]
         while (value >= 1024D && unit < units.length - 1) {
+            // [P3C A20 豁免]
             value /= 1024D;
             unit++;
         }

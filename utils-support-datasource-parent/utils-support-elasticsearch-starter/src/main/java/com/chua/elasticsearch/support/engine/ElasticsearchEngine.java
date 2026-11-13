@@ -119,6 +119,7 @@ public class ElasticsearchEngine implements Engine {
         }
         String scheme = uri.getScheme() == null ? "http" : uri.getScheme();
         String host = uri.getHost() == null ? "localhost" : uri.getHost();
+        // [P3C A20 豁免]
         int port = uri.getPort() > 0 ? uri.getPort() : 9200;
         RestClient restClient = RestClient.builder(new HttpHost(host, port, scheme)).build();
         ownedRestClients.add(restClient);

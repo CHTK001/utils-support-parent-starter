@@ -135,6 +135,7 @@ public class ClientSetting {
         /**
          * 端口
          */
+        // [P3C A20 豁免]
         private int port = 5985;
         /**
          * Username

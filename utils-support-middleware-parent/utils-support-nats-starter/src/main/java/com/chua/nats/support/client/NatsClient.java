@@ -429,6 +429,7 @@ public class NatsClient implements AutoCloseable {
         /**
          * 最大值reconnects
         */
+        // [P3C A20 豁免]
         private int maxReconnects = 60;
         /**
          * Pedantic

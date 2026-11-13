@@ -109,6 +109,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
      */
     private byte[] readBytes(InputStream is) throws IOException {
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        // [P3C A20 豁免]
         byte[] buffer = new byte[8192];
         int len;
         while ((len = is.read(buffer)) != -1) {

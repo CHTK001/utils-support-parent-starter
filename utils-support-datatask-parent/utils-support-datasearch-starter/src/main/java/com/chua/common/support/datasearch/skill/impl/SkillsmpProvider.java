@@ -120,6 +120,7 @@ public class SkillsmpProvider {
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
         int page = args.containsKey("page") ? ((Number) args.get("page")).intValue() : 1;
+        // [P3C A20 豁免]
         int limit = args.containsKey("limit") ? ((Number) args.get("limit")).intValue() : 12;
         String sortBy = (String) args.getOrDefault("sortBy", "stars");
 

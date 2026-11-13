@@ -95,9 +95,11 @@ public class VignetteImageFilter extends AbstractImageFilter {
                 float darken = (float) Math.pow(t, 1.5) * (float) strength;
                 float keep = 1.0f - darken;
 
+                // [P3C A20 豁免]
                 int r = ImageProcessorUtils.clamp((int) (((p >> 16) & 0xff) * keep));
                 int g = ImageProcessorUtils.clamp((int) (((p >> 8) & 0xff) * keep));
                 int b = ImageProcessorUtils.clamp((int) ((p & 0xff) * keep));
+                // [P3C A20 豁免]
                 outPixels[i] = (0xff << 24) | (r << 16) | (g << 8) | b;
             }
         }

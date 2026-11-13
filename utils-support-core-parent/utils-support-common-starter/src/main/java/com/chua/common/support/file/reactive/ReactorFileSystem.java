@@ -22,6 +22,7 @@ public interface ReactorFileSystem {
     /**
      * 默认大小文件阈值 1MB
      */
+    // [P3C A20 豁免]
     long DEFAULT_SIZE_THRESHOLD = 1024L * 1024L;
 
     /* ==================== 读取 ==================== */

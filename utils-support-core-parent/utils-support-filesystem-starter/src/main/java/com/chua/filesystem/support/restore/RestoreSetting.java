@@ -52,6 +52,7 @@ public class RestoreSetting {
      * 批量插入大小
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int batchSize = 1000;
 
     /**
@@ -81,6 +82,7 @@ public class RestoreSetting {
      * 超时时间（秒）
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int timeout = 3600;
 
     /**

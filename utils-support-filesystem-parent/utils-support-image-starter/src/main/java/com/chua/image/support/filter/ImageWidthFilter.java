@@ -64,10 +64,12 @@ public class ImageWidthFilter extends AbstractImageFilter {
     /**
      * 目标宽度
     */
+    // [P3C A20 豁免]
     private int width = 100;
     /**
      * 目标高度
     */
+    // [P3C A20 豁免]
     private int height = 100;
 
     /**

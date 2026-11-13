@@ -43,6 +43,7 @@ public class Model3DGenerationSpec {
     /**
      * 超时时间（秒）
      */
+    // [P3C A20 豁免]
     private int timeoutSeconds = 300;
 
     /**

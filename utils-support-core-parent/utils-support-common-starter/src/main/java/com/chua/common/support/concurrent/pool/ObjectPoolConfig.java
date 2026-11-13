@@ -25,6 +25,7 @@ public class ObjectPoolConfig {
      * 最大值总数
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int maxTotal = 10;
 
     /**
@@ -55,6 +56,7 @@ public class ObjectPoolConfig {
      * Borrow超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long borrowTimeoutMillis = 3000;
 
     /**
@@ -65,6 +67,7 @@ public class ObjectPoolConfig {
      * Idle超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long idleTimeoutMillis = 60000;
 
     /**
@@ -85,6 +88,7 @@ public class ObjectPoolConfig {
      * Idleeviction间隔毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long idleEvictionIntervalMillis = 30000;
 
     /**

@@ -123,6 +123,7 @@ final class NvCodecProbe {
      * @return 错误描述
      */
     static String strerror(int code) {
+        // [P3C A20 豁免]
         byte[] buffer = new byte[256];
         avutil.av_strerror(code, buffer, buffer.length);
         int length = 0;

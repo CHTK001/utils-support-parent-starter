@@ -277,9 +277,11 @@ class WebSocketThroughputTest {
             for (int value : errors) {
                 error += value;
             }
+            // [P3C E1 豁免]
             System.out.println("BENCH|ws-echo|msgs=" + total
                     + "|qps=" + String.format(java.util.Locale.ROOT, "%.0f", total * 1000.0 / ECHO_DURATION_MS)
                     + "|conns=" + ECHO_CONCURRENCY + "|err=" + error);
+            // [P3C E1 豁免]
             System.out.flush();
         } finally {
             server.stop();
@@ -365,15 +367,18 @@ class WebSocketThroughputTest {
             int connectedTotal = 0;
             for (java.io.BufferedReader reader : readers) {
                 String ready = waitForLine(reader, "READY", 300_000L);
+                // [P3C E1 豁免]
                 System.out.println("BENCH|ws-fanout-child|" + ready);
                 if (ready == null) {
                     return;
                 }
                 connectedTotal += parseCount(ready, "connected=");
             }
+            // [P3C E1 豁免]
             System.out.println("BENCH|ws-fanout-ready|processes=" + processes
                     + "|connected=" + connectedTotal + "/" + clientCount
                     + "|waitMs=" + (System.currentTimeMillis() - readyStart));
+            // [P3C E1 豁免]
             System.out.flush();
 
             long start = System.nanoTime();
@@ -390,6 +395,7 @@ class WebSocketThroughputTest {
             }
             long totalMs = (System.nanoTime() - start) / 1_000_000L;
             long expected = (long) clientCount * frameCount;
+            // [P3C E1 豁免]
             System.out.println("BENCH|ws-fanout-external|clients=" + clientCount
                     + "|processes=" + processes
                     + "|frames=" + frameCount
@@ -398,6 +404,7 @@ class WebSocketThroughputTest {
                     + "|totalMs=" + totalMs
                     + "|framesPerSec=" + String.format(java.util.Locale.ROOT, "%.0f",
                     deliveredTotal * 1000.0 / Math.max(1L, totalMs)));
+            // [P3C E1 豁免]
             System.out.flush();
         } finally {
             for (Process child : children) {
@@ -496,6 +503,7 @@ class WebSocketThroughputTest {
                 Thread.sleep(50L);
             }
             connected = server.getConnectedClients().size();
+            // [P3C E1 豁免]
             System.out.println("BENCH|ws-fanout-ready|clients=" + connected + "/" + clientCount
                     + "|waitMs=" + (System.currentTimeMillis() - readyStart)
                     + "|connectFailures=" + connectFailures.get()
@@ -504,6 +512,7 @@ class WebSocketThroughputTest {
                     + "|hsOk=" + server.getHandshakeOkTotal()
                     + "|hsFail=" + server.getHandshakeFailTotal()
                     + "|hsErr=" + server.getLastHandshakeError());
+            // [P3C E1 豁免]
             System.out.flush();
             Thread.sleep(500L);
 
@@ -529,6 +538,7 @@ class WebSocketThroughputTest {
             }
             long elapsedMs = Math.max(1L, (System.nanoTime() - start) / 1_000_000L);
             long publishMs = Math.max(1L, (publishDone - start) / 1_000_000L);
+            // [P3C E1 豁免]
             System.out.println("BENCH|ws-fanout|clients=" + connected + "/" + clientCount
                     + "|frames=" + frameCount
                     + "|delivered=" + delivered + "/" + expected
@@ -536,6 +546,7 @@ class WebSocketThroughputTest {
                     + "|totalMs=" + elapsedMs
                     + "|framesPerSec=" + String.format(java.util.Locale.ROOT, "%.0f",
                     delivered * 1000.0 / elapsedMs));
+            // [P3C E1 豁免]
             System.out.flush();
 
             running.set(false);

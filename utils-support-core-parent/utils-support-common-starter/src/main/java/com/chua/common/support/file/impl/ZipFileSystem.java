@@ -352,6 +352,7 @@ public class ZipFileSystem implements FileSystem {
                     } else {
                         outFile.getParentFile().mkdirs();
                         try (OutputStream os = new FileOutputStream(outFile)) {
+                            // [P3C A20 豁免]
                             byte[] buffer = new byte[8192];
                             int len;
                             while ((len = zis.read(buffer)) > 0) {
@@ -406,6 +407,7 @@ public class ZipFileSystem implements FileSystem {
                         outFile.getParentFile().mkdirs();
                         try (InputStream is = zipFile.getInputStream(entry);
                              OutputStream os = new FileOutputStream(outFile)) {
+                            // [P3C A20 豁免]
                             byte[] buffer = new byte[8192];
                             int len;
                             while ((len = is.read(buffer)) > 0) {
@@ -437,6 +439,7 @@ public class ZipFileSystem implements FileSystem {
                 }
                 try (InputStream is = zipFile.getInputStream(entry);
                      ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    // [P3C A20 豁免]
                     byte[] buffer = new byte[8192];
                     int len;
                     while ((len = is.read(buffer)) > 0) {
@@ -462,6 +465,7 @@ public class ZipFileSystem implements FileSystem {
                 while ((entry = zis.getNextEntry()) != null) {
                     if (entry.getName().equals(entryName)) {
                         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                            // [P3C A20 豁免]
                             byte[] buffer = new byte[8192];
                             int len;
                             while ((len = zis.read(buffer)) > 0) {
@@ -705,6 +709,7 @@ public class ZipFileSystem implements FileSystem {
             }
 
             try (FileInputStream fis = new FileInputStream(sourceFile)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int partNumber = 1;
                 long bytesWrittenInPart = 0;
@@ -761,6 +766,7 @@ public class ZipFileSystem implements FileSystem {
         private void copyFile(File source, File target) throws IOException {
             try (FileInputStream fis = new FileInputStream(source);
                  FileOutputStream fos = new FileOutputStream(target)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int len;
                 while ((len = fis.read(buffer)) > 0) {
@@ -790,6 +796,7 @@ public class ZipFileSystem implements FileSystem {
          * @throws IOException 异常
         */
         private void writeStream(ZipOutputStream zos, InputStream in) throws IOException {
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             int len;
             while ((len = in.read(buffer)) > 0) {

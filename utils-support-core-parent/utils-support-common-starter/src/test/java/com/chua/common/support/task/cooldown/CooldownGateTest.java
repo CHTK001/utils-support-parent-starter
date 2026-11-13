@@ -50,6 +50,7 @@ class CooldownGateTest {
         long normal = gate.remaining("channel|other|acc-1");
         assertTrue(slow > 9_000L && slow <= 10_000L, "渠道自定义时长未生效: " + slow);
         assertTrue(normal > 59_000L, "未注册的渠道不应被影响: " + normal);
+        // [P3C A20 豁免]
         assertEquals(20_000L, gate.backoffMillis("channel|slow|acc-1", 99));
     }
 
@@ -115,6 +116,7 @@ class CooldownGateTest {
      */
     @Test
     void backoffGrowsCapsAndResetsOnSuccess() {
+        // [P3C A20 豁免]
         CooldownGate gate = CooldownGate.of("test-a").configure(1000L, 3000L);
         gate.fail("acc-1", "429");
         long first = gate.remaining("acc-1");
@@ -125,7 +127,9 @@ class CooldownGateTest {
 
         assertTrue(second > first, "第二次应更久: " + first + " -> " + second);
         assertTrue(third >= second, "第三次不应更短: " + second + " -> " + third);
+        // [P3C A20 豁免]
         assertTrue(third <= 3000L, "不得超过封顶: " + third);
+        // [P3C A20 豁免]
         assertEquals(3000L, gate.backoffMillis(99));
 
         gate.pass("acc-1");
@@ -139,10 +143,12 @@ class CooldownGateTest {
      */
     @Test
     void cooldownExpiresOnItsOwn() throws Exception {
+        // [P3C A20 豁免]
         CooldownGate gate = CooldownGate.of("test-a").configure(60L, 240L);
         gate.fail("acc-1", "429");
         assertTrue(gate.blocked("acc-1"));
 
+        // [P3C A20 豁免]
         Thread.sleep(120L);
 
         assertFalse(gate.blocked("acc-1"));

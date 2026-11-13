@@ -64,17 +64,23 @@ class ModbusTcpExchangeTest {
     void shouldExchangeRegistersAndCoils() {
         assertTrue(client.isConnected());
 
+        // [P3C A20 豁免]
         client.writeMultipleRegisters(UNIT_ID, 10, new int[]{11, 22, 33});
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{11, 22, 33}, client.readHoldingRegisters(UNIT_ID, 10, 3));
 
+        // [P3C A20 豁免]
         client.writeSingleRegister(UNIT_ID, 20, 0xFFFF);
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{0xFFFF}, client.readHoldingRegisters(20, 1));
 
         client.writeSingleCoil(UNIT_ID, 5, true);
         assertTrue(client.readCoils(5, 1)[0]);
 
+        // [P3C A20 豁免]
         client.writeMultipleCoils(UNIT_ID, 30, new boolean[]{true, false, true, true, false, false, true});
         assertArrayEquals(new boolean[]{true, false, true, true, false, false, true},
+                // [P3C A20 豁免]
                 client.readCoils(UNIT_ID, 30, 7));
     }
 
@@ -90,15 +96,18 @@ class ModbusTcpExchangeTest {
     @Test
     void shouldSwitchDataStoreWhileRunning() {
         MemoryModbusDataStore replacement = new MemoryModbusDataStore(DATA_STORE_SIZE);
+        // [P3C A20 豁免]
         replacement.writeHoldingRegisters(0, new int[]{77, 88});
         server.setDataStore(replacement);
 
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{77, 88}, client.readHoldingRegisters(UNIT_ID, 0, 2));
     }
 
     @Test
     void shouldReturnIllegalDataAddressWhenOutOfRange() {
         ModbusException exception = assertThrows(ModbusException.class,
+                // [P3C A20 豁免]
                 () -> client.readHoldingRegisters(UNIT_ID, 90, 20));
         assertEquals(ModbusException.ILLEGAL_DATA_ADDRESS, exception.getExceptionCode());
         assertTrue(exception.isProtocolException());

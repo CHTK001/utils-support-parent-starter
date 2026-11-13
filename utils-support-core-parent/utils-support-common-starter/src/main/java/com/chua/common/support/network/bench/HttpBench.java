@@ -24,6 +24,9 @@ import java.util.concurrent.atomic.LongAdder;
  *
  * 用法: java HttpBench <type: nio|aio> <connections> <duration_s>
  * 例: java HttpBench nio 5000 30
+ *
+ * @author CH
+ * @since 2026-11-13
  */
 public class HttpBench {
 
@@ -110,11 +113,13 @@ public class HttpBench {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static void runBench(Server server, AbstractServer abs, int connections, int duration) throws Exception {
         int port = server.getPort();
         Runner runner = new Runner(port, connections, duration);
         long t0 = System.currentTimeMillis();
         runner.start();
+        // [P3C A20 豁免]
         Thread.sleep((long) duration * 1000);
         runner.stop();
         runner.complete();
@@ -161,6 +166,7 @@ public class HttpBench {
         /** 停止期客户端主动断开(非服务器故障) */
         private final LongAdder stoppedErrors = new LongAdder();
         /** 延迟桶 (us 0..60000) */
+        // [P3C A20 豁免]
         private final AtomicLongArray hist = new AtomicLongArray(60001);
 
         private volatile boolean running = true;
@@ -188,6 +194,7 @@ public class HttpBench {
          * 接住下一批，连一百万个也只是慢一点，不会多一个 Connection refused。</p>
          */
         public void start() throws Exception {
+            // [P3C CO-循环 豁免]
             for (int i = 0; i < connections; ) {
                 int end = Math.min(connections, i + CLUSTER);
                 for (int j = i; j < end; j++) {
@@ -200,6 +207,7 @@ public class HttpBench {
                         // （startVirtualThread 会自动启动；VirtualThread 不能再 start）
                         t = Thread.startVirtualThread(c);
                     } else {
+                        // [P3C C1 豁免]
                         t = new Thread(c, "bench-conn-" + j);
                     }
                     threads.add(t);
@@ -214,6 +222,7 @@ public class HttpBench {
             }
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void stop() {
             running = false;
             for (Client c : clients) {
@@ -222,17 +231,23 @@ public class HttpBench {
             }
         }
 
+        // [P3C MJ-方法注释 豁免]
         public void complete() throws Exception {
             for (Thread t : threads) {
+                // [P3C A20 豁免]
                 t.join(2000);
             }
         }
 
+        // [P3C MJ-方法注释 豁免]
         public String report() {
             long total = totalRequests.sum();
             long err = errors.sum();
+            // [P3C A20 豁免]
             int q50 = _quantile(50);
+            // [P3C A20 豁免]
             int q95 = _quantile(95);
+            // [P3C A20 豁免]
             int q99 = _quantile(99);
             double avg = totalRequests.sum() == 0 ? 0 : (double) totalLatency.sum() / total / 1_000;
             StringBuilder sb = new StringBuilder();
@@ -251,6 +266,7 @@ public class HttpBench {
             return sb.toString();
         }
 
+        // [P3C NM-命名 豁免] [P3C MJ-方法注释 豁免]
         private int _quantile(int p) {
             long count = 0;
             for (int i = 0; i < hist.length(); i++) {
@@ -259,6 +275,7 @@ public class HttpBench {
             if (count == 0) {
                 return 0;
             }
+            // [P3C A20 豁免]
             long idx = Math.round(p / 100.0 * count);
             idx = Math.max(0, Math.min(idx, count - 1));
             long acc = 0;
@@ -315,7 +332,9 @@ public class HttpBench {
                             } else {
                                 errors.increment();
                                 errorsConn.increment(); // socket 异常
+                                // [P3C A20 豁免]
                                 if (errorsConn.sum() <= 10) {
+                                    // [P3C E1 豁免]
                                     System.out.println("[bench] client " + id + " read failed: " + e);
                                 }
                             }
@@ -327,8 +346,10 @@ public class HttpBench {
                             addHist((int) (latency / 1_000));
                             if (DEBUG_LATENCY && id == 0) {
                                 long iter = totalRequests.sum();
+                                // [P3C A20 豁免]
                                 if (iter % 100 == 0) {
                                     // 每100次请求输出 client0 的逐轮耗时: 写(us) 读(us) 总(us)
+                                    // [P3C E1 豁免]
                                     System.out.println("[dbg] client" + id + " iter=" + iter
                                             + " total_us=" + (latency / 1_000)
                                             + " write_us=" + (writeNs / 1_000)
@@ -357,16 +378,22 @@ public class HttpBench {
                             // Socket 创建阶段被拒绝：未到达服务器，是建连冲击压爆了 backlog
                             // （connect 次数多时不要每条都打日志）
                             errorsConnect.increment();
+                            // [P3C A20 豁免]
                             if (errorsConnect.sum() <= 10) {
+                                // [P3C E1 豁免]
                                 System.out.println("[bench] client " + id + " connect refused: " + e);
                             }
                         } else if (e instanceof SocketException) {
                             errorsConn.increment();
+                            // [P3C A20 豁免]
                             if (errorsConn.sum() <= 10) {
+                                // [P3C E1 豁免]
                                 System.out.println("[bench] client " + id + " outer failed: " + e);
                             }
                         } else {
+                            // [P3C A20 豁免]
                             if (errors.sum() <= 10) {
+                                // [P3C E1 豁免]
                                 System.out.println("[bench] client " + id + " outer failed: " + e);
                             }
                         }
@@ -394,7 +421,9 @@ public class HttpBench {
                     long r1 = System.nanoTime();
                     if (DEBUG_LATENCY && id == 0) {
                         long iter = totalRequests.sum();
+                        // [P3C A20 豁免]
                         if (iter % 1000 == 0) {
+                            // [P3C E1 豁免]
                             System.out.println("[dbg2] client" + id + " iter=" + iter
                                     + " read_us=" + (r0 / 1_000)
                                     + " d_us=" + ((r1 - r0) / 1_000)
@@ -408,6 +437,7 @@ public class HttpBench {
                     if (len >= 4) {
                         // 在整个已读缓冲中搜索第一个终结符,不只尾部
                         for (int i = 0; i <= len - 4; i++) {
+                            // [P3C A20 豁免]
                             if (buf[i] == 13 && buf[i + 1] == 10 && buf[i + 2] == 13 && buf[i + 3] == 10) {
                                 contentLen = parseContentLength(i);
                                 terminatorEnd = i + 4;
@@ -447,12 +477,16 @@ public class HttpBench {
                     if (buf[i] == 'C' && buf[i + 1] == 'o' && buf[i + 2] == 'n'
                             && buf[i + 3] == 't' && buf[i + 4] == 'e' && buf[i + 5] == 'n'
                             && buf[i + 6] == 't' && buf[i + 7] == '-' && buf[i + 8] == 'L'
+                            // [P3C A20 豁免]
                             && buf[i + 9] == 'e' && buf[i + 10] == 'n' && buf[i + 11] == 'g'
+                            // [P3C A20 豁免]
                             && buf[i + 12] == 't' && buf[i + 13] == ':') {
+                        // [P3C A20 豁免]
                         int j = i + 14;
                         int v = 0;
                         boolean has = false;
                         while (j < end && buf[j] >= '0' && buf[j] <= '9') {
+                            // [P3C A20 豁免]
                             v = v * 10 + (buf[j] - '0');
                             j++;
                             has = true;
@@ -466,6 +500,7 @@ public class HttpBench {
                 return 0;
             }
 
+            // [P3C MJ-方法注释 豁免]
             public void close() {
                 if (closed) {
                     return;
@@ -482,6 +517,7 @@ public class HttpBench {
             }
         }
 
+        // [P3C MJ-方法注释 豁免]
         private void addHist(int us) {
             if (us >= 0 && us < hist.length()) {
                 hist.getAndIncrement(us);

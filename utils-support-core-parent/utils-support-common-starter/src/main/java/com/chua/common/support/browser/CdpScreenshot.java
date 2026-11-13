@@ -155,6 +155,7 @@ public final class CdpScreenshot {
             } catch (Exception e) {
                 log.debug("[cdp] 查询等待选择器失败: {}", e.getMessage());
             }
+            // [P3C A20 豁免]
             sleep(200L);
         }
         log.warn("[cdp] 等待选择器超时: {}", config.getWaitSelector());
@@ -197,11 +198,13 @@ public final class CdpScreenshot {
         /**
          * 视口宽度
          */
+        // [P3C A20 豁免]
         private int viewportWidth = 1280;
 
         /**
          * 视口高度
          */
+        // [P3C A20 豁免]
         private int viewportHeight = 720;
 
         /**

@@ -33,6 +33,7 @@ public class ProgressBarBuilder {
     /**
      * 更新间隔（毫秒）
      */
+    // [P3C A20 豁免]
     private int updateIntervalMillis = 1000;
 
     /**

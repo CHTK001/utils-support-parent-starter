@@ -51,10 +51,12 @@ class ModbusSettingTest {
     void shouldValidateNetworkConfig() {
         assertThrows(ModbusException.class, () -> ModbusSetting.defaults().setPort(0).validate());
         assertThrows(ModbusException.class, () -> ModbusSetting.defaults().setHost("").validate());
+        // [P3C A20 豁免]
         assertThrows(ModbusException.class, () -> ModbusSetting.defaults().setUnitId(256).validate());
         assertThrows(ModbusException.class, () -> ModbusSetting.defaults().setConnectTimeout(0).validate());
         assertThrows(ModbusException.class, () -> ModbusSetting.defaults().setReadTimeout(0).validate());
 
+        // [P3C A20 豁免]
         assertDoesNotThrow(() -> ModbusSetting.of("192.168.1.10", 502)
                 .setProtocol(ModbusProtocol.UDP)
                 .validate());

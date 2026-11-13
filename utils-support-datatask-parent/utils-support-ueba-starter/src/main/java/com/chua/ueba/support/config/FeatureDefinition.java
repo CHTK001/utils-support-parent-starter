@@ -98,6 +98,7 @@ public class FeatureDefinition implements Serializable {
      * 聚合窗口（秒），用于计算 请求_rate 等与时间相关的指标，默认 60
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long window = 60L;
 
     /**
@@ -116,5 +117,6 @@ public class FeatureDefinition implements Serializable {
      * 循环周期（秒），仅 CYCLIC 类型使用，默认 86400（一天）
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long period = 86400L;
 }

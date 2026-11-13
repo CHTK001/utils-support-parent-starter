@@ -291,6 +291,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         /**
          * 池最大容量
          */
+        // [P3C A20 豁免]
         private int maxTotal = 10;
 
         /**
@@ -306,16 +307,19 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         /**
          * 借出超时（毫秒）
          */
+        // [P3C A20 豁免]
         private long borrowTimeoutMillis = 3000;
 
         /**
          * 空闲超时（毫秒）
          */
+        // [P3C A20 豁免]
         private long idleTimeoutMillis = 600000;
 
         /**
          * 空闲检测间隔（毫秒）
          */
+        // [P3C A20 豁免]
         private long idleEvictionIntervalMillis = 30000;
 
         /**

@@ -52,6 +52,7 @@ public class EvictionManager {
      */
     public void evict() {
         long now = System.currentTimeMillis();
+        // [P3C A20 豁免]
         long timeoutMs = config.getEvictTimeout() * 1000L;
         List<String> toRemove = Wraps.list();
         for (Map.Entry<String, NodeTable.NodeEntry> entry : nodeTable.getAllEntries().entrySet()) {

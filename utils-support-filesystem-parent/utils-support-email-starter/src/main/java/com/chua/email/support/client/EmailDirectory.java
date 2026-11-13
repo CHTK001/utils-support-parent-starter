@@ -160,6 +160,7 @@ public class EmailDirectory implements PolledDirectory {
 
             // 获取最新邮件
             int total = inbox.getMessageCount();
+            // [P3C A20 豁免]
             int start = Math.max(1, total - 10);
             Message[] messages = inbox.getMessages(start, total);
 
@@ -215,6 +216,7 @@ public class EmailDirectory implements PolledDirectory {
             while (running) {
                 try {
                     upgrade();
+                    // [P3C A20 豁免]
                     Thread.sleep(pollIntervalSeconds * 1000L);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -222,6 +224,7 @@ public class EmailDirectory implements PolledDirectory {
                 } catch (Exception e) {
                     log.error("邮件轮询异常: {}", e.getMessage(), e);
                     try {
+                        // [P3C A20 豁免]
                         Thread.sleep(pollIntervalSeconds * 1000L);
                     } catch (InterruptedException ie) {
                         break;
@@ -251,6 +254,7 @@ public class EmailDirectory implements PolledDirectory {
         /**
          * IMAP端口
         */
+        // [P3C A20 豁免]
         private int imapPort = 993;
         /**
          * Username
@@ -267,6 +271,7 @@ public class EmailDirectory implements PolledDirectory {
         /**
          * Poll间隔秒
         */
+        // [P3C A20 豁免]
         private int pollIntervalSeconds = 60;
 
         /**

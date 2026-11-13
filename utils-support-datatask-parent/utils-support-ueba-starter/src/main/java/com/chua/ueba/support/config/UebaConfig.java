@@ -131,6 +131,7 @@ public class UebaConfig implements Serializable {
          * 隐藏层维度，默认 [32, 16]，仅供训练参考，推理端忽略
          */
         @Builder.Default
+        // [P3C A20 豁免]
         private List<Integer> hiddenDims = Wraps.list(List.of(32, 16)); // hiddendims
 
         /**
@@ -168,6 +169,7 @@ public class UebaConfig implements Serializable {
          * 行为序列长度（时间步数量），默认 20
          */
         @Builder.Default
+        // [P3C A20 豁免]
         private int windowSize = 20; // 窗口大小
 
         /**
@@ -255,12 +257,14 @@ public class UebaConfig implements Serializable {
          * 特征名到归一化参数的映射
          */
         @Builder.Default
+        // [P3C A20 豁免]
         private Map<String, Scaler> scalers = Wraps.map(16); // scalers
 
         /**
          * 类别值（如 路径）到整数 标识 的映射，0 保留给填充位
          */
         @Builder.Default
+        // [P3C A20 豁免]
         private Map<String, Integer> vocab = Wraps.map(64); // vocab
     }
 

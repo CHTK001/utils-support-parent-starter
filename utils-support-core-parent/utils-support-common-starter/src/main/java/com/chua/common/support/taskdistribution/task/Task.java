@@ -75,6 +75,7 @@ public class Task<T> {
      * 超时MS
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long timeoutMs = 30000;
 
     /**

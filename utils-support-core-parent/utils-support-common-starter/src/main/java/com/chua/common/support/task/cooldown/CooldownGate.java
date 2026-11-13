@@ -70,6 +70,7 @@ public final class CooldownGate {
     /**
      * 冷却状态：键为调用方自定的稳定标识（渠道|账号、provider|model|key 摘要等）
      */
+    // [P3C A20 豁免]
     private final Map<String, CooldownState> states = new ConcurrentHashMap<>(16);
 
     /**

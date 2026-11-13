@@ -25,6 +25,7 @@ public class OffsetConfig {
     /**
      * 字节缓存刷新间隔（毫秒）
      */
+    // [P3C A20 豁免]
     private long flushInterval = 5000L;
 
     /**

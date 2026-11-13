@@ -76,6 +76,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     /**
      * 网格格子像素宽，默认 64
      */
+    // [P3C A20 豁免]
     private int tileSize = 64;
 
     /**
@@ -286,6 +287,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
         int[] px = t.getRGB(0, 0, t.getWidth(), t.getHeight(), null, 0, t.getWidth());
         long sr = 0, sg = 0, sb = 0;
         for (int p : px) {
+            // [P3C A20 豁免]
             sr += (p >> 16) & 0xff;
             sg += (p >> 8) & 0xff;
             sb += p & 0xff;
@@ -314,6 +316,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
         for (int y = y0; y < y1; y++) {
             for (int x = x0; x < x1; x++) {
                 int p = pixels[y * w + x];
+                // [P3C A20 豁免]
                 sr += (p >> 16) & 0xff;
                 sg += (p >> 8) & 0xff;
                 sb += p & 0xff;

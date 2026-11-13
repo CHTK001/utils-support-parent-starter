@@ -306,10 +306,12 @@ class ConnectionScaleLoadTest {
     @DisplayName("连接规模压测（默认跳过，用 -Dscale.connections 开启）")
     void scaleConnections() throws Exception {
         if (TARGET <= 0) {
+            // [P3C E1 豁免]
             System.out.println("[scale] SKIPPED: 未设置 -Dscale.connections（容量验收不跑在常规回归里）");
             return;
         }
         if (TARGET > LOCAL_PORT_LIMIT_HINT) {
+            // [P3C E1 豁免]
             System.out.println("[scale] INFO: 目标 " + TARGET
                     + " 超过单 IP 动态端口数 " + LOCAL_PORT_LIMIT_HINT
                     + "，将使用多个 127.0.0.x 源 IP 复用源端口区间");
@@ -338,10 +340,12 @@ class ConnectionScaleLoadTest {
 
         NioHttpServer server = new NioHttpServer(setting);
         server.registerMapping("/echo", HttpMethod.GET, ECHO);
+        // [P3C E1 豁免]
         System.out.println("[scale] server port=" + port
                 + " sourceIps=" + sourceIpCount + " sourcePortRange=" + SOURCE_PORT_RANGE
                 + " capacity=" + (long) sourceIpCount * SOURCE_PORT_RANGE
                 + " target=" + TARGET + " direct=" + DIRECT + " bufferSize=" + BUFFER_SIZE);
+        // [P3C E1 豁免]
         System.out.flush();
 
         List<Socket> connections = new ArrayList<>(Math.min(TARGET, 1 << 20));
@@ -361,9 +365,11 @@ class ConnectionScaleLoadTest {
                 }
                 connections.add(socket);
                 if ((i + 1) % 50000 == 0) {
+                    // [P3C E1 豁免]
                     System.out.println("[scale] connected=" + (i + 1) + " fail=" + connectFail
                             + " heapMb=" + (mem.getHeapMemoryUsage().getUsed() / (1024 * 1024))
                             + " directMb=" + (directUsedBytes() / (1024 * 1024)));
+                    // [P3C E1 豁免]
                     System.out.flush();
                 }
             }
@@ -371,12 +377,14 @@ class ConnectionScaleLoadTest {
             long heapAfterConnect = mem.getHeapMemoryUsage().getUsed();
             long directAfterConnect = directUsedBytes();
 
+            // [P3C E1 豁免]
             System.out.println("[scale] CONNECTED total=" + connections.size()
                     + " fail=" + connectFail + " elapsedMs=" + connectMs
                     + " heapUsedMb=" + (heapAfterConnect / (1024 * 1024))
                     + " directUsedMb=" + (directAfterConnect / (1024 * 1024))
                     + " heapDeltaMb=" + ((heapAfterConnect - heapBefore) / (1024 * 1024))
                     + " directDeltaMb=" + ((directAfterConnect - directBefore) / (1024 * 1024)));
+            // [P3C E1 豁免]
             System.out.flush();
 
             int warmOk = 0;
@@ -387,19 +395,23 @@ class ConnectionScaleLoadTest {
                         warmOk++;
                     }
                 }
+                // [P3C E1 豁免]
                 System.out.println("[scale] WARMED ok=" + warmOk + "/" + connections.size()
                         + " elapsedMs=" + ((System.nanoTime() - warmStartNs) / 1_000_000L)
                         + " heapUsedMb=" + (mem.getHeapMemoryUsage().getUsed() / (1024 * 1024))
                         + " directUsedMb=" + (directUsedBytes() / (1024 * 1024)));
+                // [P3C E1 豁免]
                 System.out.flush();
             }
 
             MemoryUsage heapHold = mem.getHeapMemoryUsage();
+            // [P3C E1 豁免]
             System.out.println("[scale] HOLDING " + HOLD_SECONDS + "s heapUsedMb="
                     + (heapHold.getUsed() / (1024 * 1024))
                     + " heapCommitMb=" + (heapHold.getCommitted() / (1024 * 1024))
                     + " directUsedMb=" + (directUsedBytes() / (1024 * 1024))
                     + " active=" + server.getMetrics().getActiveConnections());
+            // [P3C E1 豁免]
             System.out.flush();
             Thread.sleep(HOLD_SECONDS * 1000L);
 
@@ -409,6 +421,7 @@ class ConnectionScaleLoadTest {
                     alive++;
                 }
             }
+            // [P3C E1 豁免]
             System.out.println("[scale] ALIVE after hold = " + alive + "/" + connections.size()
                     + " heapUsedMb=" + (mem.getHeapMemoryUsage().getUsed() / (1024 * 1024))
                     + " directUsedMb=" + (directUsedBytes() / (1024 * 1024)));
@@ -430,6 +443,7 @@ class ConnectionScaleLoadTest {
                 closeQuietly(socket);
             }
             server.stop();
+            // [P3C E1 豁免]
             System.out.println("[scale] server activeAfterStop="
                     + server.getMetrics().getActiveConnections());
         }

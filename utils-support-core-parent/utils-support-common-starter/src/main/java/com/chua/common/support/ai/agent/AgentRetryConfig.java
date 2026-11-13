@@ -47,6 +47,7 @@ public class AgentRetryConfig {
      * Basedelay毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long baseDelayMillis = 1000;
 
     /**
@@ -56,6 +57,7 @@ public class AgentRetryConfig {
      * 最大值delay毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long maxDelayMillis = 30000;
 
     /**

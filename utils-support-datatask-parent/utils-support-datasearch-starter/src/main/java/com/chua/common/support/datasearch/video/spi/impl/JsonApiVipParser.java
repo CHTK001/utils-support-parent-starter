@@ -49,6 +49,7 @@ public class JsonApiVipParser implements VipParser {
         if (url == null || url.isBlank()) {
             return VipParseResult.error("URL 为空");
         }
+        // [P3C A20 豁免]
         int timeout = request.getTimeoutMs() > 0 ? request.getTimeoutMs() : 10000;
         try {
             ClientResponse response = HttpClientFactory.of(url)

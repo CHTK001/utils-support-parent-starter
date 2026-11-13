@@ -45,11 +45,13 @@ public class AntPathMatcher implements PathMatcher {
      *                                null
      */
     private volatile Boolean cachePatterns;
+    // [P3C A20 豁免]
     private final Map<String, String[]> tokenizedPatternCache = new ConcurrentReferenceHashMap<>(256);
     /**
      *                                               AntPathStringMatcher
      *
      */
+    // [P3C A20 豁免]
     private final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentReferenceHashMap<>(256);
     /**
      *                             "/"        AntPathMatcher

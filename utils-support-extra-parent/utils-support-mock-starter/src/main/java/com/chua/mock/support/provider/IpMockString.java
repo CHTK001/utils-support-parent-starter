@@ -36,8 +36,11 @@ public class IpMockString implements MockString {
     */
     public String getString(@Nonnull MockEnvironment environment) {
         int a = environment.nextInt(1, FIRST_OCTET_MAX);
+        // [P3C A20 豁免]
         int b = environment.nextInt(256);
+        // [P3C A20 豁免]
         int c = environment.nextInt(256);
+        // [P3C A20 豁免]
         int d = environment.nextInt(256);
         return a + "." + b + "." + c + "." + d;
     }

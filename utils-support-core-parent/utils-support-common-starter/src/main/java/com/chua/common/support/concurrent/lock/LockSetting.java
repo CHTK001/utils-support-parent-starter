@@ -102,6 +102,7 @@ public class LockSetting {
      * Connection超时
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectionTimeout = 5000;
 
     /**

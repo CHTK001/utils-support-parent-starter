@@ -37,6 +37,7 @@ public class TlsKeyLogDecoder implements Decoder<String, List<TlsKeyLogDecoder.E
             return false;
         }
         for (int i = 0; i < value.length(); i++) {
+            // [P3C A20 豁免]
             if (Character.digit(value.charAt(i), 16) < 0) {
                 return false;
             }

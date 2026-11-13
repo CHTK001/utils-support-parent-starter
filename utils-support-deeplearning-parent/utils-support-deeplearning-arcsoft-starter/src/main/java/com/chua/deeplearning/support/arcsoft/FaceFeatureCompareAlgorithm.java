@@ -121,6 +121,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
         ff2.setFeatureData(ArrayUtils.transToByteArray(feature2));
         FaceSimilar similar = new FaceSimilar();
         faceEngine.compareFaceFeature(ff1, ff2, similar);
+        // [P3C A20 豁免]
         return 1f - Math.min(similar.getScore(), 100f) / 100f;
     }
 }

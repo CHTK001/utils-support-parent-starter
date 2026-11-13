@@ -33,6 +33,7 @@ public class PaddleFaceFeatureTranslator implements Translator<Image, float[]> {
         if (!array.getDataType().equals(DataType.FLOAT32)) {
             array = array.toType(DataType.FLOAT32, false);
         }
+        // [P3C A20 豁免]
         array = array.transpose(2, 0, 1).div(255f);
         NDArray mean = ctx.getNDManager().create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
         NDArray std = ctx.getNDManager().create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));

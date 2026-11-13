@@ -72,6 +72,7 @@ public class SseRequest {
      * <p>建立 TCP 连接的最大等待时间。默认 30 秒。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**

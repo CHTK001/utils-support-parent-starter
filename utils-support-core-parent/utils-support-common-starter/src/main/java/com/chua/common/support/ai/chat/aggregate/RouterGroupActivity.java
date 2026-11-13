@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * <p>每个组只保留最近 {@value #CAPACITY} 条，避免长时间运行无限增长；读写都在
  * 无锁并发容器里完成，路由热路径上只是几次入队/出队。</p>
  *
+ * @author CH
  * @since 4.0.0.51
  */
 public final class RouterGroupActivity {

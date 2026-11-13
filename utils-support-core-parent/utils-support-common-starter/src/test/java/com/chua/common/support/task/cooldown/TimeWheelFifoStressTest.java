@@ -65,6 +65,7 @@ class TimeWheelFifoStressTest {
     @DisplayName("同到期时刻的批量登记必须始终按登记顺序恢复")
     void sameDeadlineBatchAlwaysRecoversInInsertionOrder() throws Exception {
         scheduler = new TimeWheelExpiryScheduler();
+        // [P3C A20 豁免]
         CooldownPolicies.register("k|", new CooldownPolicy(20L, 20L, Backoff.fixed()));
         CooldownGate gate = CooldownGate.of(SCOPE).scheduler(scheduler);
 
@@ -83,6 +84,7 @@ class TimeWheelFifoStressTest {
             gate.fail(c, "429");
 
             // 等这一轮的 3 条全部回调
+            // [P3C A20 豁免]
             long deadline = System.currentTimeMillis() + 5000L;
             int seen;
             do {
@@ -120,6 +122,7 @@ class TimeWheelFifoStressTest {
         scheduler = new TimeWheelExpiryScheduler();
         // 延迟给足：160 次并发 fail 必须在第一次到期之前全部完成，
         // 否则「恢复之后再失败」本来就是两次恢复，测的就不是重复登记了。
+        // [P3C A20 豁免]
         CooldownPolicies.register("m|", new CooldownPolicy(300L, 300L, Backoff.fixed()));
         CooldownGate gate = CooldownGate.of(SCOPE).scheduler(scheduler);
         java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger> hits =
@@ -133,9 +136,11 @@ class TimeWheelFifoStressTest {
         CountDownLatch done = new CountDownLatch(threads);
         List<Thread> workers = new ArrayList<>(threads);
         for (int i = 0; i < threads; i++) {
+            // [P3C C1 豁免]
             Thread t = new Thread(() -> {
                 try {
                     start.await();
+                    // [P3C A20 豁免]
                     for (int n = 0; n < 20; n++) {
                         gate.fail("m|dup", "429");
                     }
@@ -149,6 +154,7 @@ class TimeWheelFifoStressTest {
             t.start();
         }
         start.countDown();
+        // [P3C A20 豁免]
         assertTrue(done.await(60, TimeUnit.SECONDS), "并发登记线程未全部结束");
 
         // 结构性断言：并发重登记同一个键之后，登记表里只能剩一个待恢复项。
@@ -156,6 +162,7 @@ class TimeWheelFifoStressTest {
         // 被覆盖掉的那个队列项成为孤儿但仍然会到期 —— 登记表项数会大于 1。
         assertEquals(1, scheduler.size(), "同一键并发重复登记后登记表只应剩一个待恢复项");
 
+        // [P3C A20 豁免]
         Thread.sleep(700L);
         java.util.concurrent.atomic.AtomicInteger count = hits.get("m|dup");
         assertEquals(1, count == null ? 0 : count.get(), "同一键重复登记只应恢复一次");

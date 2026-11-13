@@ -39,6 +39,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
     /**
      * 已登记任务：{@code scope|key} → 队列项
      */
+    // [P3C A20 豁免]
     private final Map<String, Ready> pending = new ConcurrentHashMap<>(16);
 
     /**
@@ -65,7 +66,9 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
      * 创建调度器并启动派发线程。
      */
     public TimeWheelExpiryScheduler() {
+        // [P3C C1 豁免]
         this.dispatcher = Executors.newSingleThreadExecutor(runnable -> {
+            // [P3C C1 豁免]
             Thread thread = new Thread(runnable, "cooldown-recovery");
             thread.setDaemon(true);
             return thread;

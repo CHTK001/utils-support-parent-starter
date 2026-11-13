@@ -67,6 +67,7 @@ public class ConfigSaveLoadSetting {
      * Connect超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectTimeoutMillis = 5000;
 
     /**
@@ -77,6 +78,7 @@ public class ConfigSaveLoadSetting {
      * Read超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long readTimeoutMillis = 5000;
 
     /**

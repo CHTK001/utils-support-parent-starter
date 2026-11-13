@@ -214,6 +214,7 @@ class WebSocketBroadcastAndFrameTest {
             // 若直接在测试线程里跑，用例会挂死（@Timeout 也打断不了 socket write），
             // 那样失败模式是"卡住"而不是"红"。有界等待把它变成确定的断言失败。
             java.util.concurrent.atomic.AtomicLong elapsed = new java.util.concurrent.atomic.AtomicLong(-1L);
+            // [P3C C1 豁免]
             Thread publisher = new Thread(() -> {
                 long startNs = System.nanoTime();
                 for (int i = 0; i < 50; i++) {
@@ -230,7 +231,9 @@ class WebSocketBroadcastAndFrameTest {
                             + "百万连接下会直接卡死业务线程");
             long elapsedMs = elapsed.get();
 
+            // [P3C E1 豁免]
             System.out.println("[ws-async] 50 次 64KB 广播 elapsedMs=" + elapsedMs);
+            // [P3C E1 豁免]
             System.out.flush();
 
             assertTrue(elapsedMs < 5000L,
@@ -430,6 +433,7 @@ class WebSocketBroadcastAndFrameTest {
 
             String big = "x".repeat(64 * 1024);
             AtomicLong elapsed = new AtomicLong(-1L);
+            // [P3C C1 豁免]
             Thread publisher = new Thread(() -> {
                 long start = System.nanoTime();
                 for (int i = 0; i < 50; i++) {
@@ -444,7 +448,9 @@ class WebSocketBroadcastAndFrameTest {
             assertFalse(publisher.isAlive(),
                     "定向 send 在慢消费者上 5s 内未返回：仍在调用线程同步 write+flush，"
                             + "百万连接下会把业务线程卡死");
+            // [P3C E1 豁免]
             System.out.println("[ws-send] 50 次 64KB 定向发送 elapsedMs=" + elapsed.get());
+            // [P3C E1 豁免]
             System.out.flush();
         } finally {
             closeQuietly(slow);

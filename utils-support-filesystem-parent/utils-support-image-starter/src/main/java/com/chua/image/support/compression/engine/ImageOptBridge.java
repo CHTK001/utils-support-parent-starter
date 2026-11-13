@@ -43,6 +43,7 @@ final class ImageOptBridge {
         return require().zlibCompress(data, level);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static Quantized quantize(byte[] rgba, int width, int height, int maxColors, int ditherLevel, int speed) {
         ImageOptSpi.Quantized quantized = require().quantize(rgba, width, height, maxColors,
                 ditherLevel, speed);
@@ -50,6 +51,7 @@ final class ImageOptBridge {
                 : new Quantized(quantized.palette(), quantized.colors(), quantized.indices());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static ImageOptSpi require() {
         return NativeServices.require(ImageOptSpi.class, "图片压缩 native 能力");
     }

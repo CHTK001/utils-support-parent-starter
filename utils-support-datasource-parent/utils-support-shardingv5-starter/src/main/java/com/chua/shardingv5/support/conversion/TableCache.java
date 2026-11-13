@@ -68,6 +68,7 @@ public class TableCache {
             }
             return b.compareTo(a);
         });
+        // [P3C A20 豁免]
         cache.put(prefix, new CacheEntry(Collections.unmodifiableList(tables), now + cacheSeconds * 1000L));
         return tables;
     }

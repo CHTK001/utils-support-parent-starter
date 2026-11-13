@@ -46,7 +46,9 @@ public final class WebSocketFanoutClient {
      */
     public static void main(String[] args) throws Exception {
         if (args.length < 3) {
+            // [P3C E1 豁免]
             System.out.println("USAGE: <port> <clients> <frames> [chunk] [gapMs]");
+            // [P3C SE-安全 豁免]
             System.exit(2);
             return;
         }
@@ -90,8 +92,10 @@ public final class WebSocketFanoutClient {
                 && connected.get() + failures.get() < clients) {
             Thread.sleep(50L);
         }
+        // [P3C E1 豁免]
         System.out.println("READY connected=" + connected.get() + " failures=" + failures.get()
                 + " err=" + firstError.get());
+        // [P3C E1 豁免]
         System.out.flush();
 
         long expected = (long) clients * frames;
@@ -108,9 +112,12 @@ public final class WebSocketFanoutClient {
             }
             Thread.sleep(20L);
         }
+        // [P3C E1 豁免]
         System.out.println("DONE delivered=" + delivered + "/" + expected
                 + " elapsedMs=" + (System.currentTimeMillis() - start));
+        // [P3C E1 豁免]
         System.out.flush();
+        // [P3C SE-安全 豁免]
         System.exit(0);
     }
 

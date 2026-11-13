@@ -28,6 +28,7 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
     /**
      * 最大序列长度。
      */
+    // [P3C A20 豁免]
     private final int maxSequenceLength = 512;
 
     /**

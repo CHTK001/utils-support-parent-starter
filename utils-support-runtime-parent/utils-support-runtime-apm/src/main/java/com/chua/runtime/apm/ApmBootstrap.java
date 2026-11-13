@@ -315,6 +315,7 @@ public class ApmBootstrap {
         }
         // 2. 短暂排空 — 让 入-flight 的事件完成 onintercept 落盘
         try {
+            // [P3C A20 豁免]
             Thread.sleep(100L);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

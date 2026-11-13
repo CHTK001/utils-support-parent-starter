@@ -355,7 +355,9 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
             return;
         }
 
+        // [P3C E1 豁免]
         this.originalOut = System.out;
+        // [P3C E1 豁免]
         this.originalErr = System.err;
 
         System.setOut(new LoggingPrintStream(originalOut, "stdout"));

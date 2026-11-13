@@ -118,7 +118,9 @@ final class LanzouAntiCrawler {
         int length = Math.min(input.length(), key.length());
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i + 2 <= length; i += 2) {
+            // [P3C A20 豁免]
             int left = Integer.parseInt(input.substring(i, i + 2), 16);
+            // [P3C A20 豁免]
             int right = Integer.parseInt(key.substring(i, i + 2), 16);
             String hex = Integer.toHexString(left ^ right);
             if (hex.length() == 1) {

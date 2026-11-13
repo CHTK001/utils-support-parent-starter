@@ -91,6 +91,7 @@ class LzwEncoder {
 
 
     int aCount; // a数量
+    // [P3C A20 豁免]
     byte[] accum = new byte[256]; // accum
 
 
@@ -119,6 +120,7 @@ class LzwEncoder {
      */
     void charOut(byte c, OutputStream outs) throws IOException {
         accum[aCount++] = c;
+        // [P3C A20 豁免]
         int s254 = 254;
         if (aCount >= s254) {
             flushChar(outs);
@@ -181,6 +183,7 @@ class LzwEncoder {
         ent = nextPixel();
 
         hshift = 0;
+        // [P3C A20 豁免]
         int s65536 = 65536, s2 = 2;
         for (fcode = hsize; fcode < s65536; fcode *= s2) {
             ++hshift;

@@ -80,6 +80,7 @@ public class BenchmarkConfig {
      * Concurrencylevels
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int[] concurrencyLevels = {100, 500, 1000, 2000, 5000};
 
     /**

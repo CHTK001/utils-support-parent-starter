@@ -27,16 +27,19 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
     /**
      * 模糊阈值，低于该值视为模糊。
      */
+    // [P3C A20 豁免]
     private double blurThreshold = 100.0;
 
     /**
      * 最低亮度。
      */
+    // [P3C A20 豁免]
     private double minBrightness = 40.0;
 
     /**
      * 最高亮度。
      */
+    // [P3C A20 豁免]
     private double maxBrightness = 220.0;
 
     /**

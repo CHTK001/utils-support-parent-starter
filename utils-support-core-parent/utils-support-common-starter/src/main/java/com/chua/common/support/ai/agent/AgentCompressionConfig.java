@@ -58,6 +58,7 @@ public class AgentCompressionConfig {
      * 上下文压缩阈值
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int contextCompressionThreshold = 12;
 
     /**

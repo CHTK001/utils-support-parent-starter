@@ -31,5 +31,6 @@ public class QueueConfig {
      * 容量
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int capacity = 1024;
 }

@@ -82,6 +82,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
 // [P3C C1 豁免] 场景化创建线程，需文档化
         this.virtualThreadExecutor = new ThreadPoolExecutor(
                 corePoolSize, corePoolSize * 2,
+                // [P3C A20 豁免]
                 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(),
                 new NamedThreadFactory("scheduler-exec"));

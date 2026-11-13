@@ -88,11 +88,13 @@ class ClientCooldownRegistryTest {
      */
     @Test
     void cooldownExpiresAndRecovers() throws Exception {
+        // [P3C A20 豁免]
         ClientCooldownRegistry.configure(60L, 240L);
         RouterStrategy.WeightedClient client = wrap("k1", null, false);
         ClientCooldownRegistry.recordFailure(client, new RuntimeException("429"));
         assertTrue(ClientCooldownRegistry.isCoolingDown(client));
 
+        // [P3C A20 豁免]
         Thread.sleep(120L);
 
         assertFalse(ClientCooldownRegistry.isCoolingDown(client));
@@ -104,6 +106,7 @@ class ClientCooldownRegistryTest {
      */
     @Test
     void consecutiveFailuresBackOffAndCap() {
+        // [P3C A20 豁免]
         ClientCooldownRegistry.configure(1000L, 3000L);
         RouterStrategy.WeightedClient client = wrap("k1", null, false);
 
@@ -115,6 +118,7 @@ class ClientCooldownRegistryTest {
         long third = ClientCooldownRegistry.remainingMillis(client);
 
         assertTrue(second > first, "第二次失败应比第一次冷却更久: " + first + " -> " + second);
+        // [P3C A20 豁免]
         assertTrue(third <= 3000L, "冷却时长不得超过配置上限: " + third);
         assertTrue(third >= second, "第三次不应短于第二次: " + second + " -> " + third);
     }

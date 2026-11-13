@@ -27,6 +27,7 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     /**
      * 模糊度阈值
      */
+    // [P3C A20 豁免]
     private double blurThreshold = 80.0;
 
     /**

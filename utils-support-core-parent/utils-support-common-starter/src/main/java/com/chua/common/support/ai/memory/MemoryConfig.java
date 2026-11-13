@@ -51,6 +51,7 @@ public class MemoryConfig {
      * 最大值内容长度
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int maxContentLength = 2000;
 
     /**
@@ -62,6 +63,7 @@ public class MemoryConfig {
      * 最大值entries
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int maxEntries = 500;
 
     /**

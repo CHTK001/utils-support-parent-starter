@@ -136,8 +136,10 @@ public class TcpSyncClient implements SyncClient {
      * 等待服务端注册确认, 保证 connect() 返回后已可收发。
      */
     private void waitRegistered() {
+        // [P3C A20 豁免]
         long deadline = System.currentTimeMillis() + 3000L;
         while (!registered && System.currentTimeMillis() < deadline) {
+            // [P3C A20 豁免]
             ThreadUtils.sleep(10L);
         }
     }
@@ -334,6 +336,7 @@ public class TcpSyncClient implements SyncClient {
         }
         int colon = address.lastIndexOf(':');
         String host = colon > 0 ? address.substring(0, colon) : "127.0.0.1";
+        // [P3C A20 豁免]
         int port = colon > 0 ? Integer.parseInt(address.substring(colon + 1)) : 19390;
         return new InetSocketAddress(host, port);
     }

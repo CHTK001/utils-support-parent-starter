@@ -450,6 +450,7 @@ public class MqttClientWrapper implements AutoCloseable {
         /**
          * Keepalive
         */
+        // [P3C A20 豁免]
         private int keepAlive = 60;
         /**
          * Clean会话
@@ -458,6 +459,7 @@ public class MqttClientWrapper implements AutoCloseable {
         /**
          * Connection超时
         */
+        // [P3C A20 豁免]
         private int connectionTimeout = 10;
         /**
          * Automaticreconnect

@@ -60,6 +60,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
         String sourceId = getString(map, "sourceId");
         String outputId = getString(map, "outputId");
         String sinkId = getString(map, "sinkId");
+        // [P3C A20 豁免]
         int batch = getInt(map, "batch", 100);
         String cronType = getString(map, "cronType");
         String cron = getString(map, "cron");

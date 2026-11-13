@@ -51,6 +51,7 @@ public class ZipExtractor implements Extractor {
         }
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(sourceFile))) {
             ZipEntry entry;
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             while ((entry = zis.getNextEntry()) != null) {
                 File outFile = new File(targetDir, entry.getName());

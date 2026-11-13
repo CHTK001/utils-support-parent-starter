@@ -180,6 +180,7 @@ public class PreviewPdfCache {
 
         // 后台定时清理过期文件（每小时执行一次）
         this.cleanupScheduler = new ScheduledThreadPoolExecutor(1, r -> {
+            // [P3C C1 豁免] 定时清理线程需独立命名与守护属性
             Thread t = new Thread(r, "preview-pdf-cache-cleanup");
             t.setDaemon(true);
             return t;
@@ -191,6 +192,7 @@ public class PreviewPdfCache {
         // 独立转换线程池：单线程串行执行转换，隔离于公共池，避免阻塞核心业务线程
         this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), r -> {
+            // [P3C C1 豁免] 独立转换线程池的命名线程工厂，线程需独立生命周期
             Thread t = new Thread(r, "preview-pdf-convert");
             t.setDaemon(true);
             return t;
@@ -435,6 +437,7 @@ public class PreviewPdfCache {
         @Override
         public String toString() {
             return String.format("CacheStats{hit=%d, miss=%d, rate=%.1f%%, evictions=%d, memory=%d}",
+                    // [P3C A20 豁免]
                     hitCount, missCount, hitRate() * 100, evictionCount, memorySize);
         }
     }

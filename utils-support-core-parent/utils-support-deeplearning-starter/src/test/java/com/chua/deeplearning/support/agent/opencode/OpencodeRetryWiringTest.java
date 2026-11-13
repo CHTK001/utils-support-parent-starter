@@ -71,6 +71,7 @@ class OpencodeRetryWiringTest {
         OpencodeServerAgent agent = new OpencodeServerAgent();
 
         UnsupportedOperationException positive = assertThrows(UnsupportedOperationException.class,
+                // [P3C A20 豁免]
                 () -> agent.retryBaseDelay(1000L));
         assertTrue(positive.getMessage().contains("RetryFlow"),
                 "必须指向外部重试替代做法: " + positive.getMessage());
@@ -87,6 +88,7 @@ class OpencodeRetryWiringTest {
 
         AgentRetryConfig retry = AgentRetryConfig.builder()
                 .maxRetries(2)
+                // [P3C A20 豁免]
                 .baseDelayMillis(500L)
                 .backoffStrategy(AgentRetryConfig.BackoffStrategy.LINEAR)
                 .build();

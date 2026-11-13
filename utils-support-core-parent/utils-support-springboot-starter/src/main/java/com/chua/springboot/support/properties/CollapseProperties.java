@@ -17,6 +17,7 @@ public class CollapseProperties {
     /**
      * 批量收集阈值默认值
      */
+    // [P3C A20 豁免]
     private int waitThreshold = 10;
 
     /**

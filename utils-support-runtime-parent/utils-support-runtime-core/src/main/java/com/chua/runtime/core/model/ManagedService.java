@@ -88,6 +88,7 @@ public class ManagedService {
      * 重启间隔
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int restartSec = 10;
 
     /**

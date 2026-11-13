@@ -79,6 +79,7 @@ public class MemoryCommand implements Command {
      * @return 转为mb的结果
      */
     private String toMb(long bytes) {
+        // [P3C A20 豁免]
         return String.valueOf(bytes / (1024L * 1024L));
     }
 

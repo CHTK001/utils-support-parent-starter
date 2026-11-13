@@ -59,11 +59,13 @@ public class BrowserOptions {
     /**
      * 视口宽度
      */
+    // [P3C A20 豁免]
     private int width = 1280;
 
     /**
      * 视口高度
      */
+    // [P3C A20 豁免]
     private int height = 900;
 
     /**
@@ -89,11 +91,13 @@ public class BrowserOptions {
     /**
      * 启动连接超时
      */
+    // [P3C A20 豁免]
     private Duration launchTimeout = Duration.ofSeconds(60);
 
     /**
      * 单条 CDP 命令超时
      */
+    // [P3C A20 豁免]
     private Duration commandTimeout = Duration.ofSeconds(60);
 
     /**

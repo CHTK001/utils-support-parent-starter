@@ -234,11 +234,13 @@ public final class SherpaVadSegmenter implements AutoCloseable {
         /**
          * 单段最大时长（秒）。
          */
+        // [P3C A20 豁免]
         private float maxSpeechDuration = 20.0F;
 
         /**
          * 窗口采样数。
          */
+        // [P3C A20 豁免]
         private int windowSize = 512;
 
         /**

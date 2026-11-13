@@ -423,6 +423,7 @@ public class ServiceBuilder implements Closeable {
 
         // 远程连接参数
         private String sshHost;
+        // [P3C A20 豁免]
         private int sshPort = 22; // ssh端口
         private String sshUsername; // ssh用户名
         private String sshPassword; // ssh密码

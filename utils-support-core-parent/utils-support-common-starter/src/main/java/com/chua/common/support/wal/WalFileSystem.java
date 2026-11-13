@@ -36,6 +36,7 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     /**
      * 文件头固定大小（魔法+版本+flags+crc = 16B）
      */
+    // [P3C A20 豁免]
     int HEADER_SIZE = 16;
 
     // ==================== WAL 核心操作 ====================

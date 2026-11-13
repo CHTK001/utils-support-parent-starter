@@ -36,6 +36,7 @@ public class MetricsAutoConfiguration {
 
         long intervalMs = properties.getIntervalMs();
         if (intervalMs <= 0) {
+            // [P3C A20 豁免]
             intervalMs = 1000L;
         }
 

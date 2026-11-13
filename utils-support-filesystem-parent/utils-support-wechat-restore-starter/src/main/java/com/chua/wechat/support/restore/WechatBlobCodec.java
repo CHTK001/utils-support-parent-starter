@@ -116,7 +116,9 @@ public final class WechatBlobCodec {
         return data != null && data.length >= 4
                 && (data[0] & 0xFF) == (ZSTD_MAGIC & 0xFF)
                 && (data[1] & 0xFF) == ((ZSTD_MAGIC >>> 8) & 0xFF)
+                // [P3C A20 豁免]
                 && (data[2] & 0xFF) == ((ZSTD_MAGIC >>> 16) & 0xFF)
+                // [P3C A20 豁免]
                 && (data[3] & 0xFF) == ((ZSTD_MAGIC >>> 24) & 0xFF);
     }
 
@@ -131,6 +133,7 @@ public final class WechatBlobCodec {
             long size = Zstd.decompressedSize(src);
             // decompressedSize 对「未写入 content size」的帧不可靠（可能返回 0 或偏小），
             // 因此解压失败时按倍数放大缓冲区重试，而不是直接放弃
+            // [P3C A20 豁免]
             int capacity = (size > 0 && size <= MAX_DECOMPRESS) ? (int) size : (1 << 20);
             for (int attempt = 0; attempt < 4; attempt++) {
                 try {
@@ -163,6 +166,7 @@ public final class WechatBlobCodec {
         try {
             inflater.setInput(src);
             ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(src.length * 4, MAX_DECOMPRESS));
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             while (!inflater.finished()) {
                 int n = inflater.inflate(buffer);

@@ -171,6 +171,7 @@ public class ApacheMultipartParser implements MultipartParser {
     */
     private byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        // [P3C A20 豁免]
         byte[] buf = new byte[8192];
         int n;
         while ((n = in.read(buf)) != -1) {

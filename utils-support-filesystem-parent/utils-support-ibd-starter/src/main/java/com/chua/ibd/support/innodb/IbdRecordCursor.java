@@ -173,8 +173,10 @@ public final class IbdRecordCursor {
         if (base < 0 || origin > pageSize) {
             throw new IllegalStateException("记录头越界: origin=" + origin + ", 页大小=" + pageSize);
         }
+        // [P3C A20 豁免]
         int word = ((page[base] & 0xFF) << 16) | ((page[base + 1] & 0xFF) << 8) | (page[base + 2] & 0xFF);
         int next = IbdTablespace.readShort(page, base + 3);
+        // [P3C A20 豁免]
         return new Header(origin, (word >> 20) & 0xF, (word >> 16) & 0xF, (word >> 3) & 0x1FFF,
                 word & 0x7, next, IbdPageHeader.level(page));
     }

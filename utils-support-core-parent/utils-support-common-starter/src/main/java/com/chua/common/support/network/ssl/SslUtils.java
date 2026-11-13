@@ -400,10 +400,12 @@ public final class SslUtils {
             java.lang.reflect.Field masterField = impl.getDeclaredField("masterSecret");
             masterField.setAccessible(true);
             javax.crypto.SecretKey master = (javax.crypto.SecretKey) masterField.get(session);
+            // [P3C A20 豁免]
             if (master == null || clientRandom == null || clientRandom.length != 32) {
                 return null;
             }
             byte[] secret = master.getEncoded();
+            // [P3C A20 豁免]
             if (secret == null || secret.length != 48) {
                 return null;
             }
@@ -492,7 +494,9 @@ public final class SslUtils {
     private static String toHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
+            // [P3C A20 豁免]
             sb.append(Character.forDigit((b >> 4) & 0xf, 16));
+            // [P3C A20 豁免]
             sb.append(Character.forDigit(b & 0xf, 16));
         }
         return sb.toString();

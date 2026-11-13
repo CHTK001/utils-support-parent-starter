@@ -195,6 +195,7 @@ public class H264NvencVideoEncoder implements VideoEncoder {
         context.gop_size(actual.getGopSize() > 0 ? actual.getGopSize() : DEFAULT_GOP);
         context.max_b_frames(0);
         int bitrateKbps = actual.getBitrateKbps() > 0 ? actual.getBitrateKbps() : DEFAULT_BITRATE_KBPS;
+        // [P3C A20 豁免]
         context.bit_rate(bitrateKbps * 1000L);
         AVDictionary dict = new AVDictionary(null);
         avutil.av_dict_set(dict, "preset", actual.extra("preset", "p5"), 0);

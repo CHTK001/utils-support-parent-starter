@@ -159,6 +159,7 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
             for (int y = minY; y < height; y += pixelStep) {
                 // 获取采样点的颜色
                 int pixelRGB = sourceImage.getRGB(x, y);
+                // [P3C A20 豁免]
                 int red = (pixelRGB >> 16) & 0xff;
                 int green = (pixelRGB >> 8) & 0xff;
                 int blue = pixelRGB & 0xff;

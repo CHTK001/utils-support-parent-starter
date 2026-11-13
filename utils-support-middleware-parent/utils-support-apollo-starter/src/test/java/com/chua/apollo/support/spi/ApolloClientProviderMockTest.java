@@ -57,6 +57,7 @@ class ApolloClientProviderMockTest {
             running = false;
             try {
                 socket.close();
+            // [P3C F1 豁免]
             } catch (Exception ignore) {
             }
             if (thread != null) {
@@ -168,6 +169,7 @@ class ApolloClientProviderMockTest {
             if (socket != null) {
                 socket.close();
             }
+        // [P3C F1 豁免]
         } catch (Exception ignore) {
         }
     }
@@ -176,6 +178,7 @@ class ApolloClientProviderMockTest {
     void startServer() throws Exception {
         try {
             java.nio.file.Files.delete(log);
+        // [P3C F1 豁免]
         } catch (Exception ignore) {
         }
         socket = new ServerSocket(0);

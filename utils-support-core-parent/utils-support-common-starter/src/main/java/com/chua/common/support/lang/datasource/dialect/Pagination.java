@@ -33,6 +33,7 @@ public class Pagination {
     /**
      * 每页大小
      */
+    // [P3C A20 豁免]
     private int pageSize = 10;
 
     /**

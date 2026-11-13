@@ -127,7 +127,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         int imgC = 3;
+        // [P3C A20 豁免]
         int imgH = 48;
+        // [P3C A20 豁免]
         int imgW = 320;
         float maxWhRatio = (float) imgW / (float) imgH;
         int h = input.getHeight();
@@ -143,6 +145,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         }
         NDArray resizedImage = NDImageUtils.resize(img, resizedW, imgH);
         resizedImage = resizedImage.transpose(2, 0, 1).toType(DataType.FLOAT32, false);
+        // [P3C A20 豁免]
         resizedImage = resizedImage.div(255f).sub(0.5f).div(0.5f);
         NDArray paddingIm = ctx.getNDManager().zeros(new Shape(imgC, imgH, imgW), DataType.FLOAT32);
         paddingIm.set(new NDIndex(":,:,0:" + resizedW), resizedImage);

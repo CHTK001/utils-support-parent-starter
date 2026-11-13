@@ -71,9 +71,12 @@ class ModbusUdpExchangeTest {
 
     @Test
     void shouldExchangeCoilsOverUdp() {
+        // [P3C A20 豁免]
         client.writeMultipleCoils(UNIT_ID, 20, new boolean[]{true, false, true});
         // 先看服务端数据区是否已落盘，区分“写没到”与“读没到”
+        // [P3C A20 豁免]
         assertArrayEquals(new boolean[]{true, false, true}, server.getDataStore().readCoils(20, 3));
+        // [P3C A20 豁免]
         assertArrayEquals(new boolean[]{true, false, true}, client.readCoils(UNIT_ID, 20, 3));
     }
 
@@ -115,6 +118,7 @@ class ModbusUdpExchangeTest {
                 socket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port));
                 return;
             } catch (IOException ignored) {
+                // [P3C A20 豁免]
                 Thread.sleep(50L);
             }
         }

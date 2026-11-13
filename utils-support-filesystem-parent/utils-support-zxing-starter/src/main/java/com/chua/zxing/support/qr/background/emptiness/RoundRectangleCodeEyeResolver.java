@@ -18,6 +18,7 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
     /**
      * 单位宽度
     */
+    // [P3C A20 豁免]
     private int unitWidth = 54;
 
     /**

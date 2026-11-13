@@ -220,6 +220,7 @@ public class Hex {
   * @throws IllegalArgumentException 当字符不是有效的十六进制字符时抛出
   */
  private static int toDigit(char ch, int index) {
+ // [P3C A20 豁免]
  int digit = Character.digit(ch, 16);
  if (digit == -1) {
  throw new IllegalArgumentException("Illegal hexadecimal character " + ch + " at index " + index);

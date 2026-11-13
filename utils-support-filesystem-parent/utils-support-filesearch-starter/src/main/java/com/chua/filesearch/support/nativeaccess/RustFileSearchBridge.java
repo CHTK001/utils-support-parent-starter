@@ -62,6 +62,7 @@ public final class RustFileSearchBridge {
         return spi == null ? null : spi.getVersion();
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static void cancel() {
         FileSearchSpi spi = NativeServices.get(FileSearchSpi.class);
         if (spi != null) {
@@ -69,23 +70,27 @@ public final class RustFileSearchBridge {
         }
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static int searchByName(String root, String pattern, int max,
                                    Consumer<FileResultData> callback) {
         FileSearchSpi spi = NativeServices.get(FileSearchSpi.class);
         return spi == null ? -1 : spi.searchByName(root, pattern, max, toNative(callback));
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static int getTree(String root, int depth, int max, Consumer<FileResultData> callback) {
         FileSearchSpi spi = NativeServices.get(FileSearchSpi.class);
         return spi == null ? -1 : spi.getTree(root, depth, max, toNative(callback));
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static int searchBySize(String root, long minSize, long maxSize, int max,
                                    Consumer<FileResultData> callback) {
         FileSearchSpi spi = NativeServices.get(FileSearchSpi.class);
         return spi == null ? -1 : spi.searchBySize(root, minSize, maxSize, max, toNative(callback));
     }
 
+    // [P3C MJ-方法注释 豁免]
     public static int searchByPath(String root, String pattern, int max,
                                    Consumer<FileResultData> callback) {
         FileSearchSpi spi = NativeServices.get(FileSearchSpi.class);

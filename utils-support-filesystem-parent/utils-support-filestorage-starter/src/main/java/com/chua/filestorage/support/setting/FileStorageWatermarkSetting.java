@@ -65,6 +65,7 @@ public class FileStorageWatermarkSetting {
      * 文字大小（类型=文本 时有效）。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int fontSize = 24;
 
     /**
@@ -88,12 +89,14 @@ public class FileStorageWatermarkSetting {
      * X 方向偏移（像素）。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int offsetX = 20;
 
     /**
      * Y 方向偏移（像素）。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int offsetY = 20;
 
     /**
@@ -106,11 +109,13 @@ public class FileStorageWatermarkSetting {
      * 平铺时 X 间距（像素）。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int tileSpacingX = 50;
 
     /**
      * 平铺时 Y 间距（像素）。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int tileSpacingY = 50;
 }

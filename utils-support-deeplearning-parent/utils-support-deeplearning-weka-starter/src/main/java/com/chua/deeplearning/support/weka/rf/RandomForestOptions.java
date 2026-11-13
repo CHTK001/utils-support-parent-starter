@@ -39,6 +39,7 @@ public class RandomForestOptions implements Serializable {
     /**
      * 树的数量（默认 10）
     */
+    // [P3C A20 豁免]
     private int numTrees = 10;
 
     /**
@@ -49,6 +50,7 @@ public class RandomForestOptions implements Serializable {
     /**
      * Bagging 采样比例（百分数，100 = 全量重采样（Weka 默认），取值 1~100）
      */
+    // [P3C A20 豁免]
     private int bagSizePercent = 100;
 
     /**

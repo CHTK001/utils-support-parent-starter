@@ -40,13 +40,19 @@ class ModbusDataStoreTest {
         dataStore.writeHoldingRegisters(0, new int[]{1, 2, 3});
         assertArrayEquals(new int[]{1, 2, 3}, dataStore.readHoldingRegisters(0, 3));
 
+        // [P3C A20 豁免]
         dataStore.writeInputRegisters(10, new int[]{4, 5});
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{4, 5}, dataStore.readInputRegisters(10, 2));
 
+        // [P3C A20 豁免]
         dataStore.writeCoils(20, new boolean[]{true, false, true});
+        // [P3C A20 豁免]
         assertArrayEquals(new boolean[]{true, false, true}, dataStore.readCoils(20, 3));
 
+        // [P3C A20 豁免]
         dataStore.writeDiscreteInputs(30, new boolean[]{false, true});
+        // [P3C A20 豁免]
         assertArrayEquals(new boolean[]{false, true}, dataStore.readDiscreteInputs(30, 2));
 
         assertEquals(DATA_STORE_SIZE, dataStore.getSize());
@@ -57,9 +63,11 @@ class ModbusDataStoreTest {
     @Test
     void shouldRejectOutOfRangeAccess() {
         ModbusException readException = assertThrows(ModbusException.class,
+                // [P3C A20 豁免]
                 () -> dataStore.readHoldingRegisters(90, 20));
         assertEquals(ModbusException.ILLEGAL_DATA_ADDRESS, readException.getExceptionCode());
 
+        // [P3C A20 豁免]
         assertThrows(ModbusException.class, () -> dataStore.writeCoils(99, new boolean[]{true, false}));
         assertThrows(ModbusException.class, () -> dataStore.readInputRegisters(-1, 1));
         assertThrows(ModbusException.class, () -> dataStore.readCoils(0, 0));
@@ -79,16 +87,21 @@ class ModbusDataStoreTest {
     @Test
     void shouldWriteRegistersThroughProcessImage() {
         Register register = processImage.getRegister(5);
+        // [P3C A20 豁免]
         register.setValue(1234);
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{1234}, dataStore.readHoldingRegisters(5, 1));
+        // [P3C A20 豁免]
         assertEquals(1234, register.toUnsignedShort());
 
         register.setValue(new byte[]{0x12, 0x34});
         assertEquals(0x1234, register.getValue());
 
+        // [P3C A20 豁免]
         Register[] range = processImage.getRegisterRange(10, 2);
         range[0].setValue(7);
         range[1].setValue(8);
+        // [P3C A20 豁免]
         assertArrayEquals(new int[]{7, 8}, dataStore.readHoldingRegisters(10, 2));
     }
 
@@ -99,26 +112,34 @@ class ModbusDataStoreTest {
         assertTrue(digitalOut.isSet());
         assertArrayEquals(new boolean[]{true}, dataStore.readCoils(7, 1));
 
+        // [P3C A20 豁免]
         DigitalOut[] range = processImage.getDigitalOutRange(10, 2);
         range[0].set(true);
         range[1].set(false);
+        // [P3C A20 豁免]
         assertArrayEquals(new boolean[]{true, false}, dataStore.readCoils(10, 2));
     }
 
     @Test
     void shouldReadInputAreasAsSnapshot() {
+        // [P3C A20 豁免]
         dataStore.writeInputRegisters(2, new int[]{11, 12});
         InputRegister[] registers = processImage.getInputRegisterRange(2, 2);
+        // [P3C A20 豁免]
         assertEquals(11, registers[0].toUnsignedShort());
+        // [P3C A20 豁免]
         assertEquals(12, registers[1].toUnsignedShort());
 
+        // [P3C A20 豁免]
         dataStore.writeInputRegisters(2, new int[]{99, 98});
+        // [P3C A20 豁免]
         assertEquals(11, registers[0].toUnsignedShort());
     }
 
     @Test
     void shouldRejectOutOfRangeProcessImageAccess() {
         assertThrows(IllegalAddressException.class, () -> processImage.getRegister(DATA_STORE_SIZE));
+        // [P3C A20 豁免]
         assertThrows(IllegalAddressException.class, () -> processImage.getRegisterRange(90, 20));
         assertThrows(IllegalAddressException.class, () -> processImage.getDigitalOut(-1));
         assertThrows(IllegalAddressException.class, () -> processImage.getInputRegisterRange(0, DATA_STORE_SIZE + 1));

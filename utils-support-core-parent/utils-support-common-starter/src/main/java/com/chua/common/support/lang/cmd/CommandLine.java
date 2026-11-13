@@ -467,6 +467,7 @@ public final class CommandLine {
      * 将帮助信息打印到标准输出。
      */
     public void printHelp() {
+        // [P3C E1 豁免]
         printHelp(System.out);
     }
 

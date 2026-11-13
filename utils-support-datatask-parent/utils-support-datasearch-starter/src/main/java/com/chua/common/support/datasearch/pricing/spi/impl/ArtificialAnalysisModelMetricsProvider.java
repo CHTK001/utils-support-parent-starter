@@ -122,6 +122,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
         while (am.find()) { anchors.add(new int[]{am.start(), am.end()}); }
         for (int k = 0; k < anchors.size(); k++) {
             int from = anchors.get(k)[0];
+            // [P3C A20 豁免]
             int to = k + 1 < anchors.size() ? anchors.get(k + 1)[0] : Math.min(html.length(), from + 6000);
             String win = html.substring(from, to);
 

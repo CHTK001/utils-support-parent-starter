@@ -61,11 +61,13 @@ public class FtpConfig {
     /**
      * 被动模式端口范围起始（含）
      */
+    // [P3C A20 豁免]
     private int passivePortMin = 49152;
 
     /**
      * 被动模式端口范围结束（含）
      */
+    // [P3C A20 豁免]
     private int passivePortMax = 65535;
 
     /**
@@ -106,11 +108,13 @@ public class FtpConfig {
     /**
      * 控制连接超时（秒），0 表示不超时
      */
+    // [P3C A20 豁免]
     private int controlTimeout = 300;
 
     /**
      * 数据连接超时（秒）
      */
+    // [P3C A20 豁免]
     private int dataTimeout = 30;
 
     /**

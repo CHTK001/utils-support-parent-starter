@@ -57,6 +57,7 @@ class TcpSyncServerTest {
         try {
             server.start();
             try (Socket socket = new Socket("127.0.0.1", port)) {
+                // [P3C A20 豁免]
                 socket.setSoTimeout(10000);
                 socket.setTcpNoDelay(true);
                 socket.getOutputStream().write("register:u1\n".getBytes(StandardCharsets.UTF_8));

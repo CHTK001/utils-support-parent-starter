@@ -41,6 +41,7 @@ public class ClientSetting {
      *
      * @see #setConnectTimeout(long)
      */
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**
@@ -51,6 +52,7 @@ public class ClientSetting {
      *
      * @see #setReadTimeout(long)
      */
+    // [P3C A20 豁免]
     private long readTimeout = 30000;
 
     /**
@@ -60,6 +62,7 @@ public class ClientSetting {
      * 默认值 {@code 30000} 毫秒（30 秒）。
      * 适用于大文件上传等需要较长写入时间的场景。
      */
+    // [P3C A20 豁免]
     private long writeTimeout = 30000;
 
     /**
@@ -242,6 +245,7 @@ public class ClientSetting {
      * 默认值 {@code 60000} 毫秒（60 秒）。
      * 设置为 0 表示不限制保活时间。
      */
+    // [P3C A20 豁免]
     private long keepAliveTimeout = 60000;
 
     /**

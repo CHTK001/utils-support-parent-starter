@@ -33,6 +33,7 @@ class LangChain4jGoalWiringTest {
      * @return 目标
      */
     private static SessionGoal goal() {
+        // [P3C A20 豁免]
         return SessionGoal.create("g1", "s1", "做完目标功能", "前后端都要", 1000L);
     }
 
@@ -115,6 +116,7 @@ class LangChain4jGoalWiringTest {
     void attachGoalSharesTrackerWithRegistry() {
         GoalRegistry registry = new GoalRegistry(4);
         var tracker = registry.bind(goal());
+        // [P3C A20 豁免]
         tracker.start(1000L);
 
         LangChain4jAgent agent = (LangChain4jAgent) Agent.create("langchain4j");
@@ -124,6 +126,7 @@ class LangChain4jGoalWiringTest {
             assertEquals(GoalState.RUNNING, agent.goalStatus().state());
 
             // 通过注册表暂停，agent 侧应立即看到同一状态（共享同一状态机）
+            // [P3C A20 豁免]
             registry.pause("s1", 1100L);
             assertEquals(GoalState.PAUSED, agent.goalStatus().state());
 

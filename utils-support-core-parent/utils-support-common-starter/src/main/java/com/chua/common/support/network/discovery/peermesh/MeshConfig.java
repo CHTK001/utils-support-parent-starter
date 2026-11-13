@@ -43,6 +43,7 @@ public class MeshConfig {
      * 端口
      */
     @lombok.Builder.Default
+    // [P3C A20 豁免]
     private int port = 9876;
 
     /**
@@ -51,6 +52,7 @@ public class MeshConfig {
      * ALT端口
      */
     @lombok.Builder.Default
+    // [P3C A20 豁免]
     private int altPort = 9877;
 
     /**
@@ -69,6 +71,7 @@ public class MeshConfig {
      * Scan间隔
      */
     @lombok.Builder.Default
+    // [P3C A20 豁免]
     private int scanInterval = 30;
 
     /**
@@ -85,6 +88,7 @@ public class MeshConfig {
      * Evict超时
      */
     @lombok.Builder.Default
+    // [P3C A20 豁免]
     private int evictTimeout = 15;
 
     /**

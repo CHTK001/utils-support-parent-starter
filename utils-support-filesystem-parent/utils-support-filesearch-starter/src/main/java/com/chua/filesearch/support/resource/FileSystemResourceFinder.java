@@ -93,6 +93,7 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
             return result;
         }
 
+        // [P3C A20 豁免]
         int maxResults = 1000;
         Collection<Resource> resources = configuration.isParallel()
                 ? ConcurrentHashMap.newKeySet()

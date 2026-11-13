@@ -75,11 +75,13 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
     /**
      * 活跃SESSION（session 已创建但连接未断开）
      */
+    // [P3C A20 豁免]
     private final Map<String, WebRtcSession> sessions = new ConcurrentHashMap<>(16);
 
     /**
      * 会话 Socket 连接（用于向浏览器回发消息）
      */
+    // [P3C A20 豁免]
     private final Map<String, Socket> sockets = new ConcurrentHashMap<>(16);
 
     /**

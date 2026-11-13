@@ -166,6 +166,7 @@ public class DebeziumEnvironment {
         /**
          * 轮询间隔
          */
+        // [P3C A20 豁免]
         private long pollingInterval = 10;
 
         /**

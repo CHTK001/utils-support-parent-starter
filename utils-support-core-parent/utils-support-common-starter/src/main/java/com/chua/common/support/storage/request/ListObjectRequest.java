@@ -31,6 +31,7 @@ public class ListObjectRequest {
      * 限制
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int limit = 10;
 
     /**

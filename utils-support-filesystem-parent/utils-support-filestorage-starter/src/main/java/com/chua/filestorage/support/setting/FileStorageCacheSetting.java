@@ -38,6 +38,7 @@ public class FileStorageCacheSetting {
      * <p>默认 86400（1 天）。0 表示永不过期。</p>
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long ttl = 86400L;
 
     /**
@@ -45,6 +46,7 @@ public class FileStorageCacheSetting {
      * <p>默认 128。0 表示不启用内存缓存。</p>
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int memoryCacheCapacity = 128;
 
     /**
@@ -52,6 +54,7 @@ public class FileStorageCacheSetting {
      * <p>超过此大小的 PDF 不会放入内存缓存，默认 5MB。</p>
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long maxMemoryFileSize = 5L * 1024 * 1024;
 
     /**
@@ -59,6 +62,7 @@ public class FileStorageCacheSetting {
      * <p>默认 600（10 分钟）。</p>
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long flashExpireSeconds = 600L;
 
     /**

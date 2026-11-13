@@ -58,6 +58,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     public MetricsDataSyncAgent(String agentId, MetricsService metricsService, long intervalMs) {
         super(agentId);
         this.metricsService = metricsService;
+        // [P3C A20 豁免]
         this.intervalMs = intervalMs > 0 ? intervalMs : 1000L;
 
         MetricsAgentSource source = new MetricsAgentSource(agentId + ":metrics", metricsService);

@@ -42,12 +42,14 @@ public class CaptchaSetting {
      * 连接超时时间（毫秒），默认 30000ms
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**
      * 读取超时时间（毫秒），默认 30000ms
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long readTimeout = 30000;
 
     /**
@@ -128,6 +130,7 @@ public class CaptchaSetting {
         try {
             return Long.parseLong(text.trim());
         } catch (NumberFormatException e) {
+            // [P3C A20 豁免]
             return 30000L;
         }
     }

@@ -37,6 +37,7 @@ public class DispatcherConfig {
      * Connection超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectionTimeoutMillis = 5000;
 
     /**
@@ -45,6 +46,7 @@ public class DispatcherConfig {
      * 会话超时毫秒
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long sessionTimeoutMillis = 10000;
 
     /**
@@ -77,6 +79,7 @@ public class DispatcherConfig {
      * 最大值batch尺寸
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int maxBatchSize = 100;
 
     /**
@@ -87,6 +90,7 @@ public class DispatcherConfig {
      * Block尺寸
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long blockSize = 64L * 1024 * 1024;
 
     /**

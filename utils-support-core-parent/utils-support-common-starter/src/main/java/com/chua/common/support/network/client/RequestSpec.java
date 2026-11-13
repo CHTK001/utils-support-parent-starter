@@ -104,21 +104,25 @@ public class RequestSpec {
     /**
      * 连接超时时间（毫秒）
      */
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**
      * 读取超时时间（毫秒）
      */
+    // [P3C A20 豁免]
     private long readTimeout = 30000;
 
     /**
      * 写入超时时间（毫秒）
      */
+    // [P3C A20 豁免]
     private long writeTimeout = 30000;
 
     /**
      * 连接保活超时时间（毫秒）
      */
+    // [P3C A20 豁免]
     private long keepAliveTimeout = 60000;
 
     /**

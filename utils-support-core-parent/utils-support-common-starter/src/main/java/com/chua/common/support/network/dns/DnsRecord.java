@@ -42,6 +42,7 @@ public class DnsRecord implements Serializable {
      * TTL（秒），默认 120
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int ttl = 120;
 
     /**

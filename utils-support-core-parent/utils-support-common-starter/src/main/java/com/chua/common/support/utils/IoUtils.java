@@ -206,6 +206,7 @@ public class IoUtils {
     */
     public static InputStream copy(final InputStream input) throws IOException {
         try (ByteArrayOutputStream baas = new ByteArrayOutputStream()) {
+            // [P3C A20 豁免]
             byte[] buffer = new byte[2048];
             int len;
             while ((len = input.read(buffer)) > -1) {

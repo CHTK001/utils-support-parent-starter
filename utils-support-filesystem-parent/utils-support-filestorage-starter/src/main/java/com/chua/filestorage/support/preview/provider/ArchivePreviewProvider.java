@@ -446,6 +446,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                     }
                     if (path.equals(entry.getName())) {
                         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(MAX_EXTRACT_ENTRY_BYTES)) {
+                            // [P3C A20 豁免]
                             byte[] buffer = new byte[8192];
                             int total = 0;
                             int len;
@@ -500,6 +501,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     */
     private static byte[] readEntryLimited(InputStream in, int limit) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(limit)) {
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             int len;
             int total = 0;

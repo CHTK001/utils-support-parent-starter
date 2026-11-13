@@ -33,6 +33,7 @@ public class MilvusStorageProperties implements Serializable {
     /**
      * Milvus 服务端口（仅当 主机 不含协议时使用）
      */
+    // [P3C A20 豁免]
     private int port = 19530;
 
     /**

@@ -261,6 +261,7 @@ public class SherpaAudioClient implements VirtualClient {
         float[] samples = SherpaWavUtils.readMono(data, resolveSampleRate());
         long started = System.currentTimeMillis();
         SherpaStreamingRecognizer engine = ensureStreamingRecognizer();
+        // [P3C A20 豁免]
         int chunk = Math.max(1, resolveSampleRate() / 10);
         for (int offset = 0; offset < samples.length; offset += chunk) {
             int length = Math.min(chunk, samples.length - offset);

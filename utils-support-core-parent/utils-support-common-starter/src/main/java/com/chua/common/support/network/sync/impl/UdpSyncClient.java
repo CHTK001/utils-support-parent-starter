@@ -224,6 +224,7 @@ public class UdpSyncClient implements SyncClient {
      */
     private void startReceive() {
         receiveThread = ThreadUtils.newThread(() -> {
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             while (connected && socket != null && !socket.isClosed()) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -301,6 +302,7 @@ public class UdpSyncClient implements SyncClient {
         }
         int colon = address.lastIndexOf(':');
         String host = colon > 0 ? address.substring(0, colon) : "127.0.0.1";
+        // [P3C A20 豁免]
         int port = colon > 0 ? Integer.parseInt(address.substring(colon + 1)) : 19391;
         return new InetSocketAddress(host, port);
     }

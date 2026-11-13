@@ -132,6 +132,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
         try (RandomAccessFile raf = new RandomAccessFile(target.toFile(), "rw")) {
             long length = raf.length();
             raf.seek(0);
+            // [P3C A20 豁免]
             byte[] zeros = new byte[4096];
             long remaining = length;
             while (remaining > 0) {

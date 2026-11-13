@@ -30,7 +30,9 @@ public class VersionMockString implements MockString {
     */
     public String getString(@Nonnull MockEnvironment environment) {
         int major = environment.nextInt(0, 9);
+        // [P3C A20 豁免]
         int minor = environment.nextInt(0, 30);
+        // [P3C A20 豁免]
         int patch = environment.nextInt(0, 100);
         return major + "." + minor + "." + patch;
     }

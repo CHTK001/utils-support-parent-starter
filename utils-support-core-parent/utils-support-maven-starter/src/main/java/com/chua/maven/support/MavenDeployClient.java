@@ -159,6 +159,7 @@ public class MavenDeployClient {
                 target.upload(artifactPath, sourceFile.getName());
                 deployed.add(sourceFile.getName());
 
+                // [P3C A20 豁免]
                 int percent = (i + 1) * 100 / count;
                 notifyProgress("已部署: " + sourceFile.getName(), percent);
             }

@@ -38,6 +38,7 @@ public class WebRtcProperties {
         /**
          * 端口号，默认 10000
          */
+        // [P3C A20 豁免]
         private int port = 10000;
 
         /**

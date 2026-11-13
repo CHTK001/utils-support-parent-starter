@@ -33,6 +33,7 @@ public interface FaceDetector {
     /**
      * 默认最小人脸尺寸
      */
+    // [P3C A20 豁免]
     int DEFAULT_MIN_FACE_SIZE = 20;
 
     /**

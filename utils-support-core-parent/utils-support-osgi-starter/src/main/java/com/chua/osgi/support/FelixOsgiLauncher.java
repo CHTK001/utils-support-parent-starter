@@ -243,6 +243,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             applications.clear();
             releaseAllServices();
             current.stop();
+            // [P3C A20 豁免]
             current.waitForStop(5000L);
             log.info("[osgi] OSGI framework stopped");
         } catch (Exception e) {

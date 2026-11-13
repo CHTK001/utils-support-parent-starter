@@ -61,16 +61,23 @@ class ScnetUsageParserTest {
         assertNotNull(first);
         assertEquals("scnet", first.getProvider());
         assertEquals("SCNet-Max", first.getModel());
+        // [P3C A20 豁免]
         assertEquals(1500, first.getInputTokens().intValue(), "input 必须含 cacheRead 与 cacheWrite");
+        // [P3C A20 豁免]
         assertEquals(200, first.getOutputTokens().intValue());
+        // [P3C A20 豁免]
         assertEquals(400, first.getCacheTokens().intValue(), "命中量只算 cacheRead");
+        // [P3C A20 豁免]
         assertEquals(1700, first.getTotalTokens().intValue(), "inputTokens + outputTokens");
         assertEquals(0, new BigDecimal("0.012").compareTo(first.getTotalCost()));
+        // [P3C A20 豁免]
         assertEquals(1784858335197L, first.getStartTime().longValue());
 
         AiUsage second = byId.get("r2");
         assertNotNull(second);
+        // [P3C A20 豁免]
         assertEquals(10, second.getInputTokens().intValue());
+        // [P3C A20 豁免]
         assertEquals(15, second.getTotalTokens().intValue());
     }
 
@@ -101,6 +108,7 @@ class ScnetUsageParserTest {
 
         assertEquals(2, calls.size(), "同一响应号跨事件只应记一次");
         int inputSum = calls.stream().mapToInt(u -> u.getInputTokens() == null ? 0 : u.getInputTokens()).sum();
+        // [P3C A20 豁免]
         assertEquals(1410, inputSum, "事件级累计用量 999999 不得混入");
     }
 

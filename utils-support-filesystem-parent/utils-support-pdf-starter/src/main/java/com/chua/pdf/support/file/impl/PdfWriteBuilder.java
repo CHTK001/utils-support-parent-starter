@@ -40,21 +40,25 @@ public class PdfWriteBuilder extends WriteBuilder {
     /**
      * 字体大小，默认 12
      */
+    // [P3C A20 豁免]
     private float fontSize = 12;
 
     /**
      * 左边距，默认 50
      */
+    // [P3C A20 豁免]
     private float leftMargin = 50;
 
     /**
      * 顶部起始位置，默认 750
      */
+    // [P3C A20 豁免]
     private float topMargin = 750;
 
     /**
      * 行间距，默认 16
      */
+    // [P3C A20 豁免]
     private float lineSpacing = 16;
 
     /**

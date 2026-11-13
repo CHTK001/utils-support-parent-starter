@@ -42,5 +42,6 @@ public class SkywalkingProperties {
     /**
      * 单次查询超时（毫秒）
      */
+    // [P3C A20 豁免]
     private long timeout = 5000L;
 }

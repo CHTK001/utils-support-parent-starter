@@ -212,14 +212,17 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 会话超时时间（毫秒），默认 30000
          */
+        // [P3C A20 豁免]
         private int sessionTimeoutMs = 30000;
         /**
          * 连接超时时间（毫秒），默认 15000
          */
+        // [P3C A20 豁免]
         private int connectionTimeoutMs = 15000;
         /**
          * 重试基础休眠时间（毫秒），默认 1000
          */
+        // [P3C A20 豁免]
         private int retryBaseSleepMs = 1000;
         /**
          * 最大重试次数，默认 3

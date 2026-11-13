@@ -186,6 +186,7 @@ class ModelRegistryDownloadFilesTest {
 
     @Test
     void registerCanonicalOverloadStoresFilesAndHardware() {
+        // [P3C A20 豁免]
         HardwareConfig hw = HardwareConfig.builder().recommended(true).minVramMb(8192L).build();
         ModelRegistry.register("dlfiles-reg-canonical", "com.chua.fake.FakeTranslator",
                 String.class, String.class, null, null,

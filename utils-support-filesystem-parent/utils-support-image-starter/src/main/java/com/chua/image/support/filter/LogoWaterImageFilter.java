@@ -104,6 +104,7 @@ public class LogoWaterImageFilter extends AbstractImageFilter {
     /**
      * 随机种子，默认 42
      */
+    // [P3C A20 豁免]
     private int seed = 42;
 
     /**

@@ -83,15 +83,19 @@ public class XRayImageFilter extends AbstractImageFilter {
             // 灰度
             int gray = ImageProcessorUtils.luminance(p);
             // 反色
+            // [P3C A20 豁免]
             int inv = 255 - gray;
             // 高对比（以 128 为轴）
+            // [P3C A20 豁免]
             int c = (int) (((inv - 128) * contrast + 128));
             c = ImageProcessorUtils.clamp(c);
 
             // 蓝调：B 通道偏亮、R 通道偏暗
             int r = ImageProcessorUtils.clamp((int) (c * (1 - blueTone())));
             int g = c;
+            // [P3C A20 豁免]
             int b = ImageProcessorUtils.clamp(c + (int) (blueTint * 40));
+            // [P3C A20 豁免]
             outPixels[i] = (0xff << 24) | (r << 16) | (g << 8) | b;
         }
 

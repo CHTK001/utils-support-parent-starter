@@ -109,7 +109,9 @@ public class SystemOutCaptureHandler implements Plugin {
         if (!started.compareAndSet(false, true)) {
             return;
         }
+        // [P3C E1 豁免]
         originalOut = System.out;
+        // [P3C E1 豁免]
         originalErr = System.err;
         try {
             System.setOut(new CaptureStream(originalOut, "STDOUT"));

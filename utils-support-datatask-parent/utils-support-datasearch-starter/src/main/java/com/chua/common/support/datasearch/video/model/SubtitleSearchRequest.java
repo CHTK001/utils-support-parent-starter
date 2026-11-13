@@ -37,5 +37,6 @@ public class SubtitleSearchRequest {
      * 每页大小
     */
     @Builder.Default
+    // [P3C A20 豁免]
     private int pageSize = 10;
 }

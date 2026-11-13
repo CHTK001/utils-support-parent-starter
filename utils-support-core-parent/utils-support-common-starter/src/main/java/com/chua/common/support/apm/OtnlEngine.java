@@ -133,6 +133,7 @@ public interface OtnlEngine extends Engine {
     /**
      * ORM 通道单次取数的默认行数上限（避免一次把整库实体读进内存）
      */
+    // [P3C A20 豁免]
     int ORM_FETCH_LIMIT = 2000;
 
     /**

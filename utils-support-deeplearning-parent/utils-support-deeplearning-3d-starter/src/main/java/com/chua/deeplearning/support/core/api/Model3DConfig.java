@@ -35,6 +35,7 @@ public class Model3DConfig {
     /**
      * 连接超时时间
     */
+    // [P3C A20 豁免]
     private Duration connectTimeout = Duration.ofSeconds(30);
 
     /**
@@ -45,6 +46,7 @@ public class Model3DConfig {
     /**
      * 写入超时时间
     */
+    // [P3C A20 豁免]
     private Duration writeTimeout = Duration.ofSeconds(30);
 
     /**

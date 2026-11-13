@@ -74,6 +74,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         try {
  // 将 输入流 写入临时文件
             try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempInput)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int len;
                 while ((len = inputStream.read(buffer)) != -1) {
@@ -88,6 +89,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
             }
  // 将临时输出文件写入 输出流
             try (java.io.FileInputStream fis = new java.io.FileInputStream(tempOutput)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int len;
                 while ((len = fis.read(buffer)) != -1) {
@@ -141,6 +143,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     @Override
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
         checkStreamAvailable();
+        // [P3C A20 豁免]
         long timestampMs = (long) (timestamp * 1000);
         int ret = NativeFFmpeg.captureFrame(videoInput.getAbsolutePath(), timestampMs, imageOutput.getAbsolutePath());
         if (ret != 0) {

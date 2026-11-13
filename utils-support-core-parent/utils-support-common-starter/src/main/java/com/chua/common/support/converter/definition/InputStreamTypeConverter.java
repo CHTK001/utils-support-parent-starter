@@ -101,6 +101,7 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
             Reader reader = (Reader) value;
             try {
                 StringWriter sw = new StringWriter();
+                // [P3C A20 豁免]
                 char[] buffer = new char[8192];
                 int len;
                 while ((len = reader.read(buffer)) != -1) {

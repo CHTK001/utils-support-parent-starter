@@ -536,6 +536,7 @@ public class PlaceholderSupport {
      * @return 结果字符串
      */
     private String randomFunction(String args) {
+        // [P3C A20 豁免]
         int bound = 100;
         try {
             String value = removeQuotes(args);

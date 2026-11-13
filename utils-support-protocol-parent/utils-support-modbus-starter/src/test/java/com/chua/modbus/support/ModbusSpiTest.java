@@ -67,13 +67,17 @@ class ModbusSpiTest {
     @Test
     void shouldSelectTransportByConfiguredProtocol() {
         assertInstanceOf(ModbusTcpClient.class,
+                // [P3C A20 豁免]
                 ModbusClient.create(ModbusSetting.of("127.0.0.1", 502)));
         assertInstanceOf(ModbusTcpServer.class,
+                // [P3C A20 豁免]
                 ModbusServer.create(ModbusSetting.of("127.0.0.1", 502)));
 
         assertInstanceOf(ModbusUdpClient.class,
+                // [P3C A20 豁免]
                 ModbusClient.create(ModbusSetting.of("127.0.0.1", 502).setProtocol(ModbusProtocol.UDP)));
         assertInstanceOf(ModbusUdpServer.class,
+                // [P3C A20 豁免]
                 ModbusServer.create(ModbusSetting.of("127.0.0.1", 502).setProtocol(ModbusProtocol.UDP)));
 
         ModbusSetting rtu = ModbusSetting.ofSerial("COM3");

@@ -74,6 +74,7 @@ public class UdpModeProbe implements ProbeStrategy {
             socket.send(sendPacket);
             log.debug("UDP 探测已发送至广播地址:{}:{}", broadcastAddr.getHostAddress(), port);
 
+            // [P3C A20 豁免]
             byte[] buf = new byte[65507];
             DatagramPacket recvPacket = new DatagramPacket(buf, buf.length);
             long deadline = System.currentTimeMillis() + RECEIVE_TIMEOUT_MS;

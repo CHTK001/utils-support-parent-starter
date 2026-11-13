@@ -615,6 +615,7 @@ public class GsonJsonProvider implements JsonProvider {
     private String readString(InputStream stream) {
         try (InputStreamReader reader = new InputStreamReader(stream, UTF_8)) {
             StringBuilder sb = new StringBuilder();
+            // [P3C A20 豁免]
             char[] buffer = new char[1024];
             int len;
             while ((len = reader.read(buffer)) != -1) {

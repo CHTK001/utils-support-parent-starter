@@ -375,6 +375,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
                     .timeout(Duration.ofSeconds(HEALTH_TIMEOUT)).GET().build();
             HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            // [P3C A20 豁免]
             boolean ok = resp.statusCode() >= 200 && resp.statusCode() < 400;
             return CmdResult.builder()
                     .exitCode(ok ? 0 : resp.statusCode())

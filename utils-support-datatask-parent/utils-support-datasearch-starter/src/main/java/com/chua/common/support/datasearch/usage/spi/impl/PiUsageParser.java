@@ -172,6 +172,7 @@ public class PiUsageParser extends BaseUsageParser {
         }
         long raw = tsNode.toLongValue(0L);
         if (raw > 0) {
+            // [P3C A20 豁免]
             return raw > 1_000_000_000_000L ? raw : raw * 1000L;
         }
         return parseInstantToMillis(tsNode.toStringValue());

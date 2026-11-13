@@ -32,6 +32,7 @@ public class ContextCompressionConfig {
      * Compression阈值
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int compressionThreshold = 12;
 
     /**

@@ -41,6 +41,7 @@ public class GZipExtractor implements Extractor {
 
         try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(sourceFile));
              FileOutputStream os = new FileOutputStream(outFile)) {
+            // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
             int len;
             while ((len = gis.read(buffer)) > 0) {

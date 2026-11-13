@@ -66,6 +66,7 @@ public class UdpScatterNodeServer extends AbstractServer {
      * 接收Loop。
      */
     private void receiveLoop() {
+        // [P3C A20 豁免]
         byte[] buffer = new byte[65536];
         while (running) {
             try {

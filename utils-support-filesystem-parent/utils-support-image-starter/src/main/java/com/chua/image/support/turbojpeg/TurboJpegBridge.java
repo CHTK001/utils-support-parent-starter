@@ -39,6 +39,7 @@ final class TurboJpegBridge {
         return spi != null && spi.isLoaded();
     }
 
+    // [P3C MJ-方法注释 豁免]
     static Throwable getLoadError() {
         TurboJpegSpi spi = NativeServices.get(TurboJpegSpi.class);
         return spi == null ? new IllegalStateException("请自行添加依赖 " + DEPENDENCY) : spi.getLoadError();
@@ -53,12 +54,14 @@ final class TurboJpegBridge {
         return require().compress(pixels, width, height, pitch, pixelFormat, quality, subsamp, flags);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static Decoded decompress(byte[] jpeg, int pixelFormat, int flags) {
         TurboJpegSpi.Decoded decoded = require().decompress(jpeg, pixelFormat, flags);
         return decoded == null ? null : new Decoded(decoded.pixels(), decoded.width(),
                 decoded.height(), decoded.pitch());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static TurboJpegSpi require() {
         return NativeServices.require(TurboJpegSpi.class, "libjpeg-turbo native 能力");
     }

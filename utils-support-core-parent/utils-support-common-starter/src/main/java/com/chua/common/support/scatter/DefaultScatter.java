@@ -49,6 +49,7 @@ public class DefaultScatter implements Scatter {
         discovery.start();
         // 等待第一轮 discoveryRound 完成，确保本节点信息已写入本地 hash 表，
         // 其他节点连接时能立即查到本节点的服务条目
+        // [P3C A20 豁免]
         Thread.sleep(Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L));
 
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",

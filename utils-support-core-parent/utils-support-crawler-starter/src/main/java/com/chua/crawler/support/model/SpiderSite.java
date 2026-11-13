@@ -45,6 +45,7 @@ public class SpiderSite {
      * 用于避免对目标服务器造成过大压力。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int interval = 1000;
 
     /**
@@ -61,6 +62,7 @@ public class SpiderSite {
      * <p>单次请求的超时时长，单位为毫秒。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int timeout = 30000;
 
     /**

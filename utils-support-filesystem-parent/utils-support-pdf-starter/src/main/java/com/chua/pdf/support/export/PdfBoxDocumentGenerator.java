@@ -142,6 +142,7 @@ public class PdfBoxDocumentGenerator implements DocumentGenerator {
         float[] widths = new float[columns.size()];
         int total = 0;
         for (int c = 0; c < columns.size(); c++) {
+            // [P3C A20 豁免]
             widths[c] = Math.max(60f, Math.min(240f, columns.get(c).getName().length() * 11f + PADDING * 2));
             total += (int) widths[c];
         }
@@ -388,6 +389,7 @@ public class PdfBoxDocumentGenerator implements DocumentGenerator {
                     continue;
                 }
                 line.append(ch);
+                // [P3C A20 豁免]
                 if (font.getStringWidth(line.toString()) / 1000f * size > maxWidth && line.length() > 1) {
                     line.deleteCharAt(line.length() - 1);
                     lines.add(line.toString());

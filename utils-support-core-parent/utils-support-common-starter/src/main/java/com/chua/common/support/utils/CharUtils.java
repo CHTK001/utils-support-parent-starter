@@ -389,6 +389,7 @@ public class CharUtils {
      * @since 5.6.2
      */
     public static char toCloseByNumber(int number) {
+        // [P3C A20 豁免]
         int v20 = 20;
         if (number > v20) {
             throw new IllegalArgumentException("Number must be [1-20]");

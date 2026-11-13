@@ -72,6 +72,7 @@ public class GlitchImageFilter extends AbstractImageFilter {
     /**
      * 块带最大水平位移（像素），默认 40
      */
+    // [P3C A20 豁免]
     private int maxBlockOffset = 40;
 
     /**
@@ -87,6 +88,7 @@ public class GlitchImageFilter extends AbstractImageFilter {
     /**
      * 随机种子，默认 999
      */
+    // [P3C A20 豁免]
     private int seed = 999;
 
     /**
@@ -116,8 +118,10 @@ public class GlitchImageFilter extends AbstractImageFilter {
                 int bX = x + chromaticShift;
                 int r = 0, g = 0, b = 0;
                 if (rX >= 0 && rX < w) {
+                    // [P3C A20 豁免]
                     r = (argb[y * w + rX] >> 16) & 0xff;
                 } else {
+                    // [P3C A20 豁免]
                     r = (px >> 16) & 0xff;
                 }
                 if (gX >= 0 && gX < w) {
@@ -130,6 +134,7 @@ public class GlitchImageFilter extends AbstractImageFilter {
                 } else {
                     b = px & 0xff;
                 }
+                // [P3C A20 豁免]
                 shifted[i] = (0xff << 24) | (r << 16) | (g << 8) | b;
             }
         }
@@ -166,6 +171,7 @@ public class GlitchImageFilter extends AbstractImageFilter {
         // 第四步：数据损坏纯色条
         for (int c = 0; c < corruptBars; c++) {
             int cy = rnd.nextInt(h);
+            // [P3C A20 豁免]
             int color = (rnd.nextInt(0x1000000)) | (0xff << 24);
             // 取该行的一个随机像素做纯色（更像"数据损坏"）
             if (rnd.nextBoolean()) {
@@ -183,9 +189,11 @@ public class GlitchImageFilter extends AbstractImageFilter {
         for (int i = 0; i < shifted.length; i++) {
             int n = rnd.nextInt(9) - 4;
             int p = shifted[i];
+            // [P3C A20 豁免]
             int r = ImageProcessorUtils.clamp(((p >> 16) & 0xff) + n);
             int g = ImageProcessorUtils.clamp(((p >> 8) & 0xff) + n);
             int b = ImageProcessorUtils.clamp((p & 0xff) + n);
+            // [P3C A20 豁免]
             outPixels[i] = (0xff << 24) | (r << 16) | (g << 8) | b;
         }
 

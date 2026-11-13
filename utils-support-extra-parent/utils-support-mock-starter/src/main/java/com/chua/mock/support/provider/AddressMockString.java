@@ -62,6 +62,7 @@ public class AddressMockString implements MockString {
         String province = environment.randomOf(provinces);
         String district = environment.randomOf(PROVINCE_CITIES.get(province).toArray(new String[0]));
         String street = environment.randomOf(STREETS);
+        // [P3C A20 豁免]
         int door = environment.nextInt(1, 200);
         return province + district + street + door + "号";
     }

@@ -445,6 +445,7 @@ public class MysqlCdcListener {
      */
     public static class Builder {
         private String host = "127.0.0.1"; // 主机
+        // [P3C A20 豁免]
         private int port = 3306; // 端口
         private String username = "root"; // 用户名
         private String password = ""; // 密码
@@ -454,6 +455,7 @@ public class MysqlCdcListener {
         private PipelineEngine pipelineEngine; // pipelineengine
         private String binlogFile; // 恢复起点：binlog 文件名
         private long binlogPosition; // 恢复起点：binlog 位点
+        // [P3C A20 豁免]
         private long connectTimeoutMillis = 5000L; // 建立连接等待上限
         private BiConsumer<String, Long> checkpoint; // 断点回调
 

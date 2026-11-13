@@ -180,7 +180,9 @@ public class DshUsageParser extends BaseUsageParser {
         return raw.length >= 4
                 && (raw[0] & 0xFF) == (ZSTD_MAGIC & 0xFF)
                 && (raw[1] & 0xFF) == ((ZSTD_MAGIC >>> 8) & 0xFF)
+                // [P3C A20 豁免]
                 && (raw[2] & 0xFF) == ((ZSTD_MAGIC >>> 16) & 0xFF)
+                // [P3C A20 豁免]
                 && (raw[3] & 0xFF) == ((ZSTD_MAGIC >>> 24) & 0xFF);
     }
 

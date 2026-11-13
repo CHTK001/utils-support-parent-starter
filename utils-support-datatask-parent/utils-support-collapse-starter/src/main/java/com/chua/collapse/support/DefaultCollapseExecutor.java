@@ -462,6 +462,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
         }
         // 有界线程数 + 同步移交 + 调用方执行：避免无界线程创建（原 newCachedThreadPool 的风险点）
 // [P3C C1 豁免] 场景化创建线程，需文档化
+        // [P3C A20 豁免]
         return new ThreadPoolExecutor(0, MAX_WORKER_THREADS, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), new PlatformDaemonThreadFactory(name + "-batch"),
                 new ThreadPoolExecutor.CallerRunsPolicy());

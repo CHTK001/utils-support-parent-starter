@@ -51,6 +51,7 @@ class TimeWheelExpirySchedulerTest {
     @Test
     void recoversInInsertionOrder() throws Exception {
         scheduler = new TimeWheelExpiryScheduler();
+        // [P3C A20 豁免]
         CooldownPolicies.register("k|", new CooldownPolicy(80L, 80L, Backoff.fixed()));
         CooldownGate gate = CooldownGate.of(SCOPE).scheduler(scheduler);
         CountDownLatch latch = new CountDownLatch(3);
@@ -76,6 +77,7 @@ class TimeWheelExpirySchedulerTest {
     @Test
     void passCancelsRecovery() throws Exception {
         scheduler = new TimeWheelExpiryScheduler();
+        // [P3C A20 豁免]
         CooldownPolicies.register("k|", new CooldownPolicy(80L, 80L, Backoff.fixed()));
         CooldownGate gate = CooldownGate.of(SCOPE).scheduler(scheduler);
         AtomicInteger recovered = new AtomicInteger();
@@ -84,6 +86,7 @@ class TimeWheelExpirySchedulerTest {
         gate.fail("k|1", "429");
         gate.pass("k|1");
 
+        // [P3C A20 豁免]
         Thread.sleep(250L);
 
         assertEquals(0, recovered.get(), "成功恢复后不应再触发到期回调");
@@ -96,15 +99,18 @@ class TimeWheelExpirySchedulerTest {
     @Test
     void refailReschedulesDeadline() throws Exception {
         scheduler = new TimeWheelExpiryScheduler();
+        // [P3C A20 豁免]
         CooldownPolicies.register("k|", new CooldownPolicy(60L, 60L, Backoff.fixed()));
         CooldownGate gate = CooldownGate.of(SCOPE).scheduler(scheduler);
         AtomicInteger recovered = new AtomicInteger();
         gate.subscribeRecover("k|", key -> recovered.incrementAndGet());
 
         gate.fail("k|1", "429");
+        // [P3C A20 豁免]
         Thread.sleep(30L);
         gate.fail("k|1", "429");
 
+        // [P3C A20 豁免]
         Thread.sleep(200L);
         assertEquals(1, recovered.get(), "重复失败只应恢复一次");
         assertEquals(0, gate.size());

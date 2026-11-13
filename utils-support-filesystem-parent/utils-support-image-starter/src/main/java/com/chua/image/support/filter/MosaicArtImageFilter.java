@@ -114,6 +114,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     /**
      * 网格大小（像素），默认 32
      */
+    // [P3C A20 豁免]
     private int tileSize = 32;
 
     /**
@@ -154,6 +155,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     /**
      * 加载贴图时的最大边长（像素），默认 256；0 表示不限制
      */
+    // [P3C A20 豁免]
     private int maxTileDimension = 256;
 
     /**
@@ -386,6 +388,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
                     break;
                 }
                 int argb = src.getRGB(sx, sy);
+                // [P3C A20 豁免]
                 sumR += (argb >> 16) & 0xff;
                 sumG += (argb >> 8) & 0xff;
                 sumB += argb & 0xff;
@@ -407,13 +410,16 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     private int[] averageColorOfImage(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
+        // [P3C A20 豁免]
         int stepX = Math.max(1, w / 16);
+        // [P3C A20 豁免]
         int stepY = Math.max(1, h / 16);
 
         long sumR = 0, sumG = 0, sumB = 0, count = 0;
         for (int y = 0; y < h; y += stepY) {
             for (int x = 0; x < w; x += stepX) {
                 int argb = img.getRGB(x, y);
+                // [P3C A20 豁免]
                 sumR += (argb >> 16) & 0xff;
                 sumG += (argb >> 8) & 0xff;
                 sumB += argb & 0xff;

@@ -25,6 +25,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     /**
      * B+ 树 主索引：标识 → 向量，提供 O(日志 N) 点查和有序遍历。
      */
+    // [P3C A20 豁免]
     private final BPlusTree<String, Vector> store = new BPlusTree<>(128);
 
     /**

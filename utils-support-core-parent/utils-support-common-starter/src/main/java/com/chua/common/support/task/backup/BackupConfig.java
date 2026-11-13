@@ -45,6 +45,7 @@ public class BackupConfig {
      * <p>超过此天数的历史备份将被清理。默认 30 天。
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int retentionDays = 30; // retentiondays
 
     /**

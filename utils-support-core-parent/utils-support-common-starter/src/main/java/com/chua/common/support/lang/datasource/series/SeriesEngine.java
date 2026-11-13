@@ -251,6 +251,7 @@ public interface SeriesEngine {
                 char unit = lower.charAt(lower.length() - 1);
                 long n = Long.parseLong(lower.substring(0, lower.length() - 1));
                 millis = switch (unit) {
+                    // [P3C A20 豁免]
                     case 's' -> n * 1000L;
                     case 'm' -> n * 60_000L;
                     case 'h' -> n * 3600_000L;

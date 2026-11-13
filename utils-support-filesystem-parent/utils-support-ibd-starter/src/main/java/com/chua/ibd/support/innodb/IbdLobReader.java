@@ -112,6 +112,7 @@ public final class IbdLobReader {
             return reference == null ? new byte[0] : reference;
         }
         long pageNo = IbdTablespace.readUnsignedInt(reference, 4);
+        // [P3C A20 豁免]
         long declaredLength = IbdTablespace.readLong(reference, 12);
         if (pageNo >= tablespace.pageCount()) {
             return new byte[0];
@@ -144,6 +145,7 @@ public final class IbdLobReader {
         for (int guard = 0; guard < MAX_LOB_PAGES; guard++) {
             long dataPageNo = IbdTablespace.readUnsignedInt(entry, ENTRY_PAGE_NO_OFFSET);
             long rawLength = IbdTablespace.readUnsignedInt(entry, ENTRY_DATA_LEN_OFFSET);
+            // [P3C A20 豁免]
             int dataLength = (int) (rawLength >>> 16);
             if (dataPageNo == 0) {
                 break;

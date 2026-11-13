@@ -115,6 +115,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
      * @return 解析globstyle的结果
      */
     private LogQuery parseGlobStyle(String s) {
+        // [P3C A20 豁免]
         int maxResults = 100;
         String order = LogQuery.ORDER_DESC;
         String globPart = s;

@@ -201,6 +201,7 @@ final class ReaderUtils {
      */
     public static byte[] staggeredReadByteStream(ImageInputStream iis,
         int length) throws IOException {
+        // [P3C A20 豁免]
         final int UNIT_SIZE = 1024000;
         byte[] decodedData;
         if (length < UNIT_SIZE) {

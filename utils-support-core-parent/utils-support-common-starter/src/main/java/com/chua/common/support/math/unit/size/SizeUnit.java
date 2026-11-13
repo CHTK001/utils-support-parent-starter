@@ -18,23 +18,28 @@ public enum SizeUnit {
     /**
      * 千字节
      */
+    // [P3C A20 豁免]
     KILOBYTES("KB", 1024L),
     /**
      * 兆字节
      */
+    // [P3C A20 豁免]
     MEGABYTES("MB", 1024L * 1024L),
     /**
      * 吉字节
      */
+    // [P3C A20 豁免]
     GIGABYTES("GB", 1024L * 1024L * 1024L),
     /**
      * 太字节
      */
+    // [P3C A20 豁免]
     TERABYTES("TB", 1024L * 1024L * 1024L * 1024L),
     /**
      * 拍字节
      * @param 1024L 方法入参 1024L
      */
+    // [P3C A20 豁免]
     PETABYTES("PB", 1024L * 1024L * 1024L * 1024L * 1024L);
 
     /**

@@ -127,6 +127,7 @@ public class GooseConversationParser implements ConversationParser {
         String messageId = rs.getString("message_id");
         String sessionId = rs.getString("session_id");
         String role = rs.getString("role");
+        // [P3C A20 豁免]
         long ts = rs.getLong("created_timestamp") * 1000L;
 
         List<ConversationMessage> result = Wraps.list();

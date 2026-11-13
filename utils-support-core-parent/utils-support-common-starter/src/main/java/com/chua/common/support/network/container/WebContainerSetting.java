@@ -36,6 +36,7 @@ public class WebContainerSetting {
     /**
      * 绑定端口，默认 8080
      */
+    // [P3C A20 豁免]
     private int port = 8080;
 
     /**
@@ -51,16 +52,19 @@ public class WebContainerSetting {
     /**
      * 最大线程数，默认 200
      */
+    // [P3C A20 豁免]
     private int maxThreads = 200;
 
     /**
      * 最小空闲线程数，默认 10
      */
+    // [P3C A20 豁免]
     private int minSpareThreads = 10;
 
     /**
      * 连接超时时间（毫秒），默认 60000
      */
+    // [P3C A20 豁免]
     private int connectionTimeout = 60000;
 
     /**
@@ -71,6 +75,7 @@ public class WebContainerSetting {
     /**
      * 最大请求体大小（字节），默认 10MB
      */
+    // [P3C A20 豁免]
     private long maxRequestBodySize = 10 * 1024 * 1024;
 
     /**
@@ -86,6 +91,7 @@ public class WebContainerSetting {
     /**
      * 优雅关闭等待时间（秒），默认 30
      */
+    // [P3C A20 豁免]
     private int gracefulShutdownTimeout = 30;
 
     /**

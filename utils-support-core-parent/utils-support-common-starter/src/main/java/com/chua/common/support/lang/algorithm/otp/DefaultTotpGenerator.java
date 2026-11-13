@@ -132,12 +132,15 @@ public class DefaultTotpGenerator implements TotpGenerator {
             int offset = hash[hash.length - 1] & 0xF;
 
             // 从偏移位置提取 4 个字节，并掩码最高位以确保为正数
+            // [P3C A20 豁免]
             int binaryCode = ((hash[offset] & 0x7f) << 24)
+                    // [P3C A20 豁免]
                     | ((hash[offset + 1] & 0xff) << 16)
                     | ((hash[offset + 2] & 0xff) << 8)
                     | (hash[offset + 3] & 0xff);
 
             // 计算 OTP 值并对 10 的 otpLength 次方取模
+            // [P3C A20 豁免]
             int otp = binaryCode % (int) Math.pow(10, otpLength);
 
             // 格式化为指定位数的字符串，不足补零
@@ -219,6 +222,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
      * @return 生成的 OTP 字符串
      */
     private String generateTOTPAtTime(long time) {
+        // [P3C A20 豁免]
         long currentTimeSeconds = time / 1000L;
         long counter = currentTimeSeconds / INTERVAL;
         return generateHOTP(secret, counter, DEFAULT_OTP_LENGTH);

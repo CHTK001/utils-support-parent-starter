@@ -145,6 +145,7 @@ public final class FailoverTemplate {
         ThreadPoolExecutor pool = new ThreadPoolExecutor(
                 0,
                 MAX_STREAM_CANDIDATES,
+                // [P3C A20 豁免]
                 30L,
                 TimeUnit.SECONDS,
                 new SynchronousQueue<>(),

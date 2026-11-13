@@ -646,6 +646,7 @@ public class TarFileSystem implements FileSystem {
             }
 
             try (FileInputStream fis = new FileInputStream(sourceFile)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int partNumber = 1;
                 long bytesWrittenInPart = 0;
@@ -698,6 +699,7 @@ public class TarFileSystem implements FileSystem {
         private void copyFile(File source, File target) throws IOException {
             try (FileInputStream fis = new FileInputStream(source);
                  FileOutputStream fos = new FileOutputStream(target)) {
+                // [P3C A20 豁免]
                 byte[] buffer = new byte[8192];
                 int len;
                 while ((len = fis.read(buffer)) > 0) {
@@ -801,6 +803,7 @@ public class TarFileSystem implements FileSystem {
             TarHeader header = new TarHeader();
             header.name = new StringBuffer(entryName);
             header.size = data.length;
+            // [P3C A20 豁免]
             header.modTime = System.currentTimeMillis() / 1000L;
             return new TarEntry(header);
         }

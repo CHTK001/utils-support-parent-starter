@@ -36,8 +36,11 @@ class ServerSettingAutoConfigTest {
     @DisplayName("autoConfig: maxConnections × 每连接内存 不超过堆预算")
     void autoConfigFitsHeapBudget() {
         ServerSetting setting = ServerSetting.auto();
+        // [P3C A20 豁免]
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+        // [P3C A20 豁免]
         long perConnKb = Math.max(setting.getBufferSize() / 1024L, 1L) + FIXED_KB;
+        // [P3C A20 豁免]
         long neededMb = setting.getMaxConnections() * perConnKb / 1024L;
         long budgetMb = (long) (heapMb * RATIO);
         assertTrue(neededMb <= budgetMb,
@@ -53,8 +56,10 @@ class ServerSettingAutoConfigTest {
     @DisplayName("autoConfig: bufferSize 落在合理区间")
     void autoConfigBufferSizeInRange() {
         ServerSetting setting = ServerSetting.auto();
+        // [P3C A20 豁免]
         assertTrue(setting.getBufferSize() >= 2048,
                 "bufferSize 过小: " + setting.getBufferSize());
+        // [P3C A20 豁免]
         assertTrue(setting.getBufferSize() <= 16384,
                 "bufferSize 过大（百万连接下会撑爆堆）: " + setting.getBufferSize());
     }
@@ -66,8 +71,10 @@ class ServerSettingAutoConfigTest {
     @DisplayName("autoConfig: 显式 bufferSize 不被覆盖")
     void explicitBufferSizeIsRespected() {
         ServerSetting setting = new ServerSetting();
+        // [P3C A20 豁免]
         setting.setBufferSize(4096);
         setting.autoConfig();
+        // [P3C A20 豁免]
         assertEquals(4096, setting.getBufferSize(), "显式 bufferSize 被 autoConfig 覆盖了");
     }
 
@@ -78,8 +85,10 @@ class ServerSettingAutoConfigTest {
     @DisplayName("autoConfig: 显式 maxConnections 不被覆盖")
     void explicitMaxConnectionsIsRespected() {
         ServerSetting setting = new ServerSetting();
+        // [P3C A20 豁免]
         setting.setMaxConnections(1234);
         setting.autoConfig();
+        // [P3C A20 豁免]
         assertEquals(1234, setting.getMaxConnections(), "显式 maxConnections 被 autoConfig 覆盖了");
     }
 
@@ -91,15 +100,20 @@ class ServerSettingAutoConfigTest {
     void oversizedBufferShrinksMaxConnections() {
         ServerSetting setting = new ServerSetting();
         // 极端值：128KB/连接，任何机器的堆都撑不住默认的百万连接
+        // [P3C A20 豁免]
         setting.setBufferSize(128 * 1024);
         setting.autoConfig();
+        // [P3C A20 豁免]
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+        // [P3C A20 豁免]
         long perConnKb = 128L + FIXED_KB;
+        // [P3C A20 豁免]
         long neededMb = setting.getMaxConnections() * perConnKb / 1024L;
         long budgetMb = (long) (heapMb * RATIO);
         assertTrue(neededMb <= budgetMb,
                 "显式超大 bufferSize 下没有收敛 maxConnections：needed=" + neededMb
                         + "MB > budget=" + budgetMb + "MB");
+        // [P3C A20 豁免]
         assertEquals(128 * 1024, setting.getBufferSize(), "显式 bufferSize 不应被改动");
     }
 }

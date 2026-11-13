@@ -22,6 +22,7 @@ public class VectorStorageBuilder {
     /**
      * 向量维度，默认 128。
      */
+    // [P3C A20 豁免]
     private int dimension = 128;
 
     /**

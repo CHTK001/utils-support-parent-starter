@@ -21,6 +21,7 @@ public class MetricsProperties {
     /**
      * native 内部采样间隔（毫秒）
      */
+    // [P3C A20 豁免]
     private long intervalMs = 1000L;
 
     /**

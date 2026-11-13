@@ -162,6 +162,7 @@ public class CrushConversationParser implements ConversationParser {
         String sessionId = rs.getString("session_id");
         String role = rs.getString("role");
         String model = rs.getString("model");
+        // [P3C A20 豁免]
         long ts = rs.getLong("created_at") * 1000L;
 
         List<ConversationMessage> result = Wraps.list();

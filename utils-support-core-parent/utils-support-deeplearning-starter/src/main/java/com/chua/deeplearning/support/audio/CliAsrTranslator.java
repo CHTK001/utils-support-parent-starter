@@ -188,6 +188,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
             args = jsonOutput ? new String[]{"transcribe", wav.toString(), "--json"}
                     : new String[]{"transcribe", wav.toString()};
         }
+        // [P3C A20 豁免]
         return CliModelRunner.run(exe, args, 300L);
     }
 

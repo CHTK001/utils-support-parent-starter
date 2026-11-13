@@ -46,6 +46,7 @@ public final class CircuitBreakerFlow {
     /**
      * 熔断打开后的等待时间（毫秒），之后进入半开状态
      */
+    // [P3C A20 豁免]
     private long waitDuration = 60000;
 
     /**

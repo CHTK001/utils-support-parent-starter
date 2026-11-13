@@ -53,6 +53,7 @@ private final ScheduledExecutorService timeoutScheduler;
 /**
  * 已完成任务清理过期时间（毫秒），默认 60 秒
  */
+// [P3C A20 豁免]
 private long cleanExpireMs = 60000;
 
     /**

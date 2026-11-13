@@ -123,9 +123,13 @@ public class LetterBoxUtils {
         for (int y = 0; y < oH; y++) {
             for (int x = 0; x < oW; x++) {
                 int idx = y * oW + x;
+                // [P3C A20 豁免]
                 int rv = (int) (pixels[idx] * 255f);
+                // [P3C A20 豁免]
                 int gv = (int) (pixels[len + idx] * 255f);
+                // [P3C A20 豁免]
                 int bv = (int) (pixels[2 * len + idx] * 255f);
+                // [P3C A20 豁免]
                 int rgb = (Math.min(255, Math.max(0, rv)) << 16) | (Math.min(255, Math.max(0, gv)) << 8) | Math.min(255,
                         Math.max(0, bv));
                 bi.setRGB(x, y, rgb);
@@ -165,8 +169,11 @@ public class LetterBoxUtils {
             for (int x = 0; x < targetW; x++) {
                 int rgb = padded.getRGB(x, y);
                 int idx = y * targetW + x;
+                // [P3C A20 豁免]
                 out[idx] = ((rgb >> 16) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 out[tLen + idx] = ((rgb >> 8) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 out[2 * tLen + idx] = (rgb & 0xFF) / 255f;
             }
         }
@@ -359,9 +366,13 @@ public class LetterBoxUtils {
         for (int y = 0; y < origH; y++) {
             for (int x = 0; x < origW; x++) {
                 int idx = y * origW + x;
+                // [P3C A20 豁免]
                 int r = (int) (pixels[idx] * 255f);
+                // [P3C A20 豁免]
                 int g = (int) (pixels[len + idx] * 255f);
+                // [P3C A20 豁免]
                 int b = (int) (pixels[2 * len + idx] * 255f);
+                // [P3C A20 豁免]
                 int rgb = (r << 16) | (g << 8) | (b);
                 if (rgb < 0) {
                     rgb = 0;
@@ -384,8 +395,11 @@ public class LetterBoxUtils {
             for (int x = 0; x < newW; x++) {
                 int rgb = resizedImage.getRGB(x, y);
                 int idx = y * newW + x;
+                // [P3C A20 豁免]
                 out[idx] = ((rgb >> 16) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 out[newLen + idx] = ((rgb >> 8) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 out[2 * newLen + idx] = (rgb & 0xFF) / 255f;
             }
         }

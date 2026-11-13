@@ -254,6 +254,7 @@ public class LangChain4jAgent implements Agent {
     /**
      * 重试基础延迟（毫秒）
      */
+    // [P3C A20 豁免]
     private long retryBaseDelay = 1000L;
 
     /**

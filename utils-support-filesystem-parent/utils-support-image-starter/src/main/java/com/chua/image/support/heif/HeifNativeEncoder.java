@@ -74,7 +74,9 @@ public class HeifNativeEncoder {
      */
     private static byte[] intToBytes(int value) {
         return new byte[]{
+            // [P3C A20 豁免]
             (byte)((value >> 24) & 0xFF),
+            // [P3C A20 豁免]
             (byte)((value >> 16) & 0xFF),
             (byte)((value >> 8) & 0xFF),
             (byte)(value & 0xFF)

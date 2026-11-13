@@ -8,42 +8,61 @@ package com.chua.common.support.datasearch.video.spi.data;
  */
 public enum TmdbGenre {
     /** 动作片 */
+    // [P3C A20 豁免]
     ACTION(28, "动作"),
     /** 冒险片 */
+    // [P3C A20 豁免]
     ADVENTURE(12, "冒险"),
     /** 动画片 */
+    // [P3C A20 豁免]
     ANIMATION(16, "动画"),
     /** 喜剧片 */
+    // [P3C A20 豁免]
     COMEDY(35, "喜剧"),
     /** 犯罪片 */
+    // [P3C A20 豁免]
     CRIME(80, "犯罪"),
     /** 纪录片 */
+    // [P3C A20 豁免]
     DOCUMENTARY(99, "纪录"),
     /** 剧情片 */
+    // [P3C A20 豁免]
     DRAMA(18, "剧情"),
     /** 家庭片 */
+    // [P3C A20 豁免]
     FAMILY(10751, "家庭"),
     /** 奇幻片 */
+    // [P3C A20 豁免]
     FANTASY(14, "奇幻"),
     /** 历史片 */
+    // [P3C A20 豁免]
     HISTORY(36, "历史"),
     /** 恐怖片 */
+    // [P3C A20 豁免]
     HORROR(27, "恐怖"),
     /** 音乐片 */
+    // [P3C A20 豁免]
     MUSIC(10402, "音乐"),
     /** 悬疑片 */
+    // [P3C A20 豁免]
     MYSTERY(9648, "悬疑"),
     /** 爱情片 */
+    // [P3C A20 豁免]
     ROMANCE(10749, "爱情"),
     /** 科幻片 */
+    // [P3C A20 豁免]
     SCIENCE_FICTION(878, "科幻"),
     /** 电视电影 */
+    // [P3C A20 豁免]
     TV_MOVIE(10770, "电视电影"),
     /** 惊悚片 */
+    // [P3C A20 豁免]
     THRILLER(53, "惊悚"),
     /** 战争片 */
+    // [P3C A20 豁免]
     WAR(10752, "战争"),
     /** 西部片 */
+    // [P3C A20 豁免]
     WESTERN(37, "西部");
 
     /**

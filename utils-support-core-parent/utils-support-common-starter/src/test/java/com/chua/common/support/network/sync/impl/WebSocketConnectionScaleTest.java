@@ -300,10 +300,12 @@ class WebSocketConnectionScaleTest {
             long heapAfter = heapUsed();
             long perConnBytes = (heapAfter - heapBefore) / Math.max(1, sockets.size());
 
+            // [P3C E1 豁免]
             System.out.println("[ws-scale] connections=" + sockets.size()
                     + " handshakeMs=" + connectMs
                     + " heapDeltaMb=" + ((heapAfter - heapBefore) / (1024 * 1024))
                     + " perConnKb=" + String.format("%.2f", perConnBytes / 1024.0));
+            // [P3C E1 豁免]
             System.out.flush();
 
             assertEquals(CONNECTIONS, sockets.size(), "应有 " + CONNECTIONS + " 条连接建立成功");

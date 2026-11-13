@@ -47,6 +47,7 @@ public class BucketSetting {
      * Connection超时mills
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long connectionTimeoutMills = 10 * 1000;
 
     /**
@@ -55,6 +56,7 @@ public class BucketSetting {
      * 会话超时mills
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private long sessionTimeoutMills = 10 * 1000;
 
     /**

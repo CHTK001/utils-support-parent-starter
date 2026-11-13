@@ -77,6 +77,7 @@ public class ProgressBar implements AutoCloseable {
     public ProgressBar(String task, long initialMax, ProgressUnit unit) {
         this(
                 task, initialMax, 1000, false, false,
+                // [P3C E1 豁免]
                 System.out, ProgressBarStyle.ASCII, unit,
                 "", 1L, false, null,
                 ChronoUnit.SECONDS, 0L, Duration.ZERO

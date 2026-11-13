@@ -49,6 +49,7 @@ public class ConfigCenterSetting {
      * Connection超时
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int connectionTimeout = 3000;
 
     /**
@@ -59,6 +60,7 @@ public class ConfigCenterSetting {
      * 读取超时时间（毫秒）
      */
     @Builder.Default
+    // [P3C A20 豁免]
     private int readTimeout = 5000;
 
     /**

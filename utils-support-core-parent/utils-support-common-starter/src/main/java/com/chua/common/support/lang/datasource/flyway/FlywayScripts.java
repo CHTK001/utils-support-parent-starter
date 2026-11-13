@@ -389,7 +389,9 @@ public final class FlywayScripts {
             byte[] bytes = digest.digest(content.getBytes(StandardCharsets.UTF_8));
             StringBuilder builder = new StringBuilder(bytes.length * 2);
             for (byte b : bytes) {
+                // [P3C A20 豁免]
                 builder.append(Character.forDigit((b >> 4) & 0xF, 16));
+                // [P3C A20 豁免]
                 builder.append(Character.forDigit(b & 0xF, 16));
             }
             return builder.toString();

@@ -42,23 +42,28 @@ final class SqliteHookBridge {
         return call(SqliteHookSpi::hookClose);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static MethodHandle hookOpenAsync() {
         return call(SqliteHookSpi::hookOpenAsync);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static MethodHandle hookExecAsync() {
         return call(SqliteHookSpi::hookExecAsync);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static MethodHandle hookCloseAsync() {
         return call(SqliteHookSpi::hookCloseAsync);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static MemorySegment eventCallbackStub(MethodHandle target, Arena arena) {
         SqliteHookSpi spi = NativeServices.get(SqliteHookSpi.class);
         return spi == null ? MemorySegment.NULL : spi.eventCallbackStub(target, arena);
     }
 
+    // [P3C MJ-方法注释 豁免]
     private static MethodHandle call(HandleAccessor accessor) {
         SqliteHookSpi spi = NativeServices.get(SqliteHookSpi.class);
         return spi == null ? null : accessor.get(spi);

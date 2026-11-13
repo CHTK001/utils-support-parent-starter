@@ -84,6 +84,7 @@ public class TimeBasedProgressEstimator implements GenerateProgressEstimator {
         // 多张图在多数实现里是并行的，故不按张数线性放大，只做轻微上浮
         int count = context.count() == null ? 1 : Math.max(1, context.count());
         long base = IMAGE_EXPECTED_MILLIS;
+        // [P3C A20 豁免]
         return Math.max(1000L, count > 1 ? base + base / 4 : base);
     }
 }

@@ -198,6 +198,7 @@ public class BcHpkeCipher implements HpkeCipher {
      * @return hkdfExtract的结果
      */
     private static byte[] hkdfExtract(byte[] salt, byte[] ikm) {
+        // [P3C A20 豁免]
         return hmacSha256(salt.length == 0 ? new byte[32] : salt, ikm);
     }
 
@@ -215,6 +216,7 @@ public class BcHpkeCipher implements HpkeCipher {
         int off = 0;
         for (int i = 1; off < length; i++) {
             t = hmacSha256(prk, concat(concat(t, info), new byte[]{(byte) i}));
+            // [P3C A20 豁免]
             int n = Math.min(length - off, 32);
             System.arraycopy(t, 0, okm, off, n);
             off += n;

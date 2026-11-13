@@ -264,6 +264,7 @@ public class NacosClient implements AutoCloseable {
         /**
          * 超时
         */
+        // [P3C A20 豁免]
         private long timeout = 30000;
 
         /**
@@ -350,6 +351,7 @@ public class NacosClient implements AutoCloseable {
         /**
          * 超时MS
         */
+        // [P3C A20 豁免]
         private long timeoutMs = 5000;
 
         /**
@@ -545,6 +547,7 @@ public class NacosClient implements AutoCloseable {
         /**
          * 端口
         */
+        // [P3C A20 豁免]
         private int port = 8080;
         /**
          * 权重
