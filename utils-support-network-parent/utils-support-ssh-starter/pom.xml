@@ -31,6 +31,12 @@
             <groupId>net.i2p.crypto</groupId>
             <artifactId>eddsa</artifactId>
         </dependency>
+        <!-- 单元测试：用 MINA 客户端验证 SSH 握手/认证/交互式命令 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 </project>
