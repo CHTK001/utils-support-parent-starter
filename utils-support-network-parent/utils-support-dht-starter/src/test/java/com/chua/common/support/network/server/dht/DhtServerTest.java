@@ -15,6 +15,7 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -124,7 +125,8 @@ class DhtServerTest {
     @DisplayName("get_peers：返回 token 与近邻节点")
     void getPeersReturnsToken() throws Exception {
         Map<String, Object> args = args(PEER_ID);
-        args.put("info_hash", INFO_HASH);
+        // 用独立 infohash：本类共用一个服务端，避免被其它用例的 announce 污染
+        args.put("info_hash", hexToBytes("5555555555555555555555555555555555555555"));
         KrpcMessage resp = query("get_peers", args);
         assertEquals('r', resp.y);
         String token = resp.getString("token");
@@ -154,6 +156,126 @@ class DhtServerTest {
         assertEquals('r', resp.y, "announce_peer 应回响应");
         assertEquals("aa", resp.t, "必须回显事务号 t");
         assertArrayEquals(NODE_ID, idOf(resp), "announce_peer 响应 id 应为服务端节点 ID");
+    }
+
+    @Test
+    @DisplayName("announce_peer 后 get_peers 应返回该 peer（BEP5 values）")
+    void announcedPeerIsDiscoverable() throws Exception {
+        byte[] ih = hexToBytes("3333333333333333333333333333333333333333");
+        int announcePort = 51413;
+
+        Map<String, Object> announce = args(PEER_ID);
+        announce.put("info_hash", ih);
+        announce.put("port", (long) announcePort);
+        announce.put("implied_port", 0L);
+        announce.put("token", "deadbeef");
+        KrpcMessage ack = query("announce_peer", announce);
+        assertEquals('r', ack.y, "announce_peer 应回响应");
+
+        Map<String, Object> ask = args(PEER_ID);
+        ask.put("info_hash", ih);
+        KrpcMessage resp = query("get_peers", ask);
+        assertEquals('r', resp.y);
+
+        List<byte[]> values = compactValuesOf(resp);
+        assertNotNull(values, "宣告后 get_peers 应返回 values（peer 紧凑地址列表）");
+        assertFalse(values.isEmpty(), "宣告的 peer 应能被查到");
+        boolean found = false;
+        for (byte[] v : values) {
+            assertEquals(6, v.length, "紧凑 peer 必须是 6 字节（4 IP + 2 端口）");
+            int port = ((v[4] & 0xff) << 8) | (v[5] & 0xff);
+            if (port == announcePort) {
+                found = true;
+            }
+        }
+        assertTrue(found, "应查到刚宣告的端口 " + announcePort + "，实际: " + describe(values));
+    }
+
+    @Test
+    @DisplayName("announce_peer 的 infohash 会进入爬取集合")
+    void announcedInfohashIsCollected() throws Exception {
+        byte[] ih = hexToBytes("6666666666666666666666666666666666666666");
+        Map<String, Object> announce = args(PEER_ID);
+        announce.put("info_hash", ih);
+        announce.put("port", 6881L);
+        announce.put("implied_port", 0L);
+        announce.put("token", "deadbeef");
+        assertEquals('r', query("announce_peer", announce).y);
+
+        String hex = toHex(ih);
+        assertTrue(server.collectedInfohashes().contains(hex),
+                "爬取集合应包含刚宣告的 infohash，实际: " + server.collectedInfohashes());
+    }
+
+    @Test
+    @DisplayName("announce_peer：implied_port=1 时用来源端口")
+    void impliedPortUsesSenderPort() throws Exception {
+        byte[] ih = hexToBytes("4444444444444444444444444444444444444444");
+        Map<String, Object> announce = args(PEER_ID);
+        announce.put("info_hash", ih);
+        announce.put("implied_port", 1L);
+        announce.put("token", "deadbeef");
+        assertEquals('r', query("announce_peer", announce).y);
+
+        Map<String, Object> ask = args(PEER_ID);
+        ask.put("info_hash", ih);
+        List<byte[]> values = compactValuesOf(query("get_peers", ask));
+        assertNotNull(values, "implied_port 宣告后应能查到 peer");
+        boolean found = false;
+        for (byte[] v : values) {
+            int port = ((v[4] & 0xff) << 8) | (v[5] & 0xff);
+            if (port == client.getLocalPort()) {
+                found = true;
+            }
+        }
+        assertTrue(found, "implied_port=1 应记录来源端口 " + client.getLocalPort()
+                + "，实际: " + describe(values));
+    }
+
+    /**
+     * 取响应里的紧凑 peer 列表（values）。
+     *
+     * @param resp get_peers 响应
+     * @return 6 字节数组列表；无 values 时返回 null
+     */
+    private static List<byte[]> compactValuesOf(KrpcMessage resp) {
+        Object raw = resp.r == null ? null : resp.r.get("values");
+        if (!(raw instanceof List<?> list) || list.isEmpty()) {
+            return null;
+        }
+        List<byte[]> out = new java.util.ArrayList<>(list.size());
+        for (Object o : list) {
+            if (o instanceof byte[] bytes) {
+                out.add(bytes);
+            } else if (o instanceof String text) {
+                // bencode 库按 ISO-8859-1 解字符串；紧凑 peer 是 6 字节二进制，必须按原字节还原
+                out.add(text.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));
+            }
+        }
+        return out;
+    }
+
+    /**
+     * 把紧凑 peer 列表转成可读文本（失败信息用）。
+     *
+     * @param values 紧凑 peer 列表
+     * @return 描述文本
+     */
+    private static String describe(List<byte[]> values) {
+        if (values == null) {
+            return "null";
+        }
+        StringBuilder sb = new StringBuilder("[");
+        for (byte[] v : values) {
+            if (sb.length() > 1) {
+                sb.append(", ");
+            }
+            sb.append(v.length == 6
+                    ? ((v[0] & 0xff) + "." + (v[1] & 0xff) + "." + (v[2] & 0xff) + "." + (v[3] & 0xff)
+                    + ":" + (((v[4] & 0xff) << 8) | (v[5] & 0xff)))
+                    : ("len=" + v.length));
+        }
+        return sb.append(']').toString();
     }
 
     @Test

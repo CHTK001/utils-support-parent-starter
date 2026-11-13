@@ -61,6 +61,23 @@ public class DhtProtocol implements AutoCloseable {
     private final DhtValueStore valueStore;
 
     /**
+     * 已宣告的 peer：infohash → 地址列表（BEP 5：get_peers 命中时返回 values）。
+     * <p>只存地址不存 nodeId，这样 {@code KrpcDhtBridge.encodeResponse} 会按
+     * 「紧凑 peer（6 字节）」编码，而不是节点列表。</p>
+     */
+    private final Map<String, List<AnnouncedPeer>> announcedPeers = new ConcurrentHashMap<>();
+
+    /**
+     * 已宣告 peer 的保留时长（30 分钟，与 BEP 5 的 peer 过期口径一致）。
+     */
+    private static final long PEER_TTL_MS = 30 * 60 * 1000L;
+
+    /**
+     * 同一 infohash 下最多保留的 peer 数，防止被刷爆内存。
+     */
+    private static final int MAX_PEERS_PER_INFO_HASH = 200;
+
+    /**
      * 定时任务调度器（Bootstrap 和重新发布）
      */
     private final ScheduledExecutorService scheduler;
@@ -717,6 +734,7 @@ public class DhtProtocol implements AutoCloseable {
      * @param sender 发送者地址
      */
     private void handleAnnouncePeer(DhtMessage msg, InetSocketAddress sender) {
+        recordAnnouncedPeer(msg, sender);
         DhtMessage resp = DhtMessage.builder()
                 .type(DhtMessageType.ANNOUNCE_PEER_RESPONSE)
                 .senderId(selfId.toString())
@@ -727,6 +745,93 @@ public class DhtProtocol implements AutoCloseable {
                 .timestamp(System.currentTimeMillis())
                 .build();
         sendResponse(msg, resp, sender);
+    }
+
+    /**
+     * 记录 announce_peer 宣告的地址，供后续 get_peers 以 values 返回。
+     * <p>BEP 5：{@code implied_port=1} 时忽略报文里的 port，改用 UDP 来源端口
+     * （NAT 后的真实端口）；否则用报文里的 port。</p>
+     *
+     * @param msg    宣告消息
+     * @param sender 来源地址
+     */
+    private void recordAnnouncedPeer(DhtMessage msg, InetSocketAddress sender) {
+        String infohash = msg.getInfohash();
+        if (infohash == null || infohash.isEmpty()) {
+            return;
+        }
+        int port = msg.getImpliedPort() > 0 ? msg.getImpliedPort() : sender.getPort();
+        if (port <= 0 || port > 65535) {
+            return;
+        }
+        String host = sender.getHostString();
+        long expiresAt = System.currentTimeMillis() + PEER_TTL_MS;
+        // 宣告本身就是「这个 torrent 存在」的信号，和 get_peers 一样计入爬取集合
+        boolean isNew = infohashes.add(infohash);
+        if (crawlListener != null) {
+            crawlListener.onInfohash(infohash, sender);
+        }
+        if (isNew) {
+            CompletableFuture.runAsync(() -> activeCrawl(infohash), scheduler);
+        }
+        List<AnnouncedPeer> peers = announcedPeers.computeIfAbsent(
+                infohash, k -> new CopyOnWriteArrayList<>());
+        peers.removeIf(p -> p.isExpired());
+        peers.removeIf(p -> p.host().equals(host) && p.port() == port);
+        if (peers.size() >= MAX_PEERS_PER_INFO_HASH) {
+            peers.remove(0);
+        }
+        peers.add(new AnnouncedPeer(host, port, expiresAt));
+    }
+
+    /**
+     * 取某个 infohash 下未过期的 peer。
+     *
+     * @param infohash infohash（hex）
+     * @return peer 列表；没有时返回空列表
+     */
+    private List<DhtPeer> peersOf(String infohash) {
+        if (infohash == null || infohash.isEmpty()) {
+            return List.of();
+        }
+        List<AnnouncedPeer> peers = announcedPeers.get(infohash);
+        if (peers == null || peers.isEmpty()) {
+            return List.of();
+        }
+        peers.removeIf(AnnouncedPeer::isExpired);
+        if (peers.isEmpty()) {
+            announcedPeers.remove(infohash);
+            return List.of();
+        }
+        List<DhtPeer> result = Wraps.list();
+        for (AnnouncedPeer p : peers) {
+            // nodeId 留空：编码器据此输出 6 字节紧凑 peer（values），而不是节点列表
+            result.add(DhtPeer.builder()
+                    .host(p.host())
+                    .port(p.port())
+                    .lastSeen(p.expiresAt() - PEER_TTL_MS)
+                    .build());
+        }
+        return result;
+    }
+
+    /**
+     * 已宣告的 peer 地址。
+     *
+     * @param host      来源地址
+     * @param port      端口
+     * @param expiresAt 过期时间
+     */
+    private record AnnouncedPeer(String host, int port, long expiresAt) {
+
+        /**
+         * 是否已过期。
+         *
+         * @return 过期返回 true
+         */
+        boolean isExpired() {
+            return System.currentTimeMillis() >= expiresAt;
+        }
     }
 
     /**
@@ -747,6 +852,25 @@ public class DhtProtocol implements AutoCloseable {
             }
         }
         KademliaNodeId target = KademliaNodeId.fromHex(msg.getTargetId());
+        List<DhtPeer> announced = peersOf(infohash);
+        String token = Integer.toHexString((sender.getHostString() + ":" + sender.getPort()).hashCode());
+        DhtMessage resp; 
+        if (!announced.isEmpty()) {
+            // BEP 5：本节点知道该 infohash 的 peer 时，直接回 values，不再回近邻节点
+            resp = DhtMessage.builder()
+                    .type(DhtMessageType.GET_PEERS_RESPONSE)
+                    .senderId(selfId.toString())
+                    .senderHost(selfHost(msg))
+                    .senderPort(selfPort(msg))
+                    .targetId(msg.getSenderId())
+                    .peers(announced)
+                    .value(token)
+                    .infohash(infohash)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+            sendResponse(msg, resp, sender);
+            return;
+        }
         List<DhtPeer> closest = routingTable.findClosestPeers(target, config.getKBucketSize());
         closest.removeIf(p -> p.getNodeId().equals(msg.getSenderId()));
         if (closest.isEmpty()) {
@@ -757,8 +881,7 @@ public class DhtProtocol implements AutoCloseable {
                     .lastSeen(System.currentTimeMillis())
                     .build());
         }
-        String token = Integer.toHexString((sender.getHostString() + ":" + sender.getPort()).hashCode());
-        DhtMessage resp = DhtMessage.builder()
+        resp = DhtMessage.builder()
                 .type(DhtMessageType.GET_PEERS_RESPONSE)
                 .senderId(selfId.toString())
                 .senderHost(selfHost(msg))
