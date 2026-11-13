@@ -28,7 +28,6 @@
         <module>utils-support-deeplearning-starter</module>
         <module>utils-support-filesystem-starter</module>
         <module>utils-support-maven-starter</module>
-        <module>utils-support-runtime-support</module>
     </modules>
     <properties>
         <maven.jar.plugin.version>3.5.1</maven.jar.plugin.version>
