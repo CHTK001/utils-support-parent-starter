@@ -15,6 +15,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -49,9 +50,9 @@ class ProxyThroughputTest {
     private static final int SAMPLES = 8192;
 
     /**
-     * 默认并发连接数。
+     * 默认并发连接数（-Dbench.concurrency 覆盖，便于二分定位并发相关问题）。
      */
-    private static final int CONCURRENCY = 128;
+    private static final int CONCURRENCY = Integer.getInteger("bench.concurrency", 128);
 
     /**
      * 单请求负载（字节）。
@@ -225,11 +226,13 @@ class ProxyThroughputTest {
      * @param result 结果
      */
     private static void print(String name, Result result) {
+        // [P3C E1 豁免]
         System.out.println("BENCH|" + name
                 + "|qps=" + String.format(java.util.Locale.ROOT, "%.0f", result.qps(DURATION_MS))
                 + "|p50us=" + String.format(java.util.Locale.ROOT, "%.0f", result.percentile(0.50))
                 + "|p99us=" + String.format(java.util.Locale.ROOT, "%.0f", result.percentile(0.99))
                 + "|err=" + result.errors);
+        // [P3C E1 豁免]
         System.out.flush();
     }
 
@@ -447,6 +450,204 @@ class ProxyThroughputTest {
             print("udp-pps", result);
         } finally {
             server.stop();
+        }
+    }
+
+    /**
+     * HTTP keep-alive 回环压测：每线程一条持久连接，循环发请求并读完整响应。
+     *
+     * @param port        代理端口
+     * @param requestHead 完整请求头
+     * @return 结果
+     * @throws Exception 线程失败
+     */
+    private static Result benchHttp(int port, String requestHead) throws Exception {
+        Thread[] threads = new Thread[CONCURRENCY];
+        long[] counts = new long[CONCURRENCY];
+        int[] reconnects = new int[CONCURRENCY];
+        long[][] samples = new long[CONCURRENCY][];
+        byte[] request = requestHead.getBytes(StandardCharsets.US_ASCII);
+
+        for (int i = 0; i < CONCURRENCY; i++) {
+            final int index = i;
+            samples[index] = new long[SAMPLES];
+            threads[index] = Thread.ofVirtual().start(() -> {
+                long warmEnd = System.currentTimeMillis() + WARMUP_MS;
+                long end = warmEnd + DURATION_MS;
+                long done = 0;
+                while (System.currentTimeMillis() < end) {
+                    boolean warm = System.currentTimeMillis() < warmEnd;
+                    long phaseEnd = warm ? warmEnd : end;
+                    try (Socket socket = new Socket()) {
+                        socket.connect(new InetSocketAddress("127.0.0.1", port), SO_TIMEOUT_MS);
+                        socket.setTcpNoDelay(true);
+                        socket.setSoTimeout(SO_TIMEOUT_MS);
+                        long finished = loopHttpUntil(socket, request, phaseEnd,
+                                warm ? new long[SAMPLES] : samples[index]);
+                        if (!warm) {
+                            done += finished;
+                        }
+                    } catch (Exception e) {
+                        // 代理主动断开客户端连接时，重连后继续；次数用于量化断连频率
+                        reconnects[index]++;
+                    }
+                }
+                counts[index] = done;
+            });
+        }
+        for (Thread thread : threads) {
+            thread.join(WARMUP_MS + DURATION_MS + 20000L);
+        }
+        return merge(counts, reconnects, samples);
+    }
+
+    /**
+     * 在一条持久连接上循环「发请求 → 读响应」，直到到达截止时间。
+     *
+     * @param socket   连接
+     * @param request  请求字节
+     * @param deadline 截止时间戳（毫秒）
+     * @param samples  环形样本
+     * @return 完成请求数
+     * @throws IOException 读写失败（含对端主动断开）
+     */
+    private static long loopHttpUntil(Socket socket, byte[] request, long deadline, long[] samples)
+            throws IOException {
+        OutputStream out = socket.getOutputStream();
+        InputStream in = socket.getInputStream();
+        long done = 0;
+        int slot = 0;
+        while (System.currentTimeMillis() < deadline) {
+            long start = System.nanoTime();
+            out.write(request);
+            out.flush();
+            int length = readContentLength(in);
+            if (length < 0) {
+                throw new IOException("连接被关闭");
+            }
+            byte[] body = new byte[length];
+            if (readFully(in, body, length) != length) {
+                throw new IOException("正文被截断");
+            }
+            samples[slot++ & (SAMPLES - 1)] = System.nanoTime() - start;
+            done++;
+        }
+        return done;
+    }
+
+    /**
+     * 读响应头并解析 Content-Length。
+     *
+     * @param in 输入流
+     * @return 正文长度；解析失败或连接关闭返回 -1
+     * @throws IOException 读取失败
+     */
+    private static int readContentLength(InputStream in) throws IOException {
+        StringBuilder head = new StringBuilder();
+        int matched = 0;
+        int read;
+        boolean closed = true;
+        while ((read = in.read()) >= 0) {
+            head.append((char) read);
+            if (matched == 0 && read == '\r') {
+                matched = 1;
+            } else if (matched == 1 && read == '\n') {
+                matched = 2;
+            } else if (matched == 2 && read == '\r') {
+                matched = 3;
+            } else if (matched == 3 && read == '\n') {
+                closed = false;
+                break;
+            } else {
+                matched = 0;
+            }
+            if (head.length() > 8192) {
+                break;
+            }
+        }
+        if (closed) {
+            return -1;
+        }
+        String text = head.toString().toLowerCase(java.util.Locale.ROOT);
+        int at = text.indexOf("content-length:");
+        if (at < 0) {
+            return -1;
+        }
+        int i = at + "content-length:".length();
+        while (i < text.length() && (text.charAt(i) == ' ' || text.charAt(i) == '\t')) {
+            i++;
+        }
+        int j = i;
+        while (j < text.length() && Character.isDigit(text.charAt(j))) {
+            j++;
+        }
+        return j > i ? Integer.parseInt(text.substring(i, j)) : -1;
+    }
+
+    /**
+     * 解析型反向 HTTP 代理吞吐（keep-alive）。
+     *
+     * @throws Exception 启动失败
+     */
+    @Test
+    @Timeout(300)
+    @DisplayName("吞吐：HttpProxyServer（反向，keep-alive）")
+    void httpProxyThroughput() throws Exception {
+        try (ProxyTestSupport.KeepAliveHttpBackend backend = new ProxyTestSupport.KeepAliveHttpBackend()) {
+            HttpProxyServer proxy = new HttpProxyServer(setting(),
+                    new InetSocketAddress("127.0.0.1", backend.port()));
+            proxy.start();
+            try {
+                String request = "GET /x HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n";
+                print("http-proxy-reverse", benchHttp(proxy.getPort(), request));
+            } finally {
+                proxy.stop();
+            }
+        }
+    }
+
+    /**
+     * 透传型 HTTP 代理吞吐（JdkHttpProxyServer 继承 TcpProxyServer）。
+     *
+     * @throws Exception 启动失败
+     */
+    @Test
+    @Timeout(300)
+    @DisplayName("吞吐：JdkHttpProxyServer（透传，keep-alive）")
+    void jdkHttpProxyThroughput() throws Exception {
+        try (ProxyTestSupport.KeepAliveHttpBackend backend = new ProxyTestSupport.KeepAliveHttpBackend()) {
+            JdkHttpProxyServer proxy = new JdkHttpProxyServer(setting(),
+                    new InetSocketAddress("127.0.0.1", backend.port()));
+            proxy.start();
+            try {
+                String request = "GET /x HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n";
+                print("http-proxy-transparent", benchHttp(proxy.getPort(), request));
+            } finally {
+                proxy.stop();
+            }
+        }
+    }
+
+    /**
+     * 正向 HTTP 代理吞吐（绝对 URI + 后端连接池）。
+     *
+     * @throws Exception 启动失败
+     */
+    @Test
+    @Timeout(300)
+    @DisplayName("吞吐：AioHttpProxyServer（正向，keep-alive）")
+    void aioHttpProxyThroughput() throws Exception {
+        try (ProxyTestSupport.KeepAliveHttpBackend backend = new ProxyTestSupport.KeepAliveHttpBackend()) {
+            AioHttpProxyServer proxy = new AioHttpProxyServer(setting());
+            proxy.start();
+            try {
+                String target = "127.0.0.1:" + backend.port();
+                String request = "GET http://" + target + "/x HTTP/1.1\r\n"
+                        + "Host: " + target + "\r\n\r\n";
+                print("http-proxy-forward", benchHttp(proxy.getPort(), request));
+            } finally {
+                proxy.stop();
+            }
         }
     }
 }

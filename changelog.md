@@ -51,11 +51,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `Socks5ProxyServer` 隧道 | 128 | 15,708 QPS（42.7%），p99 16.6ms |
 | `TcpProxyServer`（JDK 阻塞） | 128 | **9,828 QPS（26.7%）**，p99 34.0ms |
 | `JdkUdpServer` | 128 | 32,924 pps，失败 0.3% |
+| `JdkHttpProxyServer`（透传，keep-alive） | 128 | **18,827 QPS**，p50 6.34ms / p99 15.75ms，0 重连 |
+| `HttpProxyServer`（反向，keep-alive） | 8 / 32 / 128 | **≈10,900–11,160 QPS**（三档持平），p50 0.51→9.34ms、p99 3.3→55.8ms，0 重连 |
+| `AioHttpProxyServer`（正向，keep-alive） | 128 | 1,681 QPS，p50 23.9ms / p99 105ms，**97 次客户端重连** ⚠️ |
 | WS 连接容量 | — | 5k/10k/**50k** 全通过；50k 时 4.21KB/连接、205MB 堆、2,193 条/秒 |
 | WS 回环消息 | 64 conn | 35,217 条/秒 |
 | WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
 
-未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、HTTP 代理三层吞吐、过滤器单测。
+未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、过滤器单测。
+
+HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
+
+剩下唯一真实异常是正向代理 `AioHttpProxyServer`：隔离跑仍有 97 次重连、p50 23.9ms、p99 105ms，且 QPS（0.9k–4k）跨轮次波动大。根因已定位：`forward()` 直接 `connectAsync` 新建后端连接，`acquireBackend`/`returnBackend` 从未被调用（连接池是死代码），**每个请求都要重新建一次 TCP 连接**——p50 ≈ 24ms 正是建连开销。尝试把池接上后回归更差（QPS 71、重连 174 次，池里的通道带残留读状态会串响应），已回退并把「每请求新建后端连接」记为已知限制，待重做连接池（需要读状态隔离）。
 
 已知不稳定用例：`HttpBackpressureWriteTest#aioHttpServerTlsKeepsEveryPipelinedResponse`（满负载 60s+ 超时，单独复跑 4.6s 通过）、`TimeWheelExpirySchedulerTest#refailReschedulesDeadline`、`FtpServerPortBindingTest` FTPS 并发场景。
 

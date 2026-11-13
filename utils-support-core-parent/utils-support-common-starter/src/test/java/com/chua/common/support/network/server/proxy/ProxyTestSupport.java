@@ -215,6 +215,131 @@ final class ProxyTestSupport {
     }
 
     /**
+     * keep-alive 版 HTTP 后端：同一连接上连续响应多个请求，用于测 HTTP 代理/服务器的稳态吞吐。
+     *
+     * <p>{@link HttpBackend} 每次响应后发 {@code Connection: close}，拿它压测会把建连成本算进去，
+     * 既不能反映代理真实吞吐，也无法与 TCP 那组长连接回环横向比。</p>
+     */
+    static final class KeepAliveHttpBackend implements AutoCloseable {
+
+        /**
+         * 监听套接字。
+         */
+        private final ServerSocket serverSocket;
+
+        /**
+         * 运行标志。
+         */
+        private final AtomicBoolean running = new AtomicBoolean(true);
+
+        /**
+         * 已接受的连接。
+         */
+        private final List<Socket> sockets = new CopyOnWriteArrayList<>();
+
+        /**
+         * 启动后端。
+         *
+         * @throws IOException 绑定失败
+         */
+        KeepAliveHttpBackend() throws IOException {
+            serverSocket = new ServerSocket(0, 500, InetAddress.getByName("127.0.0.1"));
+            Thread.ofVirtual().name("proxy-http-keepalive-backend").start(this::loop);
+        }
+
+        /**
+         * 接受循环。
+         */
+        private void loop() {
+            while (running.get()) {
+                try {
+                    Socket socket = serverSocket.accept();
+                    sockets.add(socket);
+                    Thread.ofVirtual().start(() -> serve(socket));
+                } catch (IOException e) {
+                    return;
+                }
+            }
+        }
+
+        /**
+         * 单连接上循环应答。
+         *
+         * @param socket 连接
+         */
+        private void serve(Socket socket) {
+            try (socket) {
+                socket.setSoTimeout(30000);
+                InputStream in = socket.getInputStream();
+                OutputStream out = socket.getOutputStream();
+                byte[] body = HTTP_BODY.getBytes(StandardCharsets.UTF_8);
+                byte[] header = ("HTTP/1.1 200 OK\r\n"
+                        + "Content-Type: text/plain\r\n"
+                        + "Content-Length: " + body.length + "\r\n"
+                        + "\r\n").getBytes(StandardCharsets.US_ASCII);
+                while (running.get()) {
+                    if (!readHeadersEof(in)) {
+                        return;
+                    }
+                    out.write(header);
+                    out.write(body);
+                    out.flush();
+                }
+            } catch (IOException ignored) {
+                // 对端关闭属正常收尾
+            }
+        }
+
+        /**
+         * 读掉请求头；连接结束时返回 false。
+         *
+         * @param in 输入流
+         * @return true 表示读到一个完整请求头
+         * @throws IOException 读取失败
+         */
+        private boolean readHeadersEof(InputStream in) throws IOException {
+            int matched = 0;
+            int read;
+            while ((read = in.read()) >= 0) {
+                if (matched == 0 && read == '\r') {
+                    matched = 1;
+                } else if (matched == 1 && read == '\n') {
+                    matched = 2;
+                } else if (matched == 2 && read == '\r') {
+                    matched = 3;
+                } else if (matched == 3 && read == '\n') {
+                    return true;
+                } else {
+                    matched = 0;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * 实际监听端口。
+         *
+         * @return 端口
+         */
+        int port() {
+            return serverSocket.getLocalPort();
+        }
+
+        @Override
+        public void close() throws IOException {
+            running.set(false);
+            serverSocket.close();
+            for (Socket socket : sockets) {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                    // 清理失败不影响断言
+                }
+            }
+        }
+    }
+
+    /**
      * 读掉 HTTP 请求头（到空行为止）。
      *
      * @param in 输入流
