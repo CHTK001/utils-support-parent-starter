@@ -12,7 +12,7 @@ Mage 家族固定 4B 参数（fp16 约 8GB/个），官方仅发布 PyTorch 权�
 
 ## 服务端部署
 
-见 [`scripts/server.py`](scripts/server.py) 头部注释。要点：
+见 [`../../../utils-support-native-parent/tools/python/mage/server.py`](../../../utils-support-native-parent/tools/python/mage/server.py) 头部注释（纯 Java 仓不再存放 Python 源码）。要点：
 
 ```bash
 git clone https://github.com/microsoft/Mage && cd Mage/mage_flow

@@ -25,7 +25,7 @@ import java.util.Locale;
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 本地预览资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供，避免依赖公网 CDN）
+     * 本地预览资源根路径（前后端分离后由前端以同源 /preview-vendor 提供，避免依赖公网 CDN）
      */
     private static final String VENDOR_BASE = "/preview-vendor/pdf/";
 

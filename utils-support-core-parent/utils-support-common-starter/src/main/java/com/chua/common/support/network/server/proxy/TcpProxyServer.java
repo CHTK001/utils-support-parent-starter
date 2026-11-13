@@ -18,7 +18,13 @@ import java.net.Socket;
  * <p>本实现默认启用 {@code preferNonBlockingAccept}：非阻塞事件循环批量 accept，
  * 每轮循环 accept 全部就绪连接，显著提升瞬时接纳吞吐（缓解阻塞 accept 一次一个
  * 在万级突发下的连接被拒）。转发沿用父类 {@link #forwardBidirectional} 阻塞双向
- * 转发（虚拟线程执行，实测数据正确性稳定）。</p>
+ * 转发（<b>平台线程泵</b>：每连接 2 条平台线程，空闲 60s 回收）。</p>
+ *
+ * <p>泵模型实测（2026-11-13，128 并发，隔离 JVM）：虚拟线程泵 14,618 QPS →
+ * 平台线程泵 27,984 QPS。虚拟线程的阻塞读要走共享 poller，128 并发时
+ * park/unpark 竞争会把吞吐腰斩；平台线程直接在内核阻塞，绕开该瓶颈。
+ * 代价是并发连接数建议上限约 2k（每连接 2 线程），更大连接数请用
+ * {@link AioTcpProxyServer}（IOCP，零驻留线程）。</p>
  *
  * <p>实测结论：本机 Windows 上瞬时连接建立上限由内核 accept 队列决定（约 3-6 千/s），
  * 非阻塞 accept 已把 tcp-proxy 从阻塞 accept 的 ~2600 提升到 ~5000+；要进一步跨越

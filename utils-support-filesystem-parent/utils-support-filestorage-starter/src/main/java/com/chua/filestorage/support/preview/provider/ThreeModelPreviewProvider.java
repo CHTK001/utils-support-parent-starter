@@ -20,7 +20,7 @@ import java.util.Set;
  * 并指向 {@code cdn.jsdelivr.net}。实测该 CDN 在内网不可达，且 {@code await import}
  * 位于 try 之外，失败时 async IIFE 直接 reject —— 页面永远停在「加载 3D 模型中...」，
  * 且没有任何错误提示。现改为从 {@code /preview-vendor/three/**} 同源动态导入
- * （资源随本模块 classpath 提供，由文件服务器的 preview-vendor 通道按约定放行），
+ * （前后端分离后由前端同源提供），
  * 并把导入移入 try 以便失败时给出可读原因。</p>
  *
  * @author CH

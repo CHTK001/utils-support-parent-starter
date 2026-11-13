@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.chua</groupId>
-        <artifactId>utils-support-protocol-parent</artifactId>
+        <artifactId>utils-support-network-parent</artifactId>
         <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>

@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * 类定义模型，表示一个类的完整信息（继承关系、注解、方法、字段）。
  *
- * <p>通过 {@link AnnotationUtils#getClassDefinition(Class)} 创建，
+ * <p>通过 {@link AnnotationDefinitionUtils#getClassDefinition(Class)} 创建，
  * 封装反射元数据 + 递归解析的注解定义链。</p>
  *
  * @param clazz 原始 Class 对象
@@ -34,7 +34,7 @@ public record ClassDefinition(
      *
      * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
      * {@code superclass} 对接口与 Object 恒为 null，{@link #toString()} 也显式判空，
-     * 故保留 null 语义不加约束。其余四个列表由 {@code AnnotationUtils#getClassDefinition}
+     * 故保留 null 语义不加约束。其余四个列表由 {@code AnnotationDefinitionUtils#getClassDefinition}
      * 保证非空且元素非空，因此使用 {@link List#copyOf}。</p>
      *
      * @param clazz       原始 Class 对象，不允许为 null

@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Microsoft Mage 多模态理解客户端（SPI provider="mage"）。
  *
- * <p>通过 HTTP 调用<b>自部署</b>的 Mage-VL 推理服务（见本模块 {@code scripts/server.py}），
+ * <p>通过 HTTP 调用<b>自部署</b>的 Mage-VL 推理服务（服务端脚本见 native 仓 {@code tools/python/mage/server.py}），
  * 后端为微软 Mage-VL 4B —— 编解码器原生的图像/视频理解基础模型
  * （Mage-ViT 从零训练视觉栈 + Qwen3-4B 解码器，支持主动流式评论）。
  *

@@ -47,7 +47,7 @@ class OpenAiDecisionsClientTest {
     /** 本地 Mock 端点 */
     private static final int PORT = 18923;
 
-    /** 真实 API Key（书生·端砚 Intern InkStone，上海 AI 实验室） */
+    /** 测试占位 Key（仅用于本地 Mock 校验 Authorization，非真实密钥） */
     private static final String API_KEY = "sk-test-placeholder-0000000000000000";
 
     /** 模拟地址 */

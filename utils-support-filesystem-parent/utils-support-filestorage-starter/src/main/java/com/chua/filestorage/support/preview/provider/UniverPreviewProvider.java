@@ -94,7 +94,7 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * Univer 本地资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供）
+     * Univer 本地资源根路径（前后端分离后由前端以同源 /preview-vendor 提供）
      */
     private static final String UNIVER_BASE = "/preview-vendor/univer/";
 

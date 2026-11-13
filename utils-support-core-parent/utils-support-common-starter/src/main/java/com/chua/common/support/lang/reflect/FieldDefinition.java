@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * 字段定义模型，表示一个字段的完整信息（类型、注解、修饰符）。
  *
- * <p>通过 {@link AnnotationUtils#getFieldDefinition(Field)} 创建，
+ * <p>通过 {@link AnnotationDefinitionUtils#getFieldDefinition(Field)} 创建，
  * 封装反射元数据 + 注解定义（递归解析元注解链）。</p>
  *
  * @param field 原始 Field 对象
@@ -34,7 +34,7 @@ public record FieldDefinition(
      * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
      * {@code field} / {@code declaringClass} / {@code fieldName} / {@code fieldType}
      * 均被 {@link #toString()} 与 {@link #hasAnnotation} 无条件解引用；
-     * 注解定义列表由 {@code AnnotationUtils#getFieldDefinition} 保证非空且元素非空，
+     * 注解定义列表由 {@code AnnotationDefinitionUtils#getFieldDefinition} 保证非空且元素非空，
      * 因此使用 {@link List#copyOf}。</p>
      *
      * @param field          原始 Field 对象，不允许为 null

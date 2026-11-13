@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * 方法定义模型，表示一个方法及其完整信息（注解、参数、返回类型、修饰符）。
  *
- * <p>通过 {@link AnnotationUtils#getMethodDefinition(Method)} 创建，
+ * <p>通过 {@link AnnotationDefinitionUtils#getMethodDefinition(Method)} 创建，
  * 封装反射元数据 + 注解定义（递归解析元注解链）。</p>
  *
  * @param method 原始 Method 对象
@@ -35,7 +35,7 @@ public record MethodDefinition(
      *
      * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
      * {@code method} / {@code declaringClass} / {@code methodName} / {@code returnType}
-     * 均被业务方法无条件解引用；两个列表由 {@code AnnotationUtils#getMethodDefinition}
+     * 均被业务方法无条件解引用；两个列表由 {@code AnnotationDefinitionUtils#getMethodDefinition}
      * 保证非空且元素非空，因此使用 {@link List#copyOf}。</p>
      *
      * @param method         原始 Method 对象，不允许为 null
@@ -74,7 +74,7 @@ public record MethodDefinition(
          * 规范构造器：参数名与参数类型必填，参数注解定义列表做防御性拷贝。
          *
          * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
-         * 列表由 {@code AnnotationUtils#getMethodDefinition} 保证非空且元素非空，
+         * 列表由 {@code AnnotationDefinitionUtils#getMethodDefinition} 保证非空且元素非空，
          * 因此使用 {@link List#copyOf}。</p>
          *
          * @param name        参数名，不允许为 null

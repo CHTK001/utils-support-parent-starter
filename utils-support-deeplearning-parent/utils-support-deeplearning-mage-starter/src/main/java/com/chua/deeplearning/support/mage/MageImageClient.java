@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Microsoft Mage 图像生成客户端（SPI 提供者="mage"）。
  *
- * <p>通过 HTTP 调用<b>自部署</b>的 Mage 推理服务（见本模块 {@code scripts/server.py}），
+ * <p>通过 HTTP 调用<b>自部署</b>的 Mage 推理服务（服务端脚本见 native 仓 {@code tools/python/mage/server.py}），
  * 后端为微软 Mage 家族的 4B 生成模型：
  * <ul>
  *   <li><b>Mage-Flow</b> — 文生图（Base / RL / 4 步 Turbo 变体）</li>

@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `NettyHttpSyncServer` / `NettyHttpSyncClient`：这对 HTTP 同步链路的上行消息**从来发不出去**。客户端把 `topic` 当参数名拼出 `up=from-client`，服务端 `extractParam` 只找 JSON 片段 `"topic"`/`"message"`，于是每个 send 都回 400，而客户端不检查状态码 → 静默丢弃。改为客户端发 `topic=...&message=...` 表单、服务端按表单解析（保留 JSON 兼容）并对非 200 抛错。另修：405 分支只调 `sendResponseHeaders(405, 0)` 不关闭 exchange，chunked 没有结束块、客户端等到超时；204 改为 `-1` 无响应体；`port=0` 回写实际端口；请求体按 UTF-8 解码。
 - `AbstractServer`：构造函数里的 `initBuiltinFilters()` 走的是**可覆写**的 `addFilter`，而构造期子类字段初始化器尚未执行 —— 代理实现（`AbstractProxyServer`）在覆写里登记 `ipFilters`，读到的还是 null。结果是**所有代理服务器一 `new` 就 NPE**：`TcpProxyServerTest` 5/5、`AioTcpProxyServerTest`/`HttpProxyServerTest`/`AioHttpProxyServerTest`/`Socks5ProxyServerTest` 全部构造失败，压测 8 个场景里 4 个直接 error。改为构造期走私有的 `addBuiltinFilter`（不派发子类覆写）。修复后代理用例 17/17、`ProxyThroughputTest` 8/8 全绿。
 - `AioHttpProxyServer`：`forward()` 每个请求都新建一条后端 TCP 连接（连接池是死代码）。128 并发 keep-alive 压测下，本地临时端口被 TIME_WAIT 迅速占满，实测**从预热后的数千 QPS 退化到 13–22 QPS**、p50 落在 TCP 重传的 1s 档、重连 350–635 次。改为**按客户端会话 1:1 复用后端连接**（同目标、通道仍 open 就复用；不做跨客户端池——池内残留读状态会串响应，此前实测过）。客户端断开或响应要求 `close` 时才关闭。
+- `TcpProxyServer` / `JdkHttpProxyServer` / `Socks5ProxyServer`：双向转发泵从虚拟线程改为**平台线程**（accept 循环仍用虚拟线程，stop 时一并回收）。原因：每连接 2 条驻留虚拟线程在 Windows 上全挂在共享 poller 上，128 并发时 park/unpark 竞争把吞吐腰斩。同骨架对照实验（128 并发、隔离 JVM）：虚拟线程泵 14,618 QPS、去掉 SO_TIMEOUT 10,997（与超时无关）、平台线程泵 **27,984**。落地后：`tcp-proxy-jdk` 9,944 → **21,775**（2.19×，基线 25,721 的 84.7%）、`socks5` 11,166 → **26,827**、`http 透传` 12,450 → **14,430**。代价：每连接常驻 2 个平台线程（空闲 60s 回收），并发连接数建议上限约 2k，更大连接数用 `AioTcpProxyServer`（IOCP）。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 
@@ -69,10 +70,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | AIO HTTP `/echo` | 256 | 77,922 QPS，p50 2.96ms / p99 9.80ms |
 | 直连 TCP 回环（基线） | 128 | 36,785 QPS |
 | `AioTcpProxyServer` 三层 | 128 | **31,440 QPS（基线 85.5%）**，p99 7.80ms |
-| `Socks5ProxyServer` 隧道 | 128 | 15,708 QPS（42.7%），p99 16.6ms |
-| `TcpProxyServer`（JDK 阻塞） | 128 | **9,828 QPS（26.7%）**，p99 34.0ms |
+| `Socks5ProxyServer` 隧道 | 128 | 15,708 QPS（42.7%）→ 改后 **26,827**，p99 12.8ms |
+| `TcpProxyServer`（JDK 阻塞） | 128 | 9,828 QPS（26.7%）→ 改后 **21,775**（基线 84.7%），p99 17.9ms |
 | `JdkUdpServer` | 128 | 32,924 pps，失败 0.3% |
-| `JdkHttpProxyServer`（透传，keep-alive） | 128 | **18,827 QPS**，p50 6.34ms / p99 15.75ms，0 重连 |
+| `JdkHttpProxyServer`（透传，keep-alive） | 128 | 18,827 QPS（上一轮）→ 改后同批 14,430（该批基线 25,721，机器负载更高），0 重连 |
 | `HttpProxyServer`（反向，keep-alive） | 8 / 32 / 128 | **≈10,900–11,160 QPS**（三档持平），p50 0.51→9.34ms、p99 3.3→55.8ms，0 重连 |
 | `AioHttpProxyServer`（正向，keep-alive） | 128 | 1,681 QPS，p50 23.9ms / p99 105ms，**97 次客户端重连** ⚠️（同日已修复，见下） |
 | WS 连接容量 | — | 5k/10k/**50k** 全通过；50k 时 4.21KB/连接、205MB 堆、2,193 条/秒 |

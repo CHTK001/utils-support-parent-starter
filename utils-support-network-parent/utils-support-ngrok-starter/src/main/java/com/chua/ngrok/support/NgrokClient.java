@@ -268,7 +268,7 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok HTTP 监听已建立: url={}", listener.getUrl());
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok HTTP 监听失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok HTTP 监听失败: " + friendly(e.getMessage()), e);
         }
     }
 
@@ -287,7 +287,7 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok HTTP 转发已建立: url={}, target={}", forwarder.getUrl(), url);
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok HTTP 转发失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok HTTP 转发失败: " + friendly(e.getMessage()), e);
         }
     }
 
@@ -305,7 +305,7 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok TCP 监听已建立: url={}", listener.getUrl());
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok TCP 监听失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok TCP 监听失败: " + friendly(e.getMessage()), e);
         }
     }
 
@@ -324,7 +324,7 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok TCP 转发已建立: url={}, target={}", forwarder.getUrl(), url);
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok TCP 转发失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok TCP 转发失败: " + friendly(e.getMessage()), e);
         }
     }
 
@@ -342,7 +342,7 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok TLS 监听已建立: url={}", listener.getUrl());
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok TLS 监听失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok TLS 监听失败: " + friendly(e.getMessage()), e);
         }
     }
 
@@ -361,8 +361,38 @@ public class NgrokClient implements AutoCloseable {
             log.info("Ngrok TLS 转发已建立: url={}, target={}", forwarder.getUrl(), url);
             return this;
         } catch (IOException e) {
-            throw new RuntimeException("Ngrok TLS 转发失败: " + e.getMessage(), e);
+            throw new RuntimeException("Ngrok TLS 转发失败: " + friendly(e.getMessage()), e);
         }
+    }
+
+    /**
+     * 把 ngrok 的限制类错误翻译成可操作的提示，原始信息保留在末尾。
+     *
+     * <p>典型场景：ERR_NGROK_312 —— 免费套餐不能创建 TLS 端点，
+     * 直接把英文原文抛给用户只会看到「升级套餐」；这里补一句该换哪种模式。</p>
+     *
+     * @param message ngrok 原始错误信息
+     * @return 面向用户的提示
+     */
+    private static String friendly(String message) {
+        if (message == null || message.isBlank()) {
+            return "";
+        }
+        if (message.contains("ERR_NGROK_312")) {
+            return "当前 ngrok 账号是免费套餐，不能创建 TLS 端点；"
+                    + "请把该映射改成 HTTP 转发或 TCP 转发模式，或将账号升级为按量付费。原始错误：" + message;
+        }
+        if (message.contains("ERR_NGROK_334")) {
+            return "这个 ngrok 域名已经被一个在线端点占用（多半是上一次启动的会话还没断开，"
+                    + "或本机/另一台机器上有第二个实例在跑同一条映射）。"
+                    + "请先停掉旧端点，或在编辑映射时清空「域名」换一个新地址；"
+                    + "也可以等约 1 分钟让 ngrok 释放失效会话后重试。原始错误：" + message;
+        }
+        if (message.contains("ERR_NGROK_360")) {
+            return "Basic 认证格式不合法：密码长度必须是 8 - 128 位。"
+                    + "请把「Basic 认证」填成 用户名:密码（密码至少 8 位），或清空该字段关闭访客校验。原始错误：" + message;
+        }
+        return message;
     }
 
     /**

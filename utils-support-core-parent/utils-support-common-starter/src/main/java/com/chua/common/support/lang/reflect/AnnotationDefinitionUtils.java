@@ -31,21 +31,21 @@ import java.util.Map;
  * <h2>用法</h2>
  * <pre>
  *   // 1. 解析注解属性（基础功能）
- *   Map&lt;String, Object&gt; attrs = AnnotationUtils.getAnnotationAttributes(MyClass.class, Service.class);
+ *   Map&lt;String, Object&gt; attrs = AnnotationDefinitionUtils.getAnnotationAttributes(MyClass.class, Service.class);
  *
  *   // 2. 递归解析注解定义（含元注解链）
- *   AnnotationDefinition def = AnnotationUtils.getAnnotationDefinition(Controller.class);
+ *   AnnotationDefinition def = AnnotationDefinitionUtils.getAnnotationDefinition(Controller.class);
  *   def.metaAnnotations();  // 包含 @Component, @Retention 等元注解定义
  *
  *   // 3. 解析方法定义（含参数定义 + 递归注解链）
- *   MethodDefinition methodDef = AnnotationUtils.getMethodDefinition(someMethod);
+ *   MethodDefinition methodDef = AnnotationDefinitionUtils.getMethodDefinition(someMethod);
  *   methodDef.hasAnnotation(Override.class);
  *
  *   // 4. 解析字段定义
- *   FieldDefinition fieldDef = AnnotationUtils.getFieldDefinition(someField);
+ *   FieldDefinition fieldDef = AnnotationDefinitionUtils.getFieldDefinition(someField);
  *
  *   // 5. 获取完整类定义
- *   ClassDefinition classDef = AnnotationUtils.getClassDefinition(MyClass.class);
+ *   ClassDefinition classDef = AnnotationDefinitionUtils.getClassDefinition(MyClass.class);
  *   classDef.methods().stream().filter(m -&gt; m.hasAnnotation(Service.class))...
  * </pre>
  *
@@ -61,39 +61,12 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Slf4j
-public final class AnnotationUtils {
+public final class AnnotationDefinitionUtils {
 
     /**
-     * 创建 AnnotationUtils 实例
+     * 创建 AnnotationDefinitionUtils 实例
      */
-    private AnnotationUtils() {
-    }
-
-    /**
-     * 获取类上的注解属性映射。
-     *
-     * <p>遍历注解类中所有声明的方法，通过反射提取对应属性值，组装为 {@link Map}。</p>
-     *
-     * @param clazz           目标类
-     * @param annotationClass 注解类
-     * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
-     */
-    public static Map<String, Object> getAnnotationAttributes(Class<?> clazz,
-            Class<? extends Annotation> annotationClass) {
-        Map<String, Object> attributes = Wraps.linkedMap();
-        Annotation annotation = clazz.getAnnotation(annotationClass);
-        if (annotation == null) {
-            return attributes;
-        }
-        for (Method method : annotationClass.getDeclaredMethods()) {
-            try {
-                Object value = ReflectUtils.invoke(annotation, method.getName(), Object.class);
-                attributes.put(method.getName(), value);
-            } catch (Exception e) {
-                log.debug("[annotation] 注解属性取值失败，跳过该属性: {}", e.getMessage());
-            }
-        }
-        return attributes;
+    private AnnotationDefinitionUtils() {
     }
 
     /**

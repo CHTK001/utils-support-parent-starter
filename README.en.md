@@ -202,10 +202,6 @@ utils-support-parent-starter/\r\n
 |   |   symmetric-starter / cdp-starter           # Encoding / CDP\r\n
 |   |   dht-starter / retrofit-starter            # DHT / Retrofit\r\n
 |\r\n
-|   utils-support-protocol-parent/                # Network protocol (2)\r\n
-|   |   nmap-starter                              # Nmap scan\r\n
-|   |   protocol-starter                          # Protocol analysis\r\n
-|\r\n
 |   utils-support-runtime-parent/                 # Runtime enhancements (8)\r\n
 |   |   runtime-agent                             # Agent injection\r\n
 |   |   runtime-apm                               # APM monitoring\r\n
@@ -435,7 +431,6 @@ mvn clean install -DskipTests\r\n
 | [Datasource Module](utils-support-datasource-parent/README.md) | 27 database/datasource connectors |\r\n
 | [File System Module](utils-support-filesystem-parent/README.md) | Documents, images, video, email |\r\n
 | [Deep Learning Module](utils-support-deeplearning-parent/README.md) | ONNX, PyTorch, TensorFlow inference |\r\n
-| [Protocol Module](utils-support-protocol-parent/README.md) | 34 network protocols |\r\n
 | [Common Starter](utils-support-core-parent/utils-support-common-starter/README.md) | Core utilities, SPI framework |\r\n
 | [Capability List](CAPABILITY.MD) | Full capability overview |\r\n
 | [Changelog](CHANGELOG.md) | Release history |\r\n

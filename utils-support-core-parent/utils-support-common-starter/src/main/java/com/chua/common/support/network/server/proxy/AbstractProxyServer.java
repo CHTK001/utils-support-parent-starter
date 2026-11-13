@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  *
  * <p>提供代理服务器的公共基础设施：</p>
  * <ul>
- *   <li>虚拟线程池生命周期管理（start 时创建，stop 时关闭）</li>
+ *   <li>accept 用虚拟线程池、数据转发用平台线程池，均在 start 创建、stop 关闭</li>
  *   <li>ServerSocket 监听与接受循环</li>
  *   <li>双向数据转发</li>
  *   <li>活跃连接计数（{@link com.chua.common.support.network.server.ServerMetrics}
@@ -45,10 +45,18 @@ public abstract class AbstractProxyServer extends AbstractServer {
 
     /**
      * 虚拟线程池（start 时创建，stop 时关闭）。
-     * <p>所有 accept 线程和转发线程均由此 executor 管理，
-     * 确保 {@code shutdownNow()} 可取消全部活跃任务。</p>
+     * <p>accept 循环、连接处理（{@link #handleConnection(Socket)}）等短任务由此 executor 管理，
+     * 确保 {@code shutdownNow()} 可取消全部活跃任务。数据转发不在此池，见 {@link #pumpPool}。</p>
      */
     protected ExecutorService proxyPool;
+
+    /**
+     * 数据转发平台线程池（start 时创建，stop 时关闭）。
+     * <p>双向转发的两条阻塞泵各占一个平台线程，绕开虚拟线程阻塞 I/O 的共享 poller
+     * （Windows 上 128 并发时 park/unpark 竞争会腰斩吞吐）。代价是每连接常驻 2 个平台线程，
+     * 并发连接数建议上限约 2k；更大连接数请用 {@link AioTcpProxyServer}。</p>
+     */
+    protected ExecutorService pumpPool;
 
     /**
      * JDK 服务端监听Socket。
@@ -154,24 +162,39 @@ public abstract class AbstractProxyServer extends AbstractServer {
     /**
      * 客户端 IP 是否放行（没有名单类过滤器时恒为 true）。
      *
+     * <p>直接问 {@code filterManager} 里已合并的过滤器：注册表在启动/热更新两条路径上都把
+     * 过滤器加进 manager，而包装层是监控侧的 {@code DelegatingServerFilter}，所以这里统一
+     * 拆包后判定，避免依赖 addFilter 形参的具体类型。</p>
+     *
      * @param clientSocket 客户端连接
      * @return true 表示放行
      */
     protected boolean allowClient(Socket clientSocket) {
-        if ((ipFilters.isEmpty() && firewalls.isEmpty()) || clientSocket == null) {
+        if (clientSocket == null) {
             return true;
         }
         String ip = clientSocket.getInetAddress() == null
                 ? "" : clientSocket.getInetAddress().getHostAddress();
+        for (ServerFilter filter : filterManager.getMergedFilters()) {
+            ServerFilter real = unwrapFilter(filter);
+            if (real instanceof IpServerFilter && !((IpServerFilter) real).allows(ip)) {
+                log.info("[proxy-gate] deny ip={} by IpServerFilter", ip);
+                return false;
+            }
+            if (real instanceof FirewallServerFilter && !((FirewallServerFilter) real).allows(ip)) {
+                log.info("[proxy-gate] deny ip={} by FirewallServerFilter", ip);
+                return false;
+            }
+        }
         for (IpServerFilter filter : ipFilters) {
             if (!filter.allows(ip)) {
-                log.info("[proxy-gate] deny ip={} by IpServerFilter", ip);
+                log.info("[proxy-gate] deny ip={} by IpServerFilter(list)", ip);
                 return false;
             }
         }
         for (FirewallServerFilter filter : firewalls) {
             if (!filter.allows(ip)) {
-                log.info("[proxy-gate] deny ip={} by FirewallServerFilter", ip);
+                log.info("[proxy-gate] deny ip={} by FirewallServerFilter(list)", ip);
                 return false;
             }
         }
@@ -208,6 +231,13 @@ public abstract class AbstractProxyServer extends AbstractServer {
             running = true;
 // [P3C C1 豁免] 场景化创建线程，需文档化
             proxyPool = Executors.newVirtualThreadPerTaskExecutor();
+// [P3C C1 豁免] 转发泵用平台线程：绕开虚拟线程阻塞 I/O 的共享 poller；空闲 60s 回收
+            pumpPool = Executors.newCachedThreadPool(r -> {
+                // [P3C C1 豁免] 线程工厂必须返回 Thread 实例
+                Thread t = new Thread(r, "proxy-pump");
+                t.setDaemon(true);
+                return t;
+            });
             if (preferNonBlockingAccept) {
                 // 非阻塞批量 accept：Selector 事件循环驱动，每次 select 后循环 accept 全部就绪连接，
                 // 显著提升瞬时接纳吞吐（对标 NioHttpServer 事件循环 accept）
@@ -274,6 +304,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
         if (proxyPool != null) {
             proxyPool.shutdownNow();
             proxyPool = null;
+        }
+        if (pumpPool != null) {
+            pumpPool.shutdownNow();
+            pumpPool = null;
         }
         log.info("{} 已停止：{}://{}:{} (peak connections: {})",
                 getClass().getSimpleName(), setting.getProtocol(), setting.getHost(),
@@ -446,9 +480,13 @@ public abstract class AbstractProxyServer extends AbstractServer {
     /**
      * 双向转发：客户端 ↔ 后端。
      *
-     * <p>使用 proxyPool 中的虚拟线程分别处理双向数据流。
-     * 任一方向结束时，通过关闭双方 Socket 解除另一方向的阻塞。
-     * 线程由 proxyPool 管理，shutdownNow() 可中断全部转发。</p>
+     * <p>两个方向各占一个 {@link #pumpPool} 平台线程（阻塞泵）。平台线程的阻塞读不走
+     * 虚拟线程的共享 poller，Windows 上 128 并发吞吐比虚拟线程泵约高一倍；
+     * 代价是每连接常驻 2 个平台线程（空闲 60s 回收），并发连接数建议上限约 2k，
+     * 更大连接数请用 {@link AioTcpProxyServer}。</p>
+     *
+     * <p>任一方向结束时，通过关闭双方 Socket 解除另一方向的阻塞。
+     * 线程由 pumpPool 管理，shutdownNow() 可中断全部转发。</p>
      *
      * @param clientSocket  客户端Socket
      * @param backendSocket 后端Socket
@@ -460,7 +498,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
         } catch (IOException e) {
             log.debug("[ProxyServer] 设置后端 Socket 的 TCP_NODELAY 失败: {}", e.getMessage());
         }
-        // 两个方向均提交到 proxyPool，通过 CompletableFuture 阻塞调用者
+        // 两个方向均提交到 pumpPool，通过 CompletableFuture 阻塞调用者
         // 确保 handleConnection() 的 try-finally 正确跟踪连接生命周期
         CompletableFuture<Void> c2b = CompletableFuture.runAsync(() -> {
             try {
@@ -471,7 +509,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 closeQuietly(clientSocket);
                 closeQuietly(backendSocket);
             }
-        }, proxyPool);
+        }, pumpPool);
         CompletableFuture<Void> b2c = CompletableFuture.runAsync(() -> {
             try {
                 forward(backendSocket.getInputStream(), clientSocket.getOutputStream());
@@ -481,8 +519,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 closeQuietly(clientSocket);
                 closeQuietly(backendSocket);
             }
-        }, proxyPool);
-        // 阻塞等待两个方向都完成（shutdownNow 会中断虚拟线程解除阻塞）
+        }, pumpPool);
+        // 阻塞等待两个方向都完成（shutdownNow 会关闭 Socket 解除阻塞）
         try {
             c2b.join();
         } catch (Exception e) {
@@ -497,7 +535,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
 
     /**
      * 转发缓冲区大小（64KB）。
-     * <p>虚拟线程的 ThreadLocal 开销极低,适当增大 buffer 提升吞吐量。
+     * <p>泵线程是平台线程且会被池复用,ThreadLocal 缓冲可长期复用,适当增大 buffer 提升吞吐量。
      * 相比 8KB,大文件转发场景吞吐量提升约 2x;相比 32KB,大报文场景
      * read/write 系统调用进一步减半。</p>
      */
@@ -509,7 +547,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
     private static final int MIN_BACKLOG = 65536;
 
     /**
-     * 转发用缓冲区，每虚拟线程独立缓存。
+     * 转发用缓冲区，每泵线程独立缓存（平台线程池复用后长期有效）。
      */
     private static final ThreadLocal<byte[]> FORWARD_BUFFER =
             ThreadLocal.withInitial(() -> new byte[FORWARD_BUFFER_SIZE]);
