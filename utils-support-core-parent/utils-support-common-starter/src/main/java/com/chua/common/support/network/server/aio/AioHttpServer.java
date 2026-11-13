@@ -835,7 +835,15 @@ public class AioHttpServer extends AbstractServer {
                 log.debug("TLS 握手完成 ({}, {})",
                         tls.engine.getSession().getCipherSuite(),
                         tls.engine.getSession().getProtocol());
-                issueRead(state);
+                if (tls.netIn.position() > 0) {
+                    // 客户端常把「握手最后一个 flight」和首个 HTTP 请求放在同一 TCP 段，
+                    // 握手结束时 netIn 里已经躺着应用数据密文。此时若直接 issueRead，
+                    // 就会去等不会再来的新密文，而请求一直留在缓冲里 → 连接卡死。
+                    // 必须先按应用数据处理。
+                    tlsOnNetworkData(state);
+                } else {
+                    issueRead(state);
+                }
             }
         }
     }

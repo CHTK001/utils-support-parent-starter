@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SmbServer` 首个真实链路用例（独立工程 `test/perf/smb-native-probe`，`SmbChainTest` 4 条）：用 **smbj 0.14 官方客户端**验证 SPI 发现、原生库监听、连接 + 认证 + Tree Connect、Create/Write/Read/Close 文件读写。`mvn -o test` → 4/4 通过。探针工程同时沉淀了 4 个可直接运行的 main 探针（SPI/诊断/全链路）。
 - `DHTServer` 首个真实链路用例 `DhtServerTest`(6)：**裸 `DatagramSocket` + 手工 bencode** 按 BEP 5 发 UDP 查询，验证 ping→PONG、连续 10 包保活、find_node 紧凑节点列表、get_peers token、announce_peer 响应、非法报文容错。`dht-starter` 补 junit-jupiter（test scope）。
 - `WebRtcServer` 首个信令链路用例 `WebRtcSignalingTest`(5)：**裸 Socket** 完成 RFC 6455 握手（校验 `Sec-WebSocket-Accept`）、token 403/101、answer 帧往返、ping→pong、同连接多帧、非 Upgrade 断开。`webrtc-starter` 补 junit-jupiter（test scope）。
+- TLS 吞吐基准 `HttpTlsThroughputTest`（默认跳过，`-Dbench.throughput=true`）：明文/TLS × NIO/AIO 四场景，1024B 响应、64 连接串行 keep-alive、3s 预热 + 10s 测量，真实 `SSLSocket` 握手（trust-all 校验自签证书）。输出 `BENCH|场景|qps|p50us|p99us|err|errDetail`，错误按异常类型分类。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
@@ -57,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DHTServer`：**只应答第一个 UDP 包**。`DhtPacketHandler.channelRead0` 手动 `buf.release()`，而 `SimpleChannelInboundHandler` 在 `channelRead0` 返回后还会自动释放 → 双重释放抛 `IllegalReferenceCountException` → `exceptionCaught` 执行 `ctx.close()` 关掉整个服务端通道。现象是第一条查询有响应、之后全部超时（新用例首轮 5 条里 4 条红）。去掉手动 release。
 - `DHTServer`：`find_node` / `get_peers` **永远不响应**。`DhtRoutingTable.findClosestPeers` 返回 `result.subList(...)`，而 `result` 是 Eclipse Collections `FastList`（不支持 subList）→ 调用方 `closest.removeIf(...)` 抛 `UnsupportedOperationException`，被 `handleKrpcMessage` 的 catch 静默吞掉。改为复制成独立列表再返回。
 - `DHTServer`：`announce_peer` **没有处理分支**。`KrpcDhtBridge.decodeQuery` 已把它解码成 `ANNOUNCE_PEER`，但 `DhtProtocol.receiveMessage` 的 switch 只覆盖 PING/FIND_NODE/FIND_VALUE/STORE/GET_PEERS/NAT_DETECT，BEP 5 要求返回的 `{id}` 从来没发过。补 `handleAnnouncePeer` 回 `ANNOUNCE_PEER_RESPONSE`。修复后 `DhtServerTest` 6/6 通过，耗时 13.7s → 0.7s。
+- `AioHttpServer`（TLS）：**握手完成时残留密文不处理，连接永久卡死**。客户端常把握手最后一个 flight 与首个 HTTP 请求放在同一 TCP 段，握手走到 `NOT_HANDSHAKING` 时 `netIn` 里已经有应用数据密文，但 `tlsDrive` 的 default 分支直接 `issueRead` 去等新密文 → 请求留在缓冲里、服务端不回包，客户端读超时后重连。并发 8/16 时 0 次，32 时 5 次，64 时每轮 25~32 次（全部 `SocketTimeoutException`），并拖低吞吐（27.7k~40.9k QPS 抖动）。修复：有残留先走 `tlsOnNetworkData`，否则再 `issueRead`。修复后 c64 连跑两轮 **err=0**，TLS 吞吐 **39,879 QPS**（同轮明文 75,872，52.6%）。既有 TLS 流水线用例 6/6 无回归。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 > 本轮的 `AioHttpProxyServer` 粘包修复与泵模型改造**有实测收益**（128 并发 12,725 → 24,775 QPS、256/512 并发 err 归零），单独计。
@@ -67,8 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | 实现 | 用例 | 状态 |
 |---|---|---|
-| `NioHttpServer` | `HttpBackpressureWriteTest` / `DirectBufferReadTest` / `ConnectionScaleLoadTest` | ✅ |
-| `AioHttpServer` | `HttpBackpressureWriteTest`（含 TLS 流水线） | ✅ |
+| `NioHttpServer` | `HttpBackpressureWriteTest` / `DirectBufferReadTest` / `ConnectionScaleLoadTest`（含 TLS 流水线 + TLS 吞吐 `HttpTlsThroughputTest`） | ✅ |
+| `AioHttpServer` | `HttpBackpressureWriteTest`（含 TLS 流水线） / `HttpTlsThroughputTest` | ✅ |
 | `JdkTcpServer` | `JdkTcpServerFixVerificationTest`(9) / `TcpServerNioIntegrationTest`(2) | ✅ |
 | `AioTcpServer` | `AioTcpFrameFramingTest` | ✅ |
 | `JdkHttpServer` / `JdkTelnetServer` / `JdkUdpServer` | 各 2 | ✅ |
@@ -100,8 +102,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | WS 连接容量 | — | 5k/10k/**50k** 全通过；50k 时 4.21KB/连接、205MB 堆、2,193 条/秒 |
 | WS 回环消息 | 64 conn | 35,217 条/秒 |
 | WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
+| HTTP `/echo` 明文（NIO） | 64 | **85,147 QPS**，p50 659µs / p99 2.19ms，0 错误 |
+| HTTP `/echo` TLS（NIO） | 64 | **51,841 QPS（同实现明文 60.9%）**，p50 1.18ms / p99 2.19ms，0 错误 |
+| HTTP `/echo` 明文（AIO） | 64 | 75,872 QPS，p50 844µs / p99 1.56ms，0 错误 |
+| HTTP `/echo` TLS（AIO） | 64 | **39,879 QPS（同实现明文 52.6%）**，p50 1.11ms / p99 6.91ms，0 错误 |
 
-未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、过滤器单测。
+未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、过滤器单测。
 非原生包未测：`WebRtcServer` 的 OFFER/媒体协商（需真实浏览器端与原生库）、`DHTServer` 的对外爬取/BEP9 元数据、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
 
 HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
