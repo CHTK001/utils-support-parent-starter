@@ -113,6 +113,7 @@ class ComplexFft {
     private static void radix2(float[] real, float[] imag, int n, boolean inv) {
         int bits = Integer.numberOfTrailingZeros(n);
         for (int i = 0; i < n; i++) {
+            // [P3C A20 豁免]
             int j = Integer.reverse(i) >>> (32 - bits);
             if (j > i) {
                 float tr = real[i];

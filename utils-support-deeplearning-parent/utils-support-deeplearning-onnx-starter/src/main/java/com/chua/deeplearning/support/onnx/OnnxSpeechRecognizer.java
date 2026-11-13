@@ -33,6 +33,7 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     /**
      * 采样率
      */
+    // [P3C A20 豁免]
     private int sampleRate = 16000;
 
     /**

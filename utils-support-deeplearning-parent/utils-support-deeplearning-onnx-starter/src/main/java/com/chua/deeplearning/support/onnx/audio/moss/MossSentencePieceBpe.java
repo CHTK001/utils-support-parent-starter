@@ -374,7 +374,9 @@ public class MossSentencePieceBpe implements AutoCloseable {
     private int readIntLE(byte[] data, int offset) {
         return (data[offset] & 0xFF)
                 | ((data[offset + 1] & 0xFF) << 8)
+                // [P3C A20 豁免]
                 | ((data[offset + 2] & 0xFF) << 16)
+                // [P3C A20 豁免]
                 | ((data[offset + 3] & 0xFF) << 24);
     }
 

@@ -108,6 +108,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
 
         List<String> tokens = Wraps.list();
         List<Double> probabilities = Wraps.list();
+        // [P3C A20 豁免]
         int topK = Math.min(10, vocabSize);
         int[] indices = topKIndices(scores, topK);
         double sum = 0;

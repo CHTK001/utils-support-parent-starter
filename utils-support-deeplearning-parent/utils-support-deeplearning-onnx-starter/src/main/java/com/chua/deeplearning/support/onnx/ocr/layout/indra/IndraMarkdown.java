@@ -466,6 +466,7 @@ public final class IndraMarkdown {
                     && centers[c0 + span] <= cb[c][2] + h) {
                 span++;
             }
+            // [P3C A20 豁免]
             long key = (((long) rowOf[c]) << 32) | (c0 & 0xffffffffL);
             if (gridSpan.containsKey(key)) {
                 gridSpan.put(key, new int[]{Math.max(gridSpan.get(key)[0], span)});
@@ -482,6 +483,7 @@ public final class IndraMarkdown {
             StringBuilder tr = new StringBuilder("<tr>");
             int c = 0;
             while (c < cols.size()) {
+                // [P3C A20 豁免]
                 long key = (((long) r) << 32) | (c & 0xffffffffL);
                 if (gridSpan.containsKey(key)) {
                     int span = gridSpan.get(key)[0];

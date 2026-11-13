@@ -98,6 +98,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
         // DJL Image -> BGR uint8，resize 448
         var array = input.toNDArray(manager, Image.Flag.COLOR);
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
+        // [P3C A20 豁免]
         array = array.toType(DataType.FLOAT32, false).div(255f);
         // NHWC [H,W,3] -> [1, H, W, 3] batch，保持 NHWC 输入（input_1 要求 NHWC BGR）
         // 端输入为 NHWC BGR，故先 BGR->RGB (channel 0<->2 交换)

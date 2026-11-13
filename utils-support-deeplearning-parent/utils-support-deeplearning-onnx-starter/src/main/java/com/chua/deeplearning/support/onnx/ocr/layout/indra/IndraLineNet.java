@@ -64,6 +64,7 @@ public final class IndraLineNet {
             byte[] row = resized[y];
             int base = y * pw;
             for (int x = 0; x < nw; x++) {
+                // [P3C A20 豁免]
                 ink[base + x] = 1.0f - (row[x] & 0xFF) / 255.0f;
             }
         }

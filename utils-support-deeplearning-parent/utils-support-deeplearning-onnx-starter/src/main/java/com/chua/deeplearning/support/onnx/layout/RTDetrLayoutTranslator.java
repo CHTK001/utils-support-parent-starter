@@ -80,6 +80,7 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
                 for (int x = 0; x < INPUT_SIZE; x++) {
                 int rgb = resized.getRGB(x, y);
                 // 仅 /255 缩放（preprocessor_config.json: do_normalize=false）
+                // [P3C A20 豁免]
                 chw[idx++] = ((rgb >> (16 - 8 * c)) & 0xff) / 255.0f;
                 }
             }

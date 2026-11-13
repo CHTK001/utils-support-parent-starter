@@ -123,6 +123,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     /**
      * 重缩放系数
     */
+    // [P3C A20 豁免]
     private float rescaleFactor = 1f / 255f;
 
     /**
@@ -342,6 +343,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         inputWidth = size.path("width").asInt(DEFAULT_INPUT_SIZE);
         imageMean = readFloatArray(root.path("image_mean"), imageMean);
         imageStd = readFloatArray(root.path("image_std"), imageStd);
+        // [P3C A20 豁免]
         rescaleFactor = (float) root.path("rescale_factor").asDouble(1d / 255d);
     }
 

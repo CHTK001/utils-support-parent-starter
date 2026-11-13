@@ -94,8 +94,11 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
         float[] data = new float[3 * width * height];
         for (int i = 0; i < pixels.length; i++) {
             int p = pixels[i];
+            // [P3C A20 豁免]
             data[i] = ((p >> 16) & 0xff) - 104f;
+            // [P3C A20 豁免]
             data[i + width * height] = ((p >> 8) & 0xff) - 117f;
+            // [P3C A20 豁免]
             data[i + 2 * width * height] = (p & 0xff) - 123f;
         }
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, height, width));
@@ -136,6 +139,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             double bh = Math.exp(loc[3] * scaleWH) * prH;
             double bx = loc[0] * scaleXY * prW + prX - bw * 0.5;
             double by = loc[1] * scaleXY * prH + prY - bh * 0.5;
+            // [P3C A20 豁免]
             double[] kp = new double[10];
             for (int j = 0; j < 5; j++) {
                 kp[j * 2] = landms[j * 2] * scaleXY * prW + prX;

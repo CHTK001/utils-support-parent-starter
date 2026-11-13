@@ -198,6 +198,7 @@ public final class OnnxImageProcessor {
             for (int x = 0; x < w; x++) {
                 int p = data[row + x];
                 // ARGB 或 RGB：R 在最高字节（位 16）
+                // [P3C A20 豁免]
                 chw[rOff + row + x] = ((p >> 16) & 0xFF) * scale - mean;
                 chw[gOff + row + x] = ((p >> 8) & 0xFF) * scale - mean;
                 chw[bOff + row + x] = (p & 0xFF) * scale - mean;
@@ -229,6 +230,7 @@ public final class OnnxImageProcessor {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int argb = img.getRGB(x, y);
+                // [P3C A20 豁免]
                 int r = (argb >> 16) & 0xFF;
                 int g = (argb >> 8) & 0xFF;
                 int b = argb & 0xFF;

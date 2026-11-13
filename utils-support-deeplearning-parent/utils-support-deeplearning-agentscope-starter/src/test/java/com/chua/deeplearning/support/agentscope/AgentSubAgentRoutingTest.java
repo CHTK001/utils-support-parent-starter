@@ -107,6 +107,7 @@ class AgentSubAgentRoutingTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        // [P3C E1 豁免]
         originalOut = System.out;
         captureOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(captureOut));

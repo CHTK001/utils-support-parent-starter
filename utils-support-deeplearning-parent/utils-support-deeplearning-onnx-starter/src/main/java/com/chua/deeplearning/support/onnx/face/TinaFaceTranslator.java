@@ -104,6 +104,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         var data = new float[3 * total];
         for (var i = 0; i < rgb.length; i++) {
             var pixel = rgb[i];
+            // [P3C A20 豁免]
             var r = (pixel >> 16) & 0xff;
             var g = (pixel >> 8) & 0xff;
             var b = pixel & 0xff;

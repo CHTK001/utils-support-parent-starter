@@ -52,8 +52,11 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
             int base = frame * 3 * INPUT_SIZE * INPUT_SIZE;
             for (int i = 0; i < pixels.length; i++) {
                 int p = pixels[i];
+                // [P3C A20 豁免]
                 data[base + i] = ((p >> 16) & 0xff) / 255f;
+                // [P3C A20 豁免]
                 data[base + INPUT_SIZE * INPUT_SIZE + i] = ((p >> 8) & 0xff) / 255f;
+                // [P3C A20 豁免]
                 data[base + 2 * INPUT_SIZE * INPUT_SIZE + i] = (p & 0xff) / 255f;
             }
         }

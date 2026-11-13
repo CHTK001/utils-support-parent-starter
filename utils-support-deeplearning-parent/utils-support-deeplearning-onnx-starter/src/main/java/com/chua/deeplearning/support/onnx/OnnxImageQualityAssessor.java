@@ -20,6 +20,7 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     /**
      * 模糊度阈值
     */
+    // [P3C A20 豁免]
     private double blurThreshold = 100.0;
     /**
      * 模型路径

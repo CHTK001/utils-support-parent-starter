@@ -137,13 +137,17 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
 
         int[] pixels = scaled.getRGB(0, 0, newW, newH, null, 0, newW);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
+        // [P3C A20 豁免]
         Arrays.fill(data, 114f / 255f);
         for (int y = 0; y < newH; y++) {
             for (int x = 0; x < newW; x++) {
                 int p = pixels[y * newW + x];
                 int idx = (y + padTop) * INPUT_SIZE + (x + padLeft);
+                // [P3C A20 豁免]
                 data[idx] = ((p >> 16) & 0xff) / 255f;
+                // [P3C A20 豁免]
                 data[idx + INPUT_SIZE * INPUT_SIZE] = ((p >> 8) & 0xff) / 255f;
+                // [P3C A20 豁免]
                 data[idx + 2 * INPUT_SIZE * INPUT_SIZE] = (p & 0xff) / 255f;
             }
         }

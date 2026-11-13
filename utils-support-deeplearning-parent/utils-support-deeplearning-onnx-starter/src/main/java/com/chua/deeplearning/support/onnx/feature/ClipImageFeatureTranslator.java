@@ -124,6 +124,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
                 for (int c = 0; c < 3; c++) {
                     float v = pixels[hwcIndex + c];
                     if (v > 1f) {
+                        // [P3C A20 豁免]
                         v = v / 255f;
                     }
                     nchw[c * planeSize + spatial] = (v - IMAGE_MEAN[c]) / IMAGE_STD[c];

@@ -73,8 +73,11 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
             for (int x = 0; x < INPUT_SIZE; x++) {
                 int rgb = resized.getRGB(x, y);
                 int idx = y * INPUT_SIZE + x;
+                // [P3C A20 豁免]
                 data[idx] = ((((rgb >> 16) & 0xff) / 255.0f) - MEAN[0]) / STD[0];
+                // [P3C A20 豁免]
                 data[total + idx] = ((((rgb >> 8) & 0xff) / 255.0f) - MEAN[1]) / STD[1];
+                // [P3C A20 豁免]
                 data[2 * total + idx] = (((rgb & 0xff) / 255.0f) - MEAN[2]) / STD[2];
             }
         }
@@ -147,6 +150,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
      * @return [0,255] 整数
      */
     private static int clamp255(float v) {
+        // [P3C A20 豁免]
         float val = (v * STD[0] + MEAN[0]) * 255.0f;
         if (val < 0) {
             val = 0;

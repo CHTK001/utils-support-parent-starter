@@ -80,8 +80,11 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {
             int p = pixels[i];
+            // [P3C A20 豁免]
             data[i] = (((p >> 16) & 0xff) / 255f - 0.5f) / 0.5f;
+            // [P3C A20 豁免]
             data[i + INPUT_SIZE * INPUT_SIZE] = (((p >> 8) & 0xff) / 255f - 0.5f) / 0.5f;
+            // [P3C A20 豁免]
             data[i + 2 * INPUT_SIZE * INPUT_SIZE] = ((p & 0xff) / 255f - 0.5f) / 0.5f;
         }
         NDArray array = manager.create(data, new Shape(3, INPUT_SIZE, INPUT_SIZE));

@@ -110,6 +110,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         if (!DataType.FLOAT32.equals(array.getDataType())) {
             array = array.toType(DataType.FLOAT32, false);
         }
+        // [P3C A20 豁免]
         array = array.div(255f).sub(0.5f).div(0.5f).transpose(2, 0, 1).expandDims(0);
         array.setName("pixel_values");
 

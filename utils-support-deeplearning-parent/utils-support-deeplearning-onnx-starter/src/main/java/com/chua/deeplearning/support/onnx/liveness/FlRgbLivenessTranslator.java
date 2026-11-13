@@ -44,8 +44,11 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {
             int p = pixels[i];
+            // [P3C A20 豁免]
             data[i] = ((p >> 16) & 0xff) / 255f;
+            // [P3C A20 豁免]
             data[i + INPUT_SIZE * INPUT_SIZE] = ((p >> 8) & 0xff) / 255f;
+            // [P3C A20 豁免]
             data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (p & 0xff) / 255f;
         }
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));

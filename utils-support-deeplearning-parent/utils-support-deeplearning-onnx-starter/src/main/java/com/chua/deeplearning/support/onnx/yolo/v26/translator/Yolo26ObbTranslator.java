@@ -131,10 +131,12 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
 
+        // [P3C A20 豁免]
         var letterBoxResult = LetterBoxUtils.letterbox(manager, array, width, height, 114f,
                 LetterBoxUtils.PaddingPosition.CENTER);
         array = letterBoxResult.image;
 
+        // [P3C A20 豁免]
         array = array.toType(DataType.FLOAT32, false).div(255f);
         array = array.transpose(2, 0, 1);
 

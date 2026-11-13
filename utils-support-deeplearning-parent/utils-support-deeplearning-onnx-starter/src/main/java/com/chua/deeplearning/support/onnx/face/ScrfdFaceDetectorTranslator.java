@@ -131,6 +131,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < rgb.length; i++) {
             int pixel = rgb[i];
+            // [P3C A20 豁免]
             int r = (pixel >> 16) & 0xff;
             int g = (pixel >> 8) & 0xff;
             int b = pixel & 0xff;
@@ -202,6 +203,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         int totalAnchors = featureSize * featureSize * NUM_ANCHORS;
         int scoreLength = Math.min(totalAnchors, scores.length);
         int boxLength = Math.min(totalAnchors, boxes.length / 4);
+        // [P3C A20 豁免]
         int kpsLength = kps == null ? 0 : Math.min(totalAnchors, kps.length / 10);
         int limit = Math.min(scoreLength, boxLength);
         for (int idx = 0; idx < limit; idx++) {

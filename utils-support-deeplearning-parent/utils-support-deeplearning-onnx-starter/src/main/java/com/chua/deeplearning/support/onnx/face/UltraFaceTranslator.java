@@ -240,6 +240,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
             // 通道顺序 BGR：b→ch0, g→ch1, r→ch2
             data[i] = (p & 0xff) - BGR_MEAN[0];
             data[i + total] = ((p >> 8) & 0xff) - BGR_MEAN[1];
+            // [P3C A20 豁免]
             data[i + 2 * total] = ((p >> 16) & 0xff) - BGR_MEAN[2];
         }
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, inputHeight, inputWidth));

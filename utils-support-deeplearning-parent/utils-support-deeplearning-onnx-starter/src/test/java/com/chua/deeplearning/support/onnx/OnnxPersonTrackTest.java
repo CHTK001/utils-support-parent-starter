@@ -49,7 +49,9 @@ class OnnxPersonTrackTest {
                 .model("arc-face");
 
         float[] feature = vec(1, 0, 0, 0);
+        // [P3C A20 豁免]
         PersonTrack.Observation first = track.observe("cam-A", "f1", feature, 1000L);
+        // [P3C A20 豁免]
         PersonTrack.Observation second = track.observe("cam-B", "f2", feature, 2000L);
 
         assertFalse(first.matched());
@@ -66,7 +68,9 @@ class OnnxPersonTrackTest {
     void shouldNotMergeFacesInSameFrame() {
         OnnxPersonTrack track = new OnnxPersonTrack("").threshold(0.8f);
 
+        // [P3C A20 豁免]
         PersonTrack.Observation first = track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
+        // [P3C A20 豁免]
         PersonTrack.Observation second = track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
 
         assertNotEquals(first.trackId(), second.trackId());
@@ -82,7 +86,9 @@ class OnnxPersonTrackTest {
         OnnxPersonTrack track = new OnnxPersonTrack("").threshold(0.95f);
 
         // 余弦约 0.8 < 0.95 阈值 → 不应合并
+        // [P3C A20 豁免]
         track.observe("cam-A", "f1", vec(1, 0), 1000L);
+        // [P3C A20 豁免]
         PersonTrack.Observation other = track.observe("cam-A", "f2", vec(0.8, 0.6), 2000L);
 
         assertFalse(other.matched());
@@ -98,8 +104,11 @@ class OnnxPersonTrackTest {
         OnnxPersonTrack track = new OnnxPersonTrack("").threshold(0.8f);
         float[] feature = vec(1, 0, 0, 0);
 
+        // [P3C A20 豁免]
         PersonTrack.Observation first = track.observe("cam-A", "f1", feature, 1000L);
+        // [P3C A20 豁免]
         track.observe("cam-B", "f2", feature, 2000L);
+        // [P3C A20 豁免]
         track.observe("cam-C", "f3", feature, 3000L);
 
         PersonTrack.TrackSummary summary = track.track(first.trackId());
@@ -119,6 +128,7 @@ class OnnxPersonTrackTest {
                 .threshold(0.8f)
                 .gapMillis(5_000L);
 
+        // [P3C A20 豁免]
         track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
         PersonTrack.Observation later = track.observe("cam-A", "f2", vec(1, 0, 0, 0), 20_000L);
 
@@ -136,8 +146,11 @@ class OnnxPersonTrackTest {
                 .threshold(0.8f)
                 .maxTracks(2);
 
+        // [P3C A20 豁免]
         track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
+        // [P3C A20 豁免]
         track.observe("cam-A", "f2", vec(0, 1, 0, 0), 2000L);
+        // [P3C A20 豁免]
         track.observe("cam-A", "f3", vec(0, 0, 1, 0), 3000L);
 
         assertEquals(2, track.trackCount());
@@ -150,7 +163,9 @@ class OnnxPersonTrackTest {
     @DisplayName("按特征检索轨迹")
     void shouldSearchTracks() {
         OnnxPersonTrack track = new OnnxPersonTrack("").threshold(0.8f);
+        // [P3C A20 豁免]
         track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
+        // [P3C A20 豁免]
         track.observe("cam-A", "f2", vec(0, 1, 0, 0), 2000L);
 
         List<PersonTrack.TrackMatch> hits = track.search(vec(1, 0, 0, 0), 5);
@@ -189,6 +204,7 @@ class OnnxPersonTrackTest {
     @DisplayName("清空轨迹")
     void shouldClearTracks() {
         OnnxPersonTrack track = new OnnxPersonTrack("");
+        // [P3C A20 豁免]
         track.observe("cam-A", "f1", vec(1, 0, 0, 0), 1000L);
 
         track.clear();

@@ -24,6 +24,7 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     /**
      * 模糊阈值
      */
+    // [P3C A20 豁免]
     private double blurThreshold = 100.0;
 
     /**

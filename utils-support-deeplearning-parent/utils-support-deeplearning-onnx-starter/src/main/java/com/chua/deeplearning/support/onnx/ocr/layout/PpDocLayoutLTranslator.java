@@ -458,8 +458,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
                 for (int y = 0; y < size; y++) {
                     for (int x = 0; x < size; x++) {
                         double[] bgr = resized.get(y, x);
+                        // [P3C A20 豁免]
                         chw[idx] = (float) bgr[2] / 255f;
+                        // [P3C A20 豁免]
                         chw[idx + size * size] = (float) bgr[1] / 255f;
+                        // [P3C A20 豁免]
                         chw[idx + 2 * size * size] = (float) bgr[0] / 255f;
                         idx++;
                     }
@@ -489,8 +492,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int pixel = pixels[y * w + x];
+                // [P3C A20 豁免]
                 chw[idx] = ((pixel >> 16) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 chw[idx + w * h] = ((pixel >> 8) & 0xFF) / 255f;
+                // [P3C A20 豁免]
                 chw[idx + 2 * w * h] = (pixel & 0xFF) / 255f;
                 idx++;
             }

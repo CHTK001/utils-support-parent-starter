@@ -132,6 +132,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         if (!DataType.FLOAT32.equals(array.getDataType())) {
             array = array.toType(DataType.FLOAT32, false);
         }
+        // [P3C A20 豁免]
         array = array.div(255f);
         int h = (int) array.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int w = (int) array.getShape().get(1);

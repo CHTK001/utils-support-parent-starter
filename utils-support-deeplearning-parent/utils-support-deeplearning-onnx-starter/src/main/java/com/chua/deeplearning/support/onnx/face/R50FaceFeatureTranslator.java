@@ -44,8 +44,11 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
         float[] data = new float[size * size * 3];
         for (int i = 0; i < rgb.length; i++) {
             int pixel = rgb[i];
+            // [P3C A20 豁免]
             data[i * 3] = ((pixel >> 16) & 0xff) / 255f;
+            // [P3C A20 豁免]
             data[i * 3 + 1] = ((pixel >> 8) & 0xff) / 255f;
+            // [P3C A20 豁免]
             data[i * 3 + 2] = (pixel & 0xff) / 255f;
         }
 

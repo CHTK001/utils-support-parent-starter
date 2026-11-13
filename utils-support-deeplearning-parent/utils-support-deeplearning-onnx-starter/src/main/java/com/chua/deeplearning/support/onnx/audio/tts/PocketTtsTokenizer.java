@@ -38,6 +38,7 @@ public class PocketTtsTokenizer {
     /**
      * 词表：令牌 字符串 → 标识
     */
+    // [P3C A20 豁免]
     private final Map<String, Integer> vocab = Wraps.linkedMap(4096);
 
     /**

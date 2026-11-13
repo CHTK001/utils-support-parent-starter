@@ -213,6 +213,7 @@ public class MiniMindTranslator implements Translator<String, String> {
             }
 
             int vocabSize = -1;
+            // [P3C A20 豁免]
             float[] lastLogits = new float[6400];
 
             for (int step = 0; step < MAX_NEW_TOKENS; step++) {

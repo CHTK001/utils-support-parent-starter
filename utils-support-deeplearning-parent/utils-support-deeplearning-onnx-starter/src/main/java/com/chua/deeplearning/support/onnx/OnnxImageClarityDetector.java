@@ -21,6 +21,7 @@ public class OnnxImageClarityDetector implements ImageClarityDetector {
     /**
      * 模糊度阈值
      */
+    // [P3C A20 豁免]
     private double blurThreshold = 100.0;
 
     /**

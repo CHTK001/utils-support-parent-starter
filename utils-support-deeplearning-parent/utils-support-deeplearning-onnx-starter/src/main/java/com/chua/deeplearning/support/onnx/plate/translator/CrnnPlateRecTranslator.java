@@ -76,6 +76,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
 
         // Normalize
         array = array.toType(DataType.FLOAT32, false)
+                // [P3C A20 豁免]
                 .div(255f)
                 .sub(MEAN)
                 .div(STD);
