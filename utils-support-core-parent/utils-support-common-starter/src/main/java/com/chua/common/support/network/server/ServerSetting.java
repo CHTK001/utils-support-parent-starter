@@ -766,6 +766,24 @@ public class ServerSetting {
     private String encryptKey;
 
     /**
+     * 传输加密算法类型（SPI 别名），默认 {@code aes-gcm}。
+     *
+     * <p>可选值由 {@code StreamCodec}（Codec 二级接口）注册决定：</p>
+     * <ul>
+     *   <li>{@code aes-gcm}：预共享口令，两端配置同一 {@link #encryptKey}；</li>
+     *   <li>{@code keylog}：临时密钥交换。服务端在 {@link #encryptKey} 里配
+     *       {@code server:<私钥hex>}，客户端配 {@code client:<公钥hex>[#指纹]}，
+     *       连接建立时握手一次。</li>
+     * </ul>
+     *
+     * <p>不认识的类型会在启动时失败，不会静默退回明文。</p>
+     *
+     * 传输加密算法类型
+     */
+    @Builder.Default
+    private String encryptType = "aes-gcm";
+
+    /**
      * SO_REUSEADDR
      *
      * SOreuseaddr

@@ -1,0 +1,4 @@
+aes-gcm=com.chua.common.support.lang.algorithm.crypto.AesGcmStreamCodec
+aes=com.chua.common.support.lang.algorithm.crypto.AesGcmStreamCodec
+keylog=com.chua.common.support.lang.algorithm.crypto.KeyLogStreamCodec
+hpke=com.chua.common.support.lang.algorithm.crypto.KeyLogStreamCodec

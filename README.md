@@ -206,9 +206,37 @@ List<User> users = Json.fromJson(jsonArr, new TypeReference<List<User>>(){});
 | `rsa()` / `sm2()` | 非对称：加解密 + 签名验签 + 生成密钥对 | `jdk15on-starter`（`bc`） |
 | `ecies()` / `hpke()` | 混合加密（KEM + AEAD，HPKE 遵循 RFC 9180） | `jdk15on-starter`（`bc`） |
 
-算法接口在 `com.chua.common.support.lang.algorithm.cipher`，摘要与 `Hex` 在
-`com.chua.common.support.utils`，流加密与会话加密（`AesGcmUtils` / `Hkdf` / `SessionCipher`）
-在 `com.chua.common.support.network.crypto`。
+算法接口在 `com.chua.common.support.lang.algorithm.cipher`，文本编解码 SPI（`Codec` 及
+`aes` / `aes-gcm` / `sm4` / `des` / `hex` / `keylog` 实现）与 `Hex` 在
+`com.chua.common.support.lang.algorithm.crypto`，摘要在 `com.chua.common.support.utils`，
+流加密与会话加密（`AesGcmUtils` / `Hkdf` / `SessionCipher`）在 `com.chua.common.support.network.crypto`。
+
+文本编解码按类型名解析，未知类型直接抛异常，不会静默退化成十六进制：
+
+```java
+Codec codec = Codec.build("aes-gcm", "密钥");
+String cipher = codec.encodeHex("明文");
+String plain = codec.decodeHex(cipher);
+```
+
+`keylog` 是一次性会话密钥算法（临时 ECDH 密钥交换）：客户端只持服务端公钥、每次现场生成
+临时 X25519 密钥对，经 HKDF-SHA256 派生一次性 AES-256-GCM 密钥；临时公钥随密文传递，
+服务端凭长期私钥即可无状态解密。会话密钥只在内存、用完清零、不落盘。
+
+密文格式 `k2:` + hex(`[8B 时间戳][8B 消息ID][1B enc长度][enc][12B nonce][GCM密文+16B标签]`)；
+时间戳与消息ID一起进 AAD，服务端默认只接受 5 分钟窗口内的消息并拒绝重复消息ID。
+
+```java
+String[] pair = KeyLogCodec.generateKeyPair();      // [0]=公钥hex，[1]=私钥hex（只在服务端内存）
+
+// 客户端：可选 #指纹 钉死公钥，公钥被替换时直接拒绝
+String pin = KeyLogCodec.fingerprint(pair[0]);
+Codec client = Codec.build("keylog", "client:" + pair[0] + "#" + pin);
+
+Codec server = Codec.build("keylog", "server:" + pair[1]);
+String wire = client.encodeHex("机密数据");
+String plain = server.decodeHex(wire);
+```
 
 ```java
 // 对称：byte[] 密文前 16 字节为随机 IV，字符串模式结果为 Base64
@@ -265,6 +293,24 @@ byte[] plain = server.open(frame);                       // 篡改 / 重放 / �
 
 > 配置文件整文件加密、单值 `ENC(...)`、密钥载体与程序包（FatJar）加密见
 > [crypto-starter](utils-support-extra-parent/utils-support-crypto-starter/README.md)。
+
+Server / Client 的传输层加密走 Codec 的二级接口 `StreamCodec`（与消息级 `Codec` 同族、按名字切换、不写死）：
+`aes-gcm` 为预共享口令（上述 `AesGcmUtils` 流），`keylog` 为连接建立时握手一次的
+临时密钥交换（客户端持公钥、服务端持私钥）。
+
+```java
+// 服务端（ServerSetting 只需声明类型，实现按 SPI 解析）
+ServerSetting setting = ServerSetting.defaults();
+setting.setEncrypt(true);
+setting.setEncryptType("keylog");                        // 默认 aes-gcm
+setting.setEncryptKey("server:" + privateKeyHex);
+
+// 客户端：同一类型 + 对等角色
+StreamCodec client = StreamCodec.buildStream("keylog", "client:" + publicKeyHex + "#" + pin);
+StreamCodec.Streams streams = client.open(socket.getInputStream(), socket.getOutputStream(), true);
+```
+
+不认识的类型启动即失败，不会静默退回明文；两端必须配置同一类型。
 
 #### SPI 扩展机制 — ServiceProvider
 

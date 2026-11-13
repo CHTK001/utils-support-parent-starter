@@ -1,0 +1,8 @@
+aes=com.chua.common.support.lang.algorithm.crypto.AesCbcCodec
+aes-cbc=com.chua.common.support.lang.algorithm.crypto.AesCbcCodec
+aes-gcm=com.chua.common.support.lang.algorithm.crypto.AesGcmCodec
+sm4=com.chua.common.support.lang.algorithm.crypto.Sm4Codec
+des=com.chua.common.support.lang.algorithm.crypto.DesCodec
+hex=com.chua.common.support.lang.algorithm.crypto.HexCodec
+keylog=com.chua.common.support.lang.algorithm.crypto.KeyLogCodec
+hpke=com.chua.common.support.lang.algorithm.crypto.KeyLogCodec

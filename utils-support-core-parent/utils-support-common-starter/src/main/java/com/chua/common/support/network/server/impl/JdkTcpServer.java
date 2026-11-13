@@ -2,7 +2,7 @@
 package com.chua.common.support.network.server.impl;
 
 import com.chua.common.support.network.ProtocolType;
-import com.chua.common.support.network.crypto.AesGcmUtils;
+import com.chua.common.support.lang.algorithm.crypto.StreamCodec;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.tcp.TcpServer;
@@ -11,7 +11,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -141,7 +140,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /**
      * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
      */
-    private volatile SecretKeySpec encryptKeySpec;
+    private volatile StreamCodec streamCodec;
 
     /**
      * 流式处理器表（兼容既有 API）
@@ -276,13 +275,18 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverChannel.socket().getLocalPort());
 
-            // 流加密密钥：启动时派生一次并缓存，避免每连接重复 SHA-256
+            // 传输加密：启动时解析 SPI 一次并缓存，避免每连接重复初始化
             if (setting.isEncrypt()) {
                 String encryptKey = setting.getEncryptKey();
                 if (encryptKey == null || encryptKey.isBlank()) {
                     log.warn("TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
                 } else {
-                    encryptKeySpec = AesGcmUtils.deriveKey(encryptKey);
+                    try {
+                        streamCodec = StreamCodec.buildStream(setting.getEncryptType(), encryptKey);
+                        log.debug("TCP 传输加密: {}", setting.getEncryptType());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalStateException("TCP 传输加密初始化失败: " + e.getMessage(), e);
+                    }
                     if (frameHandler != null) {
                         log.warn("TCP 加密仅支持流式协议，当前为帧式(NIO)协议，加密未生效");
                     }
@@ -977,9 +981,15 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             InputStream in = rawIn;
             OutputStream out = rawOut;
             // 快路径：未启用加密时仅一次 null 判断，零额外开销
-            if (encryptKeySpec != null) {
-                in = AesGcmUtils.decrypting(rawIn, encryptKeySpec);
-                out = AesGcmUtils.encrypting(rawOut, encryptKeySpec);
+            if (streamCodec != null) {
+                try {
+                    StreamCodec.Streams streams = streamCodec.open(rawIn, rawOut, false);
+                    in = streams.in();
+                    out = streams.out();
+                } catch (IOException e) {
+                    log.warn("TCP 加密握手失败，关闭连接 {}: {}", clientKey, e.getMessage());
+                    return;
+                }
             }
 
             TcpHandler handler = findHandler(clientKey);
