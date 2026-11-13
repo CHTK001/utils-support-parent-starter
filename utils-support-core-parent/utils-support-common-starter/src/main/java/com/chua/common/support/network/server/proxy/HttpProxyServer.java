@@ -36,6 +36,15 @@ public class HttpProxyServer extends AbstractProxyServer {
      * 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈）
      */
     private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /**
+     * 后端连接的输入流缓冲缓存（Socket → BufferedInputStream）。
+     *
+     * <p>响应头逐字节读，必须走缓冲；同时必须按 Socket 复用同一个实例，
+     * 否则每请求新建会把多读的字节吞掉，keep-alive 复用即错位。</p>
+     */
+    private final java.util.Map<Socket, java.io.InputStream> backendStreams =
+            new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * 连接池容量上限
      */
@@ -127,10 +136,41 @@ public class HttpProxyServer extends AbstractProxyServer {
             backendPool.offer(socket);
             return;
         }
+        closeBackend(socket);
+    }
+
+    /**
+     * 后端连接的输入流缓冲（按 Socket 缓存）。
+     *
+     * <p>响应头是逐字节读的；直接读原始 <code>SocketInputStream</code> 会变成「每字节一次系统调用」，
+     * 一个响应头 100~200 字节就是 100~200 次 syscall。这里按 Socket 缓存同一个
+     * {@link java.io.BufferedInputStream}，并且<b>必须复用同一个实例</b>：每请求新建会把
+     * 多读出来的字节吞掉，keep-alive 复用即错位。</p>
+     *
+     * @param socket 后端连接
+     * @return 缓冲输入流
+     */
+    private java.io.InputStream bufferedInput(Socket socket) {
+        return backendStreams.computeIfAbsent(socket, s -> {
+            try {
+                return new java.io.BufferedInputStream(s.getInputStream(), 8192);
+            } catch (IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
+        });
+    }
+
+    /**
+     * 关闭后端连接，并清掉它的输入流缓存。
+     *
+     * @param socket 连接
+     */
+    private void closeBackend(Socket socket) {
+        backendStreams.remove(socket);
         try {
             socket.close();
         } catch (IOException e) {
-            log.debug("[proxy] 关闭服务失败，已忽略: {}", e.getMessage());
+            log.debug("[proxy] 关闭后端连接失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -157,6 +197,12 @@ public class HttpProxyServer extends AbstractProxyServer {
             // BufferedInputStream 包装:readHeader 逐字节读但走内存缓冲,避免原生 read 系统调用开销
             InputStream in = new java.io.BufferedInputStream(clientSocket.getInputStream(), 8192);
             OutputStream out = clientSocket.getOutputStream();
+
+            // IP 过滤器（若挂载）：在读取请求前拒绝，避免把请求打到后端
+            if (!allowClient(clientSocket)) {
+                writeSimple(out, 403, "Forbidden");
+                return;
+            }
 
             // keep-alive 循环：同一连接上处理多个 HTTP 请求
             while (true) {
@@ -194,7 +240,7 @@ public class HttpProxyServer extends AbstractProxyServer {
                     try {
                         backendSocket = borrowBackend(backend);
 OutputStream backOut = backendSocket.getOutputStream();
-                    InputStream backIn = backendSocket.getInputStream();
+                    InputStream backIn = bufferedInput(backendSocket);
 
                         // 转发请求头（保留 method/path/版本，透传其余头）+ body
                         backOut.write(header);
@@ -232,24 +278,23 @@ OutputStream backOut = backendSocket.getOutputStream();
                     } catch (IOException e) {
                         // 复用连接失败（坏连接）：关闭并重试一次（新连接）
                         if (backendSocket != null) {
-                            try {
-                                backendSocket.close();
-                            } catch (IOException closeEx) {
-                                log.debug("[proxy] 关闭后端连接失败，已忽略: {}", closeEx.getMessage());
-                            }
+                            closeBackend(backendSocket);
                             backendSocket = null;
                         }
                         if (attempt == 0) {
                             continue;
                         }
+                        // 两次都失败：后端不可达（拒绝连接/超时）。给客户端一个明确的 502，
+                        // 而不是直接关连接——否则排障时分不清「后端挂了」与「网络断了」。
+                        try {
+                            writeSimple(out, 502, "Bad Gateway: backend unreachable");
+                        } catch (IOException writeEx) {
+                            log.debug("[proxy] 回写 502 失败，已忽略: {}", writeEx.getMessage());
+                        }
                         throw e;
                     } finally {
                         if (backendSocket != null) {
-                            try {
-                                backendSocket.close();
-                            } catch (IOException closeEx) {
-                                log.debug("[proxy] 关闭后端连接失败，已忽略: {}", closeEx.getMessage());
-                            }
+                            closeBackend(backendSocket);
                         }
                     }
                 }

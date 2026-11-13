@@ -60,6 +60,17 @@ public class NioServerResponse implements ServerResponse {
     private static final java.util.Map<Integer, byte[]> ECHO_HEADER_CACHE = new ConcurrentHashMap<>();
 
     /**
+     * header 缓存条数上限：缓存键来自 Content-Length，客户端可构造任意长度，
+     * 不设上限就是一个可被撑爆的内存泄漏点。
+     */
+    private static final int ECHO_HEADER_CACHE_MAX = 256;
+
+    /**
+     * 超过该长度不缓存：大响应本来就该走 sendFile/流式，缓存 header 省不了多少。
+     */
+    private static final int ECHO_HEADER_CACHE_MAX_LEN = 64 * 1024;
+
+    /**
      * 复用 rawOutput 缓冲的上限：超过该字节数说明这条响应写过大批量数据，
      * 不值得长期挂在连接上占内存，直接丢弃交给 GC。
      */
@@ -692,10 +703,30 @@ public class NioServerResponse implements ServerResponse {
      * @return 结果值
      */
     private static byte[] buildEchoHeader(int bodyLength) {
+        if (bodyLength > ECHO_HEADER_CACHE_MAX_LEN) {
+            return assembleEchoHeader(bodyLength);
+        }
         byte[] cached = ECHO_HEADER_CACHE.get(bodyLength);
         if (cached != null) {
             return cached;
         }
+        byte[] result = assembleEchoHeader(bodyLength);
+        // 缓存有界：满额后只构建不缓存，避免任意 Content-Length 把表撑大
+        if (ECHO_HEADER_CACHE.size() >= ECHO_HEADER_CACHE_MAX) {
+            return result;
+        }
+        // putIfAbsent 防竞态;但首次构建后所有相同长度请求都直接拿到 cached
+        byte[] prev = ECHO_HEADER_CACHE.putIfAbsent(bodyLength, result);
+        return prev != null ? prev : result;
+    }
+
+    /**
+     * 拼一条 echo header（状态行 + Content-Type + Content-Length + keep-alive）。
+     *
+     * @param bodyLength 响应体长度
+     * @return 字节
+     */
+    private static byte[] assembleEchoHeader(int bodyLength) {
         // 数字长度字符串(无符号)
         String lenStr = String.valueOf(bodyLength);
         byte[] lenBytes = lenStr.getBytes(StandardCharsets.US_ASCII);
@@ -707,9 +738,7 @@ public class NioServerResponse implements ServerResponse {
         System.arraycopy(lenBytes, 0, result, pos, lenBytes.length);
         pos += lenBytes.length;
         System.arraycopy(KEEPALIVE_SUFFIX, 0, result, pos, KEEPALIVE_SUFFIX.length);
-        // putIfAbsent 防竞态;但首次构建后所有相同长度请求都直接拿到 cached
-        byte[] prev = ECHO_HEADER_CACHE.putIfAbsent(bodyLength, result);
-        return prev != null ? prev : result;
+        return result;
     }
 
     /**
