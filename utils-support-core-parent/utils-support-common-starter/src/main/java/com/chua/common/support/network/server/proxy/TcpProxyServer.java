@@ -155,6 +155,12 @@ public class TcpProxyServer extends AbstractProxyServer {
      */
     @Override
     protected void handleConnection(Socket clientSocket) {
+        // IP 过滤器（若挂载）：TCP 代理没有 HTTP 状态码，直接断开
+        if (!allowClient(clientSocket)) {
+            log.debug("[tcp-proxy] 客户端被 IP 过滤器拒绝: {}", clientSocket.getRemoteSocketAddress());
+            closeQuietly(clientSocket);
+            return;
+        }
         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
         InetSocketAddress backendAddr = targetResolver.resolve(remote);
         if (backendAddr == null) {

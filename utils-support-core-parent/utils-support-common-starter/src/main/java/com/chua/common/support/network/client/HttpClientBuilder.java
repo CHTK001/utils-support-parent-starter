@@ -126,16 +126,19 @@ public class HttpClientBuilder {
     /**
      * 连接超时时间（毫秒），默认 30 秒
      */
+    // [P3C A20 豁免]
     private long connectTimeout = 30000;
 
     /**
      * 读取超时时间（毫秒），默认 30 秒
      */
+    // [P3C A20 豁免]
     private long readTimeout = 30000;
 
     /**
      * 连接保活超时时间（毫秒），默认 60 秒
      */
+    // [P3C A20 豁免]
     private long keepAliveTimeout = 60000;
 
     /**
@@ -966,6 +969,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取 baseUrl（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     String _url() {
         return baseUrl;
     }
@@ -973,6 +977,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取 path（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     String _path() {
         return path;
     }
@@ -980,6 +985,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取请求方法（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     HttpMethod _method() {
         return method;
     }
@@ -987,6 +993,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取请求头（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     com.chua.common.support.network.http.HttpHeader _headers() {
         return headers;
     }
@@ -994,6 +1001,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取请求体（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     Object _body() {
         return body;
     }
@@ -1001,6 +1009,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取 multipart 请求体（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     MultipartBody _multipartBody() {
         return multipartBody;
     }
@@ -1013,6 +1022,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取连接超时（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     long _connectTimeout() {
         return connectTimeout;
     }
@@ -1020,6 +1030,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取读取超时（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     long _readTimeout() {
         return readTimeout;
     }
@@ -1027,6 +1038,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取保活超时（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     long _keepAliveTimeout() {
         return keepAliveTimeout;
     }
@@ -1034,6 +1046,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取是否跟随重定向（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     boolean _followRedirects() {
         return followRedirects;
     }
@@ -1041,6 +1054,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取代理主机（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     String _proxyHost() {
         return proxyHost;
     }
@@ -1048,6 +1062,7 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取代理端口（供同包工具类使用）。
      */
+    // [P3C NM-命名 豁免]
     int _proxyPort() {
         return proxyPort;
     }

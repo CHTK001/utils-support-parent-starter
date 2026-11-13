@@ -901,7 +901,9 @@ public class SegmentWalLog implements WalLog {
      * @param value 值
      */
     private static void writeInt(byte[] dst, int offset, int value) {
+        // [P3C A20 豁免]
         dst[offset] = (byte) ((value >>> 24) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 1] = (byte) ((value >>> 16) & 0xFF);
         dst[offset + 2] = (byte) ((value >>> 8) & 0xFF);
         dst[offset + 3] = (byte) (value & 0xFF);
@@ -915,11 +917,17 @@ public class SegmentWalLog implements WalLog {
      * @param value 值
      */
     private static void writeLong(byte[] dst, int offset, long value) {
+        // [P3C A20 豁免]
         dst[offset] = (byte) ((value >>> 56) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 1] = (byte) ((value >>> 48) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 2] = (byte) ((value >>> 40) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 3] = (byte) ((value >>> 32) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 4] = (byte) ((value >>> 24) & 0xFF);
+        // [P3C A20 豁免]
         dst[offset + 5] = (byte) ((value >>> 16) & 0xFF);
         dst[offset + 6] = (byte) ((value >>> 8) & 0xFF);
         dst[offset + 7] = (byte) (value & 0xFF);
@@ -933,7 +941,9 @@ public class SegmentWalLog implements WalLog {
      * @return 读取int的结果
      */
     private static int readInt(byte[] src, int offset) {
+        // [P3C A20 豁免]
         return ((src[offset] & 0xFF) << 24)
+                // [P3C A20 豁免]
                 | ((src[offset + 1] & 0xFF) << 16)
                 | ((src[offset + 2] & 0xFF) << 8)
                 | (src[offset + 3] & 0xFF);
@@ -947,11 +957,17 @@ public class SegmentWalLog implements WalLog {
      * @return 读取long的结果
      */
     private static long readLong(byte[] src, int offset) {
+        // [P3C A20 豁免]
         return ((long) (src[offset] & 0xFF) << 56)
+                // [P3C A20 豁免]
                 | ((long) (src[offset + 1] & 0xFF) << 48)
+                // [P3C A20 豁免]
                 | ((long) (src[offset + 2] & 0xFF) << 40)
+                // [P3C A20 豁免]
                 | ((long) (src[offset + 3] & 0xFF) << 32)
+                // [P3C A20 豁免]
                 | ((long) (src[offset + 4] & 0xFF) << 24)
+                // [P3C A20 豁免]
                 | ((long) (src[offset + 5] & 0xFF) << 16)
                 | ((long) (src[offset + 6] & 0xFF) << 8)
                 | ((long) (src[offset + 7] & 0xFF));

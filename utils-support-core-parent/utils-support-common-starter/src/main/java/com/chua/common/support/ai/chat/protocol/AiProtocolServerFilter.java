@@ -520,6 +520,31 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     // ==================== OpenAI Chat Completions ====================
 
     /**
+     * 没有任何可路由模型时的错误文案：让客户端一眼看出「不是协议问题，是模型没配」。
+     */
+    private static final String NO_MODEL_MESSAGE =
+            "没有可用的模型：当前实例拿不到任何模型（请先在模型管理里配置供应商与模型，并确认凭据有效）";
+
+    /**
+     * 是否没有任何可路由模型。
+     *
+     * <p>为什么要在进网络之前判断：模型清单为空时，底层聚合客户端仍会按「未命中」去连上游，
+     * 实测 12 秒后连接被服务端掐断，客户端拿到的是空响应（opencode / ccswitch 会报 JSON 解析失败），
+     * 而不是一条可读的错误。这里直接拦掉，由调用方写回对应协议的错误体。</p>
+     *
+     * @return true 表示没有模型可用
+     */
+    private boolean noModelAvailable() {
+        try {
+            List<?> models = chatClient.models();
+            return models == null || models.isEmpty();
+        } catch (Exception e) {
+            log.warn("{}读取模型清单失败，按无可用模型处理: {}", LOG_PROTOCOL_PREFIX, e.getMessage());
+            return true;
+        }
+    }
+
+    /**
      * 处理 OpenAI Chat Completions 请求。
      *
      * @param request  请求对象
@@ -530,6 +555,11 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         Map<String, Object> body = parseBody(request);
         boolean stream = Boolean.TRUE.equals(body.get(KEY_STREAM));
         String model = (String) body.get(KEY_MODEL);
+
+        if (noModelAvailable()) {
+            writeJson(response, buildOpenAiChatError(model, NO_MODEL_MESSAGE));
+            return;
+        }
 
         if (stream) {
             handleOpenAiStream(request, response, body, model);
@@ -612,6 +642,11 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String model = (String) body.get(KEY_MODEL);
         String prompt = (String) body.get(KEY_PROMPT);
 
+        if (noModelAvailable()) {
+            writeJson(response, buildOpenAiCompletionError(model, prompt, NO_MODEL_MESSAGE));
+            return;
+        }
+
         applyTokenGroup(request);
         try {
             ChatSyncResponse result = chatClient.chatSyncWithResponse(prompt);
@@ -670,6 +705,11 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         Map<String, Object> body = parseBody(request);
         String model = (String) body.get(KEY_MODEL);
         boolean stream = Boolean.TRUE.equals(body.get(KEY_STREAM));
+
+        if (noModelAvailable()) {
+            writeJson(response, buildClaudeError(model, NO_MODEL_MESSAGE));
+            return;
+        }
 
         if (stream) {
             handleClaudeStream(request, response, body, model);
@@ -876,6 +916,14 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String model = rest.substring(0, colonIdx);
         String action = rest.substring(colonIdx + 1);
         boolean isStream = GEMINI_ACTION_STREAM_GENERATE_CONTENT.equals(action);
+
+        if (noModelAvailable()) {
+            writeJson(response,
+                      Map.of(KEY_ERROR,
+                             Map.of(KEY_CODE, HTTP_BAD_REQUEST, KEY_MESSAGE_ERROR, NO_MODEL_MESSAGE,
+                                    KEY_ERROR_STATUS, GEMINI_STATUS_INVALID_ARGUMENT)));
+            return;
+        }
 
         Map<String, Object> body = parseBody(request);
         String prompt = extractGeminiPrompt(body);

@@ -304,6 +304,7 @@ public class ServerSetting {
         printDiagnosis(sb.toString());
     }
 
+    // [P3C MJ-方法注释 豁免]
     private void printDiagnosis(String diag) {
         log.warn(diag);
     }

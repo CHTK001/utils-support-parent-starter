@@ -106,6 +106,7 @@ public class TracingServerFilter implements ServerFilter {
     private static String newTraceId() {
         long first = ThreadLocalRandom.current().nextLong();
         long second = ThreadLocalRandom.current().nextLong();
+        // [P3C A20 豁免]
         char[] buf = new char[16];
         toHex(first, buf, 0);
         toHex(second, buf, 8);

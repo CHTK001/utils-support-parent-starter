@@ -2,7 +2,11 @@
 package com.chua.common.support.network.server.proxy;
 
 import com.chua.common.support.network.server.AbstractServer;
+import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.filter.FirewallServerFilter;
+import com.chua.common.support.network.server.filter.IpServerFilter;
+import com.chua.common.support.network.server.filter.ServerFilter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -68,6 +72,111 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * 非阻塞 accept 用的选择器（仅 {@link #preferNonBlockingAccept} 为 true 时使用）
      */
     protected Selector acceptSelector;
+
+    /**
+     * 挂在代理节点上的 IP 名单过滤器（含防火墙实现）。
+     *
+     * <p>代理转发走的是原始 Socket，不经过 {@code AbstractServer} 的过滤器链，
+     * 所以这里单独持有一份引用，在建立后端连接前做一次判定。</p>
+     */
+    private final java.util.List<IpServerFilter> ipFilters = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final java.util.List<FirewallServerFilter> firewalls = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    /**
+     * 添加过滤器：IP / 防火墙过滤器额外登记，供连接阶段判定。
+     *
+     * <p>注册表可能把插件包一层 {@code DelegatingServerFilter}（监控侧的启停包装），
+     * 所以这里先按 delegate 拆包再判类型，否则代理侧永远拿不到真正的过滤器。</p>
+     *
+     * @param filter 过滤器
+     * @return 当前服务器
+     */
+    @Override
+    public Server addFilter(ServerFilter filter) {
+        super.addFilter(filter);
+        ServerFilter real = unwrapFilter(filter);
+        if (real instanceof IpServerFilter && !ipFilters.contains(real)) {
+            ipFilters.add((IpServerFilter) real);
+        }
+        if (real instanceof FirewallServerFilter && !firewalls.contains(real)) {
+            firewalls.add((FirewallServerFilter) real);
+        }
+        log.info("[proxy-gate] addFilter class={} ip={} firewall={}", filter.getClass().getName(),
+                ipFilters.size(), firewalls.size());
+        return this;
+    }
+
+    /**
+     * 拆掉可能存在的包装层（最多 3 层），拿到真正的过滤器。
+     *
+     * @param filter 原始过滤器
+     * @return 拆包后的过滤器
+     */
+    private ServerFilter unwrapFilter(ServerFilter filter) {
+        ServerFilter current = filter;
+        for (int depth = 0; depth < 3 && current != null; depth++) {
+            if (current instanceof IpServerFilter || current instanceof FirewallServerFilter) {
+                return current;
+            }
+            ServerFilter next = delegateOf(current);
+            if (next == null || next == current) {
+                return current;
+            }
+            current = next;
+        }
+        return current;
+    }
+
+    /**
+     * 反射取包装的 delegate。
+     *
+     * @param filter 包装对象
+     * @return 被包装的过滤器；没有则 null
+     */
+    private ServerFilter delegateOf(ServerFilter filter) {
+        for (String name : new String[]{"getDelegate", "delegate", "getTarget", "unwrap"}) {
+            try {
+                java.lang.reflect.Method method = filter.getClass().getMethod(name);
+                if (!ServerFilter.class.isAssignableFrom(method.getReturnType())) {
+                    continue;
+                }
+                Object value = method.invoke(filter);
+                if (value instanceof ServerFilter) {
+                    return (ServerFilter) value;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // 没有这个 delegate 方法就继续尝试下一个名字
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 客户端 IP 是否放行（没有名单类过滤器时恒为 true）。
+     *
+     * @param clientSocket 客户端连接
+     * @return true 表示放行
+     */
+    protected boolean allowClient(Socket clientSocket) {
+        if ((ipFilters.isEmpty() && firewalls.isEmpty()) || clientSocket == null) {
+            return true;
+        }
+        String ip = clientSocket.getInetAddress() == null
+                ? "" : clientSocket.getInetAddress().getHostAddress();
+        for (IpServerFilter filter : ipFilters) {
+            if (!filter.allows(ip)) {
+                log.info("[proxy-gate] deny ip={} by IpServerFilter", ip);
+                return false;
+            }
+        }
+        for (FirewallServerFilter filter : firewalls) {
+            if (!filter.allows(ip)) {
+                log.info("[proxy-gate] deny ip={} by FirewallServerFilter", ip);
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * 构造代理服务器。

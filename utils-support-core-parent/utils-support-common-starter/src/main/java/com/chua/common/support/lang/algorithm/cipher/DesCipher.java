@@ -1,115 +1,72 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.SecureRandom;
+import com.chua.common.support.spi.ServiceProvider;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * DES 对称加解密实现
+ * DES 对称加解密接口。
  *
- * <p>基于 JDK 内置 {@link javax.crypto.Cipher} 实现，支持 DES/CBC/PKCS5Padding 模式的加密与解密。
- * DES 密钥长度为 8 字节（56 位有效密钥 + 8 位奇偶校验）。
+ * <p>默认实现由 SPI 提供者 {@code jdk} 承担（{@code DES/CBC/PKCS5Padding}），
+ * 密文前 8 字节为随机 IV，字符串模式使用 Base64。</p>
  *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 创建实例
- * DesCipher des = new DesCipher();
- *
- * // 加密
- * byte[] key = "12345678".getBytes(StandardCharsets.UTF_8); // 8 字节
- * byte[] ciphertext = des.encrypt(key, plaintext);
- *
- * // 解密
- * byte[] decrypted = des.decrypt(key, ciphertext);
- *
- * // 字符串模式
- * String encryptedStr = des.encryptToString(key, "明文数据");
- * String decryptedStr = des.decryptToString(key, encryptedStr);
- * }</pre>
+ * <p><b>DES 密钥空间过小，新项目请用 AES 或 SM4</b>；本接口保留只为兼容历史链路。</p>
  *
  * @author CH
  * @since 2026/07/16
+ * @deprecated 请改用 {@link AesCipher} 或 {@link Sm4Cipher}
  */
-public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
+@Deprecated(since = "4.0.0.50", forRemoval = false)
+public interface DesCipher extends Cipher {
 
     /**
-     * 算法名称
-     */
-    private static final String ALGORITHM = "DES";
-    /**
-     * 加密转换算法
-     */
-    private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
-
-    /**
-     * DES 加密
+     * 创建指定提供者的 DES 实例。
      *
-     * @param key  加密密钥，长度必须为 8 字节（56 位有效密钥）
-     * @param data 待加密的明文数据
-     * @return 加密后的密文数据（前 8 字节为随机 IV）
+     * @param provider 提供者名称，如 {@code jdk}
+     * @return DES 实例
      */
-    public byte[] encrypt(byte[] key, byte[] data) {
-        try {
-            byte[] iv = new byte[8];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(iv);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
-            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(TRANSFORMATION);
-            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-            byte[] encrypted = cipher.doFinal(data);
-            byte[] result = new byte[8 + encrypted.length];
-            System.arraycopy(iv, 0, result, 0, 8);
-            System.arraycopy(encrypted, 0, result, 8, encrypted.length);
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("DES 加密失败", e);
-        }
+    static DesCipher create(String provider) {
+        return ServiceProvider.of(DesCipher.class).getNewExtension(provider);
     }
 
     /**
-     * DES 加密（字符串模式）
+     * 加密。
      *
-     * @param key  加密密钥，长度必须为 8 字节
-     * @param data 待加密的明文字符串
-     * @return Base64 编码的密文字符串
+     * @param key  密钥，8 字节
+     * @param data 明文
+     * @return 密文，前 8 字节为随机 IV
      */
-    public String encryptToString(byte[] key, String data) {
-        return java.util.Base64.getEncoder().encodeToString(
-                encrypt(key, data.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    byte[] encrypt(byte[] key, byte[] data);
+
+    /**
+     * 解密。
+     *
+     * @param key        密钥
+     * @param ciphertext 密文，前 8 字节为随机 IV
+     * @return 明文
+     */
+    byte[] decrypt(byte[] key, byte[] ciphertext);
+
+    /**
+     * 加密字符串，结果 Base64。
+     *
+     * @param key  密钥
+     * @param data 明文
+     * @return Base64 密文
+     */
+    default String encryptToString(byte[] key, String data) {
+        return Base64.getEncoder().encodeToString(encrypt(key, data.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
-     * DES 解密
+     * 解密 Base64 密文。
      *
-     * @param key        解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext 待解密的密文数据（前 8 字节为随机 IV）
-     * @return 解密后的明文数据
+     * @param key          密钥
+     * @param ciphertext64 Base64 密文
+     * @return 明文
      */
-    public byte[] decrypt(byte[] key, byte[] ciphertext) {
-        try {
-            byte[] iv = new byte[8];
-            System.arraycopy(ciphertext, 0, iv, 0, 8);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
-            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(TRANSFORMATION);
-            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, keySpec, ivSpec);
-            return cipher.doFinal(ciphertext, 8, ciphertext.length - 8);
-        } catch (Exception e) {
-            throw new RuntimeException("DES 解密失败", e);
-        }
-    }
-
-    /**
-     * DES 解密（字符串模式）
-     *
-     * @param key          解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext64 Base64 编码的密文字符串
-     * @return 解密后的明文字符串
-     */
-    public String decryptToString(byte[] key, String ciphertext64) {
-        return new String(
-                decrypt(key, java.util.Base64.getDecoder().decode(ciphertext64)),
-                java.nio.charset.StandardCharsets.UTF_8);
+    default String decryptToString(byte[] key, String ciphertext64) {
+        return new String(decrypt(key, Base64.getDecoder().decode(ciphertext64)), StandardCharsets.UTF_8);
     }
 }

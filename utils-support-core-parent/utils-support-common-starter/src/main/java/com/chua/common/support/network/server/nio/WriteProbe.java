@@ -26,6 +26,7 @@ public final class WriteProbe {
     private static final boolean ENABLED = "true".equals(System.getProperty("bench.debug"));
 
     /** 探针输出: System.err (与 bench 系统输出分开, 复用同一日志文件) */
+    // [P3C E1 豁免]
     private static final PrintWriter OUT = new PrintWriter(System.err, true);
 
     private static final AtomicLong COUNT_E = new AtomicLong();
@@ -64,6 +65,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[E] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_E.incrementAndGet();
@@ -79,6 +81,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[Q] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_Q.incrementAndGet();
@@ -94,6 +97,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[W] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_W.incrementAndGet();
@@ -110,6 +114,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[R2] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_R2.incrementAndGet();
@@ -125,6 +130,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[R] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_R.incrementAndGet();
@@ -140,6 +146,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[S1] t=" + t + " len=0 thr=" + Thread.currentThread().getName());
         COUNT_S1.incrementAndGet();
@@ -155,6 +162,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         long cycle = t - value0(LAST_SEL.get());
         OUT.println("[S2] t=" + t + " len=0 thr=" + Thread.currentThread().getName() + " cycle=" + cycle);
@@ -173,6 +181,7 @@ public final class WriteProbe {
         if (!ENABLED) {
             return;
         }
+        // [P3C A20 豁免]
         long t = System.nanoTime() / 1000;
         OUT.println("[KS] t=" + t + " len=0 thr=" + Thread.currentThread().getName() + " count=" + ks);
         COUNT_KS.incrementAndGet();

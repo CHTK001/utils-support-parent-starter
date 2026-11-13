@@ -5,7 +5,7 @@ package com.chua.common.support.lang.algorithm.cipher;
  * 加解密算法统一门面，支持链式调用。
  *
  * <p>遵循项目 {@code XxxFlow} 家风，作为<b>所有加解密算法的统一入口</b>：按算法名绑定，
- * 再解析出对应实现（JDK 内置直接实例化；其余走 SPI 按提供者加载，当前内置 BouncyCastle "bc"）。</p>
+ * 再按提供者经 SPI 解析实现（JDK 内置实现别名 {@code jdk}，BouncyCastle 别名 {@code bc}）。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -31,6 +31,11 @@ public final class CipherFlow {
      * 默认提供者（BouncyCastle）
      */
     private static final String DEFAULT_PROVIDER = "bc";
+
+    /**
+     * JDK 内置提供者
+     */
+    private static final String JDK_PROVIDER = "jdk";
 
     /**
      * 算法名
@@ -144,19 +149,19 @@ public final class CipherFlow {
     }
 
     /**
-     * AES（JDK 内置）
+     * AES（JDK 内置实现，经 SPI 解析）
      * @return AesCipher 对象
      */
     public AesCipher aes() {
-        return new AesCipher();
+        return AesCipher.create(JDK_PROVIDER);
     }
 
     /**
-     * DES（JDK 内置）
+     * DES（JDK 内置实现，经 SPI 解析）
      * @return DesCipher 对象
      */
     public DesCipher des() {
-        return new DesCipher();
+        return DesCipher.create(JDK_PROVIDER);
     }
 
     /**

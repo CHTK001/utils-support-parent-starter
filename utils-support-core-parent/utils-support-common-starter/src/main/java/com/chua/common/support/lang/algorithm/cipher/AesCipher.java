@@ -1,120 +1,77 @@
-// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.lang.algorithm.cipher;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
+import com.chua.common.support.spi.ServiceProvider;
 
-import static java.util.Base64.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * AES 对称加解密实现
+ * AES 对称加解密接口。
  *
- * <p>基于 JDK 内置 {@link Cipher} 实现，支持 AES/CBC/PKCS5Padding 模式的加密与解密。
- * 密钥长度支持 128 位、192 位和 256 位。
+ * <p>实现由 SPI 提供：默认提供者 {@code jdk} 基于 JDK 内置
+ * {@code AES/CBC/PKCS5Padding}，密文前 16 字节为随机 IV，字符串模式使用 Base64。
+ * 需要别的实现（如硬件加密卡）时，注册同名扩展即可替换。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
- * // 创建实例
- * AesCipher aes = new AesCipher();
- *
- * // 加密
- * byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8); // 16 字节 = 128 位
+ * AesCipher aes = AesCipher.create("jdk");
+ * byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);
  * byte[] ciphertext = aes.encrypt(key, plaintext);
- *
- * // 解密
- * byte[] decrypted = aes.decrypt(key, ciphertext);
- *
- * // 字符串模式
- * String encryptedStr = aes.encryptToString(key, "明文数据");
- * String decryptedStr = aes.decryptToString(key, encryptedStr);
+ * byte[] plain = aes.decrypt(key, ciphertext);
  * }</pre>
  *
  * @author CH
  * @since 2026/07/16
  */
-public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
+public interface AesCipher extends Cipher {
 
     /**
-     * 算法名称
-     */
-    private static final String ALGORITHM = "AES";
-    /**
-     * 加密转换算法
-     */
-    private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
-
-    /**
-     * AES 加密
+     * 创建指定提供者的 AES 实例。
      *
-     * @param key  加密密钥，支持 16 字节（128 位）、24 字节（192 位）或 32 字节（256 位）
-     * @param data 待加密的明文数据
-     * @return 加密后的密文数据（前 16 字节为随机 IV）
+     * @param provider 提供者名称，如 {@code jdk}
+     * @return AES 实例
      */
-    public byte[] encrypt(byte[] key, byte[] data) {
-        try {
-            byte[] iv = new byte[16];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(iv);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
-            var cipher = javax.crypto.Cipher.getInstance(TRANSFORMATION);
-            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-            byte[] encrypted = cipher.doFinal(data);
-            byte[] result = new byte[16 + encrypted.length];
-            System.arraycopy(iv, 0, result, 0, 16);
-            System.arraycopy(encrypted, 0, result, 16, encrypted.length);
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("AES 加密失败", e);
-        }
+    static AesCipher create(String provider) {
+        return ServiceProvider.of(AesCipher.class).getNewExtension(provider);
     }
 
     /**
-     * AES 加密（字符串模式）
+     * 加密。
      *
-     * @param key  加密密钥
-     * @param data 待加密的明文字符串
-     * @return Base64 编码的密文字符串
+     * @param key  密钥，16/24/32 字节
+     * @param data 明文
+     * @return 密文，前 16 字节为随机 IV
      */
-    public String encryptToString(byte[] key, String data) {
-        return getEncoder().encodeToString(
-                encrypt(key, data.getBytes(StandardCharsets.UTF_8)));
+    byte[] encrypt(byte[] key, byte[] data);
+
+    /**
+     * 解密。
+     *
+     * @param key        密钥
+     * @param ciphertext 密文，前 16 字节为随机 IV
+     * @return 明文
+     */
+    byte[] decrypt(byte[] key, byte[] ciphertext);
+
+    /**
+     * 加密字符串，结果 Base64。
+     *
+     * @param key  密钥
+     * @param data 明文
+     * @return Base64 密文
+     */
+    default String encryptToString(byte[] key, String data) {
+        return Base64.getEncoder().encodeToString(encrypt(key, data.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
-     * AES 解密
+     * 解密 Base64 密文。
      *
-     * @param key        解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext 待解密的密文数据（前 16 字节为随机 IV）
-     * @return 解密后的明文数据
+     * @param key          密钥
+     * @param ciphertext64 Base64 密文
+     * @return 明文
      */
-    public byte[] decrypt(byte[] key, byte[] ciphertext) {
-        try {
-            byte[] iv = new byte[16];
-            System.arraycopy(ciphertext, 0, iv, 0, 16);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
-            var cipher = javax.crypto.Cipher.getInstance(TRANSFORMATION);
-            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, keySpec, ivSpec);
-            return cipher.doFinal(ciphertext, 16, ciphertext.length - 16);
-        } catch (Exception e) {
-            throw new RuntimeException("AES 解密失败", e);
-        }
-    }
-
-    /**
-     * AES 解密（字符串模式）
-     *
-     * @param key          解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext64 Base64 编码的密文字符串
-     * @return 解密后的明文字符串
-     */
-    public String decryptToString(byte[] key, String ciphertext64) {
-        return new String(
-                decrypt(key, getDecoder().decode(ciphertext64)),
-                StandardCharsets.UTF_8);
+    default String decryptToString(byte[] key, String ciphertext64) {
+        return new String(decrypt(key, Base64.getDecoder().decode(ciphertext64)), StandardCharsets.UTF_8);
     }
 }

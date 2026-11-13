@@ -41,7 +41,9 @@ public final class TcpFrameWriter {
      */
     public static byte[] encodeFrame(byte[] body) {
         byte[] frame = new byte[4 + body.length];
+        // [P3C A20 豁免]
         frame[0] = (byte) (body.length >>> 24);
+        // [P3C A20 豁免]
         frame[1] = (byte) (body.length >>> 16);
         frame[2] = (byte) (body.length >>> 8);
         frame[3] = (byte) body.length;

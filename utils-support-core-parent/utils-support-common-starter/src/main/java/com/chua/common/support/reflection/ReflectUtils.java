@@ -2,9 +2,13 @@
 package com.chua.common.support.reflection;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.modules.ModuleLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -178,6 +182,114 @@ public final class ReflectUtils {
             return null;
         }
         return (Class<T>) (Class<?>) aClass;
+    }
+
+    // ==================== 构造器 / 可访问性 ====================
+
+    /**
+     * 按参数类型匹配一个已声明构造器（含可赋值兼容）。
+     *
+     * <p>供 SPI、代理等基础设施复用；业务代码需要实例化时优先用
+     * {@link #instantiate(Class, Object...)}。</p>
+     *
+     * @param type     目标类型，不能为 null
+     * @param argTypes 参数类型数组，不能为 null
+     * @param <T>      目标类型
+     * @return 匹配的构造器；参数数量或类型不匹配时返回 null
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>[] argTypes) {
+        if (null == type || null == argTypes) {
+            return null;
+        }
+        for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (parameterTypes.length != argTypes.length) {
+                continue;
+            }
+            boolean matched = true;
+            for (int i = 0; i < parameterTypes.length; i++) {
+                Class<?> parameterType = parameterTypes[i];
+                Class<?> argType = argTypes[i];
+                boolean assignable = argType == parameterType
+                        || parameterType.isAssignableFrom(argType)
+                        || Void.class.isAssignableFrom(argType)
+                        || void.class.isAssignableFrom(argType);
+                if (!assignable) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                return (Constructor<T>) constructor;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 设置反射对象（Method / Field / Constructor）的可访问性。
+     *
+     * <p>这是全项目唯一的 {@code setAccessible} 实现；{@code ClassUtils#setAccessible}
+     * 只保留兼容入口并委托到这里。</p>
+     *
+     * @param object 目标反射对象，为 null 时返回 false
+     * @return 实际执行了 setAccessible(true) 时返回 true，否则返回 false
+     */
+    public static boolean setAccessible(Object object) {
+        try {
+            ModuleLoader.exportAllToAll();
+        } catch (Throwable ignored) {
+            // GraalVM native-image / 模块化环境下模块导出不可用时静默忽略
+        }
+        if (null == object) {
+            return false;
+        }
+        if (object instanceof Method method && !method.isAccessible()) {
+            method.setAccessible(true);
+            return true;
+        }
+        if (object instanceof Field field && !field.isAccessible()) {
+            field.setAccessible(true);
+            if (Modifier.isPrivate(field.getModifiers()) && Modifier.isFinal(field.getModifiers())) {
+                try {
+                    Field modifiersField = Field.class.getDeclaredField("modifiers");
+                    modifiersField.setAccessible(true);
+                    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+                    return true;
+                } catch (NoSuchFieldException e) {
+                    return false;
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("移除 final 修饰符失败: " + e.getMessage(), e);
+                }
+            }
+        }
+        if (object instanceof Constructor<?> constructor && !constructor.isAccessible()) {
+            constructor.setAccessible(true);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 通过构造器实例化对象，保留受检异常语义。
+     *
+     * <p>与 {@link #instantiate(Class, Object...)} 的区别：本方法不吞异常，供需要
+     * 记录失败原因的调用方（如 {@code ClassUtils}）使用。</p>
+     *
+     * @param constructor 目标构造器
+     * @param args        构造参数
+     * @param <T>         目标类型
+     * @return 实例
+     * @throws ReflectiveOperationException 构造器不可访问、参数不匹配或构造过程抛错
+     */
+    public static <T> T newInstance(Constructor<T> constructor, Object... args)
+            throws ReflectiveOperationException {
+        if (null == constructor) {
+            throw new NoSuchMethodException("constructor is null");
+        }
+        setAccessible(constructor);
+        return constructor.newInstance(args);
     }
 
     // ==================== 方法调用 ====================

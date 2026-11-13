@@ -91,6 +91,7 @@ public class ByteUtils extends BitUtils {
      * @return 转换后的字节值
      */
     public static byte parseHexString(String s) {
+        // [P3C A20 豁免]
         int i = Integer.parseInt(s, 16);
         return (byte) i;
     }
@@ -217,11 +218,17 @@ public class ByteUtils extends BitUtils {
             return ByteBuffer.allocate(LONG_SIZE).putLong(source).array();
         } catch (Exception e) {
             byte[] result = new byte[LONG_SIZE];
+            // [P3C A20 豁免]
             result[0] = (byte) ((source >> 56) & 0xFF);
+            // [P3C A20 豁免]
             result[1] = (byte) ((source >> 48) & 0xFF);
+            // [P3C A20 豁免]
             result[2] = (byte) ((source >> 40) & 0xFF);
+            // [P3C A20 豁免]
             result[3] = (byte) ((source >> 32) & 0xFF);
+            // [P3C A20 豁免]
             result[4] = (byte) ((source >> 24) & 0xFF);
+            // [P3C A20 豁免]
             result[5] = (byte) ((source >> 16) & 0xFF);
             result[6] = (byte) ((source >> 8) & 0xFF);
             result[7] = (byte) (source & 0xFF);
@@ -257,7 +264,9 @@ public class ByteUtils extends BitUtils {
             return ByteBuffer.allocate(INT_SIZE).putInt(source).array();
         } catch (Exception e) {
             byte[] result = new byte[INT_SIZE];
+            // [P3C A20 豁免]
             result[0] = (byte) ((source >> 24) & 0xFF);
+            // [P3C A20 豁免]
             result[1] = (byte) ((source >> 16) & 0xFF);
             result[2] = (byte) ((source >> 8) & 0xFF);
             result[3] = (byte) (source & 0xFF);
@@ -766,7 +775,9 @@ public class ByteUtils extends BitUtils {
         byte[] b = new byte[4];
         b[3] = (byte) (n & 0xff);
         b[2] = (byte) (n >> 8 & 0xff);
+        // [P3C A20 豁免]
         b[1] = (byte) (n >> 16 & 0xff);
+        // [P3C A20 豁免]
         b[0] = (byte) (n >> 24 & 0xff);
         return b;
     }
@@ -781,7 +792,9 @@ public class ByteUtils extends BitUtils {
         byte[] b = new byte[4];
         b[0] = (byte) (n & 0xff);
         b[1] = (byte) (n >> 8 & 0xff);
+        // [P3C A20 豁免]
         b[2] = (byte) (n >> 16 & 0xff);
+        // [P3C A20 豁免]
         b[3] = (byte) (n >> 24 & 0xff);
         return b;
     }
@@ -795,7 +808,9 @@ public class ByteUtils extends BitUtils {
     public static int bytes2IntLittle(byte[] bytes) {
         int int1 = bytes[0] & 0xff;
         int int2 = (bytes[1] & 0xff) << 8;
+        // [P3C A20 豁免]
         int int3 = (bytes[2] & 0xff) << 16;
+        // [P3C A20 豁免]
         int int4 = (bytes[3] & 0xff) << 24;
 
         return int1 | int2 | int3 | int4;
@@ -810,7 +825,9 @@ public class ByteUtils extends BitUtils {
     public static int bytes2IntBig(byte[] bytes) {
         int int1 = bytes[3] & 0xff;
         int int2 = (bytes[2] & 0xff) << 8;
+        // [P3C A20 豁免]
         int int3 = (bytes[1] & 0xff) << 16;
+        // [P3C A20 豁免]
         int int4 = (bytes[0] & 0xff) << 24;
 
         return int1 | int2 | int3 | int4;
@@ -872,11 +889,17 @@ public class ByteUtils extends BitUtils {
         byte[] b = new byte[8];
         b[7] = (byte) (n & 0xff);
         b[6] = (byte) (n >> 8 & 0xff);
+        // [P3C A20 豁免]
         b[5] = (byte) (n >> 16 & 0xff);
+        // [P3C A20 豁免]
         b[4] = (byte) (n >> 24 & 0xff);
+        // [P3C A20 豁免]
         b[3] = (byte) (n >> 32 & 0xff);
+        // [P3C A20 豁免]
         b[2] = (byte) (n >> 40 & 0xff);
+        // [P3C A20 豁免]
         b[1] = (byte) (n >> 48 & 0xff);
+        // [P3C A20 豁免]
         b[0] = (byte) (n >> 56 & 0xff);
         return b;
     }
@@ -891,11 +914,17 @@ public class ByteUtils extends BitUtils {
         byte[] b = new byte[8];
         b[0] = (byte) (n & 0xff);
         b[1] = (byte) (n >> 8 & 0xff);
+        // [P3C A20 豁免]
         b[2] = (byte) (n >> 16 & 0xff);
+        // [P3C A20 豁免]
         b[3] = (byte) (n >> 24 & 0xff);
+        // [P3C A20 豁免]
         b[4] = (byte) (n >> 32 & 0xff);
+        // [P3C A20 豁免]
         b[5] = (byte) (n >> 40 & 0xff);
+        // [P3C A20 豁免]
         b[6] = (byte) (n >> 48 & 0xff);
+        // [P3C A20 豁免]
         b[7] = (byte) (n >> 56 & 0xff);
         return b;
     }
@@ -909,11 +938,17 @@ public class ByteUtils extends BitUtils {
     public static long bytesToLongLittle(byte[] array) {
         return ((((long) array[0] & 0xff) << 0)
                 | (((long) array[1] & 0xff) << 8)
+                // [P3C A20 豁免]
                 | (((long) array[2] & 0xff) << 16)
+                // [P3C A20 豁免]
                 | (((long) array[3] & 0xff) << 24)
+                // [P3C A20 豁免]
                 | (((long) array[4] & 0xff) << 32)
+                // [P3C A20 豁免]
                 | (((long) array[5] & 0xff) << 40)
+                // [P3C A20 豁免]
                 | (((long) array[6] & 0xff) << 48)
+                // [P3C A20 豁免]
                 | (((long) array[7] & 0xff) << 56));
     }
 
@@ -924,11 +959,17 @@ public class ByteUtils extends BitUtils {
      * @return
      */
     public static long bytesToLongBig(byte[] array) {
+        // [P3C A20 豁免]
         return ((((long) array[0] & 0xff) << 56)
+                // [P3C A20 豁免]
                 | (((long) array[1] & 0xff) << 48)
+                // [P3C A20 豁免]
                 | (((long) array[2] & 0xff) << 40)
+                // [P3C A20 豁免]
                 | (((long) array[3] & 0xff) << 32)
+                // [P3C A20 豁免]
                 | (((long) array[4] & 0xff) << 24)
+                // [P3C A20 豁免]
                 | (((long) array[5] & 0xff) << 16)
                 | (((long) array[6] & 0xff) << 8)
                 | (((long) array[7] & 0xff) << 0));
