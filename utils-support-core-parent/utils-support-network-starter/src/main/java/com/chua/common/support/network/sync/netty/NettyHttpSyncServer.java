@@ -60,10 +60,13 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
             server.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
             server.createContext("/api/sync/send", exchange -> {
                 if (!"POST".equals(exchange.getRequestMethod())) {
-                    exchange.sendResponseHeaders(405, 0);
+                    // 必须真正写完并关闭 exchange：只调 sendResponseHeaders(405, 0) 会走
+                    // chunked 编码，响应体不关闭就没有结束块，客户端一直等到超时。
+                    sendResponse(exchange, 405, "{\"error\":\"method not allowed\"}");
                     return;
                 }
-                String body = new String(exchange.getRequestBody().readAllBytes());
+                String body = new String(exchange.getRequestBody().readAllBytes(),
+                        java.nio.charset.StandardCharsets.UTF_8);
                 String topic = extractParam(body, "topic");
                 String message = extractParam(body, "message");
                 if (topic != null && message != null) {
@@ -75,7 +78,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
             });
             server.createContext("/api/sync/pull", exchange -> {
                 if (!"GET".equals(exchange.getRequestMethod())) {
-                    exchange.sendResponseHeaders(405, 0);
+                    sendResponse(exchange, 405, "{\"error\":\"method not allowed\"}");
                     return;
                 }
                 String query = exchange.getRequestURI().getQuery();
@@ -94,10 +97,14 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
                 if (message != null) {
                     sendResponse(exchange, 200, message);
                 } else {
-                    sendResponse(exchange, 204, "");
+                    // 204 无响应体：长度必须传 -1，不能按 chunked(0) 发
+                    exchange.sendResponseHeaders(204, -1);
+                    exchange.close();
                 }
             });
             server.start();
+            // 回写实际端口：配置 port=0（随机端口）时，不回写就永远拿不到真实端口
+            setting.setPort(server.getAddress().getPort());
         } catch (Exception e) {
             throw new RuntimeException("Netty HTTP SyncServer 启动失败", e);
         }
@@ -231,6 +238,23 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
      * @return extract参数的结果
      */
     private String extractParam(String body, String key) {
+        if (body == null || body.isEmpty()) {
+            return null;
+        }
+        // 客户端发的是 application/x-www-form-urlencoded（topic=...&message=...）。
+        // 原实现只找 "\"key\"" 这种 JSON 片段，表单参数永远解析不出来，
+        // POST /api/sync/send 一律回 400，上行消息被静默丢弃。
+        for (String pair : body.split("&")) {
+            int idx = pair.indexOf('=');
+            if (idx <= 0) {
+                continue;
+            }
+            String name = decode(pair.substring(0, idx));
+            if (key.equals(name)) {
+                return decode(pair.substring(idx + 1));
+            }
+        }
+        // 兼容既有 JSON 形式的 {"key":"value"}
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
         if (idx < 0) {
@@ -246,6 +270,20 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
             return null;
         }
         return body.substring(start + 1, end);
+    }
+
+    /**
+     * URL 解码（失败时原样返回）。
+     *
+     * @param value 原始值
+     * @return 解码结果
+     */
+    private static String decode(String value) {
+        try {
+            return java.net.URLDecoder.decode(value, "UTF-8");
+        } catch (Exception e) {
+            return value;
+        }
     }
 
     /**

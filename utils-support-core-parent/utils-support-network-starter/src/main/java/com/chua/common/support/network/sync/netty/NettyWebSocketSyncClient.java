@@ -23,7 +23,11 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     /**
      * 客户端标识
     */
-    private final String clientId = java.util.UUID.randomUUID().toString();
+    private final String clientId;
+    /**
+     * 服务端地址
+    */
+    private final String serverUrl;
     /**
      * 连接
     */
@@ -37,9 +41,17 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     */
     private OutputStream output;
     /**
-     * 输入
+     * 输入（按字节读：帧负载是二进制，不能过字符解码器）
     */
-    private BufferedReader input;
+    private InputStream input;
+    /**
+     * 单帧负载上限（防畸形长度导致 OOM）
+    */
+    private static final long MAX_FRAME_BYTES = 64L * 1024 * 1024;
+    /**
+     * 掩码随机源（客户端帧必须掩码）
+    */
+    private static final java.security.SecureRandom MASK_RANDOM = new java.security.SecureRandom();
     /**
      * subscriptions
     */
@@ -67,7 +79,10 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
      * @param serverUrl 服务端url
      */
     public NettyWebSocketSyncClient(String clientId, String serverUrl) {
- // 客户端标识 是否 generated above
+        this.clientId = clientId == null || clientId.isEmpty()
+                ? java.util.UUID.randomUUID().toString()
+                : clientId;
+        this.serverUrl = serverUrl == null ? "" : serverUrl.trim();
     }
 
     /**
@@ -79,14 +94,18 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
             return;
         }
         try {
-            URI uri = URI.create("ws://localhost:8080");
-            String host = uri.getHost();
+            // 必须用构造时传入的地址：原实现把它丢掉、固定连 ws://localhost:8080，
+            // 于是无论配置什么地址都连不上（NettyWebSocketSyncFlow 建连直接抛异常）。
+            URI uri = URI.create(serverUrl);
+            String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
             int port = uri.getPort() > 0 ? uri.getPort() : 80;
-            String path = uri.getPath().isEmpty() ? "/" : uri.getPath();
+            String path = uri.getPath() == null || uri.getPath().isEmpty() ? "/" : uri.getPath();
 
             socket = new Socket(host, port);
             output = socket.getOutputStream();
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            // 按字节读：帧负载是二进制。原实现走 InputStreamReader 按 UTF-8 解码，
+            // 多字节字符的「字节数」与「字符数」对不上，非 ASCII 负载会错位甚至读挂。
+            input = new BufferedInputStream(socket.getInputStream());
 
             String key = Base64.getEncoder()
                     .encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
@@ -100,9 +119,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
             output.write(request.getBytes(StandardCharsets.UTF_8));
             output.flush();
 
-            String responseLine = input.readLine();
-            if (responseLine == null || !responseLine.contains("101")) {
-                throw new RuntimeException("WebSocket 握手失败: " + responseLine);
+            String responseHead = readHandshakeHeader();
+            if (responseHead == null || !responseHead.contains("101")) {
+                throw new RuntimeException("WebSocket 握手失败: " + responseHead);
             }
 
             connected = true;
@@ -155,11 +174,31 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         try {
             String payload = topic + ":" + message.toString();
             byte[] data = payload.getBytes(StandardCharsets.UTF_8);
-            byte[] frame = new byte[2 + data.length];
-            frame[0] = (byte) 0x81;
-            frame[1] = (byte) data.length;
-            System.arraycopy(data, 0, frame, 2, data.length);
-            output.write(frame);
+            // 客户端帧必须掩码（RFC 6455），且 >125 字节要写扩展长度：
+            // 原实现只写了 7 位长度且不带掩码，标准服务端会直接关连接，大负载也读不出来。
+            byte[] frame = new byte[data.length + 14];
+            int pos = 0;
+            frame[pos++] = (byte) 0x81;
+            if (data.length <= 125) {
+                frame[pos++] = (byte) (0x80 | data.length);
+            } else if (data.length <= 0xFFFF) {
+                frame[pos++] = (byte) (0x80 | 126);
+                frame[pos++] = (byte) ((data.length >> 8) & 0xFF);
+                frame[pos++] = (byte) (data.length & 0xFF);
+            } else {
+                frame[pos++] = (byte) (0x80 | 127);
+                for (int i = 7; i >= 0; i--) {
+                    frame[pos++] = (byte) ((data.length >> (8 * i)) & 0xFF);
+                }
+            }
+            byte[] mask = new byte[4];
+            MASK_RANDOM.nextBytes(mask);
+            System.arraycopy(mask, 0, frame, pos, 4);
+            pos += 4;
+            for (int i = 0; i < data.length; i++) {
+                frame[pos + i] = (byte) (data[i] ^ mask[i % 4]);
+            }
+            output.write(frame, 0, pos + data.length);
             output.flush();
         } catch (Exception e) {
             throw new RuntimeException("发送消息失败", e);
@@ -215,6 +254,33 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     /**
+     * 读握手响应头（读到空行为止）。
+     *
+     * <p>按字节读到 \r\n\r\n 结束：不能按行读，否则服务端紧随 101 之后发出的首帧
+     * 会被行缓冲吞掉。</p>
+     *
+     * @return 响应头文本；流已关闭时返回 null
+     * @throws IOException 读失败
+     */
+    private String readHandshakeHeader() throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int p1 = -1;
+        int p2 = -1;
+        int p3 = -1;
+        int read;
+        while ((read = input.read()) >= 0) {
+            buffer.write(read);
+            if (p1 == '\r' && p2 == '\n' && p3 == '\r' && read == '\n') {
+                break;
+            }
+            p1 = p2;
+            p2 = p3;
+            p3 = read;
+        }
+        return buffer.size() == 0 ? null : buffer.toString(StandardCharsets.UTF_8);
+    }
+
+    /**
      * 开始接收Thread
     */
     private void startReceiveThread() {
@@ -222,26 +288,55 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         receiveThread = new Thread(() -> {
             while (connected && socket != null && socket.isConnected()) {
                 try {
-                    int b = input.read();
-                    if (b == -1) {
+                    int b0 = input.read();
+                    if (b0 < 0) {
                         break;
                     }
-                    if ((b & 0x80) == 0x80) {
-                        int length = input.read();
-                        if (length == 126) {
-                            length = (input.read() << 8) | input.read();
-                        } else if (length == 127) {
-                            length = 0;
-                            for (int i = 0; i < 4; i++) {
-                                length = (length << 8) | input.read();
-                            }
+                    int opcode = b0 & 0x0F;
+                    int b1 = input.read();
+                    if (b1 < 0) {
+                        break;
+                    }
+                    boolean masked = (b1 & 0x80) != 0;
+                    long length = b1 & 0x7F;
+                    if (length == 126) {
+                        byte[] ext = input.readNBytes(2);
+                        if (ext.length < 2) {
+                            break;
                         }
-                        char[] chars = new char[length];
-                        for (int i = 0; i < length; i++) {
-                            chars[i] = (char) input.read();
+                        length = ((long) (ext[0] & 0xFF) << 8) | (ext[1] & 0xFF);
+                    } else if (length == 127) {
+                        // 127 后面是 8 字节（64 位）长度：原来只读 4 字节，读到的全是高位 0
+                        byte[] ext = input.readNBytes(8);
+                        if (ext.length < 8) {
+                            break;
                         }
-                        String message = new String(chars);
-                        handleMessage(message);
+                        length = 0L;
+                        for (byte value : ext) {
+                            length = (length << 8) | (value & 0xFF);
+                        }
+                    }
+                    if (length < 0 || length > MAX_FRAME_BYTES) {
+                        break;
+                    }
+                    byte[] maskKey = masked ? input.readNBytes(4) : new byte[0];
+                    if (masked && maskKey.length < 4) {
+                        break;
+                    }
+                    byte[] payloadBytes = input.readNBytes((int) length);
+                    if (payloadBytes.length < length) {
+                        break;
+                    }
+                    if (masked) {
+                        for (int i = 0; i < payloadBytes.length; i++) {
+                            payloadBytes[i] = (byte) (payloadBytes[i] ^ maskKey[i % 4]);
+                        }
+                    }
+                    if (opcode == 0x8) {
+                        break;
+                    }
+                    if (opcode == 0x1 || opcode == 0x2) {
+                        handleMessage(new String(payloadBytes, StandardCharsets.UTF_8));
                     }
                 } catch (Exception e) {
                     if (connected) {

@@ -115,15 +115,19 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
             throw new IllegalStateException("客户端未连接");
         }
         try {
-            String body = java.net.URLEncoder.encode(topic, "UTF-8") + "=" +
-                    java.net.URLEncoder.encode(message.toString(),
-                    "UTF-8");
+            // 服务端按 topic / message 两个表单参数解析；原来把 topic 当参数名，
+            // 拼出的是 "up=from-client" 这种谁也解析不了的 body，send() 静默失败。
+            String body = "topic=" + java.net.URLEncoder.encode(topic, "UTF-8")
+                    + "&message=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + "/api/sync/send"))
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("同步服务端拒绝上行消息: " + response.statusCode());
+            }
         } catch (Exception e) {
             throw new RuntimeException("发送消息失败", e);
         }

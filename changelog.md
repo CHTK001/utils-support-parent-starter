@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 其它：`ServiceDefinitionFinderTest`(3)、`DiscoveryLifecycleTest`(2)
 - 压测（默认跳过）：`ProxyThroughputTest`（`-Dbench.throughput=true`）、`WebSocketThroughputTest`（`-Dbench.ws=true`）以及独立进程客户端 `WebSocketFanoutClient`（`-Dbench.ws.processes` 可拆多进程）
 - `WebSocketSyncServer` 增加 accept/握手诊断计数：`getAcceptedTotal()` / `getHandshakeOkTotal()` / `getHandshakeFailTotal()` / `getLastHandshakeError()`
-- 非原生包的首个服务端用例：`VertxHttpServerTest`(2)、`VertxTcpServerTest`(3)、`VertxHttpProxyServerTest`(2)、`VertxWebSocketServerTest`(1)（`utils-support-network-starter` 原先连 junit 依赖都没有，本轮补上；合计 8 条）
+- 非原生包（`utils-support-network-starter`）用例：`VertxHttpServerTest`(2)、`VertxTcpServerTest`(3)、`VertxHttpProxyServerTest`(2)、`VertxWebSocketServerTest`(1)（该模块原先连 junit 依赖都没有，本轮补上）
+- 非原生包 `sync/netty` 端到端用例：`NettyWebSocketSyncServerTest`(4)、`NettyWebSocketSyncClientTest`(3)、`NettyHttpSyncServerTest`(3)。四个实现此前均零覆盖，且三对真实链路全部是「先写用例跑红 → 再修实现」。模块合计 18 条全绿。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
@@ -28,6 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `HttpProxyServer`：后端响应头是逐字节读**原始 socket**（一个响应头 100~200 次系统调用），改为按 Socket 缓存 `BufferedInputStream`（关闭时同步清理，不能每请求新建否则会吞掉多余字节）。
 - `NioServerResponse`：`ECHO_HEADER_CACHE` 以 `Content-Length` 为键且无上限（可被撑爆），改为 >64KB 不缓存、条数上限 256。
 - `VertxWebSocketServer`：`onSubscribe` 注册的处理器**永远不会被调用**——消息回调里走的是 `handleRequest`（路由/过滤器链），那条路径不查 `topicHandlers`。改为直接调用订阅处理器（文本帧与二进制帧两条路径都修）。修复前用例 16.5s 读超时，修复后 1.1s 通过。
+- `NettyWebSocketSyncServer`（名字含 Netty，实为手写 socket 帧解析）四处真缺陷，修复前 3 条用例全红：
+  - 服务端发的文本帧**带随机掩码**。RFC 6455 只允许客户端帧掩码，浏览器/标准客户端会以 1006 直接关连接（JDK 版实现已明确修过这一处，此类漏了）。
+  - `length==127` 分支只读 4 字节长度（应为 8 字节），读到的是高位全 0 的 4 个字节，70KB 大帧被解析成 0 长度并串帧。
+  - 连接器是 `0..200` 的 `SynchronousQueue` + `CallerRunsPolicy`：第 201 条长连接的 handler 落到 **accept 线程自己**并阻塞在读帧上，之后再有新连接都进不来。实测 300 条并发长连接只接纳 200 条；改虚拟线程池后 300/300。
+  - `bind()` 用默认 backlog 50 且绑定后不回写实际端口：突发建连丢 SYN（100 条只成 90 条）、`port=0` 时 `getPort()` 恒为 0。改为配置 backlog 并回写端口（与 JDK 版口径一致）。
+- `NettyWebSocketSyncClient`：构造传入的 `serverUrl` **被完全丢弃**，`connect()` 固定连 `ws://localhost:8080` —— 无论配什么地址都连不上，`NettyWebSocketSyncFlow` 建连必抛异常（修复前 3 条端到端用例全部 `WebSocket 连接失败`）。另修：客户端帧不掩码且只写 7 位长度（>125 字节必坏）、接收端用 `InputStreamReader` 按字符解帧（非 ASCII 负载错位/读挂）、127 分支同样只读 4 字节。改为按字节解析 + 掩码 + 7/16/64 位长度。
+- `NettyHttpSyncServer` / `NettyHttpSyncClient`：这对 HTTP 同步链路的上行消息**从来发不出去**。客户端把 `topic` 当参数名拼出 `up=from-client`，服务端 `extractParam` 只找 JSON 片段 `"topic"`/`"message"`，于是每个 send 都回 400，而客户端不检查状态码 → 静默丢弃。改为客户端发 `topic=...&message=...` 表单、服务端按表单解析（保留 JSON 兼容）并对非 200 抛错。另修：405 分支只调 `sendResponseHeaders(405, 0)` 不关闭 exchange，chunked 没有结束块、客户端等到超时；204 改为 `-1` 无响应体；`port=0` 回写实际端口；请求体按 UTF-8 解码。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 
@@ -46,6 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `WebSocketSyncServer` | 规模 / 广播 / 扇出 / 吞吐 | ✅ |
 | `TcpProxyServer` | 5 | ✅ 回退必红 |
 | `AioTcpProxyServer` / `HttpProxyServer` / `JdkHttpProxyServer` / `AioHttpProxyServer` / `Socks5ProxyServer` | 4 / 3 / 1 / 2 / 3 | ✅ |
+| `VertxHttpServer` / `VertxTcpServer` / `VertxHttpProxyServer` / `VertxWebSocketServer` | 2 / 3 / 2 / 1 | ✅ |
+| `NettyWebSocketSyncServer` + `NettyWebSocketSyncClient` | 4 + 3（端到端：握手/掩码/大帧/UTF-8/并发长连接/随机端口） | ✅ 回退必红 |
+| `NettyHttpSyncServer` + `NettyHttpSyncClient` | 3（端到端：上下行往返 / 405 / 204 / 随机端口） | ✅ 回退必红 |
 
 性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
 
@@ -66,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
 
 未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、TLS 吞吐、过滤器单测。
+非原生包仍未测：`KcpServer` / `KcpHttpServer`、`RSocketServer`、`MqttServer`、`SmbServer`、`DHTServer`、`SshServer`、`WebRtcServer`、`JRebelHttpServer`、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
 
 HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
 

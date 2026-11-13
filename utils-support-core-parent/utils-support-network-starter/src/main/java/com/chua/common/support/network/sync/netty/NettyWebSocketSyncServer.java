@@ -15,9 +15,6 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
 import com.chua.common.support.network.server.AbstractServer;
 
 /**
@@ -73,11 +70,18 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()));
+            // backlog 用配置值：无参 bind 的默认 backlog 是 50，突发握手会直接丢 SYN
+            // （实测 100 条并发建连只成 90 条）。JDK 版实现口径与此一致。
+            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(1024));
+            // 回写实际端口：配置 port=0（随机端口）时，不回写就永远拿不到真实端口
+            setting.setPort(serverSocket.getLocalPort());
+            // WebSocket 是长连接。原实现是「0..200 的 SynchronousQueue + CallerRunsPolicy」：
+            // 第 (max+1) 条连接的 handler 会由 accept 线程自己执行，accept 线程随即阻塞在
+            // readFrames 上，之后所有新连接都进不来（实测 300 条并发长连接只接纳 200 条）。
+            // 改为虚拟线程池：线程数与连接数解耦，一条连接只在有数据时占用调度。
 // [P3C C1 豁免] 场景化创建线程，需文档化
-            executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-// [P3C C1 豁免] 场景化创建线程，需文档化
-                    r -> new Thread(r, "netty-ws-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
+            executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("Netty WebSocket SyncServer 启动失败", e);
@@ -296,8 +300,10 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
             if (length == 126) {
                 length = (in.read() << 8) | (in.read());
             } else if (length == 127) {
+                // RFC 6455：127 后面跟的是 8 字节（64 位）长度。原来只读 4 字节，
+                // 读到的是高位全 0 的那 4 个字节，长度被解析成 0，大帧永远收不到。
                 length = 0;
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 8; i++) {
                     length = (length << 8) | in.read();
                 }
             }
@@ -353,6 +359,11 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
 
     /**
      * 构建文本帧
+     *
+     * <p>协议规定：仅客户端帧需掩码（masked），服务端帧<b>必须无掩码</b>。
+     * 原实现给服务端帧也加了随机掩码，标准客户端（浏览器等）校验到掩码位后会直接以
+     * 1006 关闭连接。</p>
+     *
      * @param payload payload
      * @return 构建文本帧的结果
      * @throws Exception 异常
@@ -362,23 +373,19 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write(0x81);
         if (data.length <= 125) {
-            out.write(0x80 | data.length);
+            out.write(data.length);
         } else if (data.length <= 65535) {
-            out.write(0x80 | 126);
+            out.write(126);
             out.write((data.length >> 8) & 0xFF);
             out.write(data.length & 0xFF);
         } else {
-            out.write(0x80 | 127);
+            out.write(127);
             for (int i = 7; i >= 0; i--) {
                 out.write((int) ((data.length >> (8 * i)) & 0xFF));
             }
         }
-        byte[] maskKey = new byte[4];
-        new java.security.SecureRandom().nextBytes(maskKey);
-        out.write(maskKey);
-        for (int i = 0; i < data.length; i++) {
-            out.write(data[i] ^ maskKey[i % 4]);
-        }
+        // 服务端帧不掩码：仅客户端帧需掩码，加了掩码标准客户端会以 1006 关闭连接
+        out.write(data);
         return out.toByteArray();
     }
 
