@@ -152,7 +152,9 @@ public class DHTServer extends AbstractServer {
             KrpcMessage krpc = KrpcMessage.parse(data);
             if (krpc.y == 'q') {
                 DhtMessage msg = bridge.decodeQuery(krpc, sender);
-                protocol.receiveMessage(msg, sender);
+                if (msg != null) {
+                    protocol.receiveMessage(msg, sender);
+                }
             }
         } catch (Exception e) {
             log.debug("KRPC message error from {}: {}", sender, e.getMessage());

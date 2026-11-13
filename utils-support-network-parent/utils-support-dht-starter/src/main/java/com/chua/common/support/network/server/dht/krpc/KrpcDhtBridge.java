@@ -406,7 +406,7 @@ public class KrpcDhtBridge {
      *
      * @param krpc   KRPC 消息
      * @param sender 发送者地址
-     * @return DHT 消息
+     * @return DHT 消息；查询类型不支持时返回 空（调用方应忽略该报文）
      */
     public DhtMessage decodeQuery(KrpcMessage krpc, InetSocketAddress sender) {
         DhtMessage msg = new DhtMessage();
@@ -457,7 +457,10 @@ public class KrpcDhtBridge {
                 break;
             }
             default:
-                msg.setType(DhtMessageType.PING);
+                // 未知查询（如 BEP44 的 get/put）必须忽略，不能当成 ping 回 PONG：
+                // 回 PONG（y=r + r.id）会让客户端误以为服务端支持该查询，
+                // 属于「回了错误数据」，比不响应更糟。
+                return null;
         }
         return msg;
     }

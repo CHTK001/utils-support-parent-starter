@@ -279,6 +279,43 @@ class DhtServerTest {
     }
 
     @Test
+    @DisplayName("未知查询（如 BEP44 get/put）不应被当作 ping 误回 PONG")
+    void unknownQueryIsNotAnsweredAsPing() throws Exception {
+        Map<String, Object> args = args(PEER_ID);
+        args.put("target", TARGET);
+        byte[] payload = encodeQuery("get", args);
+        try (DatagramSocket fast = new DatagramSocket()) {
+            fast.setSoTimeout(800);
+            fast.send(new DatagramPacket(payload, payload.length, loopback, port));
+            byte[] buf = new byte[4096];
+            DatagramPacket resp = new DatagramPacket(buf, buf.length);
+            try {
+                fast.receive(resp);
+                KrpcMessage got = KrpcMessage.parse(Arrays.copyOf(resp.getData(), resp.getLength()));
+                fail("未知查询不应得到响应，实际收到 y=" + got.y + "（回 PONG 会让客户端误以为支持该查询）");
+            } catch (SocketTimeoutException expected) {
+                // 期望：忽略未知查询
+            }
+        }
+    }
+
+    /**
+     * 构造一条 KRPC 查询报文。
+     *
+     * @param q    查询类型
+     * @param args 查询参数
+     * @return bencode 字节
+     */
+    private static byte[] encodeQuery(String q, Map<String, Object> args) {
+        Map<String, Object> msg = new LinkedHashMap<>();
+        msg.put("t", "aa");
+        msg.put("y", "q");
+        msg.put("q", q);
+        msg.put("a", args);
+        return BencodeCodec.encode(msg);
+    }
+
+    @Test
     @DisplayName("非法报文：丢弃且不影响后续查询")
     void garbageDatagramDoesNotBreakServer() throws Exception {
         byte[] junk = "this-is-not-bencode".getBytes(StandardCharsets.UTF_8);

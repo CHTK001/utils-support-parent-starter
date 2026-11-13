@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JRebelHttpServer` 首个真实链路用例 `JRebelHttpServerTest`(3)：用 **JDK HttpClient** 验证 validate-connection / 创建 lease / ping、guid / obtainTicket / releaseTicket、未注册路径 404。`jrebel-starter` 补 junit-jupiter（test scope）。
 - `KcpServer` 首个真实链路用例 `KcpServerTest`(2)：用**模块自带 KcpClient** 走真实 UDP/KCP，验证注册握手（registered 应答）、上行 topic:payload 派发、服务端广播回传、双客户端广播；`KcpHttpServer` 委托同一链路。`kcp-starter` 补 junit-jupiter（test scope）。
 - `SmbServer` 首个真实链路用例（独立工程 `test/perf/smb-native-probe`，`SmbChainTest` 4 条）：用 **smbj 0.14 官方客户端**验证 SPI 发现、原生库监听、连接 + 认证 + Tree Connect、Create/Write/Read/Close 文件读写。`mvn -o test` → 4/4 通过。探针工程同时沉淀了 4 个可直接运行的 main 探针（SPI/诊断/全链路）。
-- `DHTServer` 首个真实链路用例 `DhtServerTest`(9)：**裸 `DatagramSocket` + 手工 bencode** 按 BEP 5 发 UDP 查询，验证 ping→PONG、连续 10 包保活、find_node 紧凑节点列表、get_peers token、announce_peer 响应、宣告 peer 可被 get_peers 查到（values）、implied_port、爬取集合、非法报文容错。`dht-starter` 补 junit-jupiter（test scope）。
+- `DHTServer` 首个真实链路用例 `DhtServerTest`(10)：**裸 `DatagramSocket` + 手工 bencode** 按 BEP 5 发 UDP 查询，验证 ping→PONG、连续 10 包保活、find_node 紧凑节点列表、get_peers token、announce_peer 响应、宣告 peer 可被 get_peers 查到（values）、implied_port、爬取集合、未知查询忽略、非法报文容错。`dht-starter` 补 junit-jupiter（test scope）。
 - `WebRtcServer` 首个信令链路用例 `WebRtcSignalingTest`(5)：**裸 Socket** 完成 RFC 6455 握手（校验 `Sec-WebSocket-Accept`）、token 403/101、answer 帧往返、ping→pong、同连接多帧、非 Upgrade 断开。`webrtc-starter` 补 junit-jupiter（test scope）。
 - TLS 吞吐基准 `HttpTlsThroughputTest`（默认跳过，`-Dbench.throughput=true`）：明文/TLS × NIO/AIO 四场景，1024B 响应、64 连接串行 keep-alive、3s 预热 + 10s 测量，真实 `SSLSocket` 握手（trust-all 校验自签证书）。输出 `BENCH|场景|qps|p50us|p99us|err|errDetail`，错误按异常类型分类。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `utils-support-native-smb`：发布 jar 缺 `META-INF/services/com.chua.common.support.nativeapi.SmbServerSpi` 注册文件（源码里有，打包漏了），`SmbServer` 启动直接抛「SMB 原生库未安装」。已在源码工程内 `mvn install` 重新打包验证：jar 内 SPI 注册与 4 个平台原生库齐全，`ServiceProvider` 可直接解析（无需测试侧补注册）。
 - `DHTServer`：**只应答第一个 UDP 包**。`DhtPacketHandler.channelRead0` 手动 `buf.release()`，而 `SimpleChannelInboundHandler` 在 `channelRead0` 返回后还会自动释放 → 双重释放抛 `IllegalReferenceCountException` → `exceptionCaught` 执行 `ctx.close()` 关掉整个服务端通道。现象是第一条查询有响应、之后全部超时（新用例首轮 5 条里 4 条红）。去掉手动 release。
 - `DHTServer`：`find_node` / `get_peers` **永远不响应**。`DhtRoutingTable.findClosestPeers` 返回 `result.subList(...)`，而 `result` 是 Eclipse Collections `FastList`（不支持 subList）→ 调用方 `closest.removeIf(...)` 抛 `UnsupportedOperationException`，被 `handleKrpcMessage` 的 catch 静默吞掉。改为复制成独立列表再返回。
+- `DHTServer`：**未知查询被当成 ping 回 PONG**。`KrpcDhtBridge.decodeQuery` 的 `default` 分支把未知查询类型设成 `PING`，于是对 BEP44 的 `get`/`put` 这类服务端并不支持的查询也回了正常的 `{id}` 响应，客户端会误判为「服务端支持该查询」。改为未知查询返回 `null`、`DHTServer.handleKrpcMessage` 忽略该报文（BEP 5 允许不响应未知查询）。`DhtServerTest` 9 → **10 条**全绿。
 - `DHTServer` 补全 BEP 5 的 peer 语义：`announce_peer` 此前只回 `{id}` 不存地址，导致同一 infohash 的 `get_peers` 永远回近邻节点、从不回 `values`；`implied_port=1` 的来源端口语义无处落地；宣告的 infohash 也不进爬取集合（只有 `get_peers` 进）。现补：宣告地址按 infohash 存储（30 分钟 TTL、同 infohash 上限 200、按 host:port 去重、`implied_port=1` 取 UDP 来源端口），`get_peers` 命中时优先回 6 字节紧凑 peer 的 `values`，宣告同样计入爬取集合。`DhtServerTest` 6 → **9 条**全绿。
 - `DHTServer`：`announce_peer` **没有处理分支**。`KrpcDhtBridge.decodeQuery` 已把它解码成 `ANNOUNCE_PEER`，但 `DhtProtocol.receiveMessage` 的 switch 只覆盖 PING/FIND_NODE/FIND_VALUE/STORE/GET_PEERS/NAT_DETECT，BEP 5 要求返回的 `{id}` 从来没发过。补 `handleAnnouncePeer` 回 `ANNOUNCE_PEER_RESPONSE`。修复后 `DhtServerTest` 6/6 通过，耗时 13.7s → 0.7s。
 - `AioHttpServer`（TLS）：**握手完成时残留密文不处理，连接永久卡死**。客户端常把握手最后一个 flight 与首个 HTTP 请求放在同一 TCP 段，握手走到 `NOT_HANDSHAKING` 时 `netIn` 里已经有应用数据密文，但 `tlsDrive` 的 default 分支直接 `issueRead` 去等新密文 → 请求留在缓冲里、服务端不回包，客户端读超时后重连。并发 8/16 时 0 次，32 时 5 次，64 时每轮 25~32 次（全部 `SocketTimeoutException`），并拖低吞吐（27.7k~40.9k QPS 抖动）。修复：有残留先走 `tlsOnNetworkData`，否则再 `issueRead`。修复后 c64 连跑两轮 **err=0**，TLS 吞吐 **39,879 QPS**（同轮明文 75,872，52.6%）。既有 TLS 流水线用例 6/6 无回归。
@@ -83,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `NettyWebSocketSyncServer` + `NettyWebSocketSyncClient` | 4 + 3（端到端：握手/掩码/大帧/UTF-8/并发长连接/随机端口） | ✅ 回退必红 |
 | `NettyHttpSyncServer` + `NettyHttpSyncClient` | 3（端到端：上下行往返 / 405 / 204 / 随机端口） | ✅ 回退必红 |
 | `SmbServer` | 4（独立工程：SPI / 监听 / Tree Connect / 文件读写） | ✅ 回退必红（修复前 Tree Connect 60s 超时） |
-| `DHTServer` | 9（裸 UDP + 手工 bencode） | ✅ 回退必红（首轮 5 条里 4 红；BEP5 values 首轮 2 红） |
+| `DHTServer` | 10（裸 UDP + 手工 bencode） | ✅ 回退必红（首轮 5 条里 4 红；BEP5 values 首轮 2 红；未知查询 1 红） |
 | `WebRtcServer`（信令） | 5（裸 Socket + RFC6455） | ✅（OFFER/媒体协商未验） |
 
 性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
