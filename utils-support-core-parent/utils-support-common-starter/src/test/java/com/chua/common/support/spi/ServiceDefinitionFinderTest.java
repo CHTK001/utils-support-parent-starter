@@ -72,4 +72,28 @@ class ServiceDefinitionFinderTest {
         assertSame(ServiceDefinitionFinder.DEFAULT_DEFINITION, found,
                 "describeType=HTTP 不应命中 describeType=TCP 的实现（快路径绕过了类型过滤）");
     }
+
+    /**
+     * 未命中会被缓存；注册后必须能通过清缓存恢复命中。
+     */
+    @Test
+    @DisplayName("查找：未命中缓存可被注册清空")
+    void missCacheIsClearedByRegistration() {
+        Map<String, SortedList<ServiceDefinition>> map = new ConcurrentHashMap<>();
+        ServiceDefinitionFinder finder = new ServiceDefinitionFinder(map, null);
+        assertSame(ServiceDefinitionFinder.DEFAULT_DEFINITION, finder.getServiceDefinition("nacos"),
+                "空表时应当查不到");
+
+        SortedList<ServiceDefinition> list = new SortedArrayList<>(ServiceDefinition.COMPARATOR);
+        ServiceDefinition nacos = definition("nacos", null);
+        list.add(nacos);
+        map.put("NACOS", list);
+
+        assertSame(ServiceDefinitionFinder.DEFAULT_DEFINITION, finder.getServiceDefinition("nacos"),
+                "未清缓存前应仍返回空定义（这正说明缓存生效）");
+
+        finder.clearMissCache();
+        assertSame(nacos, finder.getServiceDefinition("nacos"),
+                "清缓存后应命中新注册的实现");
+    }
 }
