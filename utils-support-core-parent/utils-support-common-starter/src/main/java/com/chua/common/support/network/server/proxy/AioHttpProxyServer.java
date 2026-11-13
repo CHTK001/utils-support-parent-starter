@@ -369,8 +369,19 @@ public class AioHttpProxyServer extends AbstractServer {
      * @param leftover 方法入参 leftover
      */
     private void forward(ClientCtx ctx, RequestHead head, byte[] leftover) {
-        // 已知限制：这里直接新建后端连接，没有走 BACKEND_POOL
-        // （acquireBackend/returnBackend 目前是死代码）。接线后实测会串响应，见 afterResponse 注释。
+        // 同一客户端会话内顺序请求复用同一条后端连接（1:1，不做跨客户端池）。
+        // 每请求新建后端连接会把请求速率变成「连接速率」：Windows 上 TIME_WAIT 迅速
+        // 占满本地临时端口，实测 128 并发会从预热后的数千 QPS 退化到 13–22 QPS、
+        // p50 ≈ 1s（TCP 重传档）。复用后这条连接由 finishClient 统一关闭。
+        AsynchronousSocketChannel reused = ctx.backend;
+        if (reused != null && reused.isOpen()
+                && head.host != null && head.host.equals(ctx.backendHost)
+                && head.port == ctx.backendPort) {
+            sendRequest(ctx, reused, head, leftover);
+            return;
+        }
+        closeQuietly(ctx.backend);
+        ctx.backend = null;
         connectAsync(new InetSocketAddress(head.host, head.port),
                 backend -> sendRequest(ctx, backend, head, leftover),
                 err -> {
@@ -387,6 +398,8 @@ public class AioHttpProxyServer extends AbstractServer {
                              RequestHead head, byte[] leftover) {
         try {
         ctx.backend = backend;
+        ctx.backendHost = head.host;
+        ctx.backendPort = head.port;
         ctx.lastKeepAlive = head.keepAlive;
         ByteArrayOutputStream req = new ByteArrayOutputStream(256);
         req.write((head.method + " " + head.extractOriginForm()
@@ -531,14 +544,14 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private void afterResponse(ClientCtx ctx, AsynchronousSocketChannel backend,
                                ResponseMeta meta) {
-        // 注意：这里不能把后端连接归还连接池。实测接线后 128 并发下 QPS 从 ~1.7k 掉到 71、
-        // 重连 174 次——池里的通道带有上一次未结的读状态，复用会串响应。
-        // 现状是「每个请求新建一次后端连接」，代价是 p50 ≈ 24ms（建连开销），已知限制。
-        closeQuietly(backend);
         if (meta.close || !ctx.lastKeepAlive || !running) {
+            closeQuietly(backend);
+            ctx.backend = null;
             finishClient(ctx);
             return;
         }
+        // keep-alive：后端连接留给同一客户端会话的下一个请求复用（见 forward 注释），
+        // 只有客户端断开或响应要求 close 时才关。
         ctx.parser.reset();
         issueClientRead(ctx);
     }
@@ -678,9 +691,17 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         final HeadParser parser = new HeadParser();
         /**
-         * 后端通道
+         * 后端通道（按客户端会话 1:1 复用）
          */
         volatile AsynchronousSocketChannel backend;
+        /**
+         * 后端连接对应的主机（复用前必须比对，正向代理可能换目标）
+         */
+        String backendHost;
+        /**
+         * 后端连接对应的端口
+         */
+        int backendPort = -1;
         /**
          * 已发出的请求体字节数
          */

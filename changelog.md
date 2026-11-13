@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `WebSocketSyncServer` 增加 accept/握手诊断计数：`getAcceptedTotal()` / `getHandshakeOkTotal()` / `getHandshakeFailTotal()` / `getLastHandshakeError()`
 - 非原生包（`utils-support-network-starter`）用例：`VertxHttpServerTest`(2)、`VertxTcpServerTest`(3)、`VertxHttpProxyServerTest`(2)、`VertxWebSocketServerTest`(1)（该模块原先连 junit 依赖都没有，本轮补上）
 - 非原生包 `sync/netty` 端到端用例：`NettyWebSocketSyncServerTest`(4)、`NettyWebSocketSyncClientTest`(3)、`NettyHttpSyncServerTest`(3)。四个实现此前均零覆盖，且三对真实链路全部是「先写用例跑红 → 再修实现」。模块合计 18 条全绿。
+- 新增 `能力矩阵.md`：服务端实现清单（协议/IO 模型/TLS/关键能力/状态）、能力矩阵、两轮吞吐实测（上一轮隔离 + 本轮复测）、测试覆盖矩阵、已知限制与复现命令。压测脚本 `test/perf/run-proxy-isolated.ps1`（每场景独立 JVM）。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
 
 ### Fixed
@@ -36,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `bind()` 用默认 backlog 50 且绑定后不回写实际端口：突发建连丢 SYN（100 条只成 90 条）、`port=0` 时 `getPort()` 恒为 0。改为配置 backlog 并回写端口（与 JDK 版口径一致）。
 - `NettyWebSocketSyncClient`：构造传入的 `serverUrl` **被完全丢弃**，`connect()` 固定连 `ws://localhost:8080` —— 无论配什么地址都连不上，`NettyWebSocketSyncFlow` 建连必抛异常（修复前 3 条端到端用例全部 `WebSocket 连接失败`）。另修：客户端帧不掩码且只写 7 位长度（>125 字节必坏）、接收端用 `InputStreamReader` 按字符解帧（非 ASCII 负载错位/读挂）、127 分支同样只读 4 字节。改为按字节解析 + 掩码 + 7/16/64 位长度。
 - `NettyHttpSyncServer` / `NettyHttpSyncClient`：这对 HTTP 同步链路的上行消息**从来发不出去**。客户端把 `topic` 当参数名拼出 `up=from-client`，服务端 `extractParam` 只找 JSON 片段 `"topic"`/`"message"`，于是每个 send 都回 400，而客户端不检查状态码 → 静默丢弃。改为客户端发 `topic=...&message=...` 表单、服务端按表单解析（保留 JSON 兼容）并对非 200 抛错。另修：405 分支只调 `sendResponseHeaders(405, 0)` 不关闭 exchange，chunked 没有结束块、客户端等到超时；204 改为 `-1` 无响应体；`port=0` 回写实际端口；请求体按 UTF-8 解码。
+- `AbstractServer`：构造函数里的 `initBuiltinFilters()` 走的是**可覆写**的 `addFilter`，而构造期子类字段初始化器尚未执行 —— 代理实现（`AbstractProxyServer`）在覆写里登记 `ipFilters`，读到的还是 null。结果是**所有代理服务器一 `new` 就 NPE**：`TcpProxyServerTest` 5/5、`AioTcpProxyServerTest`/`HttpProxyServerTest`/`AioHttpProxyServerTest`/`Socks5ProxyServerTest` 全部构造失败，压测 8 个场景里 4 个直接 error。改为构造期走私有的 `addBuiltinFilter`（不派发子类覆写）。修复后代理用例 17/17、`ProxyThroughputTest` 8/8 全绿。
+- `AioHttpProxyServer`：`forward()` 每个请求都新建一条后端 TCP 连接（连接池是死代码）。128 并发 keep-alive 压测下，本地临时端口被 TIME_WAIT 迅速占满，实测**从预热后的数千 QPS 退化到 13–22 QPS**、p50 落在 TCP 重传的 1s 档、重连 350–635 次。改为**按客户端会话 1:1 复用后端连接**（同目标、通道仍 open 就复用；不做跨客户端池——池内残留读状态会串响应，此前实测过）。客户端断开或响应要求 `close` 时才关闭。
 
 > 上述两处 proxy/http 改动**没有实测吞吐提升**：反向代理三轮复测 9.9k / 11.1k / 14.8k QPS（改动前 10.9k），处在噪声范围内；消除系统调用是真的，但在该并发下不是瓶颈。不计入性能收益。
 
@@ -71,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `JdkUdpServer` | 128 | 32,924 pps，失败 0.3% |
 | `JdkHttpProxyServer`（透传，keep-alive） | 128 | **18,827 QPS**，p50 6.34ms / p99 15.75ms，0 重连 |
 | `HttpProxyServer`（反向，keep-alive） | 8 / 32 / 128 | **≈10,900–11,160 QPS**（三档持平），p50 0.51→9.34ms、p99 3.3→55.8ms，0 重连 |
-| `AioHttpProxyServer`（正向，keep-alive） | 128 | 1,681 QPS，p50 23.9ms / p99 105ms，**97 次客户端重连** ⚠️ |
+| `AioHttpProxyServer`（正向，keep-alive） | 128 | 1,681 QPS，p50 23.9ms / p99 105ms，**97 次客户端重连** ⚠️（同日已修复，见下） |
 | WS 连接容量 | — | 5k/10k/**50k** 全通过；50k 时 4.21KB/连接、205MB 堆、2,193 条/秒 |
 | WS 回环消息 | 64 conn | 35,217 条/秒 |
 | WS 广播扇出 | 500 / 10k / 20k / **50k** | 2.2ms / ~200ms / 302ms / **1,364ms** 每次 |
@@ -81,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
 
-剩下唯一真实异常是正向代理 `AioHttpProxyServer`：隔离跑仍有 97 次重连、p50 23.9ms、p99 105ms，且 QPS（0.9k–4k）跨轮次波动大。根因已定位：`forward()` 直接 `connectAsync` 新建后端连接，`acquireBackend`/`returnBackend` 从未被调用（连接池是死代码），**每个请求都要重新建一次 TCP 连接**——p50 ≈ 24ms 正是建连开销。尝试把池接上后回归更差（QPS 71、重连 174 次，池里的通道带残留读状态会串响应），已回退并把「每请求新建后端连接」记为已知限制，待重做连接池（需要读状态隔离）。
+正向代理 `AioHttpProxyServer` 的修复（同日）：隔离复测发现它不只是慢，而是**不可用**——
+128 并发 keep-alive 下退化到 13–22 QPS、p50 落在 TCP 重传的 1s 档、重连 350–635 次（本地临时端口被每请求新建的 TIME_WAIT 占满）。按「客户端会话 1:1 复用后端连接」修复后，同口径 **12,725 QPS、p50 9.1ms、p99 29.7ms、0 重连**，与反向/透传同一水平。复测数据与口径见 `能力矩阵.md`。
 
 已知不稳定用例：`HttpBackpressureWriteTest#aioHttpServerTlsKeepsEveryPipelinedResponse`（满负载 60s+ 超时，单独复跑 4.6s 通过）、`TimeWheelExpirySchedulerTest#refailReschedulesDeadline`、`FtpServerPortBindingTest` FTPS 并发场景。
 

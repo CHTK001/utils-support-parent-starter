@@ -154,22 +154,22 @@ public abstract class AbstractServer implements ConfigServer {
      * <p>也可以在启动后通过 {@code server.addFilter(...)} 手动注册。</p>
      */
     private void initBuiltinFilters() {
-        addFilter(new GzipFilter());
+        addBuiltinFilter(new GzipFilter());
         if (Boolean.getBoolean("server.accesslog.enabled")) {
-            addFilter(new AccessLogServerFilter());
+            addBuiltinFilter(new AccessLogServerFilter());
         }
         if (Boolean.getBoolean("server.tracing.enabled")) {
-            addFilter(new TracingServerFilter());
+            addBuiltinFilter(new TracingServerFilter());
         }
-        addFilter(new CorsFilter());
+        addBuiltinFilter(new CorsFilter());
         // 安全响应头过滤器始终挂载，但是否真正下发响应头由
         // ServerSetting.SecurityHeadersConfig.enabled 在「请求时」判定。
         // 之所以不在此按 enabled 决定挂载与否：内置过滤器在构造期完成挂载，
         // 而使用方通常在 ServerBuilder.build() 之后才通过 getSetting() 回填配置，
         // 若在构造期判定会导致回填永远不生效。此处传入配置引用，过滤器每次请求实时读取。
-        addFilter(new SecurityHeadersServerFilter(setting.getSecurityHeaders()));
+        addBuiltinFilter(new SecurityHeadersServerFilter(setting.getSecurityHeaders()));
         if (urlMappingFilter != null) {
-            addFilter(urlMappingFilter);
+            addBuiltinFilter(urlMappingFilter);
         }
     }
 
@@ -918,6 +918,22 @@ public abstract class AbstractServer implements ConfigServer {
             filterManager.addReactiveFilter(reactiveFilter);
         }
         return this;
+    }
+
+    /**
+     * 构造函数期挂载内置过滤器。
+     *
+     * <p>不能直接调 {@link #addFilter}：它是可覆写的，而构造期子类字段初始化器尚未执行。
+     * 代理实现（{@code AbstractProxyServer}）在覆写里登记 IP 名单过滤器，构造期回调会读到
+     * 仍是 null 的 {@code ipFilters}，导致 <b>所有代理服务器一 new 就 NPE</b>。</p>
+     *
+     * @param filter 过滤器
+     */
+    private void addBuiltinFilter(ServerFilter filter) {
+        filterManager.addFilter(filter);
+        if (filter instanceof ReactiveServerFilter reactiveFilter) {
+            filterManager.addReactiveFilter(reactiveFilter);
+        }
     }
 
     /**
