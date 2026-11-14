@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0.53] - 2026-11-14
+
+### Added
+- `VertxTcpClient` 补 `encrypt(String type, String key)`，与 `JdkTcpClient` 同口径：`aes-gcm` 用预共享口令、`keylog` 每连接握手一次。`StreamCodec` 是 `InputStream/OutputStream` API，与 NetSocket 回调式 handler 无法混用，故开启加密后该连接改由阻塞 `Socket` 承载（连接超时 5s、读超时 10s、单帧上限 64MB），帧格式仍为 4 字节大端长度头 + 主体，服务端 `VertxTcpServer` 无需改动。新增 `VertxTcpClientEncryptTest`(5)：aes-gcm 往返、keylog 握手、同实例连续调用复用 codec、错误口令拿不到明文（反证）、未知类型配置即失败。`能力矩阵.md` §1.2 与 §4.2 同步。
+- SIP 隧道数据面端到端用例 `SipTunnelEncryptE2ETest`(3)：起真实 `SipServer`（`SipConfig.encrypt(true)` + token）与 provider / visitor 两个 `SipClient`，provider 侧注册服务并暴露本地回声 TCP，visitor 侧映射本地端口，断言字节原样往返；另有明文对照用例，以及「服务端加密而客户端不加密 → 信令认证直接失败」的反证，防止 `encrypt` 被忽略后静默降级为明文。此前 SIP 只有 `TokenDerivedAesGcmInteropTest`(2) 验证线格式，自身信令 + 数据面完整链路无用例。
+- `能力矩阵.md`：`SipServer` 状态由 ❓ 未验改为 ✅ 已验；`VertxTcpClient` 从「无 `encrypt` 入口」改为已支持；§4.1/§4.2 用例表补录，network-starter 模块合计更新为 31 条。
+
 ## [4.0.0.52] - 2026-11-13
 
 ### Added
