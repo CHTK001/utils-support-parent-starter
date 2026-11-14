@@ -832,6 +832,17 @@ public class RouterGroupChatClient extends SwitchingChatClient {
         return this;
     }
 
+    /**
+     * 组名不能下发给成员：每个成员各自绑定了模型（{@code provider:model} 里的 model），
+     * 请求里的模型是「组的名字」，广播下去成员会带着组名请求上游 → 400。
+     *
+     * @return false，表示不广播模型名
+     */
+    @Override
+    protected boolean propagateModel() {
+        return false;
+    }
+
     @Override
     public void close() {
         ClientCooldownRegistry.subscribe(cooldownPrefix, null);

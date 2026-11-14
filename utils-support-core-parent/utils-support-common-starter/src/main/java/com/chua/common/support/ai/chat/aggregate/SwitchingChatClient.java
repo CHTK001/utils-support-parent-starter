@@ -458,7 +458,28 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient model(String model) {
+        /*
+         * 默认把模型名广播给每个成员 —— 多 Key 聚合（MultiKey）共用同一个模型，这是对的。
+         * 但路由组的成员各自绑定了自己的模型：请求里的模型是「组的名字」，
+         * 广播下去会把成员模型覆盖成组名，上游直接 400 invalid chat completions request
+         * （2026-11-14 实测：路由组成员全 400，直连同一个成员模型正常）。
+         * 需要「成员各用各的模型」的聚合重写 {@link #propagateModel()} 返回 false。
+         */
+        if (!propagateModel()) {
+            return this;
+        }
         return broadcast(c -> c.model(model));
+    }
+
+    /**
+     * 请求级 {@code model(...)} 是否要广播给成员。
+     *
+     * <p>默认 true（多 Key 聚合共用一个模型）；成员各自绑定模型的聚合（路由组）应返回 false。</p>
+     *
+     * @return true 表示把模型名下发给成员
+     */
+    protected boolean propagateModel() {
+        return true;
     }
 
     @Override

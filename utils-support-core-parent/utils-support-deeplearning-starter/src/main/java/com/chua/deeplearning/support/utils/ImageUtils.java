@@ -116,12 +116,27 @@ public final class ImageUtils {
      *
      * <p>统一在此管理 {@code nu.pattern.OpenCV.loadLocally()}，
      * 各 translator 一律调用本方法，避免散落的重复加载。</p>
+     *
+     * <p><b>原生库不可用统一转成 {@link IllegalStateException}</b>：宿主机 glibc 低于
+     * 原生库要求时，{@code loadLocally()} 抛 {@link UnsatisfiedLinkError}；首次由
+     * {@code OpenCV$LocalLoader$Holder} 的静态初始化抛出时被包装成
+     * {@code ExceptionInInitializerError}，此后同一进程内一律是
+     * {@code NoClassDefFoundError}（「Could not initialize class」）。三者都是
+     * {@link LinkageError}，而业务侧普遍只 catch {@code Exception}，于是「宿主环境缺
+     * GLIBC 版本」被渲染成接口 500，且日志里只剩一句「Could not initialize class」。
+     * 这里按「能力不可用」而非「虚拟机错误」处理：转成受检路线的普通异常，消息保留
+     * 原始错误（含缺失的 GLIBC 版本），调用方按常规降级即可。版本对应关系见本模块
+     * README「OpenCV 原生库与 glibc 对应关系」。</p>
      */
     public static void load() {
         if (!loaded) {
             synchronized (ImageUtils.class) {
                 if (!loaded) {
-                    nu.pattern.OpenCV.loadLocally();
+                    try {
+                        nu.pattern.OpenCV.loadLocally();
+                    } catch (LinkageError e) {
+                        throw new IllegalStateException("OpenCV 原生库不可用（多为宿主机 glibc 版本不足）：" + e, e);
+                    }
                     purgeStaleNativeTempDirs();
                     loaded = true;
                 }
