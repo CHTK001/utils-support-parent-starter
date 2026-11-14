@@ -88,6 +88,7 @@ public class VertxTcpProxyServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("字节透传代理，加解密必须由端点完成");
         try {
             VertxOptions opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))

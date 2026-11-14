@@ -105,6 +105,7 @@ public class VertxHttpServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请改用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);

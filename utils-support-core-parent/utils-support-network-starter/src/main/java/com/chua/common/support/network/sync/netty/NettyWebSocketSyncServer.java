@@ -68,6 +68,7 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("WebSocket 实现未接 TLS，需要加密请用反向代理终结 TLS 或改用支持 wss 的实现");
         try {
             serverSocket = new ServerSocket();
             // backlog 用配置值：无参 bind 的默认 backlog 是 50，突发握手会直接丢 SYN

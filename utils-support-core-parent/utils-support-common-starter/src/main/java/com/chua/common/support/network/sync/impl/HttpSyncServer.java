@@ -150,6 +150,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("同步协议没有密钥协商字段，需要加密请自行封装上层载荷");
         try {
             // backlog 取配置值（0 会让内核用极小默认值）：百万连接目标下握手队列是关键一环
             server = com.sun.net.httpserver.HttpServer.create(

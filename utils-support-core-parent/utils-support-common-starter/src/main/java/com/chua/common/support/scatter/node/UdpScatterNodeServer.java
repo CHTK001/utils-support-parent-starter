@@ -49,6 +49,7 @@ public class UdpScatterNodeServer extends AbstractServer {
 
     @Override
     protected void doStart() {
+        rejectStreamEncryption("UDP 数据报没有流式加密通道，请在上层自行加密载荷");
         try {
             socket = new DatagramSocket(new InetSocketAddress(setting.getHost(), setting.getPort()));
             setting.setPort(socket.getLocalPort());

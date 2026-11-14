@@ -77,6 +77,7 @@ public class JdkUdpServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("UDP 数据报没有流式加密通道，请在上层自行加密载荷");
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             int bufferSize = (int) Math.min(setting.getMaxRequestSize() > 0 ? setting.getMaxRequestSize() : 65535,

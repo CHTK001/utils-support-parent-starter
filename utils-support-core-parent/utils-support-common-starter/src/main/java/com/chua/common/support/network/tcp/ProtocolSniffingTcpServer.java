@@ -50,6 +50,10 @@ import java.util.concurrent.Executors;
  * server.start();
  * }</pre>
  *
+ * <p><b>传输加密</b>：本实现不支持 {@code ServerSetting#isEncrypt}。协议识别必须先读到明文头部
+ * 前缀，加密会破坏分流；因此开启加密时启动即失败，不会静默退回明文。确需加密请在
+ * {@link ProtocolSniffHandler} 内部自行加解密。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -182,6 +186,9 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
      */
     @Override
     protected void doStart() {
+        // 嗅探依赖明文头部前缀（AUTH| / CONNECT| 等）分流，加密后前缀不可读；
+        // 与其“开关打开仍走明文”，不如启动即明确拒绝，避免误以为已加密
+        rejectStreamEncryption("分流依赖明文头部前缀，加密后无法识别协议");
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -190,6 +197,9 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
             setting.setPort(serverSocket.getLocalPort());
 // [P3C C1 豁免] 场景化创建线程，需文档化
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
+            // 必须先置运行标志再启动接受线程：AbstractServer.start 要等 doStart 返回才置 running，
+            // 否则 acceptLoop 首次判断就退出，端口在监听但永不 accept（连接直接超时）
+            running = true;
             acceptThread = ThreadUtils.newThread(this::acceptLoop, "protocol-sniff-accept");
             acceptThread.setDaemon(true);
             acceptThread.start();

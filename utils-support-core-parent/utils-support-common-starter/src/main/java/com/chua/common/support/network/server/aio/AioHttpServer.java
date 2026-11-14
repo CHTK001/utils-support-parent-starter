@@ -225,6 +225,7 @@ public class AioHttpServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请改用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
         try {
             // SSL/TLS:selfSigned/KeyStore/PEM 统一经 SslUtils 构建,
             // 每连接派生 SSLEngine,握手在独立虚拟线程以阻塞 Future 方式驱动

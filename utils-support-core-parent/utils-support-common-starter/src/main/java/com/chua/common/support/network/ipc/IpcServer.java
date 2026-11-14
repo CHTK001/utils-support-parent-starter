@@ -45,6 +45,7 @@ public class IpcServer extends AbstractServer {
     @Override
     protected void doStart() {
         // 路由由 IpcServerFilter 在构造时自动发现
+        rejectStreamEncryption("进程内路由，没有网络链路，encrypt 开关不适用");
     }
 
     /**

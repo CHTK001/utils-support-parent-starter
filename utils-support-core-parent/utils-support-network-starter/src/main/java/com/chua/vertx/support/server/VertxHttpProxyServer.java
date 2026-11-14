@@ -89,6 +89,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 代理按明文 CONNECT/转发设计，加密请让端点或下游自行处理");
         try {
             VertxOptions opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))

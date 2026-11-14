@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.vertx.support.server;
 
+import com.chua.common.support.lang.algorithm.crypto.StreamCodec;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -11,7 +12,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
@@ -36,6 +36,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  *   <li><b>Handler</b>:通过 {@link #registerHandler(String, TcpHandler)} 注册,
  *       兼容 {@link JdkTcpServer.TcpHandler} 流式接口(虚拟线程执行)</li>
  *   <li><b>keep-alive</b>:连接不主动关闭,可持续读写</li>
+ *   <li><b>传输加密</b>:{@code ServerSetting#isEncrypt()} 打开且配置了 {@code encryptKey} 时,
+ *       回显/Handler/帧/URL 路由四条路径统一经 {@link StreamCodec} 加解密,帧格式不变</li>
  * </ul>
  *
  * @author CH
@@ -65,6 +67,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
      * 帧处理器（tcp服务端 接口，短连接一请求一响应）
     */
     private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
+    /**
+     * 传输加密实现（doStart 时按 encryptType 解析并缓存；null 表示未启用加密，连接路径零开销）
+     */
+    private volatile StreamCodec streamCodec;
 
     /**
      * 创建 vertxtcp服务端 实例
@@ -88,6 +94,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     */
     @Override
     protected void doStart() {
+        // 传输加密：启动时解析 SPI 一次并缓存，避免每连接重复初始化；
+        // 未知类型直接失败，不静默退回明文（与 JdkTcpServer 同口径）
+        initStreamCodec();
         try {
             VertxOptions opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))
@@ -170,20 +179,59 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
+     * 解析并缓存传输加密实现。
+     *
+     * <p>与 {@link JdkTcpServer} 保持同一口径：开关打开但没配 {@code encryptKey} 时告警并按明文处理；
+     * 配了不认识的算法则在启动阶段失败，避免“以为加密了实际是明文”。</p>
+     */
+    private void initStreamCodec() {
+        if (!setting.isEncrypt()) {
+            streamCodec = null;
+            return;
+        }
+        String encryptKey = setting.getEncryptKey();
+        if (encryptKey == null || encryptKey.isBlank()) {
+            log.warn("Vertx TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
+            streamCodec = null;
+            return;
+        }
+        try {
+            streamCodec = StreamCodec.buildStream(setting.getEncryptType(), encryptKey);
+            log.debug("Vertx TCP 传输加密: {}", setting.getEncryptType());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("Vertx TCP 传输加密初始化失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 把 netSocket 原始流包成加解密流；未启用加密时原样返回。
+     *
+     * @param socket 连接
+     * @param codec  传输加密实现，可为 null
+     * @return 输入输出流
+     * @throws IOException 握手失败
+     */
+    private static StreamCodec.Streams openStreams(NetSocket socket, StreamCodec codec) throws IOException {
+        InputStream in = new NetSocketInputStream(socket);
+        OutputStream out = new NetSocketOutputStream(socket);
+        return codec == null ? new StreamCodec.Streams(in, out) : codec.open(in, out, false);
+    }
+
+    /**
      * 处理Socket
      *
      * @param socket Socket
      */
     private void handleSocket(NetSocket socket) {
+        StreamCodec codec = this.streamCodec;
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
         JdkTcpServer.TcpHandler handler = findHandler(clientKey);
         if (handler != null) {
             // Handler 模式:虚拟线程执行流式接口(与 JdkTcpServer 对齐)
             workerPool.submit(() -> {
                 try {
-                    InputStream in = new NetSocketInputStream(socket);
-                    OutputStream out = new NetSocketOutputStream(socket);
-                    handler.handle(in, out);
+                    StreamCodec.Streams streams = openStreams(socket, codec);
+                    handler.handle(streams.in(), streams.out());
                 } catch (Exception e) {
                     log.debug("TCP 连接处理异常: {}", e.getMessage());
                 } finally {
@@ -192,13 +240,14 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             });
         } else if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
  // URL 路由模式：走 过滤器 Chain
-            workerPool.submit(() -> processViaFilterChain(socket));
+            workerPool.submit(() -> processViaFilterChain(socket, codec));
         } else if (frameHandler != null) {
             // 帧模式(TcpServer 接口):短连接一请求一响应,读完整帧→处理→写响应→关闭
             workerPool.submit(() -> {
                 try {
-                    InputStream in = new NetSocketInputStream(socket);
-                    OutputStream out = new NetSocketOutputStream(socket);
+                    StreamCodec.Streams streams = openStreams(socket, codec);
+                    InputStream in = streams.in();
+                    OutputStream out = streams.out();
                     byte[] frame = readFrame(in);
                     if (frame != null) {
                         byte[] response = frameHandler.handle(frame);
@@ -220,6 +269,25 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     socket.close();
                 }
             });
+        } else if (codec != null) {
+            // 加密回显:编解码必须经过流，事件循环直写 Buffer 会漏成明文，改走虚拟线程阻塞收发
+            workerPool.submit(() -> {
+                try {
+                    StreamCodec.Streams streams = openStreams(socket, codec);
+                    InputStream in = streams.in();
+                    OutputStream out = streams.out();
+                    byte[] buffer = new byte[8192];
+                    int read;
+                    while ((read = in.read(buffer)) >= 0) {
+                        out.write(buffer, 0, read);
+                        out.flush();
+                    }
+                } catch (Exception e) {
+                    log.debug("TCP 加密回显异常: {}", e.getMessage());
+                } finally {
+                    socket.close();
+                }
+            });
         } else {
             // 默认回显:事件循环直接写回(非阻塞,高吞吐);
             // 写队列水位放宽到 1MB,避免大报文突发写回时触发背压丢吞吐
@@ -231,10 +299,22 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     /**
      * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 netSocket。
      * @param socket Socket
+     * @param codec  传输加密实现，可为 null
      */
-    private void processViaFilterChain(NetSocket socket) {
+    private void processViaFilterChain(NetSocket socket, StreamCodec codec) {
         try {
-            byte[] frame = readFrame(new NetSocketInputStream(socket));
+            InputStream in;
+            OutputStream out;
+            if (codec == null) {
+                NetSocketInputStream rawIn = new NetSocketInputStream(socket);
+                in = rawIn;
+                out = new NetSocketOutputStream(socket);
+            } else {
+                StreamCodec.Streams streams = openStreams(socket, codec);
+                in = streams.in();
+                out = streams.out();
+            }
+            byte[] frame = readFrame(in);
             if (frame == null) {
                 return;
             }
@@ -256,8 +336,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                 len[1] = (byte) (respFrame.length >>> 16);
                 len[2] = (byte) (respFrame.length >>> 8);
                 len[3] = (byte) respFrame.length;
-                socket.write(Buffer.buffer(len));
-                socket.write(Buffer.buffer(respFrame));
+                out.write(len);
+                out.write(respFrame);
+                out.flush();
             }
         } catch (Exception e) {
             log.debug("URL 路由处理异常: {}", e.getMessage());

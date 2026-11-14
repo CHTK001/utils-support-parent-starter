@@ -104,6 +104,7 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("同步协议没有密钥协商字段，需要加密请自行封装上层载荷");
         try {
             server = new DatagramSocket(new InetSocketAddress(setting.getHost(), setting.getPort()));
             receiveThread = ThreadUtils.newThread(this::receiveLoop, "udp-sync-receive-" + setting.getPort());

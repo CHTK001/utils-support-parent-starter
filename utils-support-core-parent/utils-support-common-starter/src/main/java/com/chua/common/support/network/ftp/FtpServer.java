@@ -134,6 +134,11 @@ public class FtpServer extends AbstractServer implements TcpServer {
      */
     public FtpServer(ServerSetting setting) {
         this(buildConfigFrom(setting));
+        // 加密开关不是 FTP 配置项，必须显式带到生命周期使用的 setting 上：
+        // 否则「开了 encrypt 的明文 FTP」会静默按明文启动（见 doStart 的 rejectStreamEncryption）
+        this.setting.setEncrypt(setting.isEncrypt());
+        this.setting.setEncryptType(setting.getEncryptType());
+        this.setting.setEncryptKey(setting.getEncryptKey());
     }
 
     /**
@@ -183,6 +188,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("明文 FTP，需要加密请改用 FtpsServer（sslEnabled / selfSignedAuto）");
         try {
             controlServerSocket = new ServerSocket();
             controlServerSocket.setReuseAddress(true);

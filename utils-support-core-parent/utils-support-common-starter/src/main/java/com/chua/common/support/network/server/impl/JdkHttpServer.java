@@ -66,6 +66,7 @@ public class JdkHttpServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请改用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             ServerSetting.SslConfig ssl = setting.getSsl();

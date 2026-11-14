@@ -357,6 +357,7 @@ public class NioHttpServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请改用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
         try {
             // 基准测试快速路径:bench.fast=true 时强制内联派发,echo 等微秒级 handler 跳过虚拟线程
             // 提交与 Selector 唤醒往返,在 event loop 线程直接解析+处理+写出,追求极限吞吐

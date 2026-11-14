@@ -63,6 +63,7 @@ public class VertxWebSocketServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("WebSocket 实现未接 TLS，需要加密请用反向代理终结 TLS 或改用支持 wss 的实现");
         // 事件循环数提到 CPU 核数:WebSocket 帧解析/回显都在事件循环执行,
  // bossthreads 默认 1 会让单事件循环成为高并发吞吐瓶颈
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);

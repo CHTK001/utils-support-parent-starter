@@ -95,6 +95,7 @@ public class AioTcpProxyServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("字节透传代理，加解密必须由端点完成");
         try {
             int threads = setting.getEventLoops() > 0
                     ? setting.getEventLoops() : Runtime.getRuntime().availableProcessors();

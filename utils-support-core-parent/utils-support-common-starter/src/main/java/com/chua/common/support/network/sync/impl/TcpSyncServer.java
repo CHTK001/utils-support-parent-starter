@@ -176,6 +176,7 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("同步协议没有密钥协商字段，需要加密请自行封装上层载荷");
         try {
             serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);

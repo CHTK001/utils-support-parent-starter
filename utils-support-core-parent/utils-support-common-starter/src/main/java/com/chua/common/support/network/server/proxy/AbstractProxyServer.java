@@ -225,6 +225,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("字节透传代理，加解密必须由端点完成");
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             int backlog = setting.resolveBacklog(MIN_BACKLOG);

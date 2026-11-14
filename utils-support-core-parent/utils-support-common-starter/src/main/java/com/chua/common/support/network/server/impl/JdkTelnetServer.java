@@ -134,6 +134,7 @@ public class JdkTelnetServer extends AbstractServer {
      */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("Telnet 明文协议未实现传输加密，需要加密请改用 SSH");
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);

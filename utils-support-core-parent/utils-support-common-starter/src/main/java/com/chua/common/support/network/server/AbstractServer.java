@@ -823,6 +823,23 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
+     * 校验「传输加密开关」是否被本实现消费：不消费的实现必须启动即失败。
+     *
+     * <p>{@link ServerSetting#isEncrypt()} 表达的是「链路必须加密」。若某个实现根本不读该开关
+     * （字节透传代理、依赖协议自带 TLS 的 HTTP/WebSocket、嗅探分流等），打开开关却照常明文运行，
+     * 使用者会误以为链路已加密。这类实现应在 bind 之前显式拒绝，把静默降级变成启动期错误。</p>
+     *
+     * @param reason 该实现不适用流加密的原因（写清替代方案）
+     * @throws IllegalStateException 开关为 true 时抛出
+     */
+    protected final void rejectStreamEncryption(String reason) {
+        if (setting.isEncrypt()) {
+            throw new IllegalStateException("当前服务器实现不支持 ServerSetting#encrypt（" + reason + "），"
+                    + "请关闭该开关或改用支持传输加密的实现");
+        }
+    }
+
+    /**
      * 构造超限时的拒绝响应。
      *
      * <p>对 HTTP 回 503 + {@code Retry-After}（让上游负载均衡正确摘流而不是当成网络故障）；
