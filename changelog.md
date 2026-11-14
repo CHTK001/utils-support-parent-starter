@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.0.52] - 2026-11-13
 
 ### Added
+- 传输加密口径核对 + SIP 线格式互通用例 `TokenDerivedAesGcmInteropTest`(2)：SIP 数据平面是**另一条**加密路径（`SipServer` 把 token 当 `ServerSetting.encryptKey` 交给 `JdkTcpServer`，客户端 `SipTunnelStream`/`SipMuxConnection` 直接 `AesGcmUtils.deriveKey(token)` 手工包流，绕过 `StreamCodec` SPI）。用例用真实套接字把「token 派生 + 手工包流」这一侧接到真实 `JdkTcpServer` 上，验证 aes-gcm 帧互通与同连接多帧；反证用例用错误 token 断言拿不到明文回显（若读到 `echo:...` 说明服务端其实没在解密）。`能力矩阵.md` 补 §1.1 三条加密路径的边界与「明确没有加密」的清单。
 - `AioTcpServer` 支持传输加密（`ServerSetting.encrypt/encryptType/encryptKey`）：`StreamCodec` 是 `InputStream/OutputStream` API，与 AIO 完成回调链无法混用，故开启加密后该连接改由虚拟线程阻塞承载，帧格式（4 字节大端长度头 + 消息体）与明文路径完全一致，处理器与客户端无感。加密类型在启动时解析一次并缓存，未知类型启动即失败、开了开关但没配 `encryptKey` 只告警（与 `JdkTcpServer` 同口径）。新增 `AioTcpEncryptedFrameTest`(5)：aes-gcm 回显、keylog 握手后回显、同连接多帧、明文客户端拿不到回显（反证）、未知类型启动失败。
 - 网络服务实现真实链路测试矩阵（此前代理全家 0 用例）：
   - 代理：`TcpProxyServerTest`(5)、`AioTcpProxyServerTest`(4)、`HttpProxyServerTest`(3)、`AioHttpProxyServerTest`(2，含 CONNECT 隧道)、`Socks5ProxyServerTest`(3)
