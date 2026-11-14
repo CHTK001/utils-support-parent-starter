@@ -105,6 +105,11 @@ class FtpCommandHandler {
     private static final int CODE_FILE_UNAVAILABLE = 550;
 
     /**
+     * FTP 536 响应码：请求的保护级别不受支持（RFC 4217）
+     */
+    private static final int CODE_PROTECTION_LEVEL_UNSUPPORTED = 536;
+
+    /**
      * FTP 隐藏文件前缀
      */
     private static final String HIDDEN_FILE_PREFIX = ".";
@@ -155,6 +160,8 @@ class FtpCommandHandler {
             case "NLST" -> handleNlst(session, argument);
             case "REST" -> handleRest(session, argument);
             case "SIZE" -> handleSize(session, argument);
+            case "PBSZ" -> handlePbsz(session);
+            case "PROT" -> handleProt(session, argument);
             case "NOOP" -> {
                 session.reply(CODE_OK, "NOOP ok.");
                 yield true;
@@ -699,6 +706,45 @@ class FtpCommandHandler {
         } catch (IOException e) {
             session.reply(CODE_CANNOT_OPEN_DATA, "List failed: " + e.getMessage());
         }
+        return true;
+    }
+
+    /**
+     * 处理 PBSZ 命令：设置保护缓冲大小（RFC 4217 固定为 0）。
+     *
+     * <p>真实 FTPS 客户端（curl/lftp/FileZilla）在 {@code AUTH TLS} 之后固定发
+     * {@code PBSZ 0} 再发 {@code PROT P}，不支持就会在登录后直接放弃加密传输。</p>
+     *
+     * @param session FTP 会话
+     * @return 是否继续
+     */
+    private boolean handlePbsz(FtpSession session) {
+        session.reply(CODE_OK, "PBSZ=0");
+        return true;
+    }
+
+    /**
+     * 处理 PROT 命令：设置数据通道保护级别（RFC 4217）。
+     *
+     * <p>只有 {@code PROT P}（私有/加密）能被满足：本实现的 FTPS 数据连接固定走 TLS，
+     * 无法降级为明文，因此请求 {@code C} 时明确回 536 而不是假装接受。</p>
+     *
+     * @param session  FTP 会话
+     * @param argument 保护级别（P=私有、C=明文）
+     * @return 是否继续
+     */
+    private boolean handleProt(FtpSession session, String argument) {
+        if (!session.isDataTls()) {
+            session.reply(CODE_PROTECTION_LEVEL_UNSUPPORTED,
+                    "PROT not supported: data connection is not protected by TLS.");
+            return true;
+        }
+        if (argument.isEmpty() || !"P".equalsIgnoreCase(argument.substring(0, 1))) {
+            session.reply(CODE_PROTECTION_LEVEL_UNSUPPORTED,
+                    "Only PROT P (private) is supported.");
+            return true;
+        }
+        session.reply(CODE_OK, "Protection level set to Private.");
         return true;
     }
 

@@ -3,6 +3,9 @@ package com.chua.common.support.network.ftp;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -71,24 +74,39 @@ class FtpDataChannel {
      */
     String enterPassiveMode(String serverIp) throws IOException {
         close();
-        // 尝试随机端口
-        serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.bind(new InetSocketAddress(serverIp, 0), 50);
+        if (session.isDataTls()) {
+            // FTPS：数据端口同样是 TLS 监听，客户端连上必须先握手
+            SSLServerSocket sslServerSocket = (SSLServerSocket) session.getDataSslFactory()
+                    .createServerSocket();
+            sslServerSocket.setReuseAddress(true);
+            sslServerSocket.setEnabledProtocols(FtpSession.TLS_PROTOCOLS);
+            sslServerSocket.setNeedClientAuth(false);
+            sslServerSocket.bind(new InetSocketAddress(serverIp, 0), 50);
+            serverSocket = sslServerSocket;
+        } else {
+            // 尝试随机端口
+            serverSocket = new ServerSocket();
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(new InetSocketAddress(serverIp, 0), 50);
+        }
         int port = serverSocket.getLocalPort();
         // 格式化：227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
         String ipStr = serverIp.replace('.', ',');
         int p1 = (port >> 8) & 0xFF;
         int p2 = port & 0xFF;
-        log.debug("FTP PASV 模式: {}:{} -> port={}", serverIp, port, port);
+        log.debug("FTP PASV 模式: {}:{} -> port={} (tls={})", serverIp, port, port, session.isDataTls());
         return "227 Entering Passive Mode (" + ipStr + "," + p1 + "," + p2 + ")";
     }
 
     /**
      * 等待客户端数据连接（被动模式）。
      *
+     * <p>FTPS 下 {@code accept()} 拿到的是尚未握手的 {@code SSLSocket}，
+     * 这里立刻 {@code startHandshake()}：否则明文客户端会先「连上」再让服务端
+     * 卡在读文件上，等超时才失败。握手失败按 IO 异常上报，由命令处理器回 425。</p>
+     *
      * @return 数据连接 Socket
-     * @throws IOException 连接超时或失败
+     * @throws IOException 连接超时或握手失败
      */
     Socket acceptDataConnection() throws IOException {
         if (serverSocket == null) {
@@ -96,6 +114,11 @@ class FtpDataChannel {
         }
         dataSocket = serverSocket.accept();
         dataSocket.setSoTimeout(connectTimeoutMs);
+        if (dataSocket instanceof SSLSocket sslSocket) {
+            sslSocket.setUseClientMode(false);
+            sslSocket.setEnabledProtocols(FtpSession.TLS_PROTOCOLS);
+            sslSocket.startHandshake();
+        }
         return dataSocket;
     }
 

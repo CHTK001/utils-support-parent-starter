@@ -8,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -64,9 +66,12 @@ public class FtpsServer extends FtpServer {
     private final boolean implicitSsl;
 
     /**
-     * 底层 SSL 监听 Socket
+     * 底层监听 Socket
+     *
+     * <p>隐式模式是 {@code SSLServerSocket}（端口即 TLS），显式模式是普通
+     * {@code ServerSocket}（先明文回 220，客户端 {@code AUTH TLS} 后再升级）。</p>
      */
-    private volatile SSLServerSocket sslServerSocket;
+    private volatile ServerSocket listenSocket;
 
     /**
      * 创建默认 FTPS 服务器（隐式 SSL，端口 990，自签名证书）。
@@ -165,18 +170,30 @@ public class FtpsServer extends FtpServer {
     }
 
     /**
-     * 启动 FTPS 服务器：绑定 SSL 监听端口并开始接受 TLS 连接。
+     * 启动 FTPS 服务器。
+     *
+     * <p>隐式模式直接绑定 {@link SSLServerSocket}，端口即 TLS；显式模式必须绑定
+     * 普通 {@link java.net.ServerSocket}，先明文回 220，等客户端 {@code AUTH TLS}
+     * 再原地升级。若显式模式也用 SSLServerSocket，服务端写 banner 会立刻触发
+     * 握手，而客户端还在等 banner —— 双方互等直到超时。</p>
      */
     @Override
     protected void doStart() {
         try {
-            sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket();
-            sslServerSocket.setReuseAddress(true);
-            sslServerSocket.setEnabledProtocols(new String[]{"TLSv1.2", "TLSv1.3"});
-            sslServerSocket.setNeedClientAuth(false);
+            ServerSocket candidate;
+            if (implicitSsl) {
+                SSLServerSocket sslSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket();
+                sslSocket.setEnabledProtocols(FtpSession.TLS_PROTOCOLS);
+                sslSocket.setNeedClientAuth(false);
+                candidate = sslSocket;
+            } else {
+                candidate = new ServerSocket();
+            }
+            candidate.setReuseAddress(true);
             // backlog 与 FtpServer 保持同一口径（统一由 ServerSetting#resolveBacklog 收敛）
-            sslServerSocket.bind(new InetSocketAddress(getFtpConfig().getHost(), getFtpConfig().getControlPort()),
+            candidate.bind(new InetSocketAddress(getFtpConfig().getHost(), getFtpConfig().getControlPort()),
                     setting.resolveBacklog(128));
+            listenSocket = candidate;
             markRunning();
             Thread.ofVirtual().name("ftps-accept").start(this::acceptLoop);
             log.info("FTPS 服务器启动成功: {}:{} (隐式={})",
@@ -190,9 +207,10 @@ public class FtpsServer extends FtpServer {
      * 接受连接主循环。
      */
     private void acceptLoop() {
-        while (!sslServerSocket.isClosed()) {
+        ServerSocket listener = listenSocket;
+        while (!listener.isClosed()) {
             try {
-                var socket = (Socket) sslServerSocket.accept();
+                var socket = listener.accept();
                 // 与 FtpServer 同口径：先过接纳闸门与连接预算，再派发（FTPS 无 503 语义）
                 if (!accepting) {
                     // 优雅关闭中：不再接纳新连接（存量连接继续服务）
@@ -214,7 +232,7 @@ public class FtpsServer extends FtpServer {
                     releaseConnection();
                 }
             } catch (IOException e) {
-                if (!sslServerSocket.isClosed()) {
+                if (!listener.isClosed()) {
                     log.debug("FTPS 接受连接异常: {}", e.getMessage());
                 }
             }
@@ -231,6 +249,10 @@ public class FtpsServer extends FtpServer {
         try {
             socket.setSoTimeout(getFtpConfig().getControlTimeout() * 1000);
             session = new FtpSession(socket, getFtpConfig());
+            if (implicitSsl) {
+                // 隐式模式整条链路都是 TLS，数据连接同样加密
+                session.enableDataTls(sslServerSocketFactory);
+            }
             getSessionMap().put(session.getId(), session);
             if (implicitSsl) {
                 session.reply(220, "FTPS Server Ready (Implicit SSL). Welcome to " + getFtpConfig().getHost());
@@ -276,14 +298,32 @@ public class FtpsServer extends FtpServer {
     /**
      * 处理 AUTH TLS 命令：将明文控制连接升级为加密连接。
      *
+     * <p>RFC 4217 要求先回 {@code 234}，再在**同一条** TCP 连接上直接开始 TLS 握手。
+     * 原实现只回 {@code 234} 而没有任何升级动作，客户端随后的 ClientHello 会被当成
+     * 命令行解析（握手必失败），显式 FTPS 实际完全不可用。</p>
+     *
      * @param session FTP 会话
      */
     private void handleAuthTls(FtpSession session) {
+        session.reply(234, "Ready to start SSL");
+        Socket plain = session.getControlSocket();
         try {
-            session.reply(234, "Ready to start SSL");
-            log.info("FTPS AUTH TLS 完成: {}", session.getId());
+            // 服务端模式：包装的是 accept 出来的普通 socket，autoClose 让关闭只关一层
+            SSLSocket tlsSocket = (SSLSocket) sslContext.getSocketFactory()
+                    .createSocket(plain, null, plain.getPort(), true);
+            tlsSocket.setUseClientMode(false);
+            tlsSocket.setEnabledProtocols(FtpSession.TLS_PROTOCOLS);
+            session.upgradeControlToTls(tlsSocket);
+            // 主动握手：失败要在这里暴露，不能等到读命令时才表现为「连接莫名断开」
+            tlsSocket.startHandshake();
+            // 控制连接已加密，数据连接随之加密（RFC 4217 的 PROT P）
+            session.enableDataTls(sslServerSocketFactory);
+            log.info("FTPS AUTH TLS 完成: {} cipher={}", session.getId(),
+                    tlsSocket.getSession().getCipherSuite());
         } catch (Exception e) {
-            session.reply(431, "SSL/TLS negotiation failed: " + e.getMessage());
+            // 半升级的连接既不能继续明文命令也无法恢复，只能关闭
+            log.warn("FTPS AUTH TLS 升级失败，连接将关闭: {}", e.getMessage());
+            session.close();
         }
     }
 
@@ -293,9 +333,10 @@ public class FtpsServer extends FtpServer {
     @Override
     protected void doStop() {
         markStopped();
-        if (sslServerSocket != null) {
+        ServerSocket listener = listenSocket;
+        if (listener != null) {
             try {
-                sslServerSocket.close();
+                listener.close();
             } catch (IOException e) {
                 log.debug("关闭 FTPS 监听端口失败，已忽略: {}", e.getMessage());
             }

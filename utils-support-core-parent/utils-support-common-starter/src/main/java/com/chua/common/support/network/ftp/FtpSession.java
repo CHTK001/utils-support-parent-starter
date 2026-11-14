@@ -3,6 +3,7 @@ package com.chua.common.support.network.ftp;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.SSLServerSocketFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -23,24 +24,47 @@ import java.util.concurrent.atomic.AtomicInteger;
 class FtpSession {
 
     /**
+     * 允许的 TLS 协议（控制连接与数据连接同口径）
+     */
+    static final String[] TLS_PROTOCOLS = {"TLSv1.2", "TLSv1.3"};
+
+    /**
      * 会话 ID
      */
     private final String id;
 
     /**
      * 控制连接 Socket
+     *
+     * <p>显式 FTPS 执行 {@code AUTH TLS} 时会被整条替换为 TLS Socket，
+     * 因此不能是 final 字段。</p>
      */
-    private final Socket controlSocket;
+    private volatile Socket controlSocket;
 
     /**
      * 控制连接输出（用于发送 FTP 响应）
      */
-    private final PrintWriter controlOut;
+    private volatile PrintWriter controlOut;
 
     /**
      * 控制连接输入（用于读取 FTP 命令）
      */
-    private final BufferedReader controlIn;
+    private volatile BufferedReader controlIn;
+
+    /**
+     * 控制连接是否已完成 TLS 升级
+     */
+    private volatile boolean controlTls;
+
+    /**
+     * 数据通道是否使用 TLS
+     */
+    private volatile boolean dataTls;
+
+    /**
+     * 数据通道的 SSL 服务端 Socket 工厂（dataTls 为 true 时非空）
+     */
+    private volatile SSLServerSocketFactory dataSslFactory;
 
     /**
      * FTP 配置
@@ -121,6 +145,63 @@ class FtpSession {
         this.dataChannel = new FtpDataChannel(this,
                 config.getPassivePortMin(), config.getPassivePortMax(),
                 config.getDataTimeout() * 1000);
+    }
+
+    /**
+     * 把控制连接原地升级为 TLS（显式 FTPS 的 {@code AUTH TLS}）。
+     *
+     * <p>RFC 4217 要求在同一 TCP 连接上直接开始 TLS 握手，因此这里替换的是
+     * socket 与两条流，而不是另开连接。调用方必须先回 {@code 234}，
+     * 再调用本方法——回包必须在明文阶段发出。</p>
+     *
+     * @param tlsSocket 已包装好的 TLS Socket（服务端模式）
+     * @throws IOException 重建流出错
+     */
+    void upgradeControlToTls(Socket tlsSocket) throws IOException {
+        this.controlSocket = tlsSocket;
+        this.controlOut = new PrintWriter(
+                new OutputStreamWriter(tlsSocket.getOutputStream(), StandardCharsets.UTF_8),
+                true);
+        this.controlIn = new BufferedReader(
+                new InputStreamReader(tlsSocket.getInputStream(), StandardCharsets.UTF_8));
+        this.controlTls = true;
+    }
+
+    /**
+     * 控制连接是否已升级为 TLS。
+     *
+     * @return true 表示已加密
+     */
+    boolean isControlTls() {
+        return controlTls;
+    }
+
+    /**
+     * 开启数据通道加密：PASV 监听与数据连接都改由 TLS 承载。
+     *
+     * @param factory SSL 服务端 Socket 工厂
+     */
+    void enableDataTls(SSLServerSocketFactory factory) {
+        this.dataSslFactory = factory;
+        this.dataTls = true;
+    }
+
+    /**
+     * 数据通道是否使用 TLS。
+     *
+     * @return true 表示加密
+     */
+    boolean isDataTls() {
+        return dataTls;
+    }
+
+    /**
+     * 获取数据通道的 SSL 服务端 Socket 工厂。
+     *
+     * @return 工厂；未开启数据加密时返回 null
+     */
+    SSLServerSocketFactory getDataSslFactory() {
+        return dataSslFactory;
     }
 
     /**
