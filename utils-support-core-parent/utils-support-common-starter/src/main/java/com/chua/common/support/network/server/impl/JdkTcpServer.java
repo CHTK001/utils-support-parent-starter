@@ -11,6 +11,9 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -138,7 +141,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private volatile TcpServerHandler frameHandler;
 
     /**
-     * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
+     * 传输加密实现（doStart 时按 encryptType 解析并缓存；null 表示未启用加密，连接路径零开销）
      */
     private volatile StreamCodec streamCodec;
 
@@ -286,9 +289,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                         log.debug("TCP 传输加密: {}", setting.getEncryptType());
                     } catch (IllegalArgumentException e) {
                         throw new IllegalStateException("TCP 传输加密初始化失败: " + e.getMessage(), e);
-                    }
-                    if (frameHandler != null) {
-                        log.warn("TCP 加密仅支持流式协议，当前为帧式(NIO)协议，加密未生效");
                     }
                 }
             }
@@ -591,15 +591,15 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 }
                 continue;
             }
-            if (frameHandler != null) {
-                // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
+            if (frameHandler != null && streamCodec == null) {
+                // 帧式协议（明文）：注册到 IO Selector，NIO 拼帧
                 sc.configureBlocking(false);
                 sc.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
                 applyChannelSocketOptions(sc);
                 Selector ioSelector = ioSelectors[Math.floorMod(ioCursor.getAndIncrement(), ioSelectors.length)];
                 sc.register(ioSelector, SelectionKey.OP_READ, new Attachment(ioSelector));
             } else {
-                // 流式协议：虚拟线程阻塞处理
+                // 流式协议，以及「帧式 + 传输加密」：加密只能走流 API，统一由虚拟线程阻塞处理
                 Socket socket = sc.socket();
                 socket.setTcpNoDelay(setting.isTcpNoDelay());
                 applySocketOptions(socket);
@@ -736,8 +736,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         // 二是判空与解引用之间可能被并发置空（TOCTOU），即使条件项写对也一样会炸。
         TcpServerHandler handler = this.frameHandler;
         if (handler == null) {
-            // 正常流程走不到：doAccept 只在 frameHandler 非空时才把连接注册到 IO Selector。
-            // 落到这里只可能是运行时 setHandler(null)，明确关连接，而不是抛 NPE 后留下误导性的错误日志。
+            // 正常流程走不到：doAccept 只在 frameHandler 非空时才进入帧式路径。落到这里只可能是
+            // 运行时 setHandler(null)，明确关连接，而不是抛 NPE 后留下误导性的错误日志。
             closeConnection(keyFor(sc, att), sc, att);
             return;
         }
@@ -992,6 +992,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 }
             }
 
+            // 帧式 + 传输加密：帧语义不变，只是收发都落在加解密流上
+            if (frameHandler != null) {
+                handleFrameConnection(in, out);
+                return;
+            }
+
             TcpHandler handler = findHandler(clientKey);
             if (handler != null) {
                 if (fixedLengthEnabled && handler instanceof TcpMethod) {
@@ -1019,6 +1025,54 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             }
             // 连接预算必须与 accept 期的 tryAcquireConnection() 严格配对
             releaseConnection();
+        }
+    }
+
+    /**
+     * 在解密流上按长度帧收发（帧式 + 传输加密）。
+     *
+     * <p>帧式原本走 NIO Selector 非阻塞读写，而 {@link StreamCodec} 的流加解密是
+     * {@code InputStream/OutputStream} API，二者无法混用；因此加密时这条连接改由虚拟线程
+     * 阻塞处理，帧格式（{@code [4B 大端长度][消息体]}）与明文路径完全一致，客户端无感。</p>
+     *
+     * @param in  解密输入流
+     * @param out 加密输出流
+     * @throws IOException 读写失败或帧长度非法
+     */
+    private void handleFrameConnection(InputStream in, OutputStream out) throws IOException {
+        DataInputStream dataIn = new DataInputStream(in);
+        DataOutputStream dataOut = new DataOutputStream(out);
+        while (true) {
+            int bodyLength;
+            try {
+                bodyLength = dataIn.readInt();
+            } catch (EOFException eof) {
+                // 对端正常关闭
+                return;
+            }
+            if (bodyLength <= 0 || bodyLength > MAX_BODY_SIZE) {
+                throw new IOException("Invalid body length: " + bodyLength);
+            }
+            byte[] body = new byte[bodyLength];
+            dataIn.readFully(body);
+            // frameHandler 是 volatile：每帧重新取值，运行期换 handler 立即生效
+            TcpServerHandler handler = this.frameHandler;
+            if (handler == null) {
+                return;
+            }
+            byte[] response;
+            try {
+                response = handler.handle(body);
+            } catch (Exception e) {
+                log.error("Process request error", e);
+                return;
+            }
+            if (response == null) {
+                continue;
+            }
+            dataOut.writeInt(response.length);
+            dataOut.write(response);
+            dataOut.flush();
         }
     }
 

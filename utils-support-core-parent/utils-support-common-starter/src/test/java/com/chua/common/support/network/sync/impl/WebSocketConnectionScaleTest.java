@@ -54,6 +54,26 @@ class WebSocketConnectionScaleTest {
     private static final int CONNECTIONS = Integer.getInteger("ws.scale.connections", 2000);
 
     /**
+     * 客户端源 IP 轮转数量（{@code -Dws.scale.sourceIps}）。
+     *
+     * <p>Windows 单个源 IP 的动态端口只有约 5.5 万个，超过就必须换源地址。
+     * 回环 127.0.0.0/8 可直接绑定，无需额外加网卡；每个源 IP 复用 5 万个端口后切下一个。</p>
+     */
+    private static final int SOURCE_IPS = Integer.getInteger("ws.scale.sourceIps", 1);
+
+    /**
+     * 单个源 IP 最多复用的端口数（留出余量，避免撞 TIME_WAIT/保留端口）。
+     */
+    private static final int PORTS_PER_SOURCE_IP = Integer.getInteger("ws.scale.portsPerIp", 45_000);
+
+    /**
+     * 广播用例的连接数（{@code -Dws.broadcast.connections}）。
+     *
+     * <p>与端到端用例分开配置：广播要额外读回全部连接，单独放大才好对比耗时。</p>
+     */
+    private static final int BROADCAST_CONNECTIONS = Integer.getInteger("ws.broadcast.connections", 2000);
+
+    /**
      * 取一个空闲端口。
      *
      * @return 端口
@@ -73,7 +93,22 @@ class WebSocketConnectionScaleTest {
      * @throws Exception 握手失败
      */
     private static Socket wsConnect(int port) throws Exception {
+        return wsConnect(port, null);
+    }
+
+    /**
+     * 建一条真实 WebSocket 连接（可指定客户端源地址）。
+     *
+     * @param port    服务端端口
+     * @param localIp 客户端源 IP（null 表示不绑定）
+     * @return 已握手的连接
+     * @throws Exception 握手失败
+     */
+    private static Socket wsConnect(int port, String localIp) throws Exception {
         Socket socket = new Socket();
+        if (localIp != null) {
+            socket.bind(new InetSocketAddress(localIp, 0));
+        }
         socket.connect(new InetSocketAddress("127.0.0.1", port), 10000);
         socket.setSoTimeout(20000);
         socket.setTcpNoDelay(true);
@@ -146,6 +181,44 @@ class WebSocketConnectionScaleTest {
         OutputStream out = socket.getOutputStream();
         out.write(buf.toByteArray());
         out.flush();
+    }
+
+    /**
+     * 读取一个服务端发来的帧，返回文本载荷。
+     *
+     * <p>服务端帧按 RFC6455 不带掩码，长度字段用 7/16/64 位三档编码。
+     * 用例只关心文本帧，遇到控制帧直接按载荷返回，不在这里做协议处理。</p>
+     *
+     * @param socket 连接
+     * @return 文本载荷
+     * @throws Exception 读失败或连接已关闭
+     */
+    private static String readTextFrame(Socket socket) throws Exception {
+        InputStream in = socket.getInputStream();
+        int b0 = in.read();
+        int b1 = in.read();
+        if (b0 < 0 || b1 < 0) {
+            throw new IllegalStateException("连接已关闭，未读到帧");
+        }
+        long length = b1 & 0x7F;
+        if (length == 126L) {
+            length = ((long) in.read() << 8) | in.read();
+        } else if (length == 127L) {
+            length = 0L;
+            for (int i = 0; i < 8; i++) {
+                length = (length << 8) | in.read();
+            }
+        }
+        byte[] payload = new byte[(int) length];
+        int offset = 0;
+        while (offset < payload.length) {
+            int read = in.read(payload, offset, payload.length - offset);
+            if (read < 0) {
+                throw new IllegalStateException("帧载荷未读完，已读 " + offset + "/" + payload.length);
+            }
+            offset += read;
+        }
+        return new String(payload, StandardCharsets.UTF_8);
     }
 
     /**
@@ -280,7 +353,14 @@ class WebSocketConnectionScaleTest {
 
             long startNs = System.nanoTime();
             for (int i = 0; i < CONNECTIONS; i++) {
-                sockets.add(wsConnect(port));
+                String localIp = SOURCE_IPS > 1
+                        ? "127.0.0." + (2 + (i / PORTS_PER_SOURCE_IP) % SOURCE_IPS) : null;
+                sockets.add(wsConnect(port, localIp));
+                if ((i + 1) % 10_000 == 0) {
+                    System.out.println("[ws-scale] progress=" + (i + 1)
+                            + " elapsedMs=" + ((System.nanoTime() - startNs) / 1_000_000L));
+                    System.out.flush();
+                }
             }
             long connectMs = (System.nanoTime() - startNs) / 1_000_000L;
 
@@ -302,6 +382,7 @@ class WebSocketConnectionScaleTest {
 
             // [P3C E1 豁免]
             System.out.println("[ws-scale] connections=" + sockets.size()
+                    + " sourceIps=" + SOURCE_IPS
                     + " handshakeMs=" + connectMs
                     + " heapDeltaMb=" + ((heapAfter - heapBefore) / (1024 * 1024))
                     + " perConnKb=" + String.format("%.2f", perConnBytes / 1024.0));
@@ -336,5 +417,107 @@ class WebSocketConnectionScaleTest {
         }
         assertEquals(0, server.getMetrics().getActiveConnections(),
                 "客户端全部断开后服务端仍残留 " + server.getMetrics().getActiveConnections() + " 条连接（未回收）");
+    }
+
+    /**
+     * 一次广播必须扇出到全部连接，且访问次数与连接数成线性。
+     *
+     * <p>这是「广播」最容易退化的地方：分片注册表若在扇出时退化成
+     * 「遍历全部连接再按哈希过滤」，访问次数会放大到 {@code 连接数 × 分片数}，
+     * 连接规模一大就直接打满 CPU。用例直接读扇出器计数，把这一点钉死。</p>
+     *
+     * @throws Exception 套接字失败
+     */
+    @Test
+    @Timeout(1200)
+    @DisplayName("广播扇出到全部连接：访问次数线性、无丢帧、全量可收")
+    void broadcastFanOutIsLinear() throws Exception {
+        int port = freePort();
+        ServerSetting setting = new ServerSetting();
+        setting.setHost("127.0.0.1");
+        setting.setPort(port);
+        setting.setMaxConnections(BROADCAST_CONNECTIONS + 1000);
+        setting.setAuto(false);
+
+        WebSocketSyncServer server = new WebSocketSyncServer(setting);
+        Field broadcasterField = WebSocketSyncServer.class.getDeclaredField("broadcaster");
+        broadcasterField.setAccessible(true);
+
+        List<Socket> sockets = new ArrayList<>(BROADCAST_CONNECTIONS);
+        try {
+            server.start();
+            // 扇出器在 doStart 里创建，必须启动后再取
+            AsyncBroadcaster<?> broadcaster = (AsyncBroadcaster<?>) broadcasterField.get(server);
+            assertTrue(broadcaster != null, "服务端未创建扇出器，广播链路缺失");
+
+            long startNs = System.nanoTime();
+            for (int i = 0; i < BROADCAST_CONNECTIONS; i++) {
+                String localIp = SOURCE_IPS > 1
+                        ? "127.0.0." + (2 + (i / PORTS_PER_SOURCE_IP) % SOURCE_IPS) : null;
+                sockets.add(wsConnect(port, localIp));
+                if ((i + 1) % 10_000 == 0) {
+                    System.out.println("[ws-broadcast] connect progress=" + (i + 1)
+                            + " elapsedMs=" + ((System.nanoTime() - startNs) / 1_000_000L));
+                    System.out.flush();
+                }
+            }
+            long connectMs = (System.nanoTime() - startNs) / 1_000_000L;
+
+            long deadline = System.currentTimeMillis() + 60_000L;
+            while (server.getMetrics().getActiveConnections() < BROADCAST_CONNECTIONS
+                    && System.currentTimeMillis() < deadline) {
+                Thread.sleep(20L);
+            }
+            assertEquals(BROADCAST_CONNECTIONS, server.getMetrics().getActiveConnections(),
+                    "服务端注册的连接数不足：广播只会送到已注册的连接");
+
+            // 预热：一次广播 + 全量读回，确认广播链路本身是通的
+            server.publish("warm", "up");
+            for (Socket socket : sockets) {
+                assertEquals("warm:up", readTextFrame(socket), "预热广播帧内容不符");
+            }
+
+            long visitedBefore = broadcaster.getVisitedLinks();
+            long droppedBefore = broadcaster.getDroppedFrames();
+            long errorsBefore = broadcaster.getWriteErrors();
+
+            long broadcastStart = System.nanoTime();
+            server.publish("scale", "hello");
+            int received = 0;
+            for (Socket socket : sockets) {
+                if ("scale:hello".equals(readTextFrame(socket))) {
+                    received++;
+                }
+            }
+            long broadcastMs = (System.nanoTime() - broadcastStart) / 1_000_000L;
+
+            System.out.println("[ws-broadcast] connections=" + BROADCAST_CONNECTIONS
+                    + " sourceIps=" + SOURCE_IPS
+                    + " connectMs=" + connectMs
+                    + " broadcastMs=" + broadcastMs
+                    + " perConnUs=" + String.format("%.1f", broadcastMs * 1000.0 / BROADCAST_CONNECTIONS));
+            System.out.flush();
+
+            assertEquals(BROADCAST_CONNECTIONS, received,
+                    "应收到 " + BROADCAST_CONNECTIONS + " 条广播，实际 " + received);
+            assertEquals(BROADCAST_CONNECTIONS, broadcaster.getVisitedLinks() - visitedBefore,
+                    "一次广播只应访问 N 条连接；实际 "
+                            + (broadcaster.getVisitedLinks() - visitedBefore)
+                            + "（N=" + BROADCAST_CONNECTIONS + "），"
+                            + "说明扇出退化成了全量遍历再过滤");
+            assertEquals(0L, broadcaster.getDroppedFrames() - droppedBefore,
+                    "广播被丢弃 " + (broadcaster.getDroppedFrames() - droppedBefore) + " 帧");
+            assertEquals(0L, broadcaster.getWriteErrors() - errorsBefore,
+                    "广播写失败 " + (broadcaster.getWriteErrors() - errorsBefore) + " 次");
+        } finally {
+            for (Socket socket : sockets) {
+                try {
+                    socket.close();
+                } catch (Exception ignored) {
+                    // 清理失败不影响断言
+                }
+            }
+            server.stop();
+        }
     }
 }

@@ -1,10 +1,15 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.tcp;
 
+import com.chua.common.support.lang.algorithm.crypto.StreamCodec;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -34,6 +39,11 @@ public class JdkTcpClient implements TcpClient {
 // [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
+    /**
+     * 传输加密（null 表示明文，走原生的通道级零拷贝快路径）
+     */
+    private volatile StreamCodec streamCodec;
+
     private static final ThreadLocal<ByteBuffer> WRITE_BUFFER =
             ThreadLocal.withInitial(() -> ByteBuffer.allocate(1024));
     private static final ThreadLocal<ByteBuffer> HEADER_BUFFER =
@@ -58,6 +68,22 @@ public class JdkTcpClient implements TcpClient {
         this.readTimeout = readTimeout > 0 ? readTimeout : DEFAULT_READ_TIMEOUT;
     }
 
+    /**
+     * 开启传输加密，与服务端 {@code ServerSetting#setEncryptType/ setEncryptKey} 对应。
+     *
+     * <p>每次 {@link #call} 都是新连接，因此实现里「按连接握手」的算法（{@code keylog}）
+     * 每次调用各握手一次；{@code aes-gcm} 无握手，只做帧式加解密。</p>
+     *
+     * @param type 加密类型（{@code aes-gcm} / {@code keylog}），为空时默认 {@code aes-gcm}
+     * @param key  密钥参数（{@code aes-gcm}：共享口令；{@code keylog}：{@code client:<公钥hex>[#指纹]}）
+     * @return 当前实例，支持链式调用
+     * @throws IllegalArgumentException 类型不支持或参数缺失
+     */
+    public JdkTcpClient encrypt(String type, String key) {
+        this.streamCodec = StreamCodec.buildStream(type, key);
+        return this;
+    }
+
     @Override
     public byte[] call(String host, int port, byte[] request) throws Exception {
         // 直接在本线程(已由调用方虚拟线程池管理)执行连接/交换/关闭,
@@ -70,7 +96,16 @@ public class JdkTcpClient implements TcpClient {
             ch.socket().setTcpNoDelay(true);
             ch.connect(new InetSocketAddress(host, port));
             ch.socket().setSoTimeout(readTimeout);
-            return exchange(ch, request);
+            StreamCodec codec = this.streamCodec;
+            if (codec == null) {
+                return exchange(ch, request);
+            }
+            // 加密路径：帧式加解密只能走流 API，通道仍保持阻塞语义，
+            // soTimeout 由 socket 生效（readInt/readFully 超时抛 SocketTimeoutException）
+            InputStream rawIn = ch.socket().getInputStream();
+            OutputStream rawOut = ch.socket().getOutputStream();
+            StreamCodec.Streams streams = codec.open(rawIn, rawOut, true);
+            return exchange(streams.in(), streams.out(), request);
         } finally {
             WRITE_BUFFER.remove();
             HEADER_BUFFER.remove();
@@ -116,6 +151,34 @@ public class JdkTcpClient implements TcpClient {
         ByteBuffer bodyBuf = ByteBuffer.allocate(bodyLen);
         readFully(ch, bodyBuf);
         return bodyBuf.array();
+    }
+
+    /**
+     * 在已加密（或解密）的流上做一次长度帧往返。
+     *
+     * <p>帧格式与明文路径完全一致：{@code [4B 大端长度][消息体]}，
+     * 加密只是把它整体套进 {@link StreamCodec} 的帧流里，因此服务端两种模式
+     * 对「帧」的语义保持同一套。</p>
+     *
+     * @param in      解密输入流
+     * @param out     加密输出流
+     * @param request 请求帧
+     * @return 响应帧
+     * @throws IOException 读写失败
+     */
+    private byte[] exchange(InputStream in, OutputStream out, byte[] request) throws IOException {
+        DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(request.length);
+        dataOut.write(request);
+        dataOut.flush();
+        DataInputStream dataIn = new DataInputStream(in);
+        int bodyLen = dataIn.readInt();
+        if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
+            throw new IOException("TCP response too large: " + bodyLen);
+        }
+        byte[] body = new byte[bodyLen];
+        dataIn.readFully(body);
+        return body;
     }
 
     /**

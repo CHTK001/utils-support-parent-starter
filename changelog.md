@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DHTServer` 首个真实链路用例 `DhtServerTest`(10)：**裸 `DatagramSocket` + 手工 bencode** 按 BEP 5 发 UDP 查询，验证 ping→PONG、连续 10 包保活、find_node 紧凑节点列表、get_peers token、announce_peer 响应、宣告 peer 可被 get_peers 查到（values）、implied_port、爬取集合、未知查询忽略、非法报文容错。`dht-starter` 补 junit-jupiter（test scope）。
 - `WebRtcServer` 首个信令链路用例 `WebRtcSignalingTest`(5)：**裸 Socket** 完成 RFC 6455 握手（校验 `Sec-WebSocket-Accept`）、token 403/101、answer 帧往返、ping→pong、同连接多帧、非 Upgrade 断开。`webrtc-starter` 补 junit-jupiter（test scope）。
 - `WebRtcServer` 的 OFFER/answer 用例 `WebRtcOfferNegotiationTest`(1)：用 **webrtc-java 原生 PeerConnection** 生成真实 offer（data channel 形态），经 WebSocket 信令发给服务端，服务端 `setRemoteDescription` + `createAnswer` 回 answer，客户端 `setRemoteDescription(answer)` 成功。视频采集/ICE 连通未验（headless 无采集源）。WebRTC 合计 6 条。
+- `WebRtcServer` 的媒体通道连通用例 `WebRtcIceConnectivityTest`(1)：把 ICE 候选**双向**交换完（客户端 4 条 / 服务端 2 条），等原生 PeerConnection 真正建起传输通道，以 **data channel 打开**为判据——data channel 走 SCTP over DTLS，DTLS 又必须建立在 ICE 选出的候选对上，因此「channel `OPEN` + 服务端 `WebRtcPeer` 为 `CONNECTED`」同时证明 ICE 选路、DTLS 握手、SCTP 关联三层全通。用例对远端候选数、服务端 peer 状态都做断言，只做 SDP 往返（候选数为 0）会直接红。WebRTC 合计 7 条；**video 帧出图**仍不可断言（headless 无真实桌面采集源）。
 - TLS 吞吐基准 `HttpTlsThroughputTest`（默认跳过，`-Dbench.throughput=true`）：明文/TLS × NIO/AIO 四场景，1024B 响应、64 连接串行 keep-alive、3s 预热 + 10s 测量，真实 `SSLSocket` 握手（trust-all 校验自签证书）。输出 `BENCH|场景|qps|p50us|p99us|err|errDetail`，错误按异常类型分类。
 - 过滤器真实链路用例 `ServerFilterRealLinkTest`(5)：起真实 `NioHttpServer` + JDK `HttpClient`，覆盖 `SecurityHeaders`（安全头）、`BodySizeLimit`（413/放行）、`HealthCheck`（探针绕过业务 handler）、`IpServerFilter`（403）、`ConnectionBudget`（并发 429）。common-starter 全量回归 **513 条、0 失败**。
 - 独立进程压测工具：`HttpLoadClient`（HTTP keep-alive）与 `NioBenchServer`（按文件内容回包），用于与 nginx 做同 payload 对比
@@ -89,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `NettyHttpSyncServer` + `NettyHttpSyncClient` | 3（端到端：上下行往返 / 405 / 204 / 随机端口） | ✅ 回退必红 |
 | `SmbServer` | 4（独立工程：SPI / 监听 / Tree Connect / 文件读写） | ✅ 回退必红（修复前 Tree Connect 60s 超时） |
 | `DHTServer` | 10（裸 UDP + 手工 bencode） | ✅ 回退必红（首轮 5 条里 4 红；BEP5 values 首轮 2 红；未知查询 1 红） |
-| `WebRtcServer`（信令 + OFFER/answer） | 6（裸 Socket + RFC6455 + 原生 PeerConnection） | ✅（video 采集/ICE 未验） |
+| `WebRtcServer`（信令 + OFFER/answer + ICE 连通） | 7（裸 Socket + RFC6455 + 原生 PeerConnection + 真实 ICE/DTLS/SCTP） | ✅（video 采集未验） |
 
 性能（Windows / loopback；同 JVM 自压为下限，WS ≥2 万用独立进程；建连必须分批 100 条/250ms）：
 
@@ -113,8 +114,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | HTTP `/echo` 明文（AIO） | 64 | 75,872 QPS，p50 844µs / p99 1.56ms，0 错误 |
 | HTTP `/echo` TLS（AIO） | 64 | **39,879 QPS（同实现明文 52.6%）**，p50 1.11ms / p99 6.91ms，0 错误 |
 
-未测：WS 百万连接（需多源 IP/多机）、50 万连接下的广播耗时、过滤器单测。
-非原生包未测：`WebRtcServer` 的 OFFER/媒体协商（需真实浏览器端与原生库）、`DHTServer` 的对外爬取/BEP9 元数据、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
+未测：WS 10 万 / 百万连接、50 万连接下的广播耗时 —— 单机已定界（纯 JDK 套接字上限 **55,208** 条，
+2 源 IP 与 8 源 IP 数字相同，属 Windows 全局上限），本地可复现口径止于 **5 万连接 / 单次广播 978 ms**；
+过滤器单测。
+非原生包未测：`WebRtcServer` 的 video 采集出图（headless 无真实桌面源；信令 + OFFER/answer +
+**ICE/DTLS/SCTP 连通**已验）、`DHTServer` 的对外爬取/BEP9 元数据、`Netty*SyncFlow`（Flow 层只测了其依赖的 client/server 真实链路）。
 
 HTTP 代理的测量口径订正：把多个场景放在同一个 JVM 里背靠背跑，会互相干扰（前一场景的连接未完全释放），表现为大量「客户端重连」——反向代理曾因此出现 105–258 次重连、QPS 从 1 万掉到 1 千。**按场景单独跑**后，反向与透传都是 0 重连、吞吐稳定（反向在 8/32/128 三档持平约 11k QPS）。
 
