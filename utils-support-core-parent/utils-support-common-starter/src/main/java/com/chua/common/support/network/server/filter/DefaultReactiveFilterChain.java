@@ -8,7 +8,11 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -74,9 +78,37 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
      * @param handler 目标处理器
      */
     public DefaultReactiveFilterChain(List<ReactiveServerFilter> filters, ServerHandler handler) {
-        this.filters = filters != null ? filters : List.of();
+        this.filters = dedupe(filters);
         this.handler = handler;
         this.index = 0;
+    }
+
+    /**
+     * 按底层过滤器实例去重，保证一次请求里同一过滤器只执行一次。
+     *
+     * <p>{@link ServerFilterManager#getMergedReactiveFilters()} 为了让静态链与响应式链
+     * 各自可用，会让双接口过滤器同时出现「静态包装面」与「原始响应式面」。同一条链里
+     * 执行两遍是有害的：有状态过滤器（并发预算、限流）会算错。去重保留先出现的那份
+     * （合并列表先放静态包装面），这样 handler 仍在调用线程内同步完成，NIO 内联快路径
+     * 不会出现「响应先以 200 空体写出、handler 之后才跑」。</p>
+     *
+     * @param filters 原始过滤器列表
+     * @return 去重后的列表
+     */
+    private static List<ReactiveServerFilter> dedupe(List<ReactiveServerFilter> filters) {
+        if (filters == null || filters.isEmpty()) {
+            return List.of();
+        }
+        Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        List<ReactiveServerFilter> result = new ArrayList<>(filters.size());
+        for (ReactiveServerFilter filter : filters) {
+            Object key = filter instanceof ServerFilterManager.StaticReactiveFilterAdapter adapter
+                    ? adapter.delegate() : filter;
+            if (seen.add(key)) {
+                result.add(filter);
+            }
+        }
+        return result;
     }
 
     /**

@@ -312,7 +312,7 @@ public class ServerFilterManager {
      * {@link ReactiveServerFilter}，服务管理「过滤器热启停」把实例置为停用后，
      * 响应式链无法感知，停用将永远不生效。</p>
      */
-    private static final class StaticReactiveFilterAdapter implements ReactiveServerFilter, ServerFilter {
+    static final class StaticReactiveFilterAdapter implements ReactiveServerFilter, ServerFilter {
 
         /**
          * 共享的「已完成」信号：同步过滤器是常态，每一步放行都要返回完成态，
@@ -332,6 +332,15 @@ public class ServerFilterManager {
         */
         StaticReactiveFilterAdapter(ServerFilter delegate) {
             this.delegate = delegate;
+        }
+
+        /**
+         * 取被包装的同步过滤器（用于执行链按实例去重）。
+         *
+         * @return 底层过滤器
+         */
+        ServerFilter delegate() {
+            return delegate;
         }
 
         @Override

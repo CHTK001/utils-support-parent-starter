@@ -148,7 +148,9 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
      * @return 计数器或 null(不跟踪)
      */
     private AtomicInteger acquire(ServerRequest request) {
-        String ip = request.getRemoteAddress();
+        // 必须按 IP 聚合：remoteAddress 形如 "127.0.0.1:52344"，带端口会让每个连接
+        // 各成一个桶，限流永远不触发，且每个连接都在表里留一条记录。
+        String ip = IpServerFilter.extractIp(request.getRemoteAddress());
         // 达到跟踪上限时不再为新 IP 建表项(内存防护),已有 IP 正常限流
         if (inFlightByIp.size() >= MAX_TRACKED_IPS && !inFlightByIp.containsKey(ip)) {
             return null;
