@@ -325,6 +325,8 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
 
     @Override
     protected void doStart() {
+        rejectStreamEncryption("WebRTC 媒体面已是 DTLS/SRTP，但信令通道是明文 TCP；"
+                + "需要加密信令请用反向代理终结 TLS");
         try {
             // 创建 WebRTC 工厂
             peerConnectionFactory = new PeerConnectionFactory();

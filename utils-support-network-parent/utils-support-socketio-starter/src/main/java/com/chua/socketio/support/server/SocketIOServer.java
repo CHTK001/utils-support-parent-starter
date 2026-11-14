@@ -107,6 +107,8 @@ public class SocketIOServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("Socket.IO 浏览器客户端只协商 TLS，本实现未接入 TLS 监听；"
+                + "请用反向代理终结 TLS 后再转发到明文端口");
         Configuration configuration = new Configuration();
         configuration.setHostname(setting.getHost());
         configuration.setPort(setting.getPort());

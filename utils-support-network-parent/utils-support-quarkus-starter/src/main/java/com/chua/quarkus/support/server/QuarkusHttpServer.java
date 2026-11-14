@@ -88,6 +88,7 @@ public class QuarkusHttpServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请使用 ServerSetting#ssl（certPath/keyPath 已接入 PemKeyCertOptions）启用 TLS");
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);

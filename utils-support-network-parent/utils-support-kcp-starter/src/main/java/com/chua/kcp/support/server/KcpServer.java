@@ -226,6 +226,7 @@ public class KcpServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("KCP 基于 UDP，既无 TLS 会话，通用 KCP 客户端也不支持自定义流加密");
         setting.setProtocol("kcp");
         channelConfig = new ChannelConfig();
         channelConfig.setMtu(KCP_MTU);

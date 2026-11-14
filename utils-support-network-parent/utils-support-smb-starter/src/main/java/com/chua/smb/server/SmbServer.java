@@ -90,6 +90,8 @@ public class SmbServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("SMB 服务端由 Rust 桥接实现，未暴露 SMB3 加密协商；"
+                + "需要加密请走 VPN 或下层隧道");
         try {
             RustSmbServerBridge.loadLibrary();
             serverHandle = RustSmbServerBridge.start(

@@ -164,6 +164,8 @@ public class SshServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("SSH 自带传输层加密（MINA SSHD 协商算法），ServerSetting#encrypt 的流加密与之冲突；"
+                + "请直接使用 SSH 协议自身的加密");
         try {
             sshd = org.apache.sshd.server.SshServer.setUpDefaultServer();
  // MINA 服务端必须配置主机密钥, 否则 检查配置 抛 主机键提供者 not 设置;

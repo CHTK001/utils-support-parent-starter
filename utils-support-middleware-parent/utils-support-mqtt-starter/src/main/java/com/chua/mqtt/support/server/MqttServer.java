@@ -175,6 +175,8 @@ public class MqttServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("MQTT 终端只协商 TLS，本实现未接入 TLS 监听；"
+                + "请用反向代理终结 TLS 后再转发到明文端口");
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();

@@ -127,6 +127,7 @@ public abstract class AbstractModbusSlaveServer extends AbstractServer implement
 
     @Override
     protected void doStart() {
+        rejectStreamEncryption("Modbus/TCP 无密钥协商字段，本实现也未接入 Modbus Security(TLS)");
         try {
             InetAddress address = InetAddress.getByName(setting.getHost());
             ModbusSlave created = createSlave(address, setting.getPort());

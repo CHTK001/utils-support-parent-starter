@@ -248,6 +248,7 @@ licenseType=0
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请使用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             httpServer = com.sun.net.httpserver.HttpServer.create(addr, setting.getBacklog());

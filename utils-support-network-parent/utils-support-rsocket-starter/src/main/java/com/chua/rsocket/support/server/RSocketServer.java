@@ -110,6 +110,8 @@ public class RSocketServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("RSocket 终端只协商传输层 TLS，本实现未接入 TLS；"
+                + "请用反向代理终结 TLS 或改用支持 TLS 的传输层");
  // 增加 Netty 工人 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
         int workers = Math.max(4, Runtime.getRuntime().availableProcessors() * 2);
         System.setProperty("reactor.netty.ioWorkerCount", String.valueOf(workers));

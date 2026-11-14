@@ -110,6 +110,7 @@ public class DHTServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("DHT 基于 UDP，既无 TLS 会话，协议也不支持自定义流加密");
         try {
             this.bridge = new KrpcDhtBridge();
             this.protocol = new DhtProtocol(config, selfId);

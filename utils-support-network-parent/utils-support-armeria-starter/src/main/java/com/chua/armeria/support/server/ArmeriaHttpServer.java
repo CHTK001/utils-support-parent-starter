@@ -84,6 +84,7 @@ public class ArmeriaHttpServer extends AbstractServer {
     */
     @Override
     protected void doStart() {
+        rejectStreamEncryption("HTTP 实现请使用 ServerSetting#ssl（certPath/keyPath 已接入 sb.tls）启用 TLS");
         ServerBuilder sb = com.linecorp.armeria.server.Server.builder();
 
         if (setting.getSsl() != null && setting.getSsl().isEnabled()) {
