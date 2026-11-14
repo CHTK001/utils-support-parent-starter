@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """SafeTensor incremental learning bridge for AgentClient.
 
 Reads an IncrementalLearningRequest JSON from stdin and writes an
