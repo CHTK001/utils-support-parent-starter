@@ -217,8 +217,7 @@ class NewServerFiltersTest {
             }
 
             @Override
-            public ServerResponse flush() {
-                return this;
+            public void flush() {
             }
 
             @Override
@@ -245,11 +244,6 @@ class NewServerFiltersTest {
             @Override
             public boolean isCommitted() {
                 return ended;
-            }
-
-            @Override
-            public void flush() {
-                // 桩无底层输出流，flush 为空实现
             }
         };
     }

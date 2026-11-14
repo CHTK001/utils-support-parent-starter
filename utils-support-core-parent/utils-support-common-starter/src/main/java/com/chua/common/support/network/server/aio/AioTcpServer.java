@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.aio;
 
+import com.chua.common.support.lang.algorithm.crypto.StreamCodec;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -12,6 +13,10 @@ import com.chua.common.support.network.tcp.callback.TcpServerHandler;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -40,6 +45,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>管道模式:{@code setRawPipeHandler((in,out) -> {...})} — 连接建立后回调
  *       阻塞流,由业务自行读写(长连接/自定义协议);运行于每连接虚拟线程</li>
  * </ul>
+ *
+ * <p>传输加密（{@code ServerSetting.encrypt}）：{@link StreamCodec} 是阻塞流 API，
+ * 与 AIO 的完成回调链无法混用，因此开启加密后该连接改由虚拟线程阻塞承载，
+ * 线上帧格式与明文路径完全一致（见 {@link #handleEncryptedConnection}）。</p>
  * @author CH
  * @since 2026/08/24
  */
@@ -54,6 +63,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
      * 不预分配内存。</p>
      */
     private static final int MIN_BACKLOG = 65536;
+
+    /**
+     * 加密连接的单帧消息体上限，与明文路径同口径（8MB）。
+     */
+    private static final int ENCRYPTED_MAX_BODY_SIZE = 8 * 1024 * 1024;
 
     /**
      * 监听通道
@@ -76,6 +90,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
      * 管道模式处理器
      */
     private volatile RawPipeHandler rawPipeHandler;
+
+    /**
+     * 传输加密（{@code null} 表示明文，走 AIO 纯异步快路径）
+     */
+    private volatile StreamCodec streamCodec;
 
     /**
      * 连接关闭统一收尾：归还基类连接预算。
@@ -165,10 +184,16 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     /**
      * 设置管道模式处理器(阻塞流直通业务)。
      *
+     * <p>管道模式与传输加密不能同时生效：{@link AsyncConn} 是回调式 API，
+     * 无法套用 {@link StreamCodec} 的阻塞流；两者同时配置时以加密为准。</p>
+     *
      * @param handler 处理器
      * @return 当前实例
      */
     public AioTcpServer setRawPipeHandler(RawPipeHandler handler) {
+        if (handler != null && setting.isEncrypt()) {
+            log.warn("AIO TCP 管道模式与传输加密不支持同时使用，加密开启时 rawPipeHandler 将被忽略");
+        }
         this.rawPipeHandler = handler;
         return this;
     }
@@ -194,11 +219,36 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             setting.setPort(((InetSocketAddress) serverChannel.getLocalAddress()).getPort());
 // [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
+            initStreamCodec();
             acceptLoop();
             log.info("AIO TcpServer started on {}:{} (iocpThreads={})",
                     setting.getHost(), setting.getPort(), groupThreads);
         } catch (Exception e) {
             throw new RuntimeException("AIO TcpServer 启动失败", e);
+        }
+    }
+
+    /**
+     * 启动时按配置解析一次传输加密 SPI 并缓存，避免每条连接重复初始化。
+     *
+     * <p>与 {@link com.chua.common.support.network.server.impl.JdkTcpServer} 同口径：
+     * 开了 {@code encrypt} 却没配 {@code encryptKey} 时只告警并按明文处理；
+     * 配了不存在的算法名则在启动期直接失败，不能等到第一条连接才发现安全开关是空的。</p>
+     */
+    private void initStreamCodec() {
+        if (!setting.isEncrypt()) {
+            return;
+        }
+        String encryptKey = setting.getEncryptKey();
+        if (encryptKey == null || encryptKey.isBlank()) {
+            log.warn("AIO TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
+            return;
+        }
+        try {
+            streamCodec = StreamCodec.buildStream(setting.getEncryptType(), encryptKey);
+            log.debug("AIO TCP 传输加密: {}", setting.getEncryptType());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("AIO TCP 传输加密初始化失败: " + e.getMessage(), e);
         }
     }
 
@@ -258,6 +308,12 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                 }
                 // 缓冲区按配置应用（默认不配置时无系统调用）
                 applyChannelSocketOptions(channel);
+                // 传输加密：StreamCodec 是阻塞流 API，与 AIO 的完成回调链无法混用，
+                // 这条连接改由本虚拟线程同步承载（帧格式与明文路径完全一致，客户端无感）
+                if (streamCodec != null) {
+                    handleEncryptedConnection(channel);
+                    return;
+                }
                 if (rawPipeHandler != null) {
                     // 管道模式:连接生命周期由 AsyncConn 控制；处理器抛异常时由 close 统一收尾，
                     // 保证预算只归还一次
@@ -284,6 +340,61 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             });
         } catch (java.util.concurrent.RejectedExecutionException e) {
             // 停止中任务被拒：连接不会被处理，必须在这里归还预算
+            closeQuietly(channel);
+            releaseConnectionSlot();
+        }
+    }
+
+    /**
+     * 在解密流上按长度帧收发（帧式 + 传输加密）。
+     *
+     * <p>{@link StreamCodec} 的流加解密是 {@code InputStream/OutputStream} API，
+     * 与 AIO 的完成回调链无法混用；因此开启加密后这条连接改由虚拟线程阻塞承载，
+     * 帧格式（{@code [4B 大端长度][消息体]}）与明文路径完全一致，客户端无感。</p>
+     *
+     * <p>本方法在虚拟线程里同步阻塞，返回即代表连接结束，收尾（关闭 + 归还预算）
+     * 全部在这里完成，不再走 AIO 的完成回调，避免同一连接被两条路径重复关闭。</p>
+     *
+     * @param channel 已接入通道
+     */
+    private void handleEncryptedConnection(AsynchronousSocketChannel channel) {
+        try {
+            // 必须用 Future.get() 版适配器：Channels.newInputStream 走的是非阻塞
+            // read(ByteBuffer)，在 AIO 上会立刻返回 0，帧头会被读成一串 0 字节
+            InputStream in = newBlockingReader(channel);
+            OutputStream out = newBlockingWriter(channel);
+            StreamCodec.Streams streams = streamCodec.open(in, out, false);
+            DataInputStream dataIn = new DataInputStream(streams.in());
+            DataOutputStream dataOut = new DataOutputStream(streams.out());
+            while (running && channel.isOpen()) {
+                int bodyLength;
+                try {
+                    bodyLength = dataIn.readInt();
+                } catch (EOFException eof) {
+                    // 对端正常关闭
+                    return;
+                }
+                if (bodyLength <= 0 || bodyLength > ENCRYPTED_MAX_BODY_SIZE) {
+                    log.debug("加密帧长度非法，关闭连接: bodyLength={}", bodyLength);
+                    return;
+                }
+                byte[] body = new byte[bodyLength];
+                dataIn.readFully(body);
+                TcpServerHandler handler = this.frameHandler;
+                if (handler == null) {
+                    return;
+                }
+                byte[] response = handler.handle(body);
+                if (response == null || response.length == 0) {
+                    continue;
+                }
+                dataOut.writeInt(response.length);
+                dataOut.write(response);
+                dataOut.flush();
+            }
+        } catch (Exception e) {
+            log.debug("AIO TCP 加密连接处理结束: {}", e.getMessage());
+        } finally {
             closeQuietly(channel);
             releaseConnectionSlot();
         }

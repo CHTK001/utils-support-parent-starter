@@ -747,9 +747,9 @@ public class ServerSetting {
     /**
      * 是否启用流加密（AES-256-GCM 帧式端到端加密）。
      *
-     * <p>开启后 {@link JdkTcpServer} 会在连接建立时自动把原始输入输出流包装为
-     * 解密/加密流，处理器无感知；流式与帧式（长度帧）两种协议都支持——
-     * 帧式加密时该连接改由虚拟线程阻塞收发，帧格式不变。
+     * <p>开启后 {@link JdkTcpServer} / {@link com.chua.common.support.network.server.aio.AioTcpServer}
+     * 会在连接建立时自动把原始输入输出流包装为解密/加密流，处理器无感知；流式与帧式
+     * （长度帧）两种协议都支持——帧式加密时该连接改由虚拟线程阻塞收发，帧格式不变。
      * 需与客户端侧共享同一 {@link #encryptKey}。</p>
      *
      * 加密是否启用
