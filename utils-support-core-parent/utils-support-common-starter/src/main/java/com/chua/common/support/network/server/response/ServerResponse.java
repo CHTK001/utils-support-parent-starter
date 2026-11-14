@@ -158,7 +158,7 @@ public interface ServerResponse {
     boolean isEnded();
 
     /**
-     * 设置返回的原始结果对象（未转换），由尾部 ResponseConverterFilter 统一转换。
+     * 设置返回的原始结果对象（未转换），由尾部 ResponseConverter 统一转换。
      *
      * @param result bean 方法返回的原始对象
      * @return 当前响应实例（链式调用）

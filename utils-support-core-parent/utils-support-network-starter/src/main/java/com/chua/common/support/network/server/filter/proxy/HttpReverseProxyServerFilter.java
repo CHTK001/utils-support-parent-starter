@@ -34,7 +34,7 @@ import java.util.concurrent.CompletionStage;
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * HttpReverseProxyFilter proxy = new HttpReverseProxyFilter();
+ * HttpReverseProxyServerFilter proxy = new HttpReverseProxyServerFilter();
  * server.addFilter(proxy);
  * }</pre>lter(proxy);
  * }</pre>
@@ -44,7 +44,7 @@ import java.util.concurrent.CompletionStage;
  * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
-public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilter {
+public class HttpReverseProxyServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
      * Vertx
@@ -88,7 +88,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
                 .setConnectTimeout(5000)
                 .setTcpNoDelay(true));
-        log.info("[network-proxy] HttpReverseProxyFilter 初始化完成, vertx=httpClient");
+        log.info("[network-proxy] HttpReverseProxyServerFilter 初始化完成, vertx=httpClient");
     }
 
     /**

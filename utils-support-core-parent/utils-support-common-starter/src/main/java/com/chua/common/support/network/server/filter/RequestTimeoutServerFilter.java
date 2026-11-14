@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
  * @author CH
  * @since 2026/07/18
  */
-public class RequestTimeoutFilter implements ServerFilter {
+public class RequestTimeoutServerFilter implements ServerFilter {
 
     /**
      * 超时毫秒
@@ -33,7 +33,7 @@ public class RequestTimeoutFilter implements ServerFilter {
      *
      * @param timeoutMillis 超时时间（毫秒）
      */
-    public RequestTimeoutFilter(long timeoutMillis) {
+    public RequestTimeoutServerFilter(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
@@ -42,8 +42,8 @@ public class RequestTimeoutFilter implements ServerFilter {
      * @param seconds 方法入参 seconds
      * @return 请求超时时间过滤 对象
      */
-    public static RequestTimeoutFilter ofSeconds(int seconds) {
-        return new RequestTimeoutFilter(seconds * 1000L);
+    public static RequestTimeoutServerFilter ofSeconds(int seconds) {
+        return new RequestTimeoutServerFilter(seconds * 1000L);
     }
 
     /**

@@ -72,7 +72,7 @@ public class IpServerFilter implements ServerFilter {
     }
 
     /**
-     * 创建 IpFilter 实例
+     * 创建 IpServerFilter 实例
      *
      * @param whitelistMode whitelistMode
      */

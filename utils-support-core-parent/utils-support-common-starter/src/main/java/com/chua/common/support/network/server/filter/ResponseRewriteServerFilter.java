@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  *
  * <h2>使用示例</h2>
  * <pre>{@code
- * ResponseRewriteFilter filter = new ResponseRewriteFilter();
+ * ResponseRewriteServerFilter filter = new ResponseRewriteServerFilter();
  *
  * // 1. 添加响应头
  * filter.addHeader("Server", "MyServer/1.0");
@@ -52,7 +52,7 @@ import java.util.function.Predicate;
  * @author CH
  * @since 2026/07/18
  */
-public class ResponseRewriteFilter implements ServerFilter {
+public class ResponseRewriteServerFilter implements ServerFilter {
 
     /**
      * 响应改写规则列表

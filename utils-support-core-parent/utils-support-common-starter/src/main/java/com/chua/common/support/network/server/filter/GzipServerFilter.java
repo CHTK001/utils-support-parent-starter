@@ -19,7 +19,7 @@ import java.util.zip.GZIPOutputStream;
  * @author CH
  * @since 2024/12/20
  */
-public class GzipFilter implements ServerFilter {
+public class GzipServerFilter implements ServerFilter {
 
     /**
      * 服务器配置引用，用于读取 gzip 开关、压缩等级和最小压缩大小。

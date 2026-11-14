@@ -19,7 +19,7 @@ import java.util.UUID;
  * @author CH
  * @since 2026/07/18
  */
-public class RequestIdFilter implements ServerFilter {
+public class RequestIdServerFilter implements ServerFilter {
 
     /**
      * 获取Order

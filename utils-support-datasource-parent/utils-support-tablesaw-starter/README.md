@@ -24,7 +24,7 @@ Tablesaw 数据引擎模块，基于 Tablesaw 数据处理引擎提供文件数�
 | 类/接口 | 说明 |
 |---------|------|
 | `TablesawEngine` | Tablesaw 数据引擎实现，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。 (SPI: `tablesaw`) |
-| `BuiltinEndpointFilter` | 内置端点过滤器。 拦截 /health 和 /metrics 请求路径，返回 JSON 格式的服务器运行时信息。 仅支持 HTTP 协议，非 HTTP 协议自动 |
+| `BuiltinEndpointServerFilter` | 内置端点过滤器。 拦截 /health 和 /metrics 请求路径，返回 JSON 格式的服务器运行时信息。 仅支持 HTTP 协议，非 HTTP 协议自动 |
 
 ---
 

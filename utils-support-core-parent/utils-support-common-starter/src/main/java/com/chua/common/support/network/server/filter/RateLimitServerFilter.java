@@ -21,20 +21,20 @@ import lombok.extern.slf4j.Slf4j;
  * <h2>使用方式</h2>
  * <pre>{@code
  * // 全局限流：每秒 100 次，使用 guava 实现
- * RateLimitFilter filter = new RateLimitFilter("guava", 100);
+ * RateLimitServerFilter filter = new RateLimitServerFilter("guava", 100);
  *
  * // 按 IP 限流
- * RateLimitFilter filter = RateLimitFilter.byIp("guava", 10);
+ * RateLimitServerFilter filter = RateLimitServerFilter.byIp("guava", 10);
  *
  * // 按路径限流
- * RateLimitFilter filter = RateLimitFilter.byPath("guava", 50, "/api/**");
+ * RateLimitServerFilter filter = RateLimitServerFilter.byPath("guava", 50, "/api/**");
  * }</pre>
  *
  * @author CH
  * @since 2026/07/18
  */
 @Slf4j
-public class RateLimitFilter implements ServerFilter {
+public class RateLimitServerFilter implements ServerFilter {
 
     /**
      * 提供者名称
@@ -82,18 +82,18 @@ public class RateLimitFilter implements ServerFilter {
      * @param providerName SPI 提供者名称（如 "guava"）
      * @param qps          每秒最大请求数
      */
-    public RateLimitFilter(String providerName, double qps) {
+    public RateLimitServerFilter(String providerName, double qps) {
         this(providerName, qps, KeyStrategy.GLOBAL, null);
     }
 
     /**
-     * 创建 RateLimitFilter 实例
+     * 创建 RateLimitServerFilter 实例
      * @param providerName providerName
      * @param qps 方法入参 qps
      * @param keyStrategy 键Strategy，不允许为 null
      * @param pathPrefix 路径前缀，不允许为 null
      */
-    private RateLimitFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
+    private RateLimitServerFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
         this.providerName = providerName;
         this.qps = qps;
         this.keyStrategy = keyStrategy;
@@ -106,8 +106,8 @@ public class RateLimitFilter implements ServerFilter {
      * @param qps 方法入参 qps
      * @return 速率上限过滤 对象
      */
-    public static RateLimitFilter byIp(String providerName, double qps) {
-        return new RateLimitFilter(providerName, qps, KeyStrategy.BY_IP, null);
+    public static RateLimitServerFilter byIp(String providerName, double qps) {
+        return new RateLimitServerFilter(providerName, qps, KeyStrategy.BY_IP, null);
     }
 
     /**
@@ -117,8 +117,8 @@ public class RateLimitFilter implements ServerFilter {
      * @param pathPrefix 路径前缀，不允许为 null
      * @return 速率上限过滤 对象
      */
-    public static RateLimitFilter byPath(String providerName, double qps, String pathPrefix) {
-        return new RateLimitFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
+    public static RateLimitServerFilter byPath(String providerName, double qps, String pathPrefix) {
+        return new RateLimitServerFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
     }
 
     /**
@@ -150,7 +150,7 @@ public class RateLimitFilter implements ServerFilter {
         this.limiter = keyStrategy == KeyStrategy.GLOBAL
                 ? provider.create(qps)
                 : provider.createPerKey(qps);
-        log.info("RateLimitFilter 初始化: provider={}, qps={}, strategy={}", providerName, qps, keyStrategy);
+        log.info("RateLimitServerFilter 初始化: provider={}, qps={}, strategy={}", providerName, qps, keyStrategy);
     }
 
     /**

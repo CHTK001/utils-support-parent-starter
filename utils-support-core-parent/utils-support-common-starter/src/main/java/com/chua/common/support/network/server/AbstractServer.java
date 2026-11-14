@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>提供：
  * <ul>
  *   <li>生命周期 — {@link #start()} / {@link #stop()} / {@link #doStart()} / {@link #doStop()}</li>
- *   <li>过滤器管理 — 内置 GzipFilter / CorsFilter + SPI 发现 + 用户自定义(访问日志/链路追踪需显式开启)</li>
+ *   <li>过滤器管理 — 内置 GzipServerFilter / CorsServerFilter + SPI 发现 + 用户自定义(访问日志/链路追踪需显式开启)</li>
  *   <li>请求处理 — {@link #handleRequest(ServerRequest, ServerResponse)} 统一执行链 + 指标 + 限流</li>
  *   <li>运行时指标 — {@link #getMetrics()} 提供请求计数、活跃数、错误数</li>
  * </ul>
@@ -154,14 +154,14 @@ public abstract class AbstractServer implements ConfigServer {
      * <p>也可以在启动后通过 {@code server.addFilter(...)} 手动注册。</p>
      */
     private void initBuiltinFilters() {
-        addBuiltinFilter(new GzipFilter());
+        addBuiltinFilter(new GzipServerFilter());
         if (Boolean.getBoolean("server.accesslog.enabled")) {
             addBuiltinFilter(new AccessLogServerFilter());
         }
         if (Boolean.getBoolean("server.tracing.enabled")) {
             addBuiltinFilter(new TracingServerFilter());
         }
-        addBuiltinFilter(new CorsFilter());
+        addBuiltinFilter(new CorsServerFilter());
         // 安全响应头过滤器始终挂载，但是否真正下发响应头由
         // ServerSetting.SecurityHeadersConfig.enabled 在「请求时」判定。
         // 之所以不在此按 enabled 决定挂载与否：内置过滤器在构造期完成挂载，

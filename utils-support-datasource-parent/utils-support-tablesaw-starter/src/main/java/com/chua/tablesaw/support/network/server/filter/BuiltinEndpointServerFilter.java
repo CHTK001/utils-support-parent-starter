@@ -26,7 +26,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
  * @author CH
  * @since 4.0.0.42
  */
-public class BuiltinEndpointFilter implements com.chua.common.support.network.server.filter.ServerFilter {
+public class BuiltinEndpointServerFilter implements com.chua.common.support.network.server.filter.ServerFilter {
 
     /**
      * 服务器指标收集器，用于获取运行时计数。
@@ -53,7 +53,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      *
      * @param metrics 服务器指标收集器
      */
-    public BuiltinEndpointFilter(ServerMetrics metrics) {
+    public BuiltinEndpointServerFilter(ServerMetrics metrics) {
         this(metrics, "/health", "/metrics", "/metrics/latency-histogram.svg");
     }
 
@@ -64,7 +64,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param healthPath  健康检查端点路径
      * @param metricsPath 指标查询端点路径
      */
-    public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath) {
+    public BuiltinEndpointServerFilter(ServerMetrics metrics, String healthPath, String metricsPath) {
         this(metrics, healthPath, metricsPath, "/metrics/latency-histogram.svg");
     }
 
@@ -76,7 +76,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param metricsPath          指标查询端点路径
      * @param latencyHistogramPath 延迟直方图端点路径
      */
-    public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath,
+    public BuiltinEndpointServerFilter(ServerMetrics metrics, String healthPath, String metricsPath,
                                  String latencyHistogramPath) {
         this.metrics = metrics;
         this.healthPath = healthPath;

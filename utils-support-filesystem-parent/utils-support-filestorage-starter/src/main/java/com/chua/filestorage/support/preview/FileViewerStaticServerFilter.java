@@ -31,7 +31,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-public class FileViewerStaticFilter implements ServerFilter {
+public class FileViewerStaticServerFilter implements ServerFilter {
 
     /**
      * 版本路径前缀：/文件-viewer/{版本}/

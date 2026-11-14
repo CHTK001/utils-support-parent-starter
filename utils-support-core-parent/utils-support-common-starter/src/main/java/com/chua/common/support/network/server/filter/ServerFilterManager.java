@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <h2>使用方式</h2>
  * <pre>{@code
  * ServerFilterManager manager = new ServerFilterManager(ProtocolType.HTTP);
- * manager.addFilter(new CorsFilter());
+ * manager.addFilter(new CorsServerFilter());
  *
  * ServerFilterChain chain = manager.buildChain(serverHandler);
  * chain.doFilter(request, response);

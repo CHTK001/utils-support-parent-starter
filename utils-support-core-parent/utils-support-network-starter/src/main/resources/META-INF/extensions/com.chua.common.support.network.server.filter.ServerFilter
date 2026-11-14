@@ -1,23 +1,24 @@
 # ==================== 日志/监控 ====================
-# 访问日志/链路追踪不参与 SPI 自动发现：两者都有请求级开销，
+# 访问日志/链路追踪不进 SPI 自动发现：两者都有请求级开销，
 # 默认不注册。需要时用 -Dserver.accesslog.enabled=true /
 # -Dserver.tracing.enabled=true 开启，或 server.addFilter(new AccessLogServerFilter())
 # / new TracingServerFilter() 手动注册。
 
 # ==================== 安全/认证 ====================
-ip=com.chua.common.support.network.server.filter.IpFilter
-rate-limit=com.chua.common.support.network.server.filter.RateLimitFilter
+ip=com.chua.common.support.network.server.filter.IpServerFilter
+firewall=com.chua.common.support.network.server.filter.FirewallServerFilter
+rate-limit=com.chua.common.support.network.server.filter.RateLimitServerFilter
 
 # ==================== 请求处理 ====================
 routing=com.chua.common.support.network.server.filter.UrlMappingServerFilter
-request-id=com.chua.common.support.network.server.filter.RequestIdFilter
-request-timeout=com.chua.common.support.network.server.filter.RequestTimeoutFilter
+request-id=com.chua.common.support.network.server.filter.RequestIdServerFilter
+request-timeout=com.chua.common.support.network.server.filter.RequestTimeoutServerFilter
 ipc=com.chua.common.support.network.server.filter.IpcServerFilter
 
 # ==================== 响应处理 ====================
-response-rewrite=com.chua.common.support.network.server.filter.ResponseRewriteFilter
-gzip=com.chua.common.support.network.server.filter.GzipFilter
-cors=com.chua.common.support.network.server.filter.CorsFilter
+response-rewrite=com.chua.common.support.network.server.filter.ResponseRewriteServerFilter
+gzip=com.chua.common.support.network.server.filter.GzipServerFilter
+cors=com.chua.common.support.network.server.filter.CorsServerFilter
 
 # ==================== 代理/发现 ====================
-ws-proxy=com.chua.common.support.network.server.filter.proxy.VertxWebSocketProxyFilter
+ws-proxy=com.chua.common.support.network.server.filter.proxy.VertxWebSocketProxyServerFilter

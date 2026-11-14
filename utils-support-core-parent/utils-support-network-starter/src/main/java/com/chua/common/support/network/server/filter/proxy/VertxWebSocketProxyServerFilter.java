@@ -42,7 +42,7 @@ import java.util.concurrent.CompletionStage;
  * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
-public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFilter {
+public class VertxWebSocketProxyServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
      * Vertx
@@ -90,7 +90,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
                 .setConnectTimeout(5000)
                 .setMaxFrameSize(1024 * 1024)
                 .setMaxMessageSize(4 * 1024 * 1024));
-        log.info("[network-proxy] VertxWebSocketProxyFilter 初始化完成, vertx=true");
+        log.info("[network-proxy] VertxWebSocketProxyServerFilter 初始化完成, vertx=true");
     }
 
     /**
@@ -104,7 +104,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
         if (vertx != null) {
             vertx.close();
         }
-        log.info("[network-proxy] VertxWebSocketProxyFilter 已关闭");
+        log.info("[network-proxy] VertxWebSocketProxyServerFilter 已关闭");
     }
 
     /**

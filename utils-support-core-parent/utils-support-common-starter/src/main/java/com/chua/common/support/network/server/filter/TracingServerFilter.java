@@ -184,7 +184,7 @@ public class TracingServerFilter implements ServerFilter {
         /**
          * 拼接链路日志内容(在异步线程执行)。
          *
-         * @return 形如 {@code GzipFilter start -> 0ms | Handler start -> 1ms}
+         * @return 形如 {@code GzipServerFilter start -> 0ms | Handler start -> 1ms}
          */
         String render() {
             StringBuilder sb = new StringBuilder(size * ESTIMATED_BYTES);
