@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datasource-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
     </parent>
     <artifactId>utils-support-sqlite-starter</artifactId>
     <name>Utils Support SQLite Starter</name>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-core-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
         <relativePath>../../utils-support-core-parent/pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-osgi-starter</artifactId>

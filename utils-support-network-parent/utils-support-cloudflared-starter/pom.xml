@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-network-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-cloudflared-starter</artifactId>
-    <version>4.0.0.50</version>
+    <version>4.0.0.51</version>
     <packaging>jar</packaging>
     <name>Utils Support Cloudflared Starter</name>
     <description>Cloudflare Tunnel 客户端：内嵌 cloudflared 进程管理，提供链式 API 启动 Quick Tunnel / 命名隧道。</description>

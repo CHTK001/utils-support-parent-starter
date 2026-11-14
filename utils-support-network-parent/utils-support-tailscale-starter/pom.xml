@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-network-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-tailscale-starter</artifactId>
-    <version>4.0.0.50</version>
+    <version>4.0.0.51</version>
     <packaging>jar</packaging>
     <name>Utils Support Tailscale Starter</name>
     <description>Tailscale Funnel 客户端：内嵌 tailscale 进程管理，提供链式 API 建立 Funnel。</description>

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-cloud-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
     </parent>
     <artifactId>utils-support-qq-starter</artifactId>
     <name>Utils Support QQ Starter - QQ Bot集成模块</name>

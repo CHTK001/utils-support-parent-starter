@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datatask-parent</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-datasync-agent-starter</artifactId>

@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-core-parent</artifactId>
-    <version>4.0.0.50</version>
+    <version>4.0.0.51</version>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-parent-starter</artifactId>
-        <version>4.0.0.50</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modules>
