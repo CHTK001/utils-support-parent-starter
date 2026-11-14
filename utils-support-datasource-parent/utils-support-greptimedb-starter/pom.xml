@@ -71,12 +71,6 @@
             单元测试：仅覆盖端点解析、SQL 下推渲染与生命周期守卫等纯逻辑，
             无需外部 GreptimeDB 服务即可运行（版本与兄弟模块保持一致）。
         -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

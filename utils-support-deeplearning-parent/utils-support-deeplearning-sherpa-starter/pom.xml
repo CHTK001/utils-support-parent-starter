@@ -63,18 +63,6 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.27.7</version>
-            <scope>test</scope>
-        </dependency>
         <!-- 纠错验收用的 macbert4csc 模型（约 452MB）不在本 starter 声明；
              SherpaCorrectorTest 需要时由使用方自行添加 utils-support-models-onnx-macbert4csc，缺失时用例 skip -->
     </dependencies>

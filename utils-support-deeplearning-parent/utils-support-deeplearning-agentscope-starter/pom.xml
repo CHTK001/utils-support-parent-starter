@@ -41,12 +41,6 @@
         <!-- AgentSubAgentRoutingTest 使用 JUnit 5 注解（@Test / @BeforeEach / @AfterEach），
              本模块原先未声明 junit，导致 testCompile 报「package org.junit.jupiter.api does not exist」。
              版本取全仓 junit-jupiter 主流值 5.13.0-M3（25 处），避免再引入新变体。 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
 <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>

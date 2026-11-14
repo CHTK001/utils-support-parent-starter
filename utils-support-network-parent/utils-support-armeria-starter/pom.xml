@@ -27,10 +27,5 @@
         </dependency>
 
         <!-- 单元测试：Armeria 服务端启动期拒绝 encrypt -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>

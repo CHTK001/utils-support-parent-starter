@@ -27,10 +27,5 @@
             不引入第三方模板引擎，避免 POI 版本耦合。
         -->
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>

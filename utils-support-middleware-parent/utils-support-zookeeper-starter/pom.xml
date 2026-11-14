@@ -41,11 +41,6 @@
             <artifactId>zookeeper</artifactId>
         </dependency>
         <!-- SPI 装配自测 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
 

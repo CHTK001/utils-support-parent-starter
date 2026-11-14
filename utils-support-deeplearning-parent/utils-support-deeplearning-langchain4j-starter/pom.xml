@@ -29,12 +29,6 @@
         </dependency>
         <!-- LangChain4jGoalWiringTest 使用 JUnit 5 注解；本模块原本未声明 junit，
              版本取全局 junit-jupiter 的 5.13.0-M3 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
     <build>

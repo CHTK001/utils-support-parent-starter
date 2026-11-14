@@ -99,12 +99,6 @@
   </profiles>
   <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
@@ -195,17 +189,6 @@
             <scope>provided</scope>
         </dependency>
         <!-- 测试用 SLF4J 实现 -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.27.7</version>
-            <scope>test</scope>
-        </dependency>
         <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
         
         

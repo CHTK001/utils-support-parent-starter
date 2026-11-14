@@ -46,12 +46,6 @@
         <!-- turbojpeg / libdeflate / libimagequant 加速为可选运行时依赖：
              编译期不引入 utils-support-native-libjpeg-turbo、utils-support-native-imageopt，
              代码通过 TurboJpegBridge / ImageOptBridge 反射加载；缺失时自动回退纯 Java 并打印告警。 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
         <!-- HEIC/HEIF 支持：纯 Java 实现（依赖 JDK 内置 JPEG 解码）
              可选：引入 utils-support-native-heif 获取 Rust 原生加速 -->
     </dependencies>

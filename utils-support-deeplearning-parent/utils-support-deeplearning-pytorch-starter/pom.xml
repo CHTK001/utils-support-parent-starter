@@ -17,12 +17,6 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ai.djl</groupId>
             <artifactId>api</artifactId>
             <version>0.36.0</version>
