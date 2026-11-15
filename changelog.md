@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **仓库移除全部测试代码与测试依赖**（`4ea217661`）：`src/test` 下的测试源码与资源、pom 里 test 作用域及 junit/mockito/assertj/testcontainers 等依赖一并删除，根 pom 设 `maven.test.skip=true` / `skipTests=true`，构建不再解析测试组件。本文件自 `[4.0.0.52]` 起各版本列出的用例类与条数（共 45 处提及）都是当时真实跑过的结果，现仅作**历史记录**，当前仓库不能复跑；`能力矩阵.md` 已在文首与 §4 加同口径说明，能力数据本身未改动。
+
 ## [4.0.0.53] - 2026-11-14
 
 ### Added
