@@ -141,6 +141,11 @@ public final class OpencodeProjectConfig {
     private final List<String> skillPaths = new ArrayList<>();
 
     /**
+     * 待写入的 provider 定义，键为 provider 标识
+     */
+    private final Map<String, ProviderSpec> providers = new LinkedHashMap<>();
+
+    /**
      * 默认模型（provider/model）
      */
     private String defaultModel;
@@ -218,6 +223,28 @@ public final class OpencodeProjectConfig {
         }
         validateMcpSpec(name, spec);
         mcpServers.put(name.trim(), spec);
+        return this;
+    }
+
+    /**
+     * 登记一个 provider 定义。
+     *
+     * <p>站点自定义供应商（如 {@code moss}）不在 opencode 内置目录里，必须显式声明
+     * {@code options.baseURL} 与可用模型清单，否则 opencode 无法为
+     * {@code provider/model} 构造模型客户端，最终表现为
+     * {@code UnknownError: Unexpected server error}。</p>
+     *
+     * <p>凭据（apiKey）不写进本项目文件：工作区通常是受版本控制的仓库，写入即泄漏。
+     * 密钥由 {@code OpencodeServerProcess} 合并进隔离数据目录的 {@code auth.json}。</p>
+     *
+     * @param spec provider 定义
+     * @return 当前生成器
+     */
+    public OpencodeProjectConfig provider(ProviderSpec spec) {
+        if (spec == null || spec.id() == null || spec.id().isBlank()) {
+            return this;
+        }
+        providers.put(spec.id().trim(), spec);
         return this;
     }
 
@@ -337,6 +364,7 @@ public final class OpencodeProjectConfig {
             root.put("$schema", SCHEMA_URL);
             boolean v2 = isV2Shape(root);
             applyAgents(root, v2);
+            applyProviders(root);
             applyMcp(root, v2);
             applyPermissions(root);
             if (defaultModel != null) {
@@ -447,6 +475,47 @@ public final class OpencodeProjectConfig {
             if (spec.tools() != null && !spec.tools().isEmpty()) {
                 ObjectNode toolsNode = childObject(node, "tools");
                 spec.tools().forEach(toolsNode::put);
+            }
+        }
+    }
+
+    /**
+     * 写入 provider 定义。
+     *
+     * <p>opencode 的内置目录只收录官方厂商的模型清单；站点自建的 OpenAI 兼容端点
+     * （如 {@code moss}）必须显式声明 {@code options.baseURL} 与 {@code models}，
+     * 否则 {@code provider/model} 解析不到，表现为
+     * {@code UnknownError: Unexpected server error}。</p>
+     *
+     * <p>这里刻意不写 {@code npm}：opencode 内置 provider 的实现包各不相同
+     * （{@code openai} 用 {@code @ai-sdk/openai}、{@code minimax} 用
+     * {@code @ai-sdk/anthropic}），而站点常直接复用内置名（{@code openai}、
+     * {@code google}、{@code alibaba}）对接自有端点，覆盖 {@code npm} 会把原生协议
+     * 换成 OpenAI 兼容协议，属回归。自定义名不写 {@code npm} 时 opencode 会按
+     * OpenAI 兼容协议兜底，实测可用。</p>
+     *
+     * @param root 配置根节点
+     */
+    private void applyProviders(ObjectNode root) {
+        if (providers.isEmpty()) {
+            return;
+        }
+        ObjectNode container = childObject(root, "provider");
+        for (ProviderSpec spec : providers.values()) {
+            JsonNode existing = container.get(spec.id());
+            ObjectNode node = existing instanceof ObjectNode object ? object : container.putObject(spec.id());
+            node.put("name", spec.name() == null || spec.name().isBlank() ? spec.id() : spec.name());
+            if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
+                childObject(node, "options").put("baseURL", spec.baseUrl());
+            }
+            if (spec.models() != null && !spec.models().isEmpty()) {
+                ObjectNode models = childObject(node, "models");
+                for (String model : spec.models()) {
+                    if (model == null || model.isBlank()) {
+                        continue;
+                    }
+                    childObject(models, model.trim()).put("name", model.trim());
+                }
             }
         }
     }
@@ -643,6 +712,29 @@ public final class OpencodeProjectConfig {
             throw new IllegalArgumentException("MCP 配置必须是 JSON 对象");
         }
         return object;
+    }
+
+    /**
+     * 单个 provider 定义。
+     *
+     * @param id      provider 标识（{@code provider/model} 中斜杠前的部分）
+     * @param name    展示名；null 时用 {@code id}
+     * @param baseUrl OpenAI 兼容端点根地址（如 {@code https://api.mosi.cn/v1}）；null 表示不写
+     * @param models  该 provider 下可用的模型标识；null 或空表示不写
+     */
+    public record ProviderSpec(String id, String name, String baseUrl, List<String> models) {
+
+        /**
+         * 站点自建 OpenAI 兼容端点的构造入口。
+         *
+         * @param id      provider 标识
+         * @param baseUrl 端点根地址
+         * @param models  可用模型标识
+         * @return 定义
+         */
+        public static ProviderSpec openAiCompatible(String id, String baseUrl, List<String> models) {
+            return new ProviderSpec(id, id, baseUrl, models);
+        }
     }
 
     /**

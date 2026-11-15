@@ -1573,6 +1573,7 @@ public class OpencodeServerAgent implements Agent {
      */
     private void applyProjectConfig(Path workspacePath) {
         Map<String, OpencodeProjectConfig.AgentSpec> specs = collectAgentSpecs();
+        Map<String, OpencodeProjectConfig.ProviderSpec> providers = collectProviderSpecs();
         String globalModel = specs.isEmpty() ? resolvedModelId(null) : null;
         String instructions = definition == null ? null : definition.getInstruction();
         AgentCompressionConfig compression = compressionConfig != null
@@ -1583,12 +1584,14 @@ public class OpencodeServerAgent implements Agent {
         boolean managePlan = planRequested();
         boolean hasManaged = !specs.isEmpty() || globalModel != null || hasText(instructions)
                 || manageMcp || managePlan || shellEnabled != null
-                || compression != null || !skillPaths.isEmpty() || !disabledTools.isEmpty();
+                || compression != null || !skillPaths.isEmpty() || !disabledTools.isEmpty()
+                || !providers.isEmpty();
         if (!hasManaged) {
             return;
         }
         OpencodeProjectConfig config = OpencodeProjectConfig.in(workspacePath);
         specs.values().forEach(config::agent);
+        providers.values().forEach(config::provider);
         if (globalModel != null) {
             config.model(globalModel);
         }
@@ -1617,6 +1620,62 @@ public class OpencodeServerAgent implements Agent {
         } else if (debug) {
             log.info("[opencode-server] opencode 配置无变化: {}", result.configFile());
         }
+    }
+
+    /**
+     * 汇总需要写入 opencode 的 provider 定义。
+     *
+     * <p>opencode 只认识内置目录里的官方供应商；站点自建的 OpenAI 兼容端点
+     * （如 {@code moss}）必须显式声明 {@code options.baseURL} 与 {@code models}，
+     * 否则 {@code provider/model} 解析不到，报
+     * {@code UnknownError: Unexpected server error}。密钥不写进项目文件，
+     * 而是交给 {@link OpencodeServerProcess#providerCredential(String, String)}
+     * 合并进隔离数据目录的 {@code auth.json}。</p>
+     *
+     * @return provider 标识 -> 定义
+     */
+    private Map<String, OpencodeProjectConfig.ProviderSpec> collectProviderSpecs() {
+        Map<String, OpencodeProjectConfig.ProviderSpec> specs = new LinkedHashMap<>();
+        registerProvider(chatClient, specs);
+        agentChatClients.values().forEach(client -> registerProvider(client, specs));
+        return specs;
+    }
+
+    /**
+     * 登记单个 ChatClient 对应的 provider（含凭据）。
+     *
+     * @param client ChatClient；null 忽略
+     * @param specs  已登记的 provider
+     */
+    private void registerProvider(ChatClient client,
+                                  Map<String, OpencodeProjectConfig.ProviderSpec> specs) {
+        if (client == null) {
+            return;
+        }
+        ChatClientSetting setting = client.getSetting();
+        String providerId = setting != null ? setting.getProvider() : null;
+        if (providerId == null || providerId.isBlank()) {
+            return;
+        }
+        providerId = providerId.trim();
+        String baseUrl = setting.getBaseUrl();
+        String providerModel = resolvedModelId(client);
+        String modelName = providerModel != null && providerModel.contains("/")
+                ? providerModel.substring(providerModel.indexOf('/') + 1) : null;
+        server.providerCredential(providerId, setting.getAppKey());
+        if (baseUrl == null || baseUrl.isBlank()) {
+            return;
+        }
+        OpencodeProjectConfig.ProviderSpec existing = specs.get(providerId);
+        List<String> models = new ArrayList<>();
+        if (existing != null && existing.models() != null) {
+            models.addAll(existing.models());
+        }
+        if (modelName != null && !modelName.isBlank() && !models.contains(modelName)) {
+            models.add(modelName);
+        }
+        specs.put(providerId, OpencodeProjectConfig.ProviderSpec.openAiCompatible(
+                providerId, baseUrl.trim(), models));
     }
 
     /**

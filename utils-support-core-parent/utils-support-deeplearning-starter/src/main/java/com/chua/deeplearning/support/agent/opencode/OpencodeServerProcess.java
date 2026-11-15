@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -257,6 +256,15 @@ public final class OpencodeServerProcess {
      * 是否已注册 JVM 关闭钩子
      */
     private boolean shutdownHooked;
+
+    /**
+     * 上层登记的 provider 凭据：provider 标识 -> apiKey。
+     *
+     * <p>站点自建的 OpenAI 兼容端点（如 {@code moss}）不在 opencode 内置目录里，
+     * 密钥也不会出现在用户全局 {@code auth.json} 中，必须由上层显式登记，
+     * 再由 {@link #copyCredentials(Path)} 合并进隔离数据目录。</p>
+     */
+    private final Map<String, String> providerCredentials = new LinkedHashMap<>();
 
     /**
      * 工具类构造：仅允许单例
@@ -703,29 +711,79 @@ public final class OpencodeServerProcess {
     }
 
     /**
-     * 把用户默认的 provider 凭据复制到隔离数据目录。
+     * 登记一个 provider 的 API 密钥。
+     *
+     * <p>密钥只写进隔离数据目录的 {@code auth.json}，不落工作区项目文件——
+     * 工作区通常是受版本控制的仓库，明文密钥写入即泄漏。</p>
+     *
+     * @param providerId provider 标识（{@code provider/model} 中斜杠前的部分）
+     * @param apiKey     API 密钥；空白表示忽略
+     */
+    public void providerCredential(String providerId, String apiKey) {
+        if (providerId == null || providerId.isBlank() || apiKey == null || apiKey.isBlank()) {
+            return;
+        }
+        synchronized (providerCredentials) {
+            providerCredentials.put(providerId.trim(), apiKey.trim());
+        }
+        // server 可能已经在跑（热重启复用遗留进程），此时 start() 不会再执行，
+        // 因此登记后立刻落盘，保证下一次调用模型就能拿到凭据。
+        copyCredentials(home().resolve(XDG_DIRECTORY).resolve(XDG_DATA));
+    }
+
+    /**
+     * 把用户默认的 provider 凭据与上层登记的凭据合并到隔离数据目录。
      *
      * <p>opencode 把 {@code /connect} 写入的密钥存在
      * {@code ~/.local/share/opencode/auth.json}。隔离 XDG_DATA_HOME 后该文件不可见，
-     * 服务会因缺少 provider 凭据而无法调用模型，因此启动前做一次复制。环境变量形式的
-     * 凭据（如 {@code ANTHROPIC_API_KEY}）由子进程直接继承，无需复制。</p>
+     * 服务会因缺少 provider 凭据而无法调用模型，因此启动前做一次复制；上层通过
+     * {@link #providerCredential(String, String)} 登记的站点自建 provider 凭据
+     * 在此一并合并。环境变量形式的凭据（如 {@code ANTHROPIC_API_KEY}）由子进程
+     * 直接继承，无需复制。</p>
      *
      * @param dataHome 隔离数据根
      */
     private void copyCredentials(Path dataHome) {
-        Path source = findCredentialFile();
         Path target = dataHome.resolve(OPENCODE_SUBDIRECTORY).resolve("auth.json");
-        if (source == null || Files.exists(target)) {
+        Map<String, Object> merged = new LinkedHashMap<>();
+        Path source = findCredentialFile();
+        if (source != null) {
+            readCredentialFile(source, merged);
+        }
+        synchronized (providerCredentials) {
+            providerCredentials.forEach((providerId, apiKey) -> merged.put(providerId,
+                    Map.of("type", "api", "key", apiKey)));
+        }
+        if (merged.isEmpty()) {
             return;
         }
         try {
             Files.createDirectories(target.getParent());
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.writeString(target, MAPPER.writeValueAsString(merged), StandardCharsets.UTF_8);
             restrictPermissions(target);
-            log.info("[opencode] 已复制 provider 凭据到隔离数据目录: {}（来源 {}）", target, source);
+            log.info("[opencode] 已写入 provider 凭据到隔离数据目录: {}（provider={}）",
+                    target, merged.keySet());
         } catch (IOException e) {
-            log.warn("[opencode] 复制 provider 凭据失败，若未提供环境变量凭据将无法调用模型: {}",
-                    e.getMessage());
+            log.warn("[opencode] 写入 provider 凭据失败，将无法调用模型: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 读取已有凭据文件并合并到目标映射。
+     *
+     * @param source 来源文件
+     * @param target 目标映射
+     */
+    private static void readCredentialFile(Path source, Map<String, Object> target) {
+        try {
+            JsonNode node = MAPPER.readTree(Files.readString(source, StandardCharsets.UTF_8));
+            if (!(node instanceof com.fasterxml.jackson.databind.node.ObjectNode object)) {
+                return;
+            }
+            object.properties().forEach(entry -> target.put(entry.getKey(), MAPPER.convertValue(
+                    entry.getValue(), Map.class)));
+        } catch (Exception e) {
+            log.warn("[opencode] 读取已有 provider 凭据失败，将只用上层登记的凭据: {}", e.getMessage());
         }
     }
 
