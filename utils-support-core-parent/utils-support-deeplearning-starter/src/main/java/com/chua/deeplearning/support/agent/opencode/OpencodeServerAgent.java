@@ -1653,16 +1653,20 @@ public class OpencodeServerAgent implements Agent {
             return;
         }
         ChatClientSetting setting = client.getSetting();
-        String providerId = setting != null ? setting.getProvider() : null;
-        if (providerId == null || providerId.isBlank()) {
+        String baseUrl = setting != null ? setting.getBaseUrl() : null;
+        // resolvedModelId 保证返回 provider/model（解析不出时抛异常），
+        // 因此直接按斜杠切分；provider 以模型串前缀为准，才能与随后写入的
+        // model 字段（agent.model / 顶层 model）保持一致，否则模型会挂到
+        // 不存在的 provider 下静默不可用。
+        String providerModel = resolvedModelId(client);
+        int split = providerModel.indexOf('/');
+        String providerId = providerModel.substring(0, split).trim();
+        String modelName = providerModel.substring(split + 1).trim();
+        if (providerId.isEmpty()) {
             return;
         }
-        providerId = providerId.trim();
-        String baseUrl = setting.getBaseUrl();
-        String providerModel = resolvedModelId(client);
-        String modelName = providerModel != null && providerModel.contains("/")
-                ? providerModel.substring(providerModel.indexOf('/') + 1) : null;
-        server.providerCredential(providerId, setting.getAppKey());
+        String apiKey = setting != null ? setting.getAppKey() : null;
+        server.providerCredential(providerId, apiKey);
         if (baseUrl == null || baseUrl.isBlank()) {
             return;
         }
@@ -1671,7 +1675,7 @@ public class OpencodeServerAgent implements Agent {
         if (existing != null && existing.models() != null) {
             models.addAll(existing.models());
         }
-        if (modelName != null && !modelName.isBlank() && !models.contains(modelName)) {
+        if (!modelName.isEmpty() && !models.contains(modelName)) {
             models.add(modelName);
         }
         specs.put(providerId, OpencodeProjectConfig.ProviderSpec.openAiCompatible(
