@@ -69,15 +69,15 @@
 | 预设任务 | `.compile()` / `.test()` / `.install()` / `.packageTask()` / `.deploy()` | 常用目标组合一键设定 |
 | 跳过测试 | `.skipTests(true)` | 注入 `skipTests` 与 `maven.test.skip` 属性 |
 | 多 Profile | `.profile("dev")` / `.profiles(List)` | 激活 Maven Profile |
-| 指定 JDK 编译 | `.jdkVersion("21")` + `.javaHome("C:/jdk-17")` | fork 进程的 `java.version`、`maven.compiler.source/target` 与 JAVA_HOME |
+| 指定 JDK 编译 | `.jdkVersion("21")` + `.javaHome("C:/jdk-17")` | 注入 `java.version`、`maven.compiler.source/target`（fork 进程）+ 设置 fork 进程 JAVA_HOME |
 | 进度反馈 | `.onProgress((msg, pct) -> ...)` | `MavenCompilerProgress`：`onProgress(String message, int percent)` |
 | 生命周期回调 | `.onCallback(new MavenCompilerCallback() {...})` | `onStart` / `onComplete` / `onSuccess` / `onFailure` / `onCancel` |
 | 异步编译 | `client.executeAsync()` / `builder.executeAsync()` | 返回 `Future<MavenCompileResult>`，可 `cancel()` |
 | 编译后部署 | `.compileAndDeploy()` | 构建 + 返回 `MavenDeployClient` |
-| 部署到本地 | `deploy().deployTo("/opt/app/")` / `deployTo(File)` | `LocalDeployTarget`，文件复制 |
-| 部署到远程 | `deploy().deployToSsh(host, 22, user, pass, "/opt/app/")` | `SshDeployTarget`，SFTP 上传（需 `utils-support-ssh-starter`） |
-| 部署到文件 | `deploy().deployToFile("/opt/app.jar")` | 复制主产物到单个文件 |
-| 重命名产物 | `deploy().rename("app-new.jar")` | 移动主产物并返回新路径 |
+| 部署到本地 | `deploy().deployTo("/opt/app/")` / `deployTo(new LocalDeployTarget("/opt/app"))` | `LocalDeployTarget`，文件复制 |
+| 部署到远程 | `deploy().deployTo(new SshDeployTarget(host, 22, user, pass, "/opt/app/"))` | `SshDeployTarget`，SFTP 上传（需 `utils-support-ssh-starter`） |
+| 部署到文件 | `deploy().deployToFile("/opt/app.jar")` | 复制主产物到单个文件（编译失败或无产物时抛 `MavenDeployException`） |
+| 重命名产物 | `deploy().rename("app-new.jar")` | 移动主产物并返回新路径（无主产物时抛 `MavenDeployException`） |
 | 编译结果 | `MavenCompileResult` | `isSuccess` / `getExitCode` / `getErrors` / `getDurationMillis` / `getArtifacts` / `getMainArtifact` |
 | 自定义部署目标 | 实现 `MavenDeployTarget` 接口 | `name` / `connect` / `upload` / `createDirectory` / `disconnect` 等 |
 
@@ -87,10 +87,10 @@
 
 | 方法 | 说明 |
 | --- | --- |
-| `projectPath(String path)` | 设置 pom.xml 路径；传入目录自动拼接 `pom.xml`，传入 null 解析到当前目录的 pom.xml |
+| `projectPath(String path)` | 设置 pom.xml 路径；传入目录自动拼接 `pom.xml`，传入 null 解析到当前目录的 pom.xml（绝对路径） |
 | `goal(String... goals)` | 追加目标 |
-| `goals(List<String> goals)` | 替换目标列表 |
-| `profile(String... profiles)` / `profiles(List<String>)` | 追加 / 替换激活 Profile |
+| `goals(List<String> goals)` | 整体替换目标列表 |
+| `profile(String... profiles)` / `profiles(List<String>)` | 追加 / 整体替换激活 Profile |
 | `compile()` | 只编译：清空目标后加 `compile` |
 | `test()` | 仅测试：清空目标后加 `test` |
 | `install()` | 清空目标后加 `clean`、`install` |
@@ -113,7 +113,7 @@
 | `getGoalString()` | 目标列表转空格分隔字符串；未配置目标时默认 `"compile"` |
 
 > 未显式配置目标时默认目标为 `compile`（`MavenClientBuilder.DEFAULT_GOALS`）。
-> 注意源码中未开启的开关：`quiet` / `debug` / `offline` 三个布尔值在 `MavenClient` 的 `doExecute` 中**未参与任何分支**（`quiet` 与 `offline` 仅存储；`debug` 仅注入 `debug=true` 属性），效果以实际构建为准。
+> 注意源码中未开启的开关：`quiet` / `offline` 布尔值在 `MavenClient` 的 `doExecute` 中**仅存储、未参与任何分支**；`debug` 仅注入 `debug=true` 属性。效果以实际构建为准。
 
 ---
 
@@ -229,7 +229,7 @@ result.getMainArtifactName();   // 第一个产物文件名（无则 null）
 result.hasArtifacts();          // 是否有至少一个产物
 ```
 
-产物扫描规则（`MavenCompileResult.success(...)` 触发）：执行了包含 `package` / `install` / `deploy` / `jar` 的目标才扫描；先扫项目根目录 `target/` 第一层 jar / war / ear 文件，根目录无产物时再递归扫描各子模块的 `target/` 目录。
+产物扫描规则（`MavenCompileResult.success(...)` 触发）：执行了包含 `package` / `install` / `deploy` / `jar` 的目标才扫描；先扫项目根目录 `target/` 第一层 jar / war / ear 文件，根目录无产物时再扫描各**一级子模块**的 `target/` 目录（仍只取第一层 `.jar` / `.war` / `.ear` 文件，不递归更深层）。
 
 ### 3.5 部署到本地目录
 
@@ -290,12 +290,11 @@ String renamed = deploy.rename("app-new.jar");
 | `onDeploy(MavenDeployCallback)` | 部署回调（`onDeployStart` / `onDeployProgress` / `onDeploySuccess` / `onDeployFailure`） |
 | `getResult()` | 获取编译结果 |
 | `canDeploy()` | 编译成功且有产物才能部署 |
-| `deployTo(MavenDeployTarget)` | 部署到任意目标，返回部署后的文件名列表 |
-| `deployTo(String targetDir)` | 快捷部署到本地目录 |
-| `deployToFile(String)` | 复制主产物到指定文件 |
+| `deployTo(MavenDeployTarget)` | 部署到任意目标；`deployTo(String)` 快捷部署到本地目录，返回部署后的文件名列表 |
+| `deployToFile(String)` | 复制主产物到指定文件，返回目标文件路径 |
 | `rename(String)` | 重命名主产物并返回新路径 |
 
-> 编译失败或无产物时调用部署 / 文件复制 / 重命名会抛 `MavenDeployException`（如 `"无法部署: 编译失败或无产物"`、`"无产物可部署"`）。
+> 编译失败或无产物时调用部署会抛 `MavenDeployException`（`"无法部署: 编译失败或无产物"`）；文件复制在主产物为空时抛 `"无产物可部署"`；重命名在主产物为空时抛 `"无产物可重命名"`。
 
 ### 3.6 部署到 SSH/SFTP 远程服务器
 
@@ -369,7 +368,7 @@ MavenClient.create()...compileAndDeploy().deployTo(new MyDeployTarget());
 ```
 
 - 接口契约：`name()`、`isReady()`、`connect()`、`upload(localPath, targetPath)`、`createDirectory(path)`、`exists(path)`、`delete(path)`、`disconnect()`；默认方法 `uploadBatch(files, targetDir)`（按 `targetDir + "/" + 文件名` 逐条上传并返回上传成功数）、`close()`（等价 `disconnect()`）、`setCallback(MavenDeployCallback)`（可选实现）。
-- 回调扩展点：编译侧 `MavenCompilerProgress`（函数式接口，`onProgress(String message, int percent)`）与 `MavenCompilerCallback`（默认方法 `onStart` / `onComplete` / `onSuccess` / `onFailure` / `onCancel`）；部署侧 `MavenDeployCallback`（默认方法 `onDeployStart` / `onDeployProgress` / `onDeploySuccess` / `onDeployFailure`）。全部回调抛异常都会被捕获并仅记 warn 日志，不影响主流程。
+- 回调扩展点：编译侧 `MavenCompilerProgress`（函数式接口，`onProgress(String message, int percent)`）与 `MavenCompilerCallback`（默认方法 `onStart` / `onComplete` / `onSuccess` / `onFailure` / `onCancel`）；部署侧 `MavenDeployCallback`（默认方法 `onDeployStart` / `onDeployProgress` / `onDeploySuccess` / `onDeployFailure`）。`MavenClient` / `MavenDeployClient` 发起的常规回调通知抛异常都会被捕获并仅记 warn 日志，不影响主流程；例外是 `SshDeployTarget.uploadBatch` 内对 `onDeployProgress` 的直接调用，无捕获。
 
 ---
 
@@ -390,7 +389,7 @@ mvn -pl utils-support-core-parent/utils-support-maven-starter -am clean package
 | 依赖 | 用途 | 说明 |
 | --- | --- | --- |
 | `com.chua:utils-support-common-starter` | 公共支持（`Wraps` 集合、`ReflectUtils` 反射） | 同版本 `${project.version}` |
-| `com.chua:utils-support-git-starter` | Git 集成 | 同版本 `${project.version}` |
+| `com.chua:utils-support-git-starter` | pom 声明依赖（源码未直接引用 Git 类） | 同版本 `${project.version}` |
 | `org.apache.maven.shared:maven-invoker` | 独立进程编译 | 版本 `${maven.invoker.version}`（`3.3.0`） |
 | `com.chua:utils-support-ssh-starter` | SSH/SFTP 部署能力 | **`provided` scope，需使用方自行引入** |
 

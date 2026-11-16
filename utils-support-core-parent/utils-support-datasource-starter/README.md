@@ -1,6 +1,51 @@
 # utils-support-datasource-starter
 
-数据源核心引擎：AbstractEngine、JdbcEngine、MemoryWhereParser、Lambda 包装器
+数据源核心引擎：`AbstractEngine`、`JdbcEngine`、`MemoryWhereParser`、Lambda 包装器。
+
+> 版本：`4.0.0.51`｜JDK：`25`（`maven.compiler.source=25` / `maven.compiler.target=25`，全仓编译开启 `--enable-preview`）｜包名：`com.chua.datasource.support`
+
+## 目录
+
+- [是什么 / 不是什么](#是什么--不是什么)
+- [核心 API 速查](#核心-api-速查)
+- [快速开始](#快速开始)
+- [配置项](#配置项)
+- [SPI 扩展点](#spi-扩展点)
+- [构建与依赖](#构建与依赖)
+- [边界](#边界)
+
+---
+
+## 是什么 / 不是什么
+
+| 是什么 | 不是什么 |
+|---|---|
+| 数据源核心引擎抽象：`AbstractEngine` 只要求子类实现 `executeNewQuery` 即可获得完整 ORM 能力，更新/删除默认基于内存数据存储执行，子类可覆写 `executeUpdate` / `executeDelete` 落库 | 不是 Spring Boot Starter：pom 无任何 Spring 依赖，不提供 `@Configuration` / Bean 装配 |
+| 内置 `memory`（`InMemoryEngine`，SPI 键 `"memory"`）与 `file`（`FileEngine`，SPI 键 `"file"`，支持 csv/tsv/excel/xls/xlsx/json/json5/dbf）两个引擎实现 | 不含任何具体数据库驱动（MySQL / PostgreSQL / Oracle 等驱动由各数据库 starter 提供），pom 仅声明 `r2dbc-spi 0.9.1.RELEASE`（编译期 SPI）与 `jsqlparser 5.4`（provided） |
+| Lambda 链式查询/更新/删除包装器：`EngineQueryWrapper` / `EngineUpdateWrapper` / `EngineDeleteWrapper`（`query/update/delete` 入口，`eq/ne/gt/ge/lt/le/like/in/...` 条件 + `list()/one()/page(pn, ps)/count()/update()/remove()` 终端方法） | 不含连接池管理、JTA/事务抽象与分布式事务（引擎内未提供事务 API，事务边界需调用方自行管理） |
+| `JdbcEngine` 将 SELECT 列、JOIN、WHERE、GROUP BY、HAVING、ORDER BY、LIMIT/OFFSET 全量下推到数据库；`executeCount` 包装 `SELECT COUNT(*) FROM (...query...) t_count`，`supportsNativePaging` 判定物理分页 | 不提供具体数据库的用户/索引/权限实现：`UserManager` / `IndexManager` / `PermissionManager` / `ProcessManager` / `SlowQueryManager` 只是本模块定义的 SPI 接口，实现按方言协议由外部 starter 注册，取不到实现即该内核没有该能力 |
+| `MemoryWhereParser` 将 WHERE 子句解析为 `Predicate`（支持 `=` `!=` `<>` `> >= < <=`、`BETWEEN ? AND ?`、`LIKE ?`、`IS [NOT] NULL`、`IN/NOT IN (...)`，AND/OR 括号分组且 AND 优先级高于 OR）；`MemorySqlParser` 提供内存 SQL 解析执行（SELECT 聚合 COUNT/MAX/MIN/SUM/AVG、INSERT/UPDATE/DELETE 计划） | 不负责 SQL 防注入之外的连接安全：`JdbcUrl` 只做连接串片段校验，`createTable` 的默认值仅放行数字字面量、受限关键字与引号配平的字符串字面量（见 `JdbcEngine.escapeDefaultValue`） |
+| 方言体系：`AbstractDialect` 从 `META-INF/dialect-env/{protocol}.env` 资源加载厂商语法（引用符/分页/自增/引擎/DDL 片段/upsert 模板），SPI 注册 25 个方言实现（mysql/postgresql/oracle/sqlserver/sqlite/h2/mariadb/clickhouse/hive/derby/duckdb 各版本族，`Mysql57Dialect` 等旧版族共用新版 `.env`） | 不含数据库文档生成器本体：swagger/stripe/screw/aurora 仅提供文档模板（`DocumentTemplate`）与解析器（`DocumentParser`）SPI 注册 |
+| 响应式引擎 SPI：`ReactorEngine`（`query/update/delete` 返回 `Flux`/`Mono`，静态工厂 `ReactorEngine.create(type)`），注册 `memory` / `file` / `jdbc` 三个实现；`JdbcReactorEngine` 支持单/多数据源与 R2DBC 真非阻塞、JDBC 降级联邦 | 不含 Flyway 迁移执行引擎：仅提供 `ScriptConverter` SPI（derby/hive 两个实现） |
+| GraalVM 原生镜像支持：`META-INF/native-image/` 下提供 reflect/resource 配置 | 不含数据库中间件本身：`middleware` 包仅是连接探测/查询相关的接口与模型 |
+
+---
+
+## 核心 API 速查
+
+| 能力 | 入口 | 说明 |
+|---|---|---|
+| 引擎创建 | `Engine.create("memory")` / `Engine.create("file")`（SPI）；响应式 `ReactorEngine.create("jdbc" \| "memory" \| "file")` | 通过 `ServiceProvider` 按扩展键实例化；`Dialect.getExtension("mysql")` 获取方言 |
+| 链式查询 | `engine.query(T.class).eq(...).like(...).orderByDesc(...)` → `list()` / `one()` / `page(pn, ps)` / `count()` | `EngineQueryWrapper` 返回自身类型，条件全链式；分页在 JDBC 引擎走 COUNT + 分页 SQL 下推 |
+| 链式更新/删除 | `engine.update(T.class).set(T::getName, "新值").eq(T::getId, 1).update()`；`engine.delete(T.class).eq(...).remove()` | 返回受影响行数；内存/文件引擎直接作用于行引用 |
+| 数据源管理 | `addDataSource(name, EngineDataSource)` / `store(name, List)` / `getDataSource(n)` / `getDataSource()` / `removeDataSource(name)` / `dataSourceNames()` / `setDefaultDataSourceName(name)` | 首个注册的数据源自动成为默认；`removeDataSource` 摘除并关闭，默认数据源被摘除时同时置空默认名 |
+| 原生 SQL | 内存引擎：`querySql(sql, params)` / `querySql(sql, Class, params)`（`MemorySqlParser` 求值）/ `executeSql(sql, params)`；JDBC 引擎：`getExecutor()` → `JdbcSqlExecutor` 的 `query` / `queryPage` / `execute` / `batch` | `InMemoryEngine.supportsSql()` 恒为 true |
+| DDL 与库管理 | `ddl()`（`DslManager` SPI，默认 `DefaultDslManager`）；`JdbcEngine.createDatabase` / `dropDatabase` / `createTable` / `databaseExists` / `listDatabases` | 建库语句优先由 `DdlProvider` SPI 生成（`DefaultDdlProvider` 仅占位、`supports()` 恒 false，无匹配实现时 `JdbcEngine` 用内置 SQL 兜底） |
+| 元数据 | `meta()` / `supportsMeta()`；`JdbcEngine.getTriggers(schema)` / `getTrigger(...)` / `getProcedures(schema)` / `getProcedure(...)` | `meta()` 按方言协议 SPI 查找，回退 `JdbcMetaData`；基类默认 `DefaultMetaData` 各方法抛异常因而 `supportsMeta()` 为 false |
+| 能力型 SPI 入口 | `user()`（`UserManager`）/ `index()`（`IndexManager`）/ `permission()`（`PermissionManager`）/ `interceptors()`（`EngineInterceptor`） | `JdbcEngine` 按当前方言协议解析，注入 JDBC `DataSource`；无实现时返回 null |
+| 生命周期 | `close()`（幂等，`AtomicBoolean` 防重入，失败只记日志）/ `isClosed()` | 释放全部已注册数据源并清空内存数据 |
+
+终端方法一览（`EngineQueryWrapper`）：`list()` / `one()` / `page(int pn, int ps)` / `count()`；`EngineUpdateWrapper`：`update()`；`EngineDeleteWrapper`：`remove()`。
 
 ---
 
@@ -12,39 +57,114 @@
 <dependency>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-datasource-starter</artifactId>
-    <version>${project.version}</version>
+    <version>4.0.0.51</version>
 </dependency>
 ```
 
----
+### 2. 内存引擎 + Lambda 链式查询
 
-## 功能概览
+```java
+import com.chua.common.support.lang.datasource.engine.Engine;
 
-| 类/接口 | 说明 |
-|---------|------|
-| `SymmetricConnectorConfig` | SymmetricDS 数据库连接器配置 SPI 接口。 |
-| `SymmetricEnvironmentSetup` | SymmetricDS 数据库环境自动配置 SPI 接口。 |
-| `DataScheme` | 数据方案接口，对应数据库中的一个库（Schema）。 |
-| `DataSourceCreator` | 数据源创建器接口。 统一管理多种类型的数据源（JDBC DataSource、DataScheme 等）， 通过 SPI 机制可以注册不同的实现（如 Calci |
-| `DataTable` | 数据表接口，对应数据库中的一张表。 |
-| `MutableDataTable` | 可变数据表实现。 |
-| `DslManager` | DDL / DSL 管理器 SPI 接口。 提供表结构读取与 DDL 语句生成能力。 |
-| `AbstractDialect` | 方言抽象基类。 提供默认的分页 SQL 生成（LIMIT/OFFSET 语法）和默认类型映射。 |
-| `ClickHouse20Dialect` | ClickHouse20Dialect |
-| `ClickHouseDialect` | ClickHouseDialect |
-| ... | 共 62 个类 |
+public class Demo {
+    // 实体：表名由 @TableName 指定，未标注时按实体类简单名驼峰转下划线
+    @com.chua.datasource.support.annotation.TableName("city")
+    public static class City {
+        private String name;
+        // getter / setter 省略
+    }
 
----
+    public static void main(String[] args) {
+        // SPI 创建内存引擎并灌入数据
+        Engine engine = Engine.create("memory", e -> e.store("city", List.of(
+                new City("许都"), new City("隆中"), new City("成都"))));
 
-## 配置说明
+        // Lambda 链式查询：eq + 终端方法
+        List<City> match = engine.query(City.class)
+                .eq(City::getName, "隆中")
+                .list();                    // → [City("隆中")]
 
-本模块为零配置模块，引入依赖后即可使用。
-
----
-
-## 依赖关系
-
+        long total = engine.query(City.class).count();   // → 3
+        var page   = engine.query(City.class).page(1, 2);// → 第 1 页 2 条
+    }
+}
 ```
+
+说明：`query(Class)` 返回 `EngineQueryWrapper`，条件方法（`eq/ne/gt/ge/lt/le/like/likeLeft/likeRight/in/notIn/isNull/isNotNull/between/orderByAsc/orderByDesc/groupBy/and/or`）全部返回自身以支持链式；`store(name, List)` 写入内存数据存储并登记为默认数据源。
+
+### 3. 文件引擎（表格文件当表查）
+
+```java
+Engine engine = Engine.create("file");
+((FileEngine) engine).load("D:/data/user.csv");        // 自动识别类型并加载到默认数据源
+List<User> users = engine.query(User.class)
+        .ge(User::getAge, 18)
+        .list();
+((FileEngine) engine).save("user");                    // 变更写回文件
+```
+
+`FileEngine.SUPPORTED_TYPES` 白名单：`csv / tsv / excel / xls / xlsx / json / json5 / dbf`。
+
+### 4. JDBC 引擎（示意）
+
+`JdbcEngine` 为抽象基类，具体注册引擎由各数据库 starter 提供；子类需要数据源里携带 `javax.sql.DataSource` 与 `Dialect`（`EngineDataSource`），之后 `query/update/delete` 的完整 SQL（SELECT 列、JOIN、WHERE、GROUP BY、HAVING、ORDER BY、分页）会下推给数据库执行，`page()` 走 `executeCount` + 物理分页。
+
+---
+
+## 配置项
+
+本模块**零 Spring 配置**：引擎与方言完全由 SPI 自动装配，引入依赖即可使用。唯一的配置输入是**类路径资源**，而非 application 配置：
+
+- **方言资源文件**：`META-INF/dialect-env/{protocol}.env`，例如 `MysqlDialect` → `mysql.env`、`PostgresqlDialect` → `postgresql.env`。模块内置 24 个文件：mysql、postgresql（env9/10）、oracle（11g/12c）、sqlserver（2008/2012）、sqlite（2）、h2（h2v1）、mariadb（103）、hive（2）、derby（1014）、duckdb（06）、clickhouse（20）。
+- **资源加载规则**（`AbstractDialect.loadDefaultEnv`）：按类路径 `getResources` 合并同名资源——类路径靠前的 jar 逐键优先，后续 jar 只补缺失键，全部按 UTF-8 读取。
+- **代码级覆盖**：`withProperties(Properties)` 传入的外部 properties 优先级高于内置 `.env`；`config(key, defaultValue)` 三级读取为「外部注入 → 内置 .env → 默认值」。
+- **典型键**（见 `mysql.env`）：`protocol`、`driver`、`url`、`quote-open/close`、`auto-increment-keyword`、`engine-keyword`、`storage-engine`、`table-type`、`table-comment`、`column-comment`、`alter-column-string`、`supports-upsert`、`upsert-template`、`supports-inline-comment`、`supports-partition`、`current-timestamp-sql`。
+
+---
+
+## SPI 扩展点
+
+注册文件位于 `src/main/resources/META-INF/extensions/`，共 9 个：
+
+| 接口全名（注册文件名） | 本模块注册项 |
+|---|---|
+| `com.chua.common.support.lang.datasource.engine.Engine` | `file=FileEngine`、`memory=InMemoryEngine` |
+| `com.chua.datasource.support.engine.ReactorEngine` | `memory=InMemoryReactorEngine`、`file=FileReactorEngine`、`jdbc=JdbcReactorEngine` |
+| `com.chua.common.support.lang.datasource.dialect.Dialect` | 25 个方言实现，SPI 键即协议名（`mysql`/`mysql57`/`postgresql`/`postgresql10`/`postgresql9`/`oracle`/`oracle12c`/`oracle11g`/`sqlserver`/`sqlserver2012`/`sqlserver2008`/`sqlite`/`sqlite2`/`h2`/`h2v1`/`mariadb`/`mariadb103`/`clickhouse`/`clickhouse20`/`hive`/`hive2`/`derby`/`derby1014`/`duckdb`/`duckdb06`，其中 `SqlDialect` 与 `AbstractDialect` 为基类） |
+| `com.chua.common.support.lang.datasource.engine.ddl.DslManager` | `default=DefaultDslManager`（通用 JDBC DDL 管理器，`@Spi` 别名 `DslManager.DEFAULT_ALIAS`，通过 `DatabaseMetaData` 读表结构再由注入的 `Dialect` 生成 DDL） |
+| `com.chua.common.support.lang.datasource.engine.ddl.DdlProvider` | `ddl-provider=DefaultDdlProvider`（`@Spi(order = -1)` 兜底占位：`supports()` 恒 false，建库/删库/建表方法均抛 `UnsupportedOperationException`；实际 DDL 由 `JdbcEngine` 内置语法或外部方言 provider 生成） |
+| `com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor` | `engine-interceptor=NoOpEngineInterceptor`（`@Spi(order = -1)` 空实现兜底，业务方注册更高 order 的拦截器在其前触发；`AbstractEngine.interceptors()` 结果按实例缓存） |
+| `com.chua.common.support.lang.document.DocumentTemplate` | `default=DefaultDocumentTemplate`、`swagger=SwaggerDocumentTemplate`、`aurora=AuroraDocumentTemplate`、`stripe=StripeDocumentTemplate`、`screw=ScrewDocumentTemplate` |
+| `com.chua.common.support.lang.document.DocumentParser` | `database=DatabaseDocumentParser`、`swagger=SwaggerOpenApiParser`、`openapi=SwaggerOpenApiParser` |
+| `com.chua.common.support.lang.datasource.flyway.ScriptConverter` | `derby=DerbyScriptConverter`、`hive=HiveScriptConverter` |
+
+**接口在本模块、实现由外部按方言协议注册**的能力点：`meta.MetaData`（`JdbcEngine.meta()` 按 `Dialect.protocol()` 查找，回退 `JdbcMetaData`）；`user.UserManager` / `index.IndexManager` / `permission.PermissionManager`（`JdbcEngine.user()/index()/permission()` 经 `resolveManager` 按协议解析，实现为 `DataSourceAware` 时注入 `DataSource`，无实现返回 null）；`process.ProcessManager` / `slowquery.SlowQueryManager`（本模块仅定义接口，引擎内未提供调用入口，由外部按协议注册后自行按 `ServiceProvider` 取用）。接口示例（`UserManager`）：`listUsers()`、`createUser(name).withPassword(pwd).withHost(host).execute()`、`alterUser(name).withGrant(priv, db).withRevoke(priv, db).execute()`、`dropUser(name)`。
+
+---
+
+## 构建与依赖
+
+父模块：`com.chua:utils-support-core-parent:4.0.0.51`；自身坐标 `com.chua:utils-support-datasource-starter:4.0.0.51`。
+
+```text
 utils-support-datasource-starter
-├── utils-support-common-starter
+├── utils-support-common-starter              (编译依赖，${project.version})
+├── io.projectreactor:reactor-core             (响应式引擎)
+├── io.r2dbc:r2dbc-spi:0.9.1.RELEASE           (编译期仅 SPI，驱动由各数据库 starter 提供)
+└── com.github.jsqlparser:jsqlparser:5.4       (provided)
 ```
+
+仓库级属性：`project.build.sourceEncoding=UTF-8`、`java.version=25`、`maven.compiler.source/target=25`、`--enable-preview`（surefire fork JVM 以 `enable.preview.jvm.args` 保持一致）。
+
+验收：`src/acceptance/` 提供可复跑的多阶段验收 harness（首个程序 `EngineAcceptance` 对 24 个 SPI 注册引擎做契约面断言），该目录不是 Maven 标准源码根，不参与构建；另外 `META-INF/native-image/` 提供 GraalVM reflect/resource 配置。
+
+---
+
+## 边界
+
+- 不含具体数据库 JDBC/R2DBC 驱动、连接池、事务与分布式事务管理（pom 中仅有 SPI 级依赖，见上）。
+- `UserManager` / `IndexManager` / `PermissionManager` / `ProcessManager` / `SlowQueryManager` / 方言专属 `MetaData` 的实现不在此模块，需依赖各数据库 starter 按协议注册；`JdbcEngine.user()/index()/permission()` 无实现时返回 null。
+- 方言不支持标准 LIMIT 时（SQL Server / Oracle 族），分页走 `Dialect.processSql(sql, Pagination)` 的页码模型，`offset` 必须为 `limit` 的整数倍，否则 `wrapPagination` 显式抛出 `UnsupportedOperationException`。
+- 引擎关闭后任何写操作抛 `IllegalStateException`（`ensureOpen`）；`getDataSource(name)` 对不存在/未设置返回 null。
+- 内存引擎数据仅存于进程内 `ConcurrentHashMap`，进程退出即丢失；文件引擎仅白名单类型（`SUPPORTED_TYPES`）可加载。
+- 具体数据库连接串组装时的安全校验由 `url.JdbcUrl` 负责，限定主机名/IPv4/方括号 IPv6 与单段库名（允许 `_ $ -` 与一层 schema 限定），拒绝 `? & ; =` 等分隔符注入驱动属性。
