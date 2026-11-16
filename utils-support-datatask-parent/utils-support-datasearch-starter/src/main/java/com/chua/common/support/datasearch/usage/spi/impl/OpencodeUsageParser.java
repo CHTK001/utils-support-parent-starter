@@ -55,13 +55,60 @@ public class OpencodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 消息表用量查询：一次请求一行，附带起止时间（算耗时）、首字时间、结束原因与消息主键（作请求号）
+     * 增量水位：上一轮已解析到的最大 {@code time_created}（epoch 毫秒）。
      *
-     * <p>结束时间取 {@code $.time.completed} 而不是行上的 {@code time_updated}：后者在
-     * 140885 条里有 107763 条晚于真正的完成时刻（消息行完成后还会被更新），拿它算耗时偏大。
-     * 首字时间取该消息最早的文字/推理/工具块，即模型第一个产出落库的时刻。</p>
+     * <p>本机新库 {@code session_message} 已有 101 万条带 token 的 assistant 行，全量扫描
+     * 单轮需 60~120 秒；而调度每 5 分钟一轮，全量重扫会让同步长期占用连接与内存。
+     * 首轮（水位为 0）全量补齐，之后只取水位前移一天的数据。</p>
      */
-    private static final String SQL_MESSAGES =
+    private static volatile long watermarkMillis = 0L;
+
+    /**
+     * 增量重叠窗口（毫秒）：一天。
+     *
+     * <p>消息行可能先落库、完成时才写入 token，只按 {@code time_created} 卡水位会把这类
+     * 迟到的完成记录永久漏掉，故每次回看一天；重叠部分由 {@code UsageAggregationTask}
+     * 的 requestId 去重挡住。</p>
+     */
+    private static final long OVERLAP_MILLIS = 24L * 60 * 60 * 1000;
+
+    /**
+     * 新库 {@code session_message} 用量查询（9-03 之后的数据都在这里）。
+     *
+     * <p>与旧 {@code message} 表的列序保持一致，共用 {@link #toAiUsage}。首字时间取
+     * {@code content} 里最早带 {@code time.created} 的块（文字/推理/工具），即模型第一个
+     * 产出落库的时刻。</p>
+     */
+    private static final String SQL_SESSION_MESSAGES =
+            "SELECT time_created, COALESCE(CAST(json_extract(data, '$.time.completed') AS INTEGER), time_updated), "
+            + "CAST(json_extract(data, '$.finish') AS TEXT), "
+            + "CAST(json_extract(data, '$.model.providerID') AS TEXT), "
+            + "CAST(json_extract(data, '$.model.id') AS TEXT), "
+            + "CAST(json_extract(data, '$.tokens.input') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.output') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.reasoning') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.cache.read') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.cache.write') AS INTEGER), "
+            + "CAST(json_extract(data, '$.cost') AS REAL), "
+            + "(SELECT MIN(CAST(json_extract(c.value, '$.time.created') AS INTEGER)) "
+            + "   FROM json_each(json_extract(data, '$.content')) c "
+            + "  WHERE json_extract(c.value, '$.time.created') IS NOT NULL), "
+            + "id "
+            + "FROM session_message "
+            + "WHERE type = 'assistant' "
+            + "  AND (CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
+            + "    OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0) "
+            + "  AND time_created > ? "
+            + "ORDER BY time_created ASC";
+
+    /**
+     * 旧库 {@code message} 表用量查询：只补新库没有的行。
+     *
+     * <p>两表是并行的两套记录而非前后接力——9-14 旧表 4038 行而新表仅 465 行，
+     * 8-10~9-02 更是只有旧表有；重叠 id 的 token 全量比对 25228 条完全一致，
+     * 故按 id 反连接取并集，不会把同一条请求算两遍。</p>
+     */
+    private static final String SQL_LEGACY_MESSAGES =
             "SELECT time_created, COALESCE(CAST(json_extract(data, '$.time.completed') AS INTEGER), time_updated), "
             + "CAST(json_extract(data, '$.finish') AS TEXT), "
             + "CAST(json_extract(data, '$.providerID') AS TEXT), "
@@ -77,8 +124,11 @@ public class OpencodeUsageParser extends BaseUsageParser {
             + "   AND json_extract(p.data, '$.type') IN ('text', 'reasoning', 'tool')), "
             + "id "
             + "FROM message "
-            + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
-            + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
+            + "WHERE (CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
+            + "    OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0) "
+            + "  AND time_created > ? "
+            + "  AND NOT EXISTS (SELECT 1 FROM session_message s "
+            + "                   WHERE s.id = message.id AND s.type = 'assistant') "
             + "ORDER BY time_created ASC";
 
     /**
@@ -97,19 +147,47 @@ public class OpencodeUsageParser extends BaseUsageParser {
             return List.of();
         }
         List<AiUsage> result = Wraps.list();
+        long from = watermarkMillis <= 0 ? 0L : Math.max(0L, watermarkMillis - OVERLAP_MILLIS);
+        long maxSeen = watermarkMillis;
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
-            try (PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES)) {
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        result.add(toAiUsage(rs));
-                    }
-                }
+            maxSeen = Math.max(maxSeen, query(conn, SQL_SESSION_MESSAGES, from, result));
+            maxSeen = Math.max(maxSeen, query(conn, SQL_LEGACY_MESSAGES, from, result));
+            if (maxSeen > watermarkMillis) {
+                watermarkMillis = maxSeen;
             }
-            log.info("[opencode] 解析完成，共 {} 条用量记录", result.size());
+            log.info("[opencode] 解析完成，共 {} 条用量记录（起点 {}，新水位 {}）",
+                    result.size(), from, watermarkMillis);
         } catch (SQLException e) {
             log.warn("[opencode] 解析失败: {}", e.getMessage(), e);
         }
         return result;
+    }
+
+    /**
+     * 按水位执行一条用量查询，并把结果追加到集合。
+     *
+     * @param conn   数据库连接
+     * @param sql    查询语句（最后一个占位符为起始时间）
+     * @param from   起始时间（epoch 毫秒，0 表示全量）
+     * @param result 结果收集器
+     * @return 本次查询见到的最大 time_created；无数据时返回 0
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
+    private long query(Connection conn, String sql, long from, List<AiUsage> result) throws SQLException {
+        long maxSeen = 0L;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, from);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result.add(toAiUsage(rs));
+                    long created = rs.getLong(1);
+                    if (created > maxSeen) {
+                        maxSeen = created;
+                    }
+                }
+            }
+        }
+        return maxSeen;
     }
 
     /**
