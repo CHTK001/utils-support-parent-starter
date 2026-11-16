@@ -546,12 +546,22 @@ public class FrpServer extends AbstractServer implements TcpServer {
         writeLine(out, FrpProtocol.line(FrpProtocol.PREFIX_TOKEN, sessionToken));
         notifyConnectListeners(clientId);
         log.info("FRP 客户端认证接入: {} @ {}:{}", clientId, host, port);
-
-        String line;
-        while (running && (line = reader.readLine()) != null) {
-            handleSignal(clientId, line);
+        try {
+            String line;
+            while (running && (line = reader.readLine()) != null) {
+                handleSignal(clientId, line);
+            }
+        } catch (IOException e) {
+            // 客户端异常断开（进程被杀 / 网络闪断）：readLine 抛 IOException 时
+            // while 循环被中断，若不清理 registry，断开客户端的 clientId 会残留成
+            // 「在线 N 客户端」的假计数。这里与正常 EOF 走同一清理路径。
+            log.debug("FRP 客户端连接异常中断，清理登记: clientId={}, err={}", clientId, e.getMessage());
+        } finally {
+            // 引用守卫：同一 clientId 重接踢旧时，旧线程的 finally 不得误删新连接。
+            if (registry.get(clientId) == conn) {
+                onSignalClosed(clientId);
+            }
         }
-        onSignalClosed(clientId);
     }
 
     /**
