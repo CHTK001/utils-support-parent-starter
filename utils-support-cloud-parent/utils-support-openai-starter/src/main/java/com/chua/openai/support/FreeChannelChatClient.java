@@ -331,8 +331,10 @@ public class FreeChannelChatClient implements RouterChatClient {
         if (target == null) {
             throw new IllegalStateException("免费渠道未配置模型路由: " + model);
         }
-        // 命中但没配上游地址（baseUrl）时拒绝，避免 toSetting 从客户端设置复制占位 baseUrl 后真实执行
-        if (!target.available()) {
+        // 命中但没配上游地址（baseUrl）时拒绝，避免 toSetting 从客户端设置复制占位 baseUrl 后真实执行。
+        // 例外：免登录对话渠道（DuckDuckGo / Trae 等）本来就没有地址，协议与会话由 ChatClient
+        // 扩展自己持有，按 provider 建客户端即可。
+        if (!target.available() && !isKeylessRoute(target)) {
             throw new IllegalStateException("免费渠道路由未配置上游地址: " + model);
         }
         String upstreamModel = StringUtils.isNotBlank(target.getModel()) ? target.getModel() : model;
@@ -353,6 +355,20 @@ public class FreeChannelChatClient implements RouterChatClient {
         this.delegate = resolved;
         this.delegateModel = upstreamModel;
         return resolved;
+    }
+
+    /**
+     * 是否为免登录对话渠道的路由目标。
+     *
+     * <p>这类路由没有 baseUrl：协议与会话由 ChatClient 扩展自己持有（DuckDuckGo / Trae 等），
+     * 只要 {@code authScheme=none} 且给出 provider，就能按扩展名建出客户端。</p>
+     *
+     * @param target 路由目标
+     * @return {@code true}=免登录渠道路由
+     */
+    private boolean isKeylessRoute(RouteTarget target) {
+        return "none".equalsIgnoreCase(target.getAuthScheme())
+                && StringUtils.isNotBlank(target.getProvider());
     }
 
     /**
