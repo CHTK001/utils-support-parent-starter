@@ -1,6 +1,12 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.baidu.support.sms;
 
+import com.baidubce.auth.DefaultBceCredentials;
+import com.baidubce.services.sms.SmsClient;
+import com.baidubce.services.sms.SmsClientConfiguration;
+import com.baidubce.services.sms.model.v3.GetTemplateResponse;
+import com.baidubce.services.sms.model.v3.ListTemplateRequest;
+import com.baidubce.services.sms.model.v3.ListTemplateResponse;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.client.ClientRequest;
@@ -159,11 +165,72 @@ public class BaiduSmsMessagePush implements MessagePush {
     }
 
     /**
-     * 列表templates
-    */
+     * 拉取百度云已审核通过的短信模板列表
+     *
+     * <p>调用百度云 SMS v3 接口（/sms/v3/template）分页拉取，仅保留审核状态为 READY
+     * （审核通过，模板可用）的模板。AK 无权限或查询失败时抛出异常，由上层捕获后转成
+     * 运营商错误信息返回。手工登记模板码作为兜底。
+     *
+     * @return 百度云已审核模板列表
+     */
     @Override
     public List<TemplateInfo> listTemplates() {
-        return Wraps.list(templates.values());
+        List<TemplateInfo> result = Wraps.list();
+        try {
+            String accessKey = environment.get("sms.accessKey");
+            String secretKey = environment.get("sms.secretKey");
+            if (accessKey == null || accessKey.isBlank()) {
+                throw new IllegalArgumentException("sms.accessKey 配置项必填");
+            }
+            if (secretKey == null || secretKey.isBlank()) {
+                throw new IllegalArgumentException("sms.secretKey 配置项必填");
+            }
+
+            SmsClientConfiguration configuration = new SmsClientConfiguration();
+            configuration.setCredentials(new DefaultBceCredentials(accessKey, secretKey));
+            configuration.setEndpoint("sms.bj.baidubce.com");
+
+            SmsClient client = new SmsClient(configuration);
+
+            int pageNo = 1;
+            // [P3C A20 豁免] 单页大小：百度云 SMS v3 模板分页最大 100 条，按 50 拉取
+            int pageSize = 50;
+            while (true) {
+                ListTemplateRequest req = new ListTemplateRequest();
+                req.setPageNo(pageNo);
+                req.setPageSize(pageSize);
+                ListTemplateResponse resp = client.listTemplate(req);
+                if (null == resp) {
+                    break;
+                }
+                List<GetTemplateResponse> list = resp.getTemplates();
+                if (null == list || list.isEmpty()) {
+                    break;
+                }
+                for (GetTemplateResponse item : list) {
+                    String templateId = item.getTemplateId();
+                    if (null == templateId || templateId.isBlank()) {
+                        continue;
+                    }
+                    // 仅同步审核通过且可用的模板
+                    if (null != item.getStatus() && !"READY".equals(item.getStatus())) {
+                        continue;
+                    }
+                    result.add(new TemplateInfo(templateId, item.getName(),
+                            item.getContent(), "sms", null));
+                }
+                int total = resp.getTotalCount();
+                if (total <= 0 || pageNo * pageSize >= total) {
+                    break;
+                }
+                pageNo++;
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("查询短信模板列表失败: " + e.getMessage(), e);
+        }
+        return result;
     }
 
     /**
