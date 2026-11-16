@@ -1381,8 +1381,13 @@
             </dependency>
             <dependency>
                 <groupId>com.tencentcloudapi</groupId>
-                <artifactId>tencentcloud-sdk-java</artifactId>
-                <version>4.0.11</version>
+                <artifactId>tencentcloud-sdk-java-common</artifactId>
+                <version>3.2.32</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java-sms</artifactId>
+                <version>3.1.1281</version>
             </dependency>
             <dependency>
                 <groupId>com.tianscar.imageio</groupId>

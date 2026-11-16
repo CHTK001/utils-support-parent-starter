@@ -16,6 +16,9 @@ import com.tencentcloudapi.sms.v20190711.SmsClient;
 import com.tencentcloudapi.sms.v20190711.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20190711.models.SendSmsResponse;
 import com.tencentcloudapi.sms.v20190711.models.SendStatus;
+import com.tencentcloudapi.sms.v20210111.models.DescribeSmsTemplateListRequest;
+import com.tencentcloudapi.sms.v20210111.models.DescribeSmsTemplateListResponse;
+import com.tencentcloudapi.sms.v20210111.models.DescribeTemplateListStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -172,11 +175,83 @@ public class TencentSmsMessagePush implements MessagePush {
     }
 
     /**
-     * 列表templates
+     * 拉取腾讯云已审核通过的短信模板列表
+     *
+     * <p>调用腾讯云 DescribeSmsTemplateList（v20210111）分页拉取，仅保留审核状态码为 0
+     * （审核通过且已生效）的模板。AK 无权限或查询失败时抛出异常，由上层捕获后转成
+     * 运营商错误信息返回。手工登记模板码作为兜底。
+     *
+     * @return 腾讯云已审核模板列表
      */
     @Override
     public List<TemplateInfo> listTemplates() {
-        return Wraps.list(templates.values());
+        List<TemplateInfo> result = Wraps.list();
+        try {
+            String secretId = environment.get("sms.secretId");
+            if (secretId == null || secretId.isBlank()) {
+                secretId = environment.get("sms.accessKey");
+            }
+            String secretKey = environment.get("sms.secretKey");
+            if (secretId == null || secretId.isBlank()) {
+                throw new IllegalArgumentException("sms.secretId 配置项必填");
+            }
+            if (secretKey == null || secretKey.isBlank()) {
+                throw new IllegalArgumentException("sms.secretKey 配置项必填");
+            }
+
+            Credential credential = new Credential(secretId, secretKey);
+
+            HttpProfile httpProfile = new HttpProfile();
+            httpProfile.setEndpoint("sms.tencentcloudapi.com");
+
+            ClientProfile clientProfile = new ClientProfile();
+            clientProfile.setHttpProfile(httpProfile);
+
+            com.tencentcloudapi.sms.v20210111.SmsClient client =
+                    new com.tencentcloudapi.sms.v20210111.SmsClient(credential, "ap-guangzhou", clientProfile);
+
+            long offset = 0;
+            // [P3C A20 豁免] 单页大小：腾讯云 SMS 模板查询接口一次最多返回 50 条
+            long limit = 50;
+            while (true) {
+                DescribeSmsTemplateListRequest req = new DescribeSmsTemplateListRequest();
+                req.setInternational(0L);
+                req.setLimit(limit);
+                req.setOffset(offset);
+                DescribeSmsTemplateListResponse resp = client.DescribeSmsTemplateList(req);
+                if (null == resp) {
+                    break;
+                }
+                DescribeTemplateListStatus[] statusSet = resp.getDescribeTemplateStatusSet();
+                if (null == statusSet || statusSet.length == 0) {
+                    break;
+                }
+                int count = 0;
+                for (DescribeTemplateListStatus item : statusSet) {
+                    Long templateId = item.getTemplateId();
+                    if (null == templateId) {
+                        continue;
+                    }
+                    count++;
+                    // 仅同步审核通过且已生效的模板
+                    if (null != item.getStatusCode() && item.getStatusCode() != 0L) {
+                        continue;
+                    }
+                    result.add(new TemplateInfo(String.valueOf(templateId), item.getTemplateName(),
+                            item.getTemplateContent(), "sms", null));
+                }
+                // 腾讯云该接口不返回总数，按返回条数判断是否还有下一页
+                if (count < limit) {
+                    break;
+                }
+                offset += limit;
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("查询短信模板列表失败: " + e.getMessage(), e);
+        }
+        return result;
     }
 
     /**

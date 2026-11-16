@@ -17,10 +17,10 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 腾讯云通用 SDK：短信 v20190711 / 公共 Credential、HttpProfile -->
+        <!-- 腾讯云短信独立 SDK：含 v20190711 发送与 v20210111 模板查询；公共 common 由传递依赖提供 -->
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
-            <artifactId>tencentcloud-sdk-java</artifactId>
+            <artifactId>tencentcloud-sdk-java-sms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

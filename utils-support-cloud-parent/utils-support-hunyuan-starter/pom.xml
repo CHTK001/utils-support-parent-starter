@@ -17,10 +17,7 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.tencentcloudapi</groupId>
-            <artifactId>tencentcloud-sdk-java</artifactId>
-        </dependency>
+        <!-- 混元 SDK（v20230901）：公共 common 由 hunyuan 制品的传递依赖提供 -->
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>tencentcloud-sdk-java-hunyuan</artifactId>
