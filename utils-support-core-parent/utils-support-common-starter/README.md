@@ -1284,6 +1284,58 @@ try (VectorStorage storage = VectorStorageBuilder.newBuilder()
 
 实现：`MemoryVectorStorage`（测试/小规模）、`DefaultVectorStorage`（冷热混合 + B+ 树索引 + mmap 零拷贝）。`VectorMath` 基于 `jdk.incubator.vector` 做 SIMD 距离计算；`RuntimeDetector` 为 SPI（内置 CUDA / cuVS 检测）。
 
+#### 可选后端（SPI）
+
+`type(...)` 的取值就是 `VectorStorageProvider` 的 SPI 名称（大小写不敏感），能否解析取决于 classpath 是否引入了对应 starter；未注册时抛 `IllegalArgumentException`，异常信息会列出当前已注册的类型。除链式构建外，还可用 `VectorStorageProvider.providers()` / `descriptors()` 动态发现，或用 `VectorStorageProvider.createDynamic(name, dimension, algorithm, config)` 按配置键值初始化。builder 未显式设置时 `dimension=128`、`algorithm=euclidean`。
+
+| SPI 名称 | 实现 / 依赖模块 | 关键配置（默认值） | 说明 |
+| --- | --- | --- | --- |
+| `memory` | `MemoryVectorStorage`（内置） | 无 | 进程内存储，重启即丢，用于测试与临时验证 |
+| `jvector` | `JVectorVectorStorage` / `utils-support-jvector-starter` | `mode=ON_DISK`（配置表单默认）；直接 new `JVectorStorageProperties` 时默认 `LARGER_THAN_MEMORY`、`indexPath=./jvector-index`、`graphM=32`、`graphEfConstruction=100`、`searchOverquery=2`、`prepareOnStartup=true` | CPU 图索引；`ON_DISK` 落盘，`LARGER_THAN_MEMORY` 走 PQ 压缩 |
+| `zvec` | `ZvecVectorStorage` / `utils-support-zvec-starter` | `path=./zvec-index`、`hnswM=16`、`efConstruction=200`、`queryEf=64`、`enableMmap=false`、`flushOnWrite=false` | 基于 `org.zvec:zvec-java:0.8.0` 的嵌入式向量库；一个目录一个集合；默认不逐条 flush，`close()`/`rebuild()` 时落盘；维度不一致直接报错 |
+| `milvus` | `MilvusVectorStorage` / `utils-support-milvus-starter` | `host=127.0.0.1`、`port=19530`、`collection=vector_store`、`token`（无默认，Zilliz Cloud 必填） | 远程服务，需先部署 Milvus |
+
+数据库形态的 `mysql` / `postgresql` 也实现了该 SPI，但需要宿主注入 `DataSource`（`descriptor().requiresDataSource()` 为 `true`）；`vector` 为按硬件自动选择 cuVS / JVector 的聚合实现，见 `utils-support-vector-starter`。
+
+Zvec 用法（集合目录由业务按知识库分配，需先引入 `utils-support-zvec-starter`）：
+
+```java
+import com.chua.common.support.vector.Vector;
+import com.chua.common.support.vector.VectorStorage;
+import com.chua.common.support.vector.VectorStorageBuilder;
+import com.chua.zvec.support.configuration.ZvecStorageProperties;
+
+ZvecStorageProperties props = new ZvecStorageProperties();
+props.setPath("/data/vector/kb-1");   // 一个目录对应一个集合；空目录按当前维度新建
+
+try (VectorStorage storage = VectorStorageBuilder.newBuilder()
+        .type("zvec")
+        .dimension(768)
+        .algorithm("COSINE")
+        .properties(props)
+        .build()) {
+
+    storage.add(new Vector("doc-1", new float[]{ /* ... */ }));
+    List<Vector> top = storage.search(query, 10);
+}
+```
+
+也可按配置键值直接创建（键名与 `descriptor()` 声明一致）：
+
+```java
+import com.chua.common.support.vector.VectorCompareAlgorithm;
+import com.chua.common.support.vector.VectorStorage;
+import com.chua.common.support.vector.VectorStorageProvider;
+
+import java.util.Map;
+
+Map<String, Object> config = Map.of("path", "/data/vector/kb-1", "hnswM", "16");
+try (VectorStorage storage = VectorStorageProvider.createDynamic(
+        "zvec", 768, VectorCompareAlgorithm.cosine(), config)) {
+    // ...
+}
+```
+
 ### 10.4 树（`tree`）
 
 `BTree` / `BPlusTree` 统一由 `TreeEngine` 抽象，`BinaryTreeConverter` 支持 B/B+ 树与二叉树互转，`TreeNode` 为转换节点。
