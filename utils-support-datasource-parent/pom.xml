@@ -24,6 +24,7 @@
         <module>utils-support-oracle-starter</module>
         <module>utils-support-milvus-starter</module>
         <module>utils-support-jvector-starter</module>
+        <module>utils-support-zvec-starter</module>
         <module>utils-support-influxdb-starter</module>
         <module>utils-support-questdb-starter</module>
         <module>utils-support-greptimedb-starter</module>

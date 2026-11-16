@@ -9,6 +9,9 @@ import com.chua.common.support.spi.ServiceProvider;
  * 第三方可通过 {@link #algorithm(VectorCompareAlgorithm)} 注入自定义比较算法。
  * </p>
  *
+ * <p>存储类型即 {@link VectorStorageProvider} 的 SPI 名称，由 {@link ServiceProvider}
+ * 从 {@code META-INF/extensions} 注册表解析，本类不硬编码任何具体实现。</p>
+ *
  * @author CH
  * @since 2024/12/12
  */
@@ -51,7 +54,8 @@ public class VectorStorageBuilder {
     private String collection = "vector_store";
 
     /**
-     * cuvs/jvector 向量存储配置属性，仅 向量 类型生效。
+     * 向量存储配置属性（各实现自有类型：cuvs / jvector / zvec 等），
+     * 仅 JVECTOR / ZVEC / VECTOR 类型生效。
      */
     private Object vectorProperties;
 
@@ -67,7 +71,7 @@ public class VectorStorageBuilder {
     /**
      * 设置存储类型。
      *
-     * @param type 存储类型（内存 / MILVUS / JVECTOR / 向量）
+     * @param type 已注册的向量存储 SPI 名称（如 MEMORY / JVECTOR / ZVEC / MILVUS / VECTOR）
      * @return this
      */
     public VectorStorageBuilder type(String type) {
@@ -158,7 +162,8 @@ public class VectorStorageBuilder {
     }
 
     /**
-     * 设置向量存储配置属性（cuvs/jvector），仅 向量 类型生效。
+     * 设置向量存储配置属性（各实现自有类型，如 cuvs / jvector / zvec），
+     * 原样传给最终解析到的 SPI 实现。
      *
      * @param properties 配置对象（如 {@code VectorStorageProperties}）
      * @return this
@@ -171,36 +176,21 @@ public class VectorStorageBuilder {
     /**
      * 构建向量存储实例。
      *
+     * <p>不再按类型写死分支：{@link #type} 直接作为 SPI 名称交给
+     * {@link ServiceProvider} 解析，新增向量库只需引入对应 starter 并完成 SPI 注册，
+     * 本类无需改动。</p>
+     *
      * @return 向量存储实例
+     * @throws IllegalArgumentException type 未注册时
      */
     public VectorStorage build() {
         var algo = algorithm != null ? algorithm : VectorCompareAlgorithm.euclidean();
-        return switch (type.toUpperCase()) {
-            case "MEMORY" -> VectorStorageProvider.create("memory", dimension, algo);
-            case "JVECTOR" -> createOptionalStorage("jvector", dimension, algo, vectorProperties);
-            case "MILVUS" -> createOptionalStorage("milvus", dimension, algo, vectorProperties);
-            case "VECTOR" -> VectorStorageProvider.create("vector", dimension, algo, vectorProperties);
-            default -> throw new IllegalArgumentException("不支持的向量存储类型: " + type);
-        };
-    }
-
-    /**
-     * 通过 服务提供者 SPI 创建可选模块（jvector/milvus）的向量存储。
-     *
-     * @param spiName    SPI 扩展名
-     * @param dimension  向量维度
-     * @param algo       比较算法
-     * @param properties 实现特定配置
-     * @return 向量存储实例
-     */
-    private VectorStorage createOptionalStorage(String spiName,
-                                                int dimension,
-                                                VectorCompareAlgorithm algo,
-                                                Object properties) {
-        var provider = ServiceProvider.of(VectorStorageProvider.class).getExtension(spiName);
+        var provider = ServiceProvider.of(VectorStorageProvider.class).getExtension(type);
         if (provider == null) {
-            throw new RuntimeException(spiName + " 模块未加载，请引入对应依赖并确认 SPI 已注册");
+            throw new IllegalArgumentException("未注册的向量存储类型: " + type
+                    + "，已注册: " + VectorStorageProvider.providers()
+                    + "；请检查名称或引入对应 starter");
         }
-        return provider.create(dimension, algo, properties);
+        return provider.create(dimension, algo, vectorProperties);
     }
 }

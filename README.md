@@ -56,6 +56,7 @@ utils-support-parent-starter/
 │   ├── mysql-starter / postgresql-starter    # 关系型：MySQL、PG、Oracle、SQL Server
 │   ├── redis-starter / mongodb-starter       # NoSQL：Redis、MongoDB
 │   ├── milvus-starter / jvector-starter      # 向量库：Milvus、JVector
+│   ├── zvec-starter                          # 向量库：Zvec（嵌入式，zvec-java JNI）
 │   ├── clickhouse-starter / duckdb-starter   # 分析型：ClickHouse、DuckDB
 │   ├── hbase-starter / neo4j-starter         # 宽表/图：HBase、Neo4j
 │   ├── hibernate-starter                     # ORM：Hibernate
