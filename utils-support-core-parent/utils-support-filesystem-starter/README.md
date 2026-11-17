@@ -73,7 +73,6 @@
 | 归档/压缩流 | `stream.*`（`CompressArchiveInputStream`、`CompressArchiveOutputStream`、`CompressInputStream` 实现） | `zip`/`tar`/`tar.gz`/`tar.xz`/`tar.bz2`/`jar`/`gz`/`7z`/`rar`/`dump`/`cpio`/`ar` | 按文件后缀识别；7z、rar 必须传 `File` 对象；gz 不支持密码 |
 | 配置文件解析 | `config.parser.*`（`YamlConfigParser`、`TomlConfigParser`）、`converter.TomlStringToConfigConverter` | `yaml` / `toml` | YAML 保留嵌套结构，读取时支持点分隔键嵌套穿透；TOML 嵌套 Map 扁平化为点分隔键后返回 `PropertySource` |
 | 二进制序列化 | `serialize.SmileSerialization` | `smile` | Jackson Smile，静态线程安全 `ObjectMapper`，`serialize` / `deserialize` |
-| ZIP 下载解压 | `extractor.ZipExtractor` | `zip` | 支持密码（`isEncrypted` 检测），先整体解压、再逐条目校验，越界条目仅告警（不阻断） |
 | 数据恢复契约 | `restore.Restore` / `AbstractRestore` / `RestoreSetting` / `RestoreResult` | — | 仅接口与基类，本模块无实现；`Restore.createRestore(name, ...)` 走 SPI 装配 |
 | 文件检索契约 | `filesearch.spi.FileSearchProvider` + `model.FileSearchCriteria` / `model.FileInfo` | — | 仅接口与模型（record），本模块无实现 |
 | JDK ZIP 工具类 | `file.impl.CompressedFileSystem` | 非 SPI | `create`（写）/ `open`（读）；`addFile` / `addBytes` / `addString` / `list` / `extract` / `extractAll` / `readBytes` |
@@ -273,7 +272,7 @@ rb.extractAll(new File("out"));
 | `com.chua.common.support.storage.FileStorage` | `com.chua.filesystem.support.storage.FileSystemFileStorage`（`@Spi({"filesystem","file","local"})`） |
 | `com.chua.common.support.config.parser.ConfigParser` | `yaml=...config.parser.impl.YamlConfigParser`、`toml=...config.parser.TomlConfigParser` |
 | `com.chua.common.support.base.serialize.Serialization` | `smile=...serialize.SmileSerialization` |
-| `com.chua.common.support.network.download.extractor.Extractor` | `zip=...extractor.ZipExtractor` |
+| `com.chua.common.support.network.download.extractor.Extractor` | 无（原 `zip=...extractor.ZipExtractor` 已按 R4 下沉至 `utils-support-common-starter` 的同名 SPI，避免 "zip" 键双实现歧义） |
 
 `stream` 包的流式实现**没有**注册文件，仅以 `@Spi` 注解声明（源码头部可见）：
 
@@ -309,7 +308,7 @@ rb.extractAll(new File("out"));
 | --- | --- | --- |
 | `com.chua:utils-support-common-starter` | 与父工程一致（`${project.version}`） | SPI 契约、门面、工具 |
 | `org.projectlombok:lombok` | `${lombok.version}`（provided） | 注解处理 |
-| `net.lingala.zip4j:zip4j` | `2.11.6` | `Zip4jFileSystem`、`ZipExtractor` |
+| `net.lingala.zip4j:zip4j` | `2.11.6` | `Zip4jFileSystem`（ZIP 解压 SPI 已下沉至 `utils-support-common-starter`） |
 | `org.yaml:snakeyaml` | `2.7` | `YamlFileSystem`、`YamlConfigParser` |
 | `org.apache.commons:commons-compress` | `1.28.0` | 7z/tar/gz/bz2/xz/dump/cpio/ar 等归档流 |
 | `org.tukaani:xz` | 继承父工程管理 | XZ 解压（`tar.xz`） |

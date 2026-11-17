@@ -105,5 +105,13 @@
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
+        <!--
+            zip4j：ZipExtractor（Extractor SPI 的 "zip" 唯一实现）用于解压，
+            支持带密码保护的 ZIP。版本由根 POM dependencyManagement 统一管理。
+        -->
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.BitSet;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.chua.common.support.constant.CharConstant.*;
@@ -361,6 +362,22 @@ public class UrlUtils {
             return "/";
         }
         return path.startsWith("/") ? path : "/" + path;
+    }
+
+    /**
+     * 判断给定字符串是否为 http/https 地址。
+     *
+     * <p>判定规则：去除首尾空白并忽略大小写后，以 {@code http://} 或 {@code https://} 开头。</p>
+     *
+     * @param url 待检查的地址，可为 {@code null}
+     * @return 若为 http/https 地址返回 {@code true}，否则返回 {@code false}
+     */
+    public static boolean isHttpUrl(String url) {
+        if (url == null) {
+            return false;
+        }
+        String value = url.trim().toLowerCase(Locale.ROOT);
+        return value.startsWith("http://") || value.startsWith("https://");
     }
 
     static class SimpleUrlEncoder {
