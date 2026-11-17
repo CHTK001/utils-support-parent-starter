@@ -4,6 +4,7 @@ import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.Map;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 下载任务配置 — 不可变值对象，传给 {@link DownloadService#execute}。
@@ -482,7 +483,7 @@ public class DownloadConfig {
          * @throws IllegalStateException 当 url 为 null 时
          */
         public DownloadConfig build() {
-            if (url == null || url.isBlank()) {
+            if (StringUtils.isBlank(url)) {
                 throw new IllegalStateException("download url must not be null or blank");
             }
             return new DownloadConfig(this);

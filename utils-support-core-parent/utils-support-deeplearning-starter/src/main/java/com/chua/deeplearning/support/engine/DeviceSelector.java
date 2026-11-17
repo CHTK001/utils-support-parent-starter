@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 推理设备选择器。
@@ -81,7 +82,7 @@ public final class DeviceSelector {
      * @return cpu / gpu / auto（缺省）
      */
     private static String normalize(String setting) {
-        String value = (setting == null || setting.isBlank())
+        String value = (StringUtils.isBlank(setting))
                 ? System.getProperty(PROP, "auto")
                 : setting;
         String lower = value.trim().toLowerCase();

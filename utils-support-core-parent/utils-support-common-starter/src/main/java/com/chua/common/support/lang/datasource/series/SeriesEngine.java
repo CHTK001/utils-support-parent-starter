@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.series;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 时序（Series）引擎统一契约。
@@ -245,7 +246,7 @@ public interface SeriesEngine {
      */
     static long windowMillis(String window) {
         long millis = 300_000L;
-        if (window != null && !window.isEmpty()) {
+        if (StringUtils.isNotEmpty(window)) {
             String lower = window.toLowerCase().trim();
             try {
                 char unit = lower.charAt(lower.length() - 1);

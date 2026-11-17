@@ -27,6 +27,7 @@ import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 元数据入口。
@@ -441,10 +442,10 @@ public class PostgresqlMetaData extends JdbcMetaData {
         StringBuilder sb = new StringBuilder("ADD CONSTRAINT ").append(quote(fkName))
                 .append(" FOREIGN KEY (").append(quote(columnName)).append(")")
                 .append(" REFERENCES ").append(quote(refTable)).append(" (").append(quote(refColumn)).append(")");
-        if (onDelete != null && !onDelete.isEmpty()) {
+        if (StringUtils.isNotEmpty(onDelete)) {
             sb.append(" ON DELETE ").append(referentialAction("删除规则", onDelete));
         }
-        if (onUpdate != null && !onUpdate.isEmpty()) {
+        if (StringUtils.isNotEmpty(onUpdate)) {
             sb.append(" ON UPDATE ").append(referentialAction("更新规则", onUpdate));
         }
         return sb.toString();

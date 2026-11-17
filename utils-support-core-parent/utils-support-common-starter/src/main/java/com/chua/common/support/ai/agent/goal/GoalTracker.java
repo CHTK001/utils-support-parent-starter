@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.agent.goal;
 
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 会话目标的状态机：负责状态迁移、暂停/恢复、令牌与轮次计账。
@@ -235,7 +236,7 @@ public final class GoalTracker {
                 throw new IllegalStateException("目标已处于终态 " + current + "，不可再次变更");
             }
             goal = goal.withState(target, now);
-            String text = reason == null || reason.isBlank() ? fallback : reason;
+            String text = StringUtils.isBlank(reason) ? fallback : reason;
             lastReason = lastReason.isEmpty() ? text : lastReason + reasonSeparator + text;
             lock.notifyAll();
             return GoalStatus.from(goal);

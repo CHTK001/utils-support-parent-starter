@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认跨帧轨迹管理器：基于余弦相似度的阈值归并。
@@ -211,7 +212,7 @@ public class DefaultPersonTrack implements PersonTrack {
             List<TrackSummary> out = new ArrayList<>();
             for (TrackState state : tracks.values()) {
                 TrackSummary summary = state.summary();
-                if (cameraId != null && !cameraId.isBlank() && !summary.cameraIds().contains(cameraId)) {
+                if (StringUtils.isNotBlank(cameraId) && !summary.cameraIds().contains(cameraId)) {
                     continue;
                 }
                 if (crossOnly && !summary.crossCamera()) {
@@ -297,7 +298,7 @@ public class DefaultPersonTrack implements PersonTrack {
      */
     private Set<String> tracksOfFrame(String sourceId) {
         Set<String> blocked = new LinkedHashSet<>();
-        if (sourceId == null || sourceId.isBlank()) {
+        if (StringUtils.isBlank(sourceId)) {
             return blocked;
         }
         for (TrackState state : tracks.values()) {
@@ -423,10 +424,10 @@ public class DefaultPersonTrack implements PersonTrack {
          * @param timestamp 观测时间
          */
         void observe(String cameraId, String sourceId, long timestamp) {
-            if (cameraId != null && !cameraId.isBlank()) {
+            if (StringUtils.isNotBlank(cameraId)) {
                 cameraIds.add(cameraId);
             }
-            if (sourceId != null && !sourceId.isBlank()) {
+            if (StringUtils.isNotBlank(sourceId)) {
                 sourceIds.add(sourceId);
             }
             this.sourceId = sourceId;

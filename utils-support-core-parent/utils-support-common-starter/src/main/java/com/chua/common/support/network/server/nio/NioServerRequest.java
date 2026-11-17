@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 非阻塞增量 HTTP 请求解析器(真响应式)。
@@ -729,7 +730,7 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getUri() { return uri; }
     @Override public String getPath() { return path; }
     @Override public HttpMethod getMethod() {
-        if (method == null || method.isEmpty()) {
+        if (StringUtils.isEmpty(method)) {
             return HttpMethod.GET;
         }
         try {
@@ -753,7 +754,7 @@ public class NioServerRequest implements ServerRequest {
         if (cached != null) {
             return cached;
         }
-        if (queryString == null || queryString.isEmpty()) {
+        if (StringUtils.isEmpty(queryString)) {
             this.paramsCache = Map.of();
             return this.paramsCache;
         }

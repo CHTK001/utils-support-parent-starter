@@ -316,7 +316,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      */
     protected static String resolveFilepath(ServerRequest request) {
         String path = request.getPath();
-        if (path == null || path.isEmpty() || "/".equals(path)) {
+        if (StringUtils.isEmpty(path) || "/".equals(path)) {
             return null;
         }
         path = path.startsWith("/") ? path.substring(1) : path;
@@ -336,7 +336,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      */
     protected static String resolveBucket(ServerRequest request) {
         String path = request.getPath();
-        if (path == null || path.isEmpty() || "/".equals(path)) {
+        if (StringUtils.isEmpty(path) || "/".equals(path)) {
             return "default";
         }
         path = path.startsWith("/") ? path.substring(1) : path;

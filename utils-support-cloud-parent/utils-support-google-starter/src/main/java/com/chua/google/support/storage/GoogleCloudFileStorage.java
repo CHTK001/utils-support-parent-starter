@@ -23,6 +23,7 @@ import com.google.cloud.storage.*;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Google Cloud Storage 文件存储实现。
@@ -76,7 +77,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
      */
     private static Credentials resolveCredentials(String secret) {
         // 尝试将 secret 作为服务账号 JSON 密钥解析
-        if (secret != null && !secret.isEmpty()) {
+        if (StringUtils.isNotEmpty(secret)) {
             try {
                 // 快速检查：是否以 JSON 对象开头
                 String trimmed = secret.trim();
@@ -219,7 +220,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
             // 构建 GCS 列表选项：前缀 + 页大小
             Storage.BlobListOption[] options;
             String marker = request.getMarker();
-            if (marker != null && !marker.isEmpty()) {
+            if (StringUtils.isNotEmpty(marker)) {
                 options = new Storage.BlobListOption[]{
                         Storage.BlobListOption.prefix(request.getFilePath()),
                         Storage.BlobListOption.pageSize(request.getLimit()),

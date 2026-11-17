@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Tablesaw 数据引擎实现，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。
@@ -135,7 +136,7 @@ public class TablesawEngine implements Engine {
     @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         checkOpen();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("数据源名称不能为空");
         }
         if (dataSource == null) {
@@ -153,7 +154,7 @@ public class TablesawEngine implements Engine {
     */
     @Override
     public Engine setDefaultDataSourceName(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("默认数据源名称不能为空");
         }
         this.defaultDataSourceName = name;
@@ -190,7 +191,7 @@ public class TablesawEngine implements Engine {
     @SuppressWarnings("unchecked")
     public <T> Engine store(String name, List<T> data) {
         checkOpen();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("数据存储名称（表名）不能为空");
         }
         if (data == null) {
@@ -344,10 +345,10 @@ public class TablesawEngine implements Engine {
      */
     public TablesawEngine load(String name, String csvPath, String charset) {
         checkOpen();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("数据源名称不能为空");
         }
-        if (csvPath == null || csvPath.isBlank()) {
+        if (StringUtils.isBlank(csvPath)) {
             throw new IllegalArgumentException("CSV 文件路径不能为空: name=" + name);
         }
         File file = new File(csvPath);
@@ -356,7 +357,7 @@ public class TablesawEngine implements Engine {
         }
         try {
             Table table;
-            if (charset != null && !charset.isBlank()) {
+            if (StringUtils.isNotBlank(charset)) {
                 log.debug("使用指定编码加载 CSV: charset={}, path={}", charset, csvPath);
                 // try-with-resources 保证解码读流关闭，避免文件句柄泄漏；
                 // Tablesaw 读取即全量入内存表，读取完成后关闭流是安全的
@@ -383,7 +384,7 @@ public class TablesawEngine implements Engine {
      */
     public TablesawEngine load(String name, InputStream inputStream) {
         checkOpen();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("数据源名称不能为空");
         }
         if (inputStream == null) {
@@ -408,7 +409,7 @@ public class TablesawEngine implements Engine {
      */
     public TablesawEngine save(String name, String csvPath) {
         checkOpen();
-        if (csvPath == null || csvPath.isBlank()) {
+        if (StringUtils.isBlank(csvPath)) {
             throw new IllegalArgumentException("CSV 输出路径不能为空: name=" + name);
         }
         Table table = requireRegistered(name, "保存");
@@ -812,7 +813,7 @@ public class TablesawEngine implements Engine {
             return projection;
         }
         for (String column : selectColumns) {
-            if (column == null || column.isBlank()) {
+            if (StringUtils.isBlank(column)) {
                 continue;
             }
             if (column.indexOf('(') >= 0) {
@@ -1043,11 +1044,11 @@ public class TablesawEngine implements Engine {
      */
     private String resolveConditionColumn(Condition condition) {
         String column = condition.getColumnName();
-        if (column != null && !column.isBlank()) {
+        if (StringUtils.isNotBlank(column)) {
             return column;
         }
         column = resolveLambdaColumn(condition.getColumn());
-        if (column == null || column.isBlank()) {
+        if (StringUtils.isBlank(column)) {
             throw new IllegalStateException("Tablesaw 条件列为空，无法定位列");
         }
         return column;
@@ -1383,7 +1384,7 @@ public class TablesawEngine implements Engine {
      * @return 列，未找到返回 空
      */
     private static Column<?> findColumn(Table table, String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return null;
         }
         String target = normalize(name);
@@ -1402,7 +1403,7 @@ public class TablesawEngine implements Engine {
      * @return 归一化名称
      */
     private static String normalize(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return "";
         }
         int dot = name.lastIndexOf('.');

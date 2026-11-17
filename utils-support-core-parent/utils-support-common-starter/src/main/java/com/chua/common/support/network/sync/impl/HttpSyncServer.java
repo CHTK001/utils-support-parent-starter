@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.AbstractServer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK HttpServer 的 HTTP 同步服务端实现。
@@ -570,7 +571,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = Wraps.map();
-        if (query == null || query.isEmpty()) {
+        if (StringUtils.isEmpty(query)) {
             return params;
         }
         for (String pair : query.split("&")) {

@@ -10,6 +10,7 @@ import com.chua.datasource.support.meta.AbstractMetaView;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 视图元数据操作。
@@ -252,7 +253,7 @@ public class PostgresqlMetaView extends AbstractMetaView {
          */
         @Override
         public ViewDef execute() {
-            if (definition == null || definition.isEmpty()) {
+            if (StringUtils.isEmpty(definition)) {
                 throw new IllegalStateException("视图定义不能为空");
             }
             StringBuilder sql = new StringBuilder(orReplace ? "CREATE OR REPLACE VIEW " : "CREATE VIEW ")
@@ -263,7 +264,7 @@ public class PostgresqlMetaView extends AbstractMetaView {
             }
             PostgresqlMetaData.execute(metaView.metaData, "创建视图 " + viewName, sql.toString(),
                     PostgresqlMetaData.args());
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 PostgresqlMetaData.execute(metaView.metaData, "注释视图 " + viewName,
                         "COMMENT ON VIEW " + PostgresqlMetaData.quote(viewName) + " IS '"
                                 + PostgresqlMetaData.escapeSql(comment) + "'", PostgresqlMetaData.args());
@@ -325,18 +326,18 @@ public class PostgresqlMetaView extends AbstractMetaView {
             if (metaView.viewName == null) {
                 throw new IllegalStateException("未指定视图名，请先调用 meta().view(String)");
             }
-            if ((definition == null || definition.isEmpty()) && (newName == null || newName.isEmpty())) {
+            if ((StringUtils.isEmpty(definition)) && (StringUtils.isEmpty(newName))) {
                 throw new IllegalStateException("没有需要执行的变更");
             }
             String target = metaView.viewName;
-            if (newName != null && !newName.isEmpty()) {
+            if (StringUtils.isNotEmpty(newName)) {
                 PostgresqlMetaData.execute(metaView.metaData, "重命名视图 " + target,
                         "ALTER VIEW " + PostgresqlMetaData.quote(target) + " RENAME TO "
                                 + PostgresqlMetaData.quote(newName), PostgresqlMetaData.args());
                 target = newName;
                 metaView.viewName = newName;
             }
-            if (definition != null && !definition.isEmpty()) {
+            if (StringUtils.isNotEmpty(definition)) {
                 PostgresqlMetaData.execute(metaView.metaData, "替换视图 " + target,
                         "CREATE OR REPLACE VIEW " + PostgresqlMetaData.quote(target) + " AS " + definition,
                         PostgresqlMetaData.args());

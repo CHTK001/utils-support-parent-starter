@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 请求签名验证过滤器，验证请求的签名防篡改。
@@ -67,11 +68,11 @@ public class SignatureServerFilter implements ServerFilter {
     public void init(ServerFilterConfig config) throws Exception {
         this.secret = config.getInitParameter("signature.secret");
         String alg = config.getInitParameter("signature.algorithm");
-        if (alg != null && !alg.isEmpty()) {
+        if (StringUtils.isNotEmpty(alg)) {
             this.algorithm = alg;
         }
         String header = config.getInitParameter("signature.header");
-        if (header != null && !header.isEmpty()) {
+        if (StringUtils.isNotEmpty(header)) {
             this.signatureHeader = header;
         }
         String paths = config.getInitParameter("signature.excludePaths");
@@ -90,7 +91,7 @@ public class SignatureServerFilter implements ServerFilter {
     */
     @Override
     public boolean isEnabled() {
-        return secret != null && !secret.isEmpty();
+        return StringUtils.isNotEmpty(secret);
     }
 
     /**
@@ -103,7 +104,7 @@ public class SignatureServerFilter implements ServerFilter {
             return;
         }
         String providedSignature = request.getHeader(signatureHeader);
-        if (providedSignature == null || providedSignature.isEmpty()) {
+        if (StringUtils.isEmpty(providedSignature)) {
             response.end(401, "{\"error\":\"Unauthorized\",\"message\":\"缺少签名\"}");
             return;
         }

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 图片写入文件系统
@@ -137,7 +138,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     */
     @Override
     protected void doWriteText(String text) throws IOException {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return;
         }
  // 尝试按 基础64 写入

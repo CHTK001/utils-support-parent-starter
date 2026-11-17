@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Laya AI 决策规则。
@@ -84,7 +85,7 @@ public record LayaAiRule(String id,
         variables = Collections.unmodifiableMap(
                 Wraps.linkedMap(Objects.requireNonNull(variables, "variables 不能为 null")));
         effect = effect == null ? RuleEffect.NONE : effect;
-        provider = provider == null || provider.isBlank() ? "laya" : provider;
+        provider = StringUtils.isBlank(provider) ? "laya" : provider;
         if (threads != null && threads <= 0) {
             throw new IllegalArgumentException("threads 必须为正数，实际 " + threads);
         }

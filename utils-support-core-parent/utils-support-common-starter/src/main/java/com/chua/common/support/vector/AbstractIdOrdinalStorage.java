@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 标识→序数(ordinal) 双向映射的向量存储抽象基类。
@@ -129,7 +130,7 @@ public abstract class AbstractIdOrdinalStorage {
      * @return 匹配到的 标识 快照列表，按 无序 顺序返回
      */
     public List<String> idsWithPrefix(String idPrefix) {
-        if (idPrefix == null || idPrefix.isEmpty()) {
+        if (StringUtils.isEmpty(idPrefix)) {
             return List.of();
         }
         List<String> matched = Wraps.list();

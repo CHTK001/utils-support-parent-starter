@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.dialect;
 
 import java.util.Set;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL 标识符（库名/表名/列名/索引名）白名单校验与引用工具。
@@ -56,7 +57,7 @@ public final class SqlName {
      * @throws IllegalArgumentException 标识符为空、含非法字符或超长
      */
     public static String check(String name, String label) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         if (!NAME.matcher(name).matches()) {
@@ -74,7 +75,7 @@ public final class SqlName {
      * @throws IllegalArgumentException 标识符为空、含限定前缀或不符合白名单
      */
     public static String checkSimple(String name, String label) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         if (!SIMPLE.matcher(name).matches()) {
@@ -164,7 +165,7 @@ public final class SqlName {
      * @throws IllegalArgumentException 裸词为空、含非法字符或超长
      */
     public static String checkWord(String name, String label) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         if (!WORD.matcher(name).matches()) {
@@ -214,7 +215,7 @@ public final class SqlName {
      * @throws IllegalArgumentException 标识符为空或含控制字符
      */
     public static String escape(String name, char quote, String label) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         for (int i = 0; i < name.length(); i++) {

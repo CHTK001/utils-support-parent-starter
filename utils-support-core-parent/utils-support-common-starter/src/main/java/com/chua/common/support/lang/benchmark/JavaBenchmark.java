@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 纯 Java 压测引擎：零外部依赖，一键 run + report。
@@ -98,7 +99,7 @@ public class JavaBenchmark implements Benchmark {
     @Override
     public BenchmarkResult run() throws Exception {
         String targetUrl = config.getTargetUrl();
-        if (targetUrl == null || targetUrl.isEmpty()) {
+        if (StringUtils.isEmpty(targetUrl)) {
             throw new IllegalArgumentException("targetUrl 不能为空");
         }
         int[] levels = config.getConcurrencyLevels();

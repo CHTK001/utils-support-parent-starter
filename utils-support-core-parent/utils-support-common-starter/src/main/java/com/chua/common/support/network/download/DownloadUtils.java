@@ -7,6 +7,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 下载通用工具方法，供 {@link DefaultDownloadService} 和 {@link Aria2DownloadService} 复用。
@@ -34,7 +35,7 @@ public final class DownloadUtils {
      * @return 解析后的文件名
      */
     public static String resolveFilename(String url, String explicitName) {
-        if (explicitName != null && !explicitName.isBlank()) {
+        if (StringUtils.isNotBlank(explicitName)) {
             return explicitName;
         }
         String path = url.contains("?") ? url.substring(0, url.indexOf('?')) : url;

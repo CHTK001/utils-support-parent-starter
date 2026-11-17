@@ -28,6 +28,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 import org.opencv.imgproc.Imgproc;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * fastsam-s 分割 Translator（yolov8-seg 架构，单模型自动分割）。
@@ -168,7 +169,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
         String modelId = name();
         // ⓪ 框架注入的路径 / 外部目录（外部目录绑定走这条）
         String injected = this.injectedPath;
-        if (injected != null && !injected.isBlank()) {
+        if (StringUtils.isNotBlank(injected)) {
             Path p = Paths.get(injected);
             if (Files.isDirectory(p)) {
                 Path inside = p.resolve(MODEL_FILE);
@@ -189,7 +190,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
             }
         }
         // ① 外部目录：modelId 即目录
-        if (modelId != null && !modelId.isBlank()) {
+        if (StringUtils.isNotBlank(modelId)) {
             try {
                 Path asPath = Paths.get(modelId);
                 if (Files.isDirectory(asPath)) {
@@ -501,7 +502,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
      * @param path 模型绝对路径或外部目录路径
      */
     public void setModelPath(String path) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             return;
         }
         this.injectedPath = path.trim();

@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 降级方法（降级）引用解析器。
@@ -68,7 +69,7 @@ public final class FallbackResolver {
      * @return 降级方法返回值，无法降级时返回 空
      */
     public static Object resolve(String fallback, ProxyMethod proxyMethod) {
-        if (fallback == null || fallback.isBlank()) {
+        if (StringUtils.isBlank(fallback)) {
             return null;
         }
         Object target = proxyMethod.getTarget();

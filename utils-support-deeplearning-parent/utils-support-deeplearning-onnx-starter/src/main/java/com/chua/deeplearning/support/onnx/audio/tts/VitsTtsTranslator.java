@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 中文 VITS TTS 合成器（vits-icefall-zh-aishell3，sherpa-onnx 导出）。
@@ -169,7 +170,7 @@ public class VitsTtsTranslator {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
@@ -300,7 +301,7 @@ public class VitsTtsTranslator {
      */
     public byte[] synthesize(String text, int speakerId) {
         try {
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 throw new IllegalArgumentException("文本不能为空");
             }
             prepare();

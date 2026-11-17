@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * FTP 命令处理器，负责解析和执行 FTP 协议命令。
@@ -127,7 +128,7 @@ class FtpCommandHandler {
      * @return 是否继续处理（false 表示会话应关闭）
      */
     boolean handleCommand(FtpSession session, String line) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return true;
         }
         // 解析命令和参数

@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 /**
  * Claude Science (Anthropic 本地研究工平台) 用量解析器。
  *
@@ -55,7 +56,7 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String explicit = System.getenv("CLAUDE_SCIENCE_DB_PATH");
-        if (explicit != null && !explicit.isBlank()) {
+        if (StringUtils.isNotBlank(explicit)) {
             return Path.of(explicit);
         }
         Path root = Path.of(System.getProperty("user.home"), ".claude-science");
@@ -218,7 +219,7 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
                 .totalTokens(total)
                 .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .estimated(false)
-                .finishReason(parentFrameId == null || parentFrameId.isBlank() ? "root-frame" : "child-frame")
+                .finishReason(StringUtils.isBlank(parentFrameId) ? "root-frame" : "child-frame")
                 .startTime(startTime > 0 ? startTime : null)
                 .build();
     }

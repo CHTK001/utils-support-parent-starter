@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Goose usage parser.
@@ -76,7 +77,7 @@ public class GooseUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String appData = System.getenv("APPDATA");
-        if (appData == null || appData.isBlank()) {
+        if (StringUtils.isBlank(appData)) {
             return null;
         }
         return Path.of(appData, "Block", "goose", "data", "sessions", "sessions.db");

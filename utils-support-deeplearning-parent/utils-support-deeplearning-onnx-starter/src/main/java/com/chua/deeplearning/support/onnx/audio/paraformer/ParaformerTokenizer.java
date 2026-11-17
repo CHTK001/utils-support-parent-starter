@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Paraformer 词表解析与结果解码（纯 Java）。
@@ -165,7 +166,7 @@ public class ParaformerTokenizer {
                 continue;
             }
             String sym = idToToken[id];
-            if (sym == null || sym.isEmpty()) {
+            if (StringUtils.isEmpty(sym)) {
                 continue;
             }
             if (sym.endsWith(MERGE_SUFFIX) && sym.length() > MERGE_SUFFIX_LEN) {
@@ -194,7 +195,7 @@ public class ParaformerTokenizer {
                     if (i > 0) {
                         int prevId = tokenIds.get(i - 1);
                         String prev = (prevId >= 0 && prevId < vocabSize) ? idToToken[prevId] : null;
-                        if (prev != null && !prev.isEmpty() && prev.charAt(0) < 0x80) {
+                        if (StringUtils.isNotEmpty(prev) && prev.charAt(0) < 0x80) {
                             // ascii 与非 ascii 之间补空格
                             text.append(' ');
                         }

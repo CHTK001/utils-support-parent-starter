@@ -3,6 +3,7 @@ package com.chua.common.support.ai.decision;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 单个概率决策问题。
@@ -87,13 +88,13 @@ public record DecisionQuery(
      * @throws IllegalArgumentException 标识或问题为空白、类型专属组件不匹配或超出取值上限时
      */
     public DecisionQuery {
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("id 不能为 null 或空白");
         }
         if (type == null) {
             throw new NullPointerException("type 不能为 null");
         }
-        if (question == null || question.isBlank()) {
+        if (StringUtils.isBlank(question)) {
             throw new IllegalArgumentException("question 不能为 null 或空白");
         }
         if (type.isChoice()) {

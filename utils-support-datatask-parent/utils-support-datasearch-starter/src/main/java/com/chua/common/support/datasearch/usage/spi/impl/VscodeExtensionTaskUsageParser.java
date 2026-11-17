@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * VS Code 系扩展用量解析器共享基类。
@@ -176,7 +177,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
      */
     protected List<Path> enumerateGlobalStorageRoots() {
         String appData = System.getenv("APPDATA");
-        if (appData == null || appData.isBlank()) {
+        if (StringUtils.isBlank(appData)) {
             return List.of();
         }
         List<Path> roots = Wraps.list();

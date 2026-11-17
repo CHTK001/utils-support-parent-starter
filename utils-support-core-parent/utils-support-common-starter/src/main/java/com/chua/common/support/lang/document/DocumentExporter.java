@@ -3,6 +3,7 @@ package com.chua.common.support.lang.document;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文档导出链式构建器。
@@ -85,7 +86,7 @@ public class DocumentExporter {
      * @return this
      */
     public DocumentExporter format(String format) {
-        if (format != null && !format.isBlank()) {
+        if (StringUtils.isNotBlank(format)) {
             this.format = format.trim().toLowerCase();
         }
         return this;
@@ -122,7 +123,7 @@ public class DocumentExporter {
      * @return this
      */
     public DocumentExporter output(String path) {
-        if (path != null && !path.isBlank()) {
+        if (StringUtils.isNotBlank(path)) {
             this.outputFile = new File(path);
         }
         return this;

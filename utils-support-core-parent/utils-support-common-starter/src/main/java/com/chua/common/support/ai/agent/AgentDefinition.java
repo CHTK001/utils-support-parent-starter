@@ -5,6 +5,7 @@ import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.skill.SkillManager;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 定义
@@ -216,7 +217,7 @@ public class AgentDefinition {
         this.planHook = planHook;
 
         // 若显式设置了 systemPrompt 则直接使用，否则按规则自动生成
-        if (systemPrompt != null && !systemPrompt.isEmpty()) {
+        if (StringUtils.isNotEmpty(systemPrompt)) {
             this.systemPrompt = systemPrompt;
         } else if (leader && !this.agents.isEmpty()) {
             this.systemPrompt = AgentSystemPromptBuilder.build(instruction, this.agents);

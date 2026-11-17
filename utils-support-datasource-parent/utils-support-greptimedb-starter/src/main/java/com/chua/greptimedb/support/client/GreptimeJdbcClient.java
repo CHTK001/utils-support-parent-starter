@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * greptimedb JDBC 客户端：经 MySQL 协议（默认 {@value #DEFAULT_MYSQL_PORT} 端口）执行真实 SQL。
@@ -111,7 +112,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @throws IllegalArgumentException JDBC 地址为空时抛出
      */
     public GreptimeJdbcClient(String jdbcUrl, String user, String password) {
-        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+        if (StringUtils.isBlank(jdbcUrl)) {
             throw new IllegalArgumentException("GreptimeDB JDBC URL 不能为空");
         }
         this.jdbcUrl = jdbcUrl.trim();
@@ -144,7 +145,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @throws IllegalArgumentException 端点非法时抛出
      */
     public static String hostOf(String endpoint) {
-        if (endpoint == null || endpoint.isBlank()) {
+        if (StringUtils.isBlank(endpoint)) {
             throw new IllegalArgumentException("GreptimeDB 端点不能为空");
         }
         String rest = endpoint.trim().replaceFirst("(?i)^https?://", "");
@@ -182,7 +183,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
             throw new SQLException("GreptimeDB JDBC 客户端已关闭，拒绝继续执行 SQL: " + jdbcUrl);
         }
         if (connection == null || connection.isClosed()) {
-            if (user != null && !user.isEmpty()) {
+            if (StringUtils.isNotEmpty(user)) {
                 connection = DriverManager.getConnection(jdbcUrl, user, password);
             } else {
                 connection = DriverManager.getConnection(jdbcUrl);
@@ -238,7 +239,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @throws SQLException 执行失败
      */
     public synchronized JdbcResult query(String sql, List<Object> params) throws SQLException {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             throw new SQLException("GreptimeDB 查询 SQL 不能为空");
         }
         try {
@@ -277,7 +278,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @throws SQLException 执行失败
      */
     public synchronized int update(String sql, List<Object> params) throws SQLException {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             throw new SQLException("GreptimeDB 执行 SQL 不能为空");
         }
         try {
@@ -300,7 +301,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @throws SQLException 执行失败
      */
     public synchronized int[] batch(String sql, List<Object[]> paramList) throws SQLException {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             throw new SQLException("GreptimeDB 批量执行 SQL 不能为空");
         }
         if (paramList == null || paramList.isEmpty()) {

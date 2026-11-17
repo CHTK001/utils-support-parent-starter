@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 抽象识别引擎。
@@ -353,7 +354,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     */
     @Override
     public List<String> getModelNamesByCapability(String capability) {
-        if (capability == null || capability.isBlank()) {
+        if (StringUtils.isBlank(capability)) {
             List<String> all = Wraps.list();
             for (ModelDefinition def : getModels()) {
                 all.add(def.getId());
@@ -542,7 +543,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         }
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
         // 名称约定回退：OCR / 版面 / 姿态 / 文本嵌入
-        if (label == null || label.isBlank()) {
+        if (StringUtils.isBlank(label)) {
             if (nameContains(name, "ocr", "pp-word", "svtr", "paddle-ocr", "table-struct", "pp-structure", "docling")) {
                 labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.OCR);
             }

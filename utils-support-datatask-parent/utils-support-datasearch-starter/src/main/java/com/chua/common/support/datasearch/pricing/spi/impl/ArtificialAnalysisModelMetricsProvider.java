@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Artificial Analysis 统一模型指标提供者。
@@ -75,7 +76,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(LEADERBOARD_URL);
-        if (html == null || html.isEmpty()) {
+        if (StringUtils.isEmpty(html)) {
             return readClasspathPricing();
         }
         List<ModelDefinition> parsed = parseFlightData(html);
@@ -84,7 +85,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
         }
         // 活跃参数量与思考等级仅模型排行榜页提供，按 slug 补充合并
         String modelsHtml = fetchUrl(MODELS_URL);
-        if (modelsHtml != null && !modelsHtml.isEmpty()) {
+        if (StringUtils.isNotEmpty(modelsHtml)) {
             Map<String, BigDecimal> params = parseActiveParams(modelsHtml);
             Map<String, String> efforts = parseReasoningEfforts(modelsHtml);
             for (ModelDefinition md : parsed) {
@@ -127,7 +128,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             String win = html.substring(from, to);
 
             String slug = group1(win, "slug\\\\\\\":\\\\\\\"([^\\\\]+)");
-            if (slug == null || slug.isEmpty() || dedup.containsKey(slug)) {
+            if (StringUtils.isEmpty(slug) || dedup.containsKey(slug)) {
                 continue;
             }
 

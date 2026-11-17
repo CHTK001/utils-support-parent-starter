@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Scatter / Cluster 集群自动配置。
@@ -52,7 +53,7 @@ public class ClusterAutoConfiguration {
     private void autoDetect() {
         // 1. host: Spring server.address > chua.cluster.host > NetUtils 探测
         String springHost = environment.getProperty("server.address");
-        if ("127.0.0.1".equals(clusterProperties.getHost()) && springHost != null && !springHost.isBlank()) {
+        if ("127.0.0.1".equals(clusterProperties.getHost()) && StringUtils.isNotBlank(springHost)) {
             clusterProperties.setHost(springHost);
         }
         if ("127.0.0.1".equals(clusterProperties.getHost())) {
@@ -63,7 +64,7 @@ public class ClusterAutoConfiguration {
         // 2. scatterId: spring.application.name > chua.cluster.scatter-id
         if ("default".equals(clusterProperties.getScatterId())) {
             String appName = environment.getProperty("spring.application.name");
-            if (appName != null && !appName.isBlank()) {
+            if (StringUtils.isNotBlank(appName)) {
                 clusterProperties.setScatterId(appName);
             }
         }

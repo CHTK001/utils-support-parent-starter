@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 一次 CLI 调用的请求描述，采用链式风格组装参数与超时策略。
@@ -238,7 +239,7 @@ public final class CliRequest {
             for (Map.Entry<String, Object> entry : options.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if (key == null || key.isEmpty()) {
+                if (StringUtils.isEmpty(key)) {
                     continue;
                 }
                 this.args.add(key.startsWith("-") ? key : "--" + key);

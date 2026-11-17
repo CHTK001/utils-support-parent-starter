@@ -13,6 +13,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Groovy 脚本执行提供器，基于 groovyshell 动态加载并执行脚本文件。
@@ -83,7 +84,7 @@ public class GroovyScriptProvider implements ScriptProvider {
         }
         Listener listener = listenerCache.computeIfAbsent(scriptPath, FileScriptListener::new);
         String source = listener.getSource();
-        if (source == null || source.isEmpty()) {
+        if (StringUtils.isEmpty(source)) {
             throw new IllegalStateException("脚本源码为空: " + scriptPath);
         }
         try {

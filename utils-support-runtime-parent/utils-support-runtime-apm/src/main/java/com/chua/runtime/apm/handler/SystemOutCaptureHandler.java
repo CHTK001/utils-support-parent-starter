@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 系统输出捕获处理器 — 重定向 {@link System#out} / {@link System#err} 到 APM 日志流。
@@ -308,7 +309,7 @@ public class SystemOutCaptureHandler implements Plugin {
          * @return 返回值
         */
         private void addEntry(String text) {
-            if (text == null || text.isEmpty()) {
+            if (StringUtils.isEmpty(text)) {
                 return;
             }
             SystemOutEntry entry = new SystemOutEntry();

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * rSocket 分发器提供者，基于 rSocket Java 客户端连接远程 rSocket 服务。
@@ -219,7 +220,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
      */
     private int parsePort() {
         String url = config.getUrl();
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return 7000;
         }
         url = url.replaceAll("^rsocket://", "").replaceAll("^http://", "").replaceAll("^https://", "");
@@ -252,7 +253,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
      */
     private String parseHost() {
         String url = config.getUrl();
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return "localhost";
         }
         url = url.replaceAll("^rsocket://", "").replaceAll("^http://", "").replaceAll("^https://", "");

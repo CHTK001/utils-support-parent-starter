@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AWS Bedrock 大模型对话客户端
@@ -334,7 +335,7 @@ public ChatClient newChat() {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
             String systemPart = "";
-            if (actualSystem != null && !actualSystem.isEmpty()) {
+            if (StringUtils.isNotEmpty(actualSystem)) {
                 systemPart = ",\"system\":[{\"text\":\"" + escapeJson(actualSystem) + "\"}]";
             }
 
@@ -417,7 +418,7 @@ public ChatClient newChat() {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {
@@ -464,7 +465,7 @@ public ChatClient newChat() {
                 .path(path)
                 .connectTimeout(30000);
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             String hostPort = proxyStr;
             int sep = hostPort.indexOf("://");
             if (sep >= 0) {

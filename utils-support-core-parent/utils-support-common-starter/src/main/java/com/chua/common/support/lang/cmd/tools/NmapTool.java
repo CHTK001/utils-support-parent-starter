@@ -11,6 +11,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 网络端口扫描工具 nmap。
@@ -100,7 +101,7 @@ public class NmapTool extends CliTool {
     @Nonnull
     public java.util.List<java.util.Map<String, String>> parseOpenPorts(@Nonnull String stdout) {
         java.util.List<java.util.Map<String, String>> ports = Wraps.list();
-        if (stdout == null || stdout.isEmpty()) {
+        if (StringUtils.isEmpty(stdout)) {
             return ports;
         }
         // 标准输出格式：22/tcp open ssh
@@ -137,7 +138,7 @@ public class NmapTool extends CliTool {
         entry.put("port", port);
         entry.put("protocol", protocol);
         entry.put("service", service);
-        if (version != null && !version.isBlank()) {
+        if (StringUtils.isNotBlank(version)) {
             entry.put("version", version.trim());
         }
         return entry;

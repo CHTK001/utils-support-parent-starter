@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -288,7 +289,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
      * @throws IllegalStateException 目录不存在 / 无贴图文件 / 所有文件均读取失败时
      */
     private List<TileRecord> loadTiles() {
-        if (tileDirectory == null || tileDirectory.isEmpty()) {
+        if (StringUtils.isEmpty(tileDirectory)) {
             throw new IllegalStateException("tileDirectory 未设置，请调用 setTileDirectory(dir)");
         }
         List<TileRecord> cached = this.loadedTiles;

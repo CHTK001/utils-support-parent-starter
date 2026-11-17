@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * LM Studio 用量解析器。
@@ -89,7 +90,7 @@ public class LmStudioUsageParser extends BaseUsageParser {
      */
     private static Path resolveLmstudioHome() {
         String override = System.getenv("LMSTUDIO_HOME");
-        if (override != null && !override.isBlank()) {
+        if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
         return Path.of(System.getProperty("user.home"), ".lmstudio");
@@ -295,7 +296,7 @@ public class LmStudioUsageParser extends BaseUsageParser {
      * @return 最后一次匹配；无则 null
      */
     private String lastMatch(Pattern pattern, String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+        if (StringUtils.isEmpty(prefix)) {
             return null;
         }
         Matcher matcher = pattern.matcher(prefix);

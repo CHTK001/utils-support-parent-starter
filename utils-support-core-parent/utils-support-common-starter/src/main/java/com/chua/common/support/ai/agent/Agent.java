@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import reactor.core.publisher.Flux;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AI Agent 接口
@@ -178,7 +179,7 @@ public interface Agent extends AutoCloseable {
             }
             List<AgentStreamEvent> events = Wraps.list();
             String output = response != null ? response.getOutput() : "";
-            if (output != null && !output.isEmpty()) {
+            if (StringUtils.isNotEmpty(output)) {
                 events.add(AgentStreamEvent.reasoningDelta(null, output));
             }
             events.add(AgentStreamEvent.builder()

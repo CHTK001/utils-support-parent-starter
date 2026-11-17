@@ -21,6 +21,7 @@ import java.util.Map;
 import ai.onnxruntime.OnnxValue;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 wav2vec2 的音频指纹提取翻译器（纯 ONNX Runtime 实现，无 DJL 依赖）。
@@ -218,7 +219,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
      * @return 本地 Path；不存在返回 null
      */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) {
+        if (StringUtils.isBlank(pathStr)) {
             return null;
         }
         // 绝对路径

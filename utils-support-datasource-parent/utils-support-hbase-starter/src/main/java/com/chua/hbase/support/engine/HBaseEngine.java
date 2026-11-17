@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.util.List;
 import java.util.Map;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HBase 引擎实现（真实 ZooKeeper 连接）。
@@ -266,10 +267,10 @@ public class HBaseEngine extends AbstractEngine {
      */
     private static Scan buildScan(String family, String rowPrefix) {
         Scan s = new Scan();
-        if (family != null && !family.isEmpty()) {
+        if (StringUtils.isNotEmpty(family)) {
             s.addFamily(Bytes.toBytes(family));
         }
-        if (rowPrefix != null && !rowPrefix.isEmpty()) {
+        if (StringUtils.isNotEmpty(rowPrefix)) {
             byte[] start = Bytes.toBytes(rowPrefix);
             byte[] stop = prefixStopRow(start);
             s.withStartRow(start);
@@ -308,7 +309,7 @@ public class HBaseEngine extends AbstractEngine {
         if (r.isEmpty()) {
             return m;
         }
-        boolean allFamilies = family == null || family.isEmpty();
+        boolean allFamilies = StringUtils.isEmpty(family);
         for (org.apache.hadoop.hbase.Cell cell : r.rawCells()) {
             String fam = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
             if (allFamilies || family.equals(fam)) {

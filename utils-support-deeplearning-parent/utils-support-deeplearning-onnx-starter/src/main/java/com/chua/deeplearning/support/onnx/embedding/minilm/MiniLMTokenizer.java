@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.text.Normalizer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 纯 Java 实现的 BERT wordpiece tokenizer（不依赖 Rust tokenizers / DJL）。
@@ -241,7 +242,7 @@ public class MiniLMTokenizer {
      * @return basicTokenize的结果
      */
     private List<String> basicTokenize(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return Wraps.list();
         }
         String s = text;

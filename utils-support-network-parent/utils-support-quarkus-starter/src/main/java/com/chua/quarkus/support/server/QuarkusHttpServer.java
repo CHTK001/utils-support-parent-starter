@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Vert.x 的 Quarkus 风格 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
@@ -493,7 +494,7 @@ public class QuarkusHttpServer extends AbstractServer {
                 return;
             }
             StringBuilder sb = new StringBuilder();
-            if (event != null && !event.isEmpty()) {
+            if (StringUtils.isNotEmpty(event)) {
                 sb.append("event: ").append(event).append("\n");
             }
             if (data != null) {

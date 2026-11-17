@@ -24,6 +24,7 @@ import redis.clients.jedis.util.SafeEncoder;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Redis redi搜索 引擎实现。
@@ -127,7 +128,7 @@ import java.util.*;
      */
     @Override
     public int execute(String ql, Object... params) {
-        if (ql == null || ql.isBlank()) {
+        if (StringUtils.isBlank(ql)) {
             throw new IllegalArgumentException("Redis 命令不能为空");
         }
         String[] tokens = ql.trim().split("\\s+");
@@ -739,7 +740,7 @@ import java.util.*;
             } catch (Exception e) {
                 log.warn("FT.SEARCH 失败: {}，回退到全量扫描（并按条件在内存过滤）", e.getMessage(), e);
                 List<T> all = scanAll(jedis, keyPrefix, entityClass);
-                if (whereClause == null || whereClause.isBlank()) {
+                if (StringUtils.isBlank(whereClause)) {
                     return all;
                 }
                 // 回退路径必须保持条件语义：此前直接返回全量，带条件的查询会静默返回多余行，
@@ -857,7 +858,7 @@ import java.util.*;
             String key = asString(reply.get(i));
             Object payload = reply.get(i + 1);
             i += 2;
-            if (key == null || key.isEmpty()) {
+            if (StringUtils.isEmpty(key)) {
                 continue;
             }
             Map<String, String> hash = Wraps.linkedMap();
@@ -929,7 +930,7 @@ import java.util.*;
             args.add(SafeEncoder.encode("AS"));
             args.add(SafeEncoder.encode("count"));
         }
-        if (sortCol != null && !sortCol.isEmpty()) {
+        if (StringUtils.isNotEmpty(sortCol)) {
             args.add(SafeEncoder.encode("SORTBY"));
             args.add(SafeEncoder.encode("1"));
             args.add(SafeEncoder.encode(sortCol));

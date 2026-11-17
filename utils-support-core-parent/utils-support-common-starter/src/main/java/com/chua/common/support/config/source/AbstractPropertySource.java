@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 抽象属性源类。
@@ -53,7 +54,7 @@ public abstract class AbstractPropertySource implements PropertySource {
      */
     @Override
     public Object getProperty(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return null;
         }
 

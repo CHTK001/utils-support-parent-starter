@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * opencode 项目级配置生成器。
@@ -63,6 +64,11 @@ public final class OpencodeProjectConfig {
      * 配置 schema 地址
      */
     private static final String SCHEMA_URL = "https://opencode.ai/config.json";
+
+    /**
+     * OpenAI 兼容 provider 的实现包（2.x 写法用 {@code package} 声明）
+     */
+    private static final String PACKAGE_OPENAI_COMPATIBLE = "@ai-sdk/openai-compatible";
 
     /**
      * 生成区块起始标记
@@ -218,7 +224,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig mcpServer(String name, Map<String, Object> spec) {
-        if (name == null || name.isBlank() || spec == null || spec.isEmpty()) {
+        if (StringUtils.isBlank(name) || spec == null || spec.isEmpty()) {
             return this;
         }
         validateMcpSpec(name, spec);
@@ -270,7 +276,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig permission(String action, String effect) {
-        if (action == null || action.isBlank() || effect == null || effect.isBlank()) {
+        if (StringUtils.isBlank(action) || StringUtils.isBlank(effect)) {
             return this;
         }
         String value = effect.trim();
@@ -308,7 +314,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig defaultAgent(String name) {
-        if (name != null && !name.isBlank()) {
+        if (StringUtils.isNotBlank(name)) {
             this.defaultAgent = name.trim();
         }
         return this;
@@ -332,7 +338,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig skillPath(String path) {
-        if (path != null && !path.isBlank() && !skillPaths.contains(path)) {
+        if (StringUtils.isNotBlank(path) && !skillPaths.contains(path)) {
             skillPaths.add(path);
         }
         return this;
@@ -345,7 +351,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig instructions(String markdown) {
-        if (markdown != null && !markdown.isBlank()) {
+        if (StringUtils.isNotBlank(markdown)) {
             this.instructions = markdown;
         }
         return this;
@@ -452,7 +458,7 @@ public final class OpencodeProjectConfig {
             JsonNode existing = container.get(spec.name());
             ObjectNode node = existing instanceof ObjectNode object ? object : container.putObject(spec.name());
             String description = spec.description();
-            if (description != null && !description.isBlank()) {
+            if (StringUtils.isNotBlank(description)) {
                 node.put("description", description);
             }
             if (spec.mode() != null && !spec.mode().isBlank()) {
@@ -463,7 +469,7 @@ public final class OpencodeProjectConfig {
                 spec.permissions().forEach(permissionNode::put);
             }
             String prompt = spec.prompt();
-            if (prompt != null && !prompt.isBlank()) {
+            if (StringUtils.isNotBlank(prompt)) {
                 node.put(v2 ? "system" : "prompt", prompt);
             }
             if (spec.steps() != null && spec.steps().intValue() > 0) {
@@ -483,16 +489,19 @@ public final class OpencodeProjectConfig {
      * 写入 provider 定义。
      *
      * <p>opencode 的内置目录只收录官方厂商的模型清单；站点自建的 OpenAI 兼容端点
-     * （如 {@code moss}）必须显式声明 {@code options.baseURL} 与 {@code models}，
-     * 否则 {@code provider/model} 解析不到，表现为
-     * {@code UnknownError: Unexpected server error}。</p>
+     * （如 {@code moss}）必须显式声明端点与模型清单，否则 {@code provider/model}
+     * 解析不到，表现为 {@code UnknownError: Unexpected server error}。</p>
      *
-     * <p>这里刻意不写 {@code npm}：opencode 内置 provider 的实现包各不相同
-     * （{@code openai} 用 {@code @ai-sdk/openai}、{@code minimax} 用
-     * {@code @ai-sdk/anthropic}），而站点常直接复用内置名（{@code openai}、
-     * {@code google}、{@code alibaba}）对接自有端点，覆盖 {@code npm} 会把原生协议
-     * 换成 OpenAI 兼容协议，属回归。自定义名不写 {@code npm} 时 opencode 会按
-     * OpenAI 兼容协议兜底，实测可用。</p>
+     * <p>这里同时写两套写法：{@code provider} 是 1.x 写法（老版本 CLI 读），
+     * {@code providers} 是 2.x 写法（1.19 起的 server 只认它）。实测两份并存不会
+     * 互相覆盖：2.x server 解析 provider 时用的就是 {@code providers} 段。</p>
+     *
+     * <p>密钥一律不写进项目文件（工作区通常是受版本控制的仓库）。2.x 在 provider 上
+     * 声明 {@code env} 环境变量名，由 {@link OpencodeServerProcess#providerCredential}
+     * 在启动子进程时注入；1.x 由隔离数据目录的 {@code auth.json} 提供。</p>
+     *
+     * <p>2.x 段刻意不写 {@code npm}：{@code package} 才是 2.x 的实现包字段，
+     * 写错会覆盖内置 provider 的原生协议实现。</p>
      *
      * @param root 配置根节点
      */
@@ -500,24 +509,56 @@ public final class OpencodeProjectConfig {
         if (providers.isEmpty()) {
             return;
         }
-        ObjectNode container = childObject(root, "provider");
+        ObjectNode legacy = childObject(root, "provider");
+        ObjectNode container = childObject(root, "providers");
         for (ProviderSpec spec : providers.values()) {
-            JsonNode existing = container.get(spec.id());
-            ObjectNode node = existing instanceof ObjectNode object ? object : container.putObject(spec.id());
-            node.put("name", spec.name() == null || spec.name().isBlank() ? spec.id() : spec.name());
+            String name = spec.name() == null || spec.name().isBlank() ? spec.id() : spec.name();
+            JsonNode existingLegacy = legacy.get(spec.id());
+            ObjectNode node = existingLegacy instanceof ObjectNode object ? object : legacy.putObject(spec.id());
+            node.put("name", name);
             if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
                 childObject(node, "options").put("baseURL", spec.baseUrl());
             }
-            if (spec.models() != null && !spec.models().isEmpty()) {
-                ObjectNode models = childObject(node, "models");
-                for (String model : spec.models()) {
-                    if (model == null || model.isBlank()) {
-                        continue;
-                    }
-                    childObject(models, model.trim()).put("name", model.trim());
+            JsonNode existing = container.get(spec.id());
+            ObjectNode v2Node = existing instanceof ObjectNode object ? object : container.putObject(spec.id());
+            v2Node.put("name", name);
+            v2Node.put("package", PACKAGE_OPENAI_COMPATIBLE);
+            v2Node.putArray("env").add(providerEnvName(spec.id()));
+            if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
+                childObject(v2Node, "settings").put("baseURL", spec.baseUrl());
+            }
+            if (spec.models() == null || spec.models().isEmpty()) {
+                continue;
+            }
+            ObjectNode legacyModels = childObject(node, "models");
+            ObjectNode models = childObject(v2Node, "models");
+            for (String model : spec.models()) {
+                if (StringUtils.isBlank(model)) {
+                    continue;
                 }
+                legacyModels.putObject(model.trim()).put("name", model.trim());
+                models.putObject(model.trim()).put("name", model.trim());
             }
         }
+    }
+
+    /**
+     * provider 对应的环境变量名。
+     *
+     * <p>2.x 通过 provider 的 {@code env} 声明从哪个环境变量读密钥。规则：标识转大写，
+     * 非字母数字替换为下划线，追加 {@code _API_KEY}（{@code agnes} →
+     * {@code AGNES_API_KEY}）。{@link OpencodeServerProcess} 注入子进程环境变量时必须
+     * 使用同一个名字，否则 provider 会在解析阶段报 {@code Model unavailable}。</p>
+     *
+     * @param providerId provider 标识（{@code provider/model} 中斜杠前的部分）
+     * @return 环境变量名
+     */
+    public static String providerEnvName(String providerId) {
+        StringBuilder builder = new StringBuilder();
+        for (char ch : providerId.toCharArray()) {
+            builder.append(Character.isLetterOrDigit(ch) ? Character.toUpperCase(ch) : '_');
+        }
+        return builder.append("_API_KEY").toString();
     }
 
     /**
@@ -613,7 +654,7 @@ public final class OpencodeProjectConfig {
                 throw new IllegalStateException("读取 " + path + " 失败", e);
             }
         }
-        if (existing == null || existing.isBlank()) {
+        if (StringUtils.isBlank(existing)) {
             return block + "\n";
         }
         int begin = existing.indexOf(MARK_BEGIN);

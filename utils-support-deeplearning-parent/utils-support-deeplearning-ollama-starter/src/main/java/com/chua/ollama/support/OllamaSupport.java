@@ -1,6 +1,7 @@
 package com.chua.ollama.support;
 
 import io.github.ollama4j.Ollama;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 服务支持工具。
@@ -42,7 +43,7 @@ public final class OllamaSupport {
      * @return 归一化后的地址
      */
     public static String normalize(String host) {
-        if (host == null || host.isBlank()) {
+        if (StringUtils.isBlank(host)) {
             return OllamaConstants.DEFAULT_BASE_URL;
         }
         String result = host.trim();

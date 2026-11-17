@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Swagger / 打开api 文档解析器。
@@ -35,7 +36,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
     @Override
     public DocumentData parse(DocumentConfig config) {
         String url = config.getUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             throw new IllegalArgumentException("DocumentConfig.url 不能为空");
         }
 
@@ -68,7 +69,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
      */
     public static OpenApiDocumentData parse(String json, Map<String, String> overrides) {
         OpenApiDocumentData data = new OpenApiDocumentData();
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             return data;
         }
 
@@ -190,7 +191,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                         String srvUrl = srv.getType("url", "", String.class);
                         String desc = srv.getType("description", null, String.class);
                         sb.append("- `").append(srvUrl).append("`");
-                        if (desc != null && !desc.isBlank()) {
+                        if (StringUtils.isNotBlank(desc)) {
                             sb.append(" — ").append(desc);
                         }
                         sb.append("\n");
@@ -468,7 +469,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
             String desc = s.getType("description", null, String.class);
             sb.append("### ").append(name).append("\n\n");
             sb.append("- **类型**: ").append(type).append("\n");
-            if (desc != null && !desc.isBlank()) {
+            if (StringUtils.isNotBlank(desc)) {
                 sb.append("- **说明**: ").append(desc).append("\n");
             }
 

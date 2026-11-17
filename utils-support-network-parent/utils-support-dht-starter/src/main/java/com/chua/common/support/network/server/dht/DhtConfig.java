@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DHT 节点配置。
@@ -153,6 +154,6 @@ public class DhtConfig {
      * @return 如果 advertised主机 和 advertised端口 都有效返回 true
      */
     public boolean hasAdvertisedAddress() {
-        return advertisedHost != null && !advertisedHost.isEmpty() && advertisedPort > 0;
+        return StringUtils.isNotEmpty(advertisedHost) && advertisedPort > 0;
     }
 }

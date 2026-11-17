@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 兼容接口真伪探测器。
@@ -91,7 +92,7 @@ public class OpenAiProbeStation {
      */
     private String resolveModel() {
         String model = setting.getModel();
-        return (model == null || model.isBlank()) ? "gpt-4" : model;
+        return (StringUtils.isBlank(model)) ? "gpt-4" : model;
     }
 
     /**
@@ -808,7 +809,7 @@ public class OpenAiProbeStation {
             Object contentObj = choice.getJsonObject("message").getObject("content");
             String content = contentObj instanceof String contentStr ? contentStr : null;
 
-            if (content == null || content.isBlank()) {
+            if (StringUtils.isBlank(content)) {
                 // 检查 finish_reason 以区分"被过滤"和"无内容"
                 String finishReason = null;
                 try {
@@ -824,7 +825,7 @@ public class OpenAiProbeStation {
                 } else if ("length".equals(finishReason)) {
                     confidence = 0.15;
                     detail = "响应因长度限制截断";
-                } else if (finishReason != null && !finishReason.isEmpty()) {
+                } else if (StringUtils.isNotEmpty(finishReason)) {
                     detail = "响应内容为空(finish_reason=" + finishReason + ")";
                 }
                 return ProbeResult.builder()
@@ -875,10 +876,10 @@ public class OpenAiProbeStation {
      */
     private String buildChatBody(String model, String prompt, int maxTokens, double temperature) {
         String actualModel = model;
-        if (actualModel == null || actualModel.isBlank()) {
+        if (StringUtils.isBlank(actualModel)) {
             actualModel = setting.getModel();
         }
-        if (actualModel == null || actualModel.isBlank()) {
+        if (StringUtils.isBlank(actualModel)) {
             actualModel = "gpt-4";
         }
         return "{\n" +
@@ -896,7 +897,7 @@ public class OpenAiProbeStation {
      */
     private String resolveBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return DEFAULT_BASE_URL;
         }
         url = UrlUtils.normalize(url, false);

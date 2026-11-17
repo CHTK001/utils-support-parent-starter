@@ -4,6 +4,7 @@ import com.chua.common.support.collection.MultiValueMap;
 import com.chua.common.support.lang.json.Json;
 
 import java.util.Collection;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 多值映射混合系统占位符解析器。
@@ -59,7 +60,7 @@ public class MultiMapMixSystemPlaceholderResolver implements PlaceholderResolver
      */
     @Override
     public String resolvePlaceholder(String placeholderName) {
-        if (placeholderName == null || placeholderName.isEmpty()) {
+        if (StringUtils.isEmpty(placeholderName)) {
             return null;
         }
 

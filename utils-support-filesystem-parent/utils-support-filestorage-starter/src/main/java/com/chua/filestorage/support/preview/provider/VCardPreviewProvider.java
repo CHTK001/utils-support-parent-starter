@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * v卡片 (VCF) 联系人预览提供器。
@@ -184,11 +185,11 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         } else {
             for (ContactInfo contact : contacts) {
                 String displayName = contact.fullName;
-                if (displayName == null || displayName.isEmpty()) {
+                if (StringUtils.isEmpty(displayName)) {
                     displayName = (contact.firstName != null ? contact.firstName : "") +
                                   (contact.lastName != null ? contact.lastName : "");
                 }
-                if (displayName == null || displayName.isEmpty()) {
+                if (StringUtils.isEmpty(displayName)) {
                     displayName = "未知联系人";
                 }
 

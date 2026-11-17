@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Mock 字符串生成门面
@@ -130,7 +131,7 @@ public final class MockStringFactory {
      */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword) {
-        if (null == keyword || keyword.isEmpty()) {
+        if (StringUtils.isEmpty(keyword)) {
             return null;
         }
         return generate(name, MockEnvironment.ofKeyword(keyword));
@@ -146,7 +147,7 @@ public final class MockStringFactory {
      */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword, int length) {
-        if (null == keyword || keyword.isEmpty()) {
+        if (StringUtils.isEmpty(keyword)) {
             return null;
         }
         return generate(name, MockEnvironment.ofKeyword(keyword, length));

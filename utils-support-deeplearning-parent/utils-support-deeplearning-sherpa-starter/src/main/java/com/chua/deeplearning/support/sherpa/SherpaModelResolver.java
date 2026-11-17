@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 模型目录解析器。
@@ -74,7 +75,7 @@ public final class SherpaModelResolver {
      * @throws SherpaException 无法定位模型目录
      */
     public static Path resolveDirectory(String modelIdOrPath) {
-        if (modelIdOrPath == null || modelIdOrPath.isBlank()) {
+        if (StringUtils.isBlank(modelIdOrPath)) {
             throw new SherpaException("未指定 sherpa-onnx 模型（可通过 model(...) 或 -D"
                     + PROP_MODEL_DIR + " 指定模型目录）");
         }
@@ -98,7 +99,7 @@ public final class SherpaModelResolver {
         // 本地模型根目录优先：运维通常已把 sherpa 模型预置在 <model.dir>/<模型标识> 下，
         // 不应因为「注册表未命中」而触发联网下载。
         String root = System.getProperty(PROP_MODEL_DIR);
-        if (root != null && !root.isBlank()) {
+        if (StringUtils.isNotBlank(root)) {
             Path candidate = safePath(root.trim());
             if (candidate != null && Files.isDirectory(candidate)) {
                 Path sub = candidate.resolve(text);
@@ -127,7 +128,7 @@ public final class SherpaModelResolver {
         // 传入的是「多模型根目录」时，唯一可用子目录可直接下沉；多个则要求显式指定，
         // 避免静默选中某个不相关的模型（这是线上最常见的选错模型场景）。
         Path ambiguous = direct != null && Files.isDirectory(direct) ? direct
-                : root == null || root.isBlank() ? null : safePath(root.trim());
+                : StringUtils.isBlank(root) ? null : safePath(root.trim());
         if (ambiguous != null && Files.isDirectory(ambiguous)) {
             List<Path> candidates = usableSubdirectories(ambiguous);
             if (candidates.size() == 1) {
@@ -376,7 +377,7 @@ public final class SherpaModelResolver {
                 .setNumThreads(threads)
                 .setDebug(false)
                 .setProvider(effectiveProvider);
-        if (modelType != null && !modelType.isBlank()) {
+        if (StringUtils.isNotBlank(modelType)) {
             model.setModelType(modelType);
         }
 
@@ -410,7 +411,7 @@ public final class SherpaModelResolver {
                 model.setWhisper(OfflineWhisperModelConfig.builder()
                         .setEncoder(encoder.toString())
                         .setDecoder(decoder.toString())
-                        .setLanguage(language == null || language.isBlank() ? "en" : language)
+                        .setLanguage(StringUtils.isBlank(language) ? "en" : language)
                         .setTask("transcribe")
                         .build());
             }
@@ -458,11 +459,11 @@ public final class SherpaModelResolver {
      * @return provider 名称
      */
     public static String effectiveProvider(String provider) {
-        if (provider != null && !provider.isBlank()) {
+        if (StringUtils.isNotBlank(provider)) {
             return provider.trim();
         }
         String prop = System.getProperty(PROP_PROVIDER);
-        return prop == null || prop.isBlank() ? "cpu" : prop.trim();
+        return StringUtils.isBlank(prop) ? "cpu" : prop.trim();
     }
 
     /**
@@ -476,7 +477,7 @@ public final class SherpaModelResolver {
             return numThreads;
         }
         String prop = System.getProperty(PROP_NUM_THREADS);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             try {
                 int parsed = Integer.parseInt(prop.trim());
                 if (parsed > 0) {

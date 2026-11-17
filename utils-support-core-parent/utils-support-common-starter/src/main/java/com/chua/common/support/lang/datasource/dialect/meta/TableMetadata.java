@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 表元数据，描述一个数据库表的完整结构信息。
@@ -62,9 +63,9 @@ public class TableMetadata {
      * @return 是否成功（true 表示成功）
      */
     public boolean hasPartitions() {
-        return (partitionType != null && !partitionType.isEmpty()
-                && partitionColumn != null && !partitionColumn.isEmpty())
-                || (partitionDefinition != null && !partitionDefinition.isEmpty());
+        return (StringUtils.isNotEmpty(partitionType)
+                && StringUtils.isNotEmpty(partitionColumn))
+                || (StringUtils.isNotEmpty(partitionDefinition));
     }
 
     /**
@@ -72,7 +73,7 @@ public class TableMetadata {
      * @return 列Metadata 对象
      */
     public ColumnMetadata getPartitionColumn() {
-        if (partitionColumn == null || partitionColumn.isEmpty() || columns == null) {
+        if (StringUtils.isEmpty(partitionColumn) || columns == null) {
             return null;
         }
         return columns.stream()
@@ -89,7 +90,7 @@ public class TableMetadata {
         if (!hasPartitions()) {
             return "";
         }
-        if (partitionDefinition != null && !partitionDefinition.isEmpty()) {
+        if (StringUtils.isNotEmpty(partitionDefinition)) {
             return partitionDefinition;
         }
         return dialect.formatPartitionSql(this);

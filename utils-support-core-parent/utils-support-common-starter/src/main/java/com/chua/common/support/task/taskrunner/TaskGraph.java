@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 任务拓扑图 — 承载 任务runner 的 DAG 结构并完成合法性校验。
@@ -39,7 +40,7 @@ public final class TaskGraph {
      * @throws IllegalArgumentException 当集合为空、标识 重复或依赖缺失时
      */
     public static TaskGraph of(String name, Collection<TaskDefinition> definitions) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("运行名称不能为空");
         }
         Objects.requireNonNull(definitions, "definitions must not be null");

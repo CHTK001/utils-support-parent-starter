@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 把源码目录下的 {@code .java} 文件编译为 SPI 扩展点实现并注册到
@@ -572,7 +573,7 @@ public class SourceJavaCompiler {
      * @param item    待追加条目
      */
     private static void addIfAbsent(List<String> entries, String item) {
-        if (item != null && !item.isBlank() && !entries.contains(item)) {
+        if (StringUtils.isNotBlank(item) && !entries.contains(item)) {
             entries.add(item);
         }
     }

@@ -46,6 +46,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 {@link AsynchronousSocketChannel} 的 HTTP/1.1 服务器实现(Proactor 模式)。
@@ -1073,7 +1074,7 @@ public class AioHttpServer extends AbstractServer {
      */
     private void handleWebSocketUpgrade(ConnState state) {
         String key = state.request.getHeader("Sec-WebSocket-Key");
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             closeConn(state);
             return;
         }
@@ -1403,7 +1404,7 @@ public class AioHttpServer extends AbstractServer {
                 ClassUtils.setAccessible(method);
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 wsTopicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>())

@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 智谱（CogVideoX）视频生成客户端。
@@ -176,7 +177,7 @@ public class ZhipuVideoClient implements VideoClient {
     @Override
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String requestBody = JsonObject.create()
@@ -184,7 +185,7 @@ public class ZhipuVideoClient implements VideoClient {
                 .fluentPut("prompt", actualPrompt)
                 .fluentPut(width != null && height != null, "size", width + "x" + height)
                 .fluentPut(duration != null, "duration", duration)
-                .fluentPut(style != null && !style.isBlank(), "style", style)
+                .fluentPut(StringUtils.isNotBlank(style), "style", style)
                 .fluentPut(referenceImage != null, "image_base64", Base64.getEncoder().encodeToString(referenceImage))
                 .fluentPut(imageStrength != null, "image_strength", imageStrength)
                 .toJSONString();
@@ -201,7 +202,7 @@ public class ZhipuVideoClient implements VideoClient {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(resp.getBodyString(), Map.class);
         String taskId = root.containsKey("id") ? (String) root.get("id")
                 : root.containsKey("request_id") ? (String) root.get("request_id") : null;
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             throw new RuntimeException("视频生成未返回任务 ID");
         }
         return taskId;
@@ -216,7 +217,7 @@ public class ZhipuVideoClient implements VideoClient {
     @Override
     @SuppressWarnings("unchecked")
     public VideoResponse queryTask(String taskId) {
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             throw new IllegalArgumentException("任务 ID 不能为空");
         }
         try {
@@ -287,7 +288,7 @@ public class ZhipuVideoClient implements VideoClient {
     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

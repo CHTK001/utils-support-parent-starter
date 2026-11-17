@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * macOS 系统日志提供者 - 日志 show 命令 + /var/日志 文件回退
@@ -201,7 +202,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 解析日志show线的结果
      */
     private LogEntry parseLogShowLine(String line) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return null;
         }
         try {
@@ -290,7 +291,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 解析var日志线的结果
      */
     private LogEntry parseVarLogLine(String line, String source) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return null;
         }
         String timestamp = "unknown";
@@ -336,7 +337,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
-        if (glob == null || glob.isEmpty()) {
+        if (StringUtils.isEmpty(glob)) {
             return null;
         }
         try {

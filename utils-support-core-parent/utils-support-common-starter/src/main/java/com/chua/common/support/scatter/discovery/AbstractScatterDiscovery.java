@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * scatter 发现基类：本地服务 hash 表（按 serverId 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
@@ -370,7 +371,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * @return 是否成功（true 表示成功）
      */
     protected boolean isUnroutable(String host) {
-        return host == null || host.isBlank() || "0.0.0.0".equals(host);
+        return StringUtils.isBlank(host) || "0.0.0.0".equals(host);
     }
 
     /**

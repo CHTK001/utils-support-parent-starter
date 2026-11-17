@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 统一反射工具类 — 基于 方法处理 + lambdametafactory 实现。
@@ -105,7 +106,7 @@ public final class ReflectUtils {
      * @return Class 对象，加载失败返回 null
      */
     public static Class<?> forName(String className) {
-        if (className == null || className.isEmpty()) {
+        if (StringUtils.isEmpty(className)) {
             return null;
         }
         return CLASS_NAME_CACHE.computeIfAbsent(className, it -> {
@@ -129,7 +130,7 @@ public final class ReflectUtils {
      * @return Class 对象，加载失败返回 null
      */
     public static Class<?> forName(String className, ClassLoader classLoader) {
-        if (className == null || className.isEmpty()) {
+        if (StringUtils.isEmpty(className)) {
             return null;
         }
         String key = className + "@" + (classLoader == null ? "system" : System.identityHashCode(classLoader));

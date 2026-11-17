@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Webhook 入站适配器：HTTP POST → JSON → 数据envelope → pipelineengine。
@@ -543,7 +544,7 @@ public class WebhookInboundAdapter {
      */
     private static String describe(Throwable e) {
         String message = e.getMessage();
-        return message == null || message.isEmpty() ? e.getClass().getSimpleName() : message;
+        return StringUtils.isEmpty(message) ? e.getClass().getSimpleName() : message;
     }
 
     // ━━━━━━━━━━━━━━ 拒绝异常 ━━━━━━━━━━━━━━

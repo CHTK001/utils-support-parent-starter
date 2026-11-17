@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 客户端直渲染预览支持类。
@@ -211,7 +212,7 @@ public final class ClientPreviewSupport {
      *         不支持时返回 空
      */
     public static String rendererOf(String extension) {
-        if (extension == null || extension.isEmpty()) {
+        if (StringUtils.isEmpty(extension)) {
             return null;
         }
         return EXTENSION_TO_RENDERER.get(extension.toLowerCase(Locale.ENGLISH));
@@ -409,7 +410,7 @@ public final class ClientPreviewSupport {
      * @return true 表示客户端优先；false 表示强制服务端渲染
      */
     public static boolean isClientPreferred(String renderParam) {
-        if (renderParam == null || renderParam.isBlank()) {
+        if (StringUtils.isBlank(renderParam)) {
             return true;
         }
         return !CHANNEL_SERVER.equalsIgnoreCase(renderParam.trim());

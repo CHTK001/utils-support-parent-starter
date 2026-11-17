@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.IntFunction;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JVector 向量存储门面，根据存储模式选择底层策略。
@@ -295,7 +296,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * @return 实际删除条数
          */
         default int doRemoveByIdPrefix(String idPrefix) {
-            if (idPrefix == null || idPrefix.isEmpty()) {
+            if (StringUtils.isEmpty(idPrefix)) {
                 return 0;
             }
             int removed = 0;

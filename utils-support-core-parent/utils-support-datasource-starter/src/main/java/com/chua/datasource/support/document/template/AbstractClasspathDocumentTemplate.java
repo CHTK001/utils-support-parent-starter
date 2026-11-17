@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 类路径 模板文件的文档模板基类。
@@ -451,6 +452,6 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
      * @return 空转为空的结果
      */
     private static String nullToEmpty(String value, String defaultValue) {
-        return (value == null || value.isBlank()) ? defaultValue : value;
+        return (StringUtils.isBlank(value)) ? defaultValue : value;
     }
 }

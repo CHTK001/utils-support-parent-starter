@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认服务注入器，基于 @autoinject 注解进行依赖注入。
@@ -56,7 +57,7 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
             String beanName = autoInject.value();
             boolean required = autoInject.required();
             Object value;
-            if (beanName != null && !beanName.isEmpty()) {
+            if (StringUtils.isNotEmpty(beanName)) {
                 value = beanProvider.apply(beanName);
             } else {
                 value = typeProvider != null ? typeProvider.apply(fieldType) : null;

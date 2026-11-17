@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;import java.util.concurrent.Executor
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 {@link AsynchronousSocketChannel} 的 TCP 服务器(Proactor/IOCP)。
@@ -240,7 +241,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             return;
         }
         String encryptKey = setting.getEncryptKey();
-        if (encryptKey == null || encryptKey.isBlank()) {
+        if (StringUtils.isBlank(encryptKey)) {
             log.warn("AIO TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
             return;
         }

@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Netty 的 HTTP 同步服务端实现。
@@ -238,7 +239,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
      * @return extract参数的结果
      */
     private String extractParam(String body, String key) {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return null;
         }
         // 客户端发的是 application/x-www-form-urlencoded（topic=...&message=...）。
@@ -294,7 +295,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
      */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = Wraps.map();
-        if (query == null || query.isEmpty()) {
+        if (StringUtils.isEmpty(query)) {
             return params;
         }
         for (String pair : query.split("&")) {

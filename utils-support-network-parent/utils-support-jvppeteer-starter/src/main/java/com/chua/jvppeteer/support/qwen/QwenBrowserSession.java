@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通义千问浏览器会话（Jvppeteer 实现）。
@@ -190,7 +191,7 @@ public class QwenBrowserSession implements AutoCloseable {
                     }
                     String phase = (String) delta.get("phase");
                     String content = (String) delta.get("content");
-                    if (content == null || content.isEmpty()) {
+                    if (StringUtils.isEmpty(content)) {
                         continue;
                     }
                     boolean isThinking = "think".equals(phase) || "thinking".equals(phase);
@@ -271,7 +272,7 @@ public class QwenBrowserSession implements AutoCloseable {
      */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = Wraps.linkedMap();
-        if (cookieString == null || cookieString.isBlank()) {
+        if (StringUtils.isBlank(cookieString)) {
             return map;
         }
         for (String pair : cookieString.split(";")) {

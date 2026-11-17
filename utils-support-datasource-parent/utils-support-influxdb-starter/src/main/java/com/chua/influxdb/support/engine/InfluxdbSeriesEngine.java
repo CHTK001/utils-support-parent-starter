@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 InfluxDB（influxdb-java 官方客户端）的时序存储实现。
@@ -92,7 +93,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @param password 密码（可为空；InfluxDB 2.x 传空串）
      */
     public InfluxdbSeriesEngine(String url, String database, String username, String password) {
-        if (url == null || url.isEmpty() || database == null || database.isEmpty()) {
+        if (StringUtils.isEmpty(url) || StringUtils.isEmpty(database)) {
             this.influxDB = null;
             this.database = database;
             this.configured = false;
@@ -100,7 +101,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
             return;
         }
         InfluxDB client;
-        if (username != null && !username.isEmpty()) {
+        if (StringUtils.isNotEmpty(username)) {
             client = InfluxDBFactory.connect(url, username, password);
         } else {
             client = InfluxDBFactory.connect(url);
@@ -129,7 +130,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
     public InfluxdbSeriesEngine(InfluxDB influxDB, String database) {
         this.influxDB = influxDB;
         this.database = database;
-        this.configured = influxDB != null && database != null && !database.isEmpty();
+        this.configured = influxDB != null && StringUtils.isNotEmpty(database);
         if (!configured) {
             log.warn("[SeriesEngine] InfluxdbSeriesEngine 不可用：客户端或数据库为空");
         }

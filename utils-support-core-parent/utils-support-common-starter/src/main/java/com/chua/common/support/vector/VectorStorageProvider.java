@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 向量存储提供者 SPI。
@@ -199,7 +200,7 @@ public interface VectorStorageProvider {
      * @return SPI 实例，未注册时返回 null
      */
     static VectorStorageProvider find(String providerName) {
-        if (providerName == null || providerName.isBlank()) {
+        if (StringUtils.isBlank(providerName)) {
             return null;
         }
         return ServiceProvider.of(VectorStorageProvider.class)

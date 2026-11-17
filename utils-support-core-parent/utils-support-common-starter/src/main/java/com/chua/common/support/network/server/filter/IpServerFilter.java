@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.SpiParam;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IP 黑白名单过滤器（HTTP 走过滤器链，代理走 allow 判定）。
@@ -91,11 +92,11 @@ public class IpServerFilter implements ServerFilter {
             return;
         }
         String mode = config.getInitParameter("mode");
-        if (mode != null && !mode.isBlank()) {
+        if (StringUtils.isNotBlank(mode)) {
             whitelistMode = "whitelist".equalsIgnoreCase(mode.trim());
         }
         String ips = config.getInitParameter("ips");
-        if (ips == null || ips.isBlank()) {
+        if (StringUtils.isBlank(ips)) {
             return;
         }
         whitelist.clear();
@@ -138,7 +139,7 @@ public class IpServerFilter implements ServerFilter {
      * @return true 表示放行
      */
     public boolean allows(String clientIp) {
-        if (clientIp == null || clientIp.isEmpty()) {
+        if (StringUtils.isEmpty(clientIp)) {
             return !whitelistMode;
         }
         if (whitelistMode) {

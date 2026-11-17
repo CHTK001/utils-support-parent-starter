@@ -3,6 +3,7 @@ package com.chua.enhance.support.emoji;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Emoji 工具类，提供 emoji 的查找、解析、转换和统计功能。
@@ -59,7 +60,7 @@ public class EmojiUtils extends AbstractEmoji {
      * @return Emoji 对象，未找到返回 空
      */
     public static Emoji getForAlias(String alias) {
-        if (alias == null || alias.isEmpty()) {
+        if (StringUtils.isEmpty(alias)) {
             return null;
         }
         return EmojiManager.EMOJIS_BY_ALIAS.get(trimAlias(alias));

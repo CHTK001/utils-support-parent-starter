@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * T5 Seq2Seq ONNX 翻译器（ORT 原生，编码器-解码器 自回归生成）。
@@ -215,7 +216,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      */
     @Override
     public String translate(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return text;
         }
         try {
@@ -436,7 +437,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      * @return 清洗后的文本
      */
     private static String postProcess(String decoded) {
-        if (decoded == null || decoded.isEmpty()) {
+        if (StringUtils.isEmpty(decoded)) {
             return decoded;
         }
         String s = decoded.replaceAll("<extra_id_\\d+>", "").trim();

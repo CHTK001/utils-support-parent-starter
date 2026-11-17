@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
@@ -265,7 +266,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
 
             int stringOffset = buffer.get(ValueLayout.JAVA_INT_UNALIGNED, offset + 36);
             String message = extractString(buffer, offset, stringOffset);
-            if (message == null || message.isEmpty()) {
+            if (StringUtils.isEmpty(message)) {
                 message = "(no message)";
             }
 
@@ -337,7 +338,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
      * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
-        if (glob == null || glob.isEmpty()) {
+        if (StringUtils.isEmpty(glob)) {
             return null;
         }
         try {

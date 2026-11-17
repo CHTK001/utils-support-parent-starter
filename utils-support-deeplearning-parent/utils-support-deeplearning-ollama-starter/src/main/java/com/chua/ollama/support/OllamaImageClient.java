@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 本地图片生成客户端（SPI provider="ollama"）。
@@ -136,7 +137,7 @@ public class OllamaImageClient implements ImageClient {
     public BufferedImage generate(String prompt) {
         String text = prompt != null ? prompt : null;
         OllamaGenerateImageRequest request = new OllamaGenerateImageRequest();
-        request.setModel(model != null && !model.isBlank() ? model : "image-model");
+        request.setModel(StringUtils.isNotBlank(model) ? model : "image-model");
         request.setPrompt(text != null ? text : "");
         request.setWidth(width);
         request.setHeight(height);

@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeoutException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于外部 CLI 的 ASR 翻译器（nemo-speech 运行时，Parakeet 等 NeMo Speech 系模型）。
@@ -154,7 +155,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
      * @return 转写结果；不适用时返回 {@code null}
      */
     private String transcribeViaServer(Path exe, Path wav, String m) {
-        if (m == null || m.isBlank() || !Files.isRegularFile(Path.of(m))) {
+        if (StringUtils.isBlank(m) || !Files.isRegularFile(Path.of(m))) {
             return null;
         }
         CliAsrServer server = CliAsrServer.acquire(exe, m);
@@ -180,7 +181,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
      */
     private String transcribeViaProcess(Path exe, Path wav, String m) throws Exception {
         String[] args;
-        if (m != null && !m.isBlank()) {
+        if (StringUtils.isNotBlank(m)) {
             args = jsonOutput
                     ? new String[]{"transcribe", wav.toString(), "--model", m, "--json"}
                     : new String[]{"transcribe", wav.toString(), "--model", m};
@@ -206,7 +207,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
      * @return CLI {@code --model} 取值；无模型时为 {@code null}
      */
     private String resolveModelArg() {
-        if (model == null || model.isBlank()) {
+        if (StringUtils.isBlank(model)) {
             return null;
         }
         try {

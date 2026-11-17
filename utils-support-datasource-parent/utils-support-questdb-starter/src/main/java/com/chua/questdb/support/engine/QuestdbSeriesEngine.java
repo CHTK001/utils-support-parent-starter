@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 QuestDB 的时序存储实现（{@link SeriesEngine} SPI，别名 {@code questdb}）。
@@ -589,7 +590,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @throws IOException 解析失败
      */
     private JsonNode parseJson(String body) throws IOException {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return null;
         }
         return objectMapper.readTree(body);
@@ -664,7 +665,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 归一化地址，为空时返回 null
      */
     private static String normalizeBaseUrl(String url) {
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return null;
         }
         String normalized = url.trim();
@@ -687,7 +688,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         try {
             URI uri = URI.create(url);
             String host = uri.getHost();
-            if (host == null || host.isEmpty()) {
+            if (StringUtils.isEmpty(host)) {
                 return null;
             }
             int port = uri.getPort() > 0 ? uri.getPort() : DEFAULT_HTTP_PORT;
@@ -714,6 +715,6 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 非空原值或 null
      */
     private static String emptyToNull(String value) {
-        return value == null || value.isEmpty() ? null : value;
+        return StringUtils.isEmpty(value) ? null : value;
     }
 }

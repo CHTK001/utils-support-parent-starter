@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于工作间文件的记忆存储实现
@@ -95,7 +96,7 @@ public class FileMemoryStore implements MemoryStore {
      */
     @Override
     public List<MemoryEntry> search(String keyword, int limit) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return listAll(limit);
         }
         String lowerKeyword = keyword.toLowerCase();

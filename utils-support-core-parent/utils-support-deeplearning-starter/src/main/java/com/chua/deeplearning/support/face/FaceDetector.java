@@ -11,6 +11,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 人脸检测器 —— 检测图片中的人脸位置与数量。
@@ -120,7 +121,7 @@ public interface FaceDetector {
      * @return true 表示是人脸检测权重
      */
     static boolean isFaceWeightPath(String relativePath) {
-        if (relativePath == null || relativePath.isBlank()) {
+        if (StringUtils.isBlank(relativePath)) {
             return false;
         }
         String normalized = relativePath.replace('\\', '/').toLowerCase();

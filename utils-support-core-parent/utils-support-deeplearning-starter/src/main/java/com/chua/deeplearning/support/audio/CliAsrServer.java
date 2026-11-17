@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * nemo-speech 常驻 HTTP 服务（{@code serve} 子命令）会话。
@@ -426,7 +427,7 @@ final class CliAsrServer {
     private static long idleMillis() {
         String raw = System.getProperty(PROP_IDLE);
         long seconds = DEFAULT_IDLE_SECONDS;
-        if (raw != null && !raw.isBlank()) {
+        if (StringUtils.isNotBlank(raw)) {
             try {
                 seconds = Long.parseLong(raw.trim());
             } catch (NumberFormatException e) {

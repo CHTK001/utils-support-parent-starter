@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模板构建器 —— 接口二：<b>模板替换</b>。
@@ -316,7 +317,7 @@ public class TemplateExportBuilder {
      * @return 当前构建器
      */
     public TemplateExportBuilder put(String key, Object value) {
-        if (key != null && !key.isEmpty()) {
+        if (StringUtils.isNotEmpty(key)) {
             variables.put(key, value);
         }
         return this;
@@ -343,7 +344,7 @@ public class TemplateExportBuilder {
      * @return 当前构建器
      */
     public TemplateExportBuilder bind(String tag, Object data) {
-        if (tag != null && !tag.isEmpty()) {
+        if (StringUtils.isNotEmpty(tag)) {
             tables.put(tag, data);
         }
         return this;
@@ -356,7 +357,7 @@ public class TemplateExportBuilder {
      * @return 当前构建器
      */
     public TemplateExportBuilder bindTo(String tag) {
-        String key = tag == null || tag.isBlank() ? configBuilder.build().getTableTag() : tag;
+        String key = StringUtils.isBlank(tag) ? configBuilder.build().getTableTag() : tag;
         tables.put(key, rows);
         return this;
     }
@@ -540,7 +541,7 @@ public class TemplateExportBuilder {
      * @return 格式标识
      */
     private String resolveFormat() {
-        if (format != null && !format.isBlank()) {
+        if (StringUtils.isNotBlank(format)) {
             return format;
         }
         String fromTemplate = ExportFormats.of(templateName);

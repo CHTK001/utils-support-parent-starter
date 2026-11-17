@@ -2,6 +2,7 @@ package com.chua.common.support.storage.metadata;
 
 import lombok.Builder;
 import lombok.Data;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文件元数据。
@@ -61,7 +62,7 @@ public class Metadata {
      * @return 完整 键
      */
     public String getKey() {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             return name;
         }
         return path.endsWith("/") ? path + name : path + "/" + name;

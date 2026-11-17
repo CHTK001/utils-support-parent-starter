@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HMAC (Hash-based Message Authentication Code) 算法枚举。
@@ -115,7 +116,7 @@ public enum HmacAlgorithm {
   * @return 包含对应枚举实例的 Optional，如果未找到则返回空
   */
  public static Optional<HmacAlgorithm> fromValue(String name) {
- if (name == null || name.isEmpty()) {
+ if (StringUtils.isEmpty(name)) {
  return Optional.empty();
  }
  return Optional.ofNullable(ALGORITHM_MAP.get(name));

@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SOFA-RPC 服务端实现。
@@ -89,11 +90,11 @@ public class SofaRpcServer implements RpcServer {
      * @return 注册文件绝对路径
      */
     static String localRegistryFile(String appName) {
-        String safe = (appName == null || appName.isEmpty()) ? "default" : appName;
+        String safe = (StringUtils.isEmpty(appName)) ? "default" : appName;
         String dir = System.getProperty("sofa.rpc.registry.file.dir");
         if (dir == null || dir.trim().isEmpty()) {
             String userHome = System.getProperty("user.home");
-            dir = userHome != null && !userHome.isEmpty()
+            dir = StringUtils.isNotEmpty(userHome)
                     ? Paths.get(userHome, ".sofa-rpc").toString()
                     : System.getProperty("java.io.tmpdir", ".");
         }

@@ -3,6 +3,7 @@ package com.chua.common.support.ai.rule;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 规则类型。
@@ -52,7 +53,7 @@ public enum RuleType {
     public RuleBuilder builder(String id) {
         String key = name().toLowerCase();
         RuleBuilder builder = null;
-        if (id != null && !id.isBlank()) {
+        if (StringUtils.isNotBlank(id)) {
             builder = ServiceProvider.of(RuleBuilder.class).getNewExtension(key, id);
             if (builder == null) {
                 builder = ServiceProvider.of(RuleBuilder.class).getNewExtension(key);
@@ -67,7 +68,7 @@ public enum RuleType {
         if (builder.type() != this) {
             throw new RuleException("规则构造器类型不匹配: 期望 " + this + "，实际 " + builder.type());
         }
-        if (id != null && !id.isBlank()) {
+        if (StringUtils.isNotBlank(id)) {
             builder.id(id);
         }
         return builder;
@@ -99,7 +100,7 @@ public enum RuleType {
         if (builder.type() != this) {
             throw new RuleException("规则构造器类型不匹配: 期望 " + this + "，实际 " + builder.type());
         }
-        if (id != null && !id.isBlank()) {
+        if (StringUtils.isNotBlank(id)) {
             builder.id(id);
         }
         return builder;

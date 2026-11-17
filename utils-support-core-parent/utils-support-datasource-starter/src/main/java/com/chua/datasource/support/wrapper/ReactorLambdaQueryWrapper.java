@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 响应式 Lambda 查询包装器，条件 API 与 {@code LambdaQueryWrapper} 一致，
@@ -248,10 +249,10 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      * @return this
      */
     private ReactorLambdaQueryWrapper<T> addJoin(String joinType, String table, String alias, String onCondition) {
-        if (table == null || table.isBlank()) {
+        if (StringUtils.isBlank(table)) {
             throw new IllegalArgumentException("JOIN 表名不能为空");
         }
-        if (onCondition == null || onCondition.isBlank()) {
+        if (StringUtils.isBlank(onCondition)) {
             throw new IllegalArgumentException("JOIN ON 条件不能为空");
         }
         // 表名允许 "表名 别名" 两段写法，各段均须为合法标识符
@@ -263,7 +264,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (tokens.length == 2) {
             checkIdentifier(tokens[1]);
         }
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             checkIdentifier(alias);
         }
         joins.add(new JoinClause(joinType, table.trim(), alias, onCondition));
@@ -281,14 +282,14 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      * @return this
      */
     public ReactorLambdaQueryWrapper<T> selectFunc(String function, String column, String alias) {
-        if (function == null || function.isBlank()) {
+        if (StringUtils.isBlank(function)) {
             throw new IllegalArgumentException("聚合函数名不能为空");
         }
         checkIdentifier(function);
-        String expr = column == null || column.isBlank() || "*".equals(column)
+        String expr = StringUtils.isBlank(column) || "*".equals(column)
                 ? function + "(*)"
                 : function + "(" + checkIdentifier(column) + ")";
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             expr = expr + " AS " + checkIdentifier(alias);
         }
         selectColumns.add(expr);
@@ -359,7 +360,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      * @return this
      */
     public ReactorLambdaQueryWrapper<T> having(String condition, Object... params) {
-        if (condition == null || condition.isBlank()) {
+        if (StringUtils.isBlank(condition)) {
             throw new IllegalArgumentException("HAVING 条件不能为空");
         }
         this.havingClause = condition;

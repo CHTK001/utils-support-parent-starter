@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.sherpa;
 
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 模型的使用形态。
@@ -103,7 +104,7 @@ public enum SherpaUsage {
      * @return 枚举项；无法识别返回 {@code null}
      */
     public static SherpaUsage of(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         String normalized = text.trim().toLowerCase(Locale.ROOT);

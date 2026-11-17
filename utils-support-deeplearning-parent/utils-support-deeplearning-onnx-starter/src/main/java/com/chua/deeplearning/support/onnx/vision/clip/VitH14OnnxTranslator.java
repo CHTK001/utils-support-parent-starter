@@ -18,6 +18,7 @@ import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * vit-H-14 ONNX 图像特征提取 Translator。
@@ -172,7 +173,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**

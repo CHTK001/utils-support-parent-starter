@@ -3,6 +3,7 @@ package com.chua.common.support.lang.date;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.time.LocalDateTime;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 标准 ISO 日期时间解析器。
@@ -19,7 +20,7 @@ public class StandardDateTimeParser implements DateTimeParser {
 
     @Override
     public LocalDateTime parse(String timeStr) {
-        if (timeStr == null || timeStr.isEmpty()) {
+        if (StringUtils.isEmpty(timeStr)) {
             return null;
         }
         try {

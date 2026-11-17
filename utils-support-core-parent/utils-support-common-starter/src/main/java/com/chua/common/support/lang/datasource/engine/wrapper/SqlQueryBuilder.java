@@ -10,6 +10,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL 文本查询构建器，提供"拼接即执行"的链式查询能力。
@@ -214,14 +215,14 @@ public final class SqlQueryBuilder {
      * @throws IllegalArgumentException 函数名非法时抛出
      */
     public SqlQueryBuilder selectFunc(String function, String column, String alias) {
-        if (function == null || function.isBlank()) {
+        if (StringUtils.isBlank(function)) {
             throw new IllegalArgumentException("聚合函数名不能为空");
         }
         checkIdentifier(function, "聚合函数名");
-        String expr = column == null || column.isBlank() || "*".equals(column)
+        String expr = StringUtils.isBlank(column) || "*".equals(column)
                 ? function + "(*)"
                 : function + "(" + checkIdentifier(column, "聚合列名") + ")";
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             expr = expr + " AS " + checkIdentifier(alias, "聚合别名");
         }
         selectColumns.add(expr);
@@ -298,7 +299,7 @@ public final class SqlQueryBuilder {
      */
     private SqlQueryBuilder from(String name, String alias, String kind) {
         this.source = checkIdentifier(name, kind.equals(KIND_VIEW) ? "视图名" : "表名");
-        this.sourceAlias = alias == null || alias.isBlank() ? null : checkIdentifier(alias, "来源别名");
+        this.sourceAlias = StringUtils.isBlank(alias) ? null : checkIdentifier(alias, "来源别名");
         this.sourceKind = kind;
         return this;
     }
@@ -394,10 +395,10 @@ public final class SqlQueryBuilder {
      * @return this
      */
     private SqlQueryBuilder addJoin(String joinType, String table, String alias, String onCondition) {
-        if (table == null || table.isBlank()) {
+        if (StringUtils.isBlank(table)) {
             throw new IllegalArgumentException("JOIN 表名不能为空");
         }
-        if (onCondition == null || onCondition.isBlank()) {
+        if (StringUtils.isBlank(onCondition)) {
             throw new IllegalArgumentException("JOIN ON 条件不能为空");
         }
         // 表名允许"表名 别名"两段写法，各段均须为合法标识符
@@ -409,7 +410,7 @@ public final class SqlQueryBuilder {
         if (tokens.length == 2) {
             checkIdentifier(tokens[1], "JOIN 别名");
         }
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             checkIdentifier(alias, "JOIN 别名");
         }
         joins.add(new JoinClause(joinType, table.trim(), alias, onCondition));
@@ -465,7 +466,7 @@ public final class SqlQueryBuilder {
      */
     private SqlQueryBuilder appendCondition(String operator, String condition, Object[] values,
                                             boolean requireExisting) {
-        if (condition == null || condition.isBlank()) {
+        if (StringUtils.isBlank(condition)) {
             throw new IllegalArgumentException("WHERE 条件不能为空");
         }
         if (requireExisting && whereFragments.isEmpty()) {
@@ -505,7 +506,7 @@ public final class SqlQueryBuilder {
      * @throws IllegalArgumentException 条件为空时抛出
      */
     public SqlQueryBuilder having(String condition, Object... params) {
-        if (condition == null || condition.isBlank()) {
+        if (StringUtils.isBlank(condition)) {
             throw new IllegalArgumentException("HAVING 条件不能为空");
         }
         this.havingClause = condition;
@@ -777,7 +778,7 @@ public final class SqlQueryBuilder {
      * @throws IllegalArgumentException 标识符为空或不在白名单内时抛出
      */
     private static String checkIdentifier(String name, String label) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         if (!SqlName.isSafe(name)) {

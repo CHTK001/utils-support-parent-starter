@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信内存提取结果 → 明文 SQLite 库重建器。
@@ -249,7 +250,7 @@ public final class WechatMemoryRebuilder {
                 String[] values = record.values();
                 for (int i = 0; i < columns.size(); i++) {
                     String value = i < values.length ? values[i] : null;
-                    if (i == rowidColumn && (value == null || value.isEmpty()) && record.rowid() > 0) {
+                    if (i == rowidColumn && (StringUtils.isEmpty(value)) && record.rowid() > 0) {
                         value = String.valueOf(record.rowid());
                     }
                     statement.setString(i + 1, value);

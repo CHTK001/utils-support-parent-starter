@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Vercel AI SDK v5「UI Message Stream」解析器
@@ -74,7 +75,7 @@ final class InceptionStreamParser {
      * @param chunk 原始分片
      */
     void feed(String chunk) {
-        if (chunk == null || chunk.isEmpty()) {
+        if (StringUtils.isEmpty(chunk)) {
             return;
         }
         buffer.append(chunk);
@@ -161,7 +162,7 @@ final class InceptionStreamParser {
                 if (delta == null) {
                     delta = asString(event.get("textDelta"));
                 }
-                if (delta != null && !delta.isEmpty()) {
+                if (StringUtils.isNotEmpty(delta)) {
                     listener.onText(delta);
                 }
             }
@@ -170,7 +171,7 @@ final class InceptionStreamParser {
                 if (delta == null) {
                     delta = asString(event.get("textDelta"));
                 }
-                if (delta != null && !delta.isEmpty()) {
+                if (StringUtils.isNotEmpty(delta)) {
                     listener.onReasoning(delta);
                 }
             }

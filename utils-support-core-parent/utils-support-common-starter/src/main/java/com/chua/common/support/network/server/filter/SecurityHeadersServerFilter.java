@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 安全响应头过滤器。
@@ -189,20 +190,20 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
             response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
         }
         String frameOptions = config.getFrameOptions();
-        if (frameOptions != null && !frameOptions.isBlank()) {
+        if (StringUtils.isNotBlank(frameOptions)) {
             response.setHeader(HEADER_FRAME_OPTIONS, frameOptions);
         }
         String referrerPolicy = config.getReferrerPolicy();
-        if (referrerPolicy != null && !referrerPolicy.isBlank()) {
+        if (StringUtils.isNotBlank(referrerPolicy)) {
             response.setHeader(HEADER_REFERRER_POLICY, referrerPolicy);
         }
         if (config.isHstsEnabled()) {
             String hsts = config.getHstsValue();
             response.setHeader(HEADER_HSTS,
-                    hsts == null || hsts.isBlank() ? VALUE_HSTS : hsts);
+                    StringUtils.isBlank(hsts) ? VALUE_HSTS : hsts);
         }
         String frameAncestors = config.getFrameAncestors();
-        if (frameAncestors != null && !frameAncestors.isBlank()) {
+        if (StringUtils.isNotBlank(frameAncestors)) {
             response.setHeader(HEADER_CSP, "frame-ancestors " + frameAncestors.trim());
         }
     }

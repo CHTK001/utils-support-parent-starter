@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AI 图片与视频任务 URL 映射过滤器。
@@ -283,10 +284,10 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     private void handleQueryTask(ServerRequest req, ServerResponse res, String expectedType) {
         try {
             String taskId = req.getParam(PARAM_TASK_ID);
-            if (taskId == null || taskId.isBlank()) {
+            if (StringUtils.isBlank(taskId)) {
                 taskId = req.getParam(PARAM_ID);
             }
-            if (taskId == null || taskId.isBlank()) {
+            if (StringUtils.isBlank(taskId)) {
                 writeFail(res, "taskId is required");
                 return;
             }

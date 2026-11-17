@@ -14,6 +14,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 任务运行器门面 — 轻量级 DAG 任务编排 DSL。
@@ -154,7 +155,7 @@ public class TaskRunner {
      * @return 运行器实例
      */
     public static TaskRunner of(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("运行名称不能为空");
         }
         return new TaskRunner(name);
@@ -218,7 +219,7 @@ public class TaskRunner {
      * @return 当前运行器
      */
     public TaskRunner provider(String providerName) {
-        if (providerName == null || providerName.isBlank()) {
+        if (StringUtils.isBlank(providerName)) {
             throw new IllegalArgumentException("providerName 不能为空");
         }
         this.providerName = providerName;

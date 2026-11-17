@@ -268,7 +268,7 @@ public class XpsPreviewProvider implements FileStoragePreviewProvider {
         while (m.find() && sb.length() < MAX_PAGE_CHARS) {
             String tag = m.group();
             String uni = attr(tag, "UnicodeString");
-            if (uni == null || uni.isEmpty()) {
+            if (StringUtils.isEmpty(uni)) {
                 continue;
             }
             Double y = doubleAttr(tag, "OriginY");

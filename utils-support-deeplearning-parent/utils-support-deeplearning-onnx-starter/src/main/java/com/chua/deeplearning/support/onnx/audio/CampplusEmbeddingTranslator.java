@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CAM++ 声纹嵌入提取翻译器（纯 ONNX Runtime 实现，192维）。
@@ -154,7 +155,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
      * @return resolve模型路径的结果
      */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) {
+        if (StringUtils.isBlank(pathStr)) {
             return null;
         }
         Path abs = Path.of(pathStr);

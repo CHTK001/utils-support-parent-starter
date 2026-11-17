@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -92,13 +93,13 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
                 String l = lang == null ? null : lang.toString().trim();
                 String c = country == null ? null : country.toString().trim();
                 String v = variant == null ? null : variant.toString().trim();
-                if (l == null || l.isEmpty()) {
+                if (StringUtils.isEmpty(l)) {
                     return null;
                 }
-                if (c == null || c.isEmpty()) {
+                if (StringUtils.isEmpty(c)) {
                     return new Locale(l.toLowerCase());
                 }
-                if (v == null || v.isEmpty()) {
+                if (StringUtils.isEmpty(v)) {
                     return new Locale(l.toLowerCase(), c.toUpperCase());
                 }
                 return new Locale(l.toLowerCase(), c.toUpperCase(), v);

@@ -4,6 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import lombok.Getter;
 import lombok.Setter;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 同步通道配置：描述「连到谁」，与「怎么连」解耦。
@@ -93,7 +94,7 @@ public class SyncSetting {
      * @return 生效的 scatterId；服务名也为空时返回 null
      */
     public String effectiveScatterId() {
-        return scatterId == null || scatterId.isBlank() ? serviceName : scatterId;
+        return StringUtils.isBlank(scatterId) ? serviceName : scatterId;
     }
 
     /**
@@ -102,6 +103,6 @@ public class SyncSetting {
      * @return 发现实例与服务名都存在时返回 true
      */
     public boolean isDiscoveryAvailable() {
-        return discovery != null && serviceName != null && !serviceName.isBlank();
+        return discovery != null && StringUtils.isNotBlank(serviceName);
     }
 }

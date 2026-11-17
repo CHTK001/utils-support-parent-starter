@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型级运行参数存储。
@@ -78,7 +79,7 @@ public final class ModelParams {
      * @return 参数表（只读视图，无参数时返回空映射）
      */
     public static Map<String, Object> get(String modelId) {
-        if (modelId == null || modelId.isBlank()) {
+        if (StringUtils.isBlank(modelId)) {
             return Collections.emptyMap();
         }
         Map<String, Object> params = STORE.get(modelId);
@@ -94,7 +95,7 @@ public final class ModelParams {
      * @return 参数值
      */
     public static Object get(String modelId, String key, Object defaultValue) {
-        if (modelId == null || modelId.isBlank() || key == null) {
+        if (StringUtils.isBlank(modelId) || key == null) {
             return defaultValue;
         }
         Map<String, Object> params = STORE.get(modelId);
@@ -116,7 +117,7 @@ public final class ModelParams {
     public static String deviceOf(String modelId) {
         if (modelId != null) {
             String override = DEVICE_OVERRIDES.get(modelId);
-            if (override != null && !override.isBlank()) {
+            if (StringUtils.isNotBlank(override)) {
                 return override;
             }
         }
@@ -136,10 +137,10 @@ public final class ModelParams {
      * @param device  设备名（cpu / gpu / cuda）；空值或 auto 清除覆盖
      */
     public static void setDeviceOverride(String modelId, String device) {
-        if (modelId == null || modelId.isBlank()) {
+        if (StringUtils.isBlank(modelId)) {
             return;
         }
-        if (device == null || device.isBlank() || "auto".equalsIgnoreCase(device.trim())) {
+        if (StringUtils.isBlank(device) || "auto".equalsIgnoreCase(device.trim())) {
             DEVICE_OVERRIDES.remove(modelId);
             return;
         }
@@ -171,7 +172,7 @@ public final class ModelParams {
      * @param params  参数表；为空 表示清空该模型参数
      */
     public static void put(String modelId, Map<String, Object> params) {
-        if (modelId == null || modelId.isBlank()) {
+        if (StringUtils.isBlank(modelId)) {
             return;
         }
         if (params == null || params.isEmpty()) {
@@ -188,7 +189,7 @@ public final class ModelParams {
      * @param params  待合并参数
      */
     public static void putAll(String modelId, Map<String, Object> params) {
-        if (modelId == null || modelId.isBlank() || params == null || params.isEmpty()) {
+        if (StringUtils.isBlank(modelId) || params == null || params.isEmpty()) {
             return;
         }
         STORE.compute(modelId, (key, old) -> {
@@ -262,7 +263,7 @@ public final class ModelParams {
                 setting = String.valueOf(value);
             }
         }
-        if (setting == null || setting.isBlank()) {
+        if (StringUtils.isBlank(setting)) {
             setting = deviceOf(modelId);
         }
         return DeviceSelector.resolve(setting);
@@ -329,7 +330,7 @@ public final class ModelParams {
         int applied = 0;
         for (Map.Entry<String, Object> item : options.entrySet()) {
             String key = item.getKey();
-            if (key == null || key.isBlank()) {
+            if (StringUtils.isBlank(key)) {
                 continue;
             }
             List<String> candidates = FIELD_ALIASES.get(key);

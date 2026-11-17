@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 sherpa-onnx 官方 JNI 的本地语音合成客户端。
@@ -147,7 +148,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
         if (text != null) {
             this.text = text;
         }
-        if (this.text == null || this.text.isBlank()) {
+        if (StringUtils.isBlank(this.text)) {
             throw new SherpaException("待合成文本为空");
         }
         SherpaSynthesizer engine = ensureSynthesizer();
@@ -163,7 +164,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
         if (synthesizer == null) {
             synchronized (this) {
                 if (synthesizer == null) {
-                    String modelRef = model != null && !model.isBlank() ? model : "vits";
+                    String modelRef = StringUtils.isNotBlank(model) ? model : "vits";
                     String family = resolveFamilyHint();
                     synthesizer = SherpaSynthesizer.builder()
                             .model(stripFamilyPrefix(modelRef))
@@ -193,7 +194,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
             }
         }
         String format = setting == null ? null : setting.getFormat();
-        if (format != null && !format.isBlank()) {
+        if (StringUtils.isNotBlank(format)) {
             String normalized = format.trim().toLowerCase(Locale.ROOT);
             if (SherpaSynthesizer.FAMILY_VITS.equals(normalized)
                     || SherpaSynthesizer.FAMILY_MATCHA.equals(normalized)
@@ -233,7 +234,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
      * @return 说话人 ID
      */
     private int resolveSpeakerId(SherpaSynthesizer engine) {
-        if (voice == null || voice.isBlank()) {
+        if (StringUtils.isBlank(voice)) {
             // 未指定音色时用推荐音色：多说话人模型 0 号音色可懂度较差，
             // 直接取 0 会导致下游 ASR 识别率明显偏低。
             return engine.recommendedSpeakerId();
@@ -384,7 +385,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
     public List<ModelDefinition> models() {
         List<ModelDefinition> result = new ArrayList<>();
         String root = System.getProperty(SherpaModelResolver.PROP_MODEL_DIR);
-        if (root == null || root.isBlank()) {
+        if (StringUtils.isBlank(root)) {
             return result;
         }
         Path rootDir = Path.of(root);

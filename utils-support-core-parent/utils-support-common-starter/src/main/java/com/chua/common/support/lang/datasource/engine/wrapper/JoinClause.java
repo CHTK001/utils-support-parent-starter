@@ -1,4 +1,5 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JOIN 关联子句描述，记录一次表关联的类型、目标表、别名与 ON 条件。
@@ -27,7 +28,7 @@ public record JoinClause(String joinType, String table, String alias, String onC
      * @return 表片段，如 {@code "user u"}
      */
     public String renderTable() {
-        if (alias == null || alias.isBlank()) {
+        if (StringUtils.isBlank(alias)) {
             return table;
         }
         return table + " " + alias;

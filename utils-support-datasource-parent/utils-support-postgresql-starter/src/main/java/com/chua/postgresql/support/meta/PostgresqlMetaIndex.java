@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.meta.IndexCreateBuilder;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaIndex;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 索引元数据操作。
@@ -265,7 +266,7 @@ public class PostgresqlMetaIndex extends AbstractMetaIndex {
             sql.append(" (").append(String.join(", ", quoted)).append(")");
             PostgresqlMetaData.execute(metaIndex.metaData, "创建索引 " + indexName, sql.toString(),
                     PostgresqlMetaData.args());
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 PostgresqlMetaData.execute(metaIndex.metaData, "注释索引 " + indexName,
                         "COMMENT ON INDEX " + PostgresqlMetaData.quote(indexName) + " IS '"
                                 + PostgresqlMetaData.escapeSql(comment) + "'", PostgresqlMetaData.args());

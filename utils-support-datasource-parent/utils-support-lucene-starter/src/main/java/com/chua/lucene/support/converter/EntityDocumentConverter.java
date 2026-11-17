@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 实体对象与 Lucene 文档 之间的转换器。
@@ -107,7 +108,7 @@ public final class EntityDocumentConverter {
         } else if (value instanceof Enum<?> en) {
             text = en.name();
         }
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return;
         }
         if (!content.isEmpty()) {

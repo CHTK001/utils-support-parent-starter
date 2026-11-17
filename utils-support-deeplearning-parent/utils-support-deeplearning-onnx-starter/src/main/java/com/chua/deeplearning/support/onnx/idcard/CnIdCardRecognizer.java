@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 中国居民身份证识别门面
@@ -100,7 +101,7 @@ public class CnIdCardRecognizer {
                 BufferedImage crop = srcImg.getSubimage(x1, y1, x2 - x1, y2 - y1);
                 byte[] cropped = toByteArray(crop);
                 String text = recognizeText(cropped);
-                if (text == null || text.isBlank()) {
+                if (StringUtils.isBlank(text)) {
                     log.warn("[CnIdCard] OCR 未识别到文字");
                     continue;
                 }

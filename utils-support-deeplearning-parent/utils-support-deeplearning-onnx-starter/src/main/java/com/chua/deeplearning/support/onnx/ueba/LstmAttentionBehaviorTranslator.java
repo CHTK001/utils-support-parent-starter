@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 用户操作行为序列分析 LSTM/GRU + Attention Translator。
@@ -166,7 +167,7 @@ public class LstmAttentionBehaviorTranslator {
         if (numClasses <= 0) {
             throw new IllegalArgumentException("numClasses 必须大于 0, 实际: " + numClasses);
         }
-        if (modelFile == null || modelFile.isBlank()) {
+        if (StringUtils.isBlank(modelFile)) {
             throw new IllegalArgumentException("modelFile 不能为 null 或空字符串");
         }
         this.seqLen = seqLen;
@@ -213,7 +214,7 @@ public class LstmAttentionBehaviorTranslator {
             }
         }
         String dir = System.getProperty(MODEL_DIR_PROPERTY);
-        if (dir != null && !dir.isBlank()) {
+        if (StringUtils.isNotBlank(dir)) {
             Path p = Paths.get(dir).resolve(modelFile);
             if (Files.isRegularFile(p)) {
                 return p;

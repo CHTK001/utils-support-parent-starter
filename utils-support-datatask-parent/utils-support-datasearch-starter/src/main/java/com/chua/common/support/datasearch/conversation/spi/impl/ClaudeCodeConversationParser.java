@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Claude 编码 conversation parser.
@@ -150,7 +151,7 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
      * @return 结果数值
      */
     private long parseInstantToMillis(String ts) {
-        if (ts == null || ts.isBlank()) {
+        if (StringUtils.isBlank(ts)) {
             return 0L;
         }
         try {

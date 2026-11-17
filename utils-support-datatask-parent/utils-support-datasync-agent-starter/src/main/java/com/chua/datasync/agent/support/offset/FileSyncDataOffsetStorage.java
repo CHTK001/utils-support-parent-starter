@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文件系统偏移量存储。
@@ -69,7 +70,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
             return defaultValue;
         }
         Path file = storageDir.resolve(fileNameOf(sourceId, mappingId));
-        if (!Files.exists(file) && mappingId != null && !mappingId.isBlank()) {
+        if (!Files.exists(file) && StringUtils.isNotBlank(mappingId)) {
             // 兼容升级前只有源级水位的存量数据：映射级文件不存在时回落到源级
             file = storageDir.resolve(fileNameOf(sourceId, null));
         }
@@ -99,7 +100,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
      * @return 文件名
      */
     private static String fileNameOf(String sourceId, String mappingId) {
-        if (mappingId == null || mappingId.isBlank()) {
+        if (StringUtils.isBlank(mappingId)) {
             return sourceId + ".offset";
         }
         return sourceId + "__" + mappingId + ".offset";

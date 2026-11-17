@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 路径遍历防护过滤器，阻止目录穿越攻击。
@@ -92,7 +93,7 @@ public class PathTraversalServerFilter implements ServerFilter {
      * @return 明确越界时返回 {@code true}
      */
     private boolean isOutsideRoot(String path) {
-        if (rootPath == null || rootPath.isEmpty()) {
+        if (StringUtils.isEmpty(rootPath)) {
             return false;
         }
         try {

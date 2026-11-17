@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WeVisDoc 远程翻译器：通过 HTTP 调用 Python 推理服务，将 Markdown 解析结果
@@ -72,7 +73,7 @@ public class WevisdocRemoteTranslator implements Translator<Image, DetectedObjec
         // 从上下文附件获取 Markdown
         Object mdObj = ctx.getAttachment(MD_ATTACHMENT);
         String markdown = (String) mdObj;
-        if (markdown == null || markdown.isEmpty()) {
+        if (StringUtils.isEmpty(markdown)) {
             return new DetectedObjects(List.of(), List.of(), List.of());
         }
 

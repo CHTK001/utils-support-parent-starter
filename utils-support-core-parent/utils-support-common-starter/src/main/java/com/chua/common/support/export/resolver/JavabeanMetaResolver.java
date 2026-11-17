@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 反射兜底解析器 —— order = -100，最后执行。
@@ -108,7 +109,7 @@ public class JavabeanMetaResolver implements MetaResolver {
      * @return 标题
      */
     public static String humanize(String property) {
-        if (property == null || property.isEmpty()) {
+        if (StringUtils.isEmpty(property)) {
             return "";
         }
         StringBuilder sb = new StringBuilder(property.length() + 8);

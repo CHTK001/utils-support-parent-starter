@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * qqwry 纯真 IP 数据库查询器。
@@ -147,7 +148,7 @@ public class QQWryReader implements Closeable {
      * @param area 区域描述字符串
      */
     private void parseRegion(IpLocation loc, String area) {
-        if (area == null || area.isEmpty()) {
+        if (StringUtils.isEmpty(area)) {
             return;
         }
         String[] parts = area.split("\\s+");

@@ -6,6 +6,7 @@ import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sqlite 更新_hook CDC 封装。
@@ -166,7 +167,7 @@ public final class SqliteHookConnection implements AutoCloseable {
      * @return SqliteChangeEvent 对象
      */
     static SqliteChangeEvent parseEvent(String json) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -180,7 +181,7 @@ public final class SqliteHookConnection implements AutoCloseable {
                 case "DELETE"  -> eventType = SqliteChangeEvent.Type.DELETE;
                 default        -> eventType = SqliteChangeEvent.Type.UPDATE;
             }
-            String safeTable = (table == null || table.isEmpty()) ? "(unknown)" : table;
+            String safeTable = (StringUtils.isEmpty(table)) ? "(unknown)" : table;
             return switch (eventType) {
                 case INSERT  -> SqliteChangeEvent.insert(safeTable, rowId);
                 case UPDATE  -> SqliteChangeEvent.update(safeTable, rowId);

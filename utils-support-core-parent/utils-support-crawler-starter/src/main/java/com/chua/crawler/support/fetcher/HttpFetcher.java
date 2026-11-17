@@ -156,7 +156,7 @@ public class HttpFetcher implements SpiderFetcher {
             return "null";
         }
         String message = e.getMessage();
-        return message == null || message.isBlank()
+        return StringUtils.isBlank(message)
                 ? e.getClass().getSimpleName()
                 : e.getClass().getSimpleName() + ": " + message;
     }

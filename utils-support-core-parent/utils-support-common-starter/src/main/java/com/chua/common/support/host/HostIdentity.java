@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 主机身份编解码：把一级不可变信息压成一个可校验的唯一 ID。
@@ -252,7 +253,7 @@ public final class HostIdentity {
      */
     private static String salt() {
         String custom = System.getProperty(SALT_PROPERTY);
-        return custom == null || custom.isBlank() ? DEFAULT_SALT : custom.trim();
+        return StringUtils.isBlank(custom) ? DEFAULT_SALT : custom.trim();
     }
 
     /**

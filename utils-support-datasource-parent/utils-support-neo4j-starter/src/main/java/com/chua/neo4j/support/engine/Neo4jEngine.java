@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Neo4j 图数据库引擎实现，通过 螺栓 协议连接 Neo4j 执行 Cypher 查询。
@@ -871,7 +872,7 @@ public class Neo4jEngine implements Engine {
      * @return 转义后的标签
      */
     static String safeLabel(String label) {
-        if (label == null || label.isEmpty()) {
+        if (StringUtils.isEmpty(label)) {
             throw new IllegalArgumentException("节点标签不能为空");
         }
         return "`" + label.replace("`", "``") + "`";

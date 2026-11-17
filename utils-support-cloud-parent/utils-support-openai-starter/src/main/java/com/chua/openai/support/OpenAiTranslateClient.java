@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenAI 翻译客户端
@@ -332,7 +333,7 @@ public class OpenAiTranslateClient implements TranslateClient {
 
             // 配置 HTTP 代理
             String proxyStr = setting.getProxy();
-            if (proxyStr != null && !proxyStr.isBlank()) {
+            if (StringUtils.isNotBlank(proxyStr)) {
                 clientBuilder.proxy(resolveProxy(proxyStr));
             }
             // 配置自定义请求头（认证头由上面统一处理，同名键跳过以免重复）
@@ -490,7 +491,7 @@ public class OpenAiTranslateClient implements TranslateClient {
     protected String buildPrompt(String text) {
         String safeText = text == null ? "" : text;
         String instruction;
-        if (prompt != null && !prompt.isBlank()) {
+        if (StringUtils.isNotBlank(prompt)) {
             instruction = prompt;
         } else if (notBlank(sourceLanguage) && notBlank(targetLanguage)) {
             instruction = "Translate the following text from " + sourceLanguage
@@ -536,7 +537,7 @@ public class OpenAiTranslateClient implements TranslateClient {
      */
     protected String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = defaultBaseUrl();
         }
         if (url.endsWith("/")) {
@@ -552,7 +553,7 @@ public class OpenAiTranslateClient implements TranslateClient {
      * @return Proxy 对象，解析失败时返回 空
      */
     protected static Proxy resolveProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return null;
         }
         Proxy.Type proxyType;
@@ -605,7 +606,7 @@ public class OpenAiTranslateClient implements TranslateClient {
      * @return true 表示非空且非空白
      */
     private static boolean notBlank(String value) {
-        return value != null && !value.isBlank();
+        return StringUtils.isNotBlank(value);
     }
 
     @Override

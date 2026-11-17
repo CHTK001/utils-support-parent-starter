@@ -6,6 +6,7 @@ import com.chua.common.support.language.tokenizer.Word;
 import com.chua.common.support.spi.annotations.Spi;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * LAC 中文分词 SPI 实现（ONNX 后端）。
@@ -66,7 +67,7 @@ public class LacTokenizer implements Tokenizer {
 
     @Override
     public List<Word> segments(String word) {
-        if (word == null || word.isEmpty()) {
+        if (StringUtils.isEmpty(word)) {
             return Collections.emptyList();
         }
         String[][] rows = shared().translate(word);

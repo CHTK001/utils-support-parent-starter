@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 豆包逆向代理对话客户端。
@@ -531,7 +532,7 @@ public class DoubaoProxyChatClient implements ChatClient {
 */
     @Override
 public void close() {
-        if (conversationId != null && !conversationId.isEmpty()) {
+        if (StringUtils.isNotEmpty(conversationId)) {
             session.deleteConversation(conversationId);
         }
         session.close();
@@ -559,7 +560,7 @@ public void close() {
         JsonObject completionOption = JsonObject.create()
                 .fluent("is_regen", false)
                 .fluent("with_suggest", true)
-                .fluent("need_create_conversation", conversationId == null || conversationId.isEmpty())
+                .fluent("need_create_conversation", StringUtils.isEmpty(conversationId))
                 .fluent("launch_stage", 1)
                 .fluent("is_replace", false)
                 .fluent("is_delete", false)
@@ -627,7 +628,7 @@ JsonObject content = JsonObject.of("text", prompt);
                 .fluent("attachments", attachments)
                 .fluent("references", new JsonArray());
 
-        if (actualSystemText != null && !actualSystemText.isEmpty()) {
+        if (StringUtils.isNotEmpty(actualSystemText)) {
             message.fluent("system", actualSystemText);
         }
 
@@ -652,7 +653,7 @@ JsonObject content = JsonObject.of("text", prompt);
                 .fluent("evaluate_option", JsonObject.of("web_ab_params", ""))
                 .fluent("local_conversation_id", localId)
                 .fluent("local_message_id", localId)
-                .fluentPut(conversationId != null && !conversationId.isEmpty(),
+                .fluentPut(StringUtils.isNotEmpty(conversationId),
                         "conversation_id", conversationId);
 
 return body.toJSONString();
@@ -697,7 +698,7 @@ return body.toJSONString();
                 + "?aid=" + DoubaoConstants.AID + "&device_platform=" + DoubaoConstants.DEVICE_PLATFORM;
 
         JsonObject contentObj = JsonObject.of("text", prompt);
-        if (ratio != null && !ratio.isEmpty()) {
+        if (StringUtils.isNotEmpty(ratio)) {
             contentObj.fluent("ratio", ratio);
         }
 
@@ -712,7 +713,7 @@ return body.toJSONString();
                         .fluent("skill_id", "3")
                         .fluent("skill_id_no_default", "3"));
 
-        if (refImageKey != null && !refImageKey.isEmpty()) {
+        if (StringUtils.isNotEmpty(refImageKey)) {
             JsonArray refAttachments = new JsonArray();
             refAttachments.add(JsonObject.create()
                     .fluent("type", "image")
@@ -789,10 +790,10 @@ return parseImageResult(result, prompt);
                 + "?aid=" + DoubaoConstants.AID + "&device_platform=" + DoubaoConstants.DEVICE_PLATFORM;
 
         JsonObject contentObj = JsonObject.of("text", prompt);
-        if (ratio != null && !ratio.isEmpty()) {
+        if (StringUtils.isNotEmpty(ratio)) {
             contentObj.fluent("ratio", ratio);
         }
-        if (cameraMovement != null && !cameraMovement.isEmpty()) {
+        if (StringUtils.isNotEmpty(cameraMovement)) {
             contentObj.fluent("camera_movement", cameraMovement);
         }
 
@@ -807,7 +808,7 @@ return parseImageResult(result, prompt);
                         .fluent("skill_id", "17")
                         .fluent("skill_id_no_default", "17"));
 
-        if (refImageKey != null && !refImageKey.isEmpty()) {
+        if (StringUtils.isNotEmpty(refImageKey)) {
             JsonArray refAttachments = new JsonArray();
             refAttachments.add(JsonObject.create().fluent("type", "image").fluent("key", refImageKey));
             message.fluent("attachments", refAttachments);
@@ -1011,17 +1012,17 @@ return parseImageResult(result, prompt);
                     for (Object item : dataList) {
                         if (item instanceof Map<?, ?> v) {
                             String videoUrl = getStr(v, "video_url", "url");
-                            if (videoUrl == null || videoUrl.isEmpty()) {
+                            if (StringUtils.isEmpty(videoUrl)) {
                                 videoUrl = extractVideoUrlFromModel(v);
                             }
                             String coverUrl = getStr(v, "cover_url");
-                            if (coverUrl == null || coverUrl.isEmpty()) {
+                            if (StringUtils.isEmpty(coverUrl)) {
                                 Map<?, ?> cover = getMap(v, "cover");
                                 if (cover != null) {
                                     coverUrl = getStr(cover, "url");
                                 }
                             }
-                            if (videoUrl != null && !videoUrl.isEmpty()) {
+                            if (StringUtils.isNotEmpty(videoUrl)) {
                                 videos.add(new VideoGenerationResult.GeneratedVideo(
                                         videoUrl, coverUrl,
                                         toInt(v, "width"), toInt(v, "height"),

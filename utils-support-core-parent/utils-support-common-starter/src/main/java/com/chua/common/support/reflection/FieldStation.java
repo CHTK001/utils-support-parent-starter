@@ -3,6 +3,7 @@ package com.chua.common.support.reflection;
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 字段访问工具。
@@ -93,7 +94,7 @@ public final class FieldStation {
      * @return 转换后的字段名
      */
     private String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         char first = name.charAt(0);

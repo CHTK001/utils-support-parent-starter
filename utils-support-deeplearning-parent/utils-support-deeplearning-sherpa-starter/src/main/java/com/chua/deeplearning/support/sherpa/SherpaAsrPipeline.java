@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 语音识别一站式门面。
@@ -373,7 +374,7 @@ public final class SherpaAsrPipeline implements AutoCloseable {
      * @return 纠错后文本（失败时与原文本相同）
      */
     private String applyCorrector(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return text;
         }
         ITranslator<Object, Object> translator = ensureCorrector();
@@ -442,7 +443,7 @@ public final class SherpaAsrPipeline implements AutoCloseable {
         if (corrector != null) {
             return corrector;
         }
-        if (correctorModelId == null || correctorModelId.isBlank()) {
+        if (StringUtils.isBlank(correctorModelId)) {
             return null;
         }
         synchronized (this) {
@@ -553,7 +554,7 @@ public final class SherpaAsrPipeline implements AutoCloseable {
      * @return true 表示启用
      */
     public boolean vadEnabled() {
-        return vadModel != null && !vadModel.isBlank();
+        return StringUtils.isNotBlank(vadModel);
     }
 
     /**
@@ -820,7 +821,7 @@ public final class SherpaAsrPipeline implements AutoCloseable {
          * @throws SherpaException 未指定模型或分段参数非法
          */
         public SherpaAsrPipeline build() {
-            if (model == null || model.isBlank()) {
+            if (StringUtils.isBlank(model)) {
                 throw new SherpaException("未指定 sherpa-onnx 模型（model(...) 为必填）");
             }
             if (maxSegmentSeconds <= 0F) {

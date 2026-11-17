@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文本加解密 SPI 的二级接口：传输（流）级加解密。
@@ -69,7 +70,7 @@ public interface StreamCodec extends Codec {
      * @throws IllegalArgumentException 类型不支持或实现加载失败
      */
     static StreamCodec buildStream(String type, String key) {
-        String name = type == null || type.isBlank() ? "aes-gcm" : type.trim().toLowerCase(Locale.ROOT);
+        String name = StringUtils.isBlank(type) ? "aes-gcm" : type.trim().toLowerCase(Locale.ROOT);
         ServiceProvider<StreamCodec> provider = ServiceProvider.of(StreamCodec.class);
         if (!provider.isSupport(name)) {
             throw new IllegalArgumentException("不支持的传输加密类型: " + type);

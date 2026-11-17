@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 SMB 客户端，基于 smb-jna。
@@ -162,7 +163,7 @@ public class SmbClient implements AutoCloseable {
      */
     public SmbClient login() {
         try {
-            AuthenticationContext authCtx = (user == null || user.isEmpty())
+            AuthenticationContext authCtx = (StringUtils.isEmpty(user))
                 ? AuthenticationContext.anonymous()
                 : new AuthenticationContext(user, password.toCharArray(), null);
             session = connection.authenticate(authCtx);
@@ -196,7 +197,7 @@ public class SmbClient implements AutoCloseable {
      * @return cd的结果
      */
     public SmbClient cd(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             return this;
         }
         if (!path.startsWith("/")) {

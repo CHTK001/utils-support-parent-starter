@@ -8,6 +8,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎特征提取客户端抽象基类。
@@ -90,7 +91,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);

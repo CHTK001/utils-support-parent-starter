@@ -1,4 +1,5 @@
 package com.chua.common.support.network.protocol;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -227,13 +228,13 @@ public class ClientSetting {
          * @return 返回值
         */
         public ClientSetting build() {
-            if (host == null || host.isEmpty()) {
+            if (StringUtils.isEmpty(host)) {
                 throw new IllegalArgumentException("host 不能为空");
             }
-            if (username == null || username.isEmpty()) {
+            if (StringUtils.isEmpty(username)) {
                 throw new IllegalArgumentException("username 不能为空");
             }
-            if (password == null || password.isEmpty()) {
+            if (StringUtils.isEmpty(password)) {
                 throw new IllegalArgumentException("password 不能为空");
             }
             return new ClientSetting(this);

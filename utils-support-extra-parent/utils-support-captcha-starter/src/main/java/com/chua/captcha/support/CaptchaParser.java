@@ -3,6 +3,7 @@ package com.chua.captcha.support;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CaptchaConstant;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 验证码解析器接口
@@ -112,7 +113,7 @@ public interface CaptchaParser {
             options.put("proxy", request.getProxy());
         }
         String taskId = submitCaptcha(imageData, options);
-        if (taskId == null || taskId.isEmpty()) {
+        if (StringUtils.isEmpty(taskId)) {
             return CaptchaResponse.builder()
                     .success(false)
                     .errorCode(CaptchaConstant.ERROR_SUBMIT_FAILED)

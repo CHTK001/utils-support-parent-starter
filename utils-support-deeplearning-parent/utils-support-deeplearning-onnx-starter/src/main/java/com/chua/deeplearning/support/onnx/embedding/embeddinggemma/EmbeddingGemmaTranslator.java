@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * embeddinggemma-2 文本只（text-only）文本嵌入 Translator（String → float[768]）。
@@ -210,7 +211,7 @@ public class EmbeddingGemmaTranslator implements ITranslator<String, float[]>, A
      * @return 模型目录
      */
     private Path resolveModelDir() {
-        if (modelFileOrDir != null && !modelFileOrDir.isBlank()) {
+        if (StringUtils.isNotBlank(modelFileOrDir)) {
             Path p = Path.of(modelFileOrDir);
             if (Files.isDirectory(p)) {
                 return p.toAbsolutePath().normalize();

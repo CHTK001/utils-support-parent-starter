@@ -6,6 +6,7 @@ import com.chua.common.support.network.http.HttpMethod;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * curl 命令格式化器。
@@ -186,7 +187,7 @@ public final class CurlFormatter {
         }
 
         // 代理
-        if (proxyHost != null && !proxyHost.isEmpty()) {
+        if (StringUtils.isNotEmpty(proxyHost)) {
             sb.append(" --proxy ").append(quote(proxyHost + ":" + proxyPort));
         }
 

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * BGE 文本嵌入客户端（SPI 提供者="bge"，离线/自动下载通用）。
@@ -221,7 +222,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     @Override
     public float[] embedding(String text) {
         try {
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 throw new IllegalArgumentException("文本不能为空");
             }
             prepare();

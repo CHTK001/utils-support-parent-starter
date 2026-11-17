@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地离线语音识别管线。
@@ -159,7 +160,7 @@ public final class AsrPipeline {
         List<String> parts = Wraps.list(segments.size());
         try (VirtualClient client =
                      VirtualClient.create(engineId, "")) {
-            if (language != null && !language.isBlank()) {
+            if (StringUtils.isNotBlank(language)) {
                 client.language(language);
             }
             for (int i = 0; i < segments.size(); i++) {
@@ -167,7 +168,7 @@ public final class AsrPipeline {
                         "asr-pipeline-", segments.get(i), TARGET_SR);
                 try {
                     String part = client.transcribe(tmp);
-                    if (part != null && !part.isBlank()) {
+                    if (StringUtils.isNotBlank(part)) {
                         parts.add(part.trim());
                         log.info("[AsrPipeline] 段 {}/{} → {}", i + 1, segments.size(), part);
                     }
@@ -386,7 +387,7 @@ public final class AsrPipeline {
          * @return 构建器的结果
          */
         private Builder(String engineId) {
-            if (engineId == null || engineId.isBlank()) {
+            if (StringUtils.isBlank(engineId)) {
                 throw new IllegalArgumentException("engineId 为必选项");
             }
             this.engineId = engineId;

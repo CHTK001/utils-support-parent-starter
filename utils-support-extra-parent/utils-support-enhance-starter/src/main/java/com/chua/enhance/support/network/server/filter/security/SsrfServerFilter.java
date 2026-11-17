@@ -11,6 +11,7 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SSRF 防护过滤器，阻止服务端请求伪造攻击。
@@ -52,7 +53,7 @@ public class SsrfServerFilter implements ServerFilter {
         String domains = config.getInitParameter("ssrf.allowedDomains");
         String block = config.getInitParameter("ssrf.blockInternal");
         // 未显式配置时保持不挂载，避免默认的封锁内网策略拦掉合法的内部调用
-        this.configured = (domains != null && !domains.isEmpty()) || (block != null && !block.isEmpty());
+        this.configured = (StringUtils.isNotEmpty(domains)) || (StringUtils.isNotEmpty(block));
         if (domains != null) {
             for (String domain : domains.split(",")) {
                 String trimmed = domain.trim().toLowerCase();
@@ -80,12 +81,12 @@ public class SsrfServerFilter implements ServerFilter {
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isEmpty() && !isAllowedHost(referer)) {
+        if (StringUtils.isNotEmpty(referer) && !isAllowedHost(referer)) {
             response.end(403, "{\"error\":\"Forbidden\",\"message\":\"非法的 Referer\"}");
             return;
         }
         String origin = request.getHeader("Origin");
-        if (origin != null && !origin.isEmpty() && !isAllowedHost(origin)) {
+        if (StringUtils.isNotEmpty(origin) && !isAllowedHost(origin)) {
             response.end(403, "{\"error\":\"Forbidden\",\"message\":\"非法的 Origin\"}");
             return;
         }

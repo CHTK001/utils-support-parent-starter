@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 密钥保护器（KEK 派生与密钥封装）
@@ -111,7 +112,7 @@ public final class KeyProtector {
             return Arrays.copyOf(setting.getSecret(), setting.getSecret().length);
         }
         String serverId = setting.getServerId();
-        ServerFingerprint fingerprint = (serverId != null && !serverId.isBlank())
+        ServerFingerprint fingerprint = (StringUtils.isNotBlank(serverId))
                 ? ServerFingerprint.of(serverId)
                 : ServerFingerprint.capture();
         StringBuilder sb = new StringBuilder(fingerprint.value());

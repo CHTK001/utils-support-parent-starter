@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 邮件报文（SMTP DATA / POP3 RETR / IMAP FETCH）的 MIME 解析与还原。
@@ -145,7 +146,7 @@ public final class EmailMessageDecoder {
      * @return 解析结果，或 null
      */
     public static Message parse(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         String[] lines = text.split("\\r?\\n", -1);
@@ -266,7 +267,7 @@ public final class EmailMessageDecoder {
      * @return 还原后的值
      */
     public static String decodeHeader(String value) {
-        if (value == null || value.isEmpty() || value.indexOf("=?") < 0) {
+        if (StringUtils.isEmpty(value) || value.indexOf("=?") < 0) {
             return value == null ? "" : value;
         }
         // RFC 2047：相邻编码字之间的空白要丢掉，否则 "=?..?= =?..?=" 会多出一个空格
@@ -291,7 +292,7 @@ public final class EmailMessageDecoder {
      * @return 解码后的字节
      */
     public static byte[] decodeBody(String body, String encoding) {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return new byte[0];
         }
         String enc = encoding == null ? "" : encoding.trim().toLowerCase(Locale.ROOT);
@@ -315,7 +316,7 @@ public final class EmailMessageDecoder {
      * @return 解码后的字节
      */
     public static byte[] decodeQuotedPrintable(String body) {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return new byte[0];
         }
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(body.length());
@@ -399,7 +400,7 @@ public final class EmailMessageDecoder {
      * @param value 头值
      */
     private static void appendHeader(StringBuilder sb, String name, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             sb.append("\n").append(name).append(": ").append(value.trim());
         }
     }
@@ -572,7 +573,7 @@ public final class EmailMessageDecoder {
      * @return 文件名，缺失返回 null
      */
     private static String filenameOf(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
         Matcher matcher = FILENAME.matcher(value);

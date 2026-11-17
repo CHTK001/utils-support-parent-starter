@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Cloudflare DNS 提供者实现。
@@ -132,11 +133,11 @@ public class CloudflareDnsProvider implements DnsProvider {
     public List<DnsRecord> listRecords(String name, String type) {
         ensureReady();
         StringBuilder path = new StringBuilder("/zones/").append(zoneId).append("/dns_records");
-        if (name != null && !name.isEmpty()) {
+        if (StringUtils.isNotEmpty(name)) {
             path.append("?name=").append(name);
         }
-        if (type != null && !type.isEmpty()) {
-            path.append(name != null && !name.isEmpty() ? "&" : "?").append("type=").append(type);
+        if (StringUtils.isNotEmpty(type)) {
+            path.append(StringUtils.isNotEmpty(name) ? "&" : "?").append("type=").append(type);
         }
         Object result = client.get(path.toString());
         List<DnsRecord> records = Wraps.list();
@@ -158,7 +159,7 @@ public class CloudflareDnsProvider implements DnsProvider {
      */
     @SuppressWarnings("unchecked")
     private String resolveZoneId(String zoneName) {
-        if (zoneName == null || zoneName.isEmpty()) {
+        if (StringUtils.isEmpty(zoneName)) {
             throw new IllegalArgumentException("zoneName is required");
         }
         Object result = client.get("/zones?name=" + zoneName);
@@ -214,7 +215,7 @@ public class CloudflareDnsProvider implements DnsProvider {
         if (client == null) {
             throw new IllegalStateException("请先调用 config 配置 DNS 提供者");
         }
-        if (zoneId == null || zoneId.isEmpty()) {
+        if (StringUtils.isEmpty(zoneId)) {
             throw new IllegalStateException("zoneId 未解析");
         }
     }

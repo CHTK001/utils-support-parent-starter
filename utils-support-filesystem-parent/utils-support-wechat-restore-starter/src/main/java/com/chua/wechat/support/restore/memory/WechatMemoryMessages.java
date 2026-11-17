@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信内存提取结果 → 可读消息视图（CSV + 自包含 HTML）。
@@ -496,7 +497,7 @@ public final class WechatMemoryMessages {
      * @return 解析结果
      */
     private static long parseLong(String value, long defaultValue) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
         try {

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 元数据入口。
@@ -427,11 +428,11 @@ public class MysqlMetaData extends JdbcMetaData {
             sb.append("UNIQUE ");
         }
         sb.append("INDEX ").append(quote(indexName)).append(" (").append(String.join(", ", quoted)).append(")");
-        if (algorithm != null && !algorithm.isEmpty()
+        if (StringUtils.isNotEmpty(algorithm)
                 && !"FULLTEXT".equals(algorithm) && !"SPATIAL".equals(algorithm)) {
             sb.append(" USING ").append(checkDdlFragment("索引类型", algorithm));
         }
-        if (comment != null && !comment.isEmpty()) {
+        if (StringUtils.isNotEmpty(comment)) {
             sb.append(" COMMENT '").append(comment.replace("'", "''")).append("'");
         }
         if (!visible) {
@@ -459,10 +460,10 @@ public class MysqlMetaData extends JdbcMetaData {
         StringBuilder sb = new StringBuilder("ADD CONSTRAINT ").append(quote(fkName))
                 .append(" FOREIGN KEY (").append(quote(columnName)).append(")")
                 .append(" REFERENCES ").append(quote(refTable)).append(" (").append(quote(refColumn)).append(")");
-        if (onDelete != null && !onDelete.isEmpty()) {
+        if (StringUtils.isNotEmpty(onDelete)) {
             sb.append(" ON DELETE ").append(referentialAction("删除规则", onDelete));
         }
-        if (onUpdate != null && !onUpdate.isEmpty()) {
+        if (StringUtils.isNotEmpty(onUpdate)) {
             sb.append(" ON UPDATE ").append(referentialAction("更新规则", onUpdate));
         }
         return sb.toString();

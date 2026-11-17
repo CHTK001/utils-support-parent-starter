@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口。
@@ -148,7 +149,7 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private static String resolveToken(SipConfig config) {
         String file = config.getTokenFile();
-        if (file != null && !file.isEmpty()) {
+        if (StringUtils.isNotEmpty(file)) {
             try {
                 String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(file)),
                         java.nio.charset.StandardCharsets.UTF_8).trim();
@@ -380,7 +381,7 @@ private static ServerSetting serverSetting(SipConfig config) {
     private void handleConnection(InputStream in, OutputStream out) {
         try {
             String firstLine = readHeadLine(in);
-            if (firstLine == null || firstLine.isBlank()) {
+            if (StringUtils.isBlank(firstLine)) {
                 return;
             }
             if (firstLine.startsWith(SipProtocol.PREFIX_AUTH + SipProtocol.SEPARATOR)) {

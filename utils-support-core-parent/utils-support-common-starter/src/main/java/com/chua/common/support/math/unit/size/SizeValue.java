@@ -178,7 +178,7 @@ public final class SizeValue implements Comparable<SizeValue> {
      */
     private static SizeUnit determineDataUnit(String suffix, SizeUnit defaultUnit) {
         SizeUnit defaultUnitToUse = (defaultUnit != null ? defaultUnit : SizeUnit.BYTES);
-        if (suffix != null && !suffix.isEmpty()) {
+        if (StringUtils.isNotEmpty(suffix)) {
             return SizeUnit.fromSuffix(suffix);
         }
         return defaultUnitToUse;

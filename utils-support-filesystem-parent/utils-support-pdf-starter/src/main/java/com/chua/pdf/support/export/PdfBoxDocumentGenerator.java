@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PDFBox 文档生成器 —— 接口一在 PDF 侧的实现。
@@ -241,7 +242,7 @@ public class PdfBoxDocumentGenerator implements DocumentGenerator {
          * @throws IOException 写出失败
          */
         private void title(String text, float[] widths) throws IOException {
-            if (text == null || text.isEmpty()) {
+            if (StringUtils.isEmpty(text)) {
                 return;
             }
             ensure(TITLE_SIZE * LINE_HEIGHT * 2f);
@@ -376,7 +377,7 @@ public class PdfBoxDocumentGenerator implements DocumentGenerator {
          * @throws IOException 度量失败
          */
         private String[] wrap(String text, float maxWidth, float size) throws IOException {
-            if (text == null || text.isEmpty()) {
+            if (StringUtils.isEmpty(text)) {
                 return new String[]{""};
             }
             StringBuilder line = new StringBuilder();

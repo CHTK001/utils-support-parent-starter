@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 慢查询分析管理器 SPI 实现。
@@ -355,7 +356,7 @@ public class MysqlSlowQueryManager implements SlowQueryManager, DataSourceAware 
      * @return 方括号里的客户端地址；无方括号时取整串；为空返回 null
      */
     private static String hostFromUserHost(String userHost) {
-        if (userHost == null || userHost.isEmpty()) {
+        if (StringUtils.isEmpty(userHost)) {
             return null;
         }
         int start = userHost.lastIndexOf('[');
@@ -387,7 +388,7 @@ public class MysqlSlowQueryManager implements SlowQueryManager, DataSourceAware 
      * @return 毫秒；解析失败返回 0
      */
     private static double timeToMs(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return 0D;
         }
         try {

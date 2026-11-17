@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 非模板构建器 —— 接口一：<b>输入 List 数据 → 直接生成文档</b>。
@@ -157,7 +158,7 @@ public class DataExportBuilder {
      * @return 当前构建器
      */
     public DataExportBuilder put(String key, Object value) {
-        if (key != null && !key.isEmpty()) {
+        if (StringUtils.isNotEmpty(key)) {
             variables.put(key, value);
         }
         return this;

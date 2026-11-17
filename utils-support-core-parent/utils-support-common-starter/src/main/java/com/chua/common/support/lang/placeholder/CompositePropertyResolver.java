@@ -2,6 +2,7 @@ package com.chua.common.support.lang.placeholder;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -114,7 +115,7 @@ public class CompositePropertyResolver implements PropertyResolver {
      */
     @Override
     public String resolvePlaceholders(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return text;
         }
         String result = text;

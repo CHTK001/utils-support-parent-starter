@@ -12,6 +12,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎文本对话客户端抽象基类。
@@ -77,7 +78,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);
@@ -135,10 +136,10 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         }
  // device 字段：优先 setting.devicesetting，其次 系统 prop deeplearning.device
         String deviceSetting = setting.getDeviceSetting();
-        if (deviceSetting == null || deviceSetting.isBlank()) {
+        if (StringUtils.isBlank(deviceSetting)) {
             deviceSetting = System.getProperty(DeviceSelector.PROP);
         }
-        if (deviceSetting != null && !deviceSetting.isBlank()) {
+        if (StringUtils.isNotBlank(deviceSetting)) {
             opts.put("device", deviceSetting);
         }
         if (setting.getUseGpu() != null) {

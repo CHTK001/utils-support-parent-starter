@@ -633,7 +633,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      */
     private static String extFromName(String name) {
         String ext = FileUtils.getExtension(name);
-        return ext == null || ext.isEmpty() ? null : ext.toLowerCase(Locale.ENGLISH);
+        return StringUtils.isEmpty(ext) ? null : ext.toLowerCase(Locale.ENGLISH);
     }
 
     /**

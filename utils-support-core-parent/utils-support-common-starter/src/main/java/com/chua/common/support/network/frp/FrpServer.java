@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * FRP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口。
@@ -467,7 +468,7 @@ public class FrpServer extends AbstractServer implements TcpServer {
     private void handleConnection(InputStream in, OutputStream out) {
         try {
             String firstLine = readHeadLine(in);
-            if (firstLine == null || firstLine.isBlank()) {
+            if (StringUtils.isBlank(firstLine)) {
                 return;
             }
             if (firstLine.startsWith(FrpProtocol.PREFIX_AUTH + FrpProtocol.SEPARATOR)) {

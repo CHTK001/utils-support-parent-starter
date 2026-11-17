@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IP 限流过滤器，基于令牌桶算法按 IP 进行精准限流。
@@ -62,14 +63,14 @@ public class IpRateLimitServerFilter implements ServerFilter {
     public void init(ServerFilterConfig config) throws Exception {
         String capacity = config.getInitParameter("ipRateLimit.bucketCapacity");
         String rate = config.getInitParameter("ipRateLimit.refillRate");
-        if (capacity != null && !capacity.isEmpty()) {
+        if (StringUtils.isNotEmpty(capacity)) {
             this.bucketCapacity = Integer.parseInt(capacity);
         }
-        if (rate != null && !rate.isEmpty()) {
+        if (StringUtils.isNotEmpty(rate)) {
             this.refillRate = Integer.parseInt(rate);
         }
         // 未显式配置或速率非正数时保持不挂载，避免默认值/零值拦掉正常业务流量
-        boolean present = (capacity != null && !capacity.isEmpty()) || (rate != null && !rate.isEmpty());
+        boolean present = (StringUtils.isNotEmpty(capacity)) || (StringUtils.isNotEmpty(rate));
         this.configured = present && bucketCapacity > 0 && refillRate > 0;
     }
 
@@ -120,12 +121,12 @@ public class IpRateLimitServerFilter implements ServerFilter {
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isEmpty()) {
+        if (StringUtils.isNotEmpty(forwarded)) {
             int idx = forwarded.indexOf(',');
             return idx > 0 ? forwarded.substring(0, idx).trim() : forwarded.trim();
         }
         String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isEmpty()) {
+        if (StringUtils.isNotEmpty(realIp)) {
             return realIp;
         }
         return request.getRemoteAddress();

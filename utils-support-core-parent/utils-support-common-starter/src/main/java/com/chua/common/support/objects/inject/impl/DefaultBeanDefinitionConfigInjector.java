@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认配置注入器，基于 @配置值 注解进行配置值注入。
@@ -98,10 +99,10 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
      * @return raw值的结果
      */
     private static Object rawValue(String value, String defaultValue) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             return value;
         }
-        if (defaultValue != null && !defaultValue.isEmpty()) {
+        if (StringUtils.isNotEmpty(defaultValue)) {
             return Converter.convertIfNecessary(defaultValue, String.class);
         }
         return null;

@@ -20,6 +20,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Bundle 目录热部署监听器。
@@ -100,7 +101,7 @@ public class BundleDeployWatcher {
     public BundleDeployWatcher(OsgiLauncher launcher, String directory, long pollingInterval,
                                boolean uninstallOnRemoved, boolean updateOnChanged) {
         this.launcher = launcher;
-        this.directory = Paths.get(directory == null || directory.isBlank() ? "./osgi-deploy" : directory);
+        this.directory = Paths.get(StringUtils.isBlank(directory) ? "./osgi-deploy" : directory);
         this.pollingInterval = pollingInterval > 0 ? pollingInterval : DEFAULT_POLLING_INTERVAL;
         this.uninstallOnRemoved = uninstallOnRemoved;
         this.updateOnChanged = updateOnChanged;

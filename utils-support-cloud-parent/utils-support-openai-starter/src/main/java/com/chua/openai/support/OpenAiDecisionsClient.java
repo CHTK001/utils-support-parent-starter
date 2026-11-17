@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 决策客户端
@@ -294,7 +295,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
     @Override
     public DecisionsResult decide(String input, List<DecisionQuestion> questions) {
         String actualInput = input;
-        if (actualInput == null || actualInput.isBlank()) {
+        if (StringUtils.isBlank(actualInput)) {
             actualInput = this.input;
         }
         List<DecisionQuestion> actualQuestions = questions;
@@ -311,10 +312,10 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             throw new IllegalArgumentException("request 不能为 null");
         }
         String input = request.input();
-        if (input == null || input.isBlank()) {
+        if (StringUtils.isBlank(input)) {
             input = request.state();
         }
-        if (input == null || input.isBlank()) {
+        if (StringUtils.isBlank(input)) {
             throw new IllegalArgumentException("input / state 不能为 null 或空白");
         }
         List<DecisionQuestion> questions = request.questions();
@@ -566,7 +567,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         DecisionsProtocol protocol = protocol();
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", getModel());
-        if (system != null && !system.isBlank()) {
+        if (StringUtils.isNotBlank(system)) {
             body.put("system", system);
         }
         if (protocol == DecisionsProtocol.SYSTEMONE) {
@@ -726,7 +727,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         } catch (Exception e) {
             throw new RuntimeException("OpenAI 决策响应解析失败: " + e.getMessage(), e);
         }
-        if (content == null || content.isBlank()) {
+        if (StringUtils.isBlank(content)) {
             throw new IllegalStateException("OpenAI 决策响应为空: " + response.statusCode());
         }
         JsonMapper mapper = ObjectMappers.jsonMapper();
@@ -834,12 +835,12 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         Map<Integer, String> legend = legend(node, "legend");
         String refusal = string(node, "refusal", null);
 
-        if (refusal != null && !refusal.isBlank()) {
+        if (StringUtils.isNotBlank(refusal)) {
             return DecisionAnswer.refusal(name);
         }
         // 未识别类型时，兜底：<label> 上存在即结论
         if (answerType == null) {
-            if (label != null && !label.isBlank()) {
+            if (StringUtils.isNotBlank(label)) {
                 answerType = guessAnswerType(node, label, choice, score, probabilities);
             }
             if (answerType == null) {
@@ -851,7 +852,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             if (probability == null) {
                 probability = 0.5;
             }
-            if (label == null || label.isBlank()) {
+            if (StringUtils.isBlank(label)) {
                 label = probability >= 0.5d ? DecisionAnswer.YES_LABEL : DecisionAnswer.NO_LABEL;
             }
             if (probabilities == null || probabilities.isEmpty()) {
@@ -879,7 +880,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             if (choice == null) {
                 return DecisionAnswer.refusal(name);
             }
-            if (label == null || label.isBlank()) {
+            if (StringUtils.isBlank(label)) {
                 label = choice;
             }
             return new DecisionAnswer(name, DecisionType.CHOICE, label, null, null, choice,
@@ -936,7 +937,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
      * @return 统一的问题类型
      */
     private static DecisionType answerType(DecisionsProtocol protocol, String type) {
-        if (type == null || type.isBlank()) {
+        if (StringUtils.isBlank(type)) {
             return null;
         }
         String lowercase = type.trim().toLowerCase();
@@ -983,11 +984,11 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         } else if (fieldNode.isArray()) {
             for (JsonNode v : fieldNode) {
                 String key = string(v, "value", null);
-                if (key == null || key.isBlank()) {
+                if (StringUtils.isBlank(key)) {
                     key = string(v, "label", null);
                 }
                 Double value = number(v, "probability");
-                if (key != null && !key.isBlank() && value != null) {
+                if (StringUtils.isNotBlank(key) && value != null) {
                     result.put(key, value);
                 }
             }
@@ -1036,7 +1037,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
      * @return 数值或空
      */
     private static Integer stringToInt(String key, Integer value) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return value;
         }
         try {
@@ -1109,7 +1110,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = defaultBaseUrlForProtocol();
         }
         if (url.endsWith("/")) {
@@ -1228,7 +1229,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
      * @return Proxy 对象，失败时返回空
      */
     private static Proxy resolveProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return null;
         }
         Proxy.Type proxyType;
@@ -1261,7 +1262,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
                 .timeout(Duration.ofMillis(resolveTimeout()));
         if (setting != null) {
             String proxyStr = setting.getProxy();
-            if (proxyStr != null && !proxyStr.isBlank()) {
+            if (StringUtils.isNotBlank(proxyStr)) {
                 builder.proxy(resolveProxy(proxyStr));
             }
         }

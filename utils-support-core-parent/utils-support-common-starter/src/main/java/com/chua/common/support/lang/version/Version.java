@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -208,7 +209,7 @@ public class Version implements Comparable<Version> {
         String versionString = extractVersionFromFileName(fileName);
 
         // 如果找到有效的版本字符串，创建 Version 对象
-        if (versionString != null && !versionString.isEmpty()) {
+        if (StringUtils.isNotEmpty(versionString)) {
             try {
                 return new Version(versionString);
             } catch (Exception e) {

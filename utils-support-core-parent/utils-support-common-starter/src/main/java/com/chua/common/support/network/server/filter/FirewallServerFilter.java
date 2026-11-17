@@ -11,6 +11,7 @@ import com.chua.common.support.spi.annotations.SpiParam;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 防火墙过滤器：IP 黑白名单 + 每 IP 限流。
@@ -81,11 +82,11 @@ public class FirewallServerFilter implements ServerFilter {
             return;
         }
         String mode = config.getInitParameter("mode");
-        if (mode != null && !mode.isBlank()) {
+        if (StringUtils.isNotBlank(mode)) {
             whitelistMode = "whitelist".equalsIgnoreCase(mode.trim());
         }
         String ips = config.getInitParameter("ips");
-        if (ips != null && !ips.isBlank()) {
+        if (StringUtils.isNotBlank(ips)) {
             whitelist.clear();
             blacklist.clear();
             for (String raw : ips.split("[,;\\s]+")) {
@@ -187,7 +188,7 @@ public class FirewallServerFilter implements ServerFilter {
      * @return 解析结果
      */
     private static double parseDouble(String value, double defaultValue) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
         try {

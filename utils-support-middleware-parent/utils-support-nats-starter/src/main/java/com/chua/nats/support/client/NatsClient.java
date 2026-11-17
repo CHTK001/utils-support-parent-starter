@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * NATS 全功能链式客户端。
@@ -790,7 +791,7 @@ public class NatsClient implements AutoCloseable {
          */
         public DispatchedSubscription start() {
             DispatchedSubscription sub;
-            if (queue != null && !queue.isEmpty()) {
+            if (StringUtils.isNotEmpty(queue)) {
                 sub = new DispatchedSubscription(
                         client.createDispatcher(handler, autoAck).subscribe(subject, queue, msg -> handler.accept(msg)),
                         false);

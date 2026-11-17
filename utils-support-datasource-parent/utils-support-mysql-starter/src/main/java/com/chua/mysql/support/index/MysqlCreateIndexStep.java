@@ -3,6 +3,7 @@ package com.chua.mysql.support.index;
 import com.chua.datasource.support.index.IndexManager;
 
 import javax.sql.DataSource;
+import com.chua.common.support.utils.StringUtils;
 /**
  * MySQL 创建索引语句的构建步骤。
  *
@@ -95,7 +96,7 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
     @Override
     public void execute() {
         StringBuilder sb = new StringBuilder("CREATE INDEX ").append(indexName).append(" ON ").append(table);
-        if (algorithm != null && !algorithm.isEmpty()) {
+        if (StringUtils.isNotEmpty(algorithm)) {
             sb.append(" USING ").append(algorithm);
         }
         sb.append(" (").append(column).append(")");

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 飞书消息推送实现
@@ -98,7 +99,7 @@ public class FeishuMessagePush implements MessagePush {
         long start = System.currentTimeMillis();
 
         String webhookUrl = environment.get("feishu.webhookUrl");
-        if (webhookUrl == null || webhookUrl.isBlank()) {
+        if (StringUtils.isBlank(webhookUrl)) {
             throw new IllegalArgumentException("feishu.webhookUrl 配置项必填");
         }
 

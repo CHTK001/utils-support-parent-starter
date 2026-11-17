@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 规则评分器。
@@ -169,7 +170,7 @@ public class RuleBasedScorer {
      * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
      */
     public IpAnomalyResult scoreIp(String entityId, List<TrafficEvent> window) {
-        if (entityId == null || entityId.isBlank()) {
+        if (StringUtils.isBlank(entityId)) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
         }
         List<TrafficEvent> events = window == null ? List.of() : window;
@@ -225,7 +226,7 @@ public class RuleBasedScorer {
      * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
      */
     public BehaviorProfile scoreBehavior(String entityId, List<TrafficEvent> window) {
-        if (entityId == null || entityId.isBlank()) {
+        if (StringUtils.isBlank(entityId)) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
         }
         List<TrafficEvent> events = window == null ? List.of() : window;
@@ -349,7 +350,7 @@ public class RuleBasedScorer {
         int size = events.size();
         for (int i = size - 1; i >= 0 && paths.size() < 5; i--) {
             String path = events.get(i).getPath();
-            if (path != null && !path.isBlank()) {
+            if (StringUtils.isNotBlank(path)) {
                 paths.add(path);
             }
         }

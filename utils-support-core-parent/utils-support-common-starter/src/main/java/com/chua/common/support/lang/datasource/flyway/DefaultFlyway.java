@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import com.chua.common.support.file.resource.Resource;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认数据库迁移实现，基于 {@link Engine#execute(String, Object...)} 执行 SQL。
@@ -73,7 +74,7 @@ public class DefaultFlyway implements Flyway {
 
     @Override
     public Flyway location(String location) {
-        if (location != null && !location.isBlank()) {
+        if (StringUtils.isNotBlank(location)) {
             locations.add(location.trim());
         }
         return this;
@@ -81,7 +82,7 @@ public class DefaultFlyway implements Flyway {
 
     @Override
     public Flyway separator(String separator) {
-        if (separator != null && !separator.isEmpty()) {
+        if (StringUtils.isNotEmpty(separator)) {
             this.separator = separator;
         }
         return this;
@@ -197,7 +198,7 @@ public class DefaultFlyway implements Flyway {
      * @return 可执行语句列表
      */
     private List<String> convert(List<String> statements) {
-        if (protocol == null || protocol.isBlank()) {
+        if (StringUtils.isBlank(protocol)) {
             return statements;
         }
         ScriptConverter converter = ScriptConverter.getExtension(protocol);

@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Bean 定义注册中心，统一管理所有 Beandefinition注册。
@@ -115,7 +116,7 @@ public class BeanDefinitionRegistry {
             return false;
         }
         String name = register.getName();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return false;
         }
         synchronized (this) {
@@ -175,7 +176,7 @@ public class BeanDefinitionRegistry {
             return false;
         }
         String beanName = beanDefinition.getName();
-        if (beanName == null || beanName.isEmpty()) {
+        if (StringUtils.isEmpty(beanName)) {
             return false;
         }
         if (containsBean(beanName)) {
@@ -548,7 +549,7 @@ public class BeanDefinitionRegistry {
      * @return 注解名称到 Beandefinition 的映射
      */
     public Map<String, BeanDefinition> getBeansWithAnnotation(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return Collections.emptyMap();
         }
         Map<String, BeanDefinition> result = Wraps.linkedMap();

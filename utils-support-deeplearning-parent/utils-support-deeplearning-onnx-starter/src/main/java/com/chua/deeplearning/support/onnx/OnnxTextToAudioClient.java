@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 ONNX Runtime 的本地文字转语音（TTS）客户端。
@@ -137,7 +138,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
      * @return 说话人 标识
      */
     private int resolveSpeakerId() {
-        if (voice != null && !voice.isBlank()) {
+        if (StringUtils.isNotBlank(voice)) {
             try {
                 return Integer.parseInt(voice.trim());
             } catch (NumberFormatException ignored) {
@@ -159,7 +160,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
      * @return 参考音频 WAV 字节；voice 为空或非文件路径时返回 空
      */
     private byte[] loadRefAudio() {
-        if (voice == null || voice.isBlank()) {
+        if (StringUtils.isBlank(voice)) {
             return null;
         }
         try {

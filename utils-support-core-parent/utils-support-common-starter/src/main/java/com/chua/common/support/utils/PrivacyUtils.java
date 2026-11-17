@@ -1,4 +1,5 @@
 package com.chua.common.support.utils;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -69,7 +70,7 @@ public final class PrivacyUtils {
         if (prefix + suffix >= length) {
             return origin;
         }
-        String mask = (symbol == null || symbol.isEmpty()) ? DEFAULT_MASK : symbol;
+        String mask = (StringUtils.isEmpty(symbol)) ? DEFAULT_MASK : symbol;
         StringBuilder builder = new StringBuilder();
         builder.append(origin, 0, prefix);
         builder.append(mask.repeat(length - prefix - suffix));
@@ -88,7 +89,7 @@ public final class PrivacyUtils {
      * @return 脱敏后的姓名；入参为空时原样返回
      */
     public static String hideChineseName(String fullName) {
-        if (fullName == null || fullName.isEmpty()) {
+        if (StringUtils.isEmpty(fullName)) {
             return fullName;
         }
         if (fullName.length() == 1) {
@@ -140,7 +141,7 @@ public final class PrivacyUtils {
      * @return 脱敏后的邮箱
      */
     public static String hideEmail(String email) {
-        if (email == null || email.isEmpty()) {
+        if (StringUtils.isEmpty(email)) {
             return email;
         }
         int at = email.indexOf('@');
@@ -158,7 +159,7 @@ public final class PrivacyUtils {
      * @return 脱敏后的地址
      */
     public static String hideAddress(String address, int sensitiveSize) {
-        if (address == null || address.isEmpty()) {
+        if (StringUtils.isEmpty(address)) {
             return address;
         }
         int keep = Math.max(0, address.length() - Math.max(0, sensitiveSize));
@@ -172,7 +173,7 @@ public final class PrivacyUtils {
      * @return 固定脱敏字符串
      */
     public static String hidePassword(String password) {
-        if (password == null || password.isEmpty()) {
+        if (StringUtils.isEmpty(password)) {
             return password;
         }
         return PASSWORD_MASK;

@@ -3,6 +3,7 @@ package com.chua.network.support.tshark.restorer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SSH 协议还原器（版本协商 + 明文握手 + 登录用户名）。
@@ -235,7 +236,7 @@ public class SshProtocolRestorer extends AbstractProtocolRestorer {
      * @return 截断后的值
      */
     private static String abbreviate(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return "-";
         }
         String[] parts = value.split(",");

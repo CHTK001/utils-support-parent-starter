@@ -328,7 +328,7 @@ public class MemoryRagClient implements RagClient {
      */
     @Override
     public RagDocument uploadDocumentWithId(String docId, String fileName, byte[] data, TextSplitter splitter) {
-        if (docId == null || docId.isBlank()) {
+        if (StringUtils.isBlank(docId)) {
             throw new IllegalArgumentException("docId 不能为空");
         }
         TextSplitter splitterToUse = splitter != null ? splitter : textSplitter;

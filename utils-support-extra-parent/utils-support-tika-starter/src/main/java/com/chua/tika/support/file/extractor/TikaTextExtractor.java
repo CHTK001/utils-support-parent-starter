@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Apache Tika 的通用文本提取器 SPI 实现，支持从多种文档格式中提取纯文本内容。
@@ -58,7 +59,7 @@ public class TikaTextExtractor implements TextExtractor {
             ToTextContentHandler handler = new ToTextContentHandler();
             parser.parse(input, handler, metadata, new ParseContext());
             String text = handler.toString();
-            if (text == null || text.isEmpty()) {
+            if (StringUtils.isEmpty(text)) {
                 return Collections.emptyList();
             }
 

@@ -4,6 +4,7 @@ import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 数据同步映射模型。
@@ -62,7 +63,7 @@ public interface DataSyncMapping {
      */
     default List<String> sinkIds() {
         String id = sinkId();
-        return id == null || id.isBlank() ? List.of() : List.of(id);
+        return StringUtils.isBlank(id) ? List.of() : List.of(id);
     }
 
     /**

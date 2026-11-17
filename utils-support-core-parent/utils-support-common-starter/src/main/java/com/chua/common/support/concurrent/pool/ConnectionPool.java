@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDBC 连接池
@@ -525,7 +526,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
          * @return ConnectionPool 实例
          */
         public ConnectionPool build() {
-            if (url == null || url.isBlank()) {
+            if (StringUtils.isBlank(url)) {
                 throw new IllegalArgumentException("JDBC URL 不能为空");
             }
             return new ConnectionPool(this);

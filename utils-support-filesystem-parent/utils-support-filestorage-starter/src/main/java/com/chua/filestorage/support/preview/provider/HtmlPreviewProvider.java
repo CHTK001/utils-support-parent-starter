@@ -8,6 +8,7 @@ import com.chua.filestorage.support.preview.PreviewResult;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HTML 文件渲染预览提供者将 HTML 内容在安全沙箱 iframe 中渲染展示，而非代码高亮
@@ -79,7 +80,7 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
      * @return sanitize的结果
      */
     private String sanitize(String html) {
-        if (html == null || html.isEmpty()) {
+        if (StringUtils.isEmpty(html)) {
             return "";
         }
         return html

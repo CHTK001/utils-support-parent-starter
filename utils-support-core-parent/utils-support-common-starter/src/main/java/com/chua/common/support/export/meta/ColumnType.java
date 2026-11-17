@@ -1,4 +1,5 @@
 package com.chua.common.support.export.meta;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 列数据类型。
@@ -84,7 +85,7 @@ public enum ColumnType {
      * @return 解析结果
      */
     public static ColumnType of(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return AUTO;
         }
         String key = name.trim().replace("-", "").replace("_", "");

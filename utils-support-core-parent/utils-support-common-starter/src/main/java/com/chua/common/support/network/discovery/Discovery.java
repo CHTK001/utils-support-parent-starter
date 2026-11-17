@@ -232,7 +232,7 @@ public class Discovery implements Serializable {
      * @return true表示环境匹配
      */
     public boolean matchEnv(String targetEnv) {
-        if (targetEnv == null || targetEnv.isEmpty()) {
+        if (StringUtils.isEmpty(targetEnv)) {
             return true;
         }
         return targetEnv.equalsIgnoreCase(this.env);

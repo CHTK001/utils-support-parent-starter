@@ -19,6 +19,7 @@ import java.util.Set;
 import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * opus-mt-zh-en 中译英机器翻译（marianmt，ORT 原生 + huggingface Tokenizer）。
@@ -181,7 +182,7 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     */
     @Override
     public String translate(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return text;
         }
         try {
@@ -301,7 +302,7 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
      * @return 清洗后的译文
      */
     private static String postProcess(String decoded) {
-        if (decoded == null || decoded.isEmpty()) {
+        if (StringUtils.isEmpty(decoded)) {
             return decoded;
         }
         int sep = decoded.indexOf(" - ");

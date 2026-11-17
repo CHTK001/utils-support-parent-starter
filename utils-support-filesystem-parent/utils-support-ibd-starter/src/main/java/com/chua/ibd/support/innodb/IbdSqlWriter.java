@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 由 SDI 表定义 + 行数据生成可执行 SQL 脚本（建表 DDL + INSERT）。
@@ -45,7 +46,7 @@ public final class IbdSqlWriter {
      * @return 建表 SQL（以分号结尾，不含换行结尾）
      */
     public static String createTable(IbdTableDefinition definition, String schema, String table) {
-        String target = table == null || table.isBlank() ? definition.name() : table;
+        String target = StringUtils.isBlank(table) ? definition.name() : table;
         StringBuilder sql = new StringBuilder(512);
         sql.append("CREATE TABLE IF NOT EXISTS ").append(qualified(schema, target)).append(" (\n");
 
@@ -62,7 +63,7 @@ public final class IbdSqlWriter {
         sql.append(String.join(",\n", parts));
         sql.append("\n) ENGINE=InnoDB DEFAULT CHARSET=").append(definition.charsetName());
         String rowFormat = definition.rowFormat();
-        if (rowFormat != null && !rowFormat.isEmpty() && !"DYNAMIC".equals(rowFormat)) {
+        if (StringUtils.isNotEmpty(rowFormat) && !"DYNAMIC".equals(rowFormat)) {
             sql.append(" ROW_FORMAT=").append(rowFormat);
         }
         sql.append(';');
@@ -107,7 +108,7 @@ public final class IbdSqlWriter {
             return column.nullable() ? "DEFAULT NULL" : "";
         }
         String value = column.defaultValue();
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return column.nullable() ? "DEFAULT NULL" : "";
         }
         if (isExpression(value)) {
@@ -266,7 +267,7 @@ public final class IbdSqlWriter {
                                                          List<Map<String, Object>> rows,
                                                          String schema, String table,
                                                          List<String> columns) {
-        String target = table == null || table.isBlank() ? definition.name() : table;
+        String target = StringUtils.isBlank(table) ? definition.name() : table;
         String prefix = "INSERT INTO " + qualified(schema, target) + " ("
                 + joinQuoted(columns) + ") VALUES (";
         java.util.List<String> statements = Wraps.list(rows.size());
@@ -374,7 +375,7 @@ public final class IbdSqlWriter {
      * @return 限定名
      */
     public static String qualified(String schema, String table) {
-        return schema == null || schema.isBlank() ? quote(table) : quote(schema) + "." + quote(table);
+        return StringUtils.isBlank(schema) ? quote(table) : quote(schema) + "." + quote(table);
     }
 
     /**

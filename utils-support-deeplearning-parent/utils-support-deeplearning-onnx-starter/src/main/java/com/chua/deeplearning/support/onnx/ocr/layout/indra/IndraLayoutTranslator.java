@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * datalab-to/indra 文档版面分析 ONNX 翻译器：图像 → 版面块（10 类 chandra 块标签）。
@@ -733,7 +734,7 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
      */
     private Path resolveFile(String name) {
         // 1) 注入目录
-        if (modelPath != null && !modelPath.isBlank()) {
+        if (StringUtils.isNotBlank(modelPath)) {
             try {
                 Path p = Path.of(modelPath);
                 Path dir = Files.isDirectory(p) ? p : p.getParent();

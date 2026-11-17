@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Spring 字段注入器，处理 {@link Autowired} / {@link Qualifier} 注解。
@@ -55,7 +56,7 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
         Qualifier qualifier = field.getAnnotation(Qualifier.class);
         String qualifierName = qualifier != null ? qualifier.value() : null;
 
-        if (qualifierName != null && !qualifierName.isEmpty() && beanProvider != null) {
+        if (StringUtils.isNotEmpty(qualifierName) && beanProvider != null) {
             try {
                 Object result = beanProvider.apply(qualifierName);
                 if (result != null) {

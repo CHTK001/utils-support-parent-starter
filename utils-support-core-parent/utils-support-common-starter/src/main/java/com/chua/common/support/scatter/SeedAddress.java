@@ -1,6 +1,7 @@
 package com.chua.common.support.scatter;
 
 import java.net.InetSocketAddress;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * seed 地址解析：支持 {@code host:port} 或 {@code host}（端口缺省时回落到节点端口）。
@@ -49,7 +50,7 @@ public class SeedAddress {
      * @return seed 地址，格式非法返回 null
      */
     public static SeedAddress parse(String address) {
-        if (address == null || address.isBlank()) {
+        if (StringUtils.isBlank(address)) {
             return null;
         }
         String trimmed = address.trim();

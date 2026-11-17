@@ -855,7 +855,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         )));
 
         // 流式输出文本
-        if (text != null && !text.isEmpty()) {
+        if (StringUtils.isNotEmpty(text)) {
             for (int i = 0; i < text.length(); i += CCS_CHUNK_SIZE) {
                 int end = Math.min(i + CCS_CHUNK_SIZE, text.length());
                 String chunk = text.substring(i, end);
@@ -1092,7 +1092,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             for (Object part : list) {
                 if (part instanceof Map<?, ?> m) {
                     String text = (String) m.get(KEY_TEXT);
-                    if (text != null && !text.isEmpty()) {
+                    if (StringUtils.isNotEmpty(text)) {
                         return text;
                     }
                 }
@@ -1109,7 +1109,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private void appendText(StringBuilder sb, Object value) {
         String text = extractText(value);
-        if (text != null && !text.isBlank()) {
+        if (StringUtils.isNotBlank(text)) {
             sb.append(text.trim()).append('\n');
         }
     }
@@ -1131,7 +1131,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             StringBuilder sb = new StringBuilder();
             for (Object item : list) {
                 String t = extractText(item);
-                if (t != null && !t.isBlank()) {
+                if (StringUtils.isNotBlank(t)) {
                     if (!sb.isEmpty()) {
                         sb.append('\n');
                     }

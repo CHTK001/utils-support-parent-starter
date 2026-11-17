@@ -9,6 +9,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ZooKeeper 链式客户端，全功能封装 Curator。
@@ -306,7 +307,7 @@ public class ZookeeperClient implements AutoCloseable {
                     .connectionTimeoutMs(connectionTimeoutMs)
                     .retryPolicy(new ExponentialBackoffRetry(retryBaseSleepMs, retryMaxRetries));
 
-            if (namespace != null && !namespace.isEmpty()) {
+            if (StringUtils.isNotEmpty(namespace)) {
                 factoryBuilder.namespace(namespace);
             }
 

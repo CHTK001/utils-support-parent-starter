@@ -3,6 +3,7 @@ package com.chua.skywalking.support.client;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SkyWalking OAP 版本。
@@ -61,7 +62,7 @@ public final class SkywalkingVersion {
      * @return 版本对象，解析失败返回 {@link #UNKNOWN}
      */
     public static SkywalkingVersion parse(String text) {
-        if (text == null || text.isBlank() || "unknown".equalsIgnoreCase(text.trim())) {
+        if (StringUtils.isBlank(text) || "unknown".equalsIgnoreCase(text.trim())) {
             return UNKNOWN;
         }
         Matcher matcher = MAJOR.matcher(text);

@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * UsageParser 基类 — 提供按天聚合公共逻辑。
@@ -94,7 +95,7 @@ public abstract class BaseUsageParser implements UsageParser {
      * @return epoch 毫秒；入参为空或非法时返回 0L
      */
     protected static long parseInstantToMillis(String isoTimestamp) {
-        if (isoTimestamp == null || isoTimestamp.isBlank()) {
+        if (StringUtils.isBlank(isoTimestamp)) {
             return 0L;
         }
         try {
@@ -156,7 +157,7 @@ public abstract class BaseUsageParser implements UsageParser {
      * @return epoch 毫秒；无法识别时返回 0L
      */
     protected static long parseEpochMillis(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return 0L;
         }
         String text = raw.trim();
@@ -178,7 +179,7 @@ public abstract class BaseUsageParser implements UsageParser {
      * @return epoch 毫秒；入参为空或非法时返回 0L
      */
     protected static long parseDayStartToMillis(String dateStr) {
-        if (dateStr == null || dateStr.isBlank()) {
+        if (StringUtils.isBlank(dateStr)) {
             return 0L;
         }
         try {
@@ -198,7 +199,7 @@ public abstract class BaseUsageParser implements UsageParser {
      * @return value 非空白时返回 value，否则返回 fallback
      */
     protected static String firstNonBlank(String value, String fallback) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             return value;
         }
         return fallback;

@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 嵌入向量客户端。
@@ -117,7 +118,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     */
     @Override
     public float[] embedding(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return new float[dimension()];
         }
         // 委托给批量方法，取第一个结果
@@ -158,7 +159,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     */
     @Override
     public EmbeddingResponse embeddingWithResponse(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return buildEmptyResponse();
         }
         // 委托给批量方法，取第一个结果
@@ -229,7 +230,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
                 .timeout(Duration.ofSeconds(60));
 
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             clientBuilder.proxy(resolveProxy(proxyStr));
         }
         return clientBuilder.build();
@@ -359,7 +360,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {
@@ -383,7 +384,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
      * @return Proxy 对象，解析失败时返回 空
      */
     private static Proxy resolveProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return null;
         }
         Proxy.Type proxyType;

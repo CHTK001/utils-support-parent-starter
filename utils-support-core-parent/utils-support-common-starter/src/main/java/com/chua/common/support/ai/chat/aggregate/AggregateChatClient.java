@@ -37,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 聚合 AI 对话客户端。
@@ -375,7 +376,7 @@ public class AggregateChatClient implements ChatClient {
 
     @Override
     public ChatClient skillPrompt(String block) {
-        return block == null || block.isEmpty() ? this : broadcast(c -> c.skillPrompt(block));
+        return StringUtils.isEmpty(block) ? this : broadcast(c -> c.skillPrompt(block));
     }
 
     @Override
@@ -435,7 +436,7 @@ public class AggregateChatClient implements ChatClient {
 
     @Override
     public ChatClient toolChoice(String toolChoice) {
-        return toolChoice == null || toolChoice.isBlank() ? this : broadcast(c -> c.toolChoice(toolChoice));
+        return StringUtils.isBlank(toolChoice) ? this : broadcast(c -> c.toolChoice(toolChoice));
     }
 
     @Override
@@ -991,10 +992,10 @@ public class AggregateChatClient implements ChatClient {
             throw new IllegalArgumentException("setting must not be null");
         }
         String json = setting.getAppKey();
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             json = setting.getModel();
         }
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             throw new IllegalArgumentException("AggregateChatClient needs JSON config in appKey");
         }
         return json;
@@ -1139,7 +1140,7 @@ public class AggregateChatClient implements ChatClient {
      * @return 条件谓词，无法解析时返回 null
      */
     private static Predicate<String> parseCondition(String condition) {
-        if (condition == null || condition.isBlank()) {
+        if (StringUtils.isBlank(condition)) {
             return null;
         }
         String expr = condition.trim();

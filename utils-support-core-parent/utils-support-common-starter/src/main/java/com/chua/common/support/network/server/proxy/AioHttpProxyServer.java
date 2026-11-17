@@ -17,6 +17,7 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AIO 正向 HTTP 代理 —— 纯非阻塞响应式实现(Proactor/IOCP)。
@@ -1092,7 +1093,7 @@ public class AioHttpProxyServer extends AbstractServer {
             if (target.startsWith("http://") || target.startsWith("https://")) {
                 java.net.URI u = java.net.URI.create(target);
                 String p = u.getRawPath();
-                return (p == null || p.isEmpty() ? "/" : p)
+                return (StringUtils.isEmpty(p) ? "/" : p)
                         + (u.getRawQuery() != null ? "?" + u.getRawQuery() : "");
             }
             return target;

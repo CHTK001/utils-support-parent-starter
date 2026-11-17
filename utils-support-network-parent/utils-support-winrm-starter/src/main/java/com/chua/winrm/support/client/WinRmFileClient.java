@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * winrm 文件客户端，实现 winrm 协议下的文件操作。
@@ -177,7 +178,7 @@ public class WinRmFileClient implements FileClient {
      * @throws IOException 异常
     */
     private static void requirePath(String path) throws IOException {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             throw new IOException("远程路径不能为空");
         }
     }

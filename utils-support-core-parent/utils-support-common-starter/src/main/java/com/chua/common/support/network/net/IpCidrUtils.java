@@ -236,7 +236,7 @@ public final class IpCidrUtils {
      * @throws IllegalArgumentException 格式非法或越界
      */
     private static int parseOctet(String value) {
-        if (null == value || value.isEmpty() || value.length() > 3) {
+        if (StringUtils.isEmpty(value) || value.length() > 3) {
             throw new IllegalArgumentException("IPv4格式错误");
         }
         int result = 0;
@@ -261,7 +261,7 @@ public final class IpCidrUtils {
      * @throws IllegalArgumentException 格式非法或越界
      */
     private static int parsePrefix(String value) {
-        if (null == value || value.isEmpty() || value.length() > 2) {
+        if (StringUtils.isEmpty(value) || value.length() > 2) {
             throw new IllegalArgumentException("CIDR前缀长度错误");
         }
         int prefix = 0;

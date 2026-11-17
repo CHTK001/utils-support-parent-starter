@@ -20,6 +20,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Calcite 数据源创建器，使用 Calcite 将多个数据源聚合为一个统一的 {@link DataSource}。
@@ -233,7 +234,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
  // 2. 注册 数据scheme 虚拟库
             for (DataScheme scheme : schemes) {
                 String schemaName = scheme.getName();
-                if (schemaName == null || schemaName.isEmpty()) {
+                if (StringUtils.isEmpty(schemaName)) {
                     schemaName = "scheme_" + System.identityHashCode(scheme);
                 }
 
@@ -252,7 +253,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                 Map<String, Table> calciteTableMap = Wraps.linkedMap();
                 for (DataTable table : tables) {
                     String tableName = table.getName();
-                    if (tableName == null || tableName.isEmpty()) {
+                    if (StringUtils.isEmpty(tableName)) {
                         tableName = "t_" + calciteTableMap.size();
                     }
                     calciteTableMap.put(tableName, CalciteDataTableAdapter.of(table));

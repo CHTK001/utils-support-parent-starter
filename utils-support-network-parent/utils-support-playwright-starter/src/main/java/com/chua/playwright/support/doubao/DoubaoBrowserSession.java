@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 豆包逆向浏览器会话。
@@ -195,7 +196,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
      */
     public DoubaoBrowserSession(String cookieString, String userDataDir) {
         this.cookies = parseCookies(cookieString);
-        this.userDataDir = userDataDir == null || userDataDir.isEmpty() ? DEFAULT_USER_DATA_DIR : userDataDir;
+        this.userDataDir = StringUtils.isEmpty(userDataDir) ? DEFAULT_USER_DATA_DIR : userDataDir;
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                 .setHeadless(true)
@@ -260,7 +261,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
                         }
                     }
                 }
-                if (error != null && !error.isEmpty()) {
+                if (StringUtils.isNotEmpty(error)) {
                     return DoubaoChatResult.error(error);
                 }
                 return DoubaoChatResult.ok(text == null ? "" : text,
@@ -282,7 +283,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
      * @return true 表示删除成功
      */
     public boolean deleteConversation(String conversationId) {
-        if (conversationId == null || conversationId.isEmpty() || "0".equals(conversationId)) {
+        if (StringUtils.isEmpty(conversationId) || "0".equals(conversationId)) {
             return false;
         }
         try (var page = context.newPage()) {
@@ -356,7 +357,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
      */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = Wraps.linkedMap();
-        if (cookieString == null || cookieString.isBlank()) {
+        if (StringUtils.isBlank(cookieString)) {
             return map;
         }
         for (String pair : cookieString.split(";")) {

@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.capability.ModelCapabilities;
 import com.chua.deeplearning.support.model.HardwareConfig;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型推荐选择器。
@@ -50,7 +51,7 @@ public final class ModelSelector {
      * @return 推荐模型 标识；无可用模型返回 空
      */
     public static String selectRecommended(String capability, String deviceSetting) {
-        if (capability == null || capability.isBlank()) {
+        if (StringUtils.isBlank(capability)) {
             return null;
         }
         List<String> candidates = Wraps.list();

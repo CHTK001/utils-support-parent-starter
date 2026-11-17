@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 数据库方言 SPI 接口，定义不同数据库的 SQL 语法差异。
@@ -299,7 +300,7 @@ public interface Dialect {
     default String getUpdateSql(String tableName, String setClause, String whereClause) {
         StringBuilder sb = new StringBuilder("update ").append(quote(SqlName.check(tableName, "表名")))
                 .append(" set ").append(setClause);
-        if (whereClause != null && !whereClause.isEmpty()) {
+        if (StringUtils.isNotEmpty(whereClause)) {
             sb.append(" where ").append(whereClause);
         }
         return sb.toString();
@@ -315,7 +316,7 @@ public interface Dialect {
      */
     default String getDeleteSql(String tableName, String whereClause) {
         StringBuilder sb = new StringBuilder("delete from ").append(quote(SqlName.check(tableName, "表名")));
-        if (whereClause != null && !whereClause.isEmpty()) {
+        if (StringUtils.isNotEmpty(whereClause)) {
             sb.append(" where ").append(whereClause);
         }
         return sb.toString();
@@ -369,7 +370,7 @@ public interface Dialect {
      * @return 数据库名，无法解析返回 null
      */
     default String getDatabaseName(String url) {
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return null;
         }
         int protocolEnd = url.indexOf("://");
@@ -516,7 +517,7 @@ public interface Dialect {
         }
         String partitionType = tableMetadata.getPartitionType();
         ColumnMetadata partitionCol = tableMetadata.getPartitionColumn();
-        if (partitionType == null || partitionType.isEmpty() || partitionCol == null) {
+        if (StringUtils.isEmpty(partitionType) || partitionCol == null) {
             return "";
         }
         return doFormatPartitionSql(tableMetadata, partitionType.toUpperCase(), partitionCol);

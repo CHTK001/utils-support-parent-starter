@@ -357,7 +357,7 @@ public class DataSourceFlyway implements Flyway {
      * @return true 表示表存在（或无法判定）
      */
     private boolean tableExists(Connection conn, String table) {
-        if (table == null || table.isBlank()) {
+        if (StringUtils.isBlank(table)) {
             return true;
         }
         try {
@@ -392,7 +392,7 @@ public class DataSourceFlyway implements Flyway {
      * @return 可执行语句列表
      */
     private List<String> applyConversion(List<String> statements) {
-        if (protocol == null || protocol.isBlank()) {
+        if (StringUtils.isBlank(protocol)) {
             return statements;
         }
         ScriptConverter converter = ScriptConverter.getExtension(protocol);

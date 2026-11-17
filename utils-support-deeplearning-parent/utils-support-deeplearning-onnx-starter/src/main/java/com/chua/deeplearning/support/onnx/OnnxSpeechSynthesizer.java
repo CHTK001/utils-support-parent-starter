@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.onnx;
 import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.deeplearning.support.speech.SpeechSynthesizer;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ONNX 本地语音合成器实现。
@@ -70,7 +71,7 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
      * @return 结果字符串
      */
     private String resolveModel() {
-        return modelName != null && !modelName.isBlank() ? modelName : DEFAULT_MODEL;
+        return StringUtils.isNotBlank(modelName) ? modelName : DEFAULT_MODEL;
     }
 
     @Override

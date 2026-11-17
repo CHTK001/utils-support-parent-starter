@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 爬虫拦截过滤器，基于 用户-Agent 识别并拦截爬虫请求，并检测客户端的周期性重复请求。
@@ -151,19 +152,19 @@ public class CrawlerServerFilter implements ServerFilter {
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         String enabledVal = config.getInitParameter("crawler.enabled");
-        if (enabledVal != null && !enabledVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(enabledVal)) {
             this.enabled = Boolean.parseBoolean(enabledVal);
         }
         String blockVal = config.getInitParameter("crawler.blockEnabled");
-        if (blockVal != null && !blockVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(blockVal)) {
             this.blockEnabled = Boolean.parseBoolean(blockVal);
         }
         String statusVal = config.getInitParameter("crawler.blockStatus");
-        if (statusVal != null && !statusVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(statusVal)) {
             this.blockStatus = Integer.parseInt(statusVal);
         }
         String customKeywords = config.getInitParameter("crawler.customUaKeywords");
-        if (customKeywords != null && !customKeywords.isEmpty()) {
+        if (StringUtils.isNotEmpty(customKeywords)) {
             for (String keyword : customKeywords.split(",")) {
                 String trimmed = keyword.trim();
                 if (!trimmed.isEmpty()) {
@@ -172,23 +173,23 @@ public class CrawlerServerFilter implements ServerFilter {
             }
         }
         String periodEnabledVal = config.getInitParameter("crawler.periodEnabled");
-        if (periodEnabledVal != null && !periodEnabledVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(periodEnabledVal)) {
             this.periodEnabled = Boolean.parseBoolean(periodEnabledVal);
         }
         String minTimesVal = config.getInitParameter("crawler.periodMinTimes");
-        if (minTimesVal != null && !minTimesVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(minTimesVal)) {
             this.periodMinTimes = Integer.parseInt(minTimesVal);
         }
         String windowVal = config.getInitParameter("crawler.periodWindowSeconds");
-        if (windowVal != null && !windowVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(windowVal)) {
             this.periodWindowSeconds = Integer.parseInt(windowVal);
         }
         String ratioVal = config.getInitParameter("crawler.periodMaxIntervalRatio");
-        if (ratioVal != null && !ratioVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(ratioVal)) {
             this.periodMaxIntervalRatio = Double.parseDouble(ratioVal);
         }
         String cleanupVal = config.getInitParameter("crawler.cleanupIntervalSeconds");
-        if (cleanupVal != null && !cleanupVal.isEmpty()) {
+        if (StringUtils.isNotEmpty(cleanupVal)) {
             this.cleanupIntervalSeconds = Long.parseLong(cleanupVal);
         }
         // 未收到任何 crawler.* 配置时不挂载，也不起清理线程，避免默认策略拦掉正常流量
@@ -215,7 +216,7 @@ public class CrawlerServerFilter implements ServerFilter {
      * @return 非空非空白时返回 {@code true}
      */
     private static boolean present(String value) {
-        return value != null && !value.isEmpty();
+        return StringUtils.isNotEmpty(value);
     }
 
     /**
@@ -243,7 +244,7 @@ public class CrawlerServerFilter implements ServerFilter {
         String clientIp = resolveClientIp(request);
         String userAgent = request.getHeader("User-Agent");
 
-        if (userAgent != null && !userAgent.isEmpty() && isCrawler(userAgent)) {
+        if (StringUtils.isNotEmpty(userAgent) && isCrawler(userAgent)) {
             if (blockEnabled) {
                 response.end(blockStatus,
                         "{\"error\":\"Forbidden\",\"message\":\"crawler request blocked\"}");
@@ -300,7 +301,7 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private void detectPeriodicRequest(ServerRequest request, String clientIp) {
         String uri = request.getUri();
-        if (uri == null || uri.isEmpty()) {
+        if (StringUtils.isEmpty(uri)) {
             return;
         }
         String method = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
@@ -417,12 +418,12 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isEmpty()) {
+        if (StringUtils.isNotEmpty(forwarded)) {
             int idx = forwarded.indexOf(',');
             return idx > 0 ? forwarded.substring(0, idx).trim() : forwarded.trim();
         }
         String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isEmpty()) {
+        if (StringUtils.isNotEmpty(realIp)) {
             return realIp;
         }
         return request.getRemoteAddress();

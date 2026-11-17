@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Netty 的 WebSocket 同步客户端实现。
@@ -79,7 +80,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
      * @param serverUrl 服务端url
      */
     public NettyWebSocketSyncClient(String clientId, String serverUrl) {
-        this.clientId = clientId == null || clientId.isEmpty()
+        this.clientId = StringUtils.isEmpty(clientId)
                 ? java.util.UUID.randomUUID().toString()
                 : clientId;
         this.serverUrl = serverUrl == null ? "" : serverUrl.trim();

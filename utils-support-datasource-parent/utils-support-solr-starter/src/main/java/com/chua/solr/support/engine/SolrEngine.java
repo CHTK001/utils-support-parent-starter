@@ -54,6 +54,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.reflection.ReflectUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Solr 的检索引擎实现。
@@ -220,7 +221,7 @@ public class SolrEngine extends AbstractEngine {
         String collectionName = getTableName(entityClass);
         try {
             org.apache.solr.client.solrj.SolrQuery query = new org.apache.solr.client.solrj.SolrQuery();
-            if (where == null || where.isEmpty()) {
+            if (StringUtils.isEmpty(where)) {
                 query.setQuery("*:*");
             } else {
                 query.setQuery(where);
@@ -631,7 +632,7 @@ public class SolrEngine extends AbstractEngine {
                 sq.setParam("json.facet", jsonFacet);
                 sq.setStart(offset);
                 sq.setRows(limit);
-                if (sortCol != null && !sortCol.isEmpty()) {
+                if (StringUtils.isNotEmpty(sortCol)) {
                     sq.setSort(sortCol, sortAsc
                             ? org.apache.solr.client.solrj.SolrQuery.ORDER.asc
                             : org.apache.solr.client.solrj.SolrQuery.ORDER.desc);

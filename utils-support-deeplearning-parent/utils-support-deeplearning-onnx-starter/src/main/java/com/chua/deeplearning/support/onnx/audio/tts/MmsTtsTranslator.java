@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MMS-TTS（VITS）语音合成器。
@@ -148,7 +149,7 @@ public class MmsTtsTranslator {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
@@ -295,7 +296,7 @@ public class MmsTtsTranslator {
      */
     public byte[] synthesize(String text) {
         try {
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 throw new IllegalArgumentException("文本不能为空");
             }
             prepare();

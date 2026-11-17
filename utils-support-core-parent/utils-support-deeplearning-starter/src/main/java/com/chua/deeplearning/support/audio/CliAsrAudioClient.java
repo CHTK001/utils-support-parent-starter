@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于外部 CLI 运行时（nemo-speech）的本地 ASR 客户端，
@@ -174,7 +175,7 @@ public class CliAsrAudioClient implements VirtualClient {
      * @return 翻译器
      */
     private CliAsrTranslator translator() {
-        String m = model != null && !model.isBlank() ? model : DEFAULT_MODEL;
+        String m = StringUtils.isNotBlank(model) ? model : DEFAULT_MODEL;
         CliAsrTranslator t = new CliAsrTranslator(CliModelRunner.nemoSpeech(), m);
         return t;
     }

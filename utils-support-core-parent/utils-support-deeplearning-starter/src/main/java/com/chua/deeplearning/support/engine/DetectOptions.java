@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.engine;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 检测/识别门面运行参数工具。
@@ -124,7 +125,7 @@ public final class DetectOptions {
          * @return 当前构造器
          */
         public Builder put(String key, Object value) {
-            if (key == null || key.isBlank() || value == null) {
+            if (StringUtils.isBlank(key) || value == null) {
                 return this;
             }
             if (value instanceof String text && text.isBlank()) {

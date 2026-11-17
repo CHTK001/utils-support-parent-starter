@@ -165,7 +165,7 @@ public final class NetUtils {
             return ips.getFirst();
         }
         String localHost = getLocalHost();
-        if (localHost != null && !localHost.isBlank() && !isLocalHost(localHost)) {
+        if (StringUtils.isNotBlank(localHost) && !isLocalHost(localHost)) {
             return localHost;
         }
         return LOCALHOST;

@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SCNet 客户端（计算服务）用量解析器。
@@ -208,7 +209,7 @@ public class ScnetUsageParser extends BaseUsageParser {
                                String fallback) {
         JsonNode message = resolveMessage(candidate);
         String role = message.get("role").toStringValue();
-        if (role != null && !role.isBlank() && !"assistant".equals(role)) {
+        if (StringUtils.isNotBlank(role) && !"assistant".equals(role)) {
             return;
         }
         JsonNode usage = resolveUsage(candidate, message);
@@ -342,11 +343,11 @@ public class ScnetUsageParser extends BaseUsageParser {
      */
     private static String callKey(JsonNode message, String fallback) {
         String responseId = message.get("responseId").toStringValue();
-        if (responseId != null && !responseId.isBlank()) {
+        if (StringUtils.isNotBlank(responseId)) {
             return responseId;
         }
         String id = message.get("id").toStringValue();
-        if (id != null && !id.isBlank()) {
+        if (StringUtils.isNotBlank(id)) {
             return id;
         }
         long timestamp = message.get("timestamp").toLongValue(0L);

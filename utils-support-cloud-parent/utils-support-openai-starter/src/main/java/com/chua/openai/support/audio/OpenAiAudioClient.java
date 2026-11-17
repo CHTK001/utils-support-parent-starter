@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 语音识别（ASR / STT）客户端。
@@ -187,10 +188,10 @@ public class OpenAiAudioClient implements VirtualClient {
             HttpClientBuilder builder = newBuilder("/audio/transcriptions")
                     .formData("model", model != null ? model : DEFAULT_MODEL)
                     .formData("file", fileBytes, contentType, filename);
-            if (language != null && !language.isBlank()) {
+            if (StringUtils.isNotBlank(language)) {
                 builder.formData("language", language);
             }
-            if (prompt != null && !prompt.isBlank()) {
+            if (StringUtils.isNotBlank(prompt)) {
                 builder.formData("prompt", prompt);
             }
             ClientResponse resp = builder.post();
@@ -347,7 +348,7 @@ public class OpenAiAudioClient implements VirtualClient {
                 .connectTimeout(120000)
                 .readTimeout(120000);
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             String[] parts = proxyStr.replace("http://", "").replace("https://", "").split(":");
             if (parts.length == 2) {
                 builder.proxy(parts[0], Integer.parseInt(parts[1]));
@@ -363,7 +364,7 @@ public class OpenAiAudioClient implements VirtualClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SFTP 链式客户端，基于 Apache MINA SSHD 3.x。
@@ -158,10 +159,10 @@ public class SftpClient implements AutoCloseable {
             sshClient.start();
             session = sshClient.connect(username, host, port)
                     .verify(connectTimeout, TimeUnit.SECONDS).getSession();
-            if (password != null && !password.isEmpty()) {
+            if (StringUtils.isNotEmpty(password)) {
                 session.addPasswordIdentity(password);
             }
-            if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
+            if (StringUtils.isNotEmpty(privateKeyPath)) {
                 var provider = new org.apache.sshd.common.keyprovider.FileKeyPairProvider(
                         java.nio.file.Path.of(privateKeyPath));
                 for (java.security.KeyPair kp : provider.loadKeys(session)) {

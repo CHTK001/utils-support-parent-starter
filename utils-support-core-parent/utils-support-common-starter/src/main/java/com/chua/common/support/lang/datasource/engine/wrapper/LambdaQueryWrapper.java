@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.page.Page;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Lambda 查询包装器，提供类似 MyBatis-Plus 的链式查询条件构建和 SQL 生成功能。
@@ -238,10 +239,10 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return this
      */
     private LambdaQueryWrapper<T> addJoin(String joinType, String table, String alias, String onCondition) {
-        if (table == null || table.isBlank()) {
+        if (StringUtils.isBlank(table)) {
             throw new IllegalArgumentException("JOIN 表名不能为空");
         }
-        if (onCondition == null || onCondition.isBlank()) {
+        if (StringUtils.isBlank(onCondition)) {
             throw new IllegalArgumentException("JOIN ON 条件不能为空");
         }
         // 表名允许 "表名 别名" 两段写法，各段均须为合法标识符
@@ -253,7 +254,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
         if (tokens.length == 2) {
             checkIdentifier(tokens[1]);
         }
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             checkIdentifier(alias);
         }
         joins.add(new JoinClause(joinType, table.trim(), alias, onCondition));
@@ -274,14 +275,14 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return this
      */
     public LambdaQueryWrapper<T> selectFunc(String function, String column, String alias) {
-        if (function == null || function.isBlank()) {
+        if (StringUtils.isBlank(function)) {
             throw new IllegalArgumentException("聚合函数名不能为空");
         }
         checkIdentifier(function);
-        String expr = column == null || column.isBlank() || "*".equals(column)
+        String expr = StringUtils.isBlank(column) || "*".equals(column)
                 ? function + "(*)"
                 : function + "(" + checkIdentifier(column) + ")";
-        if (alias != null && !alias.isBlank()) {
+        if (StringUtils.isNotBlank(alias)) {
             expr = expr + " AS " + checkIdentifier(alias);
         }
         selectColumns.add(expr);
@@ -354,7 +355,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return this
      */
     public LambdaQueryWrapper<T> having(String condition, Object... params) {
-        if (condition == null || condition.isBlank()) {
+        if (StringUtils.isBlank(condition)) {
             throw new IllegalArgumentException("HAVING 条件不能为空");
         }
         this.havingClause = condition;

@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 webdav 的配置保存/加载器。
@@ -45,7 +46,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         String password = this.setting.getPassword() != null ? this.setting.getPassword() : "";
         this.sardine = SardineFactory.begin(username, password);
         String endpoint = this.setting.getEndpoint();
-        if (endpoint == null || endpoint.isEmpty()) {
+        if (StringUtils.isEmpty(endpoint)) {
             throw new IllegalArgumentException("WebDAV 配置必须指定 endpoint");
         }
         String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";

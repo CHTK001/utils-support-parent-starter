@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Telnet Shell 服务器 — 提供远程字符界面。
@@ -172,7 +173,7 @@ public class TelnetServer {
             LOG.log(Level.WARNING, "Shell 服务器已运行");
             return;
         }
-        InetAddress bind = InetAddress.getByName(host == null || host.isBlank() ? DEFAULT_BIND : host);
+        InetAddress bind = InetAddress.getByName(StringUtils.isBlank(host) ? DEFAULT_BIND : host);
         this.bindAddress = host;
         this.serverSocket = new ServerSocket(port, 16, bind);
         this.sessions = new Semaphore(maxSessions);

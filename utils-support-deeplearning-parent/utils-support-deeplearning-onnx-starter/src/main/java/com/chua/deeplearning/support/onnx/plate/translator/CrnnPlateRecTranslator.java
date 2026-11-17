@@ -12,6 +12,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.plate.PlateResult;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -149,7 +150,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
      * @return normalize铭牌文本的结果
      */
     private String normalizePlateText(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return "";
         }
 

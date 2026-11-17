@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 分析引擎链式构建器。
@@ -86,7 +87,7 @@ public final class UebaEngineBuilder {
      * @throws IllegalArgumentException 当 文件 为 空 或空白时
      */
     public UebaEngineBuilder configFile(String file) {
-        if (file == null || file.isBlank()) {
+        if (StringUtils.isBlank(file)) {
             throw new IllegalArgumentException("file 不能为 null 或空白");
         }
         this.config = UebaConfig.load(Paths.get(file));
@@ -101,7 +102,7 @@ public final class UebaEngineBuilder {
      * @throws IllegalArgumentException 当 resource 为 空/空白或资源不存在时
      */
     public UebaEngineBuilder configResource(String resource) {
-        if (resource == null || resource.isBlank()) {
+        if (StringUtils.isBlank(resource)) {
             throw new IllegalArgumentException("resource 不能为 null 或空白");
         }
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(resource)) {
@@ -159,7 +160,7 @@ public final class UebaEngineBuilder {
         if (config == null) {
             configResource(DEFAULT_CONFIG_RESOURCE);
         }
-        if (modelDir != null && !modelDir.isBlank()) {
+        if (StringUtils.isNotBlank(modelDir)) {
             System.setProperty(AutoEncoderIpTranslator.MODEL_DIR_PROPERTY, modelDir);
             log.debug("[UEBA-Builder] ueba.model.dir={}", modelDir);
         }

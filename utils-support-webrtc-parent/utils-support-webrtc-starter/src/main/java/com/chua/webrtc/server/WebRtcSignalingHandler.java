@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WebSocket 信令 Handler。
@@ -114,7 +115,7 @@ public class WebRtcSignalingHandler implements ServerHandler {
      * @return true 表示通过
      */
     private static boolean isAuthorized(String handshake, String expected) {
-        if (expected == null || expected.isEmpty()) {
+        if (StringUtils.isEmpty(expected)) {
             return true;
         }
         String actual = queryParam(handshake, "token");
@@ -194,7 +195,7 @@ public class WebRtcSignalingHandler implements ServerHandler {
         StringBuilder sb = new StringBuilder("HTTP/1.1 101 Switching Protocols\r\n");
         sb.append("Upgrade: websocket\r\n");
         sb.append("Connection: Upgrade\r\n");
-        if (key != null && !key.isEmpty()) {
+        if (StringUtils.isNotEmpty(key)) {
             sb.append("Sec-WebSocket-Accept: ").append(acceptKey(key)).append("\r\n");
         }
         sb.append("\r\n");

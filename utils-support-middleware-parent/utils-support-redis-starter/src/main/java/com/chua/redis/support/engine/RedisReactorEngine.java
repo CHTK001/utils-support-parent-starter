@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Lettuce 的 Redis 响应式引擎，实现 reactorengine 接口。
@@ -119,7 +120,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return this
      */
     public RedisReactorEngine addDataSource(String name, String redisUrl, String password) {
-        if (redisUrl == null || redisUrl.isEmpty()) {
+        if (StringUtils.isEmpty(redisUrl)) {
             throw new IllegalArgumentException("Redis URL cannot be null or empty");
         }
         String url = attachPassword(normalizeUrl(redisUrl), password);
@@ -154,7 +155,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 含凭据的 URL
      */
     private static String attachPassword(String url, String password) {
-        if (password == null || password.isEmpty()) {
+        if (StringUtils.isEmpty(password)) {
             return url;
         }
         int schemeEnd = url.indexOf("://");
@@ -839,7 +840,7 @@ public class RedisReactorEngine implements ReactorEngine {
     public Flux<String> scanKeys(String pattern) {
         return Mono.fromCallable(() -> {
             RedisCommands<String, String> conn = commands(defaultDataSourceName);
-            ScanArgs scanArgs = pattern == null || pattern.isEmpty()
+            ScanArgs scanArgs = StringUtils.isEmpty(pattern)
                     ? ScanArgs.Builder.limit(500)
                     : ScanArgs.Builder.matches(pattern).limit(500);
             List<String> keys = Wraps.list();

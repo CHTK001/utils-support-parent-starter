@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Microsoft Mage 多模态理解客户端（SPI provider="mage"）。
@@ -289,7 +290,7 @@ public class MageChatClient implements ChatClient {
      */
     private Map<String, Object> postChatCompletions(String prompt) {
         JsonObject requestBody = JsonObject.create()
-                .fluentPut("model", model != null && !model.isBlank() ? model : DEFAULT_MODEL)
+                .fluentPut("model", StringUtils.isNotBlank(model) ? model : DEFAULT_MODEL)
                 .fluentPut("messages", buildMessages(prompt));
 
         ClientResponse resp = HttpClientFactory.of(normalizeBaseUrl())
@@ -322,7 +323,7 @@ public class MageChatClient implements ChatClient {
      */
     private List<JsonObject> buildMessages(String prompt) {
         List<JsonObject> messages = Wraps.list();
-        if (system != null && !system.isBlank()) {
+        if (StringUtils.isNotBlank(system)) {
             messages.add(JsonObject.create()
                     .fluentPut("role", "system")
                     .fluentPut("content", system));
@@ -437,7 +438,7 @@ public class MageChatClient implements ChatClient {
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
-        return (appKey == null || appKey.isBlank()) ? "" : "Bearer " + appKey;
+        return (StringUtils.isBlank(appKey)) ? "" : "Bearer " + appKey;
     }
 
     /**
@@ -450,7 +451,7 @@ public class MageChatClient implements ChatClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         while (url.endsWith("/")) {

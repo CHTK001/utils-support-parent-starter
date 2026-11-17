@@ -17,6 +17,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 百度文心一言大模型对话客户端
@@ -339,7 +340,7 @@ public class BaiduChatClient implements ChatClient {
                     .temperature(temperature != null ? temperature : 0.3)
                     .maxOutputTokens(maxTokens != null ? maxTokens : 2048);
 
-            if (actualSystem != null && !actualSystem.isEmpty()) {
+            if (StringUtils.isNotEmpty(actualSystem)) {
                 builder.system(actualSystem);
             }
             if (smartSearch) {
@@ -392,7 +393,7 @@ public class BaiduChatClient implements ChatClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = "https://aip.baidubce.com";
         }
         if (url.endsWith("/")) {
@@ -409,7 +410,7 @@ public class BaiduChatClient implements ChatClient {
      * @param proxyStr 代理地址字符串，如 http://127.0.0.1:8080 或 socks5://127.0.0.1:1080
      */
     private static void configureProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return;
         }
         String hostPort;

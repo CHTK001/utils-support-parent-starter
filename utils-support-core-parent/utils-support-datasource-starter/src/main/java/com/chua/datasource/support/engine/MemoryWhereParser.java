@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 内存 WHERE 条件解析器。
@@ -378,7 +379,7 @@ public class MemoryWhereParser {
     private static Collection<Object> readInValues(String placeholders, List<Object> params,
                                                    int[] idxHolder, String where) {
         Collection<Object> values = Wraps.list();
-        if (placeholders == null || placeholders.isBlank()) {
+        if (StringUtils.isBlank(placeholders)) {
             return values;
         }
         for (String token : placeholders.split(",")) {

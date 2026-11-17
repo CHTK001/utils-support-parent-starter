@@ -297,7 +297,7 @@ public class DuckChatClient implements ChatClient {
             return;
         }
         history.add(ChatMessage.builder().role("user").content(prompt).build());
-        if (answer != null && !answer.isEmpty()) {
+        if (StringUtils.isNotEmpty(answer)) {
             history.add(ChatMessage.builder().role("assistant").content(answer).build());
         }
     }
@@ -467,7 +467,7 @@ public class DuckChatClient implements ChatClient {
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                 int width, int height, String quality,
                                                 String refImageKey) {
-        if (prompt == null || prompt.isBlank()) {
+        if (StringUtils.isBlank(prompt)) {
             throw new IllegalArgumentException("图像生成提示词不能为空");
         }
         int count = Math.max(1, n);
@@ -487,17 +487,17 @@ public class DuckChatClient implements ChatClient {
                     @Override
                     public void onText(String delta) {
                         // 图像生成流里也混有解释文本；统一入口不单独暴露
-                        if (delta != null && !delta.isEmpty()) {
+                        if (StringUtils.isNotEmpty(delta)) {
                             log.debug("[duck] 图像生成流文本片段: {}", delta);
                         }
                     }
 
                     @Override
                     public void onImage(String b64Image, String imageFormat, int imageWidth, int imageHeight) {
-                        if (b64Image == null || b64Image.isEmpty()) {
+                        if (StringUtils.isEmpty(b64Image)) {
                             return;
                         }
-                        String format = imageFormat == null || imageFormat.isBlank()
+                        String format = StringUtils.isBlank(imageFormat)
                                 ? "png"
                                 : imageFormat.trim().toLowerCase();
                         String dataUrl = "data:image/" + format + ";base64," + b64Image;
@@ -556,7 +556,7 @@ public class DuckChatClient implements ChatClient {
      * @return 计算结果；无法解析返回 0
      */
     private static int applyRatio(int knownSize, String ratio, boolean forWidth) {
-        if (ratio == null || ratio.isBlank() || knownSize <= 0) {
+        if (StringUtils.isBlank(ratio) || knownSize <= 0) {
             return 0;
         }
         int colon = ratio.indexOf(':');

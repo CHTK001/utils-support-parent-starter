@@ -11,6 +11,7 @@ import com.ruiyun.jvppeteer.api.core.Browser;
 import com.ruiyun.jvppeteer.api.core.Page;
 import com.ruiyun.jvppeteer.cdp.entities.WaitForNetworkIdleOptions;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Jvppeteer 浏览器渲染解析器
@@ -69,7 +70,7 @@ public class JvppeteerParser implements SpiderParser {
     @Override
     public SpiderResult parse(SpiderResponse response) {
         String content = response == null ? null : response.getContent();
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return null;
         }
         Page page = null;

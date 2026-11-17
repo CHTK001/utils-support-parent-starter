@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 kcp-基础 的 KCP 消息客户端实现，与 {@link KcpServer} 配对使用。
@@ -446,7 +447,7 @@ public class KcpClient {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage annotation = method.getAnnotation(OnMessage.class);
                 String topic = annotation.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "#";
                 }
                 onMessageMethods.add(new AnnotatedMessage(clazz, method, topic));

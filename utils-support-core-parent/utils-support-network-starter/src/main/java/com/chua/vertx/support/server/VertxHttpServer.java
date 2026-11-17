@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import com.chua.common.support.network.server.ServerAttribute;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
@@ -211,7 +212,7 @@ public class VertxHttpServer extends AbstractServer {
         if (cors != null && cors.isAllowOrigin()) {
             CorsHandler corsHandler = CorsHandler.create();
             String origins = cors.getAllowedOrigins();
-            if (origins != null && !origins.isBlank()) {
+            if (StringUtils.isNotBlank(origins)) {
                 for (String origin : origins.split(",")) {
                     corsHandler.addOrigin(origin.trim());
                 }
@@ -219,7 +220,7 @@ public class VertxHttpServer extends AbstractServer {
                 corsHandler.addOrigin("*");
             }
             String methods = cors.getAllowedMethods();
-            if (methods != null && !methods.isBlank()) {
+            if (StringUtils.isNotBlank(methods)) {
                 for (String m : methods.split(",")) {
                     try {
                         corsHandler.allowedMethod(io.vertx.core.http.HttpMethod.valueOf(m.trim()));
@@ -229,7 +230,7 @@ public class VertxHttpServer extends AbstractServer {
                 }
             }
             String headers = cors.getAllowedHeaders();
-            if (headers != null && !headers.isBlank()) {
+            if (StringUtils.isNotBlank(headers)) {
                 for (String h : headers.split(",")) {
                     corsHandler.allowedHeader(h.trim());
                 }
@@ -239,7 +240,7 @@ public class VertxHttpServer extends AbstractServer {
 
         // contextPath：非 "/" 时限制路由前缀
         String contextPath = setting.getContextPath();
-        boolean hasContextPath = contextPath != null && !contextPath.isEmpty() && !"/".equals(contextPath);
+        boolean hasContextPath = StringUtils.isNotEmpty(contextPath) && !"/".equals(contextPath);
         io.vertx.ext.web.Route rootRoute = hasContextPath
                 ? router.route(contextPath + "/*")
                 : router.route();
@@ -894,7 +895,7 @@ public class VertxHttpServer extends AbstractServer {
                 return;
             }
             StringBuilder sb = new StringBuilder();
-            if (event != null && !event.isEmpty()) {
+            if (StringUtils.isNotEmpty(event)) {
                 sb.append("event: ").append(event).append("\n");
             }
             if (data != null) {

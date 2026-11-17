@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * oh-my-pi（omp）用量解析器。
@@ -63,7 +64,7 @@ public class OmpUsageParser extends BaseUsageParser {
      */
     public OmpUsageParser() {
         String home = System.getenv("OMP_HOME");
-        Path ompHome = (home != null && !home.isBlank())
+        Path ompHome = (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".omp");
         this.sessionsDir = ompHome.resolve("agent").resolve("sessions");
@@ -165,7 +166,7 @@ public class OmpUsageParser extends BaseUsageParser {
                 return null;
             }
             String id = entry.get("id").toStringValue();
-            if (id != null && !id.isBlank() && !seenIds.add(id)) {
+            if (StringUtils.isNotBlank(id) && !seenIds.add(id)) {
                 return null;
             }
 
@@ -181,7 +182,7 @@ public class OmpUsageParser extends BaseUsageParser {
 
             return AiUsage.builder()
                     .provider(PROVIDER_OMP)
-                    .model(model != null && !model.isBlank() ? model : UNKNOWN_MODEL)
+                    .model(StringUtils.isNotBlank(model) ? model : UNKNOWN_MODEL)
                     .requestId(id != null ? id : "")
                     .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                     .outputTokens(output)

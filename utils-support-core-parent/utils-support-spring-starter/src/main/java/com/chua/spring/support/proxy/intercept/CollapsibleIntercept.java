@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 折叠拦截器，处理 {@link Collapsible} 注解标注的方法。
@@ -126,7 +127,7 @@ public class CollapsibleIntercept
      */
     private Object resolveFallback(Collapsible annotation, ProxyMethod proxyMethod, Throwable cause) {
         String fallback = annotation.fallback();
-        if (fallback == null || fallback.isBlank()) {
+        if (StringUtils.isBlank(fallback)) {
             throw collapseException(cause);
         }
         Object fallbackResult = FallbackResolver.resolve(fallback, proxyMethod);
@@ -230,7 +231,7 @@ public class CollapsibleIntercept
      */
     private String resolveName(Collapsible annotation, ProxyMethod proxyMethod) {
         String name = annotation.name();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             Method method = proxyMethod.getMethod();
             Object target = proxyMethod.getTarget();
             Class<?> type = null;
@@ -418,7 +419,7 @@ public class CollapsibleIntercept
      */
     private static Function<Object, Object> resolveKeyExtractor(Collapsible annotation) {
         String key = annotation.key();
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return Function.identity();
         }
         Expression expression = SPEL_CACHE.computeIfAbsent(key, SPEL_PARSER::parseExpression);

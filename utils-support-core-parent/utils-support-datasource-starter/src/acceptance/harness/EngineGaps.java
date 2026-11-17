@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.util.List;
 import java.util.Properties;
 import com.chua.influxdb.support.engine.InfluxdbSeriesEngine;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 阶段五：补齐 KvEngine / SeriesEngine 全子类与 monitor 装配面。
@@ -186,7 +187,7 @@ public final class EngineGaps {
         });
         EngineFunctional.check(p + "Noop.engine() 非空", () -> {
             String e = none.engine();
-            if (e == null || e.isEmpty()) {
+            if (StringUtils.isEmpty(e)) {
                 throw new EngineFunctional.HarnessFailure("engine() 返回空");
             }
             return e;

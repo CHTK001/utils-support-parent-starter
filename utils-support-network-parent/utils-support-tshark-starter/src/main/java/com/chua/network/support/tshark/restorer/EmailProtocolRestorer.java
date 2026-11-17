@@ -2,6 +2,7 @@ package com.chua.network.support.tshark.restorer;
 
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 邮件类协议还原器：SMTP / POP3 / IMAP 的命令、响应与 MIME 报文。
@@ -149,7 +150,7 @@ public class EmailProtocolRestorer extends AbstractProtocolRestorer {
      * @return 首行
      */
     protected static String firstLine(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return "";
         }
         int index = text.indexOf('\n');

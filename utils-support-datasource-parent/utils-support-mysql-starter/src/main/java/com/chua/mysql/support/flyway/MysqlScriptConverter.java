@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 系迁移脚本方言转换器（{@code ScriptConverter} 的 mysql 协议实现）。
@@ -95,12 +96,12 @@ public class MysqlScriptConverter extends DefaultScriptConverter {
             return result;
         }
         for (String statement : statements) {
-            if (statement == null || statement.isBlank()) {
+            if (StringUtils.isBlank(statement)) {
                 continue;
             }
             if (!expandGuardedDdl(statement, result)) {
                 String converted = super.convert(statement, protocol);
-                if (converted != null && !converted.isBlank()) {
+                if (StringUtils.isNotBlank(converted)) {
                     result.add(converted);
                 }
             }

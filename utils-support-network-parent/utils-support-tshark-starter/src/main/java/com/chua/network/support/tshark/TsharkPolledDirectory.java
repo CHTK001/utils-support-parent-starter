@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark 抓包文件轮询目录。
@@ -178,7 +179,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
      * @param binary tshark 可执行文件路径
      */
     public void setTsharkBinary(String binary) {
-        if (binary != null && !binary.isBlank()) {
+        if (StringUtils.isNotBlank(binary)) {
             TsharkCliConfig current = cliConfig.get();
             this.cliConfig.set(TsharkCliConfig.builder()
                     .from(current)

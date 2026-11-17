@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Socket.IO 分发器提供者，基于 Socket.io-客户端 连接远程 Socket.IO 服务。
@@ -158,7 +159,7 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         String url = config.getUrl();
         String host = "localhost";
         int port = 9092;
-        if (url != null && !url.isEmpty()) {
+        if (StringUtils.isNotEmpty(url)) {
             url = url.replaceAll("^socketio://", "")
                     .replaceAll("^http://", "")
                     .replaceAll("^https://", "");

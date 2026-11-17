@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 路由模式发现：subnet 网段内 gossip 探测扩散。
@@ -121,7 +122,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
      */
     private List<ScatterNode> resolveSubnetNodes() {
         String subnet = setting.getSubnet();
-        if (subnet == null || subnet.isBlank()) {
+        if (StringUtils.isBlank(subnet)) {
             return List.of();
         }
         String[] parts = subnet.trim().split("/");

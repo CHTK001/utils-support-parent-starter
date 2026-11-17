@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * zeromq 消息分发器提供者（jeromq，纯 Java 无需原生依赖）。
@@ -133,7 +134,7 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
      * @return 序列化器实例，加载失败时回退 Jackson
      */
     private static Serialization resolveSerializer(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return JacksonSerialization.INSTANCE;
         }
         try {

@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 解析 {@link IpcMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
@@ -123,13 +124,13 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
      */
     private static String joinPath(String basePath, String methodName) {
         StringBuilder sb = new StringBuilder();
-        if (basePath != null && !basePath.isEmpty()) {
+        if (StringUtils.isNotEmpty(basePath)) {
             if (!basePath.startsWith("/")) {
                 sb.append("/");
             }
             sb.append(basePath);
         }
-        if (methodName != null && !methodName.isEmpty()) {
+        if (StringUtils.isNotEmpty(methodName)) {
             if (!methodName.startsWith("/") && !sb.isEmpty() && !sb.toString().endsWith("/")) {
                 sb.append("/");
             }

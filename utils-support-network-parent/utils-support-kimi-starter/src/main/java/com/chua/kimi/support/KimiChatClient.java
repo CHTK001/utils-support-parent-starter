@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kimi 网页版逆向代理对话客户端。
@@ -525,7 +526,7 @@ public class KimiChatClient implements ChatClient {
             String thinkText = result.thinkingContent();
 
  // 先发送 Streaming 让 对话同步 能收集到内容
-            if (fullText != null && !fullText.isEmpty()) {
+            if (StringUtils.isNotEmpty(fullText)) {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STREAMING)
                         .content(fullText)
@@ -667,7 +668,7 @@ try {
                         if (content == null) {
                             content = extractThink(event);
                         }
-                        if (content != null && !content.isEmpty()) {
+                        if (StringUtils.isNotEmpty(content)) {
                             if ("thinking".equals(phase) && thinking.length() == 0) {
                                 thinking.append(content);
                             } else if (!"thinking".equals(phase)) {
@@ -762,13 +763,13 @@ try {
      */
     private String formatMessages(List<ChatMessage> msgs, String prompt, String system) {
         StringBuilder body = new StringBuilder();
-        if (system != null && !system.isBlank()) {
+        if (StringUtils.isNotBlank(system)) {
             body.append("system:").append(system);
         }
         for (ChatMessage msg : msgs) {
             String role = msg.getRole();
             String content = msg.getContent();
-            if (content == null || content.isBlank()) {
+            if (StringUtils.isBlank(content)) {
                 continue;
             }
             if ("system".equals(role)) {
@@ -801,7 +802,7 @@ try {
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return images;
         }
         Matcher matcher = Pattern.compile(

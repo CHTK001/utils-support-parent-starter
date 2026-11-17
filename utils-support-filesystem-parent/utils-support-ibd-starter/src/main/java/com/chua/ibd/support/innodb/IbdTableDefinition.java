@@ -1,6 +1,7 @@
 package com.chua.ibd.support.innodb;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 从 SDI 解析出来的表定义。
@@ -185,7 +186,7 @@ public final class IbdTableDefinition {
 
     @Override
     public String toString() {
-        return (schema == null || schema.isEmpty() ? "" : schema + ".") + name
+        return (StringUtils.isEmpty(schema) ? "" : schema + ".") + name
                 + " cols=" + columns.size() + " idx=" + indexes.size() + " row_format=" + rowFormat;
     }
 }

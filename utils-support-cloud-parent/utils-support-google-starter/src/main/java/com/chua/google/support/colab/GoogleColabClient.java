@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Google Colab Enterprise 客户端
@@ -80,7 +81,7 @@ public class GoogleColabClient implements AutoCloseable {
      */
     public GoogleColabClient(String projectId, String location, String serviceAccountJson) {
         this.projectId = projectId;
-        this.location = location != null && !location.isBlank() ? location : DEFAULT_LOCATION;
+        this.location = StringUtils.isNotBlank(location) ? location : DEFAULT_LOCATION;
         this.parent = "projects/" + projectId + "/locations/" + this.location;
         try {
             Credentials credentials = resolveCredentials(serviceAccountJson);
@@ -117,7 +118,7 @@ public class GoogleColabClient implements AutoCloseable {
      * @return 解析后的凭据，不会为 空
      */
     private static Credentials resolveCredentials(String secret) {
-        if (secret != null && !secret.isBlank()) {
+        if (StringUtils.isNotBlank(secret)) {
             String trimmed = secret.trim();
             if (trimmed.startsWith("{")) {
                 try {
@@ -234,7 +235,7 @@ public class GoogleColabClient implements AutoCloseable {
                                          String templateId, String displayName) {
         String jobId = "exec-" + java.util.UUID.randomUUID();
         NotebookExecutionJob job = NotebookExecutionJob.newBuilder()
-                .setDisplayName(displayName == null || displayName.isBlank() ? jobId : displayName)
+                .setDisplayName(StringUtils.isBlank(displayName) ? jobId : displayName)
                 .setGcsNotebookSource(NotebookExecutionJob.GcsNotebookSource.newBuilder()
                         .setUri(notebookUri))
                 .setGcsOutputUri(outputUri)

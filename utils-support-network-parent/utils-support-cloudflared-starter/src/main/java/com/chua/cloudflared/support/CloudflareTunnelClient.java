@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 Cloudflare Tunnel 客户端，管理内嵌 {@code cloudflared} 进程生命周期。
@@ -268,7 +269,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
      */
     @Nonnull
     public CloudflareTunnelClient logLevel(@Nullable String logLevel) {
-        if (logLevel != null && !logLevel.isBlank()) {
+        if (StringUtils.isNotBlank(logLevel)) {
             this.logLevel = logLevel.trim();
         }
         return this;
@@ -435,7 +436,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
         if (noAutoUpdate) {
             command.add("--no-autoupdate");
         }
-        if (token != null && !token.isBlank()) {
+        if (StringUtils.isNotBlank(token)) {
             command.add("tunnel");
             command.add("run");
             command.add("--token");
@@ -443,11 +444,11 @@ public class CloudflareTunnelClient implements AutoCloseable {
         } else {
             command.add("tunnel");
         }
-        if (url != null && !url.isBlank()) {
+        if (StringUtils.isNotBlank(url)) {
             command.add("--url");
             command.add(url);
         }
-        if (hostname != null && !hostname.isBlank()) {
+        if (StringUtils.isNotBlank(hostname)) {
             command.add("--hostname");
             command.add(hostname);
         }
@@ -494,7 +495,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
      * @param urlReady 就绪信号
      */
     private void handleOutputLine(String line, CountDownLatch urlReady) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return;
         }
         String urlCandidate = extractUrl(line);

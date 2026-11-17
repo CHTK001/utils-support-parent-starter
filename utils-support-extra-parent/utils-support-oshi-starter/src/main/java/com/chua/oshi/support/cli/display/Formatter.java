@@ -3,6 +3,7 @@ package com.chua.oshi.support.cli.display;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 终端面板/表格渲染工具，输出风格与 ocgc 一致。
@@ -108,7 +109,7 @@ public final class Formatter {
 
         StringBuilder sb = new StringBuilder();
         int total = Arrays.stream(widths).sum() + cols * 3 + 1;
-        if (title != null && !title.isEmpty()) {
+        if (StringUtils.isNotEmpty(title)) {
             int left = Math.max(1, (total - width(title) - 2) / 2);
             int right = Math.max(1, total - width(title) - 2 - left);
             sb.append("┏").append(repeat("━", left)).append(' ').append(title).append(' ')

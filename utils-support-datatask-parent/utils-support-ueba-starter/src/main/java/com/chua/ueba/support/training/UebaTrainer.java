@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 训练管线。
@@ -132,7 +133,7 @@ public class UebaTrainer {
         if (learningRate <= 0.0d) {
             throw new IllegalArgumentException("learningRate 必须大于 0, 实际: " + learningRate);
         }
-        if (pythonCommand == null || pythonCommand.isBlank()) {
+        if (StringUtils.isBlank(pythonCommand)) {
             throw new IllegalArgumentException("pythonCommand 不能为 null 或空白");
         }
         this.config = config;

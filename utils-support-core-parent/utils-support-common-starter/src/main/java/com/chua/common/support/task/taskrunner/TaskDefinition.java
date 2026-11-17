@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 任务定义 — 任务runner 中单个任务节点的声明式配置。
@@ -118,7 +119,7 @@ public final class TaskDefinition {
      * @return 返回值
     */
     TaskDefinition(TaskRunner owner, String id, Function<RunnerContext, Object> action) {
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("节点 id 不能为空");
         }
         this.owner = Objects.requireNonNull(owner, "owner must not be null");

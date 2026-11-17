@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK 内置 HttpServer 的 WebSocket 服务端。
@@ -183,7 +184,7 @@ public class JdkWebSocketServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 ServerHandler serverHandler = createMessageHandler(handler, method);

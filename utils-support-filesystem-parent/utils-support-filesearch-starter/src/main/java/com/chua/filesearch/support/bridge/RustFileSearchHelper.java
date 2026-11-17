@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 
 
@@ -123,7 +124,7 @@ public class RustFileSearchHelper {
 
         try (Stream<Path> stream = Files.walk(root)) {
             stream.filter(Files::isRegularFile)
-                    .filter(p -> namePattern == null || namePattern.isBlank()
+                    .filter(p -> StringUtils.isBlank(namePattern)
                             || matchesGlob(p.getFileName().toString(), namePattern))
                     .limit(maxResults)
                     .forEach(p -> {
@@ -160,7 +161,7 @@ public class RustFileSearchHelper {
      * @return 匹配glob的结果
      */
     private static boolean matchesGlob(String name, String pattern) {
-        if (pattern == null || pattern.isEmpty() || "*".equals(pattern)) {
+        if (StringUtils.isEmpty(pattern) || "*".equals(pattern)) {
             return true;
         }
         String regex = pattern
@@ -374,7 +375,7 @@ public class RustFileSearchHelper {
      * @return resolve根路径的结果
      */
     private static String resolveRootPath(String rootPath) {
-        if (rootPath != null && !rootPath.isBlank()) {
+        if (StringUtils.isNotBlank(rootPath)) {
             return rootPath;
         }
         return System.getProperty("user.dir");

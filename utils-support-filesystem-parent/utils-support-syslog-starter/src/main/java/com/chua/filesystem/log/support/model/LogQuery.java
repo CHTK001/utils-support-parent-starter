@@ -1,6 +1,7 @@
 package com.chua.filesystem.log.support.model;
 
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 系统日志查询条件
@@ -44,7 +45,7 @@ public record LogQuery(
         if (maxResults <= 0) {
             maxResults = DEFAULT_MAX_RESULTS;
         }
-        if (order == null || order.isBlank()) {
+        if (StringUtils.isBlank(order)) {
             order = ORDER_DESC;
         }
     }

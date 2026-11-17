@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Quarkus (CDI) Bean 定义注册器（只读）。
@@ -204,7 +205,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
             Set<String> names = Wraps.linkedSet();
             for (jakarta.enterprise.inject.spi.Bean<?> bean : cdi.getBeanManager().getBeans(Object.class)) {
                 String name = bean.getName();
-                if (name != null && !name.isEmpty()) {
+                if (StringUtils.isNotEmpty(name)) {
                     names.add(name);
                 }
             }

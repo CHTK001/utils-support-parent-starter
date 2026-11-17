@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式分支 when 段独立构造器。
@@ -71,7 +72,7 @@ public final class BranchWhenBuilder {
         if (!state.open) {
             throw new RuleException("as 必须紧跟 when 调用，当前没有待命名的分支");
         }
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("id 不能为 null 或空白");
         }
         if (state.id != null) {
@@ -93,7 +94,7 @@ public final class BranchWhenBuilder {
     public BranchWhenBuilder name(String name) {
         state.requireWritable();
         state.requireOpen();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         state.name = name;

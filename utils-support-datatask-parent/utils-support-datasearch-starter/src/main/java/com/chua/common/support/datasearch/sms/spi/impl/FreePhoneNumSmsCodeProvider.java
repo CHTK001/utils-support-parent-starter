@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 「FreePhoneNum」平台虚拟号码接码实现。
@@ -189,10 +190,10 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
             return Collections.emptyList();
         }
         String url = phone.getSmsUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = buildNumberUrl(phone);
         }
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             log.warn("[freephonenum] 号码 {} 缺少短信地址", phone.getPhone());
             return Collections.emptyList();
         }
@@ -203,7 +204,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
                     .header("Accept", "text/html,application/xhtml+xml")
                     .get()
                     .getBodyString();
-            if (html == null || html.isBlank()) {
+            if (StringUtils.isBlank(html)) {
                 log.warn("[freephonenum] 短信页响应为空: {}", url);
                 return Collections.emptyList();
             }
@@ -367,7 +368,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
                     .header("Accept", "text/html,application/xhtml+xml")
                     .get()
                     .getBodyString();
-            if (html == null || html.isBlank()) {
+            if (StringUtils.isBlank(html)) {
                 log.warn("[freephonenum] 号码列表页响应为空");
                 return Collections.emptyList();
             }
@@ -400,7 +401,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
             // 号码详情地址形如 https://freephonenum.com/be/receive-sms/460210041
             String countryCode = extractCountryCode(href);
             String id = extractNumberId(href, phone);
-            if (id == null || id.isEmpty() || seen.containsKey(id)) {
+            if (StringUtils.isEmpty(id) || seen.containsKey(id)) {
                 continue;
             }
             seen.put(id, SmsPhoneInfo.builder()
@@ -496,7 +497,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
      * @return 国家二字码，无法识别时为空
      */
     private static String extractCountryCode(String href) {
-        if (href == null || href.isEmpty()) {
+        if (StringUtils.isEmpty(href)) {
             return "";
         }
         Matcher matcher = COUNTRY_GROUP_PATTERN.matcher(href);
@@ -510,7 +511,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
      * @return 国家名称；未知返回空
      */
     private static String countryName(String code) {
-        if (code == null || code.isEmpty()) {
+        if (StringUtils.isEmpty(code)) {
             return "";
         }
         switch (code) {
@@ -581,7 +582,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
      * @return 验证码；未匹配到返回空
      */
     private static String extractVerifyCode(String content) {
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return "";
         }
         Matcher cn = CN_CODE_PATTERN.matcher(content);

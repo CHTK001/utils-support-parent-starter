@@ -5,6 +5,7 @@ import ai.onnxruntime.providers.OrtCUDAProviderOptions;
 import com.chua.deeplearning.support.engine.DeviceSelector;
 import com.chua.deeplearning.support.engine.ModelParams;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ONNX Runtime GPU 通用工具。
@@ -104,7 +105,7 @@ public final class GpuHelper {
      * @param modelId 模型标识
      */
     public static void apply(OrtSession.SessionOptions opts, String modelId) {
-        if (opts == null || modelId == null || modelId.isBlank()) {
+        if (opts == null || StringUtils.isBlank(modelId)) {
             apply(opts);
             return;
         }

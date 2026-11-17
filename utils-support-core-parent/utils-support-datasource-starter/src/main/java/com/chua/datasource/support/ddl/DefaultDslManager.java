@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用 JDBC DDL 管理器，作为 {@link DslManager} SPI 的兜底实现。
@@ -230,7 +231,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
     @Override
     public String renameTable(String schemaName, String oldTableName, String newTableName) {
         requireContext();
-        String schema = schemaName == null || schemaName.isEmpty() ? null : schemaName;
+        String schema = StringUtils.isEmpty(schemaName) ? null : schemaName;
         return dialect.getRenameTableString(schema, oldTableName, newTableName);
     }
 
@@ -308,7 +309,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         try (ResultSet rs = meta.getTables(catalog, null, table, new String[]{"TABLE"})) {
             if (rs.next()) {
                 String actual = rs.getString("TABLE_SCHEM");
-                if (actual != null && !actual.isEmpty()) {
+                if (StringUtils.isNotEmpty(actual)) {
                     return actual;
                 }
             }
@@ -334,12 +335,12 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      */
     private void appendColumnComment(StringBuilder sb, StringBuilder afterDdl, Dialect d,
                                      String schemaPrefix, String table, String colName, String comment) {
-        if (comment == null || comment.isEmpty()) {
+        if (StringUtils.isEmpty(comment)) {
             return;
         }
         if (d.supportsInlineComment()) {
             String inline = d.getColumnComment(comment);
-            if (inline != null && !inline.isEmpty()) {
+            if (StringUtils.isNotEmpty(inline)) {
                 sb.append(' ').append(inline);
             }
             return;
@@ -361,12 +362,12 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      */
     private void appendTableComment(StringBuilder sb, StringBuilder afterDdl, Dialect d,
                                     String schemaPrefix, String table, String comment) {
-        if (comment == null || comment.isEmpty()) {
+        if (StringUtils.isEmpty(comment)) {
             return;
         }
         if (d.supportsInlineComment()) {
             String inline = d.getTableComment(comment);
-            if (inline != null && !inline.isEmpty()) {
+            if (StringUtils.isNotEmpty(inline)) {
                 sb.append(' ').append(inline);
             }
             return;

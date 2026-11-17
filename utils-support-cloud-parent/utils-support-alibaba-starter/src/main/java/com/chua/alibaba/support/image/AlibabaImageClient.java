@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 阿里云通义万相图片生成客户端
@@ -242,7 +243,7 @@ public class AlibabaImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String taskId = createTask(actualPrompt);
@@ -275,7 +276,7 @@ public class AlibabaImageClient implements ImageClient {
     @Override
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : DEFAULT_MODEL;
@@ -304,7 +305,7 @@ public class AlibabaImageClient implements ImageClient {
             throw new RuntimeException("通义万相返回的任务 ID 为空");
         }
         String taskId = (String) output.get("task_id");
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             throw new RuntimeException("通义万相返回的任务 ID 为空");
         }
         log.debug("通义万相任务已提交，taskId: {}", taskId);
@@ -434,7 +435,7 @@ public class AlibabaImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

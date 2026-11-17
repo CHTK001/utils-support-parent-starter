@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 亚马逊 Bedrock 图片生成客户端
@@ -210,7 +211,7 @@ public class AmazonImageClient implements ImageClient {
     @Override
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "amazon.titan-image-generator-v1";
@@ -221,7 +222,7 @@ public BufferedImage generate(String prompt) {
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"textToImageParams\":{\"text\":\"")
                 .append(escapeJson(actualPrompt)).append("\"");
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             bodyBuilder.append(",\"negativeText\":\"")
                     .append(escapeJson(negativePrompt)).append("\"");
         }
@@ -312,7 +313,7 @@ public BufferedImage generate(String prompt) {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

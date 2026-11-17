@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MQTT 嵌入式服务器，轻量级实现。
@@ -207,7 +208,7 @@ public class MqttServer extends AbstractServer {
             return;
         }
         String host = setting.getHost();
-        boolean loopback = host == null || host.isEmpty()
+        boolean loopback = StringUtils.isEmpty(host)
                 || "127.0.0.1".equals(host) || "localhost".equals(host) || "::1".equals(host);
         if (!loopback) {
             log.warn("MQTT 服务器监听 {}:{} 且未配置 MqttAuthenticator，任意客户端均可连接并发布消息", host, setting.getPort());
@@ -427,7 +428,7 @@ public class MqttServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "#";
                 }
                 onMessageMethods.add(new AnnotatedMessage(clazz, method, topic));

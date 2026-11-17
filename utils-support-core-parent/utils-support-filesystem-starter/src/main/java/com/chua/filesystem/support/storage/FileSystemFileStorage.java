@@ -18,6 +18,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地文件系统文件存储实现。
@@ -121,7 +122,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     private String buildKey(PutObjectRequest request) {
         String path = request.getFilePath();
         String name = request.getFileName();
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             return path.replace('\\', '/') + "/" + name;
         }
         return name;
@@ -136,7 +137,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     private String buildKey(GetObjectRequest request) {
         String path = request.getFilePath();
         String name = request.getFileName();
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             return path.replace('\\', '/') + "/" + name;
         }
         return name;
@@ -290,7 +291,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String filePath = request.getFilePath();
-            Path dir = filePath != null && !filePath.isEmpty() ? resolvePath(filePath) : basePath;
+            Path dir = StringUtils.isNotEmpty(filePath) ? resolvePath(filePath) : basePath;
 
             if (!Files.exists(dir) || !Files.isDirectory(dir)) {
                 return ListObjectResult.builder()

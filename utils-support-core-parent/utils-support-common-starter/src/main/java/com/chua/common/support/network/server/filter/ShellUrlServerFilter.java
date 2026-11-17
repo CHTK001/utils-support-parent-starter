@@ -13,6 +13,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Shell 命令匹配的 ServerFilter。
@@ -58,7 +59,7 @@ public class ShellUrlServerFilter implements EndServerFilter {
      * @return this
      */
     public ShellUrlServerFilter route(String commandName, ServerHandler handler) {
-        if (commandName == null || commandName.isBlank()) {
+        if (StringUtils.isBlank(commandName)) {
             throw new IllegalArgumentException("命令名称不能为空");
         }
         if (handler == null) {
@@ -141,7 +142,7 @@ public class ShellUrlServerFilter implements EndServerFilter {
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             chain.doFilter(request, response);
             return;
         }
@@ -191,7 +192,7 @@ public class ShellUrlServerFilter implements EndServerFilter {
      * @return 结果字符串
      */
     private static String normalizePath(String commandName) {
-        if (commandName == null || commandName.isBlank()) {
+        if (StringUtils.isBlank(commandName)) {
             return "/";
         }
         return commandName.startsWith("/") ? commandName : "/" + commandName;

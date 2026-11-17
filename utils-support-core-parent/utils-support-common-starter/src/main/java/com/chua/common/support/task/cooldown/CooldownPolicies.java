@@ -2,6 +2,7 @@ package com.chua.common.support.task.cooldown;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 按冷却键前缀挂载的自定义冷却策略。
@@ -46,7 +47,7 @@ public final class CooldownPolicies {
      * @param policy 策略；{@code null} 或空策略表示撤销
      */
     public static void register(String prefix, CooldownPolicy policy) {
-        if (prefix == null || prefix.isBlank()) {
+        if (StringUtils.isBlank(prefix)) {
             return;
         }
         if (policy == null || policy.isEmpty()) {

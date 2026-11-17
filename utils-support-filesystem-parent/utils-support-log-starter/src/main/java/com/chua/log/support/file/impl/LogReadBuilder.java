@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 日志文件读取构建器。
@@ -367,7 +368,7 @@ public class LogReadBuilder extends ReadBuilder {
      * @return extract时间戳的结果
      */
     private LocalDateTime extractTimestamp(String line) {
-        if (line == null || line.isEmpty()) {
+        if (StringUtils.isEmpty(line)) {
             return null;
         }
         // 取行首 30 个字符做时间戳识别

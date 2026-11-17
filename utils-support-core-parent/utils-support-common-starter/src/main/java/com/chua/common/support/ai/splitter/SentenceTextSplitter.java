@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于句子边界的文本分割器。
@@ -87,7 +88,7 @@ public class SentenceTextSplitter implements TextSplitter {
     @Override
     @Nonnull
     public List<TextChunk> split(@Nonnull String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return Collections.emptyList();
         }
 

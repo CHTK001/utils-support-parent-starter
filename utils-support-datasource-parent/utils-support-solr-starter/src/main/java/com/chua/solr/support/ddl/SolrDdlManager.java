@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Solr DDL 管理器：把「集合（集合）/核」映射为框架统一的
@@ -233,7 +234,7 @@ public class SolrDdlManager implements DslManager, EngineAware {
      * @return 通过校验的集合名称
      */
     private static String checkCollection(String collectionName) {
-        if (collectionName == null || collectionName.isEmpty()) {
+        if (StringUtils.isEmpty(collectionName)) {
             throw new IllegalArgumentException("Solr 集合名不能为空");
         }
         if (!COLLECTION_PATTERN.matcher(collectionName).matches()) {

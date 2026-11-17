@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型scope Hub 模型权重下载/上传工具。
@@ -206,7 +207,7 @@ public class ModelscopeHubClient {
      * @return 完整的 git 克隆/推送地址
      */
     private String buildAuthenticatedGitUrl(String repoId) {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             return ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/" + repoId + ".git";
         }
         return ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/oauth2:" + token + "@" + repoId + ".git";
@@ -218,7 +219,7 @@ public class ModelscopeHubClient {
      * @return 结果字符串
      */
     private String buildAuthHeader() {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             return "";
         }
         return "Bearer " + token;

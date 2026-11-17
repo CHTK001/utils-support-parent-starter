@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 把源码目录下的 {@code .groovy} 脚本编译为 SPI 扩展点声明。
@@ -81,7 +82,7 @@ public class SourceGroovyLoader {
      */
     public SourceGroovyLoader(Path sourceDirectory, String engine) {
         this.sourceDirectory = sourceDirectory;
-        this.engine = engine == null || engine.isBlank() ? "groovy" : engine;
+        this.engine = StringUtils.isBlank(engine) ? "groovy" : engine;
     }
 
     /**

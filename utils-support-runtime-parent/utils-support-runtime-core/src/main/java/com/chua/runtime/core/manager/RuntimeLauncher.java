@@ -4,6 +4,7 @@ import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.runtime.core.model.RuntimeArtifact;
 import com.chua.runtime.core.model.RuntimeStatus;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 运行时启动器 SPI 接口。
@@ -54,7 +55,7 @@ public interface RuntimeLauncher {
      * @return 命中的启动器；未注册返回 {@code null}
      */
     static RuntimeLauncher find(String type) {
-        if (type == null || type.isBlank()) {
+        if (StringUtils.isBlank(type)) {
             return null;
         }
         return ServiceProvider.of(RuntimeLauncher.class).getExtension(type);

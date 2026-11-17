@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 本地语音识别（ASR）客户端（SPI provider="ollama"）。
@@ -123,7 +124,7 @@ public class OllamaAudioClient implements VirtualClient {
         byte[] audioBytes = readAudio(path, setting != null ? setting.getAudio() : null);
         String prompt = buildTranscribePrompt(audioBytes);
         OllamaGenerateRequest request = new OllamaGenerateRequest(
-                model != null && !model.isBlank() ? model : "whisper", prompt);
+                StringUtils.isNotBlank(model) ? model : "whisper", prompt);
         try {
             OllamaResult result = ollama.generate(request, null);
             return result != null ? result.getResponse() : null;
@@ -245,7 +246,7 @@ public class OllamaAudioClient implements VirtualClient {
     private String buildTranscribePrompt(byte[] audioBytes) {
         String encoded = Base64.getEncoder().encodeToString(audioBytes);
         StringBuilder sb = new StringBuilder();
-        if (language != null && !language.isBlank()) {
+        if (StringUtils.isNotBlank(language)) {
             sb.append("识别 语言 为 ").append(language).append(" 的 音频：");
         } else {
             sb.append("识别 以下 音频 的 文字 内容：");

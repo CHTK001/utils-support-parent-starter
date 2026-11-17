@@ -11,6 +11,7 @@ import com.chua.common.support.objects.annotation.OnOpen;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MQTT 注解监听解析器，扫描 @on打开/@on关闭/@on消息。
@@ -86,7 +87,7 @@ public class MqttListenerParser implements ListenerParser {
         OnMessage onMessage = method.getAnnotation(OnMessage.class);
         if (onMessage != null) {
             String topic = onMessage.value();
-            if (topic != null && !topic.isEmpty()) {
+            if (StringUtils.isNotEmpty(topic)) {
                 return "message:" + topic;
             }
             return "message";

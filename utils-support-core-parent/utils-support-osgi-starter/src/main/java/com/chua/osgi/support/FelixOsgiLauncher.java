@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Felix OSGI 启动器实现。
@@ -750,7 +751,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      */
     @Override
     public List<OsgiBundle> getBundlesByLocation(String location) {
-        if (location == null || location.isBlank()) {
+        if (StringUtils.isBlank(location)) {
             return Collections.emptyList();
         }
         return getBundles().stream()

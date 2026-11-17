@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 任务去重器。
@@ -66,7 +67,7 @@ public class TaskDeduplicator {
      * @return true 表示重复
      */
     public boolean isDuplicate(String taskId) {
-        if (taskId == null || taskId.isEmpty()) {
+        if (StringUtils.isEmpty(taskId)) {
             return false;
         }
         long now = System.currentTimeMillis();
@@ -87,7 +88,7 @@ public class TaskDeduplicator {
      * @param taskId 任务 标识
      */
     public void markProcessed(String taskId) {
-        if (taskId != null && !taskId.isEmpty()) {
+        if (StringUtils.isNotEmpty(taskId)) {
             processed.put(taskId, System.currentTimeMillis());
         }
     }

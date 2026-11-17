@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 阿里云短信推送实现
@@ -100,7 +101,7 @@ public class AlibabaSmsMessagePush implements MessagePush {
         long start = System.currentTimeMillis();
 
         String signName = environment.get("sms.signName");
-        if (signName == null || signName.isBlank()) {
+        if (StringUtils.isBlank(signName)) {
             throw new IllegalArgumentException("sms.signName 配置项必填");
         }
 
@@ -174,7 +175,7 @@ public class AlibabaSmsMessagePush implements MessagePush {
                 }
                 for (QuerySmsTemplateListResponseBodySmsTemplateList item : list) {
                     String templateCode = item.getTemplateCode();
-                    if (null == templateCode || templateCode.isBlank()) {
+                    if (StringUtils.isBlank(templateCode)) {
                         continue;
                     }
                     // 仅同步审核通过的模板
@@ -240,10 +241,10 @@ public class AlibabaSmsMessagePush implements MessagePush {
     private Client buildClient() throws Exception {
         String accessKey = environment.get("sms.accessKey");
         String secretKey = environment.get("sms.secretKey");
-        if (null == accessKey || accessKey.isBlank()) {
+        if (StringUtils.isBlank(accessKey)) {
             throw new IllegalArgumentException("sms.accessKey 配置项必填");
         }
-        if (null == secretKey || secretKey.isBlank()) {
+        if (StringUtils.isBlank(secretKey)) {
             throw new IllegalArgumentException("sms.secretKey 配置项必填");
         }
         Config config = new Config()

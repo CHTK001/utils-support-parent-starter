@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Prometheus 链式客户端
@@ -231,7 +232,7 @@ public class PrometheusClient implements AutoCloseable {
      * @return Basic 认证 值, 无认证返回 空
      */
     private static String buildBasicAuth(String username, String password) {
-        if (username == null || username.isEmpty()) {
+        if (StringUtils.isEmpty(username)) {
             return null;
         }
         String token = username + ":" + (password == null ? "" : password);

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ModelScope 对话客户端（SPI provider="modelscope"）。
@@ -223,7 +224,7 @@ public class ModelscopeChatClient implements ChatClient {
      */
     private Map<String, Object> postChatCompletions(String prompt) {
         JsonObject body = JsonObject.create()
-                .fluentPut("model", model != null && !model.isBlank() ? model : DEFAULT_MODEL)
+                .fluentPut("model", StringUtils.isNotBlank(model) ? model : DEFAULT_MODEL)
                 .fluentPut("messages", buildMessages(prompt));
         if (temperature != null) {
             body.fluentPut("temperature", temperature);
@@ -262,7 +263,7 @@ public class ModelscopeChatClient implements ChatClient {
      */
     private List<JsonObject> buildMessages(String prompt) {
         List<JsonObject> messages = Wraps.list();
-        if (system != null && !system.isBlank()) {
+        if (StringUtils.isNotBlank(system)) {
             messages.add(JsonObject.create()
                     .fluentPut("role", "system")
                     .fluentPut("content", system));
@@ -366,7 +367,7 @@ public class ModelscopeChatClient implements ChatClient {
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
-        if (appKey == null || appKey.isBlank()) {
+        if (StringUtils.isBlank(appKey)) {
             throw new IllegalStateException("ModelScope provider 需要设置 API Token（魔搭个人中心 -> 访问令牌）");
         }
         return "Bearer " + appKey;
@@ -379,7 +380,7 @@ public class ModelscopeChatClient implements ChatClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = ModelscopeConstants.DEFAULT_INFERENCE_BASE_URL;
         }
         while (url.endsWith("/")) {

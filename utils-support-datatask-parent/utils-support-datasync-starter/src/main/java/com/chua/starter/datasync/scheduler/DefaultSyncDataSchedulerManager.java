@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.time.Duration;
 import com.chua.datasync.agent.support.model.SyncDataOffset;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认数据同步调度器管理器。
@@ -300,7 +301,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     */
     @Override
     public void trigger(String mappingId) {
-        if (mappingId == null || mappingId.isBlank()) {
+        if (StringUtils.isBlank(mappingId)) {
             log.error("手动触发失败：mappingId 为空");
             return;
         }
@@ -349,7 +350,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             // 从缓存获取或创建 Trigger
             trigger = triggerCache.computeIfAbsent(mapping.mappingId(), id -> {
                 String cron = mapping.cron();
-                if (cron == null || cron.isBlank()) {
+                if (StringUtils.isBlank(cron)) {
  // cron 为空，使用默认 简单trigger（每分钟触发一次）
                     return new com.chua.common.support.task.scheduler.SimpleTrigger(Duration.ofMinutes(1));
                 } else {
@@ -397,7 +398,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 return;
             }
             String sourceId = mapping.sourceId();
-            if (sourceId == null || sourceId.isBlank()) {
+            if (StringUtils.isBlank(sourceId)) {
                 log.warn("映射缺少 sourceId: mappingId={}", mapping.mappingId());
                 return;
             }

@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 统一返回结果
@@ -229,7 +230,7 @@ public class ReturnResult<T> implements Serializable {
         }
         ReturnCode returnCode = ReturnCode.fromThrowable(throwable);
         String message = throwable.getMessage();
-        if (null == message || message.isEmpty()) {
+        if (StringUtils.isEmpty(message)) {
             message = returnCode.getMsg();
         }
         return new ReturnResult<>(returnCode.getCode(), null, message);
@@ -249,7 +250,7 @@ public class ReturnResult<T> implements Serializable {
         }
         ReturnCode returnCode = ReturnCode.fromThrowable(throwable);
         String message = throwable.getMessage();
-        if (null == message || message.isEmpty()) {
+        if (StringUtils.isEmpty(message)) {
             message = null == defaultMsg ? returnCode.getMsg() : defaultMsg;
         }
         return new ReturnResult<>(returnCode.getCode(), null, message);
@@ -430,7 +431,7 @@ public class ReturnResult<T> implements Serializable {
         if (!isOk()) {
             this.data = other;
             this.code = ReturnCode.SUCCESS.getCode();
-            if (degrade != null && !degrade.isBlank()) {
+            if (StringUtils.isNotBlank(degrade)) {
                 this.msg = degrade;
             }
         }

@@ -1,4 +1,5 @@
 package com.chua.common.support.file.txtractor;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -70,6 +71,6 @@ public record TextExtractResult(
      * @return true 如果有章节名或页码
      */
     public boolean hasStructure() {
-        return (section != null && !section.isEmpty()) || pageNumber > 0;
+        return (StringUtils.isNotEmpty(section)) || pageNumber > 0;
     }
 }

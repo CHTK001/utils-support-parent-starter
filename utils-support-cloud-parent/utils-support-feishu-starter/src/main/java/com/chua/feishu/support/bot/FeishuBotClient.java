@@ -41,6 +41,7 @@ import com.lark.oapi.service.im.v1.model.CreateMessageReqBody;
 import com.lark.oapi.service.im.v1.model.CreateMessageResp;
 
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 飞书 机器人 客户端，实现 {@link BotClient} 接口。
@@ -163,13 +164,13 @@ public class FeishuBotClient implements BotClient {
     @Override
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
-        if (token != null && !token.isEmpty()) {
+        if (StringUtils.isNotEmpty(token)) {
             this.appId = token;
         }
-        if (secret != null && !secret.isEmpty()) {
+        if (StringUtils.isNotEmpty(secret)) {
             this.appSecret = secret;
         }
-        if (encodingAesKey != null && !encodingAesKey.isEmpty()) {
+        if (StringUtils.isNotEmpty(encodingAesKey)) {
             this.webhookEncryptKey = encodingAesKey;
         }
         return this;
@@ -208,7 +209,7 @@ public class FeishuBotClient implements BotClient {
     */
     @Override
     public BotClient baseUrl(String baseUrl) {
-        if (baseUrl != null && !baseUrl.isEmpty()) {
+        if (StringUtils.isNotEmpty(baseUrl)) {
             this.baseUrl = baseUrl;
         }
         return this;
@@ -273,10 +274,10 @@ public class FeishuBotClient implements BotClient {
     */
     @Override
     public BotClient start() {
-        if (appId == null || appId.isBlank()) {
+        if (StringUtils.isBlank(appId)) {
             throw new IllegalStateException("appId is required");
         }
-        if (appSecret == null || appSecret.isBlank()) {
+        if (StringUtils.isBlank(appSecret)) {
             throw new IllegalStateException(
                     "appSecret is required");
         }
@@ -765,7 +766,7 @@ public class FeishuBotClient implements BotClient {
      */
     public FeishuCallbackResult handleCallback(
             String body, Map<String, String> headers) {
-        if (body == null || body.isBlank()) {
+        if (StringUtils.isBlank(body)) {
             return FeishuCallbackResult.of(400, "{\"msg\":\"empty body\"}");
         }
         Map<String, Object> payload = parseCallbackPayload(body);
@@ -832,7 +833,7 @@ public class FeishuBotClient implements BotClient {
      */
     private boolean verifyRequestBodyToken(
             Map<String, Object> payload) {
-        if (webhookVerifyToken == null || webhookVerifyToken.isBlank()) {
+        if (StringUtils.isBlank(webhookVerifyToken)) {
             return true;
         }
         Object header = payload.get("header");
@@ -1179,18 +1180,18 @@ public class FeishuBotClient implements BotClient {
      * @return 占位符还原后的正文
      */
     private String resolveMentionPlaceholders(String text, MentionEvent[] mentions) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return text;
         }
         String result = text;
         if (mentions != null) {
             for (MentionEvent mention : mentions) {
                 String key = mention.getKey();
-                if (key == null || key.isEmpty()) {
+                if (StringUtils.isEmpty(key)) {
                     continue;
                 }
                 String name = mention.getName();
-                String replacement = (name != null && !name.isBlank()) ? "@" + name.trim() : "";
+                String replacement = (StringUtils.isNotBlank(name)) ? "@" + name.trim() : "";
                 result = result.replace(key, replacement);
             }
         }
@@ -1279,7 +1280,7 @@ public class FeishuBotClient implements BotClient {
      * @return 毫秒时间戳
      */
     private static long parseMillis(String millis, long fallback) {
-        if (millis == null || millis.isBlank()) {
+        if (StringUtils.isBlank(millis)) {
             return fallback;
         }
         try {

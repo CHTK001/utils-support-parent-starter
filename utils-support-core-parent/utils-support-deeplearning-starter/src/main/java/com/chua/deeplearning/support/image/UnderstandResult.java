@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.image;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 视觉理解任务结果。
@@ -54,6 +55,6 @@ public class UnderstandResult {
      * @return 有有效结果返回 true
      */
     public boolean hasResult() {
-        return text != null && !text.isBlank();
+        return StringUtils.isNotBlank(text);
     }
 }

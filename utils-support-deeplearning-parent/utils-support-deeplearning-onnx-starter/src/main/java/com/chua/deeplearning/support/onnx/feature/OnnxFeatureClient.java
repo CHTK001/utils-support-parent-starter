@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.StringUtils;
 /**
  * @作者 CH
 *
@@ -61,7 +62,7 @@ public class OnnxFeatureClient implements FeatureClient {
     private synchronized ITranslator<Object, Object> getTranslator() throws Exception {
         if (translator == null) {
             String modelId = setting.getModel();
-            if (modelId == null || modelId.isBlank()) {
+            if (StringUtils.isBlank(modelId)) {
                 modelId = "resnet50-feature";
             }
             resolvedModelId = modelId;

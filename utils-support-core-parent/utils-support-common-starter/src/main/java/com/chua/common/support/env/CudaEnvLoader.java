@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CUDA 运行时库配置加载器（读取 classpath 下 {@code env/cuda.env}）。
@@ -68,7 +69,7 @@ public final class CudaEnvLoader {
      */
     public static String get(String key, String defaultValue) {
         String v = load().get(key);
-        return v == null || v.isBlank() ? defaultValue : v.trim();
+        return StringUtils.isBlank(v) ? defaultValue : v.trim();
     }
 
     /**

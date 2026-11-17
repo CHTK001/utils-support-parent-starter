@@ -376,7 +376,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
      * @return YAML 格式字符串
      */
     private String convertToYaml(Map<String, Object> config) {
-        if (config == null || config.isEmpty()) {
+        if (MapUtils.isEmpty(config)) {
             return "";
         }
 

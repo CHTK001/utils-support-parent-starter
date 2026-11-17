@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 模型元数据注册器（默认关闭，按需开启）。
@@ -202,7 +203,7 @@ public class SherpaModelRegistrar implements ModelRegistrar {
      */
     public static boolean isLocallyAvailable(String modelId) {
         String root = System.getProperty(SherpaModelResolver.PROP_MODEL_DIR);
-        if (root == null || root.isBlank() || modelId == null) {
+        if (StringUtils.isBlank(root) || modelId == null) {
             return false;
         }
         Path dir = Path.of(root).resolve(modelId);

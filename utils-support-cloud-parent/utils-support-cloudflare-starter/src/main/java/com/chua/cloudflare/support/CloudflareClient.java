@@ -12,6 +12,7 @@ import com.chua.common.support.network.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Cloudflare API v4 客户端。
@@ -84,7 +85,7 @@ public class CloudflareClient {
                     + ", body=" + response.getBodyString());
         }
         String body = response.getBodyString();
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return null;
         }
         return parseResult(body);

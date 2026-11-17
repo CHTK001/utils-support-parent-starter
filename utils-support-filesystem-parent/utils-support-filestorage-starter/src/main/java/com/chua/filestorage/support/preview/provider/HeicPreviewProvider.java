@@ -592,7 +592,7 @@ public class HeicPreviewProvider implements FileStoragePreviewProvider {
                     continue;
                 }
                 String desc = tag.getDescription();
-                if (desc != null && !desc.isBlank() && desc.length() < 200) {
+                if (StringUtils.isNotBlank(desc) && desc.length() < 200) {
                     out.put(label, desc);
                 }
             }

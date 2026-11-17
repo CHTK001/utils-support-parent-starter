@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 触发器定义，描述数据库中的一个触发器。
@@ -85,7 +86,7 @@ public class TriggerDefinition {
      * @return 关联表名，无法解析返回 null
      */
     public static String parseTableName(String body) {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return null;
         }
         Matcher matcher = TABLE_NAME_PATTERN.matcher(body);
@@ -108,7 +109,7 @@ public class TriggerDefinition {
      * @return 当前实例
      */
     public TriggerDefinition fillTableNameFromBody() {
-        if ((tableName == null || tableName.isEmpty()) && body != null && !body.isEmpty()) {
+        if ((StringUtils.isEmpty(tableName)) && StringUtils.isNotEmpty(body)) {
             String parsed = parseTableName(body);
             if (parsed != null) {
                 this.tableName = parsed;

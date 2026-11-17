@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 车牌号识别管线。
@@ -222,7 +223,7 @@ public class PlateNumberPipeline {
      * @return 车牌识别结果列表
      */
     public List<PlateResult> recognize(byte[] imageData) {
-        if (detectorModel == null || detectorModel.isBlank()) {
+        if (StringUtils.isBlank(detectorModel)) {
             PlateResult r = recognizeSingle(imageData);
             return r == null ? List.of() : List.of(r);
         }

@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenAI Videos 兼容协议的 {@link VideoClient} 公共骨架。
@@ -214,7 +215,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
     @Override
     public final String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String requestBody = buildRequestBody(
@@ -289,7 +290,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
 
     @Override
     public final VideoResponse queryTask(String taskId) {
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             throw new IllegalArgumentException("任务 ID 不能为空");
         }
         try {
@@ -382,7 +383,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      * @return 统一状态枚举
      */
     private static VideoResponse.Status mapStatus(String status) {
-        if (status == null || status.isBlank()) {
+        if (StringUtils.isBlank(status)) {
             return VideoResponse.Status.PENDING;
         }
         return switch (status.toLowerCase(Locale.ROOT)) {
@@ -405,10 +406,10 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      */
     private String composePrompt(String base) {
         StringBuilder sb = new StringBuilder(base);
-        if (style != null && !style.isBlank()) {
+        if (StringUtils.isNotBlank(style)) {
             sb.append("，画面风格：").append(style);
         }
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             sb.append("。避免出现：").append(negativePrompt);
         }
         return sb.toString();
@@ -491,7 +492,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      */
     private static String firstNonBlank(String... values) {
         for (String value : values) {
-            if (value != null && !value.isBlank()) {
+            if (StringUtils.isNotBlank(value)) {
                 return value;
             }
         }
@@ -506,7 +507,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      */
     private static String str(Object value) {
         String text = value == null ? null : String.valueOf(value);
-        return text == null || text.isBlank() ? null : text;
+        return StringUtils.isBlank(text) ? null : text;
     }
 
     /**
@@ -558,7 +559,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      */
     final String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 应用层载荷的通用解码工具：给「自研/私有协议」的还原器共用。
@@ -233,7 +234,7 @@ public final class AppTrafficDecoder {
      * @return true 表示命中
      */
     public static boolean hostMatches(String host, List<String> suffixes) {
-        if (host == null || host.isEmpty()) {
+        if (StringUtils.isEmpty(host)) {
             return false;
         }
         for (String suffix : suffixes) {

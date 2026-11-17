@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Zvec 向量存储实现：一个实例对应磁盘上的一个 zvec 集合目录。
@@ -380,7 +381,7 @@ public class ZvecVectorStorage extends AbstractVectorStorage {
     @Override
     public synchronized int removeByIdPrefix(String idPrefix) {
         checkNotClosed();
-        if (idPrefix == null || idPrefix.isEmpty()) {
+        if (StringUtils.isEmpty(idPrefix)) {
             return 0;
         }
         List<String> matched = new ArrayList<>();

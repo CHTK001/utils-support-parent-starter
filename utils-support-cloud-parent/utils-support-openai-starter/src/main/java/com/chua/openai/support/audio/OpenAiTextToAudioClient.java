@@ -14,6 +14,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 文字转语音（TTS）客户端。
@@ -168,7 +169,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     @Override
     public byte[] synthesize(String text) {
         String target = text != null ? text : this.text;
-        if (target == null || target.isBlank()) {
+        if (StringUtils.isBlank(target)) {
             throw new IllegalArgumentException("待合成文本不能为空");
         }
 
@@ -256,7 +257,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
                 .header("Authorization", "Bearer " + setting.getAppKey())
                 .connectTimeout(120000);
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             String[] parts = proxyStr.replace("http://", "").replace("https://", "").split(":");
             if (parts.length == 2) {
                 builder.proxy(parts[0], Integer.parseInt(parts[1]));
@@ -272,7 +273,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

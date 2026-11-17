@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 一次性会话密钥编解码（Codec 二级接口实现）。
@@ -73,7 +74,7 @@ public class KeyLogStreamCodec implements StreamCodec {
 
     @Override
     public StreamCodec key(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException(
                     "keylog 传输加密缺少密钥，需 server:<私钥hex> 或 client:<公钥hex>[#指纹]");
         }

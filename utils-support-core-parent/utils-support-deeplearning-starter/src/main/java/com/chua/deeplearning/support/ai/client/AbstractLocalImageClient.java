@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎图像生成客户端抽象基类。
@@ -124,7 +125,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);

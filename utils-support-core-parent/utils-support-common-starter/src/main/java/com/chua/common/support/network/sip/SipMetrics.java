@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
@@ -168,7 +169,7 @@ public class SipMetrics {
      * @param category 方法入参 category
      */
     public void incError(String category) {
-        if (category == null || category.isEmpty()) {
+        if (StringUtils.isEmpty(category)) {
             return;
         }
         errorsByCategory.computeIfAbsent(category, k -> new AtomicLong()).incrementAndGet();
@@ -209,7 +210,7 @@ public class SipMetrics {
     public String formatOneLine(String prefix) {
         Map<String, Object> s = snapshot();
         StringBuilder sb = new StringBuilder();
-        if (prefix != null && !prefix.isEmpty()) {
+        if (StringUtils.isNotEmpty(prefix)) {
             sb.append(prefix);
         }
         s.forEach((k, v) -> {

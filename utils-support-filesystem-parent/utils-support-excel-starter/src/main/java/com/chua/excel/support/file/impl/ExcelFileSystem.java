@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Excel 文件系统 SPI 实现（基于 Apache POI）。
@@ -339,7 +340,7 @@ public class ExcelFileSystem implements FileSystem {
          * @return resolveSheet的结果
          */
         private Sheet resolveSheet(Workbook wb) {
-            if (sheetName != null && !sheetName.isEmpty()) {
+            if (StringUtils.isNotEmpty(sheetName)) {
                 Sheet sheet = wb.getSheet(sheetName);
                 if (sheet == null) {
                     throw new IllegalArgumentException("Sheet not found: " + sheetName);

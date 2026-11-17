@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文档元数据 —— 由 {@code MetaResolver} 链构建的整表结构描述。
@@ -401,7 +402,7 @@ public final class DocumentMeta {
      * @return 工作表名
      */
     public String resolveSheetName() {
-        if (sheetName != null && !sheetName.isEmpty()) {
+        if (StringUtils.isNotEmpty(sheetName)) {
             return sheetName;
         }
         return type == null || type == Object.class ? "Sheet1" : type.getSimpleName();

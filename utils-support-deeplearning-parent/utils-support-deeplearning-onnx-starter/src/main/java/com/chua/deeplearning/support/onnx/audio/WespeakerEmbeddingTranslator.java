@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Wespeaker Rnet34 说话人嵌入提取翻译器（纯 ONNX Runtime 实现）。
@@ -153,7 +154,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
      * @return resolve模型路径的结果
      */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) {
+        if (StringUtils.isBlank(pathStr)) {
             return null;
         }
         Path abs = Path.of(pathStr);

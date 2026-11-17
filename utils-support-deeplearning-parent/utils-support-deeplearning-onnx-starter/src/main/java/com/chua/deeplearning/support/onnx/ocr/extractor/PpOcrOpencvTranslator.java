@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.opencv.core.MatOfByte;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PP-ocrv6 文字识别 — 纯 打开cv DNN 实现（无 ONNX Runtime 依赖）
@@ -225,7 +226,7 @@ public class PpOcrOpencvTranslator {
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
-                    if (ch != null && !ch.isBlank()) {
+                    if (StringUtils.isNotBlank(ch)) {
                         sb.append(ch);
                     }
                 }
@@ -245,7 +246,7 @@ public class PpOcrOpencvTranslator {
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
-                    if (ch != null && !ch.isBlank()) {
+                    if (StringUtils.isNotBlank(ch)) {
                         sb.append(ch);
                     }
                 }

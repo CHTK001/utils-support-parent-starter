@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark JSON 数据包解析工具。
@@ -604,7 +605,7 @@ public final class PacketParserService {
                     continue;
                 }
                 String restored = restorer.restore(context, payload);
-                if (restored != null && !restored.isBlank()) {
+                if (StringUtils.isNotBlank(restored)) {
                     results.add(restored);
                 }
             } catch (RuntimeException e) {
@@ -665,7 +666,7 @@ public final class PacketParserService {
                     continue;
                 }
                 String restored = restorer.restore(context, rawBytes);
-                if (restored != null && !restored.isBlank()) {
+                if (StringUtils.isNotBlank(restored)) {
                     results.add(restored);
                 }
             } catch (RuntimeException e) {
@@ -699,7 +700,7 @@ public final class PacketParserService {
      * @return true 表示该协议已被 dissect 出来
      */
     private static boolean hasLayer(Map<String, Object> layers, String protocolName) {
-        if (protocolName == null || protocolName.isEmpty()) {
+        if (StringUtils.isEmpty(protocolName)) {
             return false;
         }
         for (String layer : layerNames(protocolName)) {

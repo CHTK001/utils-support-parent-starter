@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 全部-minilm-L6-v2 本地离线嵌入客户端（SPI 提供者="minilm"）。
@@ -100,7 +101,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
      */
     private MiniLMEmbeddingTranslator translator() {
         String model = setting.getModel();
-        String key = model == null || model.isBlank() || "minilm".equalsIgnoreCase(model)
+        String key = StringUtils.isBlank(model) || "minilm".equalsIgnoreCase(model)
                 || "minilm-int8".equalsIgnoreCase(model) ? "int8" : "fp32";
         MiniLMEmbeddingTranslator current = translator;
         if (current != null && key.equals(resolvedModel)) {

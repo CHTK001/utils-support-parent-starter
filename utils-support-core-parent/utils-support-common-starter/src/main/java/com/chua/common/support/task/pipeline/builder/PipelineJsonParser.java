@@ -8,6 +8,7 @@ import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.pipeline.node.TaskNode;
 
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JSON 流水线解析器。
@@ -116,7 +117,7 @@ public class PipelineJsonParser {
 
         for (JsonNode node : nodes) {
             String nodeId = node.getString("id", null);
-            if (nodeId == null || nodeId.isEmpty()) {
+            if (StringUtils.isEmpty(nodeId)) {
                 throw new IllegalArgumentException("Each node must have an 'id' field");
             }
 

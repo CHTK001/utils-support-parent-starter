@@ -1,6 +1,7 @@
 package com.chua.h2.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * H2 1.x 方言实现。
@@ -97,7 +98,7 @@ public class H2V1Dialect extends com.chua.datasource.support.dialect.AbstractDia
                 "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
                         + "ACTION_TIMING, EVENT_MANIPULATION, ACTION_STATEMENT "
                         + "FROM INFORMATION_SCHEMA.TRIGGERS");
-        if (schema != null && !schema.isEmpty()) {
+        if (StringUtils.isNotEmpty(schema)) {
             sql.append(" WHERE TRIGGER_SCHEMA = '").append(escape(schema)).append("'");
         }
         return sql.toString();
@@ -105,7 +106,7 @@ public class H2V1Dialect extends com.chua.datasource.support.dialect.AbstractDia
 
     @Override
     public String getTriggerSql(String triggerName, String schema) {
-        if (triggerName == null || triggerName.isEmpty()) {
+        if (StringUtils.isEmpty(triggerName)) {
             return null;
         }
         return "SELECT * FROM (" + getTriggerListSql(schema) + ") T "

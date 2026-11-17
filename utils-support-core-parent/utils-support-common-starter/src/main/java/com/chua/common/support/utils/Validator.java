@@ -1,6 +1,7 @@
 package com.chua.common.support.utils;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用格式校验工具类。
@@ -133,7 +134,7 @@ public final class Validator {
      * @return 全部为字母且非空返回 true，否则返回 false
      */
     public static boolean isAlpha(String str) {
-        if (str == null || str.isEmpty()) {
+        if (StringUtils.isEmpty(str)) {
             return false;
         }
         for (int i = 0; i < str.length(); i++) {
@@ -151,7 +152,7 @@ public final class Validator {
      * @return 只包含字母或数字且非空返回 true，否则返回 false
      */
     public static boolean isAlphanumeric(String str) {
-        if (str == null || str.isEmpty()) {
+        if (StringUtils.isEmpty(str)) {
             return false;
         }
         for (int i = 0; i < str.length(); i++) {

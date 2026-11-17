@@ -16,6 +16,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MQTT 入站适配器：订阅 MQTT Broker → JSON → 数据envelope → pipelineengine。
@@ -134,7 +135,7 @@ public class MqttInboundAdapter {
         if (running) {
             return;
         }
-        if (topic == null || topic.isEmpty()) {
+        if (StringUtils.isEmpty(topic)) {
             throw new IllegalStateException("datalake-mqtt 订阅主题不能为空");
         }
         try {

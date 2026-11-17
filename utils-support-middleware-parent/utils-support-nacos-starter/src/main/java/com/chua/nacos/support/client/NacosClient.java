@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Nacos 全功能链式客户端。
@@ -223,13 +224,13 @@ public class NacosClient implements AutoCloseable {
     private Properties buildProperties() {
         Properties props = new Properties();
         props.setProperty(PropertyKeyConst.SERVER_ADDR, serverAddr);
-        if (namespace != null && !namespace.isEmpty()) {
+        if (StringUtils.isNotEmpty(namespace)) {
             props.setProperty(PropertyKeyConst.NAMESPACE, namespace);
         }
-        if (username != null && !username.isEmpty()) {
+        if (StringUtils.isNotEmpty(username)) {
             props.setProperty(PropertyKeyConst.USERNAME, username);
         }
-        if (password != null && !password.isEmpty()) {
+        if (StringUtils.isNotEmpty(password)) {
             props.setProperty(PropertyKeyConst.PASSWORD, password);
         }
         props.setProperty(PropertyKeyConst.CONFIG_LONG_POLL_TIMEOUT, String.valueOf(timeout));

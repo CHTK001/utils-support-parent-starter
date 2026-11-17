@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.ExecutorService;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 「接码号」平台虚拟号码接码实现。
@@ -281,7 +282,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
                     .header("Accept", "text/html,application/xhtml+xml")
                     .get()
                     .getBodyString();
-            if (html == null || html.isBlank()) {
+            if (StringUtils.isBlank(html)) {
                 log.warn("[jiemahao] 号码列表页响应为空");
                 return Collections.emptyList();
             }
@@ -392,7 +393,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
      * @return 国家二字码，无法识别时为空
      */
     private static String extractCountryCode(String flagUrl) {
-        if (flagUrl == null || flagUrl.isEmpty()) {
+        if (StringUtils.isEmpty(flagUrl)) {
             return "";
         }
         Matcher matcher = REGION_PATTERN.matcher(flagUrl);

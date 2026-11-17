@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Duck.ai 浏览器通道
@@ -248,7 +249,7 @@ public class DuckBrowserTransport implements AutoCloseable {
                 .setProxy(proxy)
                 .setUserAgent(userAgent)
                 .setRotateUserAgent(rotateUserAgent);
-        if (chromePath != null && !chromePath.isBlank()) {
+        if (StringUtils.isNotBlank(chromePath)) {
             options.setExecutablePath(chromePath);
         }
         try {
@@ -453,7 +454,7 @@ public class DuckBrowserTransport implements AutoCloseable {
                                 Integer imageHeight, int imageCount, String quality,
                                 String refImageKey) {
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("model", model == null || model.isBlank() ? DEFAULT_MODEL : model);
+        payload.put("model", StringUtils.isBlank(model) ? DEFAULT_MODEL : model);
         payload.put("messages", messages);
         payload.put("canUseTools", imageGeneration);
         payload.put("reasoningEffort", "none");
@@ -474,10 +475,10 @@ public class DuckBrowserTransport implements AutoCloseable {
             if (imageCount > 1) {
                 imageSpec.put("count", imageCount);
             }
-            if (quality != null && !quality.isBlank()) {
+            if (StringUtils.isNotBlank(quality)) {
                 imageSpec.put("quality", quality);
             }
-            if (refImageKey != null && !refImageKey.isBlank()) {
+            if (StringUtils.isNotBlank(refImageKey)) {
                 imageSpec.put("refImageKey", refImageKey);
             }
             if (!imageSpec.isEmpty()) {

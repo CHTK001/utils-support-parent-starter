@@ -7,6 +7,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 redisreactorengine 的响应式 KV 工具类，提供便捷的响应式 KV 操作。
@@ -175,7 +176,7 @@ public class RedisReactiveKvEngine {
      * @return 匹配键值对 Flux，后端故障时以错误终止
      */
     public Flux<Map.Entry<String, String>> findAllByPrefix(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+        if (StringUtils.isEmpty(prefix)) {
             return Flux.empty();
         }
         return engine.scanKeys(prefix + "*")

@@ -1,4 +1,5 @@
 package com.chua.common.support.lang.algorithm.cipher;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -75,7 +76,7 @@ public final class CipherFlow {
      */
     public static CipherFlow of(String algorithm, String provider) {
         CipherFlow flow = new CipherFlow(algorithm);
-        if (provider != null && !provider.isEmpty()) {
+        if (StringUtils.isNotEmpty(provider)) {
             flow.provider = provider;
         }
         return flow;

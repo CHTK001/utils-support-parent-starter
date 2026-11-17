@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Qoder CLI usage parser.
@@ -200,7 +201,7 @@ public class QoderUsageParser extends BaseUsageParser {
     private static void appendTiming(JsonNode node, Map<String, long[]> timings, boolean started) {
         String requestId = node.get("request_id").toStringValue();
         long millis = parseInstantToMillis(node.get("ts").toStringValue());
-        if (requestId == null || requestId.isBlank() || millis <= 0) {
+        if (StringUtils.isBlank(requestId) || millis <= 0) {
             return;
         }
         long[] span = timings.computeIfAbsent(requestId, key -> new long[2]);
@@ -312,7 +313,7 @@ public class QoderUsageParser extends BaseUsageParser {
      * @return 返回值
     */
     private int estimateTokens(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return 0;
         }
         int cjk = 0;

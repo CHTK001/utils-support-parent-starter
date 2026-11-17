@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * QPS 限流过滤器，基于滑动窗口的全局限流。
@@ -56,7 +57,7 @@ public class QpsServerFilter implements ServerFilter {
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("qps.max");
-        if (max != null && !max.isEmpty()) {
+        if (StringUtils.isNotEmpty(max)) {
             this.maxQps = Integer.parseInt(max);
             // 阈值非正数等价于拒绝全部请求，按未配置处理
             this.configured = this.maxQps > 0;

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CLIP 文本编码器 Translator（Stable Diffusion 条件）。
@@ -77,7 +78,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
      * @return resolvetokenizer路径的结果
      */
     private Path resolveTokenizerPath() {
-        if (tokenizerPath != null && !tokenizerPath.isBlank()) {
+        if (StringUtils.isNotBlank(tokenizerPath)) {
             Path p = Paths.get(tokenizerPath);
             if (Files.isDirectory(p)) {
                 return p;

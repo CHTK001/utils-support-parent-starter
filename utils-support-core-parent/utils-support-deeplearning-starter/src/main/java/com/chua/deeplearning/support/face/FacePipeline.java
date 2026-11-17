@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 人脸统一能力门面。
@@ -1848,7 +1849,7 @@ public class FacePipeline {
             return false;
         }
         String result = deepfakeClassifier.classify(imageData);
-        if (result == null || result.isBlank()) {
+        if (StringUtils.isBlank(result)) {
             return false;
         }
         String lower = result.toLowerCase();

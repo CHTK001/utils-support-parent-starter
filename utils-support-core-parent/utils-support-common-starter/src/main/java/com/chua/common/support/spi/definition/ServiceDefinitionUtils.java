@@ -11,6 +11,7 @@ import java.util.*;
 
 import static com.chua.common.support.constant.ContextConstant.COMPONENT;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -102,7 +103,7 @@ public class ServiceDefinitionUtils {
         }
 
         List<ServiceDefinition> rs = Wraps.list(buildDefinitionType(service, resolverType, obj, implType, url));
-        if (null == alias || alias.isEmpty()) {
+        if (StringUtils.isEmpty(alias)) {
             return rs;
         }
         SpiOrder spiOrder = implType.getDeclaredAnnotation(SpiOrder.class);

@@ -1,4 +1,5 @@
 package com.chua.common.support.task.cooldown;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 冷却时长策略 —— 「第 N 次失败该排除多久」的唯一入口。
@@ -87,7 +88,7 @@ public interface Backoff {
      * @return 策略
      */
     static Backoff of(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return exponential();
         }
         return switch (name.trim().toLowerCase(java.util.Locale.ROOT)) {

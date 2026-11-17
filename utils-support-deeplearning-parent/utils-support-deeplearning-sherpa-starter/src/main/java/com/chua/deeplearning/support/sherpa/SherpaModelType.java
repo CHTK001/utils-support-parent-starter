@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.sherpa;
 
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 支持的模型族类型。
@@ -85,7 +86,7 @@ public enum SherpaModelType {
      * @return 匹配的枚举项；无法识别返回 {@code null}
      */
     public static SherpaModelType of(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         String normalized = text.trim().toLowerCase(Locale.ROOT).replace('_', '-');

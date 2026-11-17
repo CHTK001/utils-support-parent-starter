@@ -2,6 +2,7 @@ package com.chua.common.support.ai.agent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 会话护栏：死循环判定 + 中断信号。
@@ -174,7 +175,7 @@ public final class AgentLoopGuard {
      * @return 规范化结果，null 视为空串
      */
     private static String normalize(String args) {
-        if (args == null || args.isEmpty()) {
+        if (StringUtils.isEmpty(args)) {
             return "";
         }
         String trimmed = args.trim();

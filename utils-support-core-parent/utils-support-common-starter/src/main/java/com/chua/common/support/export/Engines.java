@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎查找 —— 把"格式"与"引擎别名"解析为具体的 SPI 实现。
@@ -45,7 +46,7 @@ public final class Engines {
      * @return 文档生成器，可能为 {@code null}
      */
     public static DocumentGenerator lookupGenerator(String format, String engine) {
-        if (engine != null && !engine.isBlank()) {
+        if (StringUtils.isNotBlank(engine)) {
             DocumentGenerator explicit = ServiceProvider.of(DocumentGenerator.class).getExtension(engine);
             if (explicit != null) {
                 return explicit;
@@ -105,7 +106,7 @@ public final class Engines {
      * @return 模板填充器，可能为 {@code null}
      */
     public static TemplateFiller lookupFiller(String format, String engine) {
-        if (engine != null && !engine.isBlank()) {
+        if (StringUtils.isNotBlank(engine)) {
             TemplateFiller explicit = ServiceProvider.of(TemplateFiller.class).getExtension(engine);
             if (explicit != null) {
                 return explicit;

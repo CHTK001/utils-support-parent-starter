@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kilo CLI 用量解析器。
@@ -66,7 +67,7 @@ public class KiloUsageParser extends BaseUsageParser {
         Path share = home.resolve(Path.of(".local", "share", "kilo", "kilo.db"));
         Path legacy = home.resolve(Path.of(".kilo", "kilo.db"));
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
-        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+        if (StringUtils.isNotBlank(xdgDataHome)) {
             return firstExisting(Path.of(xdgDataHome, "kilo", "kilo.db"), share, legacy);
         }
         return firstExisting(share, legacy);
@@ -213,7 +214,7 @@ public class KiloUsageParser extends BaseUsageParser {
      * @return 解析结果；失败返回缺失值节点
      */
     private JsonNode parseJsonOrEmpty(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return JsonNode.valueOf(null);
         }
         try {

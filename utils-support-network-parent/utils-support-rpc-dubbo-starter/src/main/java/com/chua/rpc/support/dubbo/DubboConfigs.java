@@ -5,6 +5,7 @@ import org.apache.dubbo.config.ApplicationConfig;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Dubbo 全局配置共享容器 — 保证同一应用名下只有一个 {@link ApplicationConfig} 实例。
@@ -44,7 +45,7 @@ final class DubboConfigs {
      * @throws IllegalArgumentException 应用名为 {@code null} 或空串时抛出（避免下游 {@code setApplication(null)} 静默失效）
      */
     static ApplicationConfig get(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Dubbo application name must not be null or empty");
         }
         while (true) {
@@ -70,7 +71,7 @@ final class DubboConfigs {
      * @param name 应用名，可为 {@code null}（空操作）
      */
     static void release(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return;
         }
         HOLDERS.computeIfPresent(name, (key, holder) -> {

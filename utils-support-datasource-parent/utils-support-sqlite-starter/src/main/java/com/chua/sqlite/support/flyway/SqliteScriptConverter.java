@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQLite 迁移脚本方言转换器（{@code ScriptConverter} 的 sqlite 协议实现）。
@@ -164,7 +165,7 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
         }
         List<String> prepared = new ArrayList<String>(statements.size());
         for (String statement : statements) {
-            if (statement == null || statement.isBlank()) {
+            if (StringUtils.isBlank(statement)) {
                 prepared.add(statement);
                 continue;
             }
@@ -240,7 +241,7 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
             }
         }
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // UUID 函数改写：SQLite 没有 UUID()

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 分区元数据，描述表的分区信息。
@@ -174,7 +175,7 @@ public class PartitionMetadata {
          * @return 解析得到的 {@link PartitionType}，未匹配时返回 {@code null}
          */
         public static PartitionType fromString(String type) {
-            if (type == null || type.isBlank()) {
+            if (StringUtils.isBlank(type)) {
                 return null;
             }
             String upperType = type.toUpperCase().trim();

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * LuckMail 临时邮箱服务实现。
@@ -110,7 +111,7 @@ public class LuckMailEmailProvider implements EmailProvider {
         if (messagesPath.isBlank()) {
             throw new IllegalStateException("LuckMail 配置缺失: 请配置 LUCKMAIL_MESSAGES_PATH");
         }
-        if (email == null || email.isBlank()) {
+        if (StringUtils.isBlank(email)) {
             throw new IllegalArgumentException("查询 LuckMail 邮件时邮箱地址不能为空");
         }
         String url = baseUrl + normalizePath(messagesPath) + "?email="
@@ -283,9 +284,9 @@ public class LuckMailEmailProvider implements EmailProvider {
      */
     private static String resolveConfig(String key, String defaultValue) {
         String value = System.getProperty(key);
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             value = System.getenv(key);
         }
-        return value == null || value.isBlank() ? defaultValue : value.trim();
+        return StringUtils.isBlank(value) ? defaultValue : value.trim();
     }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * zeromq RPC 客户端实现（jeromq，纯 Java 无需原生依赖）。
@@ -145,7 +146,7 @@ public class ZmqRpcClient implements RpcClient {
                 ? registryConfigs.getFirst().getAddress() : null;
         this.serviceDiscovery = initServiceDiscovery();
         // 直连地址仅在无服务发现或地址显式指定时使用；服务发现模式下地址可为空
-        this.serverAddress = address != null && !address.isBlank()
+        this.serverAddress = StringUtils.isNotBlank(address)
                 ? normalizeAddress(address) : null;
         this.recvTimeout = consumerConfig != null && consumerConfig.getTimeout() != null
                 && consumerConfig.getTimeout() > 0 ? consumerConfig.getTimeout() : 10000;
@@ -192,7 +193,7 @@ public class ZmqRpcClient implements RpcClient {
      * @return 规范的 ZMQ 端点；地址为空时返回 {@code null}
      */
     private static String normalizeAddress(String address) {
-        if (address == null || address.isBlank()) {
+        if (StringUtils.isBlank(address)) {
             return null;
         }
         String trimmed = address.trim();

@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agnes（{@code apihub.agnes-ai.cn} / {@code apihub.agnes-ai.com}）的视频生成客户端。
@@ -65,14 +66,14 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
     @Override
     String videoMode() {
         // 有公网参考图才走 keyframe；协议里 mode 与媒体字段强绑定，无图时必须退回 text
-        return referenceImageUrl == null || referenceImageUrl.isBlank() ? "text" : "keyframe";
+        return StringUtils.isBlank(referenceImageUrl) ? "text" : "keyframe";
     }
 
     @Override
     JsonObject buildRequestBody(String model, String prompt, String mode, int seconds,
             String tier, String aspectRatio, Long seed) {
         boolean keyframe = "keyframe".equals(mode)
-                && referenceImageUrl != null && !referenceImageUrl.isBlank();
+                && StringUtils.isNotBlank(referenceImageUrl);
         return JsonObject.create()
                 .fluentPut("model", model)
                 .fluentPut("prompt", prompt)
@@ -149,7 +150,7 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
         StringBuilder url = new StringBuilder(siteOrigin())
                 .append("/agnesapi?video_id=").append(encode(taskId));
         String model = currentModel();
-        if (model != null && !model.isBlank()) {
+        if (StringUtils.isNotBlank(model)) {
             // 非 text 模式的任务必须带 model_name，否则查不到
             url.append("&model_name=").append(encode(model));
         }

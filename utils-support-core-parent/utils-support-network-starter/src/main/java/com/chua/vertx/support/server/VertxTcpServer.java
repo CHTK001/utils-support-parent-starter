@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
@@ -190,7 +191,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             return;
         }
         String encryptKey = setting.getEncryptKey();
-        if (encryptKey == null || encryptKey.isBlank()) {
+        if (StringUtils.isBlank(encryptKey)) {
             log.warn("Vertx TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
             streamCodec = null;
             return;

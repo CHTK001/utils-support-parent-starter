@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Antigravity（Google 出品的智能体式 IDE/CLI）用量解析器。
@@ -69,7 +70,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     */
     private static Path resolveGeminiHome() {
         String geminiHome = System.getenv("GEMINI_HOME");
-        if (geminiHome != null && !geminiHome.isBlank()) {
+        if (StringUtils.isNotBlank(geminiHome)) {
             return Path.of(geminiHome);
         }
         return Path.of(System.getProperty("user.home"), ".gemini");
@@ -248,7 +249,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
      * @return 归一化模型名；无则 null
      */
     private String extractModelSelection(String content) {
-        if (content == null || content.isBlank()) {
+        if (StringUtils.isBlank(content)) {
             return null;
         }
         Matcher matcher = MODEL_SELECTION.matcher(content);
@@ -265,7 +266,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
      * @return 归一化结果；空则 null
      */
     private static String normalizeAntigravityModel(String modelName) {
-        if (modelName == null || modelName.isBlank()) {
+        if (StringUtils.isBlank(modelName)) {
             return null;
         }
         String slug = modelName.trim()
@@ -329,7 +330,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
      * @return 估算 token 数
      */
     private long estimateTokens(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return 0L;
         }
         long cjk = 0L;

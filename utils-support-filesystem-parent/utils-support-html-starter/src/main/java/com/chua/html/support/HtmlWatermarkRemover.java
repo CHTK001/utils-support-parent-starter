@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HTML 水印删除工具类。
@@ -63,7 +64,7 @@ public class HtmlWatermarkRemover {
      * @return 删除水印后的 HTML 内容
      */
     public static String removeWatermark(String htmlContent) {
-        if (htmlContent == null || htmlContent.isEmpty()) {
+        if (StringUtils.isEmpty(htmlContent)) {
             return htmlContent;
         }
 

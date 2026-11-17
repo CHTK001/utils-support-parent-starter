@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 软件栈检测工具 — 通过调用栈分析识别第三方库。
@@ -342,7 +343,7 @@ public final class SoftwareDetector {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         for (int i = SKIP_FRAMES; i < stack.length; i++) {
             String className = stack[i].getClassName();
-            if (className == null || className.isEmpty()) {
+            if (StringUtils.isEmpty(className)) {
                 continue;
             }
             // 跳过 JDK 和自身框架

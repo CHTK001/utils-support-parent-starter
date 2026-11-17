@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 蓝奏云专用 HTTP 客户端。
@@ -83,7 +84,7 @@ class LanzouHttp {
      * @param rawCookie Cookie 串，形如 {@code a=1; b=2}
      */
     final void mergeCookie(String rawCookie) {
-        if (rawCookie == null || rawCookie.isEmpty()) {
+        if (StringUtils.isEmpty(rawCookie)) {
             return;
         }
         for (String item : rawCookie.split(";")) {
@@ -224,7 +225,7 @@ class LanzouHttp {
                         || code == 307 || code == 308) {
                     String location = connection.getHeaderField("Location");
                     connection.disconnect();
-                    if (location == null || location.isEmpty()) {
+                    if (StringUtils.isEmpty(location)) {
                         throw new LanzouException("蓝奏云下载重定向缺少 Location: " + current);
                     }
                     current = new URL(new URL(current), location).toString();
@@ -291,7 +292,7 @@ class LanzouHttp {
         connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9");
         connection.setRequestProperty("Connection", "keep-alive");
         connection.setRequestProperty("Cookie", cookieHeader());
-        if (referer != null && !referer.isEmpty()) {
+        if (StringUtils.isNotEmpty(referer)) {
             connection.setRequestProperty("Referer", referer);
         }
         if ("POST".equals(method)) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 冷却门面 —— 「失败先排除一段时间、到期自动恢复」的统一入口。
@@ -122,7 +123,7 @@ public final class CooldownGate {
      * @return 作用域句柄
      */
     public static CooldownGate of(String scope) {
-        String name = scope == null || scope.isBlank() ? DEFAULT_SCOPE : scope;
+        String name = StringUtils.isBlank(scope) ? DEFAULT_SCOPE : scope;
         return SCOPES.computeIfAbsent(name, CooldownGate::new);
     }
 
@@ -270,7 +271,7 @@ public final class CooldownGate {
             CooldownState next = old == null ? new CooldownState() : old;
             next.failures++;
             next.until = now + backoffMillis(key, next.failures);
-            next.reason = reason == null || reason.isBlank() ? "unknown" : reason;
+            next.reason = StringUtils.isBlank(reason) ? "unknown" : reason;
             return next;
         });
         long delay = state.until - now;

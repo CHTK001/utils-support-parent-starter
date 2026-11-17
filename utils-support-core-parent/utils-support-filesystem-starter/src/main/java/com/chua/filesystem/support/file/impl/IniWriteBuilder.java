@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * INI 文件写入构建器。
@@ -125,7 +126,7 @@ public class IniWriteBuilder extends WriteBuilder {
                 continue;
             }
 
-            if (sectionName != null && !sectionName.isEmpty()) {
+            if (StringUtils.isNotEmpty(sectionName)) {
                 sb.append("[").append(sectionName).append("]").append("\n");
             }
             for (Map.Entry<String, String> prop : section.getValue().entrySet()) {
@@ -166,7 +167,7 @@ public class IniWriteBuilder extends WriteBuilder {
             String sectionName = row.containsKey("__section__")
                     ? String.valueOf(row.get("__section__")) : null;
 
-            if (sectionName != null && !sectionName.isEmpty()) {
+            if (StringUtils.isNotEmpty(sectionName)) {
                 sb.append("[").append(sectionName).append("]").append("\n");
             }
             for (Map.Entry<String, Object> e : row.entrySet()) {

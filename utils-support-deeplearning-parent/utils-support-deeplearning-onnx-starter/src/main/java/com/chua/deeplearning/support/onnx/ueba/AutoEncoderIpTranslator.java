@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IP 异常流量检测 auto编码器 Translator。
@@ -117,7 +118,7 @@ public class AutoEncoderIpTranslator {
         if (inputDim <= 0) {
             throw new IllegalArgumentException("inputDim 必须大于 0, 实际: " + inputDim);
         }
-        if (modelFile == null || modelFile.isBlank()) {
+        if (StringUtils.isBlank(modelFile)) {
             throw new IllegalArgumentException("modelFile 不能为 null 或空字符串");
         }
         this.inputDim = inputDim;
@@ -161,7 +162,7 @@ public class AutoEncoderIpTranslator {
             }
         }
         String dir = System.getProperty(MODEL_DIR_PROPERTY);
-        if (dir != null && !dir.isBlank()) {
+        if (StringUtils.isNotBlank(dir)) {
             Path p = Paths.get(dir).resolve(modelFile);
             if (Files.isRegularFile(p)) {
                 return p;

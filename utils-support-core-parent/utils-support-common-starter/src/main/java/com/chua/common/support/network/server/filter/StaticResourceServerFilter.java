@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用静态资源服务过滤器。
@@ -84,7 +85,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
      */
     public StaticResourceServerFilter(String urlPrefix, String resourcePath) {
         this.urlPrefix = normalizePrefix(urlPrefix);
-        this.resourcePath = resourcePath == null || resourcePath.isEmpty() ? "static" : resourcePath;
+        this.resourcePath = StringUtils.isEmpty(resourcePath) ? "static" : resourcePath;
     }
 
     @Override
@@ -109,15 +110,15 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
             return;
         }
         String prefix = config.getInitParameter("urlPrefix");
-        if (prefix != null && !prefix.isEmpty()) {
+        if (StringUtils.isNotEmpty(prefix)) {
             this.urlPrefix = normalizePrefix(prefix);
         }
         String rp = config.getInitParameter("resourcePath");
-        if (rp != null && !rp.isEmpty()) {
+        if (StringUtils.isNotEmpty(rp)) {
             this.resourcePath = rp;
         }
         String fs = config.getInitParameter("fsRoot");
-        if (fs != null && !fs.isEmpty()) {
+        if (StringUtils.isNotEmpty(fs)) {
             this.fsRoot = Path.of(fs);
         }
     }
@@ -298,7 +299,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
      * @return 结果字符串
      */
     private static String normalizePrefix(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+        if (StringUtils.isEmpty(prefix)) {
             return "/static";
         }
         String p = prefix.startsWith("/") ? prefix : "/" + prefix;

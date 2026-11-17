@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Reasonix 用量解析器。
@@ -37,10 +38,10 @@ public class ReasonixUsageParser extends BaseUsageParser {
     */
     public ReasonixUsageParser() {
         String home = System.getenv("REASONIX_STATE_HOME");
-        if (home == null || home.isBlank()) {
+        if (StringUtils.isBlank(home)) {
             home = System.getenv("TOKENTRACKER_REASONIX_HOME");
         }
-        this.reasonixHome = (home != null && !home.isBlank())
+        this.reasonixHome = (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".reasonix");
     }
@@ -151,7 +152,7 @@ public class ReasonixUsageParser extends BaseUsageParser {
         try {
             JsonNode node = Json.parse(Files.readString(meta));
             String model = node.get("model").toStringValue();
-            if (model != null && !model.isBlank()) {
+            if (StringUtils.isNotBlank(model)) {
                 int slash = model.lastIndexOf('/');
                 return slash >= 0 ? model.substring(slash + 1) : model;
             }

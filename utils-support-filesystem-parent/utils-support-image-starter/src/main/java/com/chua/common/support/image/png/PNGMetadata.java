@@ -25,6 +25,7 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -1998,7 +1999,7 @@ public boolean tRNS_present;
                                        boolean bounded, int min, int max)
             throws IIOInvalidTreeException {
         String value = getStringAttribute(node, name, null, required, null);
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
 

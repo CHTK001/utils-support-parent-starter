@@ -3,6 +3,7 @@ package com.chua.common.support.network;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.BindException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 端口绑定冲突的退避重试策略。
@@ -154,7 +155,7 @@ public final class PortBindRetry {
      * @return 重试策略，解析失败时为默认策略
      */
     static Policy parse(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return defaults();
         }
         String[] parts = raw.trim().split(":");

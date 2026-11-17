@@ -1,4 +1,5 @@
 package com.chua.skywalking.support.client;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SkyWalking 连接参数的进程级设置。
@@ -72,7 +73,7 @@ public final class SkywalkingSettings {
      */
     public static void apply(String newUrl, String newUsername, String newPassword,
                              long newTimeout, boolean newEnabled) {
-        if (newUrl != null && !newUrl.isBlank()) {
+        if (StringUtils.isNotBlank(newUrl)) {
             url = normalize(newUrl);
         }
         if (newUsername != null) {
@@ -157,7 +158,7 @@ public final class SkywalkingSettings {
      */
     private static String resolveUrl() {
         String fromProperty = System.getProperty(PROP_URL);
-        if (fromProperty != null && !fromProperty.isBlank()) {
+        if (StringUtils.isNotBlank(fromProperty)) {
             return normalize(fromProperty);
         }
         String fromEnv = env(ENV_ADDRESS);

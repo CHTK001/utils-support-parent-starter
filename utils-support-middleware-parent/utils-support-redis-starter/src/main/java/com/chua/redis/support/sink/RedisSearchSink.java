@@ -16,6 +16,7 @@ import redis.clients.jedis.util.SafeEncoder;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -145,7 +146,7 @@ public class RedisSearchSink implements DataSink {
         config.setMaxTotal(10);
         config.setMaxIdle(5);
         config.setMinIdle(1);
-        if (password != null && !password.isEmpty()) {
+        if (StringUtils.isNotEmpty(password)) {
             pool = new JedisPool(config, host, port, timeout, password, database);
         } else {
             pool = new JedisPool(config, host, port, timeout, null, database);

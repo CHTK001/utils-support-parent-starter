@@ -1,6 +1,7 @@
 package com.chua.common.support.datasearch.skill.offline;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SKILL.md 的 YAML front-matter 解析器。
@@ -59,7 +60,7 @@ final class DshFrontMatter {
      * @return 解析结果，永不为 null
      */
     static DshFrontMatter parse(String content) {
-        if (content == null || content.isBlank()) {
+        if (StringUtils.isBlank(content)) {
             return new DshFrontMatter(null, null);
         }
         List<String> lines = content.lines().toList();

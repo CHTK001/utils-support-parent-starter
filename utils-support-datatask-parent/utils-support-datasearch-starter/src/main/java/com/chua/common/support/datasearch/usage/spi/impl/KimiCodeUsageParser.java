@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kimi Code (Moonshot 官方 CLI) 用量解析器。
@@ -40,7 +41,7 @@ public class KimiCodeUsageParser extends BaseUsageParser {
     */
     public KimiCodeUsageParser() {
         String home = System.getenv("KIMI_CODE_HOME");
-        this.kimiCodeHome = (home != null && !home.isBlank())
+        this.kimiCodeHome = (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".kimi-code");
     }
@@ -116,7 +117,7 @@ public class KimiCodeUsageParser extends BaseUsageParser {
                 return null;
             }
             String uuid = event.get("uuid").toStringValue();
-            if (uuid == null || uuid.isBlank() || !seenUuids.add(uuid)) {
+            if (StringUtils.isBlank(uuid) || !seenUuids.add(uuid)) {
                 return null;
             }
             int input = usage.get("input_tokens").toIntValue(0);
@@ -182,7 +183,7 @@ public class KimiCodeUsageParser extends BaseUsageParser {
                     .filter(java.util.Objects::nonNull)
                     .map(node -> {
                         String alias = node.get("modelAlias").toStringValue();
-                        if (alias == null || alias.isBlank()) {
+                        if (StringUtils.isBlank(alias)) {
                             alias = node.get("event").get("modelAlias").toStringValue();
                         }
                         return alias;

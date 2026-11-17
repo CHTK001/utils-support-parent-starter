@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Seq2Seq 模型资源定位器。
@@ -104,7 +105,7 @@ public final class Seq2SeqModelResources {
      */
     private static boolean extractEmbedded(Seq2SeqModelDefinition def, Path target) {
         String base = def.classpathBase();
-        if (base == null || base.isBlank()) {
+        if (StringUtils.isBlank(base)) {
             return false;
         }
         try {
@@ -200,7 +201,7 @@ public final class Seq2SeqModelResources {
      */
     public static Path cacheRoot() {
         String prop = System.getProperty(PROP_CACHE_DIR);
-        if (prop == null || prop.isBlank()) {
+        if (StringUtils.isBlank(prop)) {
             String tmp = System.getProperty(PROP_TMPDIR, ".");
             prop = Path.of(tmp, DEFAULT_CACHE_NAME).toString();
         }

@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.Color;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Excel 单元格样式配置 — 流式构建器。
@@ -582,7 +583,7 @@ public class CellStyleConfig {
      * @return 结果值
      */
     private static short indexedColor(String color) {
-        if (color == null || color.isEmpty()) {
+        if (StringUtils.isEmpty(color)) {
             return IndexedColors.BLACK.getIndex();
         }
         // 先按名称查找

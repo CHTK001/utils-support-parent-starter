@@ -9,6 +9,7 @@ import com.chua.common.support.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicReference;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Java 原生脚本标记器实现。
@@ -67,7 +68,7 @@ public class JavaScriptMarker extends AbstractScriptMarker {
         }
 
         String source = listener.getSource();
-        if (source == null || source.isEmpty()) {
+        if (StringUtils.isEmpty(source)) {
             return null;
         }
 

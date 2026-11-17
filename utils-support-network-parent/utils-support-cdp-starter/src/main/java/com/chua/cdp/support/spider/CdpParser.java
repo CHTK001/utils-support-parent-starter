@@ -11,6 +11,7 @@ import com.chua.crawler.support.SpiderParser;
 import com.chua.crawler.support.model.SpiderResponse;
 import com.chua.crawler.support.model.SpiderResult;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CDP 浏览器渲染解析器
@@ -69,7 +70,7 @@ public class CdpParser implements SpiderParser, AutoCloseable {
     @Override
     public SpiderResult parse(SpiderResponse response) {
         String content = response == null ? null : response.getContent();
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return null;
         }
         BrowserPage page = null;

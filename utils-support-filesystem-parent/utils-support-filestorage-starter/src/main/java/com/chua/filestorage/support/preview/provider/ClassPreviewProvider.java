@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Java {@code .class} 反编译预览提供者：用 CFR 把字节码还原成 Java 源码后做语法高亮。
@@ -71,7 +72,7 @@ public class ClassPreviewProvider implements FileStoragePreviewProvider {
             throw new IOException("文件过大（超过 " + (MAX_BYTES / 1024 / 1024) + "MB），请下载后用本地工具反编译");
         }
         String source = decompile(content);
-        if (source == null || source.isBlank()) {
+        if (StringUtils.isBlank(source)) {
             throw new IOException("反编译未产出源码，该文件可能不是有效的 Java 字节码");
         }
         log.debug("[ClassPreviewProvider] 反编译完成：{} 字节 -> {} 字符", content.length, source.length());

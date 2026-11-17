@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WeVisDoc Markdown 输出解析器。
@@ -92,7 +93,7 @@ public class WevisdocMarkdownParser {
      * @return 各类版面元素数量（按 LAYOUT_LABELS 顺序）
      */
     public static int[] parse(String markdown) {
-        if (markdown == null || markdown.isEmpty()) {
+        if (StringUtils.isEmpty(markdown)) {
             return new int[LAYOUT_LABELS.length];
         }
 

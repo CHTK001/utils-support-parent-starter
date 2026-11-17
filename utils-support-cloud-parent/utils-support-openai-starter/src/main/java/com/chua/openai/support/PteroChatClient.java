@@ -745,7 +745,7 @@ public class PteroChatClient implements ChatClient {
             return;
         }
         history.add(ChatMessage.builder().role("user").content(prompt).build());
-        if (answer != null && !answer.isEmpty()) {
+        if (StringUtils.isNotEmpty(answer)) {
             history.add(ChatMessage.builder().role("assistant").content(answer).build());
         }
     }

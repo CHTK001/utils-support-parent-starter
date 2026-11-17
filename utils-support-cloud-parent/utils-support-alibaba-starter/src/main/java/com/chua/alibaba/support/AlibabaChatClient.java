@@ -26,6 +26,7 @@ import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 阿里云通义千问大模型对话客户端
@@ -135,7 +136,7 @@ public class AlibabaChatClient implements ChatClient {
      */
     private static Generation buildGeneration(ChatClientSetting setting) {
         var proxyStr = setting.getProxy();
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return new Generation(setting.getAppKey());
         }
         var connOpts = buildConnectionOptions(proxyStr);
@@ -470,7 +471,7 @@ public class AlibabaChatClient implements ChatClient {
      */
     private List<Message> buildMessages(String prompt, String actualSystem) {
         var messages = Wraps.<Message>list();
-        if (actualSystem != null && !actualSystem.isEmpty()) {
+        if (StringUtils.isNotEmpty(actualSystem)) {
             messages.add(Message.builder()
                     .role(Role.SYSTEM.getValue())
                     .content(actualSystem)

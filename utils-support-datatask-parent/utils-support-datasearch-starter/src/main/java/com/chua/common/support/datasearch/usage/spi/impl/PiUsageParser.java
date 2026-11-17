@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Pi (Stochastic Labs / pi 路由Agent) 用量解析器。
@@ -37,10 +38,10 @@ public class PiUsageParser extends BaseUsageParser {
     */
     public PiUsageParser() {
         String explicit = System.getenv("TOKENTRACKER_PI_AGENT_DIR");
-        if (explicit == null || explicit.isBlank()) {
+        if (StringUtils.isBlank(explicit)) {
             explicit = System.getenv("PI_CODING_AGENT_DIR");
         }
-        Path piHome = (explicit != null && !explicit.isBlank())
+        Path piHome = (StringUtils.isNotBlank(explicit))
                 ? Path.of(explicit)
                 : Path.of(System.getProperty("user.home"), ".pi");
         this.agentDir = piHome.resolve("agent");
@@ -120,7 +121,7 @@ public class PiUsageParser extends BaseUsageParser {
             int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
             int cacheHit = Math.min(cacheRead, promptTokens);
             String id = entry.get("id").toStringValue();
-            if (id == null || id.isBlank()) {
+            if (StringUtils.isBlank(id)) {
                 return null;
             }
             long tsMillis = toMillis(entry, msg);
@@ -131,7 +132,7 @@ public class PiUsageParser extends BaseUsageParser {
             int total = promptTokens + output;
             String provider = msg.get("provider").toStringValue();
             String model = msg.get("model").toStringValue();
-            if (model == null || model.isBlank()) {
+            if (StringUtils.isBlank(model)) {
                 model = DEFAULT_MODEL;
             }
             Integer cacheTokens = cacheHit > 0 ? Integer.valueOf(cacheHit) : null;

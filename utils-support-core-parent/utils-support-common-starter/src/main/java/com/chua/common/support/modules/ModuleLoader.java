@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDK9+ 模块加载器。
@@ -165,7 +166,7 @@ public class ModuleLoader {
      * @param name 模块名称
      */
     public void exportToAllUnnamed(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return;
         }
 
@@ -202,7 +203,7 @@ public class ModuleLoader {
      * @param name 模块名称
      */
     public void exportToAll(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return;
         }
 

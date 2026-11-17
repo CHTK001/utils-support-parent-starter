@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Undertow 的嵌入式 Web 容器实现。
@@ -276,7 +277,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
                 if (unit.isAutoDeploy()) {
                     try {
                         String ctxPath = unit.getContextPath();
-                        if (ctxPath == null || ctxPath.isEmpty()) {
+                        if (StringUtils.isEmpty(ctxPath)) {
                             ctxPath = resolveContextPath(unit.getPath(), unit.getType());
                         }
                         deployWar(unit.getPath(), ctxPath);

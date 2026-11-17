@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IPC 服务器过滤器，拦截 /ipc/* 请求路由到处理器。
@@ -81,7 +82,7 @@ public class IpcServerFilter implements ServerFilter {
     private void handleIpcRequest(ServerRequest request, ServerResponse response) {
         try {
             String body = request.getBodyString();
-            if (body == null || body.isEmpty()) {
+            if (StringUtils.isEmpty(body)) {
                 sendError(response, 400, "请求体为空");
                 return;
             }
@@ -97,7 +98,7 @@ public class IpcServerFilter implements ServerFilter {
                 return;
             }
             String method = (String) map.get("method");
-            if (method == null || method.isEmpty()) {
+            if (StringUtils.isEmpty(method)) {
                 sendError(response, 400, "缺少 method");
                 return;
             }
@@ -121,7 +122,7 @@ public class IpcServerFilter implements ServerFilter {
      * @return 结果字符串
      */
     private static String normalizePath(String methodName) {
-        if (methodName == null || methodName.isBlank()) {
+        if (StringUtils.isBlank(methodName)) {
             return "/";
         }
         return methodName.startsWith("/") ? methodName : "/" + methodName;

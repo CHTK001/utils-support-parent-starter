@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 输出目标与模板来源工具。
@@ -70,7 +71,7 @@ public final class Outputs {
      * @throws IOException 读取失败
      */
     public static InputStream openTemplate(String source) throws IOException {
-        if (source == null || source.isBlank()) {
+        if (StringUtils.isBlank(source)) {
             throw new ExportException("模板路径不能为空");
         }
         if (source.startsWith(CLASSPATH_PREFIX)) {
@@ -149,7 +150,7 @@ public final class Outputs {
      * @return 格式标识
      */
     public static String resolveFormat(File file, OutputStream stream, String format, String fallback) {
-        if (format != null && !format.isBlank()) {
+        if (StringUtils.isNotBlank(format)) {
             return ExportFormats.normalize(format);
         }
         if (file != null) {

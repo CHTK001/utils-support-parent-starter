@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 import java.io.IOException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ONNX 权重位置解析工具。
@@ -56,14 +57,14 @@ public final class ModelResourceResolver {
             return hit;
         }
         // ② modelId 即外部目录
-        if (modelId != null && !modelId.isBlank() && !isRegistryId(modelId)) {
+        if (StringUtils.isNotBlank(modelId) && !isRegistryId(modelId)) {
             hit = fromPath(modelId, fileName);
             if (hit != null) {
                 return hit;
             }
         }
         // ③ 注册表解析（relativePath → 模型根目录 → 下载缓存）
-        if (modelId != null && !modelId.isBlank()) {
+        if (StringUtils.isNotBlank(modelId)) {
             try {
                 Path resolved = ModelRegistry.resolveModelPath(modelId);
                 if (resolved != null && Files.isRegularFile(resolved)) {
@@ -73,7 +74,7 @@ public final class ModelResourceResolver {
                 // 注册表未登记该模型时忽略，交由调用方兜底
             }
         }
-        if (registryPath != null && !registryPath.isBlank()) {
+        if (StringUtils.isNotBlank(registryPath)) {
             try {
                 Path direct = Paths.get(registryPath);
                 if (Files.isRegularFile(direct)) {
@@ -114,7 +115,7 @@ public final class ModelResourceResolver {
      * @return 命中的文件；未命中返回 {@code null}
      */
     private static Path fromPath(String path, String fileName) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             return null;
         }
         try {

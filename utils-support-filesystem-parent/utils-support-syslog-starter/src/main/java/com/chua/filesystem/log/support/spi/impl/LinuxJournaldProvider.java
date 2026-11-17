@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Linux 系统日志提供者 - libsystemd FFM + /var/日志 文件回退
@@ -422,7 +423,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      * @return 解析日志线的结果
      */
     private LogEntry parseLogLine(String line, String source) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return null;
         }
         try {
@@ -472,7 +473,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
-        if (glob == null || glob.isEmpty()) {
+        if (StringUtils.isEmpty(glob)) {
             return null;
         }
         try {

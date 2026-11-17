@@ -61,7 +61,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
             for (JsonNode cell : cells) {
                 if ("markdown".equals(cell.path("cell_type").asText())) {
                     String source = readSource(cell);
-                    if (source != null && !source.isEmpty()) {
+                    if (StringUtils.isNotEmpty(source)) {
                         String firstLine = source.split("\r?\n", 2)[0].trim();
                         if (firstLine.startsWith("#")) {
                             return firstLine.replaceFirst("^#+\\s*", "").trim();

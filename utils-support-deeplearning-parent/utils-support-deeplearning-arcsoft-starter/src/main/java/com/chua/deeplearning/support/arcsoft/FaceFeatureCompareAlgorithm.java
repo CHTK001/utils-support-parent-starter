@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于虹软 arcsoft SDK 的人脸特征相似度比较算法
@@ -39,7 +40,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     public FaceFeatureCompareAlgorithm() {
         DeeplearningEnvironment env = DeeplearningEnvironment.of("arcsoft");
         String modelPath = env.getModelPath();
-        if (modelPath == null || modelPath.isEmpty()) {
+        if (StringUtils.isEmpty(modelPath)) {
             throw new IllegalStateException("人脸识别引擎路径未配置，请设置 deeplearning.arcsoft.model-path");
         }
 
@@ -68,7 +69,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
 
         String appId = env.getAppId();
         String appSecret = env.getAppSecret();
-        if (appId != null && !appId.isEmpty() && appSecret != null && !appSecret.isEmpty()) {
+        if (StringUtils.isNotEmpty(appId) && StringUtils.isNotEmpty(appSecret)) {
             int code = faceEngine.activeOnline(appId, appSecret);
             if (code != ErrorInfo.MOK.getValue() && code != ErrorInfo.MERR_ASF_ALREADY_ACTIVATED.getValue()) {
                 throw new IllegalStateException("人脸识别引擎激活失败，错误码: " + code);

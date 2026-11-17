@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 存储过程 / 函数元数据操作。
@@ -477,7 +478,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
             StringBuilder sb = new StringBuilder("CREATE PROCEDURE ")
                     .append(metaProcedure.qualified(procedureName)).append('(')
                     .append(String.join(", ", params)).append(")\n");
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 sb.append("COMMENT '").append(MysqlMetaData.escapeSql(comment)).append("'\n");
             }
             if (securityType != null) {

@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 百度文心一格图片生成客户端
@@ -156,7 +157,7 @@ public class BaiduImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String accessToken = getAccessToken();
@@ -205,7 +206,7 @@ public class BaiduImageClient implements ImageClient {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(
                 response.getBodyString(), Map.class);
         String accessToken = (String) root.get("access_token");
-        if (accessToken == null || accessToken.isBlank()) {
+        if (StringUtils.isBlank(accessToken)) {
             throw new RuntimeException("百度返回的 access_token 为空");
         }
         return accessToken;
@@ -226,7 +227,7 @@ public class BaiduImageClient implements ImageClient {
             throw new RuntimeException("文心一格返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");
-        if (imageUrl == null || imageUrl.isBlank()) {
+        if (StringUtils.isBlank(imageUrl)) {
             throw new RuntimeException("文心一格返回的图片 URL 为空");
         }
         ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
@@ -286,7 +287,7 @@ public class BaiduImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

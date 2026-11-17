@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SSL/TLS 工具类，统一 KeyStore 加载、SSLContext 创建、自签名证书生成等逻辑。
@@ -342,10 +343,10 @@ public final class SslUtils {
      */
     public static Path keyLogFile() {
         String configured = System.getProperty(KEY_LOG_PROPERTY);
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             configured = System.getenv(KEY_LOG_ENV);
         }
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             return null;
         }
         try {
@@ -468,7 +469,7 @@ public final class SslUtils {
      */
     public static List<String[]> parseKeyLog(String text) {
         List<String[]> entries = new ArrayList<>();
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return entries;
         }
         for (String line : text.split("\\R")) {

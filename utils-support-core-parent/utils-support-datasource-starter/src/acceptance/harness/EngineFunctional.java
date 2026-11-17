@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 阶段二（修正版）：嵌入式引擎的深度功能验收。
@@ -506,7 +507,7 @@ public final class EngineFunctional {
         try {
             String detail = probe.run();
             pass++;
-            emit("  [PASS] " + name + (detail == null || detail.isEmpty() ? "" : "  -> " + detail));
+            emit("  [PASS] " + name + (StringUtils.isEmpty(detail) ? "" : "  -> " + detail));
         } catch (Throwable t) {
             recordFail(name + "  -> " + chain(t));
         }

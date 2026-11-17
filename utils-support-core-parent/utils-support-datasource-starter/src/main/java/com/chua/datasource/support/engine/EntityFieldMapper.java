@@ -4,6 +4,7 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 结果集列名 → 实体字段的绑定规则。
@@ -45,7 +46,7 @@ final class EntityFieldMapper {
      * @param value      列值，可为 null
      */
     static void setFieldValue(Object instance, String columnName, Object value) {
-        if (instance == null || columnName == null || columnName.isEmpty()) {
+        if (instance == null || StringUtils.isEmpty(columnName)) {
             return;
         }
         String[] candidates = {

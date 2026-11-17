@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 服务部署链式构建器（Facade）。
@@ -681,11 +682,11 @@ public class ServiceBuilder implements Closeable {
             if (builder.jarPath == null || builder.jarPath.isBlank()) {
                 throw new IllegalStateException("[service] withJar() 未设置");
             }
-            if (sshHost == null || sshHost.isBlank()) {
+            if (StringUtils.isBlank(sshHost)) {
                 throw new IllegalStateException("[service-remote] SSH host 未设置，" +
                         "调用 withHost() 或 toRemote(host,port,user,pwd)");
             }
-            if (sshUsername == null || sshUsername.isBlank()) {
+            if (StringUtils.isBlank(sshUsername)) {
                 throw new IllegalStateException("[service-remote] SSH username 未设置");
             }
         }

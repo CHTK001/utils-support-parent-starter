@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎语音识别（ASR）客户端抽象基类。
@@ -131,7 +132,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);

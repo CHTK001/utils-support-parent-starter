@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SM4 编解码实现（真实加密，不再是十六进制伪装）。
@@ -89,7 +90,7 @@ public class Sm4Codec implements Codec {
      * @return 密钥
      */
     private byte[] deriveKey() {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             throw new IllegalArgumentException("SM4 密钥不能为空");
         }
         try {

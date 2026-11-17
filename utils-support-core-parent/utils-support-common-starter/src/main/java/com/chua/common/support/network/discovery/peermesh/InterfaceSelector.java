@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 网卡选择器：优先使用配置 IP，否则自动选择私网 IPv4 地址。
@@ -39,12 +40,12 @@ public class InterfaceSelector {
      */
     public String select(String bindIp, String bindInterface) throws SocketException {
         // 1. 若指定了 bindIp，直接返回
-        if (bindIp != null && !bindIp.isBlank()) {
+        if (StringUtils.isNotBlank(bindIp)) {
             return bindIp;
         }
 
         // 2. 若指定了 bindInterface，从该网卡中寻找私网 IPv4
-        if (bindInterface != null && !bindInterface.isBlank()) {
+        if (StringUtils.isNotBlank(bindInterface)) {
             NetworkInterface nif = findInterfaceByName(bindInterface);
             if (nif != null) {
                 String ip = selectPrivateIPv4(nif);

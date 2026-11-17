@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DDL（数据定义语言，Data Definition Language）格式化器。
@@ -152,7 +153,7 @@ public class DdlFormatter extends SqlFormatter {
     protected String doFormat(String source) {
         // 1. 清理输入：去除多余空白，规范化空格
         String sql = normalizeSql(source);
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return sql;
         }
 
@@ -312,7 +313,7 @@ public class DdlFormatter extends SqlFormatter {
                                         List<String> columnDefs,
                                         List<String> constraintDefs) {
         // 防御性检查：如果输入为空，直接返回
-        if (columnsPart == null || columnsPart.isEmpty()) {
+        if (StringUtils.isEmpty(columnsPart)) {
             return;
         }
 
@@ -416,7 +417,7 @@ public class DdlFormatter extends SqlFormatter {
      * @return 如果是约束定义返回true，否则返回false
      */
     private boolean isConstraint(String part) {
-        if (part == null || part.isEmpty()) {
+        if (StringUtils.isEmpty(part)) {
             return false;
         }
         String upper = part.toUpperCase();

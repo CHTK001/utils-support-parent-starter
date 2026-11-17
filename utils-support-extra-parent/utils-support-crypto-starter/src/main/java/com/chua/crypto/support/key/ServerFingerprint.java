@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 服务器硬件指纹
@@ -61,10 +62,10 @@ public final class ServerFingerprint {
      */
     public static ServerFingerprint capture() {
         String pinned = System.getProperty(PROPERTY_SERVER_ID);
-        if (pinned == null || pinned.isBlank()) {
+        if (StringUtils.isBlank(pinned)) {
             pinned = System.getenv(ENV_SERVER_ID);
         }
-        if (pinned != null && !pinned.isBlank()) {
+        if (StringUtils.isNotBlank(pinned)) {
             return new ServerFingerprint(sha256Hex("pinned" + SEPARATOR + pinned.trim()));
         }
         return new ServerFingerprint(sha256Hex(String.join(SEPARATOR, collectAttributes())));

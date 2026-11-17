@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 多 Key 对话客户端：同一个供应商、同一个模型、多个 API Key，Key 的维护全在本类内部。
@@ -66,7 +67,7 @@ public class MultiKeyChatClient extends SwitchingChatClient {
          * @return 策略
          */
         public static Strategy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return FAILOVER;
             }
             String value = code.trim().toLowerCase();
@@ -153,7 +154,7 @@ public class MultiKeyChatClient extends SwitchingChatClient {
      * @return 掩码后的标签
      */
     private static String maskKey(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return "keyless";
         }
         String trimmed = key.trim();

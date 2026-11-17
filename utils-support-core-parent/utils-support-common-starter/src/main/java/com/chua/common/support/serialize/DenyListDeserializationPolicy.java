@@ -2,6 +2,7 @@ package com.chua.common.support.serialize;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 内置高危反序列化类黑名单策略。
@@ -74,7 +75,7 @@ public class DenyListDeserializationPolicy implements DeserializationPolicy {
      */
     @Override
     public boolean allows(String className) {
-        if (className == null || className.isEmpty()) {
+        if (StringUtils.isEmpty(className)) {
             return true;
         }
         for (String denied : DENIED_CLASS_PREFIXES) {

@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于原生 JDK {@link java.net.ServerSocket} 的 SOCKS5 代理服务器。
@@ -253,7 +254,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
             return false;
         }
         byte[] methods = readBytes(in, nMethods);
-        boolean authEnabled = username != null && !username.isEmpty();
+        boolean authEnabled = StringUtils.isNotEmpty(username);
         if (authEnabled) {
             boolean supports = false;
             for (byte m : methods) {

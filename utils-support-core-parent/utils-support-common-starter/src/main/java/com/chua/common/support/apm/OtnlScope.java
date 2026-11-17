@@ -1,4 +1,5 @@
 package com.chua.common.support.apm;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Otnl 指标/查询的作用域。
@@ -54,7 +55,7 @@ public enum OtnlScope {
      * @return 对应作用域，找不到返回 {@code null}
      */
     public static OtnlScope of(String scope) {
-        if (scope == null || scope.isBlank()) {
+        if (StringUtils.isBlank(scope)) {
             return null;
         }
         for (OtnlScope value : values()) {

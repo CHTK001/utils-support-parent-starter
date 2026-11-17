@@ -551,7 +551,7 @@ public class XunfeiChatClient implements ChatClient {
      * @return Proxy 对象
      */
     private static Proxy parseProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return null;
         }
         Proxy.Type proxyType;

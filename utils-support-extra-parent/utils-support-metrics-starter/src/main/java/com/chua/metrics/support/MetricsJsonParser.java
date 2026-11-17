@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JSON 解析器，负责将字节数组解析为 指标snapshot 对象。
@@ -38,7 +39,7 @@ public class MetricsJsonParser {
      * @return MetricsSnapshot 对象，解析失败返回 空
      */
     public MetricsSnapshot parse(String json) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return null;
         }
         try {

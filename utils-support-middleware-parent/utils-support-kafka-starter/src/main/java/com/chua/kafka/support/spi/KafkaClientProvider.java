@@ -34,6 +34,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.UnsupportedVersionException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kafka 中间件管理面 SPI 实现（全部能力）。
@@ -135,7 +136,7 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
-        if (parentKey == null || parentKey.isBlank()) {
+        if (StringUtils.isBlank(parentKey)) {
             return List.of();
         }
         List<MiddlewareTreeNode> out = new ArrayList<>();
@@ -156,7 +157,7 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview " +
                     "<topic>");
         }
@@ -193,7 +194,7 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareDocument document(MiddlewareConnectRequest request, String scope, String key) {
-        if (scope == null || scope.isBlank()) {
+        if (StringUtils.isBlank(scope)) {
             return null;
         }
         // scope = 主题名，key = 分区号或 "group:<组名>" / "broker:<id>"
@@ -224,7 +225,7 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG,
                   (int) TimeUnit.SECONDS.toMillis(ADMIN_TIMEOUT_SECONDS));
         String username = request.username();
-        if (username != null && !username.isBlank()) {
+        if (StringUtils.isNotBlank(username)) {
             props.put("security.protocol", "SASL_PLAINTEXT");
             props.put("sasl.mechanism", "PLAIN");
             props.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required "
@@ -520,6 +521,6 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
             t = t.getCause();
         }
         String m = t.getMessage();
-        return m == null || m.isBlank() ? t.getClass().getSimpleName() : m;
+        return StringUtils.isBlank(m) ? t.getClass().getSimpleName() : m;
     }
 }

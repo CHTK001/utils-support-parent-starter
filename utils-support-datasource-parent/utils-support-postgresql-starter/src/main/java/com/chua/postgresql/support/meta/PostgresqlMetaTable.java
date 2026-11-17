@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 表元数据操作。
@@ -646,7 +647,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
          */
         private void applyComments() {
             String quoted = metaTable.quote(tableName);
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 metaTable.executeUpdate("COMMENT ON TABLE " + quoted + " IS '"
                         + PostgresqlMetaData.escapeSql(comment) + "'");
             }
@@ -909,7 +910,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
                 if (Boolean.TRUE.equals(notNull)) {
                     sb.append(" NOT NULL");
                 }
-                if (defaultValue != null && !defaultValue.isEmpty()) {
+                if (StringUtils.isNotEmpty(defaultValue)) {
                     sb.append(" DEFAULT ").append(defaultValue);
                 }
                 parent.addSql(sb.toString());
@@ -925,7 +926,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
                 }
                 parent.addSql(sb.toString());
             }
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 parent.columnComment(columnName, comment);
             }
             return parent;

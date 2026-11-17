@@ -22,6 +22,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 一次性会话密钥加解密（临时 ECDH 密钥交换 + AEAD）。
@@ -235,7 +236,7 @@ public class KeyLogCodec implements Codec {
 
     @Override
     public Codec key(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("keylog 密钥不能为空，需 client:<公钥hex>[#指纹] / server:<私钥hex> / pair:<公钥hex>:<私钥hex>");
         }
         String[] parts = key.trim().split(":");

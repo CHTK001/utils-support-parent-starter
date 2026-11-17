@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.idcard;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 中国居民身份证文字解析器
@@ -40,7 +41,7 @@ public class CnIdCardParser {
      * @return 解析结果
      */
     public CnIdCardResult parse(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         CnIdCardResult result = new CnIdCardResult();

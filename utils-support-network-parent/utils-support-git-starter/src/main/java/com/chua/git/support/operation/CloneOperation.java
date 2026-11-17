@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.CredentialsProvider;
 
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 克隆操作（Git clone），将远程仓库克隆到本地磁盘。
@@ -116,7 +117,7 @@ public class CloneOperation {
      */
     private GitClient doClone() {
         String remoteUrl = client.getRemoteUrl();
-        if (remoteUrl == null || remoteUrl.isEmpty()) {
+        if (StringUtils.isEmpty(remoteUrl)) {
             throw new GitClientException("remoteUrl 不能为空");
         }
         java.nio.file.Path localPath = client.getLocalPath();

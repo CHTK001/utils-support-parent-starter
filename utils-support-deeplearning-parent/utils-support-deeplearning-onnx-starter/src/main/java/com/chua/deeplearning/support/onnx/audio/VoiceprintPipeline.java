@@ -19,6 +19,7 @@ import com.chua.common.support.vector.VectorStorageBuilder;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
@@ -535,7 +536,7 @@ public class VoiceprintPipeline implements AutoCloseable {
      */
     private static Path defaultDirectory() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        Path base = (prop != null && !prop.isBlank())
+        Path base = (StringUtils.isNotBlank(prop))
                 ? Path.of(prop.trim()) : Path.of(System.getProperty("java.io.tmpdir"));
         return base.resolve("chua-voiceprints");
     }
@@ -575,7 +576,7 @@ public class VoiceprintPipeline implements AutoCloseable {
          * @return this
          */
         public Builder model(String modelId) {
-            if (modelId == null || modelId.isBlank()) {
+            if (StringUtils.isBlank(modelId)) {
                 return this;
             }
             this.translator = AbstractIdentificationEngine.getInstance()

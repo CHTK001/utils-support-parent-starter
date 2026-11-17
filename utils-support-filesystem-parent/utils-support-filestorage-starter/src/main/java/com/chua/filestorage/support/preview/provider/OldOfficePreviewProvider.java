@@ -146,7 +146,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                 // 富文本转换失败不致命，降级为纯文本
                 log.debug("Word 富文本转换失败，降级为纯文本: {}", e.getMessage());
             }
-            if (html != null && !html.isBlank()) {
+            if (StringUtils.isNotBlank(html)) {
                 StringBuilder out = new StringBuilder(header("Word 文档预览"))
                         .append("<div class=\"doc\">").append(html).append("</div>");
                 appendEmbeddedObjectsSection(out, content);
@@ -160,7 +160,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
         } catch (IOException | RuntimeException e) {
             // 结构异常 / 非标准 .doc：降级为纯文本，尽量把内容拿出来
             String text = extractDocTextQuietly(content);
-            if (text != null && !text.isBlank()) {
+            if (StringUtils.isNotBlank(text)) {
                 return PreviewResult.builder()
                         .htmlContent(page(header("Word 文档预览（纯文本）")
                                 + "<div class=\"warn\">文档结构异常，已降级为纯文本显示："

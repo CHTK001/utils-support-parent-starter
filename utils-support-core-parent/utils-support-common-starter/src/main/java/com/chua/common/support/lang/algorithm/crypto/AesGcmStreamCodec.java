@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 预共享口令的 AES-256-GCM 编解码（Codec 二级接口实现）。
@@ -32,7 +33,7 @@ public class AesGcmStreamCodec implements StreamCodec {
 
     @Override
     public StreamCodec key(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("aes-gcm 传输加密缺少口令");
         }
         this.keySpec = AesGcmUtils.deriveKey(key);

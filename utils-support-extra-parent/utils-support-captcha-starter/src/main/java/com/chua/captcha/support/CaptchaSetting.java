@@ -2,6 +2,7 @@ package com.chua.captcha.support;
 
 import lombok.Builder;
 import lombok.Data;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 验证码解析服务配置
@@ -59,7 +60,7 @@ public class CaptchaSetting {
      * @return 实际使用的服务地址
      */
     public String apiUrlOr(String fallback) {
-        return apiUrl == null || apiUrl.isBlank() ? fallback : apiUrl;
+        return StringUtils.isBlank(apiUrl) ? fallback : apiUrl;
     }
 
     /**
@@ -69,7 +70,7 @@ public class CaptchaSetting {
      * @throws IllegalStateException 令牌未配置时抛出，避免把 null 当作 clientKey 发给服务商
      */
     public String requireApiToken() {
-        if (apiToken == null || apiToken.isBlank()) {
+        if (StringUtils.isBlank(apiToken)) {
             throw new IllegalStateException("CaptchaSetting.apiToken 未配置，无法调用验证码解析服务");
         }
         return apiToken;
@@ -111,10 +112,10 @@ public class CaptchaSetting {
      */
     private static String property(String key, String fallback) {
         String value = System.getProperty(key);
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             value = System.getenv(key.replace('.', '_').toUpperCase());
         }
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return fallback;
         }
         return value;

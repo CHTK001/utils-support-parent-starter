@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.*;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 数据库文档解析器 — 通过 JDBC 元数据读取表结构及外键关系。
@@ -42,7 +43,7 @@ public class DatabaseDocumentParser implements DocumentParser {
         Set<String> schemas = resolveSchemas(config);
         boolean allMode = isAllMode(config);
 
-        if (driverClass != null && !driverClass.isBlank()) {
+        if (StringUtils.isNotBlank(driverClass)) {
             if (!ClassUtils.isPresent(driverClass)) {
                 throw new RuntimeException("JDBC driver not found: " + driverClass);
             }
@@ -87,10 +88,10 @@ public class DatabaseDocumentParser implements DocumentParser {
                             continue;
                         }
 
-                        if (tableSchema == null || tableSchema.isBlank()) {
+                        if (StringUtils.isBlank(tableSchema)) {
                             tableSchema = tableCatalog;
                         }
-                        if (tableSchema == null || tableSchema.isBlank()) {
+                        if (StringUtils.isBlank(tableSchema)) {
                             tableSchema = "(unknown)";
                         }
 
@@ -306,7 +307,7 @@ public class DatabaseDocumentParser implements DocumentParser {
         if (schemas.size() == 1) {
             return schemas.iterator().next();
         }
-        if (catalog != null && !catalog.isEmpty()) {
+        if (StringUtils.isNotEmpty(catalog)) {
             return catalog;
         }
         return "MULTI";

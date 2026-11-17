@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 sherpa-onnx 官方 JNI 的本地语音识别客户端。
@@ -156,7 +157,7 @@ public class SherpaAudioClient implements VirtualClient {
     @Override
     public VirtualClient prompt(String prompt) {
         // sherpa-onnx 支持热词文件与规则 FST，但不接受自由文本 prompt；此处仅记录日志便于排障
-        if (prompt != null && !prompt.isBlank()) {
+        if (StringUtils.isNotBlank(prompt)) {
             log.debug("[sherpa] prompt 参数对 sherpa-onnx 不生效（如需热词请配置 hotwords 文件）: {}", prompt);
         }
         return this;
@@ -292,7 +293,7 @@ public class SherpaAudioClient implements VirtualClient {
         if (recognizer == null) {
             synchronized (this) {
                 if (recognizer == null) {
-                    String modelRef = model != null && !model.isBlank() ? model : DEFAULT_MODEL;
+                    String modelRef = StringUtils.isNotBlank(model) ? model : DEFAULT_MODEL;
                     String typeHint = resolveTypeHint();
                     String pathPart = stripTypePrefix(modelRef);
                     recognizer = SherpaRecognizer.builder()
@@ -486,7 +487,7 @@ public class SherpaAudioClient implements VirtualClient {
         if (streamingRecognizer == null) {
             synchronized (this) {
                 if (streamingRecognizer == null) {
-                    String modelRef = model != null && !model.isBlank() ? model : DEFAULT_MODEL;
+                    String modelRef = StringUtils.isNotBlank(model) ? model : DEFAULT_MODEL;
                     streamingRecognizer = SherpaStreamingRecognizer.builder()
                             .model(stripTypePrefix(modelRef))
                             .language(language)
@@ -527,7 +528,7 @@ public class SherpaAudioClient implements VirtualClient {
     public List<ModelDefinition> models() {
         List<ModelDefinition> result = new ArrayList<>();
         String root = System.getProperty(SherpaModelResolver.PROP_MODEL_DIR);
-        if (root == null || root.isBlank()) {
+        if (StringUtils.isBlank(root)) {
             return result;
         }
         Path rootDir = Path.of(root);

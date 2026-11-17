@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 高性能管线执行引擎。
@@ -191,7 +192,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
  // 降级：pipeline管理器 不是 默认pipeline管理器 时，走原始路径
         if (config == null) {
             String dslJson = pipelineManager.getPipeline(pipelineId);
-            if (dslJson == null || dslJson.isEmpty()) {
+            if (StringUtils.isEmpty(dslJson)) {
                 return;
             }
             try {

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MOSI（MOSS 开放平台）文生图客户端
@@ -284,7 +285,7 @@ public class MossImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         if (actualPrompt.length() > 4000) {
@@ -298,7 +299,7 @@ public class MossImageClient implements ImageClient {
                 .append("\",\"size\":\"").append(sizeStr).append("\"")
                 .append(",\"n\":1")
                 .append(",\"response_format\":\"url\"");
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             if (negativePrompt.length() > 4000) {
                 throw new IllegalArgumentException("反向提示词超过 4000 字符上限");
             }
@@ -365,7 +366,7 @@ public class MossImageClient implements ImageClient {
             throw new RuntimeException("MOSI 返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");
-        if (imageUrl == null || imageUrl.isBlank()) {
+        if (StringUtils.isBlank(imageUrl)) {
             throw new RuntimeException("MOSI 返回的图片 URL 为空");
         }
         ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
@@ -453,7 +454,7 @@ public class MossImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         while (url.endsWith("/")) {

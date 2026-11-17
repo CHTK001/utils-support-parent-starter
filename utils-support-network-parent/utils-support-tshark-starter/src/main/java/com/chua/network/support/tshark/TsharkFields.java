@@ -6,6 +6,7 @@ import com.chua.common.support.lang.algorithm.crypto.Hex;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark {@code -T json -x} 输出的字段取值工具。
@@ -124,7 +125,7 @@ public final class TsharkFields {
         }
         if (value instanceof String text && !text.isEmpty()) {
             String hex = toHex(text);
-            if (hex == null || hex.isEmpty()) {
+            if (StringUtils.isEmpty(hex)) {
                 return null;
             }
             try {

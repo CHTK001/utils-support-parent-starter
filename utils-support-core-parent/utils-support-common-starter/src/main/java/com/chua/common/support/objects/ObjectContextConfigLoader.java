@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 从 类路径 上的 application 配置文件加载 {@link ObjectContextConfig}。
@@ -100,7 +101,7 @@ public final class ObjectContextConfigLoader {
 
         if (annotationScanEnabled && scanPackages.isEmpty()) {
             String mainPackage = detectMainPackage();
-            if (mainPackage != null && !mainPackage.isEmpty()) {
+            if (StringUtils.isNotEmpty(mainPackage)) {
                 scanPackages = List.of(mainPackage);
             }
         }
@@ -235,7 +236,7 @@ public final class ObjectContextConfigLoader {
     private static String detectMainPackage() {
         try {
             String command = System.getProperty("sun.java.command");
-            if (command != null && !command.isBlank()) {
+            if (StringUtils.isNotBlank(command)) {
                 String mainClassName = command.split("\\s+")[0];
                 if (mainClassName.contains(".") && !mainClassName.endsWith(".jar")) {
                     Class<?> mainClass = ReflectUtils.forName(mainClassName,

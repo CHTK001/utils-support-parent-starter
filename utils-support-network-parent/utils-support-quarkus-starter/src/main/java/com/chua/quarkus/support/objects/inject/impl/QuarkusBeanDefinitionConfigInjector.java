@@ -12,6 +12,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Quarkus (micro配置文件 配置) 配置注入器，通过反射处理 {@code @ConfigProperty} 注解的字段和方法参数。
@@ -146,10 +147,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
             String defaultValue = (String) ReflectUtils.invoke(annotation, "defaultValue", String.class);
 
             Object value = null;
-            if (name != null && !name.isEmpty()) {
+            if (StringUtils.isNotEmpty(name)) {
                 value = environment.getProperty(name, targetType);
             }
-            if (value == null && defaultValue != null && !defaultValue.isEmpty()
+            if (value == null && StringUtils.isNotEmpty(defaultValue)
                     && !UNCONFIGURED_VALUE.equals(defaultValue)) {
                 value = Converter.convertIfNecessary(defaultValue, targetType);
             }

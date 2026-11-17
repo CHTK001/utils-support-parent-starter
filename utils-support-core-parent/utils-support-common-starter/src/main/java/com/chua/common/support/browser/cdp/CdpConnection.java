@@ -20,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 极简 Chrome DevTools Protocol 客户端
@@ -120,7 +121,7 @@ final class CdpConnection implements AutoCloseable {
         message.put("id", id);
         message.put("method", method);
         message.put("params", params == null ? Collections.emptyMap() : params);
-        if (sessionId != null && !sessionId.isBlank()) {
+        if (StringUtils.isNotBlank(sessionId)) {
             message.put("sessionId", sessionId);
         }
 

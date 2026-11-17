@@ -13,6 +13,7 @@ import com.chua.common.support.task.pipeline.node.*;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 流水线构建器。
@@ -808,7 +809,7 @@ public class PipelineBuilder {
                 Map<String, String> branches = dn.getBranches();
                 for (Map.Entry<String, String> entry : branches.entrySet()) {
                     String targetId = entry.getValue();
-                    if (targetId != null && !targetId.isEmpty() && !nodeMap.containsKey(targetId)) {
+                    if (StringUtils.isNotEmpty(targetId) && !nodeMap.containsKey(targetId)) {
                         throw new IllegalStateException(
                                 "Decision node '" + nid + "' branch '" + entry.getKey()
                                         + "' references undefined node: '" + targetId

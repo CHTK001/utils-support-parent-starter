@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 离线语音合成器。
@@ -180,7 +181,7 @@ public final class SherpaSynthesizer implements AutoCloseable {
      * @return 合成音频（含采样率）
      */
     public GeneratedAudio generate(String text, int speakerId, float speed) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             throw new SherpaException("待合成文本为空");
         }
         int effectiveSpeaker = Math.max(0, Math.min(speakerId, Math.max(0, numSpeakers() - 1)));
@@ -295,7 +296,7 @@ public final class SherpaSynthesizer implements AutoCloseable {
      * @return 模型族短标识
      */
     static String detectFamily(Path dir, String hint) {
-        if (hint != null && !hint.isBlank()) {
+        if (StringUtils.isNotBlank(hint)) {
             return hint.trim().toLowerCase(Locale.ROOT);
         }
         if (dir == null) {

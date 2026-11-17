@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
@@ -133,7 +134,7 @@ public class EngineMemoryStore implements MemoryStore {
      */
     @Override
     public List<MemoryEntry> search(String keyword, int limit) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return listAll(limit);
         }
         String lower = keyword.toLowerCase();

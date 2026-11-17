@@ -225,7 +225,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
      * @param remotePath 远程目标路径（含文件名）
      */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
-        if (localPath == null || localPath.isBlank()) {
+        if (StringUtils.isBlank(localPath)) {
             return;
         }
         try {

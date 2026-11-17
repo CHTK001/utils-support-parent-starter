@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 对象上下文 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
@@ -39,7 +40,7 @@ public final class ObjectContextScanner {
      * @param basePackage 基包路径，例如 "com.example.服务"。
      */
     public static void scan(ObjectContext context, String basePackage) {
-        if (context == null || basePackage == null || basePackage.isEmpty()) {
+        if (context == null || StringUtils.isEmpty(basePackage)) {
             return;
         }
         BeanDefinitionRegistry registry = context.getRegistry();

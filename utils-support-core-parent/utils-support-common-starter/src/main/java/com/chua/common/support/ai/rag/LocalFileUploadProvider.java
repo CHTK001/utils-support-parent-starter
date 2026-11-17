@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地文件落盘的 UploadProvider 默认实现。
@@ -123,7 +124,7 @@ public class LocalFileUploadProvider implements UploadProvider {
      * @throws IllegalArgumentException ID 为空、为绝对路径，或归一化后越出 {@code baseDir}
      */
     private Path resolveInside(String fileId) {
-        if (fileId == null || fileId.isBlank()) {
+        if (StringUtils.isBlank(fileId)) {
             throw new IllegalArgumentException("文件 ID 不能为空");
         }
         String normalized = fileId.replace('\\', '/');

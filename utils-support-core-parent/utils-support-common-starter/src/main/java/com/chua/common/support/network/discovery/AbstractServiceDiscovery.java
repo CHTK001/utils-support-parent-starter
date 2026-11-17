@@ -351,7 +351,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      * @return 添加前缀后的路径
      */
     protected String addClusterPrefix(String path) {
-        if (!needsPathPrefixIsolation() || clusterName == null || clusterName.isEmpty()) {
+        if (!needsPathPrefixIsolation() || StringUtils.isEmpty(clusterName)) {
             return path;
         }
         String normalizedPath = StringUtils.startWithAppend(path, "/");

@@ -17,6 +17,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 最大mind geolite2 / geoip2 离线 IP 地理位置查询 SPI 实现。
@@ -79,7 +80,7 @@ public class GeoLite2IpPosition implements IpPosition {
     */
     @Override
     public IpLocation query(String ip) {
-        if (ip == null || ip.isBlank()) {
+        if (StringUtils.isBlank(ip)) {
             return null;
         }
         try {

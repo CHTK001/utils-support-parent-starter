@@ -19,6 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Hugging Face Hub 仓库客户端（模型/数据集仓库管理，SPI provider="huggingface"）。
@@ -636,13 +637,13 @@ public class HuggingfaceHubClient {
             return null;
         }
         String direct = resp.getHeader(headerName);
-        if (direct != null && !direct.isBlank()) {
+        if (StringUtils.isNotBlank(direct)) {
             return direct;
         }
         for (Map.Entry<String, String> entry : resp.getHeaders().toMap().entrySet()) {
             if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(headerName)) {
                 String v = entry.getValue();
-                return v == null || v.isBlank() ? null : v;
+                return StringUtils.isBlank(v) ? null : v;
             }
         }
         return null;
@@ -762,7 +763,7 @@ public class HuggingfaceHubClient {
      * @return 对齐后的 URL
      */
     private String alignLfsHost(String url) {
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
@@ -849,7 +850,7 @@ public class HuggingfaceHubClient {
      * @return 结果字符串
      */
     private String buildAuthenticatedGitUrl(String repoId) {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             return baseUrl + "/" + repoId + ".git";
         }
         return baseUrl + "/oauth2:" + token + "@" + repoId + ".git";
@@ -861,7 +862,7 @@ public class HuggingfaceHubClient {
      * @return 结果字符串
      */
     private String buildAuthHeader() {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             return "";
         }
         return "Bearer " + token;

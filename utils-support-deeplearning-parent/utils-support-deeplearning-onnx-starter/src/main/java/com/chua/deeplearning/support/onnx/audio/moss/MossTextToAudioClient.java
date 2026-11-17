@@ -17,6 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MOSS-TTS-nano 多语言 TTS 标准客户端（48 khz）。
@@ -153,7 +154,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
     @Override
     public byte[] synthesize(String text) {
         String target = text != null ? text : setting.getText();
-        if (target == null || target.isBlank()) {
+        if (StringUtils.isBlank(target)) {
             throw new IllegalStateException("No text configured");
         }
         ensurePrepared();
@@ -231,7 +232,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      */
     private Path ttsDir() throws IOException {
         String prop = System.getProperty("speech.loop.moss.dir");
-        Path dir = (prop != null && !prop.isBlank())
+        Path dir = (StringUtils.isNotBlank(prop))
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-tts-nano");
         Files.createDirectories(dir);
@@ -246,7 +247,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      */
     private Path codecDir() throws IOException {
         String prop = System.getProperty("speech.loop.codec.dir");
-        Path dir = (prop != null && !prop.isBlank())
+        Path dir = (StringUtils.isNotBlank(prop))
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-audio-tokenizer");
         Files.createDirectories(dir);
@@ -284,7 +285,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * safetensor 模型下载管理器。
@@ -95,7 +96,7 @@ public class SafeTensorModelDownloadManager {
             log.info("[SafeTensor] Python 直接下载: {} -> {}", modelName, targetPath);
             ProcessBuilder pb = new ProcessBuilder("python", "-m", "modelscope.hub.snapshot_download",
                     modelName, "--cache-dir", modelRoot.toString());
-            if (revision != null && !revision.isBlank()) {
+            if (StringUtils.isNotBlank(revision)) {
                 pb.command().add("--revision");
                 pb.command().add(revision);
             }

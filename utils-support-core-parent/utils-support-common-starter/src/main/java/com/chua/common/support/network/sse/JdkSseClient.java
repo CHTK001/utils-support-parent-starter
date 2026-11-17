@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK {@link HttpClient} 的 SSE 客户端实现
@@ -212,7 +213,7 @@ public class JdkSseClient implements SseClient {
      */
     private static HttpRequest.BodyPublisher bodyPublisher(SseRequest request) {
         String body = request.getBody();
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return HttpRequest.BodyPublishers.noBody();
         }
         return HttpRequest.BodyPublishers.ofString(body);

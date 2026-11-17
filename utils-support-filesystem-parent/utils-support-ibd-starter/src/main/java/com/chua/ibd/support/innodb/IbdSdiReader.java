@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 从 SDI 页里读表结构。
@@ -321,7 +322,7 @@ public final class IbdSdiReader {
      */
     private static JsonNode parsePrivate(String raw) {
         var object = MAPPER.createObjectNode();
-        if (raw == null || raw.isEmpty()) {
+        if (StringUtils.isEmpty(raw)) {
             return object;
         }
         for (String part : raw.split(";")) {
@@ -365,7 +366,7 @@ public final class IbdSdiReader {
      * @return 解码后的文本；解码失败时原样返回
      */
     static String base64Decode(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return "";
         }
         try {

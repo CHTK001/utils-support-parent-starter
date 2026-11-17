@@ -3,6 +3,7 @@ package com.chua.modbus.support;
 
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Modbus 连接配置。
@@ -645,7 +646,7 @@ public class ModbusSetting {
      */
     public void validateNetwork() {
         validateCommon();
-        if (host == null || host.isEmpty()) {
+        if (StringUtils.isEmpty(host)) {
             throw new ModbusException("Modbus 主机地址不能为空");
         }
         if (port <= 0 || port > MAX_PORT) {
@@ -660,7 +661,7 @@ public class ModbusSetting {
      */
     public void validateSerial() {
         validateCommon();
-        if (portName == null || portName.isEmpty()) {
+        if (StringUtils.isEmpty(portName)) {
             throw new ModbusException("Modbus 串口名称不能为空");
         }
         if (baudRate <= 0) {

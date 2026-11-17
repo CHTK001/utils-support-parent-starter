@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Vert.x 的 WebSocket 服务端。
@@ -213,7 +214,7 @@ public class VertxWebSocketServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 ServerHandler serverHandler = createMessageHandler(handler, method);

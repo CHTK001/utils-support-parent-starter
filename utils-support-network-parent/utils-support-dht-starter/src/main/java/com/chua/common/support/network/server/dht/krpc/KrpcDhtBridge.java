@@ -32,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 内部 DHT 与标准 KRPC 协议之间的桥接器。
@@ -127,7 +128,7 @@ public class KrpcDhtBridge {
      * @return 20 字节原始 标识
      */
     public static byte[] hexToRawId(String hex) {
-        if (hex == null || hex.isEmpty()) {
+        if (StringUtils.isEmpty(hex)) {
             byte[] id = new byte[20];
             new Random().nextBytes(id);
             return id;

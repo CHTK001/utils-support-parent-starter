@@ -21,6 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * mail.tm 免费临时邮箱服务实现。
@@ -112,7 +113,7 @@ public class MailTmEmailProvider implements EmailProvider {
     @Override
     public List<EmailInfo> fetchEmails(String email) {
         String token = System.getProperty("mailtm.token." + email);
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             log.warn("[MailTM] 未找到 token: {}", email);
             return Collections.emptyList();
         }
@@ -203,6 +204,6 @@ public class MailTmEmailProvider implements EmailProvider {
             return sb.length() == 0 ? null : sb.toString();
         }
         String text = node.asText(null);
-        return text == null || text.isEmpty() ? null : text;
+        return StringUtils.isEmpty(text) ? null : text;
     }
 }

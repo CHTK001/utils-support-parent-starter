@@ -3,6 +3,7 @@ package com.chua.common.support.export;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 导出配置。
@@ -283,7 +284,7 @@ public final class ExportConfig {
          * @return 当前构建器
          */
         public Builder engine(String value) {
-            this.engine = value == null || value.isBlank() ? null : value;
+            this.engine = StringUtils.isBlank(value) ? null : value;
             return this;
         }
 
@@ -305,7 +306,7 @@ public final class ExportConfig {
          * @return 当前构建器
          */
         public Builder dateFormat(String value) {
-            this.dateFormat = value == null || value.isBlank() ? null : value;
+            this.dateFormat = StringUtils.isBlank(value) ? null : value;
             return this;
         }
 

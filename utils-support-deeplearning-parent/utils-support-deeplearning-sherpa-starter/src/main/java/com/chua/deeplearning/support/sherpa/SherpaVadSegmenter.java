@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 语音活动检测（Silero VAD）封装。
@@ -354,7 +355,7 @@ public final class SherpaVadSegmenter implements AutoCloseable {
          * @throws SherpaException 模型文件缺失或原生库不可用
          */
         public SherpaVadSegmenter build() {
-            if (model == null || model.isBlank()) {
+            if (StringUtils.isBlank(model)) {
                 throw new SherpaException("未指定 silero_vad.onnx 路径");
             }
             Path path = Path.of(model);

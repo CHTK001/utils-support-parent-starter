@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 阶段二十四：Oracle 真实实例读写与 Oracle SQL 语义。
@@ -312,10 +313,10 @@ public final class EngineOracle {
     // [P3C MJ-方法注释 豁免]
     private static String env(String key, String fallback) {
         String value = System.getenv(key);
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             value = System.getProperty(key);
         }
-        return value == null || value.isBlank() ? fallback : value;
+        return StringUtils.isBlank(value) ? fallback : value;
     }
 
     /** Oracle 没有 DROP TABLE IF EXISTS，用 PL/SQL 吞掉 ORA-00942。 */

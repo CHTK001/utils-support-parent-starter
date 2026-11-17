@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * EAC (GitHub OAuth + Star + HMAC 网关) ChatClient。
@@ -52,7 +53,7 @@ public class EacChatClient extends OpenAiChatClient {
     @Override
     protected void configureClientBuilder(OpenAIOkHttpClient.Builder builder) {
         String signingSecret = getSetting() != null ? getSetting().getAppKey() : null;
-        if (signingSecret == null || signingSecret.isBlank()) {
+        if (StringUtils.isBlank(signingSecret)) {
             log.warn("EAC signing secret is empty, requests will not be HMAC-signed");
             return;
         }

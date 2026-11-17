@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DJL 模型工厂。
@@ -270,7 +271,7 @@ public class DjlModelFactory implements AutoCloseable {
      * @throws Exception 加载异常
      */
     private void doInit(String device) throws Exception {
-        String engine = (engineName == null || engineName.isBlank())
+        String engine = (StringUtils.isBlank(engineName))
                 ? resolveEngine(modelPath)
                 : engineName;
         model = Model.newInstance(modelName, engine);

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 占位符支持类，用于解析字符串中的变量、函数调用、三元表达式和数组/Map访问。
@@ -291,7 +292,7 @@ public class PlaceholderSupport {
         // 尝试通过 Resolver 解析变量名
         if (resolver != null) {
             String value = resolver.resolvePlaceholder(condition);
-            return value != null && !value.isEmpty();
+            return StringUtils.isNotEmpty(value);
         }
 
         return false;
@@ -515,7 +516,7 @@ public class PlaceholderSupport {
      * @return 结果字符串
      */
     private String nowFunction(String format) {
-        if (format == null || format.isEmpty()) {
+        if (StringUtils.isEmpty(format)) {
             format = "yyyy-MM-dd HH:mm:ss";
         }
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern(format));

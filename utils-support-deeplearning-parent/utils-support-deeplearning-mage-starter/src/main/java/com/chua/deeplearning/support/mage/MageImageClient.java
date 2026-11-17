@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Microsoft Mage 图像生成客户端（SPI 提供者="mage"）。
@@ -276,7 +277,7 @@ public class MageImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         JsonObject body = JsonObject.create()
@@ -387,7 +388,7 @@ public class MageImageClient implements ImageClient {
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
-        return (appKey == null || appKey.isBlank()) ? "" : "Bearer " + appKey;
+        return (StringUtils.isBlank(appKey)) ? "" : "Bearer " + appKey;
     }
 
     /**
@@ -400,7 +401,7 @@ public class MageImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         while (url.endsWith("/")) {

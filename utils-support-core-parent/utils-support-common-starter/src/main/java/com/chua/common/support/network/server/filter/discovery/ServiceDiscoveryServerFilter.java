@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
@@ -278,7 +279,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
         if (serverId == null) {
             return false;
         }
-        if (excludeServerId == null || excludeServerId.isBlank()) {
+        if (StringUtils.isBlank(excludeServerId)) {
             return false;
         }
         if (serverId.equals(excludeServerId)) {

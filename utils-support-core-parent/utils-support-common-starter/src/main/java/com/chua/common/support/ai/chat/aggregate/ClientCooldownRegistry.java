@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 客户端冷却登记表 —— 调失败的 Key 先排除一段时间，到期后自动恢复参与路由。
@@ -301,7 +302,7 @@ public final class ClientCooldownRegistry {
             root = root.getCause();
         }
         String message = root.getMessage();
-        return message == null || message.isBlank() ? root.getClass().getSimpleName() : message;
+        return StringUtils.isBlank(message) ? root.getClass().getSimpleName() : message;
     }
 
     /**
@@ -322,7 +323,7 @@ public final class ClientCooldownRegistry {
             log.debug("[Cooldown] 读取客户端 API Key 失败，按实例标识记录: {}", e.getMessage());
         }
         String identity;
-        if (apiKey == null || apiKey.isBlank()) {
+        if (StringUtils.isBlank(apiKey)) {
             identity = "instance-" + System.identityHashCode(raw);
         } else {
             identity = "key-" + Long.toHexString(fnv1a(apiKey));

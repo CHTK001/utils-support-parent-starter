@@ -1,6 +1,7 @@
 package com.chua.common.support.taskdistribution.task;
 
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 任务 标识 生成器。
@@ -30,7 +31,7 @@ public class TaskIdGenerator {
      * @param nodeId 节点 标识
      */
     public static void setDefaultNodeId(String nodeId) {
-        if (nodeId != null && !nodeId.isEmpty()) {
+        if (StringUtils.isNotEmpty(nodeId)) {
             DEFAULT_NODE_ID = nodeId;
         }
     }
@@ -42,7 +43,7 @@ public class TaskIdGenerator {
      * @return 格式为 "节点标识-时间戳-seq" 的唯一 标识
      */
     public static String generateId(String nodeId) {
-        String safeNodeId = (nodeId != null && !nodeId.isEmpty()) ? nodeId : DEFAULT_NODE_ID;
+        String safeNodeId = (StringUtils.isNotEmpty(nodeId)) ? nodeId : DEFAULT_NODE_ID;
         return safeNodeId + "-" + System.currentTimeMillis() + "-" + SEQUENCE.incrementAndGet();
     }
 

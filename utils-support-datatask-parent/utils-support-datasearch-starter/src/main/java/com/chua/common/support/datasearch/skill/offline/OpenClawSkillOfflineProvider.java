@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenClaw 离线技能提供者。
@@ -27,7 +28,7 @@ public class OpenClawSkillOfflineProvider extends AbstractAgentSkillOfflineProvi
     protected List<Path> skillRoots() {
         String workspace = System.getenv("TOKENTRACKER_OPENCLAW_WORKSPACE");
         Path base;
-        if (workspace != null && !workspace.isBlank()) {
+        if (StringUtils.isNotBlank(workspace)) {
             base = Path.of(workspace).toAbsolutePath();
         } else {
             base = USER_HOME.resolve(configDir()).resolve("workspace");

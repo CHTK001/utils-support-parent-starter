@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * winrm 链式客户端，基于 winrm4j（io.cloudsoft.窗口:winrm4j），与 ssh客户端 接口风格一致。
@@ -250,7 +251,7 @@ public class WinRmExecClient implements AutoCloseable {
         }
         String message = cause.getMessage();
         return cause.getClass().getSimpleName()
-                + (message == null || message.isBlank() ? "" : ": " + message);
+                + (StringUtils.isBlank(message) ? "" : ": " + message);
     }
 
     /**

@@ -62,7 +62,7 @@ public class LocalServiceManager implements ServiceManager {
 
     @Override
     public long start(String jarPath, String startCmd, String pidFile) {
-        if (pidFile == null || pidFile.isBlank()) {
+        if (StringUtils.isBlank(pidFile)) {
             pidFile = DEFAULT_PID_DIR + "/" + extractName(jarPath) + ".pid";
         }
         try {
@@ -86,7 +86,7 @@ public class LocalServiceManager implements ServiceManager {
         if (pid > 0) {
             log.info("[service] 停止进程: pid={}", pid);
             tracker.kill(pid);
-        } else if (serviceName != null && !serviceName.isBlank()) {
+        } else if (StringUtils.isNotBlank(serviceName)) {
             long fallback = tracker.findPidByName(serviceName);
             if (fallback > 0) {
                 log.info("[service] 停止进程（按名称）: name={} pid={}", serviceName, fallback);

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Codex-fork 本地用量解析器抽象基类。
@@ -122,7 +123,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
                     }
                     // 收集行级模型（事件 payload 上的 model）
                     String model = payload.get("model").toStringValue();
-                    if (model != null && !model.isBlank() && fileModel == null) {
+                    if (StringUtils.isNotBlank(model) && fileModel == null) {
                         fileModel = model;
                     }
                     // token_count 事件可能在 payload.type 或 payload.msg.type

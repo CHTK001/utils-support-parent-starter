@@ -15,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDBC SQL 执行器，基于 {@link JdbcEngine} 提供的连接执行原生 SQL。
@@ -67,7 +68,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                     Map<String, Object> row = Wraps.linkedMap();
                     for (int i = 1; i <= columnCount; i++) {
                         String label = meta.getColumnLabel(i);
-                        if (label == null || label.isEmpty()) {
+                        if (StringUtils.isEmpty(label)) {
                             label = meta.getColumnName(i);
                         }
                         row.put(label, rs.getObject(i));
@@ -94,7 +95,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                     T instance = ReflectUtils.instantiate(rowType);
                     for (int i = 1; i <= columnCount; i++) {
                         String label = meta.getColumnLabel(i);
-                        if (label == null || label.isEmpty()) {
+                        if (StringUtils.isEmpty(label)) {
                             label = meta.getColumnName(i);
                         }
                         Object value = rs.getObject(i);
@@ -213,7 +214,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
             root = root.getCause();
         }
         String message = root.getMessage();
-        return message == null || message.isEmpty() ? root.getClass().getSimpleName() : message;
+        return StringUtils.isEmpty(message) ? root.getClass().getSimpleName() : message;
     }
 
     /**
@@ -233,7 +234,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
      * @return 去掉尾部 ORDER BY 的 SQL；没有可裁子句时原样返回
      */
     private static String stripTrailingOrderBy(String sql) {
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return sql;
         }
         int length = sql.length();
@@ -469,7 +470,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
      * @return 驼峰命名（如 用户名）
      */
     private static String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         StringBuilder sb = new StringBuilder(name.length());

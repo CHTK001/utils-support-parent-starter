@@ -2,6 +2,7 @@ package com.chua.filestorage.support.storage.lanzou;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 蓝奏云前置反爬挑战（acw_sc__v2）求解器。
@@ -62,7 +63,7 @@ final class LanzouAntiCrawler {
      * @return true 表示需要计算 acw_sc__v2 后重试
      */
     static boolean isChallenge(String html) {
-        if (html == null || html.isEmpty()) {
+        if (StringUtils.isEmpty(html)) {
             return false;
         }
         return html.contains("acw_sc__v2") && ARG1_PATTERN.matcher(html).find();

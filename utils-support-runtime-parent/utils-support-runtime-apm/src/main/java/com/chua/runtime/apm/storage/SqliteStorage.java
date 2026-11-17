@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sqlite 存储 — 嵌入式本地落盘实现。
@@ -1156,7 +1157,7 @@ public class SqliteStorage implements ApmStorage {
      * @param value  过滤值
      */
     private void appendStringFilter(StringBuilder sql, String column, String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return;
         }
         sql.append(" AND ").append(column).append(" LIKE ")
@@ -1232,7 +1233,7 @@ public class SqliteStorage implements ApmStorage {
      * @return 端点；无法还原返回 null
      */
     private Endpoint restoreEndpoint(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         Endpoint parsed = fromJson(text, Endpoint.class);
@@ -1302,7 +1303,7 @@ public class SqliteStorage implements ApmStorage {
      * @return 数值；无法解析返回 0
      */
     private static long parseLong(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return 0L;
         }
         try {
@@ -1392,7 +1393,7 @@ public class SqliteStorage implements ApmStorage {
      * @return 对象
      */
     private <T> T fromJson(String json, Class<T> type) {
-        if (json == null || json.isEmpty() || !JSON_READY) {
+        if (StringUtils.isEmpty(json) || !JSON_READY) {
             return null;
         }
         try {
@@ -1409,7 +1410,7 @@ public class SqliteStorage implements ApmStorage {
      * @return Map
      */
     private Map<String, String> fromJsonMap(String json) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return Wraps.map();
         }
         if (!JSON_READY) {

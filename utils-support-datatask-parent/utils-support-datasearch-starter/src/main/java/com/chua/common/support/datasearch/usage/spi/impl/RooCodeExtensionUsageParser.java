@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Roo Code VS Code 扩展用量解析器。
@@ -112,7 +113,7 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
             while (m.find()) {
                 last = m.group(1);
             }
-            return (last != null && !last.isBlank()) ? last.trim() : null;
+            return (StringUtils.isNotBlank(last)) ? last.trim() : null;
         } catch (Exception e) {
             log.debug("[roo-code] history parse failed: {}", e.getMessage());
             return null;

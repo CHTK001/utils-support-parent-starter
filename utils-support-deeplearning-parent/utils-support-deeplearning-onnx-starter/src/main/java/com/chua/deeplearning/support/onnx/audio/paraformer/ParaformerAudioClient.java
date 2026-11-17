@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.nio.file.StandardCopyOption;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 ONNX Runtime 的本地 Paraformer 中文 ASR 客户端。
@@ -331,7 +332,7 @@ public class ParaformerAudioClient implements VirtualClient {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**

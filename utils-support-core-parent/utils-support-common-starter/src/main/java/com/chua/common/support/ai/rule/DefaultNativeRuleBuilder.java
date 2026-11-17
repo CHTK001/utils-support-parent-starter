@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 自然规则构造器默认实现。
@@ -117,7 +118,7 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     @Override
     public NativeRuleBuilder id(String id) {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("id 不能为 null 或空白");
         }
         if (this.id != null && !this.id.equals(id)) {
@@ -133,7 +134,7 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     @Override
     public NativeRuleBuilder name(String name) {
         requireUsable();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         this.name = name;
@@ -192,7 +193,7 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     @Override
     public NativeRuleBuilder var(String name, Object value) {
         requireUsable();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new NullPointerException("变量名不能为 null 或空白");
         }
         variables.put(name, value);
@@ -216,7 +217,7 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     @Override
     public NativeRule build() {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new RuleException("规则标识未指定，请先调用 id(String)");
         }
         if (target != null && target.isBlank()) {

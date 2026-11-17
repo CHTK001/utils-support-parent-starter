@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Spy 启动器 — 通过 Instrumentation 注册字节码转换器。
@@ -148,7 +149,7 @@ public class SpyBootstrap {
      * @param args 智能体 参数字符串
      */
     private static void parseAgentArgs(String args) {
-        if (args == null || args.isBlank()) {
+        if (StringUtils.isBlank(args)) {
             agentOptions = Wraps.map();
             return;
         }

@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.dl4j;
 
 import com.chua.deeplearning.support.dl4j.train.ResNet50TransferTrainer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 可链式调用的训练管道（Fluent API）。
@@ -250,10 +251,10 @@ public final class ChainedTrainer {
      * @throws Exception             训练失败
      */
     public TrainResult fit() throws Exception {
-        if (dataRootPath == null || dataRootPath.isBlank()) {
+        if (StringUtils.isBlank(dataRootPath)) {
             throw new IllegalStateException("请先通过 .data(path) 指定训练数据根目录");
         }
-        if (savePath == null || savePath.isBlank()) {
+        if (StringUtils.isBlank(savePath)) {
             throw new IllegalStateException("请先通过 .saveTo(path) 指定模型保存路径");
         }
         return trainer.train(argument, modelPath, savePath, dataRootPath, listener);

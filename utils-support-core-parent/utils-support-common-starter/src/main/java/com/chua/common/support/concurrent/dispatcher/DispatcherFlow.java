@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 分发器流程工具类，统一管理消息发布、订阅注册和生命周期清理。
@@ -149,7 +150,7 @@ public class DispatcherFlow {
      * @return 匹配的 Provider 列表
      */
     private List<DispatcherProvider> resolveProviders(String type) {
-        if (type == null || type.isEmpty()) {
+        if (StringUtils.isEmpty(type)) {
             return providers.isEmpty() ? List.of() : List.of(providers.getFirst());
         }
         var result = Wraps.<DispatcherProvider>list();

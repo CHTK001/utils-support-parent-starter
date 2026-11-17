@@ -18,6 +18,7 @@ import io.github.ollama4j.utils.Options;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 本地大模型对话客户端（SPI provider="ollama"）。
@@ -257,10 +258,10 @@ public class OllamaChatClient implements ChatClient {
         String thinking = message.getThinking();
         String response = message.getResponse();
         StringBuilder sb = new StringBuilder();
-        if (thinking != null && !thinking.isBlank()) {
+        if (StringUtils.isNotBlank(thinking)) {
             sb.append(thinking);
         }
-        if (response != null && !response.isBlank()) {
+        if (StringUtils.isNotBlank(response)) {
             if (sb.length() > 0) {
                 sb.append("\n");
             }
@@ -314,7 +315,7 @@ public class OllamaChatClient implements ChatClient {
      */
     private OllamaChatRequest buildRequest(String prompt) {
         OllamaChatRequest request = OllamaChatRequest.builder()
-                .withModel(model != null && !model.isBlank() ? model : "llama3.2:3b")
+                .withModel(StringUtils.isNotBlank(model) ? model : "llama3.2:3b")
                 .withMessages(buildOllamaMessages(prompt))
                 .withOptions(buildOptions());
         applyResponseFormat(request);
@@ -330,7 +331,7 @@ public class OllamaChatClient implements ChatClient {
      * @param request ollama4j 聊天请求
      */
     private void applyResponseFormat(OllamaChatRequest request) {
-        if (responseFormat == null || responseFormat.isBlank()) {
+        if (StringUtils.isBlank(responseFormat)) {
             return;
         }
         String value = responseFormat.trim().toLowerCase();
@@ -349,7 +350,7 @@ public class OllamaChatClient implements ChatClient {
      */
     private List<OllamaChatMessage> buildOllamaMessages(String prompt) {
         List<OllamaChatMessage> messages = Wraps.list();
-        if (system != null && !system.isBlank()) {
+        if (StringUtils.isNotBlank(system)) {
             messages.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, system));
         }
         List<ChatMessage> effective = externalHistory != null ? externalHistory : history;

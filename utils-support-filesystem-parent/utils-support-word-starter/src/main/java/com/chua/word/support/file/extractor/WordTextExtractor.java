@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Word 文本提取器 SPI 实现，从 Word 文档中提取纯文本内容。
@@ -45,7 +46,7 @@ public class WordTextExtractor implements TextExtractor {
             // 段落处理：检测标题切换章节
             for (XWPFParagraph p : doc.getParagraphs()) {
                 String text = p.getText();
-                if (text == null || text.isEmpty()) {
+                if (StringUtils.isEmpty(text)) {
                     continue;
                 }
                 if (isHeading(p)) {
@@ -102,7 +103,7 @@ public class WordTextExtractor implements TextExtractor {
      */
     private boolean isHeading(XWPFParagraph p) {
         String style = p.getStyle();
-        if (style == null || style.isEmpty()) {
+        if (StringUtils.isEmpty(style)) {
             return false;
         }
         for (String headingStyle : HEADING_STYLES) {

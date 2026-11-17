@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 百度云短信推送实现
@@ -117,10 +118,10 @@ public class BaiduSmsMessagePush implements MessagePush {
         String accessKey = environment.get("sms.accessKey");
         String secretKey = environment.get("sms.secretKey");
 
-        if (accessKey == null || accessKey.isBlank()) {
+        if (StringUtils.isBlank(accessKey)) {
             throw new IllegalArgumentException("sms.accessKey 配置项必填");
         }
-        if (secretKey == null || secretKey.isBlank()) {
+        if (StringUtils.isBlank(secretKey)) {
             throw new IllegalArgumentException("sms.secretKey 配置项必填");
         }
 
@@ -179,10 +180,10 @@ public class BaiduSmsMessagePush implements MessagePush {
         try {
             String accessKey = environment.get("sms.accessKey");
             String secretKey = environment.get("sms.secretKey");
-            if (accessKey == null || accessKey.isBlank()) {
+            if (StringUtils.isBlank(accessKey)) {
                 throw new IllegalArgumentException("sms.accessKey 配置项必填");
             }
-            if (secretKey == null || secretKey.isBlank()) {
+            if (StringUtils.isBlank(secretKey)) {
                 throw new IllegalArgumentException("sms.secretKey 配置项必填");
             }
 
@@ -209,7 +210,7 @@ public class BaiduSmsMessagePush implements MessagePush {
                 }
                 for (GetTemplateResponse item : list) {
                     String templateId = item.getTemplateId();
-                    if (null == templateId || templateId.isBlank()) {
+                    if (StringUtils.isBlank(templateId)) {
                         continue;
                     }
                     // 仅同步审核通过且可用的模板

@@ -5,6 +5,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL关键词高亮工具类。
@@ -171,7 +172,7 @@ public class SqlHighlighter {
      */
     public static String highlight(String sql, HighlightConfig config) {
         // 空值检查
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return sql;
         }
 
@@ -396,7 +397,7 @@ public class SqlHighlighter {
      * @return 结果字符串
      */
     private static String applyHighlight(String token, HighlightConfig config, boolean isHtml) {
-        if (token == null || token.isEmpty()) {
+        if (StringUtils.isEmpty(token)) {
             return token;
         }
 
@@ -435,7 +436,7 @@ public class SqlHighlighter {
      * @return 是否成功（true 表示成功）
      */
     private static boolean isNumeric(String str) {
-        if (str == null || str.isEmpty()) {
+        if (StringUtils.isEmpty(str)) {
             return false;
         }
         try {

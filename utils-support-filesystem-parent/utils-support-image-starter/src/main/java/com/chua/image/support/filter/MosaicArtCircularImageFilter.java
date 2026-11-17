@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -218,7 +219,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
      * 加载贴图目录
      */
     private void loadTiles() {
-        if (tilesDir == null || tilesDir.isEmpty()) {
+        if (StringUtils.isEmpty(tilesDir)) {
             return;
         }
         Path dir = Paths.get(tilesDir);
@@ -335,7 +336,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
      * @return 结果值
      */
     private java.util.Set<String> splitExtensions(String exts) {
-        if (exts == null || exts.isEmpty()) {
+        if (StringUtils.isEmpty(exts)) {
             return java.util.Set.of("jpg", "jpeg", "png", "bmp");
         }
         return java.util.Arrays.stream(exts.toLowerCase().split(","))

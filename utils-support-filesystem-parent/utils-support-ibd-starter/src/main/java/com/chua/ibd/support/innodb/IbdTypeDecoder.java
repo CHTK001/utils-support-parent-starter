@@ -9,6 +9,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.ZoneId;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * InnoDB 字段字节 → 可读值。
@@ -128,7 +129,7 @@ public final class IbdTypeDecoder {
      * @return 去尾空格后的文本
      */
     private static String stripTrailingSpaces(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         int end = value.length();

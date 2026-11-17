@@ -5,6 +5,7 @@ import com.chua.cloudflare.support.CloudflareClient;
 
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * D1 sqlite 引擎客户端。
@@ -182,7 +183,7 @@ public class CloudflareD1Engine {
         String id = defaultDatabaseId != null
                 ? defaultDatabaseId
                 : client.getConfig().getDatabaseId();
-        if (id == null || id.isEmpty()) {
+        if (StringUtils.isEmpty(id)) {
             throw new IllegalStateException("D1 databaseId is not configured");
         }
         return id;

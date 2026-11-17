@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 阶段十二：QuestdbSeriesEngine（纯 HTTP 协议实现，本机桩）。
@@ -452,7 +453,7 @@ public final class EngineQuestdb {
                 e.metrics("cpu", 7L);
             }
             String q = execCalls().get(0).auth;
-            if (q != null && !q.isEmpty()) {
+            if (StringUtils.isNotEmpty(q)) {
                 throw new EngineFunctional.HarnessFailure("不应带鉴权头: " + q);
             }
             return "none";

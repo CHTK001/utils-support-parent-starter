@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 触发器元数据操作。
@@ -637,7 +638,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
                         "ALTER TABLE " + metaTrigger.qualifiedTable(tableName) + " DISABLE TRIGGER "
                                 + PostgresqlMetaData.quote(triggerName), PostgresqlMetaData.args());
             }
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 PostgresqlMetaData.execute(metaTrigger.metaData, "注释触发器 " + triggerName,
                         "COMMENT ON TRIGGER " + PostgresqlMetaData.quote(triggerName) + " ON "
                                 + metaTrigger.qualifiedTable(tableName) + " IS '"

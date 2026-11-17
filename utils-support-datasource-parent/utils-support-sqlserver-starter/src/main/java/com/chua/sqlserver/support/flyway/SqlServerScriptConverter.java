@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL Server 迁移脚本方言转换器（{@code ScriptConverter} 的 sqlserver 协议实现）。
@@ -278,7 +279,7 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
         // 先走父类：剥离表尾 MySQL 属性、行内 KEY/UNIQUE KEY、列内联 COMMENT、列级 CHARSET/COLLATE、
         // 标识符定界改写，以及 TEXT/DATETIME/IFNULL() 的基础映射
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // SQL Server 没有「忽略冲突」与 upsert 的 MySQL 语法，整条跳过

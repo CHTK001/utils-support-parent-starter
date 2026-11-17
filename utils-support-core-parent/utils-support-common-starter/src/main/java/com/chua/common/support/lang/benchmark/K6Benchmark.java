@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 k6 CLI 的压测引擎实现。
@@ -114,7 +115,7 @@ public class K6Benchmark implements Benchmark {
             return config.getK6Binary();
         }
         String env = System.getenv("K6_BIN");
-        if (env != null && !env.isEmpty()) {
+        if (StringUtils.isNotEmpty(env)) {
             return env;
         }
         // 常见安装路径（Windows: winget 装到 C:/Program Files/k6/k6.exe）
@@ -138,7 +139,7 @@ public class K6Benchmark implements Benchmark {
     @Override
     public BenchmarkResult run() throws Exception {
         String targetUrl = config.getTargetUrl();
-        if (targetUrl == null || targetUrl.isEmpty()) {
+        if (StringUtils.isEmpty(targetUrl)) {
             throw new IllegalArgumentException("targetUrl 不能为空");
         }
         int[] levels = config.getConcurrencyLevels();

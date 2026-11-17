@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sqlite 搜索引擎元数据操作实现。
@@ -226,7 +227,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
          * @since 4.0.0
          */
         private static boolean isTextType(String type) {
-            if (type == null || type.isEmpty()) {
+            if (StringUtils.isEmpty(type)) {
                 return true;
             }
             return type.startsWith("text") || "string".equals(type) || "keyword".equals(type);

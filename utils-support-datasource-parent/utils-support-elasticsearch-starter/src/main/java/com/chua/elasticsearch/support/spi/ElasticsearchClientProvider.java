@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Elasticsearch 中间件管理面 SPI 实现（默认装载）。
@@ -151,7 +152,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
         List<MiddlewareTreeNode> out = new ArrayList<>();
-        if (parentKey == null || parentKey.isEmpty()) {
+        if (StringUtils.isEmpty(parentKey)) {
             return out;
         }
         /* 字段类型（Fields）列表：取 mapping 里的 properties */
@@ -181,7 +182,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
         long t0 = System.currentTimeMillis();
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：nodes / indices / count <index> / "
                     + "mapping <index> / search <index> [查询] / get <index> <id>");
         }
@@ -269,7 +270,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     private MiddlewareQueryResult searchRows(RestClient client, String index, String query, int n, long t0)
             throws Exception {
         String body;
-        if (query == null || query.isEmpty()) {
+        if (StringUtils.isEmpty(query)) {
             body = "{\"size\":" + n + ",\"query\":{\"match_all\":{}}}";
         } else {
             body = "{\"size\":" + n + ",\"query\":{\"match\":{\"*\":\"" + jsonEscape(query) + "\"}}}";
@@ -300,7 +301,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     */
     private long readJsonTotal(RestClient client, String index, String query) {
         try {
-            String body = (query == null || query.isEmpty())
+            String body = (StringUtils.isEmpty(query))
                     ? "{\"query\":{\"match_all\":{}}}"
                     : "{\"query\":{\"match\":{\"*\":\"" + jsonEscape(query) + "\"}}}";
             Request req = new Request("POST", "/" + enc(index) + "/_count");
@@ -369,7 +370,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareDocument document(MiddlewareConnectRequest request, String scope, String key) {
-        if (scope == null || scope.isEmpty() || key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(scope) || StringUtils.isEmpty(key)) {
             return null;
         }
         try (RestClient client = client(request)) {
@@ -493,7 +494,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     */
     private static Long parseLong(String s) {
         try {
-            return s == null || s.isEmpty() ? null : Long.valueOf(s.trim());
+            return StringUtils.isEmpty(s) ? null : Long.valueOf(s.trim());
         } catch (NumberFormatException e) {
             return null;
         }
@@ -505,7 +506,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
      * @return 返回值
     */
     private static String humanSize(String s) {
-        return s == null || s.isEmpty() ? "-" : s;
+        return StringUtils.isEmpty(s) ? "-" : s;
     }
 
     /**
@@ -531,5 +532,5 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
             cur = cur.getCause();
         }
         String msg = cur.getMessage();
-        return (msg == null || msg.isBlank()) ? cur.getClass().getSimpleName() : msg;
+        return (StringUtils.isBlank(msg)) ? cur.getClass().getSimpleName() : msg;
     }}

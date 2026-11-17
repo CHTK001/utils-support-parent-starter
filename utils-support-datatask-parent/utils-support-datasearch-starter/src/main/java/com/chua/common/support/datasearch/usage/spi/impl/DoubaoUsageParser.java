@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 豆包（火山方舟 Ark）用量解析器。
@@ -70,7 +71,7 @@ public class DoubaoUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String override = System.getenv("DOUBAO_USAGE_DB");
-        if (override != null && !override.isBlank()) {
+        if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
         return Path.of(System.getProperty("user.home"), ".cc-switch", "cc-switch.db");

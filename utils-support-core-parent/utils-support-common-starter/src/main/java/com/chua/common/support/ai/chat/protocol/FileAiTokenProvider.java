@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于文件的 AI 令牌提供者实现。
@@ -260,7 +261,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
      */
     @Override
     public AiToken getValidToken(String tokenValue) {
-        if (tokenValue == null || tokenValue.isBlank()) {
+        if (StringUtils.isBlank(tokenValue)) {
             return null;
         }
         AiToken token = tokenMap.get(tokenValue);
@@ -321,7 +322,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
      */
     @Override
     public synchronized AiToken remove(String tokenValue) {
-        if (tokenValue == null || tokenValue.isBlank()) {
+        if (StringUtils.isBlank(tokenValue)) {
             return null;
         }
         AiToken removed = tokenMap.remove(tokenValue);

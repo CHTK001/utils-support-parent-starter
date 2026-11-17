@@ -19,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MQTT 全功能链式客户端。
@@ -360,7 +361,7 @@ public class MqttClientWrapper implements AutoCloseable {
             } else if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                String filter = (topic == null || topic.isEmpty()) ? "#" : topic;
+                String filter = (StringUtils.isEmpty(topic)) ? "#" : topic;
                 onMessage(filter, (t, msg) -> invokeMethod(handler, method, msg));
                 // 注解侧只登记回调不会收到消息，必须同时把过滤器下发到 Broker
                 declareSubscription(filter, ANNOTATED_QOS);

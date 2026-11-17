@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信内存明文页解析器。
@@ -737,7 +738,7 @@ public final class WechatMemoryPageParser {
         boolean blob = type >= 12 && (type & 1) == 0;
         boolean integer = (type >= 1 && type <= 6) || type == 8 || type == 9;
         boolean real = type == 7;
-        if (declaration == null || declaration.isEmpty()) {
+        if (StringUtils.isEmpty(declaration)) {
             return 1;
         }
         String upper = declaration.toUpperCase(Locale.ROOT);

@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 标识 工具类，提供多种分布式唯一 标识 生成策略。
@@ -318,7 +319,7 @@ public class IdUtils {
      * @return 设备编码字符串
      */
     public static String createDeviceCode(String deviceType) {
-        var prefix = (deviceType != null && !deviceType.isEmpty()) ? deviceType.toUpperCase() : "DV";
+        var prefix = (StringUtils.isNotEmpty(deviceType)) ? deviceType.toUpperCase() : "DV";
         if (prefix.length() > 4) {
             prefix = prefix.substring(0, 4);
         }
@@ -458,7 +459,7 @@ public class IdUtils {
             return null;
         }
         String signature = buildSignature(obj);
-        if (signature == null || signature.isEmpty()) {
+        if (StringUtils.isEmpty(signature)) {
             return Integer.toHexString(obj.hashCode());
         }
         return DigestUtils.md5(signature);

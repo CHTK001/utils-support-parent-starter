@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SoMark OXR-1.0 版面检测翻译器（检测框输出）。
@@ -170,7 +171,7 @@ public class OxrDetectTranslator implements ITranslator<byte[], Object> {
      * @param value  值
      */
     private static void putIfPresent(Map<String, Object> params, String key, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             params.put(key, value);
         }
     }

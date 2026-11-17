@@ -5,6 +5,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Comparator;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 生成进度估算 SPI。
@@ -105,7 +106,7 @@ public interface GenerateProgressEstimator {
         }
         try {
             ServiceProvider<GenerateProgressEstimator> provider = ServiceProvider.of(GenerateProgressEstimator.class);
-            if (preferred != null && !preferred.isBlank()) {
+            if (StringUtils.isNotBlank(preferred)) {
                 GenerateProgressEstimator named = provider.getExtension(preferred);
                 if (named != null && named.supports(context)) {
                     return clamp(named.estimate(context));

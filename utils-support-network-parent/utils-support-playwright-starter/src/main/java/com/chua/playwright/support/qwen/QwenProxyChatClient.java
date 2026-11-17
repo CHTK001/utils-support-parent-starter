@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通义千问逆向代理对话客户端。
@@ -547,7 +548,7 @@ public class QwenProxyChatClient implements ChatClient {
                     }
                     for (Map<String, Object> img : imageList) {
                         String url = (String) img.get("image");
-                        if (url != null && !url.isEmpty()) {
+                        if (StringUtils.isNotEmpty(url)) {
                             images.add(new ImageGenerationResult.GeneratedImage("", url, url, "", 0, 0, ""));
                         }
                     }
@@ -608,7 +609,7 @@ public class QwenProxyChatClient implements ChatClient {
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return images;
         }
         // 匹配 Markdown 图片 ![alt](url) 或直接 URL
@@ -680,7 +681,7 @@ public class QwenProxyChatClient implements ChatClient {
                 .fluent("parent_id", null)
                 .fluent("parentId", null);
 
-        if (actualSystem != null && !actualSystem.isEmpty()) {
+        if (StringUtils.isNotEmpty(actualSystem)) {
             body.fluent("system_info", actualSystem);
         }
 

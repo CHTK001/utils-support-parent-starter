@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 存储配置 — 启动时一次性传入 {@link ApmStorage#start(StorageConfig)}。
@@ -74,7 +75,7 @@ public class StorageConfig {
      */
     public long getLong(String key, long defaultValue) {
         String v = properties.get(key);
-        if (v == null || v.isEmpty()) {
+        if (StringUtils.isEmpty(v)) {
             return defaultValue;
         }
         try {
@@ -107,7 +108,7 @@ public class StorageConfig {
      */
     public boolean getBoolean(String key, boolean defaultValue) {
         String v = properties.get(key);
-        if (v == null || v.isEmpty()) {
+        if (StringUtils.isEmpty(v)) {
             return defaultValue;
         }
         String value = v.trim();

@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Apache Hive 迁移脚本方言转换器（{@code ScriptConverter} 的 hive 协议实现）。
@@ -130,7 +131,7 @@ public class HiveScriptConverter extends DefaultScriptConverter {
     @Override
     public String convert(String statement, String protocol) {
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // 1. MySQL 行级 upsert：Hive 无等价语法，跳过整条

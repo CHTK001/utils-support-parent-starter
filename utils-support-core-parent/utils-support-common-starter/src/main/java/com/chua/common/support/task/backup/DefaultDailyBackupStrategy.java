@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认按天备份策略
@@ -220,7 +221,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
              * @return 是否为空的结果
              */
             private boolean isBlank(String s) {
-                return s == null || s.isBlank();
+                return StringUtils.isBlank(s);
             }
         });
         return copied;
@@ -290,7 +291,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
      * @return 匹配模式的结果
      */
     private boolean matchPattern(String fileName, String pattern) {
-        if (pattern == null || pattern.isBlank()) {
+        if (StringUtils.isBlank(pattern)) {
             return true;
         }
         String regex = pattern.replace(".", "\\.").replace("*", ".*").replace("?", ".");

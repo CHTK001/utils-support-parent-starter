@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Otnl 引擎 ORM 通道的内存求值器。
@@ -100,7 +101,7 @@ public final class OtnlOrmSupport {
             return matchNested(row, condition);
         }
         String column = condition.getColumnName();
-        if (column == null || column.isBlank()) {
+        if (StringUtils.isBlank(column)) {
             return true;
         }
         Object actual = value(row, column);
@@ -329,7 +330,7 @@ public final class OtnlOrmSupport {
      * @return 值，取不到返回 null
      */
     public static Object value(Object row, String column) {
-        if (row == null || column == null || column.isBlank()) {
+        if (row == null || StringUtils.isBlank(column)) {
             return null;
         }
         String property = toCamel(column);
@@ -457,7 +458,7 @@ public final class OtnlOrmSupport {
      * @return 二元组：列名、是否降序
      */
     public static OrderKey orderKey(String orderBy) {
-        if (orderBy == null || orderBy.isBlank()) {
+        if (StringUtils.isBlank(orderBy)) {
             return new OrderKey("", false);
         }
         String text = orderBy.trim();

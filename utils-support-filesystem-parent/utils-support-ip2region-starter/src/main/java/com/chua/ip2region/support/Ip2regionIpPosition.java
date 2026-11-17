@@ -153,7 +153,7 @@ public class Ip2regionIpPosition implements IpPosition {
     */
     @Override
     public IpLocation query(String ip) {
-        if (ip == null || ip.isBlank()) {
+        if (StringUtils.isBlank(ip)) {
             return null;
         }
         long ipVal = ipToLong(ip);

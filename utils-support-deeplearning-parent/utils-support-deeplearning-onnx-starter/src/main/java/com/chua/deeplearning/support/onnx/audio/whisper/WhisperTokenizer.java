@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Whisper BPE tokenizer（解码器-only，纯 Java）。
@@ -246,7 +247,7 @@ public class WhisperTokenizer {
      * @return 是否int键的结果
      */
     private static boolean isIntKey(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return false;
         }
         for (int i = 0; i < key.length(); i++) {

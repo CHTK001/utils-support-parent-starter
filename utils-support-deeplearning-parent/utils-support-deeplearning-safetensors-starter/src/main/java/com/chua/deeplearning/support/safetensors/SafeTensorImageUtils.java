@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * safetensor 图像工具类。
@@ -90,7 +91,7 @@ final class SafeTensorImageUtils {
      * @return 规范化后的 基础64，如果非 基础64 则返回 空
      */
     private static String normalizeBase64(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         if (text.startsWith("http://") || text.startsWith("https://")) {

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Socket.IO 嵌入式服务器，轻量级实现。
@@ -194,7 +195,7 @@ public class SocketIOServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage annotation = method.getAnnotation(OnMessage.class);
                 String topic = annotation.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 ServerHandler serverHandler = createMessageHandler(handler, method);

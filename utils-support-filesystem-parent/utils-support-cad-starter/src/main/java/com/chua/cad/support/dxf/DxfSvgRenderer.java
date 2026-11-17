@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DXF → SVG 渲染器（纯 Java，零外部依赖）。
@@ -265,7 +266,7 @@ public final class DxfSvgRenderer {
      */
     private void appendText(StringBuilder sb, DxfEntity e) {
         String text = e.text();
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return;
         }
         String safe = escapeXml(text);

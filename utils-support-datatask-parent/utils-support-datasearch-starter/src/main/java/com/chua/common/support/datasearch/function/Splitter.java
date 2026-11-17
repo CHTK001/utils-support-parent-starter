@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 /**
  * 按分隔符切分字符串的工具类。
  *
@@ -43,7 +44,7 @@ public class Splitter {
      * @return 分割转为列表的结果
      */
     public List<String> splitToList(String input) {
-        if (input == null || input.isEmpty()) {
+        if (StringUtils.isEmpty(input)) {
             return Collections.emptyList();
         }
         // 分隔符按字面量处理（$$$ 之类作正则会失配）；limit=-1 保留尾部空串以维持下标对齐

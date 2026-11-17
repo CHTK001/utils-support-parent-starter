@@ -11,6 +11,7 @@ import io.github.ollama4j.models.embed.OllamaEmbedResult;
 import io.github.ollama4j.models.response.Model;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 本地特征提取客户端（SPI provider="ollama"）。
@@ -97,10 +98,10 @@ public class OllamaFeatureClient implements FeatureClient {
     */
     @Override
     public float[] extract(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return new float[0];
         }
-        String resolvedModel = model != null && !model.isBlank() ? model : "nomic-embed-text";
+        String resolvedModel = StringUtils.isNotBlank(model) ? model : "nomic-embed-text";
         OllamaEmbedRequest request = new OllamaEmbedRequest(resolvedModel, List.of(text));
         if (dimensions != null) {
             request.setOptions(java.util.Map.of("dimensions", dimensions));

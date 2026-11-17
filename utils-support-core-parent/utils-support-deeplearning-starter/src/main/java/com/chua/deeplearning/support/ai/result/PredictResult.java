@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.ai.result;
 
 import lombok.Getter;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用预测结果。
@@ -64,7 +65,7 @@ public class PredictResult {
      * @return 是否为空
      */
     public boolean isEmpty() {
-        return value == null || value.isEmpty();
+        return StringUtils.isEmpty(value);
     }
 
     /**

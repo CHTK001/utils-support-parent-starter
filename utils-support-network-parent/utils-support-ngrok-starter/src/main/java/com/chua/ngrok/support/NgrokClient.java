@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 Ngrok 客户端，基于官方 ngrok-Java Agent SDK。
@@ -197,7 +198,7 @@ public class NgrokClient implements AutoCloseable {
             return this;
         }
         try {
-            Session.Builder builder = (authtoken == null || authtoken.isEmpty())
+            Session.Builder builder = (StringUtils.isEmpty(authtoken))
                     ? Session.withAuthtokenFromEnv()
                     : Session.withAuthtoken(authtoken);
             if (metadata != null) {
@@ -375,7 +376,7 @@ public class NgrokClient implements AutoCloseable {
      * @return 面向用户的提示
      */
     private static String friendly(String message) {
-        if (message == null || message.isBlank()) {
+        if (StringUtils.isBlank(message)) {
             return "";
         }
         if (message.contains("ERR_NGROK_312")) {

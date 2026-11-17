@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * {@link com.chua.common.support.ai.chat.ChatClientIndicator} 各实现共用的 JSON 取值工具。
@@ -51,7 +52,7 @@ final class IndicatorJsonSupport {
             return null;
         }
         String text = value.asText(null);
-        return text == null || text.isEmpty() ? null : text;
+        return StringUtils.isEmpty(text) ? null : text;
     }
 
     /**
@@ -65,7 +66,7 @@ final class IndicatorJsonSupport {
             return null;
         }
         String text = node.asText(null);
-        return text == null || text.isEmpty() ? null : text;
+        return StringUtils.isEmpty(text) ? null : text;
     }
 
     /**
@@ -93,7 +94,7 @@ final class IndicatorJsonSupport {
             return node.decimalValue();
         }
         String text = node.asText(null);
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         try {

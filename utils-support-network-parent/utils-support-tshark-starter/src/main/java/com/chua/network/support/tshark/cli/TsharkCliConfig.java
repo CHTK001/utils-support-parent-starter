@@ -2,6 +2,8 @@ package com.chua.network.support.tshark.cli;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -258,7 +260,7 @@ public final class TsharkCliConfig {
      */
     @Nonnull
     public static Path resolveInstallDir(@Nullable String configured) {
-        if (configured != null && !configured.isBlank()) {
+        if (StringUtils.isNotBlank(configured)) {
             return Paths.get(configured.trim());
         }
         String home = System.getProperty("user.home", ".");
@@ -388,7 +390,7 @@ public final class TsharkCliConfig {
      */
     @Nullable
     private static String blankToNull(@Nullable String value) {
-        return value == null || value.isBlank() ? null : value.trim();
+        return StringUtils.isBlank(value) ? null : value.trim();
     }
 
     /**
@@ -409,7 +411,7 @@ public final class TsharkCliConfig {
      */
     @Nullable
     private static List<Stage> parseStages(@Nullable String configured) {
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             return null;
         }
         List<Stage> stages = Wraps.list();
@@ -437,7 +439,7 @@ public final class TsharkCliConfig {
      */
     @Nonnull
     private static List<Stage> resolveStages(@Nullable List<Stage> configured) {
-        if (configured == null || configured.isEmpty()) {
+        if (CollectionUtils.isEmpty(configured)) {
             return List.of(Stage.LOCATE, Stage.PACKAGE_MANAGER, Stage.DOWNLOAD);
         }
         List<Stage> result = Wraps.list();

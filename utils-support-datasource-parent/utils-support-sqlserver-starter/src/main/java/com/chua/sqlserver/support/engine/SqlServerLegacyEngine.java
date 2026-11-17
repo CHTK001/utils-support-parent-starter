@@ -11,6 +11,7 @@ import com.chua.datasource.support.url.JdbcUrl;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL 服务端 老版本兼容引擎（SQL 服务端 2000/2005）。
@@ -110,7 +111,7 @@ public class SqlServerLegacyEngine extends JdbcEngine {
                 .append('/').append(options.database());
         urlBuilder.append(";selectMethod=").append(jtdsParams.getOrDefault("selectMethod", DEFAULT_JTDS_SELECT_METHOD));
         String domain = jtdsParams.get("domain");
-        if (domain != null && !domain.isEmpty()) {
+        if (StringUtils.isNotEmpty(domain)) {
             urlBuilder.append(";domain=").append(domain);
         }
         for (Map.Entry<String, String> entry : jtdsParams.entrySet()) {

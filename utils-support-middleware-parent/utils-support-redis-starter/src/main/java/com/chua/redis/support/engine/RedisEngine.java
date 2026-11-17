@@ -15,6 +15,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Redis 基础引擎，提供数据源管理、连接池和基础工具方法。
@@ -149,7 +150,7 @@ public class RedisEngine {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(8);
         config.setMaxIdle(4);
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return new JedisPool(config, "localhost", 6379);
         }
         String trimmed = url.trim();
@@ -335,7 +336,7 @@ public class RedisEngine {
      * @return 驼峰名
      */
     private String snakeToCamelKeepCase(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         StringBuilder sb = new StringBuilder(name.length());
@@ -358,7 +359,7 @@ public class RedisEngine {
      * @return 转为camel大小写的结果
      */
     private String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         StringBuilder sb = new StringBuilder();

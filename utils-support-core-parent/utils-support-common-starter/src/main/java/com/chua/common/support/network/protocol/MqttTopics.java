@@ -1,4 +1,5 @@
 package com.chua.common.support.network.protocol;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MQTT 主题工具 —— 主题过滤器匹配与校验的唯一实现。
@@ -89,7 +90,7 @@ public final class MqttTopics {
      * @return 合法返回 true
      */
     public static boolean isValidFilter(String filter) {
-        if (filter == null || filter.isEmpty()) {
+        if (StringUtils.isEmpty(filter)) {
             return false;
         }
         String[] parts = filter.split(String.valueOf(SEPARATOR), -1);
@@ -115,7 +116,7 @@ public final class MqttTopics {
      * @return 合法返回 true
      */
     public static boolean isValidTopic(String topic) {
-        if (topic == null || topic.isEmpty()) {
+        if (StringUtils.isEmpty(topic)) {
             return false;
         }
         return topic.indexOf(MULTI.charAt(0)) < 0 && topic.indexOf(SINGLE.charAt(0)) < 0;

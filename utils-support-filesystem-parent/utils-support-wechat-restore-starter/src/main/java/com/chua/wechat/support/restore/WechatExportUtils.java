@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信数据还原公共工具类。
@@ -66,7 +67,7 @@ public final class WechatExportUtils {
      * @return 可安全用作文件名的名称（最长 50 字符）
      */
     public static String sanitizeFileName(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return "unknown";
         }
         String result = name.replaceAll("[<>:\"/\\\\|?*]", "_").trim();
@@ -305,7 +306,7 @@ public final class WechatExportUtils {
         // 目标库：targetSchema 的契约是「建库语句」，所以必须真的建库 ——
         // 只发 USE 的话，目标库不存在时脚本一执行就报 ERROR 1049 Unknown database，
         // 用户还得手动先建库，那就不是「一键」了。IF NOT EXISTS 保证重复执行安全。
-        if (targetSchema != null && !targetSchema.isBlank()) {
+        if (StringUtils.isNotBlank(targetSchema)) {
             sql.append("CREATE DATABASE IF NOT EXISTS `").append(targetSchema)
                     .append("` DEFAULT CHARACTER SET utf8mb4;\n");
             sql.append("USE `").append(targetSchema).append("`;\n\n");

@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 实时网卡抓包参数。
@@ -771,7 +772,7 @@ public final class CaptureOptions {
          */
         @Nonnull
         public CaptureOptions build() {
-            if (interfaceId == null || interfaceId.isBlank()) {
+            if (StringUtils.isBlank(interfaceId)) {
                 throw new IllegalArgumentException("采集网卡编号不能为空，请先用 tshark -D 枚举");
             }
             return new CaptureOptions(this);

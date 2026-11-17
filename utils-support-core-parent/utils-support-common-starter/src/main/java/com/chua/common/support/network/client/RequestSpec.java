@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 HTTP 请求规格，绑定到 {@link HttpClient} 实例的轻量级请求构建器。
@@ -613,7 +614,7 @@ public class RequestSpec {
     public RequestSpec cookie(String name, String value) {
         String existing = this.headers.get("Cookie");
         String cookieEntry = name + "=" + value;
-        if (existing != null && !existing.isEmpty()) {
+        if (StringUtils.isNotEmpty(existing)) {
             this.headers.add("Cookie", existing + "; " + cookieEntry);
         } else {
             this.headers.add("Cookie", cookieEntry);

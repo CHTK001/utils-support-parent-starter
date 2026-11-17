@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 切换型对话客户端基类：管理多个成员客户端，并在每次调用时挑一个转发。
@@ -509,7 +510,7 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient thinkingEffort(String effort) {
-        return effort == null || effort.isBlank() ? this : broadcast(c -> c.thinkingEffort(effort));
+        return StringUtils.isBlank(effort) ? this : broadcast(c -> c.thinkingEffort(effort));
     }
 
     @Override
@@ -544,7 +545,7 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient toolChoice(String toolChoice) {
-        return toolChoice == null || toolChoice.isBlank() ? this : broadcast(c -> c.toolChoice(toolChoice));
+        return StringUtils.isBlank(toolChoice) ? this : broadcast(c -> c.toolChoice(toolChoice));
     }
 
     @Override
@@ -554,7 +555,7 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient skillPrompt(String block) {
-        return block == null || block.isEmpty() ? this : broadcast(c -> c.skillPrompt(block));
+        return StringUtils.isEmpty(block) ? this : broadcast(c -> c.skillPrompt(block));
     }
 
     @Override

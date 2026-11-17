@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenClaw 插件本地提供者。
@@ -25,7 +26,7 @@ public class OpenClawPluginOfflineProvider extends AbstractLocalPluginOfflinePro
         List<Path> roots = Wraps.list();
         String workspace = System.getenv("TOKENTRACKER_OPENCLAW_WORKSPACE");
         Path home = USER_HOME.resolve(".openclaw");
-        if (workspace != null && !workspace.isBlank()) {
+        if (StringUtils.isNotBlank(workspace)) {
             roots.add(Path.of(workspace).toAbsolutePath().resolve("plugins"));
         }
         Path workspacePlugins = home.resolve("workspace").resolve("plugins");

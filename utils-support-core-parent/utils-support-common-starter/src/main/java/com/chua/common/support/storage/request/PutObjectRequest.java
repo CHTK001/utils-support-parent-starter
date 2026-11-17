@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.chua.common.support.utils.UrlUtils.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 上传文件请求对象。
@@ -139,7 +140,7 @@ public class PutObjectRequest {
         if (name == null) {
             return null;
         }
-        if (filePath == null || filePath.isEmpty()) {
+        if (StringUtils.isEmpty(filePath)) {
             return normalize(name);
         }
         return normalize(filePath + "/" + name);

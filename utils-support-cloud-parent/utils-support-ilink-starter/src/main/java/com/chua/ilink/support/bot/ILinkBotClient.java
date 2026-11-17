@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信 i链接 机器人 客户端。
@@ -178,7 +179,7 @@ public class ILinkBotClient implements BotClient {
             int ret = intVal(qrResponse, "ret", -1);
             String qrCode = getString(qrResponse, "qrcode");
             String qrImgUrl = getString(qrResponse, "qrcode_img_content");
-            if (ret != 0 || qrCode == null || qrCode.isEmpty()) {
+            if (ret != 0 || StringUtils.isEmpty(qrCode)) {
                 log.error("[ILink] 获取二维码失败 ret={} err={}",
                         ret, getString(qrResponse, "err_msg"));
                 if (qrcodeListener != null) {
@@ -357,7 +358,7 @@ public class ILinkBotClient implements BotClient {
     @Override
     public ILinkBotClient start() {
  // 已有 令牌（登录后配置/手动导入）则直接用 令牌 启动消息轮询，不再扫码
-        if (token == null || token.isEmpty()) {
+        if (StringUtils.isEmpty(token)) {
             String id = loginWithQR();
             if (id == null) {
                 return this;
@@ -571,7 +572,7 @@ public class ILinkBotClient implements BotClient {
             return "回复窗口不可用：用户超过 24 小时未主动发消息，或 24 小时内 10 条主动消息配额已用完；"
                     + "需等用户再次发消息后才能回复。";
         }
-        return (errmsg == null || errmsg.isBlank()) ? ("消息发送失败（ret=" + ret + "）") : errmsg;
+        return (StringUtils.isBlank(errmsg)) ? ("消息发送失败（ret=" + ret + "）") : errmsg;
     }
 
     /**
@@ -729,7 +730,7 @@ public class ILinkBotClient implements BotClient {
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
         applyCommonHeaders(request);
-        if (token != null && !token.isEmpty()) {
+        if (StringUtils.isNotEmpty(token)) {
             request.header("Authorization", "Bearer " + token);
         }
         ClientResponse response = httpClient.execute(request);
@@ -746,7 +747,7 @@ public class ILinkBotClient implements BotClient {
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
         applyCommonHeaders(request);
-        if (token != null && !token.isEmpty()) {
+        if (StringUtils.isNotEmpty(token)) {
             request.header("AuthorizationType", "ilink_bot_token");
             request.header("Authorization", "Bearer " + token);
         }

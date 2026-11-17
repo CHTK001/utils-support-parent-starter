@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Parquet 列式存储引擎实现（真实文件读写）。
@@ -235,7 +236,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private File tableFile(String table) {
         File dir = requireBaseDir();
-        if (table == null || table.isEmpty()) {
+        if (StringUtils.isEmpty(table)) {
             throw new IllegalArgumentException("Parquet 表名不能为空");
         }
         if (!SAFE_TABLE.matcher(table).matches()) {
@@ -783,7 +784,7 @@ public class ParquetEngine extends AbstractEngine {
      * @return 合法名称，入参为空时返回空串
      */
     private static String avroName(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return "";
         }
         String fixed = ILLEGAL_NAME_CHAR.matcher(name).replaceAll("_");
@@ -845,7 +846,7 @@ public class ParquetEngine extends AbstractEngine {
      * @return normalizeColumns的结果
      */
     private String normalizeColumns(String expr, Class<?> entityClass) {
-        if (expr == null || expr.isEmpty()) {
+        if (StringUtils.isEmpty(expr)) {
             return expr;
         }
         Map<String, Field> fields = fieldsOf(entityClass);
@@ -873,7 +874,7 @@ public class ParquetEngine extends AbstractEngine {
      * @param canonical 目标字段名
      */
     private void addRule(List<String[]> rules, String variant, String canonical) {
-        if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
+        if (StringUtils.isNotEmpty(variant) && !variant.equals(canonical)
                 && rules.stream().noneMatch(r -> r[0].equals(variant))) {
             rules.add(new String[]{variant, canonical});
         }

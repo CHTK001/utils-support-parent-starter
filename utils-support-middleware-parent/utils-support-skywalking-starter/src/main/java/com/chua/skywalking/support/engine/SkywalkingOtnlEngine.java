@@ -44,6 +44,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Apache SkyWalking 的 {@link OtnlEngine} 实现（SPI 名 {@code skywalking}）。
@@ -353,7 +354,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
 
     @Override
     public OtnlTrace trace(String traceId) {
-        if (traceId == null || traceId.isBlank()) {
+        if (StringUtils.isBlank(traceId)) {
             return null;
         }
         try {
@@ -674,7 +675,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         try {
             List<Map<String, Object>> services = new ArrayList<>(serviceNames.size());
             for (String name : serviceNames) {
-                if (name != null && !name.isBlank()) {
+                if (StringUtils.isNotBlank(name)) {
                     services.add(Map.of("serviceName", name));
                 }
             }
@@ -937,7 +938,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 vars.put("serviceId", serviceId);
             }
             String endpoint = query.endpointName();
-            if (endpoint != null && !endpoint.isBlank()) {
+            if (StringUtils.isNotBlank(endpoint)) {
                 vars.put("endpointName", endpoint);
             }
             JsonNode data = client().data(SkywalkingQueries.PROFILE_TASKS, vars);
@@ -976,7 +977,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      */
     @Override
     public List<OtnlProfiledSegment> profiledSegments(String taskId) {
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             return List.of();
         }
         try {
@@ -1016,7 +1017,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      */
     @Override
     public OtnlProfileAnalysis profileAnalysis(String taskId) {
-        if (taskId == null || taskId.isBlank()) {
+        if (StringUtils.isBlank(taskId)) {
             return OtnlProfileAnalysis.empty(taskId, "缺少剖析任务 ID");
         }
         List<OtnlProfiledSegment> segments = profiledSegments(taskId);
@@ -1344,7 +1345,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      * @return 服务 ID，找不到返回 null
      */
     private String serviceId(String serviceName) {
-        if (serviceName == null || serviceName.isBlank()) {
+        if (StringUtils.isBlank(serviceName)) {
             return null;
         }
         Map<String, String> ids = serviceIds;
@@ -1432,7 +1433,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      * @return 服务名，无法解码时原样返回
      */
     private static String decodeServiceName(String code) {
-        if (code == null || code.isBlank()) {
+        if (StringUtils.isBlank(code)) {
             return "";
         }
         int index = code.lastIndexOf('.');
@@ -1494,7 +1495,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             current = current.getCause();
         }
         String message = current.getMessage();
-        return message == null || message.isBlank() ? current.getClass().getSimpleName() : message;
+        return StringUtils.isBlank(message) ? current.getClass().getSimpleName() : message;
     }
 
     /**

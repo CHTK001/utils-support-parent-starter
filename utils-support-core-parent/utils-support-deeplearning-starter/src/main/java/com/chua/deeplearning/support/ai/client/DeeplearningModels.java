@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 深度学习模型列表工具。
@@ -33,7 +34,7 @@ public final class DeeplearningModels {
      * @return 模型定义列表
      */
     public static List<ModelDefinition> models(String engine) {
-        if (engine == null || engine.isBlank()) {
+        if (StringUtils.isBlank(engine)) {
             return List.of();
         }
         List<ModelDefinition> result = Wraps.list();
@@ -91,7 +92,7 @@ public final class DeeplearningModels {
      * @return 模型定义，不存在返回 空
      */
     public static ModelDefinition byId(String modelId) {
-        if (modelId == null || modelId.isBlank()) {
+        if (StringUtils.isBlank(modelId)) {
             return null;
         }
         for (ModelDefinition def : AbstractIdentificationEngine.getInstance().getModels()) {
@@ -138,7 +139,7 @@ public final class DeeplearningModels {
      * @return 推荐模型 标识；无可用模型返回 空
      */
     public static String recommended(String engine, String deviceSetting) {
-        if (engine == null || engine.isBlank()) {
+        if (StringUtils.isBlank(engine)) {
             return null;
         }
         List<String> ids = modelIds(engine);

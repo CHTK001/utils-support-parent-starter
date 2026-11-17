@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 命令行软件的版本号，从 {@code --version} 之类的输出中解析而来，支持比较与区间判断。
@@ -101,7 +102,7 @@ public final class CliVersion implements Comparable<CliVersion> {
      */
     @Nonnull
     public static CliVersion parse(@Nullable String text, @Nonnull Pattern pattern) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return unknown();
         }
         Matcher matcher = pattern.matcher(text);

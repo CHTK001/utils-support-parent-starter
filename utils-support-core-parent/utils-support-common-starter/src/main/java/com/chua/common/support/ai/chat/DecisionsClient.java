@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AI 决策客户端接口
@@ -65,7 +66,7 @@ public interface DecisionsClient extends AutoCloseable, PooledObjectClient<Decis
         DecisionsClient client = serviceProvider.getNewExtension(setting.getProvider(), setting);
         if (client == null) {
             String baseUrl = setting.getBaseUrl();
-            if (baseUrl != null && !baseUrl.isBlank()) {
+            if (StringUtils.isNotBlank(baseUrl)) {
                 LOG.warn("[DecisionsClient] 供应商 {} 未注册 SPI 扩展，按 OpenAI 兼容协议兜底 baseUrl={}",
                         setting.getProvider(), baseUrl);
                 client = serviceProvider.getNewExtension(OPENAI_EXTENSION, setting);
@@ -276,10 +277,10 @@ public interface DecisionsClient extends AutoCloseable, PooledObjectClient<Decis
             throw new IllegalArgumentException("request 不能为 null");
         }
         String input = request.input();
-        if (input == null || input.isBlank()) {
+        if (StringUtils.isBlank(input)) {
             input = request.state();
         }
-        if (input == null || input.isBlank()) {
+        if (StringUtils.isBlank(input)) {
             throw new IllegalArgumentException("input / state 不能为 null 或空白");
         }
         List<DecisionQuestion> questions = request.questions();

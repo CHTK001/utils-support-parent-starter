@@ -10,6 +10,7 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 执行 防护过滤器，基于滑动窗口的请求频率限制。
@@ -67,14 +68,14 @@ public class DosServerFilter implements ServerFilter {
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("dos.maxRequests");
         String window = config.getInitParameter("dos.windowSeconds");
-        if (max != null && !max.isEmpty()) {
+        if (StringUtils.isNotEmpty(max)) {
             this.maxRequests = Integer.parseInt(max);
         }
-        if (window != null && !window.isEmpty()) {
+        if (StringUtils.isNotEmpty(window)) {
             this.windowSeconds = Integer.parseInt(window);
         }
         // 未显式配置或阈值非正数时保持不挂载，避免默认值/零值拦掉正常业务流量
-        boolean present = (max != null && !max.isEmpty()) || (window != null && !window.isEmpty());
+        boolean present = (StringUtils.isNotEmpty(max)) || (StringUtils.isNotEmpty(window));
         this.configured = present && maxRequests > 0 && windowSeconds > 0;
     }
 
@@ -134,12 +135,12 @@ public class DosServerFilter implements ServerFilter {
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isEmpty()) {
+        if (StringUtils.isNotEmpty(forwarded)) {
             int idx = forwarded.indexOf(',');
             return idx > 0 ? forwarded.substring(0, idx).trim() : forwarded.trim();
         }
         String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isEmpty()) {
+        if (StringUtils.isNotEmpty(realIp)) {
             return realIp;
         }
         return request.getRemoteAddress();

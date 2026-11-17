@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.SpiParam;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Mock 响应过滤器（联调打桩）。
@@ -63,7 +64,7 @@ public class MockServerFilter implements ServerFilter {
         defaultStatus = (int) parseLong(config.getInitParameter("defaultStatus"), 404);
         rules.clear();
         String text = config.getInitParameter("rules");
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return;
         }
         for (String line : text.split("\\r?\\n")) {
@@ -131,7 +132,7 @@ public class MockServerFilter implements ServerFilter {
      * @return 解析结果
      */
     private static long parseLong(String value, long defaultValue) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
         try {
@@ -221,7 +222,7 @@ public class MockServerFilter implements ServerFilter {
          */
         void writeTo(ServerResponse response) {
             response.setStatus(status);
-            if (contentType != null && !contentType.isBlank()) {
+            if (StringUtils.isNotBlank(contentType)) {
                 response.setContentType(contentType);
             }
             response.setBody(body);

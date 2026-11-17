@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WAL（Write-Ahead log）分发器提供者。
@@ -120,7 +121,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
      */
     public WalDispatcherProvider(DispatcherConfig config, String serializerName) {
         this(config, resolveSerializer(
-                serializerName != null && !serializerName.isBlank()
+                StringUtils.isNotBlank(serializerName)
                         ? serializerName
                         : config.getSerializer()));
     }
@@ -156,7 +157,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
      * @return 解析出的序列化器，Spi 加载失败时回退 Jackson
      */
     private static com.chua.common.support.base.serialize.Serialization resolveSerializer(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return new JacksonSerialization();
         }
         try {

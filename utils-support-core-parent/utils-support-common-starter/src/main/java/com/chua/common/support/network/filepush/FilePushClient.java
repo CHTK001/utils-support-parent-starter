@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import static com.chua.common.support.network.filepush.FilePushConfig.MAGIC;
 import static com.chua.common.support.network.filepush.FilePushConfig.PROTOCOL_VERSION;
 import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskExecutor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 目录推送客户端：扫描本地目录，将全部文件高并发推送到服务端。
@@ -175,7 +176,7 @@ public class FilePushClient implements AutoCloseable {
      * @return this
      */
     public FilePushClient sourceDir(String sourceDir) {
-        if (sourceDir == null || sourceDir.isBlank()) {
+        if (StringUtils.isBlank(sourceDir)) {
             throw new IllegalArgumentException("sourceDir 不能为空");
         }
         return sourceDir(Path.of(sourceDir.trim()));

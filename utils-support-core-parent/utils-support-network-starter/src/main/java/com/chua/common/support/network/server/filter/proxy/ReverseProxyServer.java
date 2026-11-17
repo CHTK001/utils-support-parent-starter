@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.ServerBuilder;
 import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HTTP 反向代理服务器：开箱即用的代理门面。
@@ -117,7 +118,7 @@ public class ReverseProxyServer implements AutoCloseable {
     public ReverseProxyServer(String host, int port, int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : DEFAULT_TIMEOUT_SECONDS;
         this.server = ServerBuilder.create().type("jdk-http")
-                .host(host != null && !host.isBlank() ? host : DEFAULT_HOST)
+                .host(StringUtils.isNotBlank(host) ? host : DEFAULT_HOST)
                 .port(port)
                 .build();
     }

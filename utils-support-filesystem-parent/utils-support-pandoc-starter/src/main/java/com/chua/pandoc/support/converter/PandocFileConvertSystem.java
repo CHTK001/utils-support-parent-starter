@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Pandoc 通用文档格式转换器。
@@ -164,7 +165,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
             if (!result.isSuccess()) {
                 String error = result.getStderr();
-                if (error == null || error.isEmpty()) {
+                if (StringUtils.isEmpty(error)) {
                     error = result.getStdout();
                 }
                 throw new RuntimeException("Pandoc 转换失败, exit=" + result.getExitCode()

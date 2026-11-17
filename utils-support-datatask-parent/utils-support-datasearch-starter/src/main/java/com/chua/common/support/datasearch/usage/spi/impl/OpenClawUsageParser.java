@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenClaw usage parser.
@@ -224,7 +225,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
      */
     private static String callKey(JsonNode message, int index) {
         String responseId = message.get("responseId").toStringValue();
-        if (responseId != null && !responseId.isBlank()) {
+        if (StringUtils.isNotBlank(responseId)) {
             return responseId;
         }
         long timestamp = message.get("timestamp").toLongValue(0L);

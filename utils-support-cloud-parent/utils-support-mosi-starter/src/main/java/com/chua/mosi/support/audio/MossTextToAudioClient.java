@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Moss（{@code https://platform.mosi.cn}）文字转语音（TTS）客户端。
@@ -274,15 +275,15 @@ public class MossTextToAudioClient implements TextToAudioClient {
     @Override
     public byte[] synthesize(String text) {
         String target = text != null ? text : this.text;
-        if (target == null || target.isBlank()) {
+        if (StringUtils.isBlank(target)) {
             throw new IllegalArgumentException("待合成文本不能为空");
         }
         String voiceId = voice;
-        if (voiceId == null || voiceId.isBlank()) {
+        if (StringUtils.isBlank(voiceId)) {
             throw new IllegalArgumentException("Moss 语音合成必须提供 voice_id（音色 id），请在配置里填写音色");
         }
 
-        String mode = deliveryMethod == null || deliveryMethod.isBlank() ? DEFAULT_DELIVERY : deliveryMethod;
+        String mode = StringUtils.isBlank(deliveryMethod) ? DEFAULT_DELIVERY : deliveryMethod;
         String normalizedLanguage = normalizeLanguage(language);
         JsonObject payload = JsonObject.create()
                 .fluentPut("model", model != null ? model : DEFAULT_MODEL)
@@ -319,11 +320,11 @@ public class MossTextToAudioClient implements TextToAudioClient {
     @Override
     public String createTask(String text) {
         String target = text != null ? text : this.text;
-        if (target == null || target.isBlank()) {
+        if (StringUtils.isBlank(target)) {
             throw new IllegalArgumentException("待合成文本不能为空");
         }
         String voiceId = voice;
-        if (voiceId == null || voiceId.isBlank()) {
+        if (StringUtils.isBlank(voiceId)) {
             throw new IllegalArgumentException("Moss 语音合成必须提供 voice_id（音色 id），请在配置里填写音色");
         }
         String normalizedLanguage = normalizeLanguage(language);
@@ -383,7 +384,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
             }
             if (status == TextToAudioResponse.Status.SUCCESS) {
                 String url = str(root.get("url"));
-                if (url != null && !url.isBlank()) {
+                if (StringUtils.isNotBlank(url)) {
                     builder.audioBytes(download(url));
                 }
                 builder.voice(voice);
@@ -427,7 +428,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      * @return 语言全名；无法识别时返回 null（不发送该字段，由模型自动检测）
      */
     private String normalizeLanguage(String language) {
-        if (language == null || language.isBlank()) {
+        if (StringUtils.isBlank(language)) {
             return null;
         }
         String trimmed = language.trim();
@@ -448,7 +449,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
     private String resolveUrl(String json) {
         Map<String, Object> root = parseJson(json);
         String url = root == null ? null : str(root.get("url"));
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             throw new RuntimeException("Moss 语音合成未返回音频地址: " + json);
         }
         return url;
@@ -508,7 +509,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      * @return 格式
      */
     private String currentFormat() {
-        return format != null && !format.isBlank() ? format : DEFAULT_FORMAT;
+        return StringUtils.isNotBlank(format) ? format : DEFAULT_FORMAT;
     }
 
     /**
@@ -564,7 +565,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
                 .connectTimeout(120000)
                 .readTimeout(120000);
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             String[] parts = proxyStr.replace("http://", "").replace("https://", "").split(":");
             if (parts.length == 2) {
                 builder.proxy(parts[0], Integer.parseInt(parts[1]));
@@ -584,7 +585,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

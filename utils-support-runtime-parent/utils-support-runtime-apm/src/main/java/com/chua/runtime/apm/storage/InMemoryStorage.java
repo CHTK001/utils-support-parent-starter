@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 内存存储 — 带 LRU + TTL 限制。
@@ -422,7 +423,7 @@ public class InMemoryStorage implements ApmStorage {
      * @return 匹配字符串的结果
      */
     private static boolean matchString(String value, String filter) {
-        if (filter == null || filter.isEmpty()) {
+        if (StringUtils.isEmpty(filter)) {
             return true;
         }
         if (value == null) {

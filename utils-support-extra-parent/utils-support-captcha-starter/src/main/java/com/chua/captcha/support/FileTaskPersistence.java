@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Optional;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于文件存储的验证码任务持久化实现
@@ -194,7 +195,7 @@ public class FileTaskPersistence implements TaskPersistence {
      * @return 可安全写入一行的文本
      */
     private static String encode(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return "";
         }
         StringBuilder sb = new StringBuilder(value.length() + 8);

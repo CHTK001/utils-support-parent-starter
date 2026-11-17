@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.environment;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 深度学习环境变量解析器。
@@ -130,13 +131,13 @@ public class DeeplearningEnvironment {
     private String resolve(String key) {
         String propertyKey = PREFIX_DEEPLEARNING + provider + "." + key;
         String val = System.getProperty(propertyKey);
-        if (val != null && !val.isEmpty()) {
+        if (StringUtils.isNotEmpty(val)) {
             return val;
         }
 
         String envKey = propertyKey.replace('.', '_').toUpperCase();
         val = System.getenv(envKey);
-        if (val != null && !val.isEmpty()) {
+        if (StringUtils.isNotEmpty(val)) {
             return val;
         }
 

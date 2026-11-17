@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Quick 默认实现。
@@ -216,7 +217,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Quick constant(String name, Object value) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return this;
         }
         constants.put(name, value);
@@ -229,7 +230,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Quick variable(String name, Object value) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return this;
         }
         variables.put(name, value);
@@ -253,7 +254,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Quick env(String key, Object value) {
-        if (key != null && !key.isBlank()) {
+        if (StringUtils.isNotBlank(key)) {
             context.getEnvironment().setProperty(key, value);
         }
         return this;
@@ -266,7 +267,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Quick fromJson(String json) {
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             return this;
         }
         Map<String, Object> map = Json.fromJson(json);
@@ -280,7 +281,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Quick fromXml(String xml) {
-        if (xml == null || xml.isBlank()) {
+        if (StringUtils.isBlank(xml)) {
             return this;
         }
         Map<String, Object> map = xmlToMap(xml);
@@ -297,7 +298,7 @@ public class DefaultQuick implements Quick {
         if (type == null) {
             return null;
         }
-        if (json != null && !json.isBlank()) {
+        if (StringUtils.isNotBlank(json)) {
             T bean = Json.fromJson(json, type);
             this.data = bean;
             registerNamedBean(type.getSimpleName(), bean);
@@ -364,7 +365,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public <T> T init(String className) {
-        if (className == null || className.isBlank()) {
+        if (StringUtils.isBlank(className)) {
             return null;
         }
         Class<?> type = resolveClass(className);
@@ -407,7 +408,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Class<?> compile(String source) {
-        if (source == null || source.isBlank()) {
+        if (StringUtils.isBlank(source)) {
             return null;
         }
         Compiler compiler = resolveCompiler();
@@ -447,7 +448,7 @@ public class DefaultQuick implements Quick {
      */
     @Override
     public Object execute(String script) {
-        if (script == null || script.isBlank()) {
+        if (StringUtils.isBlank(script)) {
             return null;
         }
         String trimmed = script.trim();
@@ -791,7 +792,7 @@ public class DefaultQuick implements Quick {
      * @return Map 结构，解析失败返回空 映射
      */
     private Map<String, Object> xmlToMap(String xml) {
-        if (xml == null || xml.isBlank()) {
+        if (StringUtils.isBlank(xml)) {
             return Collections.emptyMap();
         }
         try {
@@ -901,7 +902,7 @@ public class DefaultQuick implements Quick {
          */
         @Override
         public MapBuilder<K, V> type(String type) {
-            if (type != null && !type.isBlank()) {
+            if (StringUtils.isNotBlank(type)) {
                 this.type = type.trim().toLowerCase();
             }
             return this;
@@ -954,7 +955,7 @@ public class DefaultQuick implements Quick {
          */
         @Override
         public ListBuilder<E> type(String type) {
-            if (type != null && !type.isBlank()) {
+            if (StringUtils.isNotBlank(type)) {
                 this.type = type.trim().toLowerCase();
             }
             return this;
@@ -1024,7 +1025,7 @@ public class DefaultQuick implements Quick {
          */
         @Override
         public TableBuilder<R, C, V> type(String type) {
-            if (type != null && !type.isBlank()) {
+            if (StringUtils.isNotBlank(type)) {
                 this.type = type.trim().toLowerCase();
             }
             return this;

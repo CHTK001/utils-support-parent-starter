@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 阿里云数字证书管理服务（CAS 2020-04-07）的 acme提供者 SPI 实现。
@@ -107,13 +108,13 @@ public class AlibabaCasProvider implements AcmeProvider {
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                         String eabKid, String eabHmacKey) {
         try {
-            if (serverUrl == null || serverUrl.isEmpty()) {
+            if (StringUtils.isEmpty(serverUrl)) {
                 return AcmeConnectionResult.fail("RegionId 不能为空");
             }
-            if (privateKeyPem == null || privateKeyPem.isEmpty()) {
+            if (StringUtils.isEmpty(privateKeyPem)) {
                 return AcmeConnectionResult.fail("AccessKeyId 不能为空");
             }
-            if (eabKid == null || eabKid.isEmpty()) {
+            if (StringUtils.isEmpty(eabKid)) {
                 return AcmeConnectionResult.fail("AccessKeySecret 不能为空");
             }
             Config config = new Config()
@@ -124,7 +125,7 @@ public class AlibabaCasProvider implements AcmeProvider {
                     .setEndpoint(resolveEndpoint(serverUrl));
             client = new Client(config);
             this.email = email;
-            this.productCode = (eabHmacKey == null || eabHmacKey.isEmpty())
+            this.productCode = (StringUtils.isEmpty(eabHmacKey))
                     ? "digicert-free-1-free" : eabHmacKey;
             String accountUrl = resolveEndpoint(serverUrl) + "#ak=" + privateKeyPem;
             log.info("阿里云 CAS 连接成功: region={}, endpoint={}, productCode={}",
@@ -169,14 +170,14 @@ public class AlibabaCasProvider implements AcmeProvider {
                 return Collections.emptyList();
             }
             String recordType = body.getRecordType();
-            boolean hasRecord = recordType != null && !recordType.isEmpty();
+            boolean hasRecord = StringUtils.isNotEmpty(recordType);
             String uri = body.getUri();
             String content = body.getContent();
             AcmeValidationInfo info = new AcmeValidationInfo(null, domain,
                     toChallengeType(body.getValidateType(), challengeType),
                     body.getCertId(),
-                    uri != null && !uri.isEmpty() ? uri : null,
-                    content != null && !content.isEmpty() ? content : null,
+                    StringUtils.isNotEmpty(uri) ? uri : null,
+                    StringUtils.isNotEmpty(content) ? content : null,
                     hasRecord ? body.getRecordDomain() : null,
                     hasRecord ? body.getRecordValue() : null);
             List<AcmeValidationInfo> result = Wraps.list();
@@ -356,7 +357,7 @@ public class AlibabaCasProvider implements AcmeProvider {
      * @return 服务接入点域名
      */
     private String resolveEndpoint(String regionId) {
-        if (regionId == null || regionId.isEmpty()) {
+        if (StringUtils.isEmpty(regionId)) {
             return "cas.aliyuncs.com";
         }
         if ("cn-hangzhou".equalsIgnoreCase(regionId)) {
@@ -478,7 +479,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     private String joinCertificateChain(GetCertificateDetailResponseBody body) {
         StringBuilder sb = new StringBuilder();
         String leaf = body.getCertIdentifier();
-        if (leaf != null && !leaf.isEmpty()) {
+        if (StringUtils.isNotEmpty(leaf)) {
             sb.append(leaf);
             if (!leaf.endsWith("\n")) {
                 sb.append('\n');
@@ -507,7 +508,7 @@ public class AlibabaCasProvider implements AcmeProvider {
      * @return 转为challenge类型的结果
      */
     private String toChallengeType(String validateType, String fallback) {
-        if (validateType == null || validateType.isEmpty()) {
+        if (StringUtils.isEmpty(validateType)) {
             return fallback == null ? "DNS-01" : fallback;
         }
         switch (validateType.toUpperCase()) {

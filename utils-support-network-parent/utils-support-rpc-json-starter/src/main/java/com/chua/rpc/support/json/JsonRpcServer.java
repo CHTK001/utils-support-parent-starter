@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JSON-RPC 2.0 服务端实现（JDK {@link HttpServer} + {@link JsonRpcBasicServer} 多服务模式）。
@@ -396,7 +397,7 @@ public class JsonRpcServer implements RpcServer {
      * @return 对应的处理器；无法确定时返回 {@code null}
      */
     private JsonRpcBasicServer resolveServer(String serviceName) {
-        if (serviceName == null || serviceName.isEmpty()) {
+        if (StringUtils.isEmpty(serviceName)) {
             if (rpcServerMap.size() == 1) {
                 return rpcServerMap.values().iterator().next();
             }

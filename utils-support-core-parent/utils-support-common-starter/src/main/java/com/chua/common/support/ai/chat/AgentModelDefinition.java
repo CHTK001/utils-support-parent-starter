@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 模型定义 — 将 Agent 包装为 ChatClient。
@@ -106,7 +107,7 @@ public class AgentModelDefinition implements ChatClient {
         try {
             consumer.accept(ChatResponse.builder().state(ChatResponse.State.START).build());
             String output = chatSync(prompt);
-            if (output != null && !output.isEmpty()) {
+            if (StringUtils.isNotEmpty(output)) {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STREAMING)
                         .content(output)

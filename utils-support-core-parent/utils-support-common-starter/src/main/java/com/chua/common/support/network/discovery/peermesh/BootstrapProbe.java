@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 启动时立即执行一次全量巡检。
@@ -99,7 +100,7 @@ public class BootstrapProbe {
             return new UdpModeProbe(config, localServerId);
         }
         String discovery = config.getDiscovery();
-        if (discovery == null || discovery.isBlank()) {
+        if (StringUtils.isBlank(discovery)) {
             discovery = "c-seed";
         }
         switch (discovery.toLowerCase()) {

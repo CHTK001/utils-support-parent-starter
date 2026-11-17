@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Grok Build（xAI）用量解析器。
@@ -77,7 +78,7 @@ public class GrokUsageParser extends BaseUsageParser {
      */
     private static Path resolveHome() {
         String grokHome = System.getenv("GROK_HOME");
-        if (grokHome != null && !grokHome.isBlank()) {
+        if (StringUtils.isNotBlank(grokHome)) {
             return Path.of(grokHome);
         }
         return Path.of(System.getProperty("user.home"), ".grok");
@@ -252,7 +253,7 @@ public class GrokUsageParser extends BaseUsageParser {
                     }
                 }
             }
-            if (best != null && !best.isBlank()) {
+            if (StringUtils.isNotBlank(best)) {
                 return best;
             }
         }

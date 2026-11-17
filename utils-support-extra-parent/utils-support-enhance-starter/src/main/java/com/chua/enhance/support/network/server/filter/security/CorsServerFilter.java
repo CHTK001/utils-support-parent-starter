@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 跨域资源共享 跨域过滤器，为 HTTP 响应添加跨域资源共享头。
@@ -99,7 +100,7 @@ public class CorsServerFilter implements ServerFilter {
      * @return 非空时返回 {@code true}
      */
     private static boolean present(String value) {
-        return value != null && !value.isEmpty();
+        return StringUtils.isNotEmpty(value);
     }
 
     /**

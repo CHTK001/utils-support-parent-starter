@@ -11,6 +11,7 @@ import com.chua.common.support.scatter.TcpScatterBuilder;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 集群管理器：集群视图 + 路由决策 + 故障退避。
@@ -76,7 +77,7 @@ public class ClusterManager {
      */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfNodeId) {
         this.discovery = discovery;
-        this.balance = balance == null || balance.isBlank() ? "weight" : balance;
+        this.balance = StringUtils.isBlank(balance) ? "weight" : balance;
         this.selfNodeId = selfNodeId;
         this.groupId = discovery.getGroupId() == null ? "default" : discovery.getGroupId();
     }
@@ -148,7 +149,7 @@ public class ClusterManager {
      * @return 目标节点，无可用节点返回 空
      */
     public Discovery route(String servicePath, String scatterId, String protocol) {
-        if (selfNodeId == null || selfNodeId.isBlank()) {
+        if (StringUtils.isBlank(selfNodeId)) {
             return discovery.getService(servicePath, scatterId, balance, protocol);
         }
         Discovery target = null;

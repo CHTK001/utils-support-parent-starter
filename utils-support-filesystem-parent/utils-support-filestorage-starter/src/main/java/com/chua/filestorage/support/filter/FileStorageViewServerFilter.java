@@ -108,7 +108,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
 
  // 从 路径 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             response.setStatus(400).end("Missing file path in URL");
             return;
         }

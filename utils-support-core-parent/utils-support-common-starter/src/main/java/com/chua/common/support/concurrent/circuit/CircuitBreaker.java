@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 断路器
@@ -304,7 +305,7 @@ public class CircuitBreaker {
          * @throws IllegalArgumentException 缺少必填参数时抛出
          */
         public CircuitBreaker build() {
-            if (expression == null || expression.isBlank()) {
+            if (StringUtils.isBlank(expression)) {
                 throw new IllegalArgumentException("表达式不能为空");
             }
             if (context == null) {

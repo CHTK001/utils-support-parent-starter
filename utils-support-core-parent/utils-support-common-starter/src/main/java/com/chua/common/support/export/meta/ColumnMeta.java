@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 列元数据 —— 由多个 {@code MetaResolver} 按优先级叠加构建的不可变视图。
@@ -206,7 +207,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta name(String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             this.name = value;
             this.defined.add(Attribute.NAME);
         }
@@ -270,7 +271,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta dateFormat(String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             this.dateFormat = value;
             this.defined.add(Attribute.DATE_FORMAT);
         }
@@ -386,7 +387,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta converter(String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             this.converter = value;
             this.defined.add(Attribute.CONVERTER);
         }
@@ -400,7 +401,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta expression(String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             this.expression = value;
             this.defined.add(Attribute.EXPRESSION);
         }
@@ -414,7 +415,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta tag(String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             this.tag = value;
             this.defined.add(Attribute.TAG);
         }

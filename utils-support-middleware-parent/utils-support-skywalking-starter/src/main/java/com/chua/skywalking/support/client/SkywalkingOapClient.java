@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Apache SkyWalking OAP GraphQL 客户端。
@@ -211,7 +212,7 @@ public class SkywalkingOapClient implements AutoCloseable {
      * @return 头值，未配置返回空串
      */
     private static String basic(String username, String password) {
-        if (username == null || username.isBlank()) {
+        if (StringUtils.isBlank(username)) {
             return "";
         }
         String raw = username + ":" + (password == null ? "" : password);

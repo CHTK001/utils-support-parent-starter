@@ -20,6 +20,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.params.ScanParams;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Redis 中间件管理面 SPI 实现（默认装载）。
@@ -151,7 +152,7 @@ public class RedisClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：dbsize / info / clients / slowlog / "
                     + "scan <pattern> / type <key> / ttl <key> / get <key>");
         }
@@ -198,7 +199,7 @@ public class RedisClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareDocument document(MiddlewareConnectRequest request, String scope, String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return null;
         }
         try (Jedis jedis = jedis(request)) {
@@ -237,11 +238,11 @@ public class RedisClientProvider implements MiddlewareClientProvider {
             b.database(db);
         }
         String username = request.username();
-        if (username != null && !username.isBlank()) {
+        if (StringUtils.isNotBlank(username)) {
             b.user(username);
         }
         String password = request.password();
-        if (password != null && !password.isBlank()) {
+        if (StringUtils.isNotBlank(password)) {
             b.password(password);
         }
         return new Jedis(request.host(), request.port() <= 0 ? 6379 : request.port(), b.build());
@@ -351,6 +352,6 @@ public class RedisClientProvider implements MiddlewareClientProvider {
             t = t.getCause();
         }
         String m = t.getMessage();
-        return m == null || m.isBlank() ? t.getClass().getSimpleName() : m;
+        return StringUtils.isBlank(m) ? t.getClass().getSimpleName() : m;
     }
 }

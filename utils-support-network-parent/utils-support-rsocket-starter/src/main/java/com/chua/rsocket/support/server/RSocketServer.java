@@ -30,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import com.chua.common.support.network.server.response.AbstractServerResponse;
 import com.chua.common.support.network.server.request.AbstractServerRequest;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * rSocket 嵌入式服务器，轻量级实现。
@@ -202,7 +203,7 @@ public class RSocketServer extends AbstractServer {
                 @Override
                 public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
-                    if (topic == null || topic.isEmpty()) {
+                    if (StringUtils.isEmpty(topic)) {
                         return Flux.empty();
                     }
                     return Flux.create(sink -> {
@@ -283,7 +284,7 @@ public class RSocketServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage annotation = method.getAnnotation(OnMessage.class);
                 String topic = annotation.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 ServerHandler serverHandler = createMessageHandler(handler, method);
@@ -354,7 +355,7 @@ public class RSocketServer extends AbstractServer {
             return null;
         }
         String data = payload.getDataUtf8();
-        if (data == null || data.isEmpty()) {
+        if (StringUtils.isEmpty(data)) {
             return null;
         }
         try {
@@ -368,7 +369,7 @@ public class RSocketServer extends AbstractServer {
         // 兼容从 metadata 中读取 route(oauth client 将路由放在 metadata 中)
         try {
             String metadata = payload.getMetadataUtf8();
-            if (metadata != null && !metadata.isEmpty()) {
+            if (StringUtils.isNotEmpty(metadata)) {
                 Map<String, Object> metaMap = Json.fromJson(metadata, Map.class);
                 if (metaMap != null && metaMap.containsKey("route")) {
                     return metaMap.get("route").toString();

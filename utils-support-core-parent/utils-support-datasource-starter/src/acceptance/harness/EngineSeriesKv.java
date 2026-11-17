@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 阶段三：KvEngine / SeriesEngine 子类 + mysql（本地真实服务）。
@@ -227,7 +228,7 @@ public final class EngineSeriesKv {
 
         EngineFunctional.check(p + "engine()/isAvailable()", () -> {
             String e = se.engine();
-            if (e == null || e.isEmpty()) {
+            if (StringUtils.isEmpty(e)) {
                 throw new EngineFunctional.HarnessFailure("engine() 返回空");
             }
             if (!se.isAvailable()) {

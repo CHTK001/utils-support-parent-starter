@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.request.FormFile;
 import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
@@ -114,7 +115,7 @@ public class HttpServerRequest implements ServerRequest {
     @Override
     public Map<String, String> getParams() {
         String query = exchange.getRequestURI().getQuery();
-        if (query == null || query.isEmpty()) {
+        if (StringUtils.isEmpty(query)) {
             return Map.of();
         }
         Map<String, String> map = Wraps.linkedMap();
@@ -245,7 +246,7 @@ public class HttpServerRequest implements ServerRequest {
         String lower = ct.toLowerCase();
         if (lower.startsWith("application/x-www-form-urlencoded")) {
             String body = getBodyString();
-            if (body == null || body.isEmpty()) {
+            if (StringUtils.isEmpty(body)) {
                 return Collections.emptyMap();
             }
             Map<String, String> form = Wraps.linkedMap();

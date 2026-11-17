@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 请求改写过滤器（网关类节点常用）。
@@ -101,7 +102,7 @@ public class RequestRewriteServerFilter implements ServerFilter {
                 setHeaders.put(key.substring("setHeader.".length()), value);
             } else if (key.startsWith("removeHeader.") && key.length() > "removeHeader.".length()) {
                 removeHeaders.add(key.substring("removeHeader.".length()));
-            } else if (key.startsWith("pathVar.") && key.length() > "pathVar.".length() && value != null && !value.isBlank()) {
+            } else if (key.startsWith("pathVar.") && key.length() > "pathVar.".length() && StringUtils.isNotBlank(value)) {
                 try {
                     pathVars.put(key.substring("pathVar.".length()), Pattern.compile(value));
                 } catch (Exception ignored) {
@@ -172,7 +173,7 @@ public class RequestRewriteServerFilter implements ServerFilter {
      * @return 解析结果
      */
     private static long parseLong(String value, long defaultValue) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
         try {

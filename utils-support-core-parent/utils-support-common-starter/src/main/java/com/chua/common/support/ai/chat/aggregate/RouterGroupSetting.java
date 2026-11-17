@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 路由组配置：路由策略 + 四种兜底行为 + 成员列表。
@@ -137,7 +138,7 @@ public class RouterGroupSetting {
          * @return 策略
          */
         public static Strategy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return SMART;
             }
             String value = code.trim().toLowerCase();
@@ -198,7 +199,7 @@ public class RouterGroupSetting {
          * @return 策略
          */
         public static RateLimitPolicy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return DEFAULT;
             }
             String value = code.trim().toLowerCase();
@@ -289,7 +290,7 @@ public class RouterGroupSetting {
          * @return 策略
          */
         public static SlowPolicy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return DEFAULT;
             }
             String value = code.trim().toLowerCase();
@@ -367,7 +368,7 @@ public class RouterGroupSetting {
          * @return 策略
          */
         public static BusyPolicy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return DEFAULT;
             }
             String value = code.trim().toLowerCase();
@@ -431,7 +432,7 @@ public class RouterGroupSetting {
          * @return 策略
          */
         public static ContextPolicy of(String code) {
-            if (code == null || code.isBlank()) {
+            if (StringUtils.isBlank(code)) {
                 return MAX;
             }
             String value = code.trim().toLowerCase();

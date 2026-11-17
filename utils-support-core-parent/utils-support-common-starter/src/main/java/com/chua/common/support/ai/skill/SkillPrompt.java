@@ -3,6 +3,7 @@ package com.chua.common.support.ai.skill;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 技能描述注入 system 的轻量工具（不依赖 Agent 执行环）。
@@ -54,10 +55,10 @@ public final class SkillPrompt {
      */
     public static String inject(String baseSystem, SkillManager skillManager) {
         String sec = section(skillManager);
-        if (sec == null || sec.isBlank()) {
+        if (StringUtils.isBlank(sec)) {
             return baseSystem != null ? baseSystem : "";
         }
-        if (baseSystem == null || baseSystem.isBlank()) {
+        if (StringUtils.isBlank(baseSystem)) {
             return sec.trim();
         }
         return baseSystem.trim() + "\n\n---\n" + sec.trim();
@@ -71,10 +72,10 @@ public final class SkillPrompt {
      */
     public static String inject(String baseSystem, Map<String, SkillDefinition> skills) {
         String sec = section(skills);
-        if (sec == null || sec.isBlank()) {
+        if (StringUtils.isBlank(sec)) {
             return baseSystem != null ? baseSystem : "";
         }
-        if (baseSystem == null || baseSystem.isBlank()) {
+        if (StringUtils.isBlank(baseSystem)) {
             return sec.trim();
         }
         return baseSystem.trim() + "\n\n---\n" + sec.trim();

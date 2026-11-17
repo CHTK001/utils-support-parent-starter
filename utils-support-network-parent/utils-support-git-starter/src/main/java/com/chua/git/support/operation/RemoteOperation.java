@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.TagOpt;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 远端同步检查操作（fetch + 本地/远端提交比对）。
@@ -68,7 +69,7 @@ public class RemoteOperation {
     public FetchResult fetch(String branch) {
         try {
             client.open();
-            String target = branch == null || branch.isBlank()
+            String target = StringUtils.isBlank(branch)
                     ? currentBranch()
                     : branch.trim();
             var fetch = client.getGit().fetch()

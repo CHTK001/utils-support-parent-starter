@@ -93,7 +93,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
  // 从 路径 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             response.setStatus(400).end("Missing file path in URL");
             return;
         }
@@ -118,7 +118,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         String rangeHeader = setting.isOpenRange() && MimeTypeUtils.isRangeSupported(mime)
                 ? request.getHeader("Range") : null;
 
-        if (rangeHeader != null && !rangeHeader.isBlank()) {
+        if (StringUtils.isNotBlank(rangeHeader)) {
             handleRange(request, response, getResult, mime, fileName, rangeHeader);
             return;
         }
@@ -160,11 +160,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
 
         String key = resolveFilepath(request);
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
  // 兼容旧版：从 查询 参数 键 获取
             key = request.getParam("key");
         }
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             response.setStatus(400).end("Missing file path in URL");
             return;
         }

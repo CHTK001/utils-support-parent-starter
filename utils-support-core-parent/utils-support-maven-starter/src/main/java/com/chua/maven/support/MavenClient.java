@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Maven 链式客户端，基于 Maven Invoker 实现 pom.xml 的编译与构建。
@@ -321,7 +322,7 @@ public class MavenClient implements AutoCloseable {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(projectPath));
         request.setGoals(effectiveGoals);
-        if (javaHome != null && !javaHome.isBlank()) {
+        if (StringUtils.isNotBlank(javaHome)) {
             // 允许填 JDK 根目录 / bin 目录 / java 可执行文件本身，统一归一成 JDK 根目录：
             // Maven fork 出去的进程要的是 JAVA_HOME，指到 bin 里会找不到 lib/tools.jar。
             File home = new File(normalizeJavaHome(javaHome.trim()));
@@ -345,7 +346,7 @@ public class MavenClient implements AutoCloseable {
         if (debug) {
             props.setProperty("debug", "true");
         }
-        if (jdkVersion != null && !jdkVersion.isBlank()) {
+        if (StringUtils.isNotBlank(jdkVersion)) {
             props.setProperty("java.version", jdkVersion);
             props.setProperty("maven.compiler.source", jdkVersion);
             props.setProperty("maven.compiler.target", jdkVersion);
@@ -482,7 +483,7 @@ public class MavenClient implements AutoCloseable {
      */
     private String resolveMavenHome() {
         // 0. 调用方显式指定的 Maven（项目级配置，优先且不写全局属性）
-        if (mavenHome != null && !mavenHome.isBlank()) {
+        if (StringUtils.isNotBlank(mavenHome)) {
             File home = new File(mavenHome.trim());
             if (home.isDirectory()) {
                 return home.getAbsolutePath();
@@ -492,19 +493,19 @@ public class MavenClient implements AutoCloseable {
 
         // 1. 检查系统属性
         String path = System.getProperty("maven.home");
-        if (path != null && !path.isBlank() && new File(path).exists()) {
+        if (StringUtils.isNotBlank(path) && new File(path).exists()) {
             return path;
         }
 
  // 2. 检查 Maven_Home 环境变量
         path = System.getenv("MAVEN_HOME");
-        if (path != null && !path.isBlank() && new File(path).exists()) {
+        if (StringUtils.isNotBlank(path) && new File(path).exists()) {
             return path;
         }
 
  // 3. 检查 M2_Home
         path = System.getenv("M2_HOME");
-        if (path != null && !path.isBlank() && new File(path).exists()) {
+        if (StringUtils.isNotBlank(path) && new File(path).exists()) {
             return path;
         }
 
@@ -543,7 +544,7 @@ public class MavenClient implements AutoCloseable {
      * @return JDK 根目录；入参为空返回空串
      */
     private String normalizeJavaHome(String path) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             return "";
         }
         String home = path.trim().replaceAll("[/\\\\]+$", "");

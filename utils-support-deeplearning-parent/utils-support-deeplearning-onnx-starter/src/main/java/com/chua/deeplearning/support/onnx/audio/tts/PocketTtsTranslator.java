@@ -28,6 +28,7 @@ import ai.onnxruntime.TensorInfo;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kyutai Pocket-TTS（100M 流匹配 TTS）嵌入式语音合成器。
@@ -261,7 +262,7 @@ public class PocketTtsTranslator {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
@@ -310,10 +311,10 @@ public class PocketTtsTranslator {
         String configured = configCache.get(configKey);
         try {
             Map<String, ?> meta = flowSession.getInputInfo();
-            if (configured != null && !configured.isBlank() && meta.containsKey(configured)) {
+            if (StringUtils.isNotBlank(configured) && meta.containsKey(configured)) {
                 return configured;
             }
-            if (configured != null && !configured.isBlank()) {
+            if (StringUtils.isNotBlank(configured)) {
                 log.warn("[Pocket-TTS] 配置张量名 {} 不存在于模型，尝试推断参考音频输入", configured);
             }
             // 排除已占用输入，找剩余 float 张量
@@ -640,7 +641,7 @@ public class PocketTtsTranslator {
      */
     public byte[] synthesize(String text, byte[] refAudioWav) {
         try {
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 throw new IllegalArgumentException("文本不能为空");
             }
             prepare();
@@ -998,7 +999,7 @@ public class PocketTtsTranslator {
     private String tensorName(String configKey, String def, OrtSession session,
                               boolean inputSide, boolean preferFloat) {
         String configured = configCache.get(configKey);
-        if (configured != null && !configured.isBlank()) {
+        if (StringUtils.isNotBlank(configured)) {
             try {
                 Map<String, ?> meta = inputSide ? session.getInputInfo() : session.getOutputInfo();
                 if (meta.containsKey(configured)) {

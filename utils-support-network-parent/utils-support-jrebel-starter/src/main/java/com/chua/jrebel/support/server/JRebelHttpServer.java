@@ -19,6 +19,7 @@ import com.sun.net.httpserver.HttpExchange;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * jrebel 许可证 HTTP 服务器。
@@ -105,7 +106,7 @@ import java.util.UUID;
         boolean offline = getBoolean(params, "offline", getBoolean(params, "offline1", true));
         long clientRandomness = getLong(params, "clientRandomness", System.currentTimeMillis());
 
-        if (guid == null || guid.isEmpty()) {
+        if (StringUtils.isEmpty(guid)) {
             guid = licenseService.generateGuid(username);
         }
 
@@ -196,7 +197,7 @@ import java.util.UUID;
         String salt = request.getParam("salt");
         String username = request.getParam("userName");
 
-        if (salt == null || salt.isEmpty()) {
+        if (StringUtils.isEmpty(salt)) {
             salt = UUID.randomUUID().toString();
         }
 
@@ -327,7 +328,7 @@ licenseType=0
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseBody(String body) {
-        if (body == null || body.isEmpty()) {
+        if (StringUtils.isEmpty(body)) {
             return Map.of();
         }
         try {

@@ -9,6 +9,7 @@ import com.chua.datasource.support.meta.AbstractMetaForeignKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 外键元数据操作。
@@ -185,7 +186,7 @@ public class PostgresqlMetaForeignKey extends AbstractMetaForeignKey {
      * @return 动作文本，无法识别时返回 {@code null}
      */
     private static String referenceAction(String code, String element) {
-        if (code == null || code.isEmpty()) {
+        if (StringUtils.isEmpty(code)) {
             return null;
         }
         return switch (code.charAt(0)) {

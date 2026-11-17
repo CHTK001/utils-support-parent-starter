@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 删除 SQL 信息记录，包含构建删除语句所需的所有结构化数据。
@@ -42,6 +43,6 @@ public record DeleteSql<T>(
      * @return 如果存在 WHERE 子句则返回 true，否则返回 false
      */
     public boolean hasWhere() {
-        return whereClause != null && !whereClause.isEmpty();
+        return StringUtils.isNotEmpty(whereClause);
     }
 }

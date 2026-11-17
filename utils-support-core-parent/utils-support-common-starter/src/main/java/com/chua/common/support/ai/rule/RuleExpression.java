@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 规则条件表达式：把表达式文本编译为可对 {@link RuleContext} 求值的条件。
@@ -97,7 +98,7 @@ public final class RuleExpression {
      * @throws RuleException 表达式为空或语法错误时
      */
     public static RuleExpression of(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             throw new RuleException("表达式不能为 null 或空白");
         }
         Map<String, String> paths = Wraps.map();

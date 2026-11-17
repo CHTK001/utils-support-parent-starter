@@ -8,6 +8,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 数据湖-启动 提供的查询 API 客户端。
@@ -65,7 +66,7 @@ public class DatalakeHttpClient {
      * @throws Exception 异常
      */
     public String query(String sdl) throws Exception {
-        if (sdl == null || sdl.isEmpty()) {
+        if (StringUtils.isEmpty(sdl)) {
             throw new IllegalArgumentException("查询语句不能为空");
         }
         HttpRequest request = HttpRequest.newBuilder()

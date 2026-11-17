@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AStudio (acode) 用量解析器。
@@ -23,7 +24,7 @@ public class AcodeUsageParser extends AbstractCodexForkRolloutUsageParser {
     */
     public AcodeUsageParser() {
         String home = System.getenv("TOKENTRACKER_ACODE_HOME");
-        Path root = (home != null && !home.isBlank())
+        Path root = (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".acode");
         this.sessionsRoot = root;

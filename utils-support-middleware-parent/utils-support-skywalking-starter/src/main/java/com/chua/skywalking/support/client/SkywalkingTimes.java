@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SkyWalking 时间格式工具。
@@ -84,7 +85,7 @@ public final class SkywalkingTimes {
      * @return 规范化步长
      */
     public static String normalizeStep(String step, long start, long end) {
-        if (step != null && !step.isBlank()) {
+        if (StringUtils.isNotBlank(step)) {
             String upper = step.trim().toUpperCase(Locale.ROOT);
             return switch (upper) {
                 case STEP_SECOND, STEP_MINUTE, STEP_HOUR, STEP_DAY -> upper;
@@ -157,7 +158,7 @@ public final class SkywalkingTimes {
      * @return 毫秒时间戳，失败返回 0
      */
     public static long parse(String text, String step) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return 0L;
         }
         String value = text.trim();
@@ -246,7 +247,7 @@ public final class SkywalkingTimes {
      * @return 毫秒；无法识别返回 0
      */
     public static long stepMillis(String step) {
-        if (step == null || step.isBlank()) {
+        if (StringUtils.isBlank(step)) {
             return 0L;
         }
         return switch (step.trim().toUpperCase(Locale.ROOT)) {

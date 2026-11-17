@@ -4,6 +4,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Comparator;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 成本路由策略 — 根据输入复杂度选择最经济的模型。
@@ -57,7 +58,7 @@ public class CostRouterStrategy implements RouterStrategy {
      * @return 结果数值
      */
     private int evaluateComplexity(String prompt) {
-        if (prompt == null || prompt.isEmpty()) {
+        if (StringUtils.isEmpty(prompt)) {
             return 0;
         }
         int len = prompt.length();

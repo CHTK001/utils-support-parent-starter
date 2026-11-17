@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Laya AI 决策规则构造器。
@@ -152,7 +153,7 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     @Override
     public AiRuleBuilder id(String id) {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("id 不能为 null 或空白");
         }
         if (this.id != null && !this.id.equals(id)) {
@@ -168,7 +169,7 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     @Override
     public AiRuleBuilder name(String name) {
         requireUsable();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         this.name = name;
@@ -226,7 +227,7 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     @Override
     public AiRuleBuilder var(String name, Object value) {
         requireUsable();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new NullPointerException("变量名不能为 null 或空白");
         }
         variables.put(name, value);
@@ -315,7 +316,7 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     @Override
     public AiRule build() {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new RuleException("规则标识未指定，请先调用 id(String)");
         }
         if (queries.isEmpty()) {

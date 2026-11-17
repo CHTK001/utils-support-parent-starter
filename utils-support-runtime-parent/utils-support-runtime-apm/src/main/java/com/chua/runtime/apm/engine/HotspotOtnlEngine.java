@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 自研 hotspot agent 的 {@link OtnlEngine} 实现（SPI 名 {@code hotspot}）。
@@ -144,7 +145,7 @@ public class HotspotOtnlEngine implements OtnlEngine {
         grouped.forEach((traceId, group) -> {
             TraceHandler.Span root = root(group);
             String endpoint = root == null ? endpoint(group.get(0)) : endpoint(root);
-            if (endpointFilter != null && !endpointFilter.isBlank() && !endpointFilter.equals(endpoint)) {
+            if (StringUtils.isNotBlank(endpointFilter) && !endpointFilter.equals(endpoint)) {
                 return;
             }
             boolean error = group.stream().anyMatch(HotspotOtnlEngine::isError);
@@ -165,7 +166,7 @@ public class HotspotOtnlEngine implements OtnlEngine {
 
     @Override
     public OtnlTrace trace(String traceId) {
-        if (traceId == null || traceId.isBlank()) {
+        if (StringUtils.isBlank(traceId)) {
             return null;
         }
         List<TraceHandler.Span> group = new ArrayList<>();
@@ -208,7 +209,7 @@ public class HotspotOtnlEngine implements OtnlEngine {
             }
             List<OtnlSpan.OtnlSpanLog> logs = new ArrayList<>();
             String errorMessage = span.getException() == null ? span.getErrorMessage() : span.getException();
-            if (errorMessage != null && !errorMessage.isBlank()) {
+            if (StringUtils.isNotBlank(errorMessage)) {
                 logs.add(new OtnlSpan.OtnlSpanLog(span.getEndTime(),
                         List.of(OtnlTag.of("event", "error"), OtnlTag.of("message", errorMessage))));
             }
@@ -320,11 +321,11 @@ public class HotspotOtnlEngine implements OtnlEngine {
      */
     private static String serviceName() {
         String fromProperty = System.getProperty("spring.application.name");
-        if (fromProperty != null && !fromProperty.isBlank()) {
+        if (StringUtils.isNotBlank(fromProperty)) {
             return fromProperty;
         }
         String fromEnv = System.getenv("SPRING_APPLICATION_NAME");
-        if (fromEnv != null && !fromEnv.isBlank()) {
+        if (StringUtils.isNotBlank(fromEnv)) {
             return fromEnv;
         }
         return "local-java-service";

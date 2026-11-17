@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 记忆管理器
@@ -146,7 +147,7 @@ public class MemoryManager implements AutoCloseable {
      * @param agentId      Agent 标识
      */
     public void saveFromConversation(String conversation, String sessionId, String agentId) {
-        if (conversation == null || conversation.isBlank()) {
+        if (StringUtils.isBlank(conversation)) {
             return;
         }
         if (config.isAutoSummarize() && config.getSummarizerClient() != null) {
@@ -347,7 +348,7 @@ public class MemoryManager implements AutoCloseable {
      * @return 结果字符串
      */
     private String extractJson(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return "{}";
         }
         // 尝试直接解析整段文本

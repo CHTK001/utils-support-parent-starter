@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 飞桨 情感分析 Senta Translator。
@@ -110,7 +111,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
         List<Long> wordIds = Wraps.list();
         for (String word : input) {
             String wordId = word2IdDict.get(word);
-            wordIds.add(Long.valueOf(wordId == null || wordId.isBlank() ? unkId : wordId));
+            wordIds.add(Long.valueOf(StringUtils.isBlank(wordId) ? unkId : wordId));
         }
         lod.add((long) wordIds.size());
         return wordIds;

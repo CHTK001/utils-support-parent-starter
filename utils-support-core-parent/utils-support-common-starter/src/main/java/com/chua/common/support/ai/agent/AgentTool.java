@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 工具（function calling）定义。
@@ -63,7 +64,7 @@ public final class AgentTool {
     @Builder
     private AgentTool(String name, String description, Map<String, Object> parameters,
                       AgentToolExecutor executor) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("工具名称不能为空");
         }
         if (executor == null) {

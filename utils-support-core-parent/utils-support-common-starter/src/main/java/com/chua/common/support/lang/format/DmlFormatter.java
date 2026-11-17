@@ -3,6 +3,7 @@ package com.chua.common.support.lang.format;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DML（数据操作语言，Data Manipulation Language）格式化器。
@@ -131,7 +132,7 @@ public class DmlFormatter extends SqlFormatter {
     protected String doFormat(String source) {
         // 1. 清理输入
         String sql = normalizeSql(source);
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return sql;
         }
 
@@ -273,7 +274,7 @@ public class DmlFormatter extends SqlFormatter {
      */
     private List<String> splitByKeywords(String sql, Set<String> keywords) {
         List<String> result = Wraps.list();
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return result;
         }
 

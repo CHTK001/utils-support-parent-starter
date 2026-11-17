@@ -6,6 +6,7 @@ import com.chua.common.support.network.tcp.TcpClient;
 import com.chua.common.support.network.tcp.TcpServer;
 import lombok.Data;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * scatter 配置。
@@ -123,6 +124,6 @@ public class ScatterSetting {
      * @return 宣告地址
      */
     public String effectiveHost() {
-        return announceHost == null || announceHost.isBlank() ? host : announceHost;
+        return StringUtils.isBlank(announceHost) ? host : announceHost;
     }
 }

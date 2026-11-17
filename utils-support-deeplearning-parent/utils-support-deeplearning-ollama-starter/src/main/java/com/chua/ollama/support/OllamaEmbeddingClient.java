@@ -13,6 +13,7 @@ import io.github.ollama4j.models.response.Model;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Ollama 本地嵌入向量客户端（SPI provider="ollama"）。
@@ -201,7 +202,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
      * @return 嵌入 结果
      */
     private OllamaEmbedResult doEmbed(List<String> texts) {
-        String resolvedModel = model != null && !model.isBlank() ? model : "nomic-embed-text";
+        String resolvedModel = StringUtils.isNotBlank(model) ? model : "nomic-embed-text";
         OllamaEmbedRequest request = new OllamaEmbedRequest(resolvedModel, texts);
         if (dimensions != null) {
             request.setOptions(java.util.Map.of("dimensions", dimensions));

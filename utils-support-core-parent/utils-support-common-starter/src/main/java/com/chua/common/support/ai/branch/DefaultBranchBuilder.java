@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 分支构造器默认实现。
@@ -66,7 +67,7 @@ public final class DefaultBranchBuilder implements BranchBuilder {
     @Override
     public BranchBuilder id(String id) {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalArgumentException("id 不能为 null 或空白");
         }
         if (this.id != null && !this.id.equals(id)) {
@@ -82,7 +83,7 @@ public final class DefaultBranchBuilder implements BranchBuilder {
     @Override
     public BranchBuilder name(String name) {
         requireUsable();
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         this.name = name;
@@ -128,7 +129,7 @@ public final class DefaultBranchBuilder implements BranchBuilder {
     @Override
     public Branch build() {
         requireUsable();
-        if (id == null || id.isBlank()) {
+        if (StringUtils.isBlank(id)) {
             throw new RuleException("分支标识未指定，请先调用 id(String)");
         }
         built = true;

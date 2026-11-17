@@ -295,7 +295,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
      * @return 解析candidates的结果
      */
     private static List<String> parseCandidates(@Nullable String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return Collections.emptyList();
         }
         String[] parts = raw.split("[,\\uff0c;；\\s]+");

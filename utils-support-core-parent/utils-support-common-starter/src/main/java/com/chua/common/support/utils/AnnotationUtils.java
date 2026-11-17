@@ -9,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 注解工具类，提供注解存在性判断（含继承链 + 别名穿透）、
@@ -388,7 +389,7 @@ public class AnnotationUtils {
      * @since 4.0.0.43
      */
     public static String resolveRequestMappingAlias(String annotationClassName) {
-        if (annotationClassName == null || annotationClassName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationClassName)) {
             return annotationClassName;
         }
         ensureAliasesLoaded();

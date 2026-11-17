@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kimi 会话客户端：负责 令牌 管理、设备指纹请求头与基础 HTTP 调用。
@@ -90,7 +91,7 @@ public class KimiSession implements AutoCloseable {
      */
     public KimiSession(String appKey, String baseUrl) {
         this.rawToken = appKey == null ? "" : appKey.strip();
-        this.baseUrl = (baseUrl == null || baseUrl.isBlank()) ? KimiProtocol.BASE_URL : stripTrailingSlash(baseUrl);
+        this.baseUrl = (StringUtils.isBlank(baseUrl)) ? KimiProtocol.BASE_URL : stripTrailingSlash(baseUrl);
         this.deviceId = KimiProtocol.generateDeviceId();
         this.sessionId = KimiProtocol.generateSessionId();
 
@@ -225,7 +226,7 @@ public class KimiSession implements AutoCloseable {
         headers.put("X-Msh-Session-Id", sessionId);
         headers.put("X-Msh-Platform", "web");
         String token = getAccessToken();
-        if (token != null && !token.isEmpty()) {
+        if (StringUtils.isNotEmpty(token)) {
             headers.put("Authorization", "Bearer " + token);
         }
         return headers;

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -692,7 +693,7 @@ public abstract class AbstractEngine implements Engine {
         }
         String where = sql.whereClause();
         String setClause = sql.setClause();
-        if (setClause == null || setClause.isBlank()) {
+        if (StringUtils.isBlank(setClause)) {
             return 0;
         }
 
@@ -742,7 +743,7 @@ public abstract class AbstractEngine implements Engine {
             return 0;
         }
         String where = sql.whereClause();
-        if (where == null || where.isEmpty()) {
+        if (StringUtils.isEmpty(where)) {
             return 0;
         }
 
@@ -870,7 +871,7 @@ public abstract class AbstractEngine implements Engine {
      * @return 字面量值，无法求值返回 null
      */
     private static Object parseMemoryLiteral(String rhs) {
-        if (rhs == null || rhs.isEmpty()) {
+        if (StringUtils.isEmpty(rhs)) {
             return null;
         }
         if (rhs.length() >= 2 && rhs.charAt(0) == '\'' && rhs.charAt(rhs.length() - 1) == '\'') {

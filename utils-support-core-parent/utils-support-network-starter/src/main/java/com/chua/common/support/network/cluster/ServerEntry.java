@@ -3,6 +3,7 @@ package com.chua.common.support.network.cluster;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 集群服务元数据（壳类）：仅记录路径/地址/协议信息，不承载任何网络 IO。
@@ -73,16 +74,16 @@ public class ServerEntry {
      * @throws IllegalArgumentException 参数非法时抛出
      */
     public void validate() {
-        if (servicePath == null || servicePath.isBlank()) {
+        if (StringUtils.isBlank(servicePath)) {
             throw new IllegalArgumentException("servicePath 不能为空");
         }
-        if (host == null || host.isBlank()) {
+        if (StringUtils.isBlank(host)) {
             throw new IllegalArgumentException("host 不能为空");
         }
         if (port <= 0) {
             throw new IllegalArgumentException("port 必须 > 0, got: " + port);
         }
-        String proto = protocol == null || protocol.isBlank() ? "http" : protocol.toLowerCase();
+        String proto = StringUtils.isBlank(protocol) ? "http" : protocol.toLowerCase();
         if (!"http".equals(proto) && !"tcp".equals(proto) && !"udp".equals(proto)) {
             throw new IllegalArgumentException("protocol 仅支持 http/tcp/udp, got: " + protocol);
         }
@@ -93,6 +94,6 @@ public class ServerEntry {
      * @return normalized协议的结果
      */
     public String normalizedProtocol() {
-        return protocol == null || protocol.isBlank() ? "http" : protocol.toLowerCase();
+        return StringUtils.isBlank(protocol) ? "http" : protocol.toLowerCase();
     }
 }

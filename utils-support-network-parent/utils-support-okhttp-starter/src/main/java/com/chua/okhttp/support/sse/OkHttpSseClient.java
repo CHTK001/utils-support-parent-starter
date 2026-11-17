@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 OkHttp3 的 SSE 客户端实现
@@ -87,7 +88,7 @@ public class OkHttpSseClient implements SseClient {
             // 设置请求体和 HTTP 方法
             RequestBody body = null;
             String requestBody = request.getBody();
-            if (requestBody != null && !requestBody.isEmpty()) {
+            if (StringUtils.isNotEmpty(requestBody)) {
                 body = RequestBody.create(requestBody, MediaType.parse("application/json; charset=utf-8"));
             }
             builder.method(request.getMethod().name(), body);

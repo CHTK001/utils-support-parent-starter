@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark 命令行工具的设置项：键名、默认值与三级配置查找。
@@ -359,7 +360,7 @@ public final class TsharkSettings {
      * @return 为空返回 true
      */
     private static boolean isBlank(@Nullable String text) {
-        return text == null || text.isBlank();
+        return StringUtils.isBlank(text);
     }
 
     /**

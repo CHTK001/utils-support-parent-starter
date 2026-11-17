@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 智谱 cogview 图片生成客户端
@@ -167,7 +168,7 @@ public class ZhipuImageClient implements ImageClient {
     @Override
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "cogview-3";
@@ -177,10 +178,10 @@ public BufferedImage generate(String prompt) {
                 .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
                 .append("\",\"n\":1")
                 .append(",\"size\":\"").append(sizeStr).append("\"");
-        if (quality != null && !quality.isBlank()) {
+        if (StringUtils.isNotBlank(quality)) {
             bodyBuilder.append(",\"quality\":\"").append(quality).append("\"");
         }
-        if (style != null && !style.isBlank()) {
+        if (StringUtils.isNotBlank(style)) {
             bodyBuilder.append(",\"style\":\"").append(style).append("\"");
         }
         bodyBuilder.append("}");
@@ -219,7 +220,7 @@ public BufferedImage generate(String prompt) {
             throw new RuntimeException("智谱 CogView 返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");
-        if (imageUrl == null || imageUrl.isBlank()) {
+        if (StringUtils.isBlank(imageUrl)) {
             throw new RuntimeException("智谱 CogView 返回的图片 URL 为空");
         }
         ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
@@ -279,7 +280,7 @@ public BufferedImage generate(String prompt) {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

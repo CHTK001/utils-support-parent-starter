@@ -10,6 +10,7 @@ import com.chua.datasource.support.meta.AbstractMetaView;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 视图元数据操作。
@@ -287,7 +288,7 @@ public class MysqlMetaView extends AbstractMetaView {
          */
         @Override
         public ViewDef execute() {
-            if (definition == null || definition.isEmpty()) {
+            if (StringUtils.isEmpty(definition)) {
                 throw new IllegalStateException("视图定义不能为空");
             }
             StringBuilder sb = new StringBuilder(orReplace ? "CREATE OR REPLACE VIEW " : "CREATE VIEW ")
@@ -369,17 +370,17 @@ public class MysqlMetaView extends AbstractMetaView {
             if (metaView.viewName == null) {
                 throw new IllegalStateException("未指定视图名，请先调用 meta().view(String)");
             }
-            if ((definition == null || definition.isEmpty()) && (newName == null || newName.isEmpty())) {
+            if ((StringUtils.isEmpty(definition)) && (StringUtils.isEmpty(newName))) {
                 throw new IllegalStateException("没有需要执行的变更");
             }
             String target = metaView.viewName;
-            if (newName != null && !newName.isEmpty()) {
+            if (StringUtils.isNotEmpty(newName)) {
                 MysqlMetaData.execute(metaView.engine, "重命名视图 " + target,
                         "RENAME TABLE " + metaView.quote(target) + " TO " + metaView.quote(newName), List.of());
                 target = newName;
                 metaView.viewName = newName;
             }
-            if (definition != null && !definition.isEmpty()) {
+            if (StringUtils.isNotEmpty(definition)) {
                 StringBuilder sb = new StringBuilder("CREATE OR REPLACE VIEW ")
                         .append(metaView.quote(target)).append(" AS ").append(definition);
                 String clause = checkOptionClause(checkOption);

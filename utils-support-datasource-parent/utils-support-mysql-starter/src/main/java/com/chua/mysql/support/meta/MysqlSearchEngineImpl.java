@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 搜索引擎实现，把「索引」映射到表上的 FULLTEXT 索引。
@@ -232,7 +233,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
         if (columns == null || columns.isEmpty()) {
             throw new IllegalArgumentException("MATCH AGAINST 至少需要一列");
         }
-        if (keyword == null || keyword.isEmpty()) {
+        if (StringUtils.isEmpty(keyword)) {
             throw new IllegalArgumentException("MATCH AGAINST 检索词不能为空");
         }
         StringBuilder cols = new StringBuilder();

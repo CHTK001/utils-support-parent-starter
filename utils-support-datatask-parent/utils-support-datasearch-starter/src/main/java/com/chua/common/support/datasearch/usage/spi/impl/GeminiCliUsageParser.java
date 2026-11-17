@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Gemini CLI usage parser.
@@ -118,7 +119,7 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     */
     private String readSessionId(java.io.BufferedReader reader) throws IOException {
         String first = reader.readLine();
-        if (first == null || first.isBlank()) {
+        if (StringUtils.isBlank(first)) {
             return "";
         }
         try {

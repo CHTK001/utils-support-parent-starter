@@ -9,6 +9,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sqlite 嵌入式数据库引擎。
@@ -143,7 +144,7 @@ public class SqliteEngine extends JdbcEngine {
      * @return 可拼入 jdbc url 的路径
      */
     private static String toUrlPath(String name, String filePath) {
-        if (filePath == null || filePath.isBlank()) {
+        if (StringUtils.isBlank(filePath)) {
             throw new IllegalArgumentException("sqlite 数据库路径不能为空, 数据源: " + name);
         }
         if (!":memory:".equals(filePath)) {

@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 大模型对话客户端
@@ -593,12 +594,12 @@ public class OpenAiChatClient implements ChatClient {
             actualSystem = SkillPrompt.inject(system, skillManager);
         }
         // 调用方解析好的技能正文块：内部并入 system，无需调用方手动拼接
-        if (skillPromptBlock != null && !skillPromptBlock.isEmpty()) {
-            actualSystem = actualSystem == null || actualSystem.isEmpty()
+        if (StringUtils.isNotEmpty(skillPromptBlock)) {
+            actualSystem = StringUtils.isEmpty(actualSystem)
                     ? skillPromptBlock
                     : actualSystem + "\n\n" + skillPromptBlock;
         }
-        if (actualSystem != null && !actualSystem.isEmpty()) {
+        if (StringUtils.isNotEmpty(actualSystem)) {
             paramsBuilder.addSystemMessage(actualSystem);
         }
 
@@ -641,7 +642,7 @@ public class OpenAiChatClient implements ChatClient {
         }
 
         // 添加当前用户输入
-        if (prompt != null && !prompt.isEmpty()) {
+        if (StringUtils.isNotEmpty(prompt)) {
             paramsBuilder.addUserMessage(prompt);
         }
 
@@ -660,7 +661,7 @@ public class OpenAiChatClient implements ChatClient {
         }
 
         // 工具选择策略（tool_choice）
-        if (toolChoice != null && !toolChoice.isBlank()) {
+        if (StringUtils.isNotBlank(toolChoice)) {
             ChatCompletionToolChoiceOption choice = toToolChoice(toolChoice);
             if (choice != null) {
                 paramsBuilder.toolChoice(choice);
@@ -736,7 +737,7 @@ public class OpenAiChatClient implements ChatClient {
 
             // 配置 HTTP 代理
             String proxyStr = setting.getProxy();
-            if (proxyStr != null && !proxyStr.isBlank()) {
+            if (StringUtils.isNotBlank(proxyStr)) {
                 clientBuilder.proxy(resolveProxy(proxyStr));
             }
             // 配置自定义请求头（认证头由上面统一处理，同名键跳过以免重复）
@@ -998,7 +999,7 @@ public class OpenAiChatClient implements ChatClient {
      * @return OpenAI 工具选择对象，无法识别时返回 空
      */
     private static ChatCompletionToolChoiceOption toToolChoice(String toolChoice) {
-        if (toolChoice == null || toolChoice.isBlank()) {
+        if (StringUtils.isBlank(toolChoice)) {
             return null;
         }
         String value = toolChoice.trim().toLowerCase();
@@ -1040,7 +1041,7 @@ public class OpenAiChatClient implements ChatClient {
      * @param responseFormat 响应格式取值
      */
     private static void applyResponseFormat(ChatCompletionCreateParams.Builder builder, String responseFormat) {
-        if (responseFormat == null || responseFormat.isBlank()) {
+        if (StringUtils.isBlank(responseFormat)) {
             return;
         }
         String value = responseFormat.trim().toLowerCase();
@@ -1102,7 +1103,7 @@ public class OpenAiChatClient implements ChatClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = defaultBaseUrlForProvider();
         }
         if (url.endsWith("/")) {
@@ -1134,7 +1135,7 @@ public class OpenAiChatClient implements ChatClient {
      * @return Proxy 对象，解析失败时返回 空
      */
     private static Proxy resolveProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return null;
         }
         Proxy.Type proxyType;

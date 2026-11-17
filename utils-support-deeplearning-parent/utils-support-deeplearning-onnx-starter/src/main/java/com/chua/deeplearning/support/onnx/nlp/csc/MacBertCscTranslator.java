@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * macbert4csc 中文拼写纠错翻译器（BERT MLM：逐位置 argmax + 置信度阈值逐字替换）。
@@ -131,7 +132,7 @@ public class MacBertCscTranslator implements ITranslator<String, String>, AutoCl
      * @param path 模型文件路径
      */
     public void setModelPath(String path) {
-        if (path != null && !path.isBlank()) {
+        if (StringUtils.isNotBlank(path)) {
             this.injectedPath = path.trim();
         }
     }
@@ -263,7 +264,7 @@ public class MacBertCscTranslator implements ITranslator<String, String>, AutoCl
 
     @Override
     public synchronized String translate(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return text;
         }
         try {
@@ -291,7 +292,7 @@ public class MacBertCscTranslator implements ITranslator<String, String>, AutoCl
      */
     private static float threshold() {
         String value = System.getProperty(THRESHOLD_PROPERTY);
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return DEFAULT_THRESHOLD;
         }
         try {

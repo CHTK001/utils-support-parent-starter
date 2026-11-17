@@ -4,6 +4,7 @@ package com.chua.common.support.datasearch.location.spi;
 import com.chua.common.support.datasearch.location.model.LocationInfo;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IP 定位提供者 SPI 接口。
@@ -56,7 +57,7 @@ public interface LocationProvider {
         if (headers != null) {
             for (String key : new String[]{"X-Forwarded-For", "X-Real-IP", "Proxy-Client-IP", "WL-Proxy-Client-IP"}) {
                 String value = firstHeader(headers, key);
-                if (value != null && !value.isBlank()) {
+                if (StringUtils.isNotBlank(value)) {
                     String ip = value.split(",")[0].trim();
                     if (!ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
                         return ip;

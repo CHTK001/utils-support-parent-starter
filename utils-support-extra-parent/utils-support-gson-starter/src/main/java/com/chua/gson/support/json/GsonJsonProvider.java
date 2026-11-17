@@ -45,6 +45,7 @@ import static com.chua.common.support.constant.DateFormatConstant.HH_MM_SS;
 import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD;
 import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD_HH_MM_SS;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Gson 的 JSON 实现。
@@ -137,7 +138,7 @@ public class GsonJsonProvider implements JsonProvider {
                     return null;
                 }
                 String value = in.nextString();
-                if (value == null || value.isEmpty()) {
+                if (StringUtils.isEmpty(value)) {
                     return null;
                 }
                 return (T) formatter.parse(value);

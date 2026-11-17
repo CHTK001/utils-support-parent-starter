@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * opencode server HTTP 客户端。
@@ -228,7 +229,7 @@ public final class OpencodeHttpClient {
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             ensureSuccess(request, response.statusCode(), response.body());
             String body = response.body();
-            if (body == null || body.isBlank()) {
+            if (StringUtils.isBlank(body)) {
                 return MAPPER.createObjectNode();
             }
             return MAPPER.readTree(body);
@@ -317,10 +318,10 @@ public final class OpencodeHttpClient {
      * @return 头值；密码为空返回 null
      */
     private static String buildAuthorization(String username, String password) {
-        if (password == null || password.isBlank()) {
+        if (StringUtils.isBlank(password)) {
             return null;
         }
-        String user = (username == null || username.isBlank()) ? DEFAULT_USERNAME : username.trim();
+        String user = (StringUtils.isBlank(username)) ? DEFAULT_USERNAME : username.trim();
         String raw = user + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
     }
@@ -332,7 +333,7 @@ public final class OpencodeHttpClient {
      * @return 规范化结果
      */
     private static String normalizeBaseUrl(String baseUrl) {
-        if (baseUrl == null || baseUrl.isBlank()) {
+        if (StringUtils.isBlank(baseUrl)) {
             throw new IllegalArgumentException("opencode baseUrl 不能为空");
         }
         String value = baseUrl.trim();
@@ -349,7 +350,7 @@ public final class OpencodeHttpClient {
      * @return 是否可安全放入请求头
      */
     private static boolean isHeaderSafe(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return false;
         }
         for (int i = 0; i < value.length(); i++) {

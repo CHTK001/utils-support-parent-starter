@@ -12,6 +12,7 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用文件下载器 — 链式 API，支持并发分片、断点续传、MD5 校验、限速、代理、自动解压。
@@ -363,7 +364,7 @@ public class Downloader {
         DownloadResult result = service.execute(config);
 
         // MD5 校验（aria2c 内部已校验，若非 force 且文件存在则跳过重复校验）
-        if (!skipMd5Check && expectedMd5 != null && !expectedMd5.isBlank() && !result.isSkipped()) {
+        if (!skipMd5Check && StringUtils.isNotBlank(expectedMd5) && !result.isSkipped()) {
             String actualMd5 = DownloadUtils.computeMd5(targetFile);
             if (!expectedMd5.equalsIgnoreCase(actualMd5)) {
                 Files.deleteIfExists(targetFile);
@@ -396,7 +397,7 @@ public class Downloader {
      * @throws DownloadException 当 URL 为空时
      */
     private void validate() throws DownloadException {
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             throw new DownloadException("URL 不能为空");
         }
         if (targetDir == null) {

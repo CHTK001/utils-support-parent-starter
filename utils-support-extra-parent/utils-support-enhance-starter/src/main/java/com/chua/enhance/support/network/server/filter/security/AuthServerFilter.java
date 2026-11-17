@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 认证过滤器，验证请求是否携带有效的认证凭证。
@@ -53,7 +54,7 @@ public class AuthServerFilter implements ServerFilter {
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         String header = config.getInitParameter("auth.header");
-        if (header != null && !header.isEmpty()) {
+        if (StringUtils.isNotEmpty(header)) {
             this.authHeader = header;
         }
         String tokens = config.getInitParameter("auth.tokens");
@@ -94,7 +95,7 @@ public class AuthServerFilter implements ServerFilter {
             return;
         }
         String token = request.getHeader(authHeader);
-        if (token == null || token.isEmpty()) {
+        if (StringUtils.isEmpty(token)) {
             response.end(401, "{\"error\":\"Unauthorized\",\"message\":\"缺少认证凭证\"}");
             return;
         }

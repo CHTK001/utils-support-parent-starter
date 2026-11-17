@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sensevoice-small ONNX 推理器（音频文件 → 转写文本，支持中/英/日/韩/粤）。
@@ -281,7 +282,7 @@ public class SenseVoiceTranslator {
      */
     private static int intOrDefault(Map<String, String> meta, String key, int def) {
         String v = meta.get(key);
-        if (v == null || v.isBlank()) {
+        if (StringUtils.isBlank(v)) {
             return def;
         }
         try {
@@ -439,7 +440,7 @@ public class SenseVoiceTranslator {
      * @return resolveLanguage的结果
      */
     private int resolveLanguage(String language) {
-        if (language != null && !language.isBlank()) {
+        if (StringUtils.isNotBlank(language)) {
             Integer id = langIds.get(language.trim().toLowerCase());
             if (id != null) {
                 return id;

@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * LAC 中文分词/词性标注/NER（ORT 原生 + numpy 风格 Viterbi）。
@@ -325,7 +326,7 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
      */
     @Override
     public String[][] translate(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return new String[0][0];
         }
         try {

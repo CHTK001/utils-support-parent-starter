@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 聚合 ChatClient 配置（JSON 格式）
@@ -413,7 +414,7 @@ public class AggregateChatClientSetting {
          * @return Date 对象，未设置返回 null
          */
         public Date getExpireTime() {
-            if (expireTime == null || expireTime.isBlank()) {
+            if (StringUtils.isBlank(expireTime)) {
                 return null;
             }
             try {

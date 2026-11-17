@@ -2,6 +2,7 @@
 package com.chua.common.support.ai.chat;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 认证头解析工具
@@ -140,7 +141,7 @@ public final class AuthHeaders {
         if (isNone(authScheme)) {
             return null;
         }
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (StringUtils.isEmpty(apiKey)) {
             return null;
         }
         return Map.entry(headerName(authHeader), headerValue(apiKey, authHeader, authPrefix));

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * InfluxDB 中间件管理面 SPI 实现（v2 与 v3）。
@@ -159,7 +160,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：buckets / measurements / flux <语句> / sql <语句>");
         }
         String cmd = expression.trim();
@@ -272,7 +273,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(baseUrl(request) + path))
                 .timeout(HTTP_TIMEOUT);
         String token = request.password();
-        if (token != null && !token.isBlank()) {
+        if (StringUtils.isNotBlank(token)) {
             b.header("Authorization", "Token " + token);
         }
         if (body != null) {
@@ -352,7 +353,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
      * @return 返回值
     */
     private MiddlewareQueryResult parseCsv(String csv) {
-        if (csv == null || csv.isBlank()) {
+        if (StringUtils.isBlank(csv)) {
             return MiddlewareQueryResult.empty();
         }
         String[] lines = csv.split("\n");
@@ -427,7 +428,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
      * @return 返回值
     */
     private MiddlewareQueryResult parseJsonRows(String json) {
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             return MiddlewareQueryResult.empty();
         }
         // v3 的 json 格式是每行一个 JSON 对象

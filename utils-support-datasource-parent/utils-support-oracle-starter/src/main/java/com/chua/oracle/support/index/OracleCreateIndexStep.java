@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Oracle 创建索引链式步骤实现。
@@ -104,7 +105,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
          * @throws IllegalArgumentException 类型名不在白名单内
          */
         public static OracleIndexKind of(String value) {
-            if (value == null || value.isBlank()) {
+            if (StringUtils.isBlank(value)) {
                 return NORMAL;
             }
             String name = value.trim().toUpperCase(Locale.ROOT);
@@ -202,7 +203,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
      */
     @Override
     public OracleCreateIndexStep onColumn(String column) {
-        if (column == null || column.isBlank()) {
+        if (StringUtils.isBlank(column)) {
             throw new IllegalArgumentException("列名不能为空, 索引名: " + indexName);
         }
         List<String> parsed = Wraps.list();

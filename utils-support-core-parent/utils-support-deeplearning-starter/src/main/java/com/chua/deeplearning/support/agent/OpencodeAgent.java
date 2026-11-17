@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于外部 {@code opencode} CLI 的 Agent 实现（SINGLE 模式）。
@@ -284,7 +285,7 @@ public class OpencodeAgent implements Agent {
      */
     @Override
     public OpencodeAgent sessionId(String sessionId) {
-        this.sessionId = (sessionId == null || sessionId.isBlank()) ? null : sessionId.trim();
+        this.sessionId = (StringUtils.isBlank(sessionId)) ? null : sessionId.trim();
         return this;
     }
 
@@ -312,7 +313,7 @@ public class OpencodeAgent implements Agent {
      */
     @Override
     public OpencodeAgent workspace(String workspace) {
-        this.workDir = (workspace == null || workspace.isBlank()) ? null : Paths.get(workspace.trim());
+        this.workDir = (StringUtils.isBlank(workspace)) ? null : Paths.get(workspace.trim());
         return this;
     }
 
@@ -354,7 +355,7 @@ public class OpencodeAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeAgent agentName(String agentName) {
-        this.agentName = (agentName == null || agentName.isBlank()) ? null : agentName.trim();
+        this.agentName = (StringUtils.isBlank(agentName)) ? null : agentName.trim();
         return this;
     }
 
@@ -375,7 +376,7 @@ public class OpencodeAgent implements Agent {
         }
         String derived = deriveModel(chatClient);
         if (derived != null) {
-            if (this.model == null || this.model.isBlank()) {
+            if (StringUtils.isBlank(this.model)) {
                 this.model = derived;
             }
         } else {
@@ -686,7 +687,7 @@ public class OpencodeAgent implements Agent {
                         }
                     });
                     String output = response != null ? response.getOutput() : null;
-                    if (output != null && !output.isEmpty()) {
+                    if (StringUtils.isNotEmpty(output)) {
                         sink.next(AgentStreamEvent.trace(AgentTrace.of(
                                 AgentTrace.KIND_TEXT, agentId(), null, output)));
                     }
@@ -719,7 +720,7 @@ public class OpencodeAgent implements Agent {
                     "OpencodeAgent 仅支持 SINGLE 模式，当前为 " + mode
                             + "（opencode 是外部自治 agent，无法委派本框架的 subAgent/ChatClient）");
         }
-        if (input == null || input.isBlank()) {
+        if (StringUtils.isBlank(input)) {
             throw new IllegalArgumentException("输入为空");
         }
         ensureShellAllowed();
@@ -1005,11 +1006,11 @@ public class OpencodeAgent implements Agent {
         a.add(input);
         a.add("--format");
         a.add("json");
-        if (model != null && !model.isBlank()) {
+        if (StringUtils.isNotBlank(model)) {
             a.add("-m");
             a.add(model);
         }
-        if (sessionId != null && !sessionId.isBlank()) {
+        if (StringUtils.isNotBlank(sessionId)) {
             a.add("-s");
             a.add(sessionId);
         }
@@ -1017,7 +1018,7 @@ public class OpencodeAgent implements Agent {
             a.add("--dir");
             a.add(workDir.toAbsolutePath().toString());
         }
-        if (agentName != null && !agentName.isBlank()) {
+        if (StringUtils.isNotBlank(agentName)) {
             a.add("--agent");
             a.add(agentName);
         }
@@ -1045,10 +1046,10 @@ public class OpencodeAgent implements Agent {
     private static String deriveModel(ChatClient cc) {
         ChatClientSetting s = cc.getSetting();
         String m = cc.getModel();
-        if (m == null || m.isBlank()) {
+        if (StringUtils.isBlank(m)) {
             m = s != null ? s.getModel() : null;
         }
-        if (m == null || m.isBlank()) {
+        if (StringUtils.isBlank(m)) {
             return null;
         }
         m = m.trim();
@@ -1056,7 +1057,7 @@ public class OpencodeAgent implements Agent {
             return m;
         }
         String provider = s != null ? s.getProvider() : null;
-        return (provider != null && !provider.isBlank()) ? provider.trim() + "/" + m : m;
+        return (StringUtils.isNotBlank(provider)) ? provider.trim() + "/" + m : m;
     }
 
     /**
@@ -1220,7 +1221,7 @@ public class OpencodeAgent implements Agent {
         }
         String prompt = definition.getSystemPrompt() != null
                 ? definition.getSystemPrompt() : definition.getInstruction();
-        if (prompt == null || prompt.isBlank()) {
+        if (StringUtils.isBlank(prompt)) {
             return;
         }
         if (workDir == null) {
@@ -1260,7 +1261,7 @@ public class OpencodeAgent implements Agent {
                 .append("  \"agent\": {\n")
                 .append("    \"").append(escapeJson(id)).append("\": {\n")
                 .append("      \"mode\": \"primary\"");
-        if (description != null && !description.isBlank()) {
+        if (StringUtils.isNotBlank(description)) {
             sb.append(",\n      \"description\": \"").append(escapeJson(description)).append('"');
         }
         sb.append(",\n      \"prompt\": \"").append(escapeJson(prompt)).append("\"\n")

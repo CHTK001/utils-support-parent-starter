@@ -2,6 +2,7 @@
 package com.chua.common.support.network.filepush;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 /**
  * 目录推送（文件同步）配置。
  *
@@ -244,51 +245,51 @@ public class FilePushConfig {
      */
     public static FilePushConfig loadFromSystemProperties(FilePushConfig config) {
         String sourceDir = System.getProperty("filepush.source-dir");
-        if (sourceDir != null && !sourceDir.isBlank()) {
+        if (StringUtils.isNotBlank(sourceDir)) {
             config.setSourceDir(Path.of(sourceDir));
         }
         String targetDir = System.getProperty("filepush.target-dir");
-        if (targetDir != null && !targetDir.isBlank()) {
+        if (StringUtils.isNotBlank(targetDir)) {
             config.setTargetDir(Path.of(targetDir));
         }
         String host = System.getProperty("filepush.host");
-        if (host != null && !host.isBlank()) {
+        if (StringUtils.isNotBlank(host)) {
             config.setHost(host);
         }
         String port = System.getProperty("filepush.port");
-        if (port != null && !port.isBlank()) {
+        if (StringUtils.isNotBlank(port)) {
             config.setPort(Integer.parseInt(port.trim()));
         }
         String chunkSize = System.getProperty("filepush.chunk-size");
-        if (chunkSize != null && !chunkSize.isBlank()) {
+        if (StringUtils.isNotBlank(chunkSize)) {
             config.setChunkSize(Integer.parseInt(chunkSize.trim()));
         }
         String ioBuffer = System.getProperty("filepush.io-buffer-size");
-        if (ioBuffer != null && !ioBuffer.isBlank()) {
+        if (StringUtils.isNotBlank(ioBuffer)) {
             config.setIoBufferSize(Integer.parseInt(ioBuffer.trim()));
         }
         String filesPerConn = System.getProperty("filepush.files-per-connection");
-        if (filesPerConn != null && !filesPerConn.isBlank()) {
+        if (StringUtils.isNotBlank(filesPerConn)) {
             config.setFilesPerConnection(Integer.parseInt(filesPerConn.trim()));
         }
         String clientP = System.getProperty("filepush.client-parallelism");
-        if (clientP != null && !clientP.isBlank()) {
+        if (StringUtils.isNotBlank(clientP)) {
             config.setClientFileParallelism(Integer.parseInt(clientP.trim()));
         }
         String serverP = System.getProperty("filepush.server-parallelism");
-        if (serverP != null && !serverP.isBlank()) {
+        if (StringUtils.isNotBlank(serverP)) {
             config.setServerConnectionParallelism(Integer.parseInt(serverP.trim()));
         }
         String writeP = System.getProperty("filepush.server-write-parallelism");
-        if (writeP != null && !writeP.isBlank()) {
+        if (StringUtils.isNotBlank(writeP)) {
             config.setServerWriteParallelism(Integer.parseInt(writeP.trim()));
         }
         String cleanup = System.getProperty("filepush.cleanup");
-        if (cleanup != null && !cleanup.isBlank()) {
+        if (StringUtils.isNotBlank(cleanup)) {
             config.setCleanup(Boolean.parseBoolean(cleanup.trim()));
         }
         String incremental = System.getProperty("filepush.incremental");
-        if (incremental != null && !incremental.isBlank()) {
+        if (StringUtils.isNotBlank(incremental)) {
             config.setIncremental(Boolean.parseBoolean(incremental.trim()));
         }
         List<String> excludes = splitPatterns(System.getProperty("filepush.excludes"));
@@ -308,7 +309,7 @@ public class FilePushConfig {
      * @return 去空白后的模式列表；入参为空或无有效项时返回 null
      */
     private static List<String> splitPatterns(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return null;
         }
         List<String> list = java.util.Arrays.stream(raw.split(","))

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信原生 FFM 导出管线。
@@ -181,7 +182,7 @@ public final class WechatNativeExporter {
     private static List<SessionInfo> loadSessions(WcdbNativeBridge bridge, long handle,
                                                   DataRestoreConfig config) {
         String sessionsJson = bridge.getSessions(handle);
-        if (sessionsJson == null || sessionsJson.isBlank()) {
+        if (StringUtils.isBlank(sessionsJson)) {
             return List.of();
         }
         JsonArray rawSessions = Json.getJsonArray(sessionsJson);
@@ -196,11 +197,11 @@ public final class WechatNativeExporter {
                 continue;
             }
             String username = pickString(raw, SESSION_ID_KEYS);
-            if (username == null || username.isBlank()) {
+            if (StringUtils.isBlank(username)) {
                 continue;
             }
             String displayName = pickString(raw, SESSION_NAME_KEYS);
-            if (displayName == null || displayName.isBlank()) {
+            if (StringUtils.isBlank(displayName)) {
                 displayName = username;
             }
             if (skipGroups && WechatExportUtils.isGroupChat(username)) {
@@ -248,7 +249,7 @@ public final class WechatNativeExporter {
                 }
             }
             String messagesJson = bridge.getMessages(handle, session.username(), pageLimit, offset);
-            if (messagesJson == null || messagesJson.isBlank()) {
+            if (StringUtils.isBlank(messagesJson)) {
                 break;
             }
             JsonArray page = Json.getJsonArray(messagesJson);
@@ -300,7 +301,7 @@ public final class WechatNativeExporter {
             if (sender != null) {
                 String senderId = String.valueOf(sender);
                 String display = displayNames.get(senderId);
-                if (display != null && !display.isBlank()) {
+                if (StringUtils.isNotBlank(display)) {
                     message.put("sender_username", display);
                 }
                 if (senderId.equals(myWxid)) {
@@ -326,7 +327,7 @@ public final class WechatNativeExporter {
         try {
             JsonArray request = new JsonArray(senders);
             String responseJson = bridge.getDisplayNames(handle, request.toJSONString());
-            if (responseJson == null || responseJson.isBlank()) {
+            if (StringUtils.isBlank(responseJson)) {
                 return result;
             }
             JsonObject response = Json.getJsonObject(responseJson);
@@ -435,7 +436,7 @@ public final class WechatNativeExporter {
             throw new IllegalStateException("没有可导出的消息数据");
         }
         String tableName = config.getTargetTable();
-        if (tableName == null || tableName.isBlank()) {
+        if (StringUtils.isBlank(tableName)) {
             tableName = DEFAULT_TABLE_NAME;
         }
         File sqlFile = new File(outputDir, tableName + ".sql");

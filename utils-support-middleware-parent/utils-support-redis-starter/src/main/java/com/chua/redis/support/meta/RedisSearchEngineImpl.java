@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Redis redi搜索 搜索引擎实现。
@@ -101,7 +102,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
             }
             for (Object item : list) {
                 String name = stringValue(item);
-                if (name != null && !name.isEmpty()) {
+                if (StringUtils.isNotEmpty(name)) {
                     indexes.add(name);
                 }
             }
@@ -457,7 +458,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @throws IllegalArgumentException 取值为空、含空白/控制字符或超长
      */
     private static String token(String value, String label) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             throw new IllegalArgumentException(label + "不能为空");
         }
         String name = value.trim();
@@ -495,7 +496,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      */
     private static String firstText(Object primary, Object secondary) {
         String text = stringValue(primary);
-        return text == null || text.isEmpty() ? stringValue(secondary) : text;
+        return StringUtils.isEmpty(text) ? stringValue(secondary) : text;
     }
 
     /**
@@ -607,7 +608,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @throws IllegalArgumentException 索引名为空
      */
     private static void requireIndexName(String indexName) {
-        if (indexName == null || indexName.isBlank()) {
+        if (StringUtils.isBlank(indexName)) {
             throw new IllegalArgumentException("索引名不能为空");
         }
     }

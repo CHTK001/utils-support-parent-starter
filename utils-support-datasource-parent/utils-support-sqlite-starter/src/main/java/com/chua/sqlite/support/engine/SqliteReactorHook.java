@@ -15,6 +15,7 @@ import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQLite 真响应式 Hook — 基于 OS 原生异步 I/O（IOCP / io_uring）。
@@ -262,7 +263,7 @@ public final class SqliteReactorHook implements AutoCloseable {
      * @return SqliteChangeEvent 对象
      */
     static SqliteChangeEvent parseEvent(String json) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return null;
         }
 
@@ -283,7 +284,7 @@ public final class SqliteReactorHook implements AutoCloseable {
             default -> eventType = SqliteChangeEvent.Type.UPDATE;
         }
 
-        String safeTable = (table == null || table.isEmpty()) ? "(unknown)" : table;
+        String safeTable = (StringUtils.isEmpty(table)) ? "(unknown)" : table;
         return switch (eventType) {
             case INSERT -> SqliteChangeEvent.insert(safeTable, rowId);
             case UPDATE -> SqliteChangeEvent.update(safeTable, rowId);

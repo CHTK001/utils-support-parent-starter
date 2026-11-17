@@ -5,6 +5,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CORS 跨域过滤器。
@@ -66,7 +67,7 @@ public class CorsServerFilter implements ServerFilter {
         }
 
         String origin = request.getHeader("Origin");
-        if (origin == null || origin.isEmpty()) {
+        if (StringUtils.isEmpty(origin)) {
             chain.doFilter(request, response);
             return;
         }
@@ -86,15 +87,15 @@ public class CorsServerFilter implements ServerFilter {
             response.setHeader("Access-Control-Allow-Credentials", "true");
         }
         String allowedMethods = cors.getAllowedMethods();
-        if (allowedMethods != null && !allowedMethods.isEmpty()) {
+        if (StringUtils.isNotEmpty(allowedMethods)) {
             response.setHeader("Access-Control-Allow-Methods", allowedMethods);
         }
         String allowedHeaders = cors.getAllowedHeaders();
-        if (allowedHeaders != null && !allowedHeaders.isEmpty()) {
+        if (StringUtils.isNotEmpty(allowedHeaders)) {
             response.setHeader("Access-Control-Allow-Headers", allowedHeaders);
         }
         String exposeHeaders = cors.getExposeHeaders();
-        if (exposeHeaders != null && !exposeHeaders.isBlank()) {
+        if (StringUtils.isNotBlank(exposeHeaders)) {
             response.setHeader("Access-Control-Expose-Headers", exposeHeaders);
         }
         if (request.getMethod() == com.chua.common.support.network.http.HttpMethod.OPTIONS
@@ -114,7 +115,7 @@ public class CorsServerFilter implements ServerFilter {
      * @return true 表示允许
      */
     private boolean isOriginAllowed(String origin, String allowedOrigins) {
-        if (allowedOrigins == null || allowedOrigins.isBlank()) {
+        if (StringUtils.isBlank(allowedOrigins)) {
             return false;
         }
         if ("*".equals(allowedOrigins.trim())) {

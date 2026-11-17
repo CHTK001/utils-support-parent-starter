@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * mailnest 临时邮箱服务实现（付费）。
@@ -135,6 +136,6 @@ public class MailNestEmailProvider implements EmailProvider {
      */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);
-        return v != null && !v.isBlank() ? v : def;
+        return StringUtils.isNotBlank(v) ? v : def;
     }
 }

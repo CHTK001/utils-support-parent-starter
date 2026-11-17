@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * H2 搜索引擎元数据操作实现（H2 2.x）。
@@ -260,7 +261,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
                     continue;
                 }
                 String type = field.getType();
-                if (type != null && !type.isEmpty() && !"text".equals(type)) {
+                if (StringUtils.isNotEmpty(type) && !"text".equals(type)) {
                     unsupported.add("字段 " + field.getName() + " 的类型 " + type
                             + "（H2 索引不记录类型，类型由被索引表的列决定）");
                 }

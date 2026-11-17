@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 可执行程序包加密器（springboot fatjar / 普通 Jar）
@@ -476,7 +477,7 @@ public class JarEncryptor {
         // SpringBoot 发行包的 Main-Class 是加载器(JarLauncher)，真实主类在 Start-Class
         if (originalMain != null && originalMain.startsWith("org.springframework.boot.loader.")) {
             String startClass = attrs.getValue(START_CLASS_ATTR);
-            if (startClass != null && !startClass.isBlank()) {
+            if (StringUtils.isNotBlank(startClass)) {
                 originalMain = startClass;
             }
         }

@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kitesurf URL 渲染器。
@@ -129,7 +130,7 @@ public class KitesurfRenderer {
      * @return 响应体字节
      */
     public static byte[] fetch(RenderConfig config, String action, String url) {
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             throw new IllegalArgumentException("url 不能为空");
         }
         String base = config.getBaseUrl() == null || config.getBaseUrl().isBlank()

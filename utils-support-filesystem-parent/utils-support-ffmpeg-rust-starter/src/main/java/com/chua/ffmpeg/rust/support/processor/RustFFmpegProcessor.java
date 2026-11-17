@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于原生 Rust ffmpeg 库的 ffmpeg 处理器。
@@ -393,7 +394,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
         checkStreamAvailable();
         String json = NativeFFmpeg.getMediaInfo(input.getAbsolutePath());
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             throw new IOException("Failed to get media info for: " + input.getAbsolutePath());
         }
         return parseMediaInfo(json);

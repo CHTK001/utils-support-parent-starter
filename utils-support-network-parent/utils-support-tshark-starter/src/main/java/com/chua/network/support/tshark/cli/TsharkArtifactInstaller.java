@@ -25,6 +25,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark 制品安装器：把下载到的制品落成可执行的 tshark。
@@ -193,7 +194,7 @@ public final class TsharkArtifactInstaller {
      */
     private static void verifyChecksum(@Nonnull Path archive, @Nullable String expected)
             throws InstallException, IOException {
-        if (expected == null || expected.isBlank()) {
+        if (StringUtils.isBlank(expected)) {
             log.info("未配置 SHA-256，跳过制品校验: {}", archive.getFileName());
             return;
         }

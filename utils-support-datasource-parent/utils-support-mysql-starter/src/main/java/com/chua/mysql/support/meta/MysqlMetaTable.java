@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 表元数据操作。
@@ -863,15 +864,15 @@ public class MysqlMetaTable extends AbstractMetaTable {
             if (notNull) {
                 sb.append(" NOT NULL");
             }
-            if (defaultValue != null && !defaultValue.isEmpty()) {
+            if (StringUtils.isNotEmpty(defaultValue)) {
                 sb.append(" DEFAULT ").append(defaultValue);
             }
             if (first) {
                 sb.append(" FIRST");
-            } else if (after != null && !after.isEmpty()) {
+            } else if (StringUtils.isNotEmpty(after)) {
                 sb.append(" AFTER ").append(target.quote(after));
             }
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 sb.append(" COMMENT '").append(MysqlMetaData.escapeSql(comment)).append("'");
             }
             return sb.toString();

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 高性能管线配置管理器。
@@ -169,7 +170,7 @@ public class DefaultPipelineManager implements PipelineManager {
             return cached;
         }
         String dslJson = store.get(pipelineId);
-        if (dslJson == null || dslJson.isEmpty()) {
+        if (StringUtils.isEmpty(dslJson)) {
             return null;
         }
         try {

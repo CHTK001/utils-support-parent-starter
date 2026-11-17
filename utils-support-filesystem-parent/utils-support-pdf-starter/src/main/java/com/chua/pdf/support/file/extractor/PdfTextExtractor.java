@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PDF 文本提取器 SPI 实现，从 PDF 文档中提取纯文本内容。
@@ -97,7 +98,7 @@ public class PdfTextExtractor implements TextExtractor {
         while (current != null) {
             String sectionName = current.getTitle();
 
-            if (sectionName != null && !sectionName.isEmpty()) {
+            if (StringUtils.isNotEmpty(sectionName)) {
                 String fullPath;
 
                 if (parentSection.isEmpty()) {

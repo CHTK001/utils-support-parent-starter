@@ -305,7 +305,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             T instance = ReflectUtils.instantiate(clazz);
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnLabel(i);
-                if (columnName == null || columnName.isEmpty()) {
+                if (StringUtils.isEmpty(columnName)) {
                     columnName = metaData.getColumnName(i);
                 }
                 Object value = rs.getObject(i);
@@ -654,7 +654,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     public List<TriggerDefinition> getTriggers(String schema) {
         Dialect dialect = dialect();
         String sql = dialect != null ? dialect.getTriggerListSql(schema) : null;
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             throw new UnsupportedOperationException("当前数据库不支持获取触发器: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
@@ -681,7 +681,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     public TriggerDefinition getTrigger(String triggerName, String schema) {
         Dialect dialect = dialect();
         String sql = dialect != null ? dialect.getTriggerSql(triggerName, schema) : null;
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             throw new UnsupportedOperationException("当前数据库不支持获取触发器: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
@@ -706,7 +706,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     public List<ProcedureDefinition> getProcedures(String schema) {
         Dialect dialect = dialect();
         String sql = dialect != null ? dialect.getProcedureListSql(schema) : null;
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             throw new UnsupportedOperationException("当前数据库不支持获取存储过程: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
@@ -733,7 +733,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     public ProcedureDefinition getProcedure(String procedureName, String schema) {
         Dialect dialect = dialect();
         String sql = dialect != null ? dialect.getProcedureSql(procedureName, schema) : null;
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             throw new UnsupportedOperationException("当前数据库不支持获取存储过程: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
@@ -786,7 +786,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         def.setSchema(getString(rs, "ROUTINE_SCHEMA", "PROCEDURE_SCHEM"));
         def.setCatalog(getString(rs, "ROUTINE_CATALOG", "PROCEDURE_CAT"));
         String returnType = getString(rs, "DATA_TYPE", "RETURN_TYPE");
-        if (returnType != null && !returnType.isEmpty() && !"null".equalsIgnoreCase(returnType)) {
+        if (StringUtils.isNotEmpty(returnType) && !"null".equalsIgnoreCase(returnType)) {
             def.setReturnType(returnType);
         }
         def.setBody(getString(rs, "ROUTINE_DEFINITION", "BODY"));
@@ -882,7 +882,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return true 创建成功或已存在
      */
     public boolean createDatabase(String dbName) {
-        if (dbName == null || dbName.isBlank()) {
+        if (StringUtils.isBlank(dbName)) {
             throw new IllegalArgumentException("数据库名不能为空");
         }
         String sql = resolveCreateDatabaseSql(dbName);
@@ -946,7 +946,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @throws IllegalArgumentException 数据库名为空时抛出
      */
     public boolean dropDatabase(String dbName) {
-        if (dbName == null || dbName.isBlank()) {
+        if (StringUtils.isBlank(dbName)) {
             throw new IllegalArgumentException("数据库名不能为空");
         }
         String protocol = currentDialectProtocol();
@@ -976,7 +976,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     public boolean createTable(String tableName,
                                List<ColumnDef> columns) {
-        if (tableName == null || tableName.isBlank()) {
+        if (StringUtils.isBlank(tableName)) {
             throw new IllegalArgumentException("表名不能为空");
         }
         if (columns == null || columns.isEmpty()) {
@@ -1097,7 +1097,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return true 存在
      */
     public boolean databaseExists(String dbName) {
-        if (dbName == null || dbName.isBlank()) {
+        if (StringUtils.isBlank(dbName)) {
             return false;
         }
         String protocol = currentDialectProtocol();

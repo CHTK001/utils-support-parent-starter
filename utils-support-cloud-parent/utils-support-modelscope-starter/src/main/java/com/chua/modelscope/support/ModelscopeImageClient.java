@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型scope 图像生成客户端（SPI 提供者="modelscope"）。
@@ -211,7 +212,7 @@ public class ModelscopeImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         JsonObject body = JsonObject.create()
@@ -222,7 +223,7 @@ public class ModelscopeImageClient implements ImageClient {
         if (width != null && height != null) {
             body.fluentPut("size", width + "x" + height);
         }
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             body.fluentPut("negative_prompt", negativePrompt);
         }
         if (seed != null) {
@@ -259,7 +260,7 @@ public class ModelscopeImageClient implements ImageClient {
     @Override
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String useModel = model != null ? model : DEFAULT_MODEL;
@@ -271,7 +272,7 @@ public class ModelscopeImageClient implements ImageClient {
         if (width != null && height != null) {
             body.fluentPut("size", width + "x" + height);
         }
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             body.fluentPut("negative_prompt", negativePrompt);
         }
         if (seed != null) {
@@ -436,7 +437,7 @@ public class ModelscopeImageClient implements ImageClient {
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
-        if (appKey == null || appKey.isBlank()) {
+        if (StringUtils.isBlank(appKey)) {
             throw new IllegalStateException("ModelScope provider 需要设置 API Token（魔搭个人中心 -> 访问令牌）");
         }
         return "Bearer " + appKey;
@@ -449,7 +450,7 @@ public class ModelscopeImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = ModelscopeConstants.DEFAULT_INFERENCE_BASE_URL;
         }
         while (url.endsWith("/")) {

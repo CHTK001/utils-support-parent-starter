@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * EPUB 电子书预览提供器。
@@ -147,7 +148,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
      * @return 码点；无法识别返回 null
      */
     private static Integer decodeEntity(String entity) {
-        if (entity == null || entity.isEmpty()) {
+        if (StringUtils.isEmpty(entity)) {
             return null;
         }
         if (entity.charAt(0) == '#') {

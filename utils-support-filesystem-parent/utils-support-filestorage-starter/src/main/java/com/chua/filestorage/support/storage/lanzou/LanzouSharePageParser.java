@@ -6,6 +6,7 @@ import com.chua.common.support.lang.json.JsonObject;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 蓝奏云分享页解析器（获取下载直链）。
@@ -96,7 +97,7 @@ final class LanzouSharePageParser {
             Map<String, String> params = Wraps.linkedMap();
             params.put("action", "downprocess");
             params.put("sign", sign);
-            if (password != null && !password.isEmpty()) {
+            if (StringUtils.isNotEmpty(password)) {
                 params.put("p", password);
             }
             String resp = http.post(origin(shareBaseUrl) + "/ajaxm.php", params, shareBaseUrl);
@@ -142,7 +143,7 @@ final class LanzouSharePageParser {
         Matcher kv = KV_PATTERN.matcher(block);
         while (kv.find()) {
             String key = kv.group(1);
-            if (key == null || key.isEmpty()) {
+            if (StringUtils.isEmpty(key)) {
                 continue;
             }
             String raw = kv.group(2).trim();
@@ -152,7 +153,7 @@ final class LanzouSharePageParser {
             }
             params.put(key, value);
         }
-        if (password != null && !password.isEmpty() && !params.containsKey("p")) {
+        if (StringUtils.isNotEmpty(password) && !params.containsKey("p")) {
             params.put("p", password);
         }
         return params;

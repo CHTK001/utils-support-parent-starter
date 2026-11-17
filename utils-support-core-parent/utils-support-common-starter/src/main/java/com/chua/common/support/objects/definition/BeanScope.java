@@ -1,4 +1,5 @@
 package com.chua.common.support.objects.definition;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -57,7 +58,7 @@ public enum BeanScope {
      * @return 对应的作用域枚举，未匹配时返回 单例
      */
     public static BeanScope fromName(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return SINGLETON;
         }
         for (BeanScope scope : values()) {

@@ -41,6 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 kcp-基础 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
@@ -480,7 +481,7 @@ public class KcpServer extends AbstractServer {
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage annotation = method.getAnnotation(OnMessage.class);
                 String topic = annotation.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = TOPIC_WILDCARD;
                 }
                 onMessageMethods.add(new AnnotatedMessage(clazz, method, topic));

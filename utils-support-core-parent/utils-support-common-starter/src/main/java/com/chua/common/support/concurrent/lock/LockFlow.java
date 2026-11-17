@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 锁流门面，支持链式调用、降级回调和受保护执行。
@@ -222,7 +223,7 @@ public final class LockFlow {
      * @return 锁提供者实例
      */
     private LockProvider doCreate() {
-        String type = lockType != null && !lockType.isEmpty() ? lockType : "object";
+        String type = StringUtils.isNotEmpty(lockType) ? lockType : "object";
         try {
             LockProvider provider = ServiceProvider.of(LockProvider.class).getExtension(type);
             if (provider != null) {

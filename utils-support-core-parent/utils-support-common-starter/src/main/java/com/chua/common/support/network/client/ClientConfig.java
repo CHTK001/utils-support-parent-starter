@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HTTP 客户端预配置构建器，由 {@link HttpClient} 的便利方法创建。
@@ -240,7 +241,7 @@ public class ClientConfig {
     public ClientConfig cookie(String name, String value) {
         String existing = this.headers.get("Cookie");
         String cookieEntry = name + "=" + value;
-        if (existing != null && !existing.isEmpty()) {
+        if (StringUtils.isNotEmpty(existing)) {
             this.headers.add("Cookie", existing + "; " + cookieEntry);
         } else {
             this.headers.add("Cookie", cookieEntry);

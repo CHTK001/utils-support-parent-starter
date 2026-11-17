@@ -12,6 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Base64;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 校验服务器下发过滤器（{@link ServerFilter} 体系实现）
@@ -103,11 +104,11 @@ public class LicenseServerFilter implements ServerFilter {
         if (registry == null) {
             String path = config == null ? null : config.getInitParameter("license.registry");
             this.registry = FileLicenseRegistry.load(
-                    Path.of(path == null || path.isBlank() ? DEFAULT_REGISTRY : path.trim()));
+                    Path.of(StringUtils.isBlank(path) ? DEFAULT_REGISTRY : path.trim()));
         }
         if (secret == null && config != null) {
             String s = config.getInitParameter("license.secret");
-            if (s != null && !s.isBlank()) {
+            if (StringUtils.isNotBlank(s)) {
                 this.secret = s.trim().toCharArray();
             }
         }

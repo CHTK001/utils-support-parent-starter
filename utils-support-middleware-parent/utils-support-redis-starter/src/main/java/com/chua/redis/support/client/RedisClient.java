@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Redis 响应式 KV 客户端，同时实现同步 {@link KvEngine} 接口与响应式 API。
@@ -358,7 +359,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
      * @return MATCH 模式串
      */
     private static String matchPattern(String prefix) {
-        return prefix == null || prefix.isEmpty() ? "*" : prefix + "*";
+        return StringUtils.isEmpty(prefix) ? "*" : prefix + "*";
     }
 
     /**
@@ -521,7 +522,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
          */
         public RedisClient build() {
             String url = "redis://" + host + ":" + port + "/" + database;
-            String pwd = (password == null || password.isEmpty()) ? null : password;
+            String pwd = (StringUtils.isEmpty(password)) ? null : password;
             RedisClient client = new RedisClient(url, pwd);
             client.engine.setTimeout(java.time.Duration.ofMillis(timeoutMs));
             return client;

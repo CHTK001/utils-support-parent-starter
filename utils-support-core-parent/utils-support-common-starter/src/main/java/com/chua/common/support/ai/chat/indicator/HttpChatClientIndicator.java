@@ -659,7 +659,7 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             String name = item != null && item.isObject()
                     ? firstText(item, "name", "type", "id")
                     : IndicatorJsonSupport.text(item);
-            if (name != null && !name.isBlank()) {
+            if (StringUtils.isNotBlank(name)) {
                 names.add(name.trim());
             }
         }

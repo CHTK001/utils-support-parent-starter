@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Google Imagen 图片生成客户端
@@ -210,7 +211,7 @@ public class GoogleImageClient implements ImageClient {
     @Override
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "imagen-3.0-generate-001";
@@ -219,7 +220,7 @@ public BufferedImage generate(String prompt) {
         bodyBuilder.append("{\"instances\":[{\"prompt\":\"")
                 .append(escapeJson(actualPrompt))
                 .append("\"}],\"parameters\":{\"sampleCount\":1");
-        if (negativePrompt != null && !negativePrompt.isBlank()) {
+        if (StringUtils.isNotBlank(negativePrompt)) {
             bodyBuilder.append(",\"negativePrompt\":\"")
                     .append(escapeJson(negativePrompt)).append("\"");
         }
@@ -262,7 +263,7 @@ public BufferedImage generate(String prompt) {
             throw new RuntimeException("Google Imagen 返回的预测结果为空");
         }
         String base64Data = (String) predictions.getFirst().get("bytesBase64Encoded");
-        if (base64Data == null || base64Data.isBlank()) {
+        if (StringUtils.isBlank(base64Data)) {
             throw new RuntimeException("Google Imagen 返回的图片数据为空");
         }
         byte[] imageBytes = Base64.getDecoder().decode(base64Data);
@@ -308,7 +309,7 @@ public BufferedImage generate(String prompt) {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

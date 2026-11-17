@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文件引擎实现，支持 CSV、Excel、JSON、DBF 等表格文件的 Lambda ORM 查询。
@@ -227,10 +228,10 @@ public class FileEngine extends AbstractEngine {
      * @return SPI 类型名：csv / excel / json / dbf
      */
     static String resolveSupportedType(File file, String type) {
-        String raw = (type == null || type.isBlank())
+        String raw = (StringUtils.isBlank(type))
                 ? FileUtils.getExtension(file)
                 : type.trim().toLowerCase(Locale.ROOT);
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             throw new UnsupportedOperationException(
                     "无法识别文件类型，请显式指定 type（csv/excel/json/dbf）: " + file.getName());
         }

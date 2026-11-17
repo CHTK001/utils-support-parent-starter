@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 离线语音识别器（原生 API 的 Java 侧封装）。
@@ -154,7 +155,7 @@ public final class SherpaRecognizer implements AutoCloseable {
                 double chunkStart = chunk.startSeconds(sampleRate);
                 OfflineRecognizerResult raw = decode(chunk.samples());
                 String text = raw == null ? null : raw.getText();
-                if (text != null && !text.isBlank()) {
+                if (StringUtils.isNotBlank(text)) {
                     segments.add(toSegment(index++, chunkStart, chunk.samples(), raw));
                 }
             }
@@ -270,7 +271,7 @@ public final class SherpaRecognizer implements AutoCloseable {
      * @return 归一结果
      */
     private static String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
+        return StringUtils.isBlank(value) ? null : value.trim();
     }
 
     /**
@@ -280,7 +281,7 @@ public final class SherpaRecognizer implements AutoCloseable {
      * @return 标签列表，无事件时返回 {@code null}
      */
     private static List<String> splitEvents(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return null;
         }
         List<String> events = new ArrayList<>();
@@ -540,7 +541,7 @@ public final class SherpaRecognizer implements AutoCloseable {
                         + "，目录 " + dir + "）: " + e.getMessage(), e);
             }
             SherpaVadSegmenter segmenter = null;
-            if (vad != null && !vad.isBlank()) {
+            if (StringUtils.isNotBlank(vad)) {
                 segmenter = SherpaVadSegmenter.builder()
                         .model(vad)
                         .sampleRate(sampleRate)
@@ -558,7 +559,7 @@ public final class SherpaRecognizer implements AutoCloseable {
          * @return 归一结果
          */
         private static String normalizeLanguage(String value) {
-            if (value == null || value.isBlank()) {
+            if (StringUtils.isBlank(value)) {
                 return null;
             }
             return value.trim().toLowerCase(Locale.ROOT);

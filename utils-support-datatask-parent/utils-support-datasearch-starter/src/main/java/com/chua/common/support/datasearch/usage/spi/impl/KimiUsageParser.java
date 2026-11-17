@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kimi（Moonshot AI）CLI 用量解析器。
@@ -67,7 +68,7 @@ public class KimiUsageParser extends BaseUsageParser {
      */
     public KimiUsageParser() {
         String home = System.getenv("KIMI_HOME");
-        Path kimiHome = (home != null && !home.isBlank())
+        Path kimiHome = (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".kimi");
         this.sessionsDir = kimiHome.resolve("sessions");
@@ -182,7 +183,7 @@ public class KimiUsageParser extends BaseUsageParser {
                 return null;
             }
             String messageId = payload.get("message_id").toStringValue();
-            if (messageId == null || messageId.isBlank() || !seenIds.add(messageId)) {
+            if (StringUtils.isBlank(messageId) || !seenIds.add(messageId)) {
                 return null;
             }
             JsonNode tu = payload.get("token_usage");

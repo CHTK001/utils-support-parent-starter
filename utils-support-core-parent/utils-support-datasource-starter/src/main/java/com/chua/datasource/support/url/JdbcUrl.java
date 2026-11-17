@@ -2,6 +2,7 @@
 package com.chua.datasource.support.url;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDBC 连接串片段校验工具。
@@ -44,7 +45,7 @@ public final class JdbcUrl {
      * @throws IllegalArgumentException 主机为空或含有连接串分隔符
      */
     public static String checkHost(String host) {
-        if (host == null || host.isEmpty()) {
+        if (StringUtils.isEmpty(host)) {
             throw new IllegalArgumentException("JDBC host must not be blank");
         }
         if (!HOST_PATTERN.matcher(host).matches()) {

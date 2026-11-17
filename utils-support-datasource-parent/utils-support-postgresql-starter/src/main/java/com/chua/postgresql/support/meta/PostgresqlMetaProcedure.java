@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 存储过程 / 函数元数据操作。
@@ -522,7 +523,7 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
                     .append(PostgresqlMetaData.dollarQuoted("存储过程体", content));
             PostgresqlMetaData.execute(metaProcedure.metaData, "创建存储过程 " + procedureName, sql.toString(),
                     PostgresqlMetaData.args());
-            if (comment != null && !comment.isEmpty()) {
+            if (StringUtils.isNotEmpty(comment)) {
                 PostgresqlMetaData.execute(metaProcedure.metaData, "注释存储过程 " + procedureName,
                         "COMMENT ON PROCEDURE " + PostgresqlMetaData.quote(procedureName) + " IS '"
                                 + PostgresqlMetaData.escapeSql(comment) + "'", PostgresqlMetaData.args());

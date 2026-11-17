@@ -45,6 +45,7 @@ import java.util.*;
 
 import static org.springframework.util.ClassUtils.getAllInterfacesForClass;
 import static org.springframework.util.ReflectionUtils.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Spring Bean 工具类，提供 application上下文 持有、Bean 获取注册、类型转换等功能。
@@ -661,7 +662,7 @@ public class SpringBeanUtils {
         T instance = org.springframework.beans.BeanUtils.instantiateClass(type);
         org.springframework.beans.BeanWrapper bw = new org.springframework.beans.BeanWrapperImpl(instance);
         Environment env = getEnvironment();
-        String targetPrefix = (null == prefix || prefix.isBlank()) ? "" : (prefix.endsWith(".") ? prefix : prefix +
+        String targetPrefix = (StringUtils.isBlank(prefix)) ? "" : (prefix.endsWith(".") ? prefix : prefix +
                 ".");
         for (java.beans.PropertyDescriptor pd : bw.getPropertyDescriptors()) {
             String propName = pd.getName();

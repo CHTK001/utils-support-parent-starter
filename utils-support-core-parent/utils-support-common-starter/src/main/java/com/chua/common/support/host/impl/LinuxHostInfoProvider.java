@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Linux 主机不可变信息采集：直接读 sysfs 与 machine-id，不启动任何子进程。
@@ -135,7 +136,7 @@ public class LinuxHostInfoProvider implements HostInfoProvider {
      * @param value  取值
      */
     private static void put(Map<HostAnchor, String> values, HostAnchor anchor, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             values.put(anchor, value);
         }
     }

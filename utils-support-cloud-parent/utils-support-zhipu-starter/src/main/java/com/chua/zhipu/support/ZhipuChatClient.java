@@ -449,7 +449,7 @@ public class ZhipuChatClient implements ChatClient {
      * @return 去除首尾引号后的内容
      */
     private static String unquote(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
@@ -466,7 +466,7 @@ public class ZhipuChatClient implements ChatClient {
      * @param proxyStr 代理字符串，如 http://127.0.0.1:8080
      */
     private static void setupProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return;
         }
         String host;

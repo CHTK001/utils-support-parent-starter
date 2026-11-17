@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引擎验收运行器 —— 第一阶段：注册表 / 创建 / 能力契约 / 生命周期。
@@ -210,7 +211,7 @@ public final class EngineAcceptance {
         try {
             String detail = probe.run();
             pass++;
-            System.out.println("  [PASS] " + name + (detail == null || detail.isEmpty() ? "" : "  -> " + detail)); // [P3C E1 豁免]
+            System.out.println("  [PASS] " + name + (StringUtils.isEmpty(detail) ? "" : "  -> " + detail)); // [P3C E1 豁免]
         } catch (Throwable t) {
             recordFail(name + "  -> " + t);
         }

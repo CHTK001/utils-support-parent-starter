@@ -29,6 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Whisper ONNX Translator（音频文件 → 转写文本）。
@@ -311,7 +312,7 @@ public class WhisperTranslator {
         List<Integer> tokens = Wraps.list();
         tokens.add(WhisperTokenizer.SOT);
         // 显式语言时使用官方提示布局：[SOT, <|lang|>, TRANSCRIBE, NOTIMESTAMPS]
-        if (language != null && !language.isBlank()) {
+        if (StringUtils.isNotBlank(language)) {
             String langToken = "<|" + language.trim().toLowerCase() + "|>";
             int langId = tokenizer.tokenToId(langToken);
             if (langId > 0) {

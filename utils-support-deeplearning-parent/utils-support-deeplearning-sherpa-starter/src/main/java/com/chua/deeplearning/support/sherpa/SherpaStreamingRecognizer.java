@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sherpa-onnx 流式（在线）语音识别器。
@@ -428,10 +429,10 @@ public final class SherpaStreamingRecognizer implements AutoCloseable {
                         .setModel(single.toString())
                         .build());
             }
-            if (modelType != null && !modelType.isBlank()) {
+            if (StringUtils.isNotBlank(modelType)) {
                 modelConfig.setModelType(modelType);
             }
-            if (language != null && !language.isBlank()) {
+            if (StringUtils.isNotBlank(language)) {
                 log.info("[sherpa] 流式模型语言由模型自身决定，忽略 language={}（目录 {}）", language, dir);
             }
 

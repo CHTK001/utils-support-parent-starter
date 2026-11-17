@@ -1,4 +1,5 @@
 package com.chua.common.support.image.compression;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 图片压缩等级。
@@ -110,7 +111,7 @@ public enum CompressLevel {
      * @return 收敛后的压缩等级，不会返回 {@code null}
      */
     public static CompressLevel of(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return L2;
         }
         String normalized = value.trim().toLowerCase(java.util.Locale.ROOT);

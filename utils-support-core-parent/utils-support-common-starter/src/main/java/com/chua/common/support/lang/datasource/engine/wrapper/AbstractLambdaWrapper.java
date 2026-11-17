@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.engine.EngineOrm;
 
 import java.util.*;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
@@ -693,7 +694,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @throws IllegalArgumentException 标识符为 null、空白或不满足白名单规则时抛出
      */
     protected static String checkIdentifier(String column) {
-        if (column == null || column.isBlank()) {
+        if (StringUtils.isBlank(column)) {
             throw new IllegalArgumentException("SQL 标识符不能为空");
         }
         if (!SqlName.isSafe(column)) {

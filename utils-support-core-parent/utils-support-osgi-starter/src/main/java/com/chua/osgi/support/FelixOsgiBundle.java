@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Felix Bundle 实现，包装 OSGI 的 Bundle 对象。
@@ -180,7 +181,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     public void update(String url) {
         boolean wasActive = bundle.getState() == Bundle.ACTIVE;
         try {
-            if (url == null || url.isBlank()) {
+            if (StringUtils.isBlank(url)) {
                 bundle.update();
             } else {
                 // Felix 7 的 org.osgi.framework.Bundle 未提供 update(URL) 重载，

@@ -9,6 +9,7 @@ import com.chua.hprof.support.parser.HprofParser;
 
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 将解析得到的 hprof 结果序列化为中文 Markdown 报告。
@@ -282,7 +283,7 @@ public final class HprofToMarkdownSerializer {
      * @return 简单名部分
      */
     private static String simpleName(String className) {
-        if (className == null || className.isEmpty()) {
+        if (StringUtils.isEmpty(className)) {
             return "unknown";
         }
         int idx = className.lastIndexOf('.');

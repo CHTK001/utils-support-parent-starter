@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenTelemetry 客户端
@@ -470,7 +471,7 @@ public class OpenTelemetryClient implements AutoCloseable {
      * @return 根 Span 返回 true
      */
     private static boolean isRootSpanId(String parentSpanId) {
-        if (parentSpanId == null || parentSpanId.isEmpty()) {
+        if (StringUtils.isEmpty(parentSpanId)) {
             return true;
         }
         for (int i = 0; i < parentSpanId.length(); i++) {

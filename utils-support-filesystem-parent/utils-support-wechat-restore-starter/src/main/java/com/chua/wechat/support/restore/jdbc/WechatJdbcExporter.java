@@ -26,6 +26,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信明文数据库（SQLite）JDBC 导出器。
@@ -203,7 +204,7 @@ public final class WechatJdbcExporter {
              ResultSet resultSet = statement.executeQuery(LIST_TABLES_SQL)) {
             while (resultSet.next()) {
                 String name = resultSet.getString(1);
-                if (name == null || name.isBlank() || name.startsWith(SQLITE_INTERNAL_PREFIX)) {
+                if (StringUtils.isBlank(name) || name.startsWith(SQLITE_INTERNAL_PREFIX)) {
                     continue;
                 }
                 if (!whitelist.isEmpty() && !whitelist.contains(name)) {

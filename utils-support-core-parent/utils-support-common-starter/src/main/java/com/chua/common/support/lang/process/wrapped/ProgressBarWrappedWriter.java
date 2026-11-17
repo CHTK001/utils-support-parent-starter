@@ -5,6 +5,7 @@ import com.chua.common.support.lang.process.ProgressBar;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 一个由进度条跟踪进度的 Writer。
@@ -88,7 +89,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
      */
     @Override
     public void write(String str) throws IOException {
-        if (str != null && !str.isEmpty()) {
+        if (StringUtils.isNotEmpty(str)) {
             out.write(str);
             pb.stepBy(str.length());
         }

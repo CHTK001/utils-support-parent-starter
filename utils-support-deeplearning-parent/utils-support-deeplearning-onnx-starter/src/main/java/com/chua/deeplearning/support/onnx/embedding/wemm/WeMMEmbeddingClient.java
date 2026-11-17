@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WeMM-Embedding 本地离线嵌入客户端（SPI provider="wemm"）。
@@ -109,7 +110,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
      */
     private WeMMEmbeddingTranslator translator() {
         String model = setting.getModel();
-        String key = model == null || model.isBlank() ? "wemm-embedding-2b" : model;
+        String key = StringUtils.isBlank(model) ? "wemm-embedding-2b" : model;
         WeMMEmbeddingTranslator current = translator;
         if (current != null && key.equals(resolvedModel)) {
             return current;
@@ -134,7 +135,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     @Override
     public float[] embedding(String text) {
         try {
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 throw new IllegalArgumentException("text cannot be blank");
             }
             int dim = setting.getDimensions() != null && setting.getDimensions() > 0

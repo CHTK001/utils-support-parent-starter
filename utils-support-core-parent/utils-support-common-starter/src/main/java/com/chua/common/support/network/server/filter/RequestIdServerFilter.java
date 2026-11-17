@@ -6,6 +6,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 请求 ID 过滤器，为每个请求生成唯一标识。
@@ -49,7 +50,7 @@ public class RequestIdServerFilter implements ServerFilter {
                          ServerFilterChain chain) throws Exception {
         // 优先使用客户端传入的 X-Request-Id
         String requestId = request.getHeader("X-Request-Id");
-        if (requestId == null || requestId.isEmpty()) {
+        if (StringUtils.isEmpty(requestId)) {
             requestId = UUID.randomUUID().toString().replace("-", "");
         }
 

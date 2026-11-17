@@ -7,6 +7,7 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicReference;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 脚本 Bean 定义抽象基类。
@@ -201,7 +202,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      */
     @Override
     public boolean isAssignableFrom(String clazz) {
-        if (clazz == null || clazz.isEmpty()) {
+        if (StringUtils.isEmpty(clazz)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();

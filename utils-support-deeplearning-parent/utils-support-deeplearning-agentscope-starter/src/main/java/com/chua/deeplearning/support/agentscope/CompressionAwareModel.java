@@ -16,6 +16,7 @@ import io.agentscope.core.model.Model;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Compression-aware 模型 decorator.
@@ -164,7 +165,7 @@ public class CompressionAwareModel implements Model {
         List<ChatMessage> result = Wraps.list();
         for (Msg msg : messages) {
             String text = msg.getTextContent();
-            if (text != null && !text.isBlank()) {
+            if (StringUtils.isNotBlank(text)) {
                 // SYSTEM 必须保留：Harness 把 sysPrompt 作为 SYSTEM 消息放进 messages，
                 // 这里若跳过，压缩轮次下 agent 的人设与约束就被整个丢掉。
                 // 之所以此前没被发现，是因为带工具的轮次走 delegate 路径不受此转换影响，

@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * H2 迁移脚本方言转换器（{@code ScriptConverter} 的 h2 协议实现）。
@@ -160,7 +161,7 @@ public class H2ScriptConverter extends DefaultScriptConverter {
     public String convert(String statement, String protocol) {
         // 先走父类：h2 分支已把 JSON 映射为 CLOB，并剥离表尾 MySQL 属性、行内 KEY、列内联 COMMENT
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // ON DUPLICATE KEY UPDATE 仅 MySQL 兼容模式支持，标准模式一律跳过而非高风险改写

@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import com.volcengine.ark.runtime.model.completion.chat.ChatTool;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 豆包/火山引擎大模型对话客户端
@@ -116,7 +117,7 @@ public class DoubaoChatClient implements ChatClient {
             builder.baseUrl(setting.getBaseUrl());
         }
         String proxyStr = setting.getProxy();
-        if (proxyStr != null && !proxyStr.isBlank()) {
+        if (StringUtils.isNotBlank(proxyStr)) {
             java.net.Proxy proxy = toProxy(proxyStr);
             if (proxy != null) {
                 builder.proxy(proxy);
@@ -291,7 +292,7 @@ public class DoubaoChatClient implements ChatClient {
             }
 
             List<com.volcengine.ark.runtime.model.completion.chat.ChatMessage> messages = Wraps.list();
-            if (actualSystem != null && !actualSystem.isEmpty()) {
+            if (StringUtils.isNotEmpty(actualSystem)) {
                 messages.add(com.volcengine.ark.runtime.model.completion.chat.ChatMessage.builder()
                         .role(ChatMessageRole.SYSTEM)
                         .content(actualSystem)
@@ -347,7 +348,7 @@ public class DoubaoChatClient implements ChatClient {
                                     .build());
                         }
                         String reasoning = delta.getReasoningContent();
-                        if (reasoning != null && !reasoning.isEmpty()) {
+                        if (StringUtils.isNotEmpty(reasoning)) {
                             consumer.accept(ChatResponse.builder()
                                     .state(ChatResponse.State.STREAMING)
                                     .reasoningContent(reasoning)

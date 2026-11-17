@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Qota-OCR 文字识别（ORT 原生 + 打开cv）。
@@ -100,7 +101,7 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
      * @return 返回值
     */
     public void setModelPath(String path) {
-        if (path != null && !path.isBlank()) {
+        if (StringUtils.isNotBlank(path)) {
             this.injectedPath = path.trim();
         }
     }
@@ -296,7 +297,7 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
             int maxIdx = argMax(step);
             if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                 String ch = dict.get(maxIdx);
-                if (ch != null && !ch.isBlank()) {
+                if (StringUtils.isNotBlank(ch)) {
                     sb.append(ch);
                 }
             }

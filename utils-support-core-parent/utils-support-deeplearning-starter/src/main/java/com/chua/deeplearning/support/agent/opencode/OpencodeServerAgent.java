@@ -52,6 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于单个 {@code opencode serve} + HTTP/SSE 的 Agent 实现。
@@ -415,7 +416,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeServerAgent model(String model) {
-        this.model = (model == null || model.isBlank()) ? null : model.trim();
+        this.model = (StringUtils.isBlank(model)) ? null : model.trim();
         return this;
     }
 
@@ -426,7 +427,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeServerAgent agentName(String agentName) {
-        this.agentName = (agentName == null || agentName.isBlank()) ? null : agentName.trim();
+        this.agentName = (StringUtils.isBlank(agentName)) ? null : agentName.trim();
         return this;
     }
 
@@ -442,14 +443,14 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent sessionId(String sessionId) {
-        this.sessionId = (sessionId == null || sessionId.isBlank()) ? null : sessionId.trim();
+        this.sessionId = (StringUtils.isBlank(sessionId)) ? null : sessionId.trim();
         this.currentSession = null;
         return this;
     }
 
     @Override
     public OpencodeServerAgent workspace(String workspace) {
-        this.workspace = (workspace == null || workspace.isBlank()) ? null : workspace.trim();
+        this.workspace = (StringUtils.isBlank(workspace)) ? null : workspace.trim();
         this.currentSession = null;
         return this;
     }
@@ -482,7 +483,7 @@ public class OpencodeServerAgent implements Agent {
             return this;
         }
         this.chatClient = chatClient;
-        if (this.model == null || this.model.isBlank()) {
+        if (StringUtils.isBlank(this.model)) {
             this.model = deriveModel(chatClient);
         }
         return this;
@@ -490,7 +491,7 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent chatClient(String agentId, ChatClient chatClient) {
-        if (agentId == null || agentId.isBlank()) {
+        if (StringUtils.isBlank(agentId)) {
             throw new IllegalArgumentException("agentId 不能为空");
         }
         if (chatClient == null) {
@@ -522,7 +523,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeServerAgent mcpServer(String name, Map<String, Object> spec) {
-        if (name == null || name.isBlank() || spec == null || spec.isEmpty()) {
+        if (StringUtils.isBlank(name) || spec == null || spec.isEmpty()) {
             throw new IllegalArgumentException("MCP 服务名与配置不能为空");
         }
         Map<String, Object> copy = new LinkedHashMap<>(spec);
@@ -577,7 +578,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeServerAgent skillPath(String path) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             throw new IllegalArgumentException("技能目录不能为空");
         }
         String value = path.trim();
@@ -608,7 +609,7 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent disableTool(String toolName) {
-        if (toolName == null || toolName.isBlank()) {
+        if (StringUtils.isBlank(toolName)) {
             return this;
         }
         disabledTools.put(toolName.trim(), Boolean.FALSE);
@@ -924,7 +925,7 @@ public class OpencodeServerAgent implements Agent {
             if (!pendingToolRecoveryEnabled) {
                 return Flux.just(errorEvent("已禁用待执行工具恢复，请重新发起运行"));
             }
-            if (replyId == null || replyId.isBlank()) {
+            if (StringUtils.isBlank(replyId)) {
                 return Flux.just(errorEvent("提问请求 ID 为空"));
             }
             if (!pendingQuestionIds.containsKey(replyId)) {
@@ -1052,7 +1053,7 @@ public class OpencodeServerAgent implements Agent {
             if (closed) {
                 return Flux.just(errorEvent("Agent 已关闭"));
             }
-            if (input == null || input.isBlank()) {
+            if (StringUtils.isBlank(input)) {
                 return Flux.just(errorEvent("输入为空"));
             }
             AgentLoopGuard guard = loopGuard;
@@ -1157,13 +1158,13 @@ public class OpencodeServerAgent implements Agent {
         }
         for (ConfirmationDecision decision : effective) {
             String requestId = decision.getToolCallId();
-            if (requestId == null || requestId.isBlank()) {
+            if (StringUtils.isBlank(requestId)) {
                 requestId = replyId;
             }
             String reply = decision.isConfirmed() ? PERMISSION_ONCE : PERMISSION_REJECT;
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("reply", reply);
-            if (feedback != null && !feedback.isBlank()) {
+            if (StringUtils.isNotBlank(feedback)) {
                 body.put("message", feedback);
             }
             context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
@@ -1371,7 +1372,7 @@ public class OpencodeServerAgent implements Agent {
      */
     private Path resolveWorkspacePath() {
         String value = workspace;
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             value = System.getProperty("user.dir");
         }
         Path path = Paths.get(value).toAbsolutePath().normalize();
@@ -1400,7 +1401,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 会话 ID
      */
     private String deriveSessionId(String directory) {
-        String businessId = (sessionId == null || sessionId.isBlank()) ? "default" : sessionId;
+        String businessId = (StringUtils.isBlank(sessionId)) ? "default" : sessionId;
         String seed = businessId + '|' + directory;
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -1417,7 +1418,7 @@ public class OpencodeServerAgent implements Agent {
      * @return agent 名称；null 表示使用服务端默认
      */
     private String effectiveAgentName() {
-        if (agentName != null && !agentName.isBlank()) {
+        if (StringUtils.isNotBlank(agentName)) {
             return agentName;
         }
         if (planMode) {
@@ -1433,7 +1434,7 @@ public class OpencodeServerAgent implements Agent {
      */
     private ModelRef resolveModelRef() {
         String value = model;
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return null;
         }
         value = value.trim();
@@ -1442,7 +1443,7 @@ public class OpencodeServerAgent implements Agent {
             return new ModelRef(value.substring(0, slash), value.substring(slash + 1));
         }
         String provider = resolveProvider();
-        if (provider == null || provider.isBlank()) {
+        if (StringUtils.isBlank(provider)) {
             if (modelProviderWarned.compareAndSet(false, true)) {
                 log.warn("[opencode-server] 模型 {} 缺少 provider 前缀且无 ChatClient provider 可补齐，"
                         + "会话将沿用 opencode 默认模型；请使用 provider/model 或先设置 chatClient(..)", value);
@@ -1475,10 +1476,10 @@ public class OpencodeServerAgent implements Agent {
     private static String deriveModel(ChatClient client) {
         ChatClientSetting setting = client.getSetting();
         String modelValue = client.getModel();
-        if (modelValue == null || modelValue.isBlank()) {
+        if (StringUtils.isBlank(modelValue)) {
             modelValue = setting != null ? setting.getModel() : null;
         }
-        if (modelValue == null || modelValue.isBlank()) {
+        if (StringUtils.isBlank(modelValue)) {
             return null;
         }
         modelValue = modelValue.trim();
@@ -1486,7 +1487,7 @@ public class OpencodeServerAgent implements Agent {
             return modelValue;
         }
         String provider = setting != null ? setting.getProvider() : null;
-        return (provider != null && !provider.isBlank()) ? provider.trim() + "/" + modelValue : modelValue;
+        return (StringUtils.isNotBlank(provider)) ? provider.trim() + "/" + modelValue : modelValue;
     }
 
     /**
@@ -1551,7 +1552,7 @@ public class OpencodeServerAgent implements Agent {
      */
     private static long resolveTurnTimeoutSeconds() {
         String prop = System.getProperty(PROP_TURN_TIMEOUT);
-        if (prop == null || prop.isBlank()) {
+        if (StringUtils.isBlank(prop)) {
             return DEFAULT_TURN_TIMEOUT_SECONDS;
         }
         try {
@@ -1626,11 +1627,12 @@ public class OpencodeServerAgent implements Agent {
      * 汇总需要写入 opencode 的 provider 定义。
      *
      * <p>opencode 只认识内置目录里的官方供应商；站点自建的 OpenAI 兼容端点
-     * （如 {@code moss}）必须显式声明 {@code options.baseURL} 与 {@code models}，
-     * 否则 {@code provider/model} 解析不到，报
-     * {@code UnknownError: Unexpected server error}。密钥不写进项目文件，
-     * 而是交给 {@link OpencodeServerProcess#providerCredential(String, String)}
-     * 合并进隔离数据目录的 {@code auth.json}。</p>
+     * （如 {@code moss}）必须显式声明端点与 {@code models}，否则
+     * {@code provider/model} 解析不到，报 {@code UnknownError: Unexpected server error}。
+     * 密钥不写进项目文件，而是交给
+     * {@link OpencodeServerProcess#providerCredential(String, String)}：
+     * 1.x 合并进隔离数据目录的 {@code auth.json}，2.x 注入
+     * {@code providers.<id>.env} 声明的环境变量。</p>
      *
      * @return provider 标识 -> 定义
      */
@@ -1667,7 +1669,7 @@ public class OpencodeServerAgent implements Agent {
         }
         String apiKey = setting != null ? setting.getAppKey() : null;
         server.providerCredential(providerId, apiKey);
-        if (baseUrl == null || baseUrl.isBlank()) {
+        if (StringUtils.isBlank(baseUrl)) {
             return;
         }
         OpencodeProjectConfig.ProviderSpec existing = specs.get(providerId);
@@ -1939,7 +1941,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 归一化名称；全部非法时返回空串
      */
     private static String sanitizeAgentName(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return "";
         }
         StringBuilder builder = new StringBuilder(value.length());
@@ -1966,7 +1968,7 @@ public class OpencodeServerAgent implements Agent {
      * @return true 表示有内容
      */
     private static boolean hasText(String value) {
-        return value != null && !value.isBlank();
+        return StringUtils.isNotBlank(value);
     }
 
     /**
@@ -2007,7 +2009,7 @@ public class OpencodeServerAgent implements Agent {
             return "未知错误";
         }
         String message = throwable.getMessage();
-        return (message == null || message.isBlank()) ? throwable.getClass().getSimpleName() : message;
+        return (StringUtils.isBlank(message)) ? throwable.getClass().getSimpleName() : message;
     }
 
     /**
@@ -2257,7 +2259,7 @@ public class OpencodeServerAgent implements Agent {
          * @param delta 片段
          */
         private void emitDelta(AgentStreamEvent.Type type, String delta) {
-            if (delta == null || delta.isEmpty()) {
+            if (StringUtils.isEmpty(delta)) {
                 return;
             }
             sink.next(AgentStreamEvent.builder()

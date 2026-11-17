@@ -3,6 +3,7 @@ package com.chua.common.support.file.tar;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Tar 文件工具类，用于计算 TAR 归档的大小。
@@ -90,7 +91,7 @@ public class TarUtils {
   * @return 去除首尾指定字符后的新字符串
   */
     public static String trim(String s, char c) {
-        if (s == null || s.isEmpty()) {
+        if (StringUtils.isEmpty(s)) {
             return s;
         }
 

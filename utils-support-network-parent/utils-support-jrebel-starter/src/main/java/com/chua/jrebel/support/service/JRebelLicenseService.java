@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * jrebel 许可证服务。
@@ -70,7 +71,7 @@ public class JRebelLicenseService {
      * @return GUID
      */
     public String generateGuid(String clientId) {
-        if (clientId == null || clientId.isEmpty()) {
+        if (StringUtils.isEmpty(clientId)) {
             return UUID.randomUUID().toString().toUpperCase();
         }
         return UUID.nameUUIDFromBytes(clientId.getBytes()).toString().toUpperCase();

@@ -338,7 +338,7 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
                     continue;
                 }
                 String type = IndicatorJsonSupport.text(option, "type");
-                if (type == null || type.isBlank()) {
+                if (StringUtils.isBlank(type)) {
                     continue;
                 }
                 if (types == null) {

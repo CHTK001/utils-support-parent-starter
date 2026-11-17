@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Bean 定义抽象基类。
@@ -305,7 +306,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public boolean isAnnotationPresent(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();
@@ -346,7 +347,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public Annotation getAnnotation(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return null;
         }
         Class<?> beanClass = getBeanClass();
@@ -387,7 +388,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public boolean isAssignableFrom(String clazz) {
-        if (clazz == null || clazz.isEmpty()) {
+        if (StringUtils.isEmpty(clazz)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();
@@ -423,7 +424,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public boolean isAssignableTo(String clazz) {
-        if (clazz == null || clazz.isEmpty()) {
+        if (StringUtils.isEmpty(clazz)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();
@@ -459,7 +460,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public boolean isType(String clazz) {
-        if (clazz == null || clazz.isEmpty()) {
+        if (StringUtils.isEmpty(clazz)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();
@@ -488,7 +489,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public List<Method> getMethodsWithAnnotation(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return Collections.emptyList();
         }
         Class<?> beanClass = getBeanClass();
@@ -541,7 +542,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public Method getMethodWithAnnotation(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return null;
         }
         Class<?> beanClass = getBeanClass();
@@ -570,7 +571,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Override
     public boolean hasMethodWithAnnotation(String annotationTypeName) {
-        if (annotationTypeName == null || annotationTypeName.isEmpty()) {
+        if (StringUtils.isEmpty(annotationTypeName)) {
             return false;
         }
         Class<?> beanClass = getBeanClass();

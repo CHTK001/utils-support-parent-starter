@@ -6,6 +6,7 @@ import com.chua.common.support.datasearch.video.spi.VipParser;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 直链 VIP 解析器。
@@ -27,7 +28,7 @@ public class DirectVipParser implements VipParser {
     @Override
     public VipParseResult parse(VipParseRequest request) {
         String url = request.getUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return VipParseResult.error("URL 为空");
         }
         if (isDirectUrl(url)) {

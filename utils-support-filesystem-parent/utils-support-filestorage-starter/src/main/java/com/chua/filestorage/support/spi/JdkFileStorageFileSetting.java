@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDK 默认的文件存储 URL 参数设置实现。
@@ -86,7 +87,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     private String getFirst(ServerRequest request, String... names) {
         for (String name : names) {
             String v = request.getParam(name);
-            if (v != null && !v.isBlank()) {
+            if (StringUtils.isNotBlank(v)) {
                 return v.trim();
             }
         }

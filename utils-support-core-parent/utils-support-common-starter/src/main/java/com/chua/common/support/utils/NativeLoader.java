@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 支持链式、任务标识、MD5校验、固定目录的原生库加载器。
@@ -363,7 +364,7 @@ public class NativeLoader {
      */
     private void probeClasspathResources(String resourceBase, List<ResourceItem> result) {
         List<String> basePaths = Wraps.list();
-        if (resourceBase != null && !resourceBase.isEmpty()) {
+        if (StringUtils.isNotEmpty(resourceBase)) {
             basePaths.add(resourceBase);
         }
         for (String dir : NativeUtils.getPlatformDirCandidates()) {
@@ -397,7 +398,7 @@ public class NativeLoader {
         if (!glob.contains("*") && !glob.contains("?")) {
             bases.add(glob);
         }
-        if (taskId != null && !taskId.isEmpty()) {
+        if (StringUtils.isNotEmpty(taskId)) {
             bases.add(taskId);
             bases.add(taskId.replace('-', '_'));
             bases.add(taskId.replace('_', '-'));

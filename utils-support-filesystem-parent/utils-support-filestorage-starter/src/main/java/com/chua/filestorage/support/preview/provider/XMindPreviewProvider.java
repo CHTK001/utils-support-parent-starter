@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * xmind 思维导图预览提供器。
@@ -158,7 +159,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      */
     private List<TopicNode> parseTopics(String json) {
         List<TopicNode> roots = Wraps.list();
-        if (json == null || json.isBlank() || "[]".equals(json.trim())) {
+        if (StringUtils.isBlank(json) || "[]".equals(json.trim())) {
             return roots;
         }
         try {
@@ -237,7 +238,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      */
     private List<TopicNode> parseTopicsFromXml(String xml) {
         List<TopicNode> roots = Wraps.list();
-        if (xml == null || xml.isBlank()) {
+        if (StringUtils.isBlank(xml)) {
             return roots;
         }
         try {
@@ -338,7 +339,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      */
     private TopicNode buildNodeFromXml(org.w3c.dom.Element topicEl) {
         String title = directText(topicEl, "title");
-        if (title == null || title.isBlank()) {
+        if (StringUtils.isBlank(title)) {
             title = "Untitled";
         }
         TopicNode node = new TopicNode(title);
@@ -349,7 +350,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
                 // 跳过 summary（概要）这类派生容器 —— 与前端渲染器口径一致
                 // （实测真实 XMind 8 文件：收 summary 会多出一个「幽灵」节点）。
                 String type = topicsEl.getAttribute("type");
-                if (type != null && !type.isEmpty()
+                if (StringUtils.isNotEmpty(type)
                         && !"attached".equalsIgnoreCase(type) && !"detached".equalsIgnoreCase(type)) {
                     continue;
                 }

@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 {@code libimagequant}（pngquant 内核）的调色板量化器（native 钩子）。
@@ -131,7 +132,7 @@ public class ImageQuantQuantizer implements PaletteQuantizer {
      */
     private int resolveSpeed() {
         String raw = System.getProperty(SPEED_PROPERTY);
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return DEFAULT_SPEED;
         }
         try {

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 将 TCP 帧中的 HTTP 请求体包装为 {@link ServerRequest}。
@@ -120,7 +121,7 @@ public class TcpServerRequest implements ServerRequest {
      * @param maxRequestSize 最大请求体尺寸（字节），<= 0 表示不做限制
      */
     public TcpServerRequest(byte[] body, InetSocketAddress remoteAddr, String charset, long maxRequestSize) {
-        this(body, remoteAddr, charset != null && !charset.isEmpty() ? Charset.forName(charset) : StandardCharsets.UTF_8, maxRequestSize);
+        this(body, remoteAddr, StringUtils.isNotEmpty(charset) ? Charset.forName(charset) : StandardCharsets.UTF_8, maxRequestSize);
     }
 
     /**

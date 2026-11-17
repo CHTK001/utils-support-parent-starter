@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 import lombok.ToString;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 消息请求对象
@@ -239,7 +240,7 @@ public class MessageRequest {
          * @throws IllegalArgumentException 当接收人为空或空白时抛出异常
          */
         public MessageRequest build() {
-            if (to == null || to.isBlank()) {
+            if (StringUtils.isBlank(to)) {
                 throw new IllegalArgumentException("接收人不能为空");
             }
             return new MessageRequest(this);

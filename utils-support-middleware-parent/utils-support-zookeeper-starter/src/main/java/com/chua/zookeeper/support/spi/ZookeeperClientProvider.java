@@ -22,6 +22,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.data.Stat;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ZooKeeper 中间件管理面 SPI 实现。
@@ -102,7 +103,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
-        if (parentKey == null || parentKey.isBlank()) {
+        if (StringUtils.isBlank(parentKey)) {
             return List.of();
         }
         // 前端传的 key 形如 "/a/b"
@@ -111,7 +112,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：ls /path / get /path / stat /path");
         }
         String cmd = expression.trim();
@@ -138,7 +139,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareDocument document(MiddlewareConnectRequest request, String scope, String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return null;
         }
         String path = key.startsWith("/") ? key : "/" + key;
@@ -173,7 +174,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
         String connect = request.address();
         StringBuilder jaas = null;
         String username = request.username();
-        if (username != null && !username.isBlank()) {
+        if (StringUtils.isNotBlank(username)) {
             // ZooKeeper 的 SASL/DIGEST 认证
             jaas = new StringBuilder("org.apache.zookeeper.server.auth.DigestLoginModule required ")
                     .append("username=\"").append(username).append("\" ")
@@ -345,7 +346,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
             t = t.getCause();
         }
         String m = t.getMessage();
-        if (m == null || m.isBlank()) {
+        if (StringUtils.isBlank(m)) {
             m = t.getClass().getSimpleName();
         }
         if (t instanceof KeeperException ke) {

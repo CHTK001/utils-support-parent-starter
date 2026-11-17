@@ -6,6 +6,7 @@ import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 方言 DDL 生成器。
@@ -115,7 +116,7 @@ public class MysqlDdlProvider implements DdlProvider {
      * @return 字符串
      */
     private static String quote(String identifier) {
-        if (identifier == null || identifier.isBlank()) {
+        if (StringUtils.isBlank(identifier)) {
             throw new IllegalArgumentException("DDL 标识符不能为空");
         }
         return "`" + identifier.replace("`", "``") + "`";

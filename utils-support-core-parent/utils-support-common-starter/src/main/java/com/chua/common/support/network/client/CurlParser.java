@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * curl 命令解析器。
@@ -34,7 +35,7 @@ public final class CurlParser {
      * @return 构建后的 HTTP 客户端构建器，可继续链式配置并执行
      */
     public static HttpClientBuilder fromCurl(String curl) {
-        if (curl == null || curl.isBlank()) {
+        if (StringUtils.isBlank(curl)) {
             throw new IllegalArgumentException("curl command must not be blank");
         }
         String raw = curl.stripLeading().startsWith("curl") ? curl.stripLeading() : "curl " + curl;

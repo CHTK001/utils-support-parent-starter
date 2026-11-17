@@ -4,6 +4,7 @@ import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
 import com.chua.common.support.task.flow.LogNode;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 日志输出节点。
@@ -38,7 +39,7 @@ public class LogFlowNode implements LogNode {
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();
         String message = props.getString("message");
-        if (message == null || message.isEmpty()) {
+        if (StringUtils.isEmpty(message)) {
             return;
         }
         String level = props.getString("level", DEFAULT_LEVEL);

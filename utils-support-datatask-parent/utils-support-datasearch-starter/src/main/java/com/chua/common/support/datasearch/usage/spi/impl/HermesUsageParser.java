@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Hermes Agent 用量解析器。
@@ -59,7 +60,7 @@ public class HermesUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String localAppData = System.getenv("LOCALAPPDATA");
-        if (localAppData != null && !localAppData.isBlank()) {
+        if (StringUtils.isNotBlank(localAppData)) {
             return Path.of(localAppData, "hermes", "state.db");
         }
         return Path.of(System.getProperty("user.home"), ".hermes", "state.db");

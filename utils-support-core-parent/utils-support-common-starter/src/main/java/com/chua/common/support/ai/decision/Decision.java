@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 单个概率决策的答案。
@@ -71,13 +72,13 @@ public record Decision(
      * @throws IllegalArgumentException 标识为空白、分布为空、取值越界或标签不在分布中时
      */
     public Decision {
-        if (queryId == null || queryId.isBlank()) {
+        if (StringUtils.isBlank(queryId)) {
             throw new IllegalArgumentException("queryId 不能为 null 或空白");
         }
         if (type == null) {
             throw new NullPointerException("type 不能为 null");
         }
-        if (label == null || label.isBlank()) {
+        if (StringUtils.isBlank(label)) {
             throw new IllegalArgumentException("label 不能为 null 或空白");
         }
         if (probabilities == null) {
@@ -91,7 +92,7 @@ public record Decision(
         for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
             String key = entry.getKey();
             Double value = entry.getValue();
-            if (key == null || key.isBlank()) {
+            if (StringUtils.isBlank(key)) {
                 throw new IllegalArgumentException("probabilities 的键不能为 null 或空白");
             }
             if (value == null) {

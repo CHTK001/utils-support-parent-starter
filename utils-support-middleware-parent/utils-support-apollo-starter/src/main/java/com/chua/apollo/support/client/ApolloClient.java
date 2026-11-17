@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Apollo 全功能链式客户端。
@@ -112,7 +113,7 @@ public class ApolloClient implements AutoCloseable {
      */
     public ApolloClient start() {
         System.setProperty("app.id", appId);
-        if (meta != null && !meta.isEmpty()) {
+        if (StringUtils.isNotEmpty(meta)) {
             System.setProperty("apollo.meta", meta);
         }
 
@@ -224,7 +225,7 @@ public class ApolloClient implements AutoCloseable {
          * @return 构建的结果
          */
         public ApolloClient build() {
-            if (appId == null || appId.isEmpty()) {
+            if (StringUtils.isEmpty(appId)) {
                 throw new IllegalArgumentException("appId 不能为空");
             }
             return new ApolloClient(appId, meta, namespaces);

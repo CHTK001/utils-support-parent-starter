@@ -5,6 +5,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collections;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 脚本引擎发现入口（全局唯一）。
@@ -57,7 +58,7 @@ public final class ScriptProviders {
      * @return 引擎实例；未注册或引擎名为空返回 null
      */
     public static ScriptProvider resolve(String engine) {
-        if (engine == null || engine.isBlank()) {
+        if (StringUtils.isBlank(engine)) {
             return null;
         }
         return resolver.resolve(engine.trim());

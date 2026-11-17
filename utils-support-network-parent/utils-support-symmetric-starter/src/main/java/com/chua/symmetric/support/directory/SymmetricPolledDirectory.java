@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SymmetricDS CDC 实现 - 基于触发器的实时数据变更捕获。
@@ -543,7 +544,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      */
     private String getRequiredConfig(String key, String errorMessage) {
         String value = environment.getString(key, "");
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             throw new IllegalArgumentException(errorMessage);
         }
         return value;

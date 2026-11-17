@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 更新 SQL 信息记录，包含构建更新语句所需的所有结构化数据。
@@ -46,7 +47,7 @@ public record UpdateSql<T>(
      * @return 如果存在非空的 SET 子句则返回 true，否则返回 false
      */
     public boolean hasSet() {
-        if (setClause == null || setClause.isEmpty()) {
+        if (StringUtils.isEmpty(setClause)) {
             return false;
         }
         return true;
@@ -58,7 +59,7 @@ public record UpdateSql<T>(
      * @return 如果存在非空的 WHERE 子句则返回 true，否则返回 false
      */
     public boolean hasWhere() {
-        if (whereClause == null || whereClause.isEmpty()) {
+        if (StringUtils.isEmpty(whereClause)) {
             return false;
         }
         return true;

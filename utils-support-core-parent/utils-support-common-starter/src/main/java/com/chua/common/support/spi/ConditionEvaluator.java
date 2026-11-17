@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 条件评估器，用于评估服务定义是否满足加载条件。
@@ -96,7 +97,7 @@ public class ConditionEvaluator {
 
         String actualValue = System.getProperty(propertyName, defaultValue);
 
-        if (actualValue == null || actualValue.isEmpty()) {
+        if (StringUtils.isEmpty(actualValue)) {
             if (log.isDebugEnabled()) {
                 log.debug("属性 {} 未配置", propertyName);
             }

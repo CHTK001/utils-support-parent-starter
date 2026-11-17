@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SSE 事件数据模型
@@ -69,6 +70,6 @@ public class SseEvent {
      * @return true 表示 data 非空且非 null
      */
     public boolean hasData() {
-        return data != null && !data.isEmpty();
+        return StringUtils.isNotEmpty(data);
     }
 }

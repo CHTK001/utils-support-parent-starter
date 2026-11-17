@@ -7,6 +7,7 @@ import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 声明式 HTTP API（{@code HttpInvoker}/{@code HttpApiFactory}）的自定义配置。
@@ -534,7 +535,7 @@ public class HttpApiOptions {
         if (version != null) {
             spec.version(version);
         }
-        if (proxyHost != null && !proxyHost.isEmpty()) {
+        if (StringUtils.isNotEmpty(proxyHost)) {
             spec.proxy(proxyHost, proxyPort);
         }
     }

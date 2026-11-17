@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 向量存储：冷热混合 + B+ 树 索引 + mappedbyte缓冲 零拷贝读取。
@@ -590,7 +591,7 @@ public class DefaultVectorStorage implements VectorStorage {
      */
     @SuppressWarnings("unchecked")
     private static Map<String, Object> parseMetadata(String metaStr) {
-        if (metaStr == null || metaStr.isEmpty()) {
+        if (StringUtils.isEmpty(metaStr)) {
             return Collections.emptyMap();
         }
         try {

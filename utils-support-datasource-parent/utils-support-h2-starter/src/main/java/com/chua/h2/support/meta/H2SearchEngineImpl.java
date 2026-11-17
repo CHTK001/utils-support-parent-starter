@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * H2 搜索引擎实现，基于 H2 索引元数据（H2 2.x 语法）。
@@ -239,7 +240,7 @@ public class H2SearchEngineImpl implements SearchEngine {
      * @throws IllegalArgumentException 索引名为空
      */
     private static void requireIndexName(String indexName) {
-        if (indexName == null || indexName.isBlank()) {
+        if (StringUtils.isBlank(indexName)) {
             throw new IllegalArgumentException("索引名不能为空");
         }
     }
@@ -332,7 +333,7 @@ public class H2SearchEngineImpl implements SearchEngine {
      * @return 归一化后的类型名，未知类型原样小写返回
      */
     private static String normalizeColumnType(String dataType) {
-        if (dataType == null || dataType.isBlank()) {
+        if (StringUtils.isBlank(dataType)) {
             return "text";
         }
         String type = dataType.trim().toUpperCase(Locale.ROOT);

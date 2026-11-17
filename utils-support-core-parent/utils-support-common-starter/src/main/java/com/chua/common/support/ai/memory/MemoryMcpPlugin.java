@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 记忆体 MCP 插件
@@ -177,7 +178,7 @@ public class MemoryMcpPlugin {
      */
     private McpToolResult handleSave(Map<String, Object> args) {
         String content = (String) args.get("content");
-        if (content == null || content.isBlank()) {
+        if (StringUtils.isBlank(content)) {
             return McpToolResult.error("content 不能为空");
         }
         String id = UUID.randomUUID().toString();

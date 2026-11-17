@@ -13,6 +13,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.LoadState;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Playwright 浏览器渲染解析器。
@@ -72,7 +73,7 @@ public class PlaywrightParser implements SpiderParser {
     @Override
     public SpiderResult parse(SpiderResponse response) {
         String content = response.getContent();
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return null;
         }
 

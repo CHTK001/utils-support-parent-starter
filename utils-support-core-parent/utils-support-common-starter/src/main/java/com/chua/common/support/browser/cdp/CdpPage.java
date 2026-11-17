@@ -16,6 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 CDP 的浏览器页面
@@ -129,7 +130,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void addInitScript(String script) {
-        if (script == null || script.isBlank()) {
+        if (StringUtils.isBlank(script)) {
             return;
         }
         connection.call("Page.addScriptToEvaluateOnNewDocument",

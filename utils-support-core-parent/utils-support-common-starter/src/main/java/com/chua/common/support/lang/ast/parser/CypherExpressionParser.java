@@ -6,6 +6,7 @@ import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Neo4j Cypher 表达式解析器
@@ -67,7 +68,7 @@ public class CypherExpressionParser implements ExpressionParser {
 
     @Override
     public BTreeNode parse(String expression) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             throw new IllegalArgumentException("Cypher 表达式不能为空");
         }
         CypherParser parser = new CypherParser(expression.trim());

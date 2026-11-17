@@ -425,7 +425,7 @@ public class ZaiChatClient implements ChatClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {
@@ -440,7 +440,7 @@ public class ZaiChatClient implements ChatClient {
      * @param proxyStr 代理字符串
      */
     private static void applyProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return;
         }
         String hostPort;

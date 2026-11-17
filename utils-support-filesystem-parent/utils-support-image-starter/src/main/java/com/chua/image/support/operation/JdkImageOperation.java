@@ -23,6 +23,7 @@ import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.utils.SubImageOptions;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -267,7 +268,7 @@ public class JdkImageOperation implements ImageOperation {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
             }
-            if (direction == null || direction.isBlank()) {
+            if (StringUtils.isBlank(direction)) {
                 throw new IOException("翻转方向不能为空");
             }
             var image = BufferedImageUtils.getBufferedImage(imageBytes);

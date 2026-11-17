@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Droid（Factory）用量解析器。
@@ -237,7 +238,7 @@ public class DroidUsageParser extends BaseUsageParser {
      * @return 归一化模型名；空白返回空串
      */
     private String normalizeDroidModel(String raw) {
-        if (raw == null || raw.isBlank()) {
+        if (StringUtils.isBlank(raw)) {
             return "";
         }
         String s = raw.startsWith("custom:") ? raw.substring(7) : raw;

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Markdown 预览提供者：将 MD 转为 HTML。
@@ -288,7 +289,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
      * @return 安全URL的结果
      */
     private static String safeUrl(String url) {
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return "#";
         }
         String trimmed = url.trim();

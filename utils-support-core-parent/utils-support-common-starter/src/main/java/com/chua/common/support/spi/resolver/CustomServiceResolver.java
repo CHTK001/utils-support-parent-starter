@@ -205,7 +205,7 @@ public class CustomServiceResolver implements ServiceResolver {
      * @return 清理后的配置行
      */
     private static String sanitizeSpiLine(String line) {
-        if (line == null || line.isEmpty()) {
+        if (StringUtils.isEmpty(line)) {
             return line;
         }
 

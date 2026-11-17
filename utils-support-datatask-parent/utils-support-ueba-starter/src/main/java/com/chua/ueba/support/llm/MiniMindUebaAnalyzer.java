@@ -5,6 +5,8 @@ import ai.djl.ModelException;
 import ai.djl.inference.Predictor;
 import ai.djl.repository.zoo.Criteria;
 import ai.djl.repository.zoo.ZooModel;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator;
 import com.chua.ueba.support.dto.BehaviorProfile;
 import com.chua.ueba.support.dto.IpAnomalyResult;
@@ -67,7 +69,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
         ZooModel<String, String> loaded = null;
         boolean ok = false;
         String dir = System.getProperty(MODEL_DIR_PROPERTY);
-        if (dir == null || dir.isBlank()) {
+        if (StringUtils.isBlank(dir)) {
             log.warn("[UEBA-MiniMind] 未设置 {}，使用模板解释", MODEL_DIR_PROPERTY);
         } else {
             try {
@@ -129,7 +131,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
         }
         try (Predictor<String, String> predictor = model.newPredictor()) {
             String result = predictor.predict(buildPrompt(ipAnomaly, behavior, riskScore));
-            if (result == null || result.isBlank()) {
+            if (StringUtils.isBlank(result)) {
                 log.debug("[UEBA-MiniMind] 输出为空，回退模板解释");
                 return buildTemplate(ipAnomaly, behavior, riskScore);
             }
@@ -192,7 +194,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
      * @return 截取后的列表，绝不为 空
      */
     private static List<String> truncate(List<String> paths) {
-        if (paths == null || paths.isEmpty()) {
+        if (CollectionUtils.isEmpty(paths)) {
             return List.of();
         }
         return paths.size() <= MAX_RECENT_PATHS ? paths : paths.subList(0, MAX_RECENT_PATHS);

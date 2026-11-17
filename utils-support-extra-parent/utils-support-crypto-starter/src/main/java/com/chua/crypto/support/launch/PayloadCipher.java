@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 引导期加解密工具（打包注入专用，零第三方依赖）
@@ -192,7 +193,7 @@ public final class PayloadCipher {
      * @return SHA-256 十六进制串
      */
     public static String fingerprint(String pinned) {
-        if (pinned != null && !pinned.isBlank()) {
+        if (StringUtils.isNotBlank(pinned)) {
             return sha256Hex("pinned|" + pinned.trim());
         }
         List<String> parts = Wraps.list();

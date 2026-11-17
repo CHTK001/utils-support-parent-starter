@@ -9,6 +9,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎文字转语音（TTS）客户端抽象基类。
@@ -82,7 +83,7 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);

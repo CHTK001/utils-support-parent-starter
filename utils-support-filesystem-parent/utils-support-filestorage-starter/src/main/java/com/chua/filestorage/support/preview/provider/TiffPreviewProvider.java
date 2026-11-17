@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * TIFF/多页 TIFF 图像预览提供器。
@@ -305,7 +306,7 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
      */
     private String brief(Throwable ex) {
         String m = ex.getMessage();
-        if (m == null || m.isEmpty()) {
+        if (StringUtils.isEmpty(m)) {
             return ex.getClass().getSimpleName();
         }
         m = m.replace('\n', ' ').replace('\r', ' ');

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.onnx.GpuHelper;
 import com.chua.deeplearning.support.onnx.ModelResourceResolver;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PP-ocrv6 文字识别（ORT 原生 + 打开cv）。
@@ -144,7 +145,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      * @param path 模型绝对路径或外部目录路径
      */
     public void setModelPath(String path) {
-        if (path != null && !path.isBlank()) {
+        if (StringUtils.isNotBlank(path)) {
             this.injectedPath = path.trim();
         }
     }
@@ -369,7 +370,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
             int maxIdx = argMax(step);
             if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                 String ch = dict.get(maxIdx);
-                if (ch != null && !ch.isBlank()) {
+                if (StringUtils.isNotBlank(ch)) {
                     sb.append(ch);
                 }
             }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Pocket-TTS 专用 tokenizer（基于 vocab.json 的 BPE 分词器）。
@@ -111,7 +112,7 @@ public class PocketTtsTokenizer {
      * @return token 标识 数组
      */
     public long[] encode(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return new long[]{(long) unkId};
         }
 

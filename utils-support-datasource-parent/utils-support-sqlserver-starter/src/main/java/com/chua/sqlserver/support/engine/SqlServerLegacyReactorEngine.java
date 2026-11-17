@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
@@ -64,7 +65,7 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
      */
     public Flux<Map<String, Object>> queryWhere(String table, String where, Object... params) {
         StringBuilder sql = new StringBuilder("SELECT * FROM ").append(safeIdentifier(table));
-        if (where != null && !where.isEmpty()) {
+        if (StringUtils.isNotEmpty(where)) {
             sql.append(" WHERE ").append(where);
         }
         return query(sql.toString(), params);

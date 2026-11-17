@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import static com.chua.common.support.spi.definition.ServiceDefinitionUtils.buildDefinition;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -145,7 +146,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
      * @return 子类型列表
      */
     public List<Class<?>> findSubTypeByPackage(String packageName, Class<?> service, ClassLoader classLoader) {
-        if (packageName == null || packageName.isEmpty()) {
+        if (StringUtils.isEmpty(packageName)) {
             if (log.isTraceEnabled()) {
                 log.trace("[SPI] 包名为空，跳过扫描");
             }

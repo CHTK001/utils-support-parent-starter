@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 从 SELECT 语句文本里解析出「结果集会返回哪些字段」。
@@ -95,7 +96,7 @@ public final class SqlSelectFields {
      * @return 解析结果；语句不是 SELECT 时 {@link Result#resolvable()} 为 {@code false}
      */
     public static Result parse(String sql) {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             return new Result(List.of(), false);
         }
         String text = sql;

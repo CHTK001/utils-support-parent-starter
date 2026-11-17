@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于响应式分派器（Chronicle）的数据同步执行器封装。
@@ -139,7 +140,7 @@ public class ReactorDataSyncExecutor {
      * @param consumer 消息回调
      */
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
-        if (sinkId == null || sinkId.isBlank() || consumer == null) {
+        if (StringUtils.isBlank(sinkId) || consumer == null) {
             return;
         }
         if (directDispatch) {
@@ -159,7 +160,7 @@ public class ReactorDataSyncExecutor {
      * @param sinkId sink 标识
      */
     public void unsubscribe(String sinkId) {
-        if (sinkId == null || sinkId.isBlank()) {
+        if (StringUtils.isBlank(sinkId)) {
             return;
         }
         if (directDispatch) {

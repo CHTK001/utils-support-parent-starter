@@ -21,6 +21,7 @@ import com.google.genai.ResponseStream;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Google Gemini 大模型对话客户端
@@ -341,7 +342,7 @@ public class GoogleChatClient implements ChatClient {
 
         try {
             GenerateContentConfig.Builder configBuilder = GenerateContentConfig.builder();
-            if (actualSystem != null && !actualSystem.isEmpty()) {
+            if (StringUtils.isNotEmpty(actualSystem)) {
                 configBuilder.systemInstruction(
                         Content.builder().parts(List.of(Part.builder().text(actualSystem).build())).build());
             }
@@ -453,7 +454,7 @@ public class GoogleChatClient implements ChatClient {
      * @param proxyStr 代理地址，支持 http://、socks5:// 格式，可为空
      */
     private static void applyProxy(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+        if (StringUtils.isBlank(proxyStr)) {
             return;
         }
         String host;

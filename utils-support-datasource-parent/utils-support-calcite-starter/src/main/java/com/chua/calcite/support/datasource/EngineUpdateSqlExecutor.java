@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 将简单 SQL 更新 路由到 {@link Engine}（Calcite modifiabletable 不支持 更新）。
@@ -119,7 +120,7 @@ public final class EngineUpdateSqlExecutor {
             return null;
         }
         Map<String, Object> wheres;
-        if (wherePart == null || wherePart.isBlank()) {
+        if (StringUtils.isBlank(wherePart)) {
             wheres = Map.of();
         } else {
             wheres = parseAndEquals(wherePart);
@@ -272,7 +273,7 @@ public final class EngineUpdateSqlExecutor {
      * @return 列名与值；不合法返回 空
      */
     private static Map.Entry<String, Object> parseCondition(String seg) {
-        if (seg == null || seg.isBlank()) {
+        if (StringUtils.isBlank(seg)) {
             return null;
         }
         int eq = indexOfAssign(seg);

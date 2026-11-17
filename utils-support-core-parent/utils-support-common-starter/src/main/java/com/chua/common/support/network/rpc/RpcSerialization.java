@@ -11,6 +11,7 @@ import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * RPC 请求/响应编解码适配器。
@@ -70,7 +71,7 @@ public final class RpcSerialization {
      */
     public RpcSerialization(String configuredName) {
         Serialization picked = null;
-        if (configuredName != null && !configuredName.isBlank()) {
+        if (StringUtils.isNotBlank(configuredName)) {
             picked = loadByName(configuredName);
         }
         if (picked == null) {

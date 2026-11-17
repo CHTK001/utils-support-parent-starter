@@ -25,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * free习俗.Email (FCE) 临时邮箱服务实现 — REST API 方式。
@@ -71,7 +72,7 @@ public class FceEmailProvider implements EmailProvider {
 
     @Override
     public String createEmail() {
-        if (apiKey == null || apiKey.isBlank()) {
+        if (StringUtils.isBlank(apiKey)) {
             log.warn("[FceEmail] FCE_API_KEY 未配置");
             return null;
         }
@@ -100,7 +101,7 @@ public class FceEmailProvider implements EmailProvider {
 
     @Override
     public List<EmailInfo> fetchEmails(String email) {
-        if (email == null || apiKey == null || apiKey.isBlank()) {
+        if (email == null || StringUtils.isBlank(apiKey)) {
             return Collections.emptyList();
         }
         try {
@@ -182,7 +183,7 @@ public class FceEmailProvider implements EmailProvider {
      */
     private static String resolveApiKey() {
         String key = System.getProperty("fce.api.key");
-        if (key != null && !key.isBlank()) {
+        if (StringUtils.isNotBlank(key)) {
             return key.trim();
         }
         key = System.getenv("FCE_API_KEY");

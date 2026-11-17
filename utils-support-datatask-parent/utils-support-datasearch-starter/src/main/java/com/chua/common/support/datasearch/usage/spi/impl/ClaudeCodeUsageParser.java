@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Claude Code 用量解析器——从本地 JSONL 会话文件解析 token 用量。
@@ -140,7 +141,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      */
     private static String groupKey(AiUsage usage) {
         String requestId = usage.getRequestId();
-        return requestId == null || requestId.isBlank()
+        return StringUtils.isBlank(requestId)
                 ? UNKEYED_PREFIX + UNKEYED_SEQUENCE.getAndIncrement() : requestId;
     }
 
@@ -212,7 +213,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      */
     private static boolean settled(AiUsage usage) {
         String finishReason = usage.getFinishReason();
-        return finishReason != null && !finishReason.isBlank();
+        return StringUtils.isNotBlank(finishReason);
     }
 
     /**
@@ -328,7 +329,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      * @return epoch 毫秒；为空或非法时 0
      */
     private long parseTimestamp(String ts) {
-        if (ts == null || ts.isBlank()) {
+        if (StringUtils.isBlank(ts)) {
             return 0L;
         }
         try {
@@ -345,7 +346,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      * @return 归一化结果
      */
     private String normalizeModel(String model) {
-        return (model == null || model.isBlank() || "<synthetic>".equals(model))
+        return (StringUtils.isBlank(model) || "<synthetic>".equals(model))
                 ? "unknown" : model;
     }
 }

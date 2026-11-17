@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Unsloth Studio 用量解析器。
@@ -50,7 +51,7 @@ public class UnslothUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String studioHome = System.getenv("UNSLOTH_STUDIO_HOME");
-        if (studioHome != null && !studioHome.isBlank()) {
+        if (StringUtils.isNotBlank(studioHome)) {
             return Path.of(studioHome, "studio.db");
         }
         return Path.of(System.getProperty("user.home"), ".unsloth", "studio", "studio.db");

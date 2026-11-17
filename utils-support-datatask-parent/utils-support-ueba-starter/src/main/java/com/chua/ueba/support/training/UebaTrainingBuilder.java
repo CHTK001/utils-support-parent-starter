@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 训练管线链式构建器。
@@ -152,7 +153,7 @@ public final class UebaTrainingBuilder {
      * @throws IllegalArgumentException 当 文件 为 空 或空白时
      */
     public UebaTrainingBuilder configFile(String file) {
-        if (file == null || file.isBlank()) {
+        if (StringUtils.isBlank(file)) {
             throw new IllegalArgumentException("file 不能为 null 或空白");
         }
         return config(Paths.get(file));
@@ -166,7 +167,7 @@ public final class UebaTrainingBuilder {
      * @throws IllegalArgumentException 当 resource 为 空/空白或资源不存在时
      */
     public UebaTrainingBuilder configResource(String resource) {
-        if (resource == null || resource.isBlank()) {
+        if (StringUtils.isBlank(resource)) {
             throw new IllegalArgumentException("resource 不能为 null 或空白");
         }
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(resource)) {
@@ -205,7 +206,7 @@ public final class UebaTrainingBuilder {
      * @throws IllegalArgumentException 当 数据文件 为 空 或空白时
      */
     public UebaTrainingBuilder data(String dataFile) {
-        if (dataFile == null || dataFile.isBlank()) {
+        if (StringUtils.isBlank(dataFile)) {
             throw new IllegalArgumentException("dataFile 不能为 null 或空白");
         }
         return data(Paths.get(dataFile));
@@ -241,7 +242,7 @@ public final class UebaTrainingBuilder {
      * @return 当前构建器
      */
     public UebaTrainingBuilder outputDir(String outputDir) {
-        if (outputDir == null || outputDir.isBlank()) {
+        if (StringUtils.isBlank(outputDir)) {
             this.outputDir = null;
             return this;
         }
@@ -301,7 +302,7 @@ public final class UebaTrainingBuilder {
      * @throws IllegalArgumentException 当 Python命令 为 空 或空白时
      */
     public UebaTrainingBuilder python(String pythonCommand) {
-        if (pythonCommand == null || pythonCommand.isBlank()) {
+        if (StringUtils.isBlank(pythonCommand)) {
             throw new IllegalArgumentException("pythonCommand 不能为 null 或空白");
         }
         this.pythonCommand = pythonCommand;
@@ -330,7 +331,7 @@ public final class UebaTrainingBuilder {
      * @throws IllegalArgumentException 当 resumedir 为 空 或空白时
      */
     public UebaTrainingBuilder resume(String resumeDir) {
-        if (resumeDir == null || resumeDir.isBlank()) {
+        if (StringUtils.isBlank(resumeDir)) {
             throw new IllegalArgumentException("resumeDir 不能为 null 或空白");
         }
         return resume(Paths.get(resumeDir));

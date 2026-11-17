@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 密钥文件路径解析器
@@ -48,7 +49,7 @@ public final class KeyFileResolver {
      * @return 规范化绝对路径
      */
     public static Path resolve(String configured) {
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             return defaultKeyFile();
         }
         Path configuredPath = Paths.get(configured);

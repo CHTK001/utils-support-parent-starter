@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DES 编解码实现。
@@ -73,7 +74,7 @@ public class DesCodec implements Codec {
      * @return 密钥
      */
     private byte[] deriveKey() {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             throw new IllegalArgumentException("DES 密钥不能为空");
         }
         try {

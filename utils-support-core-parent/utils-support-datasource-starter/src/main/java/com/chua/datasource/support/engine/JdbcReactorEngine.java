@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 import java.sql.SQLFeatureNotSupportedException;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JDBC 统一响应式引擎，根据数据源数量和类型自动选择执行路径。
@@ -291,10 +292,10 @@ public class JdbcReactorEngine implements ReactorEngine {
             }
         }
 
-        if (username != null && !username.isEmpty()) {
+        if (StringUtils.isNotEmpty(username)) {
             builder.option(USER, username);
         }
-        if (password != null && !password.isEmpty()) {
+        if (StringUtils.isNotEmpty(password)) {
             builder.option(PASSWORD, password);
         }
         return ConnectionFactories.get(builder.build());
@@ -406,7 +407,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         return new DataSource() {
             @Override
             public java.sql.Connection getConnection() throws java.sql.SQLException {
-                if (finalUser != null && !finalUser.isEmpty()) {
+                if (StringUtils.isNotEmpty(finalUser)) {
                     java.util.Properties props = new java.util.Properties();
                     props.put("user", finalUser);
                     if (finalPass != null) {
@@ -869,7 +870,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         Map<String, Object> rowMap = Wraps.linkedMap();
         for (ColumnMetadata cm : meta.getColumnMetadatas()) {
             String name = cm.getName();
-            if (name != null && !name.isEmpty()) {
+            if (StringUtils.isNotEmpty(name)) {
                 rowMap.put(name, row.get(name));
             }
         }
@@ -882,7 +883,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             T instance = ReflectUtils.instantiate(rowType);
             row.getMetadata().getColumnMetadatas().forEach(cm -> {
                 String name = cm.getName();
-                if (name != null && !name.isEmpty()) {
+                if (StringUtils.isNotEmpty(name)) {
                     Object value = row.get(name);
                     if (value != null) {
                         setFieldValue(instance, name, value);

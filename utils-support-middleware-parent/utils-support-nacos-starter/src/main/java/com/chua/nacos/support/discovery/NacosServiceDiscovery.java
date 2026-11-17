@@ -73,7 +73,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
             return Collections.emptySet();
         }
         try {
-            List<Instance> instances = clusterName != null && !clusterName.isEmpty()
+            List<Instance> instances = StringUtils.isNotEmpty(clusterName)
                     ? namingService.getAllInstances(clusterName, name)
                     : namingService.getAllInstances(name);
             if (instances == null || instances.isEmpty()) {
@@ -170,7 +170,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     @Override
     public void start() {
         try {
-            if (clusterName != null && !clusterName.isEmpty()) {
+            if (StringUtils.isNotEmpty(clusterName)) {
                 var props = new java.util.Properties();
                 props.setProperty("serverAddr", discoveryOption.getAddress());
                 props.setProperty("namespace", clusterName);

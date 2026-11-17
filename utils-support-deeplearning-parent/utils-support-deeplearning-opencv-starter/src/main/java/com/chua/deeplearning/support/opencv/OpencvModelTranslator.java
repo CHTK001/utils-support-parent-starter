@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 纯 打开cv 翻译器抽象基类。
@@ -151,7 +152,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
      * @return 模型文件的 文件 对象
      */
     public static File resolveModelPath(String modelPath) {
-        if (modelPath == null || modelPath.isBlank()) {
+        if (StringUtils.isBlank(modelPath)) {
             throw new IllegalArgumentException("模型路径为空");
         }
         Path path = Path.of(modelPath);

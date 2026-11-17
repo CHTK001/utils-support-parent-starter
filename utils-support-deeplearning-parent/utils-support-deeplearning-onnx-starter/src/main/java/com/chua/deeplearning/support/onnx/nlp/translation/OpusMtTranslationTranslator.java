@@ -22,6 +22,7 @@ import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用 marianmt 嵌入式机器翻译器（ORT 原生 + huggingface Tokenizer）。
@@ -190,7 +191,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
      * @throws Exception 解析异常
      */
     private Path resolveModelDir() throws Exception {
-        if (resourceBase != null && !resourceBase.isBlank()) {
+        if (StringUtils.isNotBlank(resourceBase)) {
             Path tmpDir = Files.createTempDirectory(modelId + "-");
             tmpDir.toFile().deleteOnExit();
             Path modelDir = tmpDir.resolve(modelId);
@@ -205,7 +206,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
                     .load();
             return modelDir;
         }
-        if (downloadBaseUrl == null || downloadBaseUrl.isBlank()) {
+        if (StringUtils.isBlank(downloadBaseUrl)) {
             throw new IllegalArgumentException(modelId + " 未配置资源位置");
         }
  // downloadurl 模式：下载四文件到缓存目录 %TEMP%/chua-dl-模型/{模型标识}
@@ -242,7 +243,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     */
     @Override
     public String translate(String text) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return text;
         }
         try {
@@ -361,7 +362,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
      * @return 清洗后的译文
      */
     private static String postProcess(String decoded) {
-        if (decoded == null || decoded.isEmpty()) {
+        if (StringUtils.isEmpty(decoded)) {
             return decoded;
         }
         int sep = decoded.indexOf(" - ");

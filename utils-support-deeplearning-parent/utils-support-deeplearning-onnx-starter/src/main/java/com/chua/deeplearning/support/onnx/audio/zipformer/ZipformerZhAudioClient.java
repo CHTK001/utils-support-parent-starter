@@ -17,6 +17,7 @@ import java.util.UUID;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import java.net.URI;
 import java.nio.file.StandardCopyOption;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Zipformer 纯中文流式 ASR 客户端。
@@ -271,7 +272,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return Path.of(prop.trim());
         }
         Path dir = Path.of(cacheRoot(), CACHE_SUBDIR.stripLeading().stripTrailing());
@@ -314,7 +315,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     @Override public void close() {

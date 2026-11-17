@@ -143,7 +143,7 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
 
     @Override
     public boolean isRemoteServiceRunning(String serviceName) {
-        if (serviceName == null || serviceName.isBlank()) {
+        if (StringUtils.isBlank(serviceName)) {
             return false;
         }
         requireConnected();
@@ -265,7 +265,7 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
      * @param remotePath 远程目标路径（含文件名）
      */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
-        if (localPath == null || localPath.isBlank()) {
+        if (StringUtils.isBlank(localPath)) {
             return;
         }
         try {

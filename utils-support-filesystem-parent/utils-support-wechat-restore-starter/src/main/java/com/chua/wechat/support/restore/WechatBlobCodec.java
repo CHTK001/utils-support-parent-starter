@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.Inflater;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信消息体 blob 解码器。
@@ -239,7 +240,7 @@ public final class WechatBlobCodec {
      * @return 清理后的文本
      */
     public static String sanitize(String s) {
-        if (s == null || s.isEmpty()) {
+        if (StringUtils.isEmpty(s)) {
             return "";
         }
         StringBuilder sb = new StringBuilder(s.length());

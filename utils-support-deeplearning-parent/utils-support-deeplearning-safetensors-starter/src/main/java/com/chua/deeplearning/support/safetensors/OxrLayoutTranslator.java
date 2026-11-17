@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SoMark OXR-1.0 版面解析翻译器（Markdown 输出）。
@@ -107,7 +108,7 @@ public class OxrLayoutTranslator implements ITranslator<byte[], String> {
      * @param value  值
      */
     private static void putIfPresent(Map<String, Object> params, String key, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             params.put(key, value);
         }
     }

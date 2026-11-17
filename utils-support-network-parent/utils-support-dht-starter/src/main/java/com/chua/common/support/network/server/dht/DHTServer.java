@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DHT 服务器，提供链式构建的 DHT 节点服务。
@@ -537,7 +538,7 @@ public class DHTServer extends AbstractServer {
          * @return DHTServer 实例
          */
         public DHTServer build() {
-            KademliaNodeId id = nodeId != null && !nodeId.isEmpty()
+            KademliaNodeId id = StringUtils.isNotEmpty(nodeId)
                     ? KademliaNodeId.fromHex(nodeId)
                     : KademliaNodeId.random();
             DhtConfig config = DhtConfig.builder()

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
@@ -59,7 +60,7 @@ public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethod
 
         for (int i = 0; i < paramTypes.length; i++) {
             Object arg = null;
-            if (namedValue != null && !namedValue.isEmpty() && beanProvider != null) {
+            if (StringUtils.isNotEmpty(namedValue) && beanProvider != null) {
                 arg = beanProvider.apply(namedValue);
             }
             if (arg == null && typeProvider != null) {

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.algorithm.crypto;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文本加解密 SPI。
@@ -60,7 +61,7 @@ public interface Codec {
      * @throws IllegalArgumentException 类型不支持
      */
     static Codec build(String type, String key) {
-        String name = type == null || type.isBlank() ? "aes" : type.trim().toLowerCase(Locale.ROOT);
+        String name = StringUtils.isBlank(type) ? "aes" : type.trim().toLowerCase(Locale.ROOT);
         ServiceProvider<Codec> provider = ServiceProvider.of(Codec.class);
         if (!provider.isSupport(name)) {
             throw new IllegalArgumentException("不支持的加解密类型: " + type);

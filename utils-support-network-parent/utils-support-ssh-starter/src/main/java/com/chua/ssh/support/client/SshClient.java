@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SSH 链式客户端，基于 Apache MINA SSHD 3.x。
@@ -172,7 +173,7 @@ public class SshClient implements AutoCloseable {
             if (password != null) {
                 session.addPasswordIdentity(password);
             }
-            if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
+            if (StringUtils.isNotEmpty(privateKeyPath)) {
                 var provider = new org.apache.sshd.common.keyprovider.FileKeyPairProvider(
                         java.nio.file.Path.of(privateKeyPath));
                 int loaded = 0;
@@ -257,7 +258,7 @@ public class SshClient implements AutoCloseable {
         String last = "";
         while (t != null) {
             String msg = t.getMessage();
-            if (msg != null && !msg.isBlank()) {
+            if (StringUtils.isNotBlank(msg)) {
                 last = msg;
             }
             t = t.getCause();
@@ -987,7 +988,7 @@ public class SshClient implements AutoCloseable {
         public TerminalOperation connect() {
             try {
                 PtyChannelConfiguration ptyConfig = new PtyChannelConfiguration();
-                ptyConfig.setPtyType(ptyType == null || ptyType.isBlank() ? "vt100" : ptyType);
+                ptyConfig.setPtyType(StringUtils.isBlank(ptyType) ? "vt100" : ptyType);
                 ptyConfig.setPtyColumns(width);
                 ptyConfig.setPtyLines(height);
 

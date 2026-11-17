@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AI 对话客户端接口
@@ -85,7 +86,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
         ChatClient client = serviceProvider.getNewExtension(setting.getProvider(), setting);
         if (client == null) {
             String baseUrl = setting.getBaseUrl();
-            if (baseUrl != null && !baseUrl.isBlank()) {
+            if (StringUtils.isNotBlank(baseUrl)) {
                 LOG.warn("[ChatClient] 供应商 {} 未注册 SPI 扩展，按 OpenAI 兼容协议兜底 baseUrl={}",
                         setting.getProvider(), baseUrl);
                 client = serviceProvider.getNewExtension(OPENAI_EXTENSION, setting);

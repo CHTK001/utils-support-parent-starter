@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * NSS key log 解码器（编解码 SPI 实现）。
@@ -33,7 +34,7 @@ public class TlsKeyLogDecoder implements Decoder<String, List<TlsKeyLogDecoder.E
      * @return true 表示合法
      */
     private static boolean isHex(String value) {
-        if (value == null || value.isEmpty() || (value.length() & 1) == 1) {
+        if (StringUtils.isEmpty(value) || (value.length() & 1) == 1) {
             return false;
         }
         for (int i = 0; i < value.length(); i++) {

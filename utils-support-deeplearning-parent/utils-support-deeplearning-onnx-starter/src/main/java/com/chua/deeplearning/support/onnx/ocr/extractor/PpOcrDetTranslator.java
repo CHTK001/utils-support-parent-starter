@@ -24,6 +24,7 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import com.chua.deeplearning.support.onnx.GpuHelper;
 import org.opencv.core.CvType;
 import org.opencv.core.Scalar;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PP-ocrv6 文字检测（DB 算法，ORT 原生 + 打开cv）。
@@ -195,7 +196,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
      * @param path 模型绝对路径或外部目录路径
      */
     public void setModelPath(String path) {
-        if (path != null && !path.isBlank()) {
+        if (StringUtils.isNotBlank(path)) {
             this.injectedPath = path.trim();
         }
     }

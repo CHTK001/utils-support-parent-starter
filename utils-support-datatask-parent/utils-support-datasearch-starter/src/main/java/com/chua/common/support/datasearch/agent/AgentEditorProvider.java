@@ -333,7 +333,7 @@ public class AgentEditorProvider {
         public Path getConfigDirPath() {
             if (envVar != null) {
                 String envValue = System.getenv(envVar);
-                if (envValue != null && !envValue.isBlank()) {
+                if (StringUtils.isNotBlank(envValue)) {
                     return Paths.get(envValue);
                 }
             }
@@ -666,7 +666,7 @@ public class AgentEditorProvider {
         videoSearchHandler = new VideoSearchHandler() {
             @Override
             public Map<String, Object> search(String keyword, String source, int page, int pageSize) {
-                String type = source == null || source.isBlank() ? DEFAULT_VIDEO_SOURCE : source;
+                String type = StringUtils.isBlank(source) ? DEFAULT_VIDEO_SOURCE : source;
                 ResourceProvider provider = ServiceProvider.of(ResourceProvider.class).getNewExtension(type);
                 if (provider == null) {
                     provider = ServiceProvider.of(ResourceProvider.class).getExtension(type);
@@ -1274,7 +1274,7 @@ public class AgentEditorProvider {
             Path configDir;
             Path configFile;
             String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
-            if (envValue != null && !envValue.isBlank()) {
+            if (StringUtils.isNotBlank(envValue)) {
                 configDir = Paths.get(envValue);
                 configFile = configDir.resolve(editor.getMcpConfigFile());
             } else {
@@ -1372,7 +1372,7 @@ public class AgentEditorProvider {
  // 优先使用环境变量指定的路径，否则使用 基础路径/配置dir
             Path configFile;
             String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
-            if (envValue != null && !envValue.isBlank()) {
+            if (StringUtils.isNotBlank(envValue)) {
                 configFile = Paths.get(envValue).resolve(editor.getMcpConfigFile());
             } else {
                 configFile = basePath.resolve(editor.getMcpConfigPath());

@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DHT 协议引擎。
@@ -757,7 +758,7 @@ public class DhtProtocol implements AutoCloseable {
      */
     private void recordAnnouncedPeer(DhtMessage msg, InetSocketAddress sender) {
         String infohash = msg.getInfohash();
-        if (infohash == null || infohash.isEmpty()) {
+        if (StringUtils.isEmpty(infohash)) {
             return;
         }
         int port = msg.getImpliedPort() > 0 ? msg.getImpliedPort() : sender.getPort();
@@ -791,7 +792,7 @@ public class DhtProtocol implements AutoCloseable {
      * @return peer 列表；没有时返回空列表
      */
     private List<DhtPeer> peersOf(String infohash) {
-        if (infohash == null || infohash.isEmpty()) {
+        if (StringUtils.isEmpty(infohash)) {
             return List.of();
         }
         List<AnnouncedPeer> peers = announcedPeers.get(infohash);
@@ -842,7 +843,7 @@ public class DhtProtocol implements AutoCloseable {
      */
     private void handleGetPeers(DhtMessage msg, InetSocketAddress sender) {
         String infohash = msg.getInfohash() != null ? msg.getInfohash() : msg.getTargetId();
-        if (infohash != null && !infohash.isEmpty()) {
+        if (StringUtils.isNotEmpty(infohash)) {
             boolean isNew = infohashes.add(infohash);
             if (crawlListener != null) {
                 crawlListener.onInfohash(infohash, sender);
@@ -942,7 +943,7 @@ public class DhtProtocol implements AutoCloseable {
      * @return 收集到的 BT peer 列表（可能为空）
      */
     public List<DhtPeer> activeCrawl(String infohash) {
-        if (krpcBridge == null || infohash == null || infohash.isEmpty()) {
+        if (krpcBridge == null || StringUtils.isEmpty(infohash)) {
             return Collections.emptyList();
         }
         KademliaNodeId target = KademliaNodeId.fromHex(infohash);

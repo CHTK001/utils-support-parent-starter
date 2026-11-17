@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Otnl（Open Telemetry Native Layer）引擎 SPI。
@@ -277,7 +278,7 @@ public interface OtnlEngine extends Engine {
         Map<String, OtnlTopology.OtnlTopologyNode> nodes = new LinkedHashMap<>();
         Map<String, OtnlTopology.OtnlTopologyCall> calls = new LinkedHashMap<>();
         for (String serviceName : serviceNames) {
-            if (serviceName == null || serviceName.isBlank()) {
+            if (StringUtils.isBlank(serviceName)) {
                 continue;
             }
             OtnlTopology topology = topology(query.withService(serviceName));

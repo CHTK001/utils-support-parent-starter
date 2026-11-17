@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 统一门户注解的 Bean ↔ Map 桥接转换器。
@@ -328,7 +329,7 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
      * @return 首字母大写后的名称
      */
     private static String capitalize(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return name;
         }
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);

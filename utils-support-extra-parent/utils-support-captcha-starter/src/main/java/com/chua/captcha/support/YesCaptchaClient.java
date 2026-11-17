@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * yescaptcha 验证码解析服务客户端
@@ -167,7 +168,7 @@ public class YesCaptchaClient implements CaptchaParser {
      */
     private static String resolveImageBody(byte[] imageData, Map<String, String> options) {
         String body = options.get("body");
-        if (body != null && !body.isEmpty()) {
+        if (StringUtils.isNotEmpty(body)) {
             return body;
         }
         if (imageData == null || imageData.length == 0) {
@@ -326,7 +327,7 @@ public class YesCaptchaClient implements CaptchaParser {
      * @param value 值
      */
     private static void putIfNotBlank(Map<String, Object> map, String key, String value) {
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             map.put(key, value);
         }
     }

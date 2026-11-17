@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * GIF 图像解码器。
@@ -146,7 +147,7 @@ public class GifDecoder {
             }
 
             String delayStr = gce.getAttribute("delayTime");
-            if (delayStr == null || delayStr.isEmpty()) {
+            if (StringUtils.isEmpty(delayStr)) {
                 return 10;
             }
 
@@ -185,7 +186,7 @@ public class GifDecoder {
                 }
 
                 String data = child.getAttribute("data");
-                if (data == null || data.isEmpty()) {
+                if (StringUtils.isEmpty(data)) {
                     continue;
                 }
 

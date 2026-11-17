@@ -100,6 +100,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * APM 启动器 — 程序化启动所有 APM 处理器。
@@ -478,15 +479,15 @@ public class ApmBootstrap {
             options = java.util.Collections.emptyMap();
         }
         String fromAgent = options.get(agentOptionKey);
-        if (fromAgent == null || fromAgent.isEmpty()) {
+        if (StringUtils.isEmpty(fromAgent)) {
             // 兼容全名 key（用户写 apm.storage.type 而非 storage.type）
             fromAgent = options.get("apm." + agentOptionKey);
         }
-        if (fromAgent != null && !fromAgent.isEmpty()) {
+        if (StringUtils.isNotEmpty(fromAgent)) {
             return fromAgent;
         }
         String fromSys = System.getProperty(sysPropKey);
-        if (fromSys != null && !fromSys.isEmpty()) {
+        if (StringUtils.isNotEmpty(fromSys)) {
             return fromSys;
         }
         return defaultValue;

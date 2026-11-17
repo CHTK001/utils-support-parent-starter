@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 支持 JDBC 的存储实现的隔离加载器。
@@ -299,7 +300,7 @@ public final class ApmStorageClassLoader {
         List<File> files = new ArrayList<>();
 
         String libs = config == null ? null : config.get(KEY_JDBC_LIBS);
-        if (libs == null || libs.isBlank()) {
+        if (StringUtils.isBlank(libs)) {
             libs = System.getProperty(SYS_JDBC_LIBS, "");
         }
         for (String part : libs.split(File.pathSeparator)) {

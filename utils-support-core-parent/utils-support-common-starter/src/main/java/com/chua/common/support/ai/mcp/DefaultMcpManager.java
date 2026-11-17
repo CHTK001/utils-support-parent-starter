@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认 MCP 管理器（进程内注册表），统一管理多个 MCP 服务端的注册、发现和工具调用路由。
@@ -23,7 +24,7 @@ public class DefaultMcpManager implements McpManager {
      */
     @Override
     public McpManager register(String name, McpClient client) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("MCP 客户端名称不能为空");
         }
         if (client == null) {

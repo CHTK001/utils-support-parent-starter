@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MiMo Code（小米）用量解析器。
@@ -71,13 +72,13 @@ public class MimoUsageParser extends BaseUsageParser {
     private static List<Path> resolveDbPaths() {
         List<Path> candidates = new ArrayList<>();
         String appData = System.getenv("APPDATA");
-        if (appData != null && !appData.isBlank()) {
+        if (StringUtils.isNotBlank(appData)) {
             candidates.add(Path.of(appData, "mimocode", "mimocode.db"));
             candidates.add(Path.of(appData, "Xiaomi MiMo", "mimocode", "mimocode.db"));
             candidates.add(Path.of(appData, "Xiaomi MiMo", "mimocode.db"));
         }
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
-        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+        if (StringUtils.isNotBlank(xdgDataHome)) {
             candidates.add(Path.of(xdgDataHome, "mimocode", "mimocode.db"));
         }
         candidates.add(Path.of(System.getProperty("user.home"), ".local", "share",
@@ -154,7 +155,7 @@ public class MimoUsageParser extends BaseUsageParser {
     private AiUsage toAiUsage(Map<String, Object> row, String source) {
         String rawTokens = asStr(row.get("tokens"));
         int input = 0, output = 0, reasoning = 0, cacheRead = 0, cacheWrite = 0;
-        if (rawTokens != null && !rawTokens.isBlank()) {
+        if (StringUtils.isNotBlank(rawTokens)) {
             try {
                 com.chua.common.support.lang.json.JsonNode tokens =
                         com.chua.common.support.lang.json.Json.parse(rawTokens);

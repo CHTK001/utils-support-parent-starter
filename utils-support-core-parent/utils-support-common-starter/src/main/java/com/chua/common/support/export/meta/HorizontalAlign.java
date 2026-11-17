@@ -1,4 +1,5 @@
 package com.chua.common.support.export.meta;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 水平对齐方式。
@@ -32,7 +33,7 @@ public enum HorizontalAlign {
      * @return 解析结果
      */
     public static HorizontalAlign of(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             return AUTO;
         }
         String key = name.trim().replace("-", "").replace("_", "");

@@ -5,6 +5,7 @@ import com.chua.common.support.ai.decision.DecisionType;
 
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 决策问题的定义。
@@ -94,13 +95,13 @@ public record DecisionQuestion(
      */
     public DecisionQuestion(DecisionType type, String name, Map<String, String> criteria, List<String> levels,
                             String instructions) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         if (type == null) {
             throw new NullPointerException("type 不能为 null");
         }
-        if (instructions == null || instructions.isBlank()) {
+        if (StringUtils.isBlank(instructions)) {
             throw new IllegalArgumentException("instructions 不能为 null 或空白");
         }
         if (type.isChoice()) {

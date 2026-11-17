@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 图片格式支持工具类。
@@ -192,7 +193,7 @@ public class ImageSupportUtils {
      * @return 标准化后的格式名称，如果未找到别名则返回原名称的小写形式
      */
     public static String normalizeFormat(String format) {
-        if (format == null || format.isEmpty()) {
+        if (StringUtils.isEmpty(format)) {
             return "png";
         }
         String lower = format.toLowerCase();

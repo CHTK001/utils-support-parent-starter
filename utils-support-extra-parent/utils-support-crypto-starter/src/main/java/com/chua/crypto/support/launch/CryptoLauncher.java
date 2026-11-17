@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 加密程序包引导器（Manifest 注入的 Main-类）
@@ -175,13 +176,13 @@ public final class CryptoLauncher {
         try (JarFile jar = new JarFile(self)) {
             Attributes attrs = mainAttributes(jar);
             String originalMain = attrs.getValue(ATTR_ORIGINAL_MAIN);
-            if (originalMain == null || originalMain.isBlank()) {
+            if (StringUtils.isBlank(originalMain)) {
                 throw new IllegalStateException("缺少清单属性 " + ATTR_ORIGINAL_MAIN + "，请确认已由 chua-crypto 打包");
             }
             // 兼容：清单记录的是 SpringBoot 加载器时回退到 Start-Class
             if (originalMain.startsWith("org.springframework.boot.loader.")) {
                 String startClass = attrs.getValue("Start-Class");
-                if (startClass != null && !startClass.isBlank()) {
+                if (StringUtils.isNotBlank(startClass)) {
                     originalMain = startClass;
                 }
             }
@@ -524,7 +525,7 @@ public final class CryptoLauncher {
      */
     private static char[] readSecret() {
         String pin = System.getProperty(PROP_PIN);
-        if (pin == null || pin.isBlank()) {
+        if (StringUtils.isBlank(pin)) {
             pin = System.getenv(ENV_PIN);
         }
         return pin == null ? null : pin.toCharArray();

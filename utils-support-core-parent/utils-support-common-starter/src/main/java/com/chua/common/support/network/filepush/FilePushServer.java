@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.chua.common.support.network.filepush.FilePushConfig.MAGIC;
 import static com.chua.common.support.network.filepush.FilePushConfig.PROTOCOL_VERSION;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 目录推送服务端：接收客户端推送的整个目录并写入本地目标目录。
@@ -198,7 +199,7 @@ public class FilePushServer implements AutoCloseable {
      * @return this
      */
     public FilePushServer targetDir(String targetDir) {
-        if (targetDir == null || targetDir.isBlank()) {
+        if (StringUtils.isBlank(targetDir)) {
             throw new IllegalArgumentException("targetDir 不能为空");
         }
         return targetDir(Path.of(targetDir.trim()));

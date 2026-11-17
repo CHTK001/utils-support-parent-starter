@@ -55,6 +55,7 @@ import com.chua.common.support.lang.datasource.engine.interceptor.EngineIntercep
 import java.util.Set;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * RocksDB 引擎实现（嵌入式本地文件目录）。
@@ -680,7 +681,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         RocksDB db = currentDB();
-        if (db == null || query == null || query.isBlank()) {
+        if (db == null || StringUtils.isBlank(query)) {
             return Collections.emptyList();
         }
         String token = normalizeToken(query);
@@ -1109,7 +1110,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         java.util.List<Object> allParams = sql.params() == null
                 ? java.util.Collections.emptyList() : sql.params();
         int paramIdx = 0;
-        if (setClause != null && !setClause.isEmpty()) {
+        if (StringUtils.isNotEmpty(setClause)) {
             java.util.regex.Matcher m = SET_ASSIGNMENT.matcher(setClause);
             while (m.find()) {
                 if (paramIdx >= allParams.size()) {

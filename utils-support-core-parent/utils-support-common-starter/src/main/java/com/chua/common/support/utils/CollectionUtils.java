@@ -18,6 +18,7 @@ import java.util.function.Function;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**

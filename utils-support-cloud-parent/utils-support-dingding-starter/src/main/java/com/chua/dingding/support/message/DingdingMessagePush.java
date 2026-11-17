@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 钉钉消息推送实现
@@ -100,7 +101,7 @@ public class DingdingMessagePush implements MessagePush {
         long start = System.currentTimeMillis();
 
         String webhookUrl = environment.get("dingding.webhookUrl");
-        if (webhookUrl == null || webhookUrl.isBlank()) {
+        if (StringUtils.isBlank(webhookUrl)) {
             throw new IllegalArgumentException("dingding.webhookUrl 配置项必填");
         }
 
@@ -121,7 +122,7 @@ public class DingdingMessagePush implements MessagePush {
         json.fluentPut(msgType, contentObj);
 
         String url = webhookUrl;
-        if (secret != null && !secret.isBlank()) {
+        if (StringUtils.isNotBlank(secret)) {
             long timestamp = Instant.now().toEpochMilli();
             String stringToSign = timestamp + "\n" + secret;
 

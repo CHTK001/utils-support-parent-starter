@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 路由组对话客户端：一个「模型」背后是模型库里的一组成员模型，选谁由组内策略决定。
@@ -324,7 +325,7 @@ public class RouterGroupChatClient extends SwitchingChatClient {
      */
     private List<SwitchingMember> manualFilter(List<SwitchingMember> candidates) {
         String label = manualLabel;
-        if (label == null || label.isBlank()) {
+        if (StringUtils.isBlank(label)) {
             return candidates;
         }
         for (SwitchingMember m : candidates) {

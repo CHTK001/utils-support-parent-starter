@@ -1,4 +1,5 @@
 package com.chua.common.support.config.source;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -60,7 +61,7 @@ public class SystemEnvironmentPropertySource extends AbstractPropertySource {
      */
     @Override
     public Object getProperty(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return null;
         }
 

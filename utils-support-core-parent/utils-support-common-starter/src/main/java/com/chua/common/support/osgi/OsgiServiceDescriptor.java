@@ -3,6 +3,7 @@ package com.chua.common.support.osgi;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OSGI 服务描述符，描述服务注册表中的一项服务登记。
@@ -147,7 +148,7 @@ import java.util.Map;
      * @return 稳定服务标识
      */
     public String stableId() {
-        if (pid != null && !pid.isBlank()) {
+        if (StringUtils.isNotBlank(pid)) {
             return typeName + ":" + pid;
         }
         return typeName + ":" + System.identityHashCode(instance);

@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Types;
 import java.util.Map;
 import java.util.Properties;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 统一 SQL 方言实现，所有配置驱动。
@@ -233,11 +234,11 @@ public class SqlDialect extends AbstractDialect {
      * @return 注释 SQL 片段，不支持或无内容时返回空串
      */
     private String renderComment(String templateKey, String comment) {
-        if (comment == null || comment.isEmpty()) {
+        if (StringUtils.isEmpty(comment)) {
             return "";
         }
         String template = config(templateKey, null);
-        if (template == null || template.isEmpty()) {
+        if (StringUtils.isEmpty(template)) {
             // 方言未定义内联注释模板（如 Oracle/PostgreSQL 需单独 COMMENT ON 语句）
             return "";
         }
@@ -372,7 +373,7 @@ public class SqlDialect extends AbstractDialect {
      * @return 追加条件后的 SQL
      */
     private String buildWithSchema(String template, String schema, String schemaColumn) {
-        if (schema == null || schema.isEmpty()) {
+        if (StringUtils.isEmpty(schema)) {
             return template;
         }
         String condition = config("schema-condition-template", " AND {column} = '{value}'")

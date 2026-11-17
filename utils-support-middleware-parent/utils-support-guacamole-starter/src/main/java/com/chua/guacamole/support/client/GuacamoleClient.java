@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Guacamole 远控链式客户端（短链模式）。
@@ -320,7 +321,7 @@ public class GuacamoleClient {
      * @throws GuacamoleClientException 令牌 为空白时
      */
     public String url(String token) {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             throw new GuacamoleClientException("token 不能为空");
         }
         return webUrl() + "#" + TOKEN_FRAGMENT_PARAM + "=" + enc(token);
@@ -336,7 +337,7 @@ public class GuacamoleClient {
      * @return 连接参数集；token 未知或已过期时为空
      */
     public Optional<RemoteSpec> resolve(String token) {
-        if (token == null || token.isBlank()) {
+        if (StringUtils.isBlank(token)) {
             return Optional.empty();
         }
         var holder = tokens.get(token);
@@ -519,10 +520,10 @@ public class GuacamoleClient {
          * @throws GuacamoleClientException guacd 或 Web 前端地址为空白、端口越界时
          */
         public GuacamoleClient build() {
-            if (guacdHost == null || guacdHost.isBlank()) {
+            if (StringUtils.isBlank(guacdHost)) {
                 throw new GuacamoleClientException("guacd 服务器地址不能为空");
             }
-            if (webHost == null || webHost.isBlank()) {
+            if (StringUtils.isBlank(webHost)) {
                 throw new GuacamoleClientException("Web 前端地址不能为空");
             }
             checkPort(guacdPort);
@@ -684,7 +685,7 @@ public class GuacamoleClient {
          * @throws GuacamoleClientException 远控服务器地址未设置时
          */
         public String issue() {
-            if (host == null || host.isBlank()) {
+            if (StringUtils.isBlank(host)) {
                 throw new GuacamoleClientException("远控服务器地址（host）未设置");
             }
             var spec = new RemoteSpec(protocol, host, port, username, password, params);

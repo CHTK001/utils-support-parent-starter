@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DeepSeek Harness 用量解析器（best-effort）。
@@ -82,10 +83,10 @@ public class DshUsageParser extends BaseUsageParser {
      */
     private static Path resolveDshHome() {
         String home = System.getenv("DSH_HOME");
-        if (home == null || home.isBlank()) {
+        if (StringUtils.isBlank(home)) {
             home = System.getenv("TOKENTRACKER_DSH_HOME");
         }
-        return (home != null && !home.isBlank())
+        return (StringUtils.isNotBlank(home))
                 ? Path.of(home)
                 : Path.of(System.getProperty("user.home"), ".dsh");
     }
@@ -202,7 +203,7 @@ public class DshUsageParser extends BaseUsageParser {
             return null;
         }
         String model = data.get("header").get("config").get("model").toStringValue();
-        return model != null && !model.isBlank() ? model : null;
+        return StringUtils.isNotBlank(model) ? model : null;
     }
 
     /**
@@ -236,7 +237,7 @@ public class DshUsageParser extends BaseUsageParser {
             return null;
         }
         String model = data.get("message").get("source").get("model").toStringValue();
-        if (model == null || model.isBlank()) {
+        if (StringUtils.isBlank(model)) {
             model = headerModel;
         }
         // 三段互斥，先并回全量输入；写入量是未命中输入，不计入命中。
@@ -245,7 +246,7 @@ public class DshUsageParser extends BaseUsageParser {
         int total = promptTokens + output;
         return AiUsage.builder()
                 .provider(PROVIDER_DSH)
-                .model(model == null || model.isBlank() ? DEFAULT_MODEL : model)
+                .model(StringUtils.isBlank(model) ? DEFAULT_MODEL : model)
                 .requestId(node.get("seq").toStringValue() + ":" + file.getFileName())
                 .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)

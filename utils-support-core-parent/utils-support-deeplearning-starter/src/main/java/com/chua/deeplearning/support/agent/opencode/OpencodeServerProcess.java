@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 单实例 {@code opencode serve} 进程生命周期管理器。
@@ -486,6 +487,12 @@ public final class OpencodeServerProcess {
         environment.put("XDG_CACHE_HOME", cacheHome.toString());
         environment.put("XDG_STATE_HOME", stateHome.toString());
         environment.put("OPENCODE_DISABLE_AUTOUPDATE", "true");
+        // 2.x 只从 provider 声明的 env 变量取密钥（auth.json 在 2.x 不再生效），
+        // 变量名必须与 OpencodeProjectConfig#providerEnvName 写入 provider.env 的一致。
+        synchronized (providerCredentials) {
+            providerCredentials.forEach((providerId, apiKey) -> environment.put(
+                    OpencodeProjectConfig.providerEnvName(providerId), apiKey));
+        }
 
         log.info("[opencode] 启动 server: {} (port={}, log={})", binary, port, logFile);
         try {
@@ -568,7 +575,7 @@ public final class OpencodeServerProcess {
         String fileName = binary.getFileName().toString().toLowerCase();
         if (fileName.endsWith(".cmd") || fileName.endsWith(".bat")) {
             String comspec = System.getenv("COMSPEC");
-            command.add((comspec == null || comspec.isBlank()) ? "cmd.exe" : comspec);
+            command.add((StringUtils.isBlank(comspec)) ? "cmd.exe" : comspec);
             command.add("/c");
         }
         command.add(binary.toString());
@@ -667,7 +674,7 @@ public final class OpencodeServerProcess {
     private Path home() {
         String prop = System.getProperty(PROP_HOME);
         Path path;
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             path = Paths.get(prop.trim());
         } else {
             path = CliModelRunner.cacheRoot().resolve(OPENCODE_SUBDIRECTORY).resolve("server");
@@ -713,22 +720,39 @@ public final class OpencodeServerProcess {
     /**
      * 登记一个 provider 的 API 密钥。
      *
-     * <p>密钥只写进隔离数据目录的 {@code auth.json}，不落工作区项目文件——
-     * 工作区通常是受版本控制的仓库，明文密钥写入即泄漏。</p>
+     * <p>密钥不落工作区项目文件——工作区通常是受版本控制的仓库，明文密钥写入即泄漏。
+     * 这里做两件事：写进隔离数据目录的 {@code auth.json}（1.x 写法与 CLI 用），
+     * 并记为子进程环境变量（2.x 写法从 provider 的 {@code env} 声明里读）。</p>
+     *
+     * <p>环境变量只能在启动子进程时注入，因此凭据发生变化且 server 已在运行时，
+     * 直接销毁当前进程，交给下一次 {@link #ensureStarted(boolean)} 用新环境变量重启；
+     * 否则会继续用旧凭据（表现为 {@code Model unavailable} 或 401）。</p>
      *
      * @param providerId provider 标识（{@code provider/model} 中斜杠前的部分）
      * @param apiKey     API 密钥；空白表示忽略
      */
     public void providerCredential(String providerId, String apiKey) {
-        if (providerId == null || providerId.isBlank() || apiKey == null || apiKey.isBlank()) {
+        if (StringUtils.isBlank(providerId) || StringUtils.isBlank(apiKey)) {
             return;
         }
+        boolean changed;
         synchronized (providerCredentials) {
-            providerCredentials.put(providerId.trim(), apiKey.trim());
+            changed = !apiKey.trim().equals(providerCredentials.put(providerId.trim(), apiKey.trim()));
         }
         // server 可能已经在跑（热重启复用遗留进程），此时 start() 不会再执行，
-        // 因此登记后立刻落盘，保证下一次调用模型就能拿到凭据。
+        // 因此登记后立刻落盘，保证 1.x 凭据文件是最新的。
         copyCredentials(home().resolve(XDG_DIRECTORY).resolve(XDG_DATA));
+        if (!changed) {
+            return;
+        }
+        synchronized (lock) {
+            if (process == null) {
+                return;
+            }
+            log.info("[opencode] provider 凭据已变更，重启 server 以注入环境变量 {}",
+                    OpencodeProjectConfig.providerEnvName(providerId.trim()));
+            destroyCurrent();
+        }
     }
 
     /**
@@ -740,6 +764,10 @@ public final class OpencodeServerProcess {
      * {@link #providerCredential(String, String)} 登记的站点自建 provider 凭据
      * 在此一并合并。环境变量形式的凭据（如 {@code ANTHROPIC_API_KEY}）由子进程
      * 直接继承，无需复制。</p>
+     *
+     * <p>注意：2.x（1.19 起）解析 provider 时不再读 {@code auth.json}，站点自建
+     * provider 的凭据走 {@code providers.<id>.env} 声明的环境变量，由 {@link #start}
+     * 注入；这里保留 {@code auth.json} 只为 1.x 与 CLI 兼容。</p>
      *
      * @param dataHome 隔离数据根
      */
@@ -816,7 +844,7 @@ public final class OpencodeServerProcess {
      * @param base       基础目录
      */
     private static void addCandidate(List<Path> candidates, String base) {
-        if (base == null || base.isBlank()) {
+        if (StringUtils.isBlank(base)) {
             return;
         }
         candidates.add(Paths.get(base, OPENCODE_SUBDIRECTORY, "auth.json"));
@@ -857,7 +885,7 @@ public final class OpencodeServerProcess {
      */
     private static long resolveStartTimeoutSeconds() {
         String prop = System.getProperty(PROP_START_TIMEOUT);
-        if (prop == null || prop.isBlank()) {
+        if (StringUtils.isBlank(prop)) {
             return DEFAULT_START_TIMEOUT_SECONDS;
         }
         try {
@@ -875,11 +903,11 @@ public final class OpencodeServerProcess {
      */
     private static String resolveUsername() {
         String prop = System.getProperty(PROP_USERNAME);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return prop.trim();
         }
         String env = System.getenv(ENV_USERNAME);
-        if (env != null && !env.isBlank()) {
+        if (StringUtils.isNotBlank(env)) {
             return env.trim();
         }
         return DEFAULT_USERNAME;
@@ -892,11 +920,11 @@ public final class OpencodeServerProcess {
      */
     private static String resolvePassword() {
         String prop = System.getProperty(PROP_PASSWORD);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return prop.trim();
         }
         String env = System.getenv(ENV_PASSWORD);
-        if (env != null && !env.isBlank()) {
+        if (StringUtils.isNotBlank(env)) {
             return env.trim();
         }
         return UUID.randomUUID().toString().replace("-", "");
@@ -909,7 +937,7 @@ public final class OpencodeServerProcess {
      */
     private static int resolvePort() {
         String prop = System.getProperty(PROP_PORT);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             try {
                 int value = Integer.parseInt(prop.trim());
                 if (value > 0 && value <= 65535) {
@@ -1036,10 +1064,10 @@ public final class OpencodeServerProcess {
          * @return 头值；无密码返回 null
          */
         public String authorization() {
-            if (password == null || password.isBlank()) {
+            if (StringUtils.isBlank(password)) {
                 return null;
             }
-            String user = (username == null || username.isBlank()) ? DEFAULT_USERNAME : username;
+            String user = (StringUtils.isBlank(username)) ? DEFAULT_USERNAME : username;
             String raw = user + ":" + password;
             return "Basic " + Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
         }

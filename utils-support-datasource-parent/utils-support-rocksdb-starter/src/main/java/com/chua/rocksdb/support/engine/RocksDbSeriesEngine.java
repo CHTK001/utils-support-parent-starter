@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 /**
  * 基于 RocksDB（嵌入式本地目录）的时序存储实现（{@link SeriesEngine} SPI，别名 {@code rocksdb}）。
  *
@@ -120,8 +121,8 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @param datasource 数据源名
      */
     public RocksDbSeriesEngine(String path, String datasource) {
-        this.datasource = datasource == null || datasource.isBlank() ? DEFAULT_DATASOURCE : datasource;
-        if (path == null || path.isBlank()) {
+        this.datasource = StringUtils.isBlank(datasource) ? DEFAULT_DATASOURCE : datasource;
+        if (StringUtils.isBlank(path)) {
             this.engine = null;
             this.configured = false;
             log.warn("[SeriesEngine] RocksDbSeriesEngine 不可用：path 未配置");
@@ -373,7 +374,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
             return null;
         }
         String path = properties.getProperty("path");
-        return path != null && !path.isBlank() ? path : properties.getProperty("url");
+        return StringUtils.isNotBlank(path) ? path : properties.getProperty("url");
     }
 
     /**

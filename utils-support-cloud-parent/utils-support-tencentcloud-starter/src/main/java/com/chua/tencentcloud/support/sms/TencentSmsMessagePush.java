@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 腾讯云短信推送实现
@@ -102,7 +103,7 @@ public class TencentSmsMessagePush implements MessagePush {
         long start = System.currentTimeMillis();
 
         String secretId = environment.get("sms.secretId");
-        if (secretId == null || secretId.isBlank()) {
+        if (StringUtils.isBlank(secretId)) {
             // 账号模块统一按 sms.accessKey 注入 AccessKeyId；腾讯云叫 SecretId。
             secretId = environment.get("sms.accessKey");
         }
@@ -110,16 +111,16 @@ public class TencentSmsMessagePush implements MessagePush {
         String appId = environment.get("sms.appId");
         String signName = environment.get("sms.signName");
 
-        if (secretId == null || secretId.isBlank()) {
+        if (StringUtils.isBlank(secretId)) {
             throw new IllegalArgumentException("sms.secretId 配置项必填");
         }
-        if (secretKey == null || secretKey.isBlank()) {
+        if (StringUtils.isBlank(secretKey)) {
             throw new IllegalArgumentException("sms.secretKey 配置项必填");
         }
-        if (appId == null || appId.isBlank()) {
+        if (StringUtils.isBlank(appId)) {
             throw new IllegalArgumentException("sms.appId 配置项必填");
         }
-        if (signName == null || signName.isBlank()) {
+        if (StringUtils.isBlank(signName)) {
             throw new IllegalArgumentException("sms.signName 配置项必填");
         }
 
@@ -188,14 +189,14 @@ public class TencentSmsMessagePush implements MessagePush {
         List<TemplateInfo> result = Wraps.list();
         try {
             String secretId = environment.get("sms.secretId");
-            if (secretId == null || secretId.isBlank()) {
+            if (StringUtils.isBlank(secretId)) {
                 secretId = environment.get("sms.accessKey");
             }
             String secretKey = environment.get("sms.secretKey");
-            if (secretId == null || secretId.isBlank()) {
+            if (StringUtils.isBlank(secretId)) {
                 throw new IllegalArgumentException("sms.secretId 配置项必填");
             }
-            if (secretKey == null || secretKey.isBlank()) {
+            if (StringUtils.isBlank(secretKey)) {
                 throw new IllegalArgumentException("sms.secretKey 配置项必填");
             }
 

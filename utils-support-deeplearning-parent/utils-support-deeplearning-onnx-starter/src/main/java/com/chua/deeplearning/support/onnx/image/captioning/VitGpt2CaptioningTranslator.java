@@ -21,6 +21,7 @@ import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.onnx.GpuHelper;
 import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * vit-GPT2 图像描述（镜像 Captioning）Translator。
@@ -173,7 +174,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**

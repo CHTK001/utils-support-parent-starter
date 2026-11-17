@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 豆包逆向浏览器会话（Jvppeteer 实现）。
@@ -196,7 +197,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
      */
     public DoubaoBrowserSession(String cookieString, String userDataDir) {
         this.cookies = parseCookies(cookieString);
-        this.userDataDir = userDataDir == null || userDataDir.isEmpty() ? DEFAULT_USER_DATA_DIR : userDataDir;
+        this.userDataDir = StringUtils.isEmpty(userDataDir) ? DEFAULT_USER_DATA_DIR : userDataDir;
         this.browser = JvppeteerSupport.launch(true, null, List.of(STEALTH_ARGS), null);
     }
 
@@ -252,7 +253,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
                         }
                     }
                 }
-                if (error != null && !error.isEmpty()) {
+                if (StringUtils.isNotEmpty(error)) {
                     return DoubaoChatResult.error(error);
                 }
                 return DoubaoChatResult.ok(text == null ? "" : text,
@@ -276,7 +277,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
      * @return true 表示删除成功
      */
     public boolean deleteConversation(String conversationId) {
-        if (conversationId == null || conversationId.isEmpty() || "0".equals(conversationId)) {
+        if (StringUtils.isEmpty(conversationId) || "0".equals(conversationId)) {
             return false;
         }
         Page target = null;
@@ -364,7 +365,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
      */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = Wraps.linkedMap();
-        if (cookieString == null || cookieString.isBlank()) {
+        if (StringUtils.isBlank(cookieString)) {
             return map;
         }
         for (String pair : cookieString.split(";")) {

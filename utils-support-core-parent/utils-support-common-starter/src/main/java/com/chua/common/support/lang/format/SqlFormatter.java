@@ -3,6 +3,7 @@ package com.chua.common.support.lang.format;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SQL格式化器抽象基类，提供通用的格式化能力和基础工具方法。
@@ -273,7 +274,7 @@ public abstract class SqlFormatter implements Formatter {
      */
     protected String formatKeyword(String word) {
         // 防御性检查：如果 {@code word} 为 null 或空，直接返回
-        if (word == null || word.isEmpty()) {
+        if (StringUtils.isEmpty(word)) {
             return word;
         }
 
@@ -305,7 +306,7 @@ public abstract class SqlFormatter implements Formatter {
      */
     protected boolean isKeyword(String word) {
         // 空值安全检查
-        if (word == null || word.isEmpty()) {
+        if (StringUtils.isEmpty(word)) {
             return false;
         }
         // 转为大写后查找
@@ -358,7 +359,7 @@ public abstract class SqlFormatter implements Formatter {
      */
     protected List<String> splitPreservingParens(String text) {
         List<String> parts = Wraps.list();
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return parts;
         }
 
@@ -459,7 +460,7 @@ public abstract class SqlFormatter implements Formatter {
      * @return 清理后的SQL字符串
      */
     protected String normalizeSql(String sql) {
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return sql;
         }
 

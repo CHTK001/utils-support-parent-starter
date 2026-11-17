@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Sigmoid 可训练校准器
@@ -130,7 +131,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
             String loadModelPath) {
 
         // 如果指定了加载模型路径，优先从文件加载
-        if (loadModelPath != null && !loadModelPath.isEmpty()) {
+        if (StringUtils.isNotEmpty(loadModelPath)) {
             SigmoidTrainerCalibrator cal = new SigmoidTrainerCalibrator(
                     SigmoidParams.builder().k(k).t(t).build(),
                     null, false);

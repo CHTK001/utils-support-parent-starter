@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 腾讯混元生图图片生成客户端
@@ -168,7 +169,7 @@ public class HunyuanImageClient implements ImageClient {
     @Override
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "hunyuan-pro";
@@ -216,7 +217,7 @@ public BufferedImage generate(String prompt) {
             throw new RuntimeException("混元生图返回的 message 为空");
         }
         String content = (String) message.get("content");
-        if (content == null || content.isBlank()) {
+        if (StringUtils.isBlank(content)) {
             throw new RuntimeException("混元生图返回的 content 为空");
         }
  // 判断 内容 是 基础64 还是 URL
@@ -287,7 +288,7 @@ public BufferedImage generate(String prompt) {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

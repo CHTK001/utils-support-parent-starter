@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 playwright-Java 的浏览器自动化引擎。
@@ -94,7 +95,7 @@ public class JavaEngine implements Engine {
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
                 .setHeadless(headless)
                 .setArgs(args);
-        if (executablePath != null && !executablePath.isBlank()) {
+        if (StringUtils.isNotBlank(executablePath)) {
             options.setExecutablePath(Paths.get(executablePath));
         }
         return register(playwright().chromium().launch(options));

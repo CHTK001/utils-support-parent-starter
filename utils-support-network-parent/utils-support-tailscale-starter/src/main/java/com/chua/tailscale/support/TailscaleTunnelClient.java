@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 Tailscale 客户端，管理内嵌 {@code tailscale} 进程的手册生命。
@@ -227,7 +228,7 @@ public class TailscaleTunnelClient implements AutoCloseable {
      */
     @Nonnull
     public TailscaleTunnelClient tcpPort(@Nullable String tcpPort) {
-        if (tcpPort != null && !tcpPort.isBlank()) {
+        if (StringUtils.isNotBlank(tcpPort)) {
             this.tcpPort = tcpPort.trim();
         } else {
             this.tcpPort = "443";
@@ -386,11 +387,11 @@ public class TailscaleTunnelClient implements AutoCloseable {
                 .toAbsolutePath();
         command.add(executable.toString());
         command.add("funnel");
-        if (tcpPort != null && !tcpPort.isBlank()) {
+        if (StringUtils.isNotBlank(tcpPort)) {
             command.add("--tcp=" + tcpPort);
         }
         command.add("--yes");
-        String target = url != null && !url.isBlank() ? url : "8080";
+        String target = StringUtils.isNotBlank(url) ? url : "8080";
         command.add(target);
         return command;
     }
@@ -401,7 +402,7 @@ public class TailscaleTunnelClient implements AutoCloseable {
      * @param pb 进程构建器
      */
     private void applyEnvironment(ProcessBuilder pb) {
-        if (authKey != null && !authKey.isBlank()) {
+        if (StringUtils.isNotBlank(authKey)) {
             pb.environment().put(ENV_AUTH_KEY, authKey);
             log.debug("[Tailscale] 已注入 {} 环境变量", ENV_AUTH_KEY);
         }
@@ -442,7 +443,7 @@ public class TailscaleTunnelClient implements AutoCloseable {
      * @param line 输出行
      */
     private void handleOutputLine(String line) {
-        if (line == null || line.isBlank()) {
+        if (StringUtils.isBlank(line)) {
             return;
         }
         String urlCandidate = extractUrl(line);
@@ -528,7 +529,7 @@ public class TailscaleTunnelClient implements AutoCloseable {
     private String buildExitMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append("Tailscale 隧道启动失败，进程退出码=").append(exitCode).append(' ').append("：");
-        if (lastErrorLine != null && !lastErrorLine.isBlank()) {
+        if (StringUtils.isNotBlank(lastErrorLine)) {
             sb.append(lastErrorLine);
         } else {
             sb.append("请检查 Tailscale 是否登录、服务是否运行、端口是否可用");

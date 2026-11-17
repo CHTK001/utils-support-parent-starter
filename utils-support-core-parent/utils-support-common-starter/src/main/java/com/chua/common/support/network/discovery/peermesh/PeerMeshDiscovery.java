@@ -36,6 +36,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PeerMesh 服务发现实现。
@@ -589,7 +590,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         Discovery d = entry.getDiscovery();
         if (d != null) {
             String path = d.getUriSpec();
-            if (path == null || path.isBlank()) {
+            if (StringUtils.isBlank(path)) {
                 path = addClusterPrefix("/");
             }
             removeFromCache(path, sid);

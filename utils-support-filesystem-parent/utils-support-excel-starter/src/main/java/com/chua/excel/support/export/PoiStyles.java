@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * POI 样式工厂 —— 按需创建并缓存 {@link CellStyle}。
@@ -151,7 +152,7 @@ final class PoiStyles {
      * @param totalColumns 总列数
      */
     void applyTitle(org.apache.poi.ss.usermodel.Sheet sheet, String title, int totalColumns) {
-        if (title == null || title.isEmpty() || totalColumns <= 0) {
+        if (StringUtils.isEmpty(title) || totalColumns <= 0) {
             return;
         }
         org.apache.poi.ss.usermodel.Row row = sheet.createRow(0);

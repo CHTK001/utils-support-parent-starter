@@ -1,6 +1,7 @@
 package com.chua.common.support.service;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * SPI 接口：远程服务管理器（SSH 远程执行）。
@@ -54,10 +55,10 @@ public interface RemoteServiceManager {
         String privateKeyPath
     ) {
         public SshConfig {
-            if (host == null || host.isBlank()) {
+            if (StringUtils.isBlank(host)) {
                 throw new IllegalArgumentException("host cannot be blank");
             }
-            if (username == null || username.isBlank()) {
+            if (StringUtils.isBlank(username)) {
                 throw new IllegalArgumentException("username cannot be blank");
             }
         }

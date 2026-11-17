@@ -142,7 +142,7 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
             notice = "该电子书受 DRM 加密保护，仅能展示元数据。";
         } else {
             String raw = decodeText(content, offsets, rec0, compression, recordCount, version, flags, bookmobi);
-            if (raw == null || raw.isBlank()) {
+            if (StringUtils.isBlank(raw)) {
                 notice = "未能解出正文（compression=" + compression + "）。";
             } else {
                 body.append(htmlToText(raw));
@@ -342,7 +342,7 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
      * @param value 值（可空）
      */
     private static void putIfPresent(Map<String, String> meta, String key, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             meta.putIfAbsent(key, value.trim());
         }
     }
@@ -802,12 +802,12 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
         meta.forEach((k, v) -> sb.append("<div><span class=\"k\">").append(escape(k))
                 .append("</span><br><span class=\"v\">").append(escape(v)).append("</span></div>"));
         sb.append("</div><div class=\"k\">文件大小: ").append(readableSize(size)).append("</div>");
-        if (desc != null && !desc.isBlank()) {
+        if (StringUtils.isNotBlank(desc)) {
             sb.append("<div class=\"desc\">")
                     .append(escape(desc.length() > 600 ? desc.substring(0, 600) + "…" : desc))
                     .append("</div>");
         }
-        if (notice != null && !notice.isBlank()) {
+        if (StringUtils.isNotBlank(notice)) {
             sb.append("<div class=\"notice\">").append(escape(notice)).append("</div>");
         }
         sb.append("</div>");

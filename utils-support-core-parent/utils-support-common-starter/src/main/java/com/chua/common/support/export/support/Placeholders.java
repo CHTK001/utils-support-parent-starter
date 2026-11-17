@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 轻量模板引擎 —— 处理标量占位符与循环区块。
@@ -159,7 +160,7 @@ public final class Placeholders {
      * @return 渲染结果
      */
     public String render(String text, Map<String, Object> row, int rowIndex, int rowCount) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return text;
         }
         Matcher matcher = pattern.matcher(text);
@@ -185,7 +186,7 @@ public final class Placeholders {
      * @return 渲染结果
      */
     public Object renderValue(String text, Map<String, Object> row, int rowIndex, int rowCount) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return text;
         }
         // 注意不能用 matches()：正则的 .*? 能吞掉中间的 }} 与 {{，两个占位符的单元格
@@ -209,7 +210,7 @@ public final class Placeholders {
      * @return 值
      */
     public Object lookup(String tag, Map<String, Object> row, int rowIndex, int rowCount) {
-        if (tag == null || tag.isEmpty()) {
+        if (StringUtils.isEmpty(tag)) {
             return null;
         }
         String key = tag.startsWith(LOOP_META) ? tag.substring(1) : tag;

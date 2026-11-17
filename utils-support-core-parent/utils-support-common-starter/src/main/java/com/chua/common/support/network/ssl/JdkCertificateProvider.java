@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK keytool 的证书生成提供者实现。
@@ -308,7 +309,7 @@ public class JdkCertificateProvider implements AcmeProvider {
      * @return 是否成功（true 表示成功）
      */
     private boolean isIpAddress(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return false;
         }
         // IPv4 简单判断
@@ -380,7 +381,7 @@ public class JdkCertificateProvider implements AcmeProvider {
      * @return 结果字符串
      */
     public String getKeystorePath(String domain) {
-        if (keystorePath != null && !keystorePath.isEmpty()) {
+        if (StringUtils.isNotEmpty(keystorePath)) {
             return keystorePath;
         }
         if (tempDir != null) {

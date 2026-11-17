@@ -8,6 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Field;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AST 工具类，封装 javac 编译树 API 的常用操作
@@ -195,7 +196,7 @@ public final class AstUtils {
      * @return strip后缀的结果
      */
     private static String stripSuffix(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         char last = value.charAt(value.length() - 1);

@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Kademlia DHT 协议的轮询目录实现。
@@ -92,7 +93,7 @@ public class DhtPolledDirectory implements PolledDirectory {
      */
     public DhtPolledDirectory(DirectoryPollerEnvironment env) {
         this.dhtUrl = env.getString(KEY_DHT_URL);
-        if (dhtUrl == null || dhtUrl.isEmpty()) {
+        if (StringUtils.isEmpty(dhtUrl)) {
             throw new IllegalArgumentException("'" + KEY_DHT_URL + "' is required");
         }
     }

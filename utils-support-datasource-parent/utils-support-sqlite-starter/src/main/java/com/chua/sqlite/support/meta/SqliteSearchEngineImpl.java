@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * sqlite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
@@ -92,7 +93,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
                     SearchFieldDef field = new SearchFieldDef();
                     field.setName(rs.getString("name"));
                     String typeStr = rs.getString("type");
-                    field.setType(typeStr != null && !typeStr.isEmpty() ? typeStr.toLowerCase() : "text");
+                    field.setType(StringUtils.isNotEmpty(typeStr) ? typeStr.toLowerCase() : "text");
                     fields.add(field);
                 }
                 def.setFields(fields);
@@ -152,7 +153,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
 
     @Override
     public boolean deleteIndex(String indexName) {
-        if (indexName == null || indexName.isBlank()) {
+        if (StringUtils.isBlank(indexName)) {
             throw new IllegalArgumentException("索引名不能为空");
         }
         try (Connection conn = getJdbcConnection()) {
@@ -181,7 +182,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
      * @throws IllegalStateException    执行合并失败
      */
     public boolean optimizeIndex(String indexName) {
-        if (indexName == null || indexName.isBlank()) {
+        if (StringUtils.isBlank(indexName)) {
             throw new IllegalArgumentException("索引名不能为空");
         }
         String quoted = escapeIdentifier(indexName);

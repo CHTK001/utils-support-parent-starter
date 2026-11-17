@@ -6,6 +6,7 @@ import com.chua.common.support.utils.ClassUtils;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IPC 地址解析器，扫描对象上标注了 {@code @IpcMethod} 的方法，生成 path -> Method 映射。
@@ -30,7 +31,7 @@ public class IpcAddressParser {
             IpcMethod annotation = method.getAnnotation(IpcMethod.class);
             if (annotation != null) {
                 String path = annotation.value();
-                if (path == null || path.isEmpty()) {
+                if (StringUtils.isEmpty(path)) {
                     // 方法名作为路径（去掉前导斜杠以保持一致）
                     path = method.getName();
                 }

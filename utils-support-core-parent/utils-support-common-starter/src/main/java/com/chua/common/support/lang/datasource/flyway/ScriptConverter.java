@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 迁移脚本方言转换器 SPI。
@@ -102,7 +103,7 @@ public interface ScriptConverter {
      * @return 转换器，无法获取时返回 null
      */
     static ScriptConverter getExtension(String protocol) {
-        if (protocol == null || protocol.isBlank()) {
+        if (StringUtils.isBlank(protocol)) {
             return null;
         }
         var provider = ServiceProvider.of(ScriptConverter.class);

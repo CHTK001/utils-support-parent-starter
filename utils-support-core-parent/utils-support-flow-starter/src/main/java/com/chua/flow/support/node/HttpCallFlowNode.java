@@ -10,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * HTTP 调用节点。
@@ -68,7 +69,7 @@ public class HttpCallFlowNode implements HttpCallNode {
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();
         String url = props.getString("url");
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             throw new IllegalArgumentException("httpCall 节点缺少 url 属性");
         }
         String method = props.getString("method", DEFAULT_METHOD).toUpperCase();

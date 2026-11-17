@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Playwright 业务压测框架。
@@ -639,7 +640,7 @@ public class PlaywrightBusinessBenchmark {
         AtomicLong totalElapsedMs = new AtomicLong();
         try (Playwright playwright = Playwright.create()) {
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(headless);
-            if (executablePath != null && !executablePath.isEmpty()) {
+            if (StringUtils.isNotEmpty(executablePath)) {
                 launchOptions.setExecutablePath(Path.of(executablePath));
             }
             try (Browser browser = playwright.chromium().launch(launchOptions)) {

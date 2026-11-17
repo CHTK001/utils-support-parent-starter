@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WeVisDoc 版面桥接器：将 Markdown 结构 + OCR 文字位置映射为版面框。
@@ -112,7 +113,7 @@ public class WevisdocLayoutBridge {
      */
     public static List<MarkdownElement> parseMarkdownElements(String markdown) {
         List<MarkdownElement> elements = new ArrayList<>();
-        if (markdown == null || markdown.isEmpty()) {
+        if (StringUtils.isEmpty(markdown)) {
             return elements;
         }
 

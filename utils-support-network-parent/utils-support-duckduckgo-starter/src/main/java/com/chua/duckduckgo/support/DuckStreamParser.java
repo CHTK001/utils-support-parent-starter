@@ -5,6 +5,7 @@ import com.chua.common.support.lang.json.Json;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Duck.ai 的 SSE 解析器
@@ -47,7 +48,7 @@ final class DuckStreamParser {
      * @param chunk SSE 分片
      */
     void feed(String chunk) {
-        if (chunk == null || chunk.isEmpty()) {
+        if (StringUtils.isEmpty(chunk)) {
             return;
         }
         buffer.append(chunk);
@@ -147,7 +148,7 @@ final class DuckStreamParser {
         String status = stringValue(data.get("status"));
         if ("error".equals(status)) {
             String reason = stringValue(data.get("error"));
-            String detail = reason == null || reason.isBlank() ? "image_generation_failed" : reason;
+            String detail = StringUtils.isBlank(reason) ? "image_generation_failed" : reason;
             listener.onText("\n[Image generation failed: " + detail + "]\n");
             return;
         }
@@ -193,16 +194,16 @@ final class DuckStreamParser {
             lookup = dataNode;
         }
         String b64Image = stringValue(lookup.get("b64Image"));
-        if (b64Image == null || b64Image.isEmpty()) {
+        if (StringUtils.isEmpty(b64Image)) {
             b64Image = stringValue(source.get("b64Image"));
         }
-        if (b64Image == null || b64Image.isEmpty()) {
+        if (StringUtils.isEmpty(b64Image)) {
             b64Image = stringValue(lookup.get("result"));
         }
-        if (b64Image == null || b64Image.isEmpty()) {
+        if (StringUtils.isEmpty(b64Image)) {
             b64Image = stringValue(source.get("result"));
         }
-        if (b64Image == null || b64Image.isEmpty()) {
+        if (StringUtils.isEmpty(b64Image)) {
             return;
         }
         String format = stringValue(lookup.get("format"));
@@ -274,7 +275,7 @@ final class DuckStreamParser {
             return number.intValue();
         }
         String text = stringValue(value);
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return 0;
         }
         try {

@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认备份恢复实现
@@ -272,7 +273,7 @@ public class DefaultBackupRestore implements BackupRestore {
      * @return 匹配模式的结果
      */
     private boolean matchPattern(String fileName, String pattern) {
-        if (pattern == null || pattern.isBlank()) {
+        if (StringUtils.isBlank(pattern)) {
             return true;
         }
         String regex = pattern.replace(".", "\\.").replace("*", ".*").replace("?", ".");

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 跨次扫描的累积器。
@@ -213,7 +214,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
      * @return 空返回 true
      */
     private static boolean isBlank(String value) {
-        return value == null || value.isEmpty();
+        return StringUtils.isEmpty(value);
     }
 
     /**
@@ -484,7 +485,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
      * @return 原值
      */
     private static String unesc(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return "";
         }
         StringBuilder sb = new StringBuilder(value.length());
@@ -524,7 +525,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
      * @return 解析结果
      */
     private static long parseLong(String value, long defaultValue) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
         try {

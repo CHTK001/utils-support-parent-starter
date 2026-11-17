@@ -124,7 +124,7 @@ public final class SkyWalkingPropagator {
      * @return 解析结果（traceId/spanId）；无效返回 null
      */
     public static Sw8Context extract(String header) {
-        if (header == null || header.isBlank()) {
+        if (StringUtils.isBlank(header)) {
             return null;
         }
         String[] parts = header.split("-", -1);

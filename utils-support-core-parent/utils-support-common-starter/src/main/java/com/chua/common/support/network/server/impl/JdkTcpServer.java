@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK NIO 多 Selector Reactor 的 TCP 服务器实现。
@@ -281,7 +282,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 传输加密：启动时解析 SPI 一次并缓存，避免每连接重复初始化
             if (setting.isEncrypt()) {
                 String encryptKey = setting.getEncryptKey();
-                if (encryptKey == null || encryptKey.isBlank()) {
+                if (StringUtils.isBlank(encryptKey)) {
                     log.warn("TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
                 } else {
                     try {

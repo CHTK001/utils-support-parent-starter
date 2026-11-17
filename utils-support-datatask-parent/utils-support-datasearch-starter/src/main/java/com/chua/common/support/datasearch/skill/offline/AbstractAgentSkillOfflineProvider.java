@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 离线技能提供者抽象基类。
@@ -196,7 +197,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
       * @return 描述；无内容时返回 空串
       */
      private static String extractDescription(String content) {
-         if (content == null || content.isBlank()) {
+         if (StringUtils.isBlank(content)) {
              return "";
          }
          List<String> lines = content.lines().toList();
@@ -299,7 +300,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      * @return 是否为安全的单层名称
      */
     private static boolean isSingleSegmentName(String skillName) {
-        if (skillName == null || skillName.isBlank() || ".".equals(skillName) || "..".equals(skillName)) {
+        if (StringUtils.isBlank(skillName) || ".".equals(skillName) || "..".equals(skillName)) {
             return false;
         }
         return skillName.indexOf('/') < 0 && skillName.indexOf('\\') < 0 && skillName.indexOf('\0') < 0;

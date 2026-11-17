@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 指标 服务实现（基于 polled目录）。
@@ -94,7 +95,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
             return Wraps.list();
         }
         String json = nativeLib.poll();
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return Wraps.list();
         }
 

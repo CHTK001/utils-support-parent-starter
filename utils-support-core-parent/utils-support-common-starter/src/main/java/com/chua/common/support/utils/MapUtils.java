@@ -30,6 +30,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_3;
 import static com.chua.common.support.constant.ValueConstant.EMPTY_PROPERTIES;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 映射 工具类，提供 映射 操作的核心工具方法。
@@ -2201,7 +2202,7 @@ public class MapUtils {
      * @param value 要设置的值
      */
     private static void setNestedValue(Map<String, Object> map, String key, Object value) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return;
         }
 

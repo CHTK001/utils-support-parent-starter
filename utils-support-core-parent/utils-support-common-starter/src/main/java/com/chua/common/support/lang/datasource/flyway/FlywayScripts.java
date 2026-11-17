@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 迁移脚本扫描与解析工具，供所有 {@link Flyway} 实现共用。
@@ -138,7 +139,7 @@ public final class FlywayScripts {
      * @param found       结果集合（按 版本+描述 去重）
      */
     private static void collect(String location, Pattern pattern, ClassLoader classLoader, Map<String, Script> found) {
-        if (location == null || location.isBlank()) {
+        if (StringUtils.isBlank(location)) {
             return;
         }
         String trimmed = location.trim();
@@ -251,7 +252,7 @@ public final class FlywayScripts {
      * @return 命名正则
      */
     private static Pattern scriptPattern(String separator) {
-        String sep = separator == null || separator.isEmpty()
+        String sep = StringUtils.isEmpty(separator)
                 ? DEFAULT_SEPARATOR : Pattern.quote(separator);
         return Pattern.compile("^V([0-9]+(?:\\.[0-9]+)*)" + sep + "(.*)"
                 + Pattern.quote(SQL_EXTENSION) + "$", Pattern.CASE_INSENSITIVE);
@@ -365,7 +366,7 @@ public final class FlywayScripts {
         if (fileName == null) {
             return false;
         }
-        String actualSeparator = separator == null || separator.isEmpty() ? DEFAULT_SEPARATOR : separator;
+        String actualSeparator = StringUtils.isEmpty(separator) ? DEFAULT_SEPARATOR : separator;
         int index = fileName.indexOf(actualSeparator);
         if (index < 0) {
             return false;
@@ -419,7 +420,7 @@ public final class FlywayScripts {
      */
     public static List<String> splitStatements(String sql) {
         List<String> statements = Wraps.list();
-        if (sql == null || sql.isEmpty()) {
+        if (StringUtils.isEmpty(sql)) {
             return statements;
         }
         StringBuilder current = new StringBuilder();
@@ -492,7 +493,7 @@ public final class FlywayScripts {
      * @return 目标表名（不含引号、大小写按原样）；取不到时返回 null
      */
     public static String extractTargetTable(String sql) {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             return null;
         }
         String s = sql.trim();

@@ -11,6 +11,7 @@ import java.nio.file.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * FTP 会话，表示一个已认证的客户端控制连接。
@@ -387,7 +388,7 @@ class FtpSession {
      * @return 服务器绝对路径
      */
     Path resolvePath(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             path = "/";
         }
         // 处理相对路径

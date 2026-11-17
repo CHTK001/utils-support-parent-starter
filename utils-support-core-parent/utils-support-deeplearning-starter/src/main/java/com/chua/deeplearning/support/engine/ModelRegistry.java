@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型注册表。
@@ -275,7 +276,7 @@ public final class ModelRegistry {
      * @return true 表示该值指向一个已存在的服务器目录
      */
     public static boolean isExistingDirectory(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return false;
         }
         // 非文件系统路径（如「提供者id:模型名」复合键）在 Windows 下解析会抛 InvalidPathException；
@@ -300,7 +301,7 @@ public final class ModelRegistry {
      * @return 注册后的模型键（即目录路径）；模板缺失时原样返回
      */
     public static String registerExternalDirectory(String dirPath, String templateModelId) {
-        if (dirPath == null || dirPath.isBlank()) {
+        if (StringUtils.isBlank(dirPath)) {
             return dirPath;
         }
         String key = dirPath.trim();
@@ -342,7 +343,7 @@ public final class ModelRegistry {
      * @return 已注册且目录真实存在的外部模型目录；无匹配时返回 {@code null}
      */
     public static Path findExternalDirectory(String templateModelId) {
-        if (templateModelId == null || templateModelId.isBlank()) {
+        if (StringUtils.isBlank(templateModelId)) {
             return null;
         }
         String want = templateModelId.trim();
@@ -369,7 +370,7 @@ public final class ModelRegistry {
      * @return true 表示已移除
      */
     public static boolean unregisterExternal(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return false;
         }
         String k = key.trim();
@@ -648,7 +649,7 @@ public final class ModelRegistry {
      */
     private static String initModelRootDir() {
         String prop = System.getProperty(PROP_MODEL_ROOT_DIR);
-        return (prop != null && !prop.isBlank()) ? prop.trim() : DEFAULT_MODEL_ROOT_DIR;
+        return (StringUtils.isNotBlank(prop)) ? prop.trim() : DEFAULT_MODEL_ROOT_DIR;
     }
 
     /**
@@ -659,7 +660,7 @@ public final class ModelRegistry {
      */
     private static Path initExtractRoot() {
         String prop = System.getProperty(PROP_MODEL_CACHE_DIR);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return Paths.get(prop.trim());
         }
         return Paths.get(System.getProperty(SYS_TMPDIR), CACHE_DIR_NAME);
@@ -1049,7 +1050,7 @@ public final class ModelRegistry {
             String trimmed = spec.trim();
             boolean absolute = trimmed.startsWith("http://") || trimmed.startsWith("https://");
             String fileName = lastSegment(trimmed);
-            if (fileName == null || fileName.isBlank()) {
+            if (StringUtils.isBlank(fileName)) {
                 log.warn("[deeplearning-engine] 附属文件名无法解析，跳过: {} -> {}", modelId, trimmed);
                 continue;
             }
@@ -1090,7 +1091,7 @@ public final class ModelRegistry {
      * @param url   地址
      */
     private static void addBaseUrl(List<String> bases, String url) {
-        if (url != null && !url.isBlank() && !bases.contains(url)) {
+        if (StringUtils.isNotBlank(url) && !bases.contains(url)) {
             bases.add(url);
         }
     }
@@ -1148,7 +1149,7 @@ public final class ModelRegistry {
      * @return 本地 路径，找不到返回 空
      */
     public static Path resolveConfiguredPath(String configured) {
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             return null;
         }
         String path = configured.trim().replace('\\', '/');
@@ -1218,7 +1219,7 @@ public final class ModelRegistry {
      * @return 本地 路径 或 空
      */
     public static Path resolveClasspathResource(String resourcePath) {
-        if (resourcePath == null || resourcePath.isBlank()) {
+        if (StringUtils.isBlank(resourcePath)) {
             return null;
         }
         String normalized = resourcePath.replace('\\', '/').replaceFirst("^/+", "");
@@ -1478,7 +1479,7 @@ public final class ModelRegistry {
                             deviceSetting = String.valueOf(effective.get(ModelParams.KEY_DEVICE));
                         }
                         // 归一化后的设备名交给 DJL 工厂（cpu / gpu）
-                        if (deviceSetting != null && !deviceSetting.isBlank()) {
+                        if (StringUtils.isNotBlank(deviceSetting)) {
                             effective.put(ModelParams.KEY_DEVICE, DeviceSelector.resolve(deviceSetting));
                         }
                         Object translator = newTranslatorInstance(translatorClassName,
@@ -1688,7 +1689,7 @@ public final class ModelRegistry {
          * @return resolve转为absolute路径字符串的结果
          */
         private static String resolveToAbsolutePathString(String configured) {
-            if (configured == null || configured.isBlank()) {
+            if (StringUtils.isBlank(configured)) {
                 return null;
             }
             String rel = configured;

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 playwright 的「接码号」浏览器会话。
@@ -142,7 +143,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
      * @return 号码列表；失败返回空列表
      */
     public synchronized List<SmsPhoneInfo> listPhones(String listUrl) {
-        if (listUrl == null || listUrl.isBlank()) {
+        if (StringUtils.isBlank(listUrl)) {
             return Collections.emptyList();
         }
         try (BrowserContext context = newContext()) {
@@ -352,7 +353,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
      * @return 国家二字码，无法识别时为空
      */
     private static String extractCountryCode(String flagUrl) {
-        if (flagUrl == null || flagUrl.isEmpty()) {
+        if (StringUtils.isEmpty(flagUrl)) {
             return "";
         }
         Matcher matcher = REGION_PATTERN.matcher(flagUrl);
@@ -494,7 +495,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
      * @return 验证码；未匹配到返回空
      */
     private static String extractVerifyCode(String content) {
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return "";
         }
         Matcher cn = CN_CODE_PATTERN.matcher(content);

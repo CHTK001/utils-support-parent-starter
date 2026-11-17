@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 熔断过滤器。
@@ -76,7 +77,7 @@ public class CircuitBreakerServerFilter implements ServerFilter {
         openMs = parseLong(config.getInitParameter("openMs"), 10_000);
         ignoreStatuses.clear();
         String statuses = config.getInitParameter("ignoreStatuses");
-        if (statuses != null && !statuses.isBlank()) {
+        if (StringUtils.isNotBlank(statuses)) {
             for (String raw : statuses.split(",")) {
                 String s = raw.trim();
                 if (!s.isEmpty()) {
@@ -128,7 +129,7 @@ public class CircuitBreakerServerFilter implements ServerFilter {
      * @return 解析结果
      */
     private static long parseLong(String value, long defaultValue) {
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
         try {

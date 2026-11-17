@@ -13,6 +13,7 @@ import com.chua.git.support.model.WorkflowInfo;
 import com.chua.git.support.model.WorkflowRun;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * CI 流水线操作（GitHub Actions / Gitee Go）。
@@ -265,7 +266,7 @@ public class ActionsOperation {
             path = "/repos/" + owner + "/" + repo + "/pipelines";
         } else {
             requirePlatform(CiPlatform.GITHUB, "trigger");
-            if (workflowId == null || workflowId.isBlank()) {
+            if (StringUtils.isBlank(workflowId)) {
                 throw new GitClientException("触发 GitHub Actions 必须指定 workflowId(工作流文件路径或 ID)");
             }
             path = "/repos/" + owner + "/" + repo + "/actions/workflows/" + workflowId + "/dispatches";
@@ -362,7 +363,7 @@ public class ActionsOperation {
     private HttpClientBuilder newRequest() {
         String baseUrl = platform == CiPlatform.GITEE ? GITEE_API_BASE : GITHUB_API_BASE;
         HttpClientBuilder builder = HttpClientFactory.of(baseUrl);
-        if (token != null && !token.isBlank()) {
+        if (StringUtils.isNotBlank(token)) {
             if (platform == CiPlatform.GITEE) {
                 builder.query("access_token", token);
             } else {
@@ -419,7 +420,7 @@ public class ActionsOperation {
      * @return 长度为 2 的数组（所属者、仓库名），失败返回 null
      */
     private String[] resolveOwnerAndRepo(String remoteUrl) {
-        if (remoteUrl == null || remoteUrl.isBlank()) {
+        if (StringUtils.isBlank(remoteUrl)) {
             return null;
         }
         String url = remoteUrl.trim();

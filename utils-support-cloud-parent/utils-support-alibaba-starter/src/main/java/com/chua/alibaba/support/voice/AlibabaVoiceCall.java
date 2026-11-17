@@ -12,6 +12,7 @@ import com.chua.common.support.network.voice.VoiceCall;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.message.MessageEnvironment;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 阿里云语音电话实现（基于 dysmsapi Tea SDK）
@@ -73,16 +74,16 @@ public class AlibabaVoiceCall implements VoiceCall {
         String ttsCode = environment.get("voice.ttsCode");
         String calledShowNumber = environment.get("voice.calledShowNumber");
 
-        if (accessKey == null || accessKey.isBlank()) {
+        if (StringUtils.isBlank(accessKey)) {
             throw new IllegalArgumentException("voice.accessKey 配置项必填");
         }
-        if (secretKey == null || secretKey.isBlank()) {
+        if (StringUtils.isBlank(secretKey)) {
             throw new IllegalArgumentException("voice.secretKey 配置项必填");
         }
-        if (ttsCode == null || ttsCode.isBlank()) {
+        if (StringUtils.isBlank(ttsCode)) {
             throw new IllegalArgumentException("voice.ttsCode 配置项必填");
         }
-        if (calledShowNumber == null || calledShowNumber.isBlank()) {
+        if (StringUtils.isBlank(calledShowNumber)) {
             throw new IllegalArgumentException("voice.calledShowNumber 配置项必填");
         }
 

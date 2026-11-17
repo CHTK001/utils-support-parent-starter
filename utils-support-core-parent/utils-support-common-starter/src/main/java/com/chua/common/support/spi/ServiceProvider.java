@@ -24,6 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 服务提供者接口，提供 SPI（服务 提供者 接口）机制的核心功能。
@@ -634,7 +635,7 @@ public interface ServiceProvider<T> {
      */
     @Nullable
     default T getExtensionFactory(@Nullable String name) {
-        List<T> instances = (name == null || name.isEmpty())
+        List<T> instances = (StringUtils.isEmpty(name))
                 ? collect()
                 : getNewExtensions(name);
         return proxyFactory(instances);

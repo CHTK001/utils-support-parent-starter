@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PostgreSQL 迁移脚本方言转换器（{@code ScriptConverter} 的 postgresql 协议实现）。
@@ -154,7 +155,7 @@ public class PostgresqlScriptConverter extends DefaultScriptConverter {
         // 先走父类：剥离表尾 MySQL 属性、行内 KEY/UNIQUE KEY、列内联 COMMENT、列级 CHARSET/COLLATE、
         // 标识符定界改写，以及类型/函数映射（TEXT / DATETIME / NOW() / IFNULL()）
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // 类型映射：PostgreSQL 没有 DOUBLE / BLOB / YEAR / TINYINT / MEDIUMINT 这些 MySQL 类型名

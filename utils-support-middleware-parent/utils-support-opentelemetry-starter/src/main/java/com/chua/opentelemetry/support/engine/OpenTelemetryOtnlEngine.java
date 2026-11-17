@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OpenTelemetry 的 {@link OtnlEngine} 实现（SPI 名 {@code opentelemetry}）。
@@ -158,10 +159,10 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             if (onlyError && !error) {
                 continue;
             }
-            if (endpointFilter != null && !endpointFilter.isBlank() && !endpointFilter.equals(endpoint)) {
+            if (StringUtils.isNotBlank(endpointFilter) && !endpointFilter.equals(endpoint)) {
                 continue;
             }
-            if (serviceFilter != null && !serviceFilter.isBlank() && !serviceFilter.equals(serviceName())) {
+            if (StringUtils.isNotBlank(serviceFilter) && !serviceFilter.equals(serviceName())) {
                 continue;
             }
             long start = trace.getStartTime() > 0 ? trace.getStartTime()
@@ -181,7 +182,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
     @Override
     public OtnlTrace trace(String traceId) {
         OpenTelemetryClient client = OpenTelemetryClientHolder.get();
-        if (client == null || traceId == null || traceId.isBlank()) {
+        if (client == null || StringUtils.isBlank(traceId)) {
             return null;
         }
         List<Span> spans;
@@ -317,7 +318,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
         try {
             Package pkg = Class.forName("io.opentelemetry.sdk.OpenTelemetrySdk").getPackage();
             String version = pkg == null ? null : pkg.getImplementationVersion();
-            return version == null || version.isBlank() ? "unknown" : version;
+            return StringUtils.isBlank(version) ? "unknown" : version;
         } catch (Throwable ignore) {
             return "unknown";
         }

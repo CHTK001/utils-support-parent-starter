@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL CDC 入站适配器：binlog 事件 → 插入/更新/删除 → 数据envelope → pipelineengine。
@@ -176,7 +177,7 @@ public class MysqlCdcListener {
         final BinaryLogClient newClient = new BinaryLogClient(host, port, username, password);
         newClient.setServerId(serverId);
         newClient.setConnectTimeout(connectTimeoutMillis);
-        if (binlogFile != null && !binlogFile.isBlank()) {
+        if (StringUtils.isNotBlank(binlogFile)) {
             newClient.setBinlogFilename(binlogFile);
             newClient.setBinlogPosition(binlogPosition);
         }
@@ -575,7 +576,7 @@ public class MysqlCdcListener {
             if (pipelineId == null || pipelineEngine == null) {
                 throw new IllegalArgumentException("pipelineId 和 pipelineEngine 不能为空");
             }
-            if (binlogFile != null && !binlogFile.isBlank() && binlogPosition <= 0) {
+            if (StringUtils.isNotBlank(binlogFile) && binlogPosition <= 0) {
                 throw new IllegalArgumentException("resumeFrom 给出 binlog 文件名时必须同时给出正数位点");
             }
             return new MysqlCdcListener(this);

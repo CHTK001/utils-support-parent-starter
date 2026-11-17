@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 模型资源定位工具。
@@ -42,7 +43,7 @@ public final class LocationUtils {
      * @return URL 列表
      */
     public static List<String> getUrl(String modelPath, boolean isDirectory) {
-        if (modelPath == null || modelPath.isBlank()) {
+        if (StringUtils.isBlank(modelPath)) {
             return Collections.emptyList();
         }
         List<String> result = Wraps.list();

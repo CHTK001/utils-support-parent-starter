@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 将解析出的 hprof 结果序列化为自包含的 HTML 报告。
@@ -490,7 +491,7 @@ public final class HprofToHtmlSerializer {
      * @param aiSummary AI summary text, may be null/blank
      */
     private static void appendAiSummary(StringBuilder sb, String aiSummary) {
-        if (aiSummary == null || aiSummary.isBlank()) {
+        if (StringUtils.isBlank(aiSummary)) {
             return;
         }
         sb.append("<h2>AI 总结</h2>\n")

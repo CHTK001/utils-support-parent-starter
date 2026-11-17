@@ -7,6 +7,7 @@ import com.chua.git.support.model.TagInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Ref;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 标签操作（Git 标签）。
@@ -103,7 +104,7 @@ public class TagOperation {
             client.open();
             var cmd = client.getGit().tag();
             cmd.setName(name);
-            if (message != null && !message.isBlank()) {
+            if (StringUtils.isNotBlank(message)) {
                 cmd.setMessage(message);
             }
             cmd.call();

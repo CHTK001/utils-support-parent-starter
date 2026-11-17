@@ -1,4 +1,5 @@
 package com.chua.common.support.file;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -332,7 +333,7 @@ public enum FileType {
      * @return 文件类型枚举，未识别返回 {@link #UNKNOWN}
      */
     public static FileType detect(String filename) {
-        if (filename == null || filename.isEmpty()) {
+        if (StringUtils.isEmpty(filename)) {
             return UNKNOWN;
         }
 

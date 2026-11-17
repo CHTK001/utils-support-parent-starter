@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开AI 图片生成客户端。
@@ -228,7 +229,7 @@ public class OpenAiImageClient implements ImageClient {
     public BufferedImage generate(String prompt) {
         // 优先使用方法参数，其次使用链式设置的值
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
 
@@ -239,7 +240,7 @@ public class OpenAiImageClient implements ImageClient {
                 .fluentPut("prompt", actualPrompt)
                 .fluentPut("n", 1)
                 .fluentPut("size", buildSize())
-                .fluentPut(quality != null && !quality.isBlank(), "quality", quality)
+                .fluentPut(StringUtils.isNotBlank(quality), "quality", quality)
                 // 刻意不发 style：多数 OpenAI 兼容渠道（如 Agnes）不认该参数，
                 // 会把整个请求判 400「style is not supported」。
                 // 风格语义应由调用方拼进 prompt 描述，而不是当作独立入参。
@@ -277,7 +278,7 @@ public class OpenAiImageClient implements ImageClient {
             throw new RuntimeException("返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");
-        if (imageUrl == null || imageUrl.isBlank()) {
+        if (StringUtils.isBlank(imageUrl)) {
             throw new RuntimeException("返回的图片 URL 为空");
         }
 
@@ -344,7 +345,7 @@ public class OpenAiImageClient implements ImageClient {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {

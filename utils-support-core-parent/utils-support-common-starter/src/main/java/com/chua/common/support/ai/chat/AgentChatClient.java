@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Agent 路由对话客户端
@@ -171,7 +172,7 @@ public class AgentChatClient implements ChatClient {
         try {
             consumer.accept(ChatResponse.builder().state(ChatResponse.State.START).build());
             String output = chatSync(prompt);
-            if (output != null && !output.isEmpty()) {
+            if (StringUtils.isNotEmpty(output)) {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STREAMING)
                         .content(output)

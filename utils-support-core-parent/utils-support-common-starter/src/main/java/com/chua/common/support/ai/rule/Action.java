@@ -1,4 +1,5 @@
 package com.chua.common.support.ai.rule;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 行动结论——一次执行最终「做什么」的业务处置。
@@ -80,7 +81,7 @@ public enum Action {
      * @return 对应枚举；无法识别时返回 null
      */
     public static Action of(String code) {
-        if (code == null || code.isBlank()) {
+        if (StringUtils.isBlank(code)) {
             return null;
         }
         try {

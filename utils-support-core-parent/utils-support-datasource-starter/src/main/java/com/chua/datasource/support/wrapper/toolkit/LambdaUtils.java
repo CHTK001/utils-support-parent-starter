@@ -5,6 +5,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
 import java.lang.invoke.SerializedLambda;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Lambda 解析工具类，将 sfunction 方法引用解析为属性名。
@@ -62,7 +63,7 @@ public class LambdaUtils {
      */
     public static <T> String resolveColumn(SFunction<T, ?> func) {
         String field = resolveObject(func);
-        if (field == null || field.isEmpty()) {
+        if (StringUtils.isEmpty(field)) {
             return field;
         }
         StringBuilder sb = new StringBuilder();

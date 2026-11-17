@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PDF AcroForm 模板填充器 —— 接口二在 PDF 侧的实现。
@@ -218,7 +219,7 @@ public class PdfAcroFormTemplateFiller implements TemplateFiller {
     */
     private String placeholder(TemplateContext context, PDTerminalField terminal) throws IOException {
         String current = terminal.getValueAsString();
-        if (current == null || current.isEmpty()) {
+        if (StringUtils.isEmpty(current)) {
             return null;
         }
         // 复用统一的模板引擎：同一套语法（标量 / a.b 嵌套 / 多占位符），不另写正则

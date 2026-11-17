@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * macOS 主机不可变信息采集。
@@ -140,7 +141,7 @@ public class MacHostInfoProvider implements HostInfoProvider {
      * @return 捕获组内容；未匹配返回空串
      */
     private static String group1(Pattern pattern, String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return "";
         }
         Matcher matcher = pattern.matcher(text);
@@ -155,7 +156,7 @@ public class MacHostInfoProvider implements HostInfoProvider {
      * @param value  取值
      */
     private static void put(Map<HostAnchor, String> values, HostAnchor anchor, String value) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             values.put(anchor, value);
         }
     }

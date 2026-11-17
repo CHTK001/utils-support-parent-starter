@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Redis（Lettuce）的时序存储实现。
@@ -109,9 +110,9 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
      */
     static RedisURI redisUri(Properties properties) {
         String url = properties == null ? null : properties.getProperty("url");
-        RedisURI uri = RedisURI.create(url == null || url.isBlank() ? DEFAULT_REDIS_URL : url);
+        RedisURI uri = RedisURI.create(StringUtils.isBlank(url) ? DEFAULT_REDIS_URL : url);
         String database = properties == null ? null : properties.getProperty("database");
-        if (database != null && !database.isBlank()) {
+        if (StringUtils.isNotBlank(database)) {
             try {
                 int index = Integer.parseInt(database.trim());
                 if (index >= 0) {

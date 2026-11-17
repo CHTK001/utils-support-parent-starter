@@ -11,6 +11,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地引擎文本嵌入客户端抽象基类。
@@ -93,7 +94,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
      * @return 模型名称
      */
     protected String resolveModel() {
-        if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
+        if (StringUtils.isNotBlank(model) && !"auto".equalsIgnoreCase(model)) {
             return model;
         }
         String recommended = DeeplearningModels.recommended(engine, null);

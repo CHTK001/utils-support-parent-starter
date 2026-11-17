@@ -14,6 +14,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 邮件客户端，支持 SMTP 发送 + POP3/IMAP 轮询监听。
@@ -188,7 +189,7 @@ public class EmailClient {
      * @return 检查smtp可用的结果
      */
     private boolean checkSmtpAvailable() {
-        if (smtpHost == null || smtpHost.isEmpty()) {
+        if (StringUtils.isEmpty(smtpHost)) {
             return false;
         }
         try {

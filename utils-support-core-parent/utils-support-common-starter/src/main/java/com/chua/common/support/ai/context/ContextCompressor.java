@@ -7,6 +7,7 @@ import com.chua.common.support.ai.chat.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 统一上下文压缩入口 — Agent / 普通 ChatClient 共用。
@@ -71,7 +72,7 @@ public final class ContextCompressor {
                                               ChatClient fallbackClient,
                                               String workspace) {
         ContextCompressionConfig cfg = ContextCompressionConfig.from(agentConfig);
-        if (workspace != null && !workspace.isBlank()) {
+        if (StringUtils.isNotBlank(workspace)) {
             cfg.setWorkspace(workspace);
         }
         return new ContextCompressor(cfg, fallbackClient);

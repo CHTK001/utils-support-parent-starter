@@ -2,6 +2,7 @@ package com.chua.cad.support.dxf;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * DXF 图元（仅保留可渲染的几何信息）。
@@ -153,7 +154,7 @@ public record DxfEntity(
      * @param text        文本内容
      */
     public DxfEntity {
-        layer = layer == null || layer.isBlank() ? "0" : layer;
+        layer = StringUtils.isBlank(layer) ? "0" : layer;
         points = points == null ? List.of() : Collections.unmodifiableList(Wraps.list(points));
         text = text == null ? "" : text;
     }

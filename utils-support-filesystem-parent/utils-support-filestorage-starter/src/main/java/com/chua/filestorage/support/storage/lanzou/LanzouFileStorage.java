@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 蓝奏云网盘文件存储实现。
@@ -128,7 +129,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
         String cookie = loadCookie(extra.get("cookiePath") != null ? extra.get("cookiePath") : extra.get("cookie"));
         this.http = new LanzouHttp(cookie, 30000, 60000);
         String u = extra.get("uid");
-        if (u == null || u.isEmpty()) {
+        if (StringUtils.isEmpty(u)) {
             u = extractUid(cookie);
         }
         this.uid = u == null ? "" : u;
@@ -143,7 +144,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      * @return 结果字符串
      */
     private String loadCookie(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             throw new LanzouException("蓝奏云未配置 cookiePath：请在 extraProperties 中指定 cookie 文件路径");
         }
         try {
@@ -366,7 +367,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
         try {
             String folderId = request.getFilePath();
             List<LanzouFile> files;
-            if (folderId == null || folderId.isEmpty() || "-1".equals(folderId) || "0".equals(folderId)) {
+            if (StringUtils.isEmpty(folderId) || "-1".equals(folderId) || "0".equals(folderId)) {
                 files = listAll(rootFolderId);
             } else {
                 files = listFiles(folderId);
@@ -514,7 +515,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      * @return 结果字符串
      */
     private String resolveFolderId(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
+        if (StringUtils.isEmpty(filePath)) {
             return rootFolderId;
         }
         // filePath 可能是 folder_id 或 路径；取首个片段作为 folder_id
@@ -528,7 +529,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      * @return 结果数值
      */
     private long parseSize(String sizeText) {
-        if (sizeText == null || sizeText.isEmpty()) {
+        if (StringUtils.isEmpty(sizeText)) {
             return 0;
         }
         Matcher m = SIZE_TEXT_PATTERN.matcher(sizeText.trim());

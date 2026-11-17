@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 服务器处理器工厂。
@@ -165,7 +166,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @return 当前工厂实例
      */
     public ServerHandlerFactory<T> removeRoute(String path) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             return this;
         }
         routeLock.writeLock().lock();
@@ -218,7 +219,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @return 匹配的处理器，未匹配返回 null
      */
     public ServerHandler resolveHandler(String path) {
-        if (path == null || path.isBlank()) {
+        if (StringUtils.isBlank(path)) {
             return null;
         }
         routeLock.readLock().lock();
@@ -306,7 +307,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @param handler 处理器
      */
     private void validateRoute(String path, ServerHandler handler) {
-        if (path == null || path.isBlank() || !path.startsWith("/")) {
+        if (StringUtils.isBlank(path) || !path.startsWith("/")) {
             throw new IllegalArgumentException("路由路径必须以 / 开头");
         }
         if (handler == null) {

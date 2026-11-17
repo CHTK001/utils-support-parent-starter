@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Python 脚本引擎：调用本机 python 解释器以子进程方式执行脚本。
@@ -405,7 +406,7 @@ public class PythonScriptProvider implements ScriptProvider {
      * @return 解析结果
      */
     private static Object parseResult(String json) {
-        if (json == null || json.isEmpty() || "null".equals(json)) {
+        if (StringUtils.isEmpty(json) || "null".equals(json)) {
             return null;
         }
         try {
@@ -422,7 +423,7 @@ public class PythonScriptProvider implements ScriptProvider {
      * @return 摘录
      */
     private static String firstLines(String stderr) {
-        if (stderr == null || stderr.isBlank()) {
+        if (StringUtils.isBlank(stderr)) {
             return "（无错误输出）";
         }
         String[] lines = stderr.strip().split("\n");

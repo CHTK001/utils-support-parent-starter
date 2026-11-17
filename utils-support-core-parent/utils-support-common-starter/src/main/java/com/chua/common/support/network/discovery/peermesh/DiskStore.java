@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 磁盘持久化存储：读写 known_peers.json，写时加锁。
@@ -41,7 +42,7 @@ public class DiskStore {
      * @param peersFile 持久化文件路径，可为 null 表示禁用
      */
     public DiskStore(String peersFile) {
-        if (peersFile != null && !peersFile.isBlank()) {
+        if (StringUtils.isNotBlank(peersFile)) {
             this.filePath = Paths.get(peersFile);
         } else {
             this.filePath = null;

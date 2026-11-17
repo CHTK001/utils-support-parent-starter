@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Spring 自带 {@link SpringFactoriesLoader} 的脚本引擎发现实现。
@@ -88,7 +89,7 @@ public class SpringScriptProviderResolver implements ScriptProviderResolver {
         Map<String, ScriptProvider> result = Wraps.linkedMap(factories.size());
         for (ScriptProvider provider : factories) {
             String name = provider.engineName();
-            if (name != null && !name.isBlank()) {
+            if (StringUtils.isNotBlank(name)) {
                 result.putIfAbsent(name.trim(), provider);
             }
         }

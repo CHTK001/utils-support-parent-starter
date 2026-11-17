@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * OCR 统一能力门面：检测 → 裁剪 → 方向矫正 → 修复 → 识别。
@@ -552,7 +553,7 @@ public class OcrPipeline {
          */
         @SuppressWarnings("unchecked")
         private static ITranslator<Object, Object> createTranslator(String modelId) {
-            if (modelId == null || modelId.isBlank()) {
+            if (StringUtils.isBlank(modelId)) {
                 return null;
             }
             return (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
@@ -621,7 +622,7 @@ public class OcrPipeline {
                         return null;
                     }
                     String text = recognizer.recognize(oc.currentCrop());
-                    if (corrector != null && text != null && !text.isBlank()) {
+                    if (corrector != null && StringUtils.isNotBlank(text)) {
                         try {
                             Object fixed = corrector.translate(text);
                             if (fixed != null) {

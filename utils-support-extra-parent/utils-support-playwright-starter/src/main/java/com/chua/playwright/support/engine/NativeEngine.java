@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Rust 无头浏览器动态库（headless_rust）的浏览器自动化引擎（Panama FFM）。
@@ -404,7 +405,7 @@ public class NativeEngine implements Engine {
     public long launch(boolean headless, String executablePath, List<String> args) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("headless", headless);
-        if (executablePath != null && !executablePath.isBlank()) {
+        if (StringUtils.isNotBlank(executablePath)) {
             p.put("executablePath", executablePath);
         }
         if (args != null) {

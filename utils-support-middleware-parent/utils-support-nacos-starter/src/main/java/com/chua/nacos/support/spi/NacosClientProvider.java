@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Nacos 中间件管理面 SPI 实现（默认装载）。
@@ -140,7 +141,7 @@ public class NacosClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：namespaces / configs <dataId> / "
                     + "services / instances <service>");
         }
@@ -331,7 +332,7 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                                       String body, String contentType) throws Exception {
         String full = baseUrl(request) + path;
         String token = request.password();
-        if (token != null && !token.isBlank() && full.contains("?")) {
+        if (StringUtils.isNotBlank(token) && full.contains("?")) {
             full = full + "&accessToken=" + url(token);
         }
         HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(full)).timeout(HTTP_TIMEOUT);

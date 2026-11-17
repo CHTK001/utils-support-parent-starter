@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Shell 命令反射处理器。
@@ -178,7 +179,7 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
             return s;
         }
         Map<String, ViewParser> parsers = ServiceProvider.of(ViewParser.class).list();
-        if (produce != null && !produce.isEmpty()) {
+        if (StringUtils.isNotEmpty(produce)) {
             for (Map.Entry<String, ViewParser> entry : parsers.entrySet()) {
                 if (produce.equalsIgnoreCase(entry.getKey())) {
                     return entry.getValue().render(data);

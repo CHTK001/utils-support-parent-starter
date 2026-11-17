@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * MySQL 搜索引擎元数据操作实现，索引即表上的 FULLTEXT 索引。
@@ -202,7 +203,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
                     continue;
                 }
                 String type = column.getType();
-                if (type == null || type.isEmpty()) {
+                if (StringUtils.isEmpty(type)) {
                     column.setType("text");
                 } else if (!type.startsWith("text") && !"string".equals(type) && !"keyword".equals(type)) {
                     unsupported.add("字段 " + column.getName() + " 的类型 " + type

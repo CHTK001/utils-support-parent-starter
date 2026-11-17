@@ -50,7 +50,7 @@ public class ObjectBeanPath implements BeanPath {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getValue(Object source, String path) {
-        if (source == null || path == null || path.isEmpty()) {
+        if (source == null || StringUtils.isEmpty(path)) {
             return null;
         }
         String[] parts = path.split("\\.");
@@ -67,7 +67,7 @@ public class ObjectBeanPath implements BeanPath {
      * @return 返回值
     */
     public void setValue(Object source, String path, Object value) {
-        if (source == null || path == null || path.isEmpty()) {
+        if (source == null || StringUtils.isEmpty(path)) {
             return;
         }
         String[] parts = path.split("\\.");

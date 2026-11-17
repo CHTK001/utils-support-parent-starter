@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Base64;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 图片工具类，提供图片读取、缩放、灰度化、旋转、字符画转换等能力。
@@ -225,7 +226,7 @@ public class BufferedImageUtils {
         if (width < 1) {
             throw new IllegalArgumentException("Width must be >= 1, got: " + width);
         }
-        if (asciiChars == null || asciiChars.isEmpty()) {
+        if (StringUtils.isEmpty(asciiChars)) {
             asciiChars = DEFAULT_ASCII_CHARS;
         }
 
@@ -405,7 +406,7 @@ public class BufferedImageUtils {
      * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isEmpty(path)) {
             return new BufferedImage[0];
         }
         File file = new File(path);
@@ -718,7 +719,7 @@ public class BufferedImageUtils {
      * @return 添加水印后的图片
      */
     public static BufferedImage addTextWatermark(BufferedImage image, String text) {
-        if (image == null || text == null || text.isEmpty()) {
+        if (image == null || StringUtils.isEmpty(text)) {
             return image;
         }
         int fontSize = Math.max(16, image.getWidth() / 20);

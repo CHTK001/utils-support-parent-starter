@@ -1,6 +1,7 @@
 package com.chua.filesystem.support.filesearch.model;
 
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 文件搜索条件
@@ -81,10 +82,10 @@ public record FileSearchCriteria(
         if (maxResults < 0) {
             maxResults = DEFAULT_MAX_RESULTS;
         }
-        if (order == null || order.isBlank()) {
+        if (StringUtils.isBlank(order)) {
             order = ORDER_DESC;
         }
-        if (sortBy == null || sortBy.isBlank()) {
+        if (StringUtils.isBlank(sortBy)) {
             sortBy = SORT_BY_SIZE;
         }
         excludeDirs = excludeDirs == null ? null : excludeDirs.clone();

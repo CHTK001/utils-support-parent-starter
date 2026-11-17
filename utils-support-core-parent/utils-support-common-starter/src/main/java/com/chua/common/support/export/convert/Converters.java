@@ -8,6 +8,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 值转换器注册表。
@@ -45,7 +46,7 @@ public final class Converters {
      * @param converter 转换器
      */
     public static void register(String name, ValueConverter converter) {
-        if (name != null && !name.isBlank() && converter != null) {
+        if (StringUtils.isNotBlank(name) && converter != null) {
             REGISTRY.put(name, converter);
         }
     }
@@ -57,7 +58,7 @@ public final class Converters {
      * @return 转换器
      */
     public static ValueConverter find(String key) {
-        if (key == null || key.isBlank()) {
+        if (StringUtils.isBlank(key)) {
             return null;
         }
         ValueConverter registered = REGISTRY.get(key);

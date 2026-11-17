@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Qoder CN（国内版）用量解析器。
@@ -42,7 +43,7 @@ public class QoderCnUsageParser extends BaseUsageParser {
      */
     private static Path resolveProjectsDir() {
         String override = System.getenv("QODER_CN_PROJECTS_DIR");
-        if (override != null && !override.isBlank()) {
+        if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
         return Path.of(System.getProperty("user.home"), ".qoder-cn", "projects");

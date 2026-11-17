@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Timestral-5M 单变量时间序列预测翻译器（ONNX Runtime 实现）。
@@ -516,7 +517,7 @@ public class TimestralTranslator implements TimeSeriesForecaster {
      * @return 可用的文件路径，找不到时返回 null
      */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) {
+        if (StringUtils.isBlank(pathStr)) {
             return null;
         }
         Path abs = Path.of(pathStr);

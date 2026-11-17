@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Derby 迁移脚本方言转换器（{@code ScriptConverter} 的 derby 协议实现）。
@@ -246,7 +247,7 @@ public class DerbyScriptConverter extends DefaultScriptConverter {
     public String convert(String statement, String protocol) {
         // 先走父类：剥离表尾 MySQL 属性、行内 KEY/UNIQUE KEY、列内联 COMMENT、列级 CHARSET/COLLATE
         String converted = super.convert(statement, protocol);
-        if (converted == null || converted.isBlank()) {
+        if (StringUtils.isBlank(converted)) {
             return converted;
         }
         // INSERT IGNORE 在 Derby 上无等价语法且改写语义不等价，整条跳过

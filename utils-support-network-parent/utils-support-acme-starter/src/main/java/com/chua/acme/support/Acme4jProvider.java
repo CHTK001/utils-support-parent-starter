@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 acme4j 的 ACME 提供者实现，对接 Let's Encrypt、ZeroSSL 等兼容 RFC 8555 的 CA。
@@ -157,10 +158,10 @@ public class Acme4jProvider implements AcmeProvider {
             AccountBuilder accountBuilder = new AccountBuilder()
                     .agreeToTermsOfService()
                     .useKeyPair(accountKeyPair);
-            if (email != null && !email.isBlank()) {
+            if (StringUtils.isNotBlank(email)) {
                 accountBuilder.addEmail(email);
             }
-            if (eabKid != null && !eabKid.isBlank() && eabHmacKey != null && !eabHmacKey.isBlank()) {
+            if (StringUtils.isNotBlank(eabKid) && StringUtils.isNotBlank(eabHmacKey)) {
                 accountBuilder.withKeyIdentifier(eabKid, eabHmacKey);
             }
 

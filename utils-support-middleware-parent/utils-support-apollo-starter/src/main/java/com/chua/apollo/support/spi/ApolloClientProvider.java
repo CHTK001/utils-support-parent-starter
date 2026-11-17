@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Apollo 中间件管理面 SPI 实现（默认装载）。
@@ -148,7 +149,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
-        if (parentKey == null || parentKey.isBlank()) {
+        if (StringUtils.isBlank(parentKey)) {
             return List.of();
         }
         List<MiddlewareTreeNode> out = new ArrayList<>();
@@ -175,7 +176,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
-        if (expression == null || expression.isBlank()) {
+        if (StringUtils.isBlank(expression)) {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：apps / namespaces / configs <appId>|<cluster>|<namespace>");
         }
         String cmd = expression.trim();
@@ -202,11 +203,11 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
     public MiddlewareDocument document(MiddlewareConnectRequest request, String scope, String key) {
         try {
             // scope = "config" / "namespace"，key = appId|cluster|namespace
-            String target = (scope == null || scope.isBlank()) ? "config" : scope.trim().toLowerCase();
+            String target = (StringUtils.isBlank(scope)) ? "config" : scope.trim().toLowerCase();
             if (!"config".equals(target) && !"namespace".equals(target)) {
                 return null;
             }
-            if (key == null || key.isBlank()) {
+            if (StringUtils.isBlank(key)) {
                 return null;
             }
             String[] parts = key.split("\\|", -1);
@@ -234,7 +235,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     /** 该响应体内是否含可以读的列表数据（{"code":0,"data":[...]} 或空数组） */
     private static boolean isData(String body) {
-        if (body == null || body.isBlank()) {
+        if (StringUtils.isBlank(body)) {
             return false;
         }
         JsonObject root = asObject(body);
@@ -286,7 +287,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     /** JSON 回答体转 JsonObject（解析失败返回 null，调用方负责返回空结果） */
     private static JsonObject asObject(String body) {
-        if (body == null || body.isBlank()) {
+        if (StringUtils.isBlank(body)) {
             return null;
         }
         try {
@@ -314,7 +315,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
             t = t.getCause();
         }
         String m = t.getMessage();
-        if (m == null || m.isBlank()) {
+        if (StringUtils.isBlank(m)) {
             m = t.getClass().getSimpleName();
         }
         return m;
@@ -322,7 +323,7 @@ public class ApolloClientProvider implements MiddlewareClientProvider {
 
     /** URL 片段 urlencode */
     private static String url(String s) {
-        if (s == null || s.isBlank()) {
+        if (StringUtils.isBlank(s)) {
             return "";
         }
         return URLEncoder.encode(s, StandardCharsets.UTF_8);

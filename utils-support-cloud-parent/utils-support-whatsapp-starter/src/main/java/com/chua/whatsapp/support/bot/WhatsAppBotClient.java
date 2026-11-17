@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WhatsApp Cloud API（Meta Graph）机器人客户端。
@@ -92,13 +93,13 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotClient configure(String token, String secret, String encodingAesKey) {
-        if (token != null && !token.isBlank()) {
+        if (StringUtils.isNotBlank(token)) {
             this.phoneNumberId = token;
         }
-        if (secret != null && !secret.isBlank()) {
+        if (StringUtils.isNotBlank(secret)) {
             this.accessToken = secret;
         }
-        if (encodingAesKey != null && !encodingAesKey.isBlank()) {
+        if (StringUtils.isNotBlank(encodingAesKey)) {
             this.appSecret = encodingAesKey;
         }
         return this;
@@ -116,7 +117,7 @@ public class WhatsAppBotClient implements BotClient {
     public WhatsAppBotClient configure(String phoneNumberId, String accessToken,
                                       String appSecret, String verifyToken) {
         configure(phoneNumberId, accessToken, appSecret);
-        if (verifyToken != null && !verifyToken.isBlank()) {
+        if (StringUtils.isNotBlank(verifyToken)) {
             this.verifyToken = verifyToken;
         }
         return this;
@@ -164,7 +165,7 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotClient baseUrl(String baseUrl) {
-        if (baseUrl != null && !baseUrl.isBlank()) {
+        if (StringUtils.isNotBlank(baseUrl)) {
             this.baseUrl = baseUrl;
         }
         return this;
@@ -193,10 +194,10 @@ public class WhatsAppBotClient implements BotClient {
      * @throws IllegalArgumentException 凭证缺失或校验失败
      */
     public void validate() {
-        if (phoneNumberId == null || phoneNumberId.isBlank()) {
+        if (StringUtils.isBlank(phoneNumberId)) {
             throw new IllegalArgumentException("WhatsApp phone_number_id 必填");
         }
-        if (accessToken == null || accessToken.isBlank()) {
+        if (StringUtils.isBlank(accessToken)) {
             throw new IllegalArgumentException("WhatsApp access_token 必填");
         }
         try {
@@ -219,8 +220,8 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotClient start() {
-        if (phoneNumberId == null || phoneNumberId.isBlank()
-                || accessToken == null || accessToken.isBlank()) {
+        if (StringUtils.isBlank(phoneNumberId)
+                || StringUtils.isBlank(accessToken)) {
             throw new IllegalStateException("WhatsApp phone_number_id 与 access_token 必填");
         }
         running.set(true);
@@ -313,8 +314,8 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotSendResult sendVideo(String toUser, String mediaPath, String title, String desc) {
-        String caption = desc != null && !desc.isBlank() ? desc
-                : (title != null && !title.isBlank() ? title : null);
+        String caption = StringUtils.isNotBlank(desc) ? desc
+                : (StringUtils.isNotBlank(title) ? title : null);
         return sendLinkMedia(toUser, "video", mediaPath, caption);
     }
 
@@ -342,7 +343,7 @@ public class WhatsAppBotClient implements BotClient {
         }
         Map<String, Object> media = new LinkedHashMap<>();
         media.put("link", link);
-        if (caption != null && !caption.isBlank()) {
+        if (StringUtils.isNotBlank(caption)) {
             media.put("caption", caption);
         }
         if ("document".equals(type)) {
@@ -490,7 +491,7 @@ public class WhatsAppBotClient implements BotClient {
         if (!"subscribe".equalsIgnoreCase(mode)) {
             return null;
         }
-        if (verifyToken == null || verifyToken.isBlank()
+        if (StringUtils.isBlank(verifyToken)
                 || !verifyToken.equals(token)) {
             return null;
         }
@@ -505,7 +506,7 @@ public class WhatsAppBotClient implements BotClient {
      * @return HTTP 状态与响应体
      */
     public WhatsAppCallbackResult handleCallback(String body, Map<String, String> headers) {
-        if (body == null || body.isBlank()) {
+        if (StringUtils.isBlank(body)) {
             return new WhatsAppCallbackResult(400, "{\"msg\":\"empty body\"}");
         }
         if (!verifySignature(body, headers)) {
@@ -533,10 +534,10 @@ public class WhatsAppBotClient implements BotClient {
      * @throws IllegalArgumentException 参数缺失或下载失败
      */
     public byte[] downloadMedia(String mediaId) {
-        if (mediaId == null || mediaId.isBlank()) {
+        if (StringUtils.isBlank(mediaId)) {
             throw new IllegalArgumentException("mediaId 必填");
         }
-        if (accessToken == null || accessToken.isBlank()) {
+        if (StringUtils.isBlank(accessToken)) {
             throw new IllegalArgumentException("access_token 未配置，无法下载媒体");
         }
         try {
@@ -666,10 +667,10 @@ public class WhatsAppBotClient implements BotClient {
             Map<String, Object> media = asMap(mediaRaw);
             builder.mediaId(str(media.get("id")));
             String caption = str(media.get("caption"));
-            builder.content(caption != null && !caption.isBlank()
+            builder.content(StringUtils.isNotBlank(caption)
                     ? caption : "[" + type + "]");
             String mimeType = str(media.get("mime_type"));
-            if (mimeType != null && !mimeType.isBlank()) {
+            if (StringUtils.isNotBlank(mimeType)) {
                 builder.rawField("mimeType", mimeType);
             }
         } else {
@@ -780,7 +781,7 @@ public class WhatsAppBotClient implements BotClient {
      * @return 返回值
     */
     private boolean verifySignature(String body, Map<String, String> headers) {
-        if (appSecret == null || appSecret.isBlank()) {
+        if (StringUtils.isBlank(appSecret)) {
             return true;
         }
         String signature = null;
@@ -793,7 +794,7 @@ public class WhatsAppBotClient implements BotClient {
                 }
             }
         }
-        if (signature == null || signature.isBlank()) {
+        if (StringUtils.isBlank(signature)) {
             return false;
         }
         try {
@@ -844,16 +845,16 @@ public class WhatsAppBotClient implements BotClient {
      */
     private String resolveProxy() {
         String proxy = httpProxy;
-        if (proxy == null || proxy.isBlank()) {
+        if (StringUtils.isBlank(proxy)) {
             proxy = System.getProperty("whatsapp.http.proxy");
         }
-        if (proxy == null || proxy.isBlank()) {
+        if (StringUtils.isBlank(proxy)) {
             proxy = System.getenv("WHATSAPP_HTTP_PROXY");
         }
-        if (proxy == null || proxy.isBlank()) {
+        if (StringUtils.isBlank(proxy)) {
             proxy = System.getenv("HTTPS_PROXY");
         }
-        if (proxy == null || proxy.isBlank()) {
+        if (StringUtils.isBlank(proxy)) {
             return null;
         }
         String value = proxy.trim();
