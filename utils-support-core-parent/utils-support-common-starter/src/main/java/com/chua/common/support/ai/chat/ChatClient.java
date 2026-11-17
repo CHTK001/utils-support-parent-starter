@@ -41,13 +41,13 @@ import java.util.function.Consumer;
  *       .model("gpt-4")
  *       .chat("讲个故事", response -> {
  *           switch (response.getState()) {
-// [P3C E1 豁免] 场景化输出，非业务日志
+                // [P3C E1 豁免] 场景化输出，非业务日志
  *               case START     -> System.out.println("开始");
-// [P3C E1 豁免] 场景化输出，非业务日志
+                // [P3C E1 豁免] 场景化输出，非业务日志
  *               case STREAMING -> System.out.print(response.getContent());
-// [P3C E1 豁免] 场景化输出，非业务日志
+                // [P3C E1 豁免] 场景化输出，非业务日志
  *               case STOP      -> System.out.println("\n完成");
-// [P3C E1 豁免] 场景化输出，非业务日志
+                // [P3C E1 豁免] 场景化输出，非业务日志
  *               case ERROR     -> System.err.println(response.getErrorMessage());
  *           }
  *       });
