@@ -303,6 +303,16 @@ public class AiUsage {
      */
     private String finishReason;
 
+    /**
+     * 调用状态：success(成功) / failed(失败)
+     *
+     * <p>由聚合任务在落库前按「会话超时」判定：耗时（总耗时或首字耗时）
+     * 超过会话超时上限（默认 5 分钟）的记录，耗时被截断为该上限并标记
+     * {@code failed}（数据保留，不丢弃）；正常记录为 {@code success}。
+     * 无耗时数据（null）的记录无从判定，按 success 处理。</p>
+     */
+    private String status;
+
     // ==================== 推理 Token ====================
 
     /**
@@ -444,11 +454,25 @@ public class AiUsage {
      * @return 解码速度（tok/s），Token 数或总耗时缺失时返回 null
      */
     public Double tokensPerSecond() {
+        return tokensPerSecond(durationMillis == null ? 0L : durationMillis);
+    }
+
+    /**
+     * 解码速度（Token / 秒），按给定的耗时口径计算。
+     *
+     * <p>与 {@link #tokensPerSecond()} 同口径，但耗时由调用方传入 —— 用于
+     * 「耗时被截断」的场景：外部用量的脏耗时（如缺失 started_at 被算成
+     * epoch 毫秒）入库前会按会话超时上限截断，此时必须用截断后的耗时
+     * 重算吞吐，否则落库的速率仍是物理上不可信的脏值。
+     *
+     * @param durationMillis 本次采用的总耗时（毫秒），非正数时返回 null
+     * @return 解码速度（tok/s），Token 数或耗时缺失时返回 null
+     */
+    public Double tokensPerSecond(long durationMillis) {
         if (tokensPerSecond != null) {
             return tokensPerSecond;
         }
-        if (outputTokens == null || outputTokens <= 0
-                || durationMillis == null || durationMillis <= 0) {
+        if (outputTokens == null || outputTokens <= 0 || durationMillis <= 0) {
             return null;
         }
         long decodeWindow = durationMillis;
@@ -473,13 +497,26 @@ public class AiUsage {
      * @return 端到端吞吐（tok/s），Token 数或总耗时缺失时返回 null
      */
     public Double totalTokensPerSecond() {
+        return totalTokensPerSecond(durationMillis == null ? 0L : durationMillis);
+    }
+
+    /**
+     * 端到端吞吐（Token / 秒），按给定的耗时口径计算。
+     *
+     * <p>与 {@link #totalTokensPerSecond()} 同口径，耗时由调用方传入，
+     * 用于「耗时被截断」后用截断值重算（见 {@link #tokensPerSecond(long)}）。
+     *
+     * @param durationMillis 本次采用的总耗时（毫秒），非正数时返回 null
+     * @return 端到端吞吐（tok/s），Token 数或耗时缺失时返回 null
+     */
+    public Double totalTokensPerSecond(long durationMillis) {
         if (totalTokensPerSecond != null) {
             return totalTokensPerSecond;
         }
         long total = totalTokens != null ? totalTokens
                 : (inputTokens == null ? 0 : inputTokens)
                 + (outputTokens == null ? 0 : outputTokens);
-        if (total <= 0 || durationMillis == null || durationMillis <= 0) {
+        if (total <= 0 || durationMillis <= 0) {
             return null;
         }
         return total / (durationMillis / 1000.0);

@@ -355,7 +355,11 @@ public class AtomCodeUsageParser extends BaseUsageParser {
         String sessionId = node.get("session_id").toStringValue("unknown");
         int turnId = node.get("turn_id").toIntValue(-1);
         TurnStat stat = turnStats.get(turnId);
-        Long durationMillis = endMillis > turnStartedAt ? Long.valueOf(endMillis - turnStartedAt) : null;
+        // 耗时必须两个时刻都有效才计算：started_at 缺失的脏行里 endMillis > 0 恒真，
+        // 直接相减会算出 epoch 毫秒级别的脏耗时（实测约 1.79e12 ms）污染统计。
+        // 缺字段时写 null，由聚合侧按「无耗时数据」处理（不截断、不标失败）。
+        Long durationMillis = endMillis > 0 && turnStartedAt > 0 && endMillis > turnStartedAt
+                ? Long.valueOf(endMillis - turnStartedAt) : null;
         long startTime = startTimeOf(endMillis, durationMillis);
 
         // prompt 口径已含缓存命中，按契约原样出数；命中量单列供补全器折算。
