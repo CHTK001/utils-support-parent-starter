@@ -767,7 +767,7 @@ public class ChatRequest {
              * 两种情况都会让已发布的工具定义失真。</p>
              *
              * <p>模式内的值允许为 {@code null}（如 {@code default: null}），
-             * 且 {@link com.chua.trae.support.ChatClient} 显式判空后按「无模式」处理，
+             * 且 {@link com.chua.trae.support.spi.TraeChatClient} 显式判空后按「无模式」处理，
              * 故此处采用可空安全的不可变包装并保留 {@code null} 语义，
              * 而非会拒绝 null 值的 {@link Map#copyOf(Map)}。</p>
              *

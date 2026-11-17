@@ -49,7 +49,7 @@ public record ModelConfig(
      * <p>value class 前置条件——集合组件必须深不可变。本配置为一次性装载、长期持有的
      * 共享状态，若直接持有 Jackson 反序列化产出的可变映射，调用方就地改写会串改全局路由。</p>
      *
-     * <p>配置项在 JSON 中可整体缺省，{@link com.chua.trae.support.ChatClient} 亦显式判空
+     * <p>配置项在 JSON 中可整体缺省，{@link com.chua.trae.support.spi.TraeChatClient} 亦显式判空
      * （{@code models() != null}、{@code mappings() != null}），故两个组件保留 {@code null} 语义；
      * 映射内的值允许为 {@code null}，故采用可空安全的不可变包装而非会拒绝 null 值的
      * {@link Map#copyOf(Map)}。</p>
@@ -160,7 +160,7 @@ public record ModelConfig(
          * <p>value class 前置条件——集合组件必须深不可变。降级链映射是模型路由的核心配置，
          * 若直接持有反序列化产出的可变映射，调用方就地增删会静默改变实际降级行为。</p>
          *
-         * <p>{@link com.chua.trae.support.ChatClient} 显式判空（{@code mappings() != null}）
+         * <p>{@link com.chua.trae.support.spi.TraeChatClient} 显式判空（{@code mappings() != null}）
          * 后按「无降级链」处理，组件保留 {@code null} 语义；映射内的值允许为 {@code null}，
          * 故采用可空安全的不可变包装而非会拒绝 null 值的 {@link Map#copyOf(Map)}。</p>
          *
