@@ -10,6 +10,11 @@
     <artifactId>utils-support-datasearch-starter</artifactId>
     <name>Datasearch Starter</name>
     <description>数据搜索模块，提供视频、音乐资源搜索、WebDAV云存储、JDBC元数据、数据同步输入等能力</description>
+    <properties>
+        <!-- 本模块在 src/test/java 下维护 exec 示例方式的回归用例（如 ScnetUsageParserExample）；
+             根 pom 全局 maven.test.skip=true 会连测试源码编译一起跳过，故此处只放开编译。 -->
+        <maven.test.skip>false</maven.test.skip>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -96,6 +101,16 @@
                         </goals>
                         <configuration>
                             <mainClass>com.chua.common.support.datasearch.example.MusicSourceProviderExample</mainClass>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run-scnet-usage-test</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.chua.common.support.datasearch.example.ScnetUsageParserExample</mainClass>
                             <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
