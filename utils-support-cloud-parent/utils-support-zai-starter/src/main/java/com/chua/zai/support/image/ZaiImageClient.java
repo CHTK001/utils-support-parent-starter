@@ -5,6 +5,7 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.BodyBuilder;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ZAI 平台图片生成客户端
@@ -204,40 +206,30 @@ public class ZaiImageClient implements ImageClient {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
 
-/**
- * Generate
-*/
+    
     @Override
-public BufferedImage generate(String prompt) {
+    public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
-        if (actualPrompt == null || actualPrompt.isBlank()) {
+        if (StringUtils.isBlank(actualPrompt)) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "dall-e-3";
-        String sizeStr = buildSize();
-        // 构建请求体
-        StringBuilder bodyBuilder = new StringBuilder();
-        bodyBuilder.append("{\"model\":\"").append(actualModel)
-                .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
-                .append("\",\"n\":1")
-                .append(",\"size\":\"").append(sizeStr).append("\"");
-        if (quality != null && !quality.isBlank()) {
-            bodyBuilder.append(",\"quality\":\"").append(quality).append("\"");
-        }
-        if (style != null && !style.isBlank()) {
-            bodyBuilder.append(",\"style\":\"").append(style).append("\"");
-        }
-        bodyBuilder.append(",\"response_format\":\"url\"}");
-        String requestBody = bodyBuilder.toString();
         ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
                 .path("/v1/images/generations")
                 .header("Authorization", "Bearer " + setting.getAppKey())
                 .json()
                 .connectTimeout(30000)
                 .readTimeout(120000)
-                .body(requestBody)
+                .body(BodyBuilder.create()
+                        .with("model", actualModel)
+                        .with("prompt", actualPrompt)
+                        .with("n", 1)
+                        .with("size", buildSize())
+                        .with("response_format", "url")
+                        .with(StringUtils.isNotBlank(quality), "quality", quality)
+                        .with(StringUtils.isNotBlank(style), "style", style))
                 .post();
-        if (response.getStatusCode() != 200) {
+        if (!response.is200Success()) {
             throw new RuntimeException("ZAI 图片生成请求失败: " + response.getStatusCode()
                     + " - " + response.getBodyString());
         }
@@ -263,7 +255,7 @@ public BufferedImage generate(String prompt) {
             throw new RuntimeException("ZAI 返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");
-        if (imageUrl == null || imageUrl.isBlank()) {
+        if (StringUtils.isBlank(imageUrl)) {
             throw new RuntimeException("ZAI 返回的图片 URL 为空");
         }
         ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
@@ -331,26 +323,12 @@ public BufferedImage generate(String prompt) {
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             url = DEFAULT_URL;
         }
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
         return url;
-    }
-
-    /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
     }
 }

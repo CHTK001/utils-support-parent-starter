@@ -232,6 +232,18 @@ public class ClientResponse {
     }
 
     /**
+     * 判断请求是否成功（状态码严格等于 200）。
+     *
+     * <p>与 {@link #isSuccess()}（2xx 范围）不同，本方法仅在状态码为 200 时返回
+     * {@code true}，适用于要求精确 200 响应的接口（如 OpenAI 兼容接口）。</p>
+     *
+     * @return 状态码为 200 返回 true，否则返回 false
+     */
+    public boolean is200Success() {
+        return statusCode == HttpStatus.OK;
+    }
+
+    /**
      * 获取指定名称的响应头值。
      *
      * <p>响应头名称不区分大小写（具体行为取决于 {@link HttpHeader#get(String)} 的实现）。

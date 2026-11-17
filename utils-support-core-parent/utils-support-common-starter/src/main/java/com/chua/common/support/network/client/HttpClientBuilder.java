@@ -11,6 +11,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 链式 HTTP 客户端请求构建器。
@@ -601,6 +602,31 @@ public class HttpClientBuilder {
     }
 
     /**
+     * 设置请求体为 {@link BodyBuilder} 构建的 JSON 对象。
+     *
+     * <p>等价于调用 {@link BodyBuilder#build()} 后将结果传给 {@link #body(String)}，
+     * 便于以链式 {@code withXxx} 写法组装 JSON 请求体：</p>
+     * <pre>{@code
+     * ClientResponse resp = HttpClientFactory.of("http://api.example.com/users")
+     *     .json()
+     *     .body(BodyBuilder.create()
+     *             .with("name", "test")
+     *             .with("age", 18))
+     *     .post();
+     * }</pre>
+     *
+     * <p><b>注意：</b>本方法只设置请求体内容，不会自动设置 Content-Type，
+     * 发送 JSON 请求时请配合 {@link #json()} 使用。</p>
+     *
+     * @param bodyBuilder 请求体构建器，为 {@code null} 时清除已设置的请求体
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder body(BodyBuilder bodyBuilder) {
+        this.body = bodyBuilder == null ? null : bodyBuilder.build();
+        return this;
+    }
+
+    /**
      * 添加单个查询参数。
      *
      * <p>用于链式添加单个 URL 查询参数，多个参数会自动拼接为 {@code ?key1=value1&key2=value2} 格式。
@@ -815,7 +841,7 @@ public class HttpClientBuilder {
      */
     public ClientResponse execute() {
         String url = baseUrl;
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
         }
         ClientRequest request = new ClientRequest();
@@ -901,7 +927,7 @@ public class HttpClientBuilder {
      */
     public Mono<ClientResponse> executeAsync() {
         String url = baseUrl;
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
         }
         ClientRequest request = new ClientRequest();
@@ -1112,7 +1138,7 @@ public class HttpClientBuilder {
      */
     public String toCurl() {
         String url = baseUrl;
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
         }
         // 拼接查询参数（与执行时底层执行器行为一致）
