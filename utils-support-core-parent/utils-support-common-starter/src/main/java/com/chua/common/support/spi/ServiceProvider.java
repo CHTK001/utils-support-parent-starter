@@ -329,6 +329,27 @@ public interface ServiceProvider<T> {
     }
 
     /**
+     * 收集所有可用的服务实例，并按实现类去重（保持注册顺序）。
+     *
+     * <p>同一实现可能以多个别名（登记名 + 注解值等）注册，{@link #collect()} 会重复返回；
+     * 此方法按实现类去重，避免调用方对同一实现重复处理（如重复外呼）。</p>
+     *
+     * @return 去重后的服务实例列表
+     */
+    @Nonnull
+    default List<T> collectDistinct() {
+        List<T> all = collect();
+        List<T> unique = Wraps.list(all.size());
+        Set<Class<?>> seen = Wraps.set();
+        for (T t : all) {
+            if (t != null && seen.add(t.getClass())) {
+                unique.add(t);
+            }
+        }
+        return unique;
+    }
+
+    /**
      * 获取服务名称到类型的映射关系。
      *
      * @return 映射表
