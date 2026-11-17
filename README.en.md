@@ -71,7 +71,7 @@ utils-support-parent-starter/\r\n
 |   |   whatsapp-starter                          # WhatsApp\r\n
 |   |   cloudflare-starter                        # Cloudflare\r\n
 |   |   mosi-starter                              # Mosi\r\n
-|   |   ilink-starter / trae-starter              # Internal / trae\r\n
+
 |\r\n
 |   utils-support-datasource-parent/              # Databases & datasources (27)\r\n
 |   |   mysql-starter / postgresql-starter        # RDBMS: MySQL, PG\r\n
