@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.sherpa;
 
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.k2fsa.sherpa.onnx.LibraryLoader;
 import com.k2fsa.sherpa.onnx.LibraryUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -219,17 +220,17 @@ public final class SherpaNativeLoader {
      * @return 平台标识
      */
     public static String platform() {
-        String os = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
+        OsFamily family = OsFamily.current();
         String arch = System.getProperty("os.arch", "unknown").toLowerCase(Locale.ROOT);
         String osPart;
-        if (os.contains("win")) {
+        if (family.isWindows()) {
             osPart = "win";
-        } else if (os.contains("mac") || os.contains("darwin")) {
+        } else if (family.isMacOs()) {
             osPart = "osx";
-        } else if (os.contains("nux")) {
+        } else if (family == OsFamily.LINUX) {
             osPart = "linux";
         } else {
-            osPart = os;
+            osPart = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
         }
         String archPart;
         if (arch.contains("aarch64") || arch.contains("arm64")) {

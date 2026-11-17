@@ -2,6 +2,7 @@ package com.chua.common.support.service.impl;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.service.ServiceProcessTracker;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PID 文件式进程追踪器（默认实现）。
@@ -50,7 +52,7 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             pb.redirectErrorStream(true);
             Process process = pb.start();
             long pid = detectPid(process, serviceName);
-            if (pidFile != null && !pidFile.isBlank() && pid > 0) {
+            if (StringUtils.isNotBlank(pidFile) && pid > 0) {
                 writePidToFile(pidFile, pid);
             }
             pidCache.put(serviceName, pid);
@@ -106,7 +108,7 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
 
     @Override
     public long readPidFromFile(String pidFile) {
-        if (pidFile == null || pidFile.isBlank()) {
+        if (StringUtils.isBlank(pidFile)) {
             return -1;
         }
         try {
@@ -205,6 +207,6 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
      * @return 是否成功（true 表示成功）
      */
     private static boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
+        return OsFamily.current().isWindows();
     }
 }

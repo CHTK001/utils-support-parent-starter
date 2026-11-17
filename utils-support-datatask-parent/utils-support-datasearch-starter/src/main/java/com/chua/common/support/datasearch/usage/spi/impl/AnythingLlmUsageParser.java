@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.sqlite.support.engine.SqliteReactorEngine;
 import reactor.core.publisher.Flux;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AnythingLLM Desktop（Mintplex Labs）用量解析器。
@@ -46,24 +48,24 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
      */
     private static Path resolveDbPath() {
         String override = System.getenv("ANYTHINGLLM_DB");
-        if (override != null && !override.isBlank()) {
+        if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
+        OsFamily os = OsFamily.current();
+        if (os.isWindows()) {
             String appData = System.getenv("APPDATA");
-            if (appData != null && !appData.isBlank()) {
+            if (StringUtils.isNotBlank(appData)) {
                 return Path.of(appData, "anythingllm-desktop", "storage", "anythingllm.db");
             }
             return Path.of(System.getProperty("user.home"),
                     "AppData", "Roaming", "anythingllm-desktop", "storage", "anythingllm.db");
         }
-        if (os.contains("mac") || os.contains("darwin")) {
+        if (os.isMacOs()) {
             return Path.of(System.getProperty("user.home"), "Library",
                     "Application Support", "anythingllm-desktop", "storage", "anythingllm.db");
         }
         String xdg = System.getenv("XDG_CONFIG_HOME");
-        Path configHome = (xdg != null && !xdg.isBlank())
+        Path configHome = (StringUtils.isNotBlank(xdg))
                 ? Path.of(xdg)
                 : Path.of(System.getProperty("user.home"), ".config");
         return configHome.resolve("anythingllm-desktop").resolve("storage").resolve("anythingllm.db");

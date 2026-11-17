@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.chua.common.support.lang.cmd.OsFamily;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,8 +115,7 @@ public class ServerSetting {
     public ServerSetting autoConfig() {
         int cpus = Runtime.getRuntime().availableProcessors();
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
-        String os = System.getProperty("os.name", "").toLowerCase();
-        boolean windows = os.contains("win");
+        boolean windows = OsFamily.current().isWindows();
 
         // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持默认（accept 循环按核数扩展现已足够，
         // 且 KCP 等同时用 bossThreads 作为 IO event loop 数，需随核数扩展）
@@ -158,7 +159,7 @@ public class ServerSetting {
         if (!maxConnectionsExplicit) {
             long perConnKb = effectivePerConnectionKb();
             long affordable = perConnKb > 0 ? budgetMb * 1024L / perConnKb : this.maxConnections;
-            long resolved = resolveMaxConnections(heapMb, os);
+            long resolved = resolveMaxConnections(heapMb);
             long limit = Math.min(resolved, affordable);
             if (limit > 0) {
                 this.maxConnections = (int) limit;
@@ -229,10 +230,9 @@ public class ServerSetting {
      * 并对 Windows 的句柄语义做收敛。</p>
      *
      * @param heapMb 最大堆内存（MB）
-     * @param os     操作系统名称（小写）
      * @return 最大连接数
      */
-    private static int resolveMaxConnections(long heapMb, String os) {
+    private static int resolveMaxConnections(long heapMb) {
         int limit;
         if (heapMb >= 16384) {
             limit = 1_000_000;
@@ -245,7 +245,7 @@ public class ServerSetting {
         } else {
             limit = 100_000;
         }
-        if (os.contains("win")) {
+        if (OsFamily.current().isWindows()) {
             // Windows 默认没有 ulimit 概念，但单进程句柄与 afd.sys 的非分页池更早成为瓶颈；
             // 百万连接需要显式调大注册表/内核参数，未调优时按半数收敛，避免 accept 阶段批量失败
             limit = Math.min(limit, 500_000);
@@ -277,7 +277,7 @@ public class ServerSetting {
         sb.append("JVM 堆上限: ").append(Runtime.getRuntime().maxMemory() / (1024 * 1024)).append("MB\n");
 
         int cpus = Runtime.getRuntime().availableProcessors();
-        boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+        boolean windows = OsFamily.current().isWindows();
         int eventLoops = resolveEventLoops(cpus, windows);
 
         sb.append("事件循环数: ").append(eventLoops).append("\n");
@@ -456,7 +456,7 @@ public class ServerSetting {
                         + "请调小 maxConnections、调小 bufferSize 或调大 -Xmx"
                         + "（空闲连接仅 ~1.7KB/连接，此为 warm 上界估算）");
             }
-            if (maxConnections > 200_000 && System.getProperty("os.name", "").toLowerCase().contains("win")
+            if (maxConnections > 200_000 && OsFamily.current().isWindows()
                     && !WindowsMaxConnectionHint.SHOWN.getAndSet(true)) {
                 problems.add("Windows 下单进程百万连接需要同时调大句柄上限与 afd 非分页池；"
                         + "建议先在 Linux 上验收该容量目标");

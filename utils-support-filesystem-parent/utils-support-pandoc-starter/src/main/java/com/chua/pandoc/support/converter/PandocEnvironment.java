@@ -5,6 +5,7 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.PackageManager;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -94,8 +95,8 @@ public class PandocEnvironment {
      * @return pandoc 路径，未找到返回 空
      */
     private static String findPandoc() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        String[] cmd = osName.contains("win")
+        OsFamily os = OsFamily.current();
+        String[] cmd = os.isWindows()
                 ? new String[]{"where", "pandoc"}
                 : new String[]{"which", "pandoc"};
 
@@ -112,13 +113,13 @@ public class PandocEnvironment {
 
         String homeDir = System.getProperty("user.home");
         String[] commonPaths;
-        if (osName.contains("win")) {
+        if (os.isWindows()) {
             commonPaths = new String[]{
                 homeDir + "\\AppData\\Local\\Pandoc\\pandoc.exe",
                 "C:\\Program Files\\Pandoc\\pandoc.exe",
                 "C:\\Program Files (x86)\\Pandoc\\pandoc.exe"
             };
-        } else if (osName.contains("mac")) {
+        } else if (os.isMacOs()) {
             commonPaths = new String[]{
                 "/usr/local/bin/pandoc",
                 "/opt/homebrew/bin/pandoc"
@@ -179,14 +180,14 @@ public class PandocEnvironment {
      * @return install从directdownload的结果
      */
     private static String installFromDirectDownload() {
-        String osName = System.getProperty("os.name").toLowerCase();
+        OsFamily os = OsFamily.current();
         String arch = System.getProperty("os.arch").toLowerCase();
         try {
-            if (osName.contains("win")) {
+            if (os.isWindows()) {
                 return installWindows(arch);
-            } else if (osName.contains("mac")) {
+            } else if (os.isMacOs()) {
                 return installMacOs();
-            } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+            } else if (os == OsFamily.LINUX) {
                 return installLinux(arch);
             }
         } catch (Exception e) {
@@ -425,7 +426,7 @@ public class PandocEnvironment {
         log.warn("不支持的操作系统: {} ({})", osName, arch);
         log.warn("请访问官方下载页面: https://github.com/jgm/pandoc/releases/tag/{}", PANDOC_VERSION);
         log.warn("安装后确保 pandoc 在系统 PATH 中，或放在以下常见路径:");
-        if (osName.contains("win")) {
+        if (OsFamily.current().isWindows()) {
             log.warn("  - C:\\Program Files\\Pandoc\\pandoc.exe");
             log.warn("  - {}\\AppData\\Local\\Pandoc\\pandoc.exe", System.getProperty("user.home"));
         } else {

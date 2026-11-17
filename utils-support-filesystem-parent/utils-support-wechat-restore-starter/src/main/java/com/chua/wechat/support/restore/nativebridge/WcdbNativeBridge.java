@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.nativebridge;
 
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -129,8 +130,7 @@ public final class WcdbNativeBridge implements AutoCloseable {
      * @return 支持返回 true
      */
     public static boolean isSupported() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        return osName.contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**

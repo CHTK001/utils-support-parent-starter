@@ -2,6 +2,7 @@
 package com.chua.wechat.support.restore.nativebridge;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信 WCDB 原生调用的 Electron 宿主自举启动器。
@@ -158,7 +160,7 @@ public final class WechatNativeLauncher {
      */
     private static Path resolveJavaLauncher() {
         String currentCommand = ProcessHandle.current().info().command().orElse(null);
-        if (currentCommand != null && !currentCommand.isBlank()) {
+        if (StringUtils.isNotBlank(currentCommand)) {
             return Paths.get(currentCommand);
         }
         return Paths.get(System.getProperty("java.home"), "bin", "java.exe");
@@ -171,7 +173,7 @@ public final class WechatNativeLauncher {
      */
     private static Path resolveHostDir() {
         String configured = System.getProperty(PROP_HOST_DIR);
-        if (configured != null && !configured.isBlank()) {
+        if (StringUtils.isNotBlank(configured)) {
             return Paths.get(configured);
         }
         return Paths.get(System.getProperty("user.home"), DEFAULT_HOST_DIR);
@@ -216,5 +218,5 @@ public final class WechatNativeLauncher {
     /**
      * 是否为 Windows 系统
      */
-    private static final boolean IS_WINDOWS = OS_NAME.contains("win");
+    private static final boolean IS_WINDOWS = OsFamily.current().isWindows();
 }

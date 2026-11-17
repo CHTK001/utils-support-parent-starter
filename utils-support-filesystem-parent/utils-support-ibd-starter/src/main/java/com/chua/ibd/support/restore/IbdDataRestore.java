@@ -5,6 +5,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.restore.AbstractDataRestore;
 import com.chua.common.support.task.restore.DataRestoreConfig;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * IBD 数据还原器。
@@ -458,7 +460,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      */
     private static String resolveTableName(File source, DataRestoreConfig config, TableData data) {
         String tableName = config.getTargetTable();
-        if (tableName != null && !tableName.isBlank()) {
+        if (StringUtils.isNotBlank(tableName)) {
             return tableName;
         }
         if (data.definition != null && data.definition.name() != null && !data.definition.name().isBlank()) {
@@ -630,8 +632,8 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return 找到的 Python 命令名称；一个都不可用时返回 {@code null}
      */
     private static String findPython() {
-        String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-        String[] candidates = osName.contains("win")
+        boolean windows = OsFamily.current().isWindows();
+        String[] candidates = windows
                 ? new String[]{"python", "python3", "py"}
                 : new String[]{"python3", "python"};
         for (String cmd : candidates) {
@@ -879,7 +881,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return 引导语句（含结尾换行），或空串
      */
     static String schemaPrologue(String schemaName) {
-        if (schemaName == null || schemaName.isBlank()) {
+        if (StringUtils.isBlank(schemaName)) {
             return "";
         }
         return "CREATE DATABASE IF NOT EXISTS `" + schemaName + "` DEFAULT CHARACTER SET utf8mb4;\n"
@@ -913,11 +915,11 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return 替换后的 SQL
      */
     String replaceTableNames(String rawSql, String schemaName, String newName) {
-        if (rawSql == null || rawSql.isEmpty()) {
+        if (StringUtils.isEmpty(rawSql)) {
             return rawSql;
         }
-        boolean schemaBlank = schemaName == null || schemaName.isBlank();
-        boolean tableBlank = newName == null || newName.isBlank();
+        boolean schemaBlank = StringUtils.isBlank(schemaName);
+        boolean tableBlank = StringUtils.isBlank(newName);
         if (schemaBlank && tableBlank) {
             return rawSql;
         }
@@ -949,8 +951,8 @@ public class IbdDataRestore extends AbstractDataRestore {
                 continue;
             }
             String[] parts = splitQualifiedName(matcher.group(2));
-            String schema = (schemaName == null || schemaName.isBlank()) ? parts[0] : schemaName;
-            String table = (newName == null || newName.isBlank()) ? parts[1] : newName;
+            String schema = (StringUtils.isBlank(schemaName)) ? parts[0] : schemaName;
+            String table = (StringUtils.isBlank(newName)) ? parts[1] : newName;
             sb.append(sql, copied, matcher.start());
             sb.append(matcher.group(1)).append(qualifyName(schema, table));
             copied = matcher.end();
@@ -1027,7 +1029,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return {@code `db`.`tbl`} 或 {@code `tbl`}
      */
     private static String qualifyName(String schema, String table) {
-        return (schema == null || schema.isBlank()) ? "`" + table + "`" : "`" + schema + "`.`" + table + "`";
+        return (StringUtils.isBlank(schema)) ? "`" + table + "`" : "`" + schema + "`.`" + table + "`";
     }
 
     /**

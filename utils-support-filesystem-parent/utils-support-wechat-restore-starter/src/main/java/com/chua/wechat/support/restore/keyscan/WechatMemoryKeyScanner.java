@@ -4,6 +4,7 @@ package com.chua.wechat.support.restore.keyscan;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Cipher;
@@ -174,7 +175,7 @@ public final class WechatMemoryKeyScanner {
      * @return Windows 平台返回 true
      */
     public static boolean isSupported() {
-        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**

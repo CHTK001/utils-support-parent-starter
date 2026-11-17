@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Zed 编辑器 Agent 用量解析器。
@@ -47,21 +49,21 @@ public class ZedUsageParser extends BaseUsageParser {
      * @return 数据库路径
      */
     private static Path resolveDbPath() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
+        OsFamily os = OsFamily.current();
+        if (os.isWindows()) {
             String localAppData = System.getenv("LOCALAPPDATA");
-            if (localAppData != null && !localAppData.isBlank()) {
+            if (StringUtils.isNotBlank(localAppData)) {
                 return Path.of(localAppData, "Zed", "threads", "threads.db");
             }
             return Path.of(System.getProperty("user.home"),
                     "AppData", "Local", "Zed", "threads", "threads.db");
         }
-        if (os.contains("mac") || os.contains("darwin")) {
+        if (os.isMacOs()) {
             return Path.of(System.getProperty("user.home"), "Library",
                     "Application Support", "Zed", "threads", "threads.db");
         }
         String xdg = System.getenv("XDG_DATA_HOME");
-        Path dataHome = (xdg != null && !xdg.isBlank())
+        Path dataHome = (StringUtils.isNotBlank(xdg))
                 ? Path.of(xdg)
                 : Path.of(System.getProperty("user.home"), ".local", "share");
         return dataHome.resolve("zed").resolve("threads").resolve("threads.db");
@@ -223,7 +225,7 @@ public class ZedUsageParser extends BaseUsageParser {
         int reasoningHit = Math.min(completion, Math.max(0, reasoning));
         return AiUsage.builder()
                 .provider(PROVIDER_ZED)
-                .model(model != null && !model.isBlank() ? model : PROVIDER_ZED)
+                .model(StringUtils.isNotBlank(model) ? model : PROVIDER_ZED)
                 .requestId(requestId)
                 .inputTokens(promptInput > 0 ? Integer.valueOf(promptInput) : null)
                 .outputTokens(completion - reasoningHit)

@@ -3,6 +3,7 @@ package com.chua.runtime.core.service;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.runtime.core.model.ManagedService;
 import java.util.logging.Level;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Linux systemd 系统服务管理器。
@@ -54,8 +56,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     @Override
     public boolean isSupported() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (!os.contains("nix") && !os.contains("nux")) {
+        if (OsFamily.current() != OsFamily.LINUX) {
             return false;
         }
         return CmdExecutors.execute(new String[]{"which", "systemctl"}, 5, TimeUnit.SECONDS).isSuccess();
@@ -215,7 +216,7 @@ public class SystemdServiceManager implements ServiceManager {
      * @return 单元文件路径
      */
     private static Path unitFile(String serviceName) {
-        if (serviceName == null || serviceName.isBlank()
+        if (StringUtils.isBlank(serviceName)
                 || serviceName.indexOf('/') >= 0 || serviceName.indexOf('\\') >= 0) {
             throw new IllegalArgumentException("非法的 systemd 服务名: " + serviceName);
         }

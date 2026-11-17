@@ -2,6 +2,7 @@
 package com.chua.wechat.support.restore.memory;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.foreign.Arena;
@@ -158,7 +159,7 @@ public final class WechatMemoryAccess implements AutoCloseable {
      * @return Windows 平台返回 true
      */
     public static boolean isSupported() {
-        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**

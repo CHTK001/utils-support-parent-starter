@@ -15,6 +15,7 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Windows ConPTY 进程封装，基于 JDK Panama FFI 调用 kernel32 实现伪控制台子进程。
@@ -258,8 +259,7 @@ public final class WindowsConPtyProcess implements Closeable {
         long siExSize;
         boolean ok = false;
         try {
-            String osName = System.getProperty("os.name", "").toLowerCase();
-            if (osName.contains("win")) {
+            if (OsFamily.current().isWindows()) {
                 String osVersion = System.getProperty("os.version", "0.0.0");
                 String[] parts = osVersion.split("\\.");
                 if (parts.length >= 2) {
@@ -365,7 +365,7 @@ public final class WindowsConPtyProcess implements Closeable {
      * @return 是否成功（true 表示成功）
      */
     public static boolean isWindows() {
-        return System.getProperty("os.name", "").toLowerCase().contains("win");
+        return OsFamily.current().isWindows();
     }
 
     // ==================== 实例 ====================
@@ -802,13 +802,13 @@ public final class WindowsConPtyProcess implements Closeable {
     static MemorySegment buildEnvBlock(Arena arena) {
         Map<String, String> env = Wraps.linkedMap(System.getenv());
         String proxy = env.get("HTTP_PROXY");
-        if (proxy == null || proxy.isEmpty()) {
+        if (StringUtils.isEmpty(proxy)) {
             try {
                 java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userRoot()
                         .node("Software/Microsoft/Windows/CurrentVersion/Internet Settings");
                 int enabled = prefs.getInt("ProxyEnable", 0);
                 String server = prefs.get("ProxyServer", "");
-                if (enabled == 1 && server != null && !server.isEmpty()) {
+                if (enabled == 1 && StringUtils.isNotEmpty(server)) {
                     proxy = server.startsWith("http://") ? server : "http://" + server;
                     env.put("HTTP_PROXY", proxy);
                     env.put("HTTPS_PROXY", proxy);

@@ -1,5 +1,7 @@
 package com.chua.filesystem.log.support.bridge;
 
+import com.chua.common.support.lang.cmd.OsFamily;
+
 /**
  * 平台检测工具类
  *
@@ -21,15 +23,12 @@ public final class PlatformSystems {
     }
 
     /**
-     * 判断当前系统是否为 窗口
+     * 判断当前系统是否为 Windows
      *
-     * @return true 如果系统是 窗口，否则为 false
+     * @return true 如果系统是 Windows，否则为 false
      */
     public static boolean isWindows() {
-        if (OS_NAME.contains("win")) {
-            return true;
-        }
-        return false;
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -38,10 +37,7 @@ public final class PlatformSystems {
      * @return true 如果系统是 Linux，否则为 false
      */
     public static boolean isLinux() {
-        if (OS_NAME.contains("linux") || OS_NAME.contains("nux")) {
-            return true;
-        }
-        return false;
+        return OsFamily.current() == OsFamily.LINUX;
     }
 
     /**
@@ -50,10 +46,7 @@ public final class PlatformSystems {
      * @return true 如果系统是 macOS，否则为 false
      */
     public static boolean isMacOs() {
-        if (OS_NAME.contains("mac") || OS_NAME.contains("darwin")) {
-            return true;
-        }
-        return false;
+        return OsFamily.current().isMacOs();
     }
 
     /**

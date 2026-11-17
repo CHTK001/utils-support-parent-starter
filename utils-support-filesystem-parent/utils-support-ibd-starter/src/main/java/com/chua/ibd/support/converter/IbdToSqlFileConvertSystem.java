@@ -5,6 +5,7 @@ import com.chua.common.support.file.converter.FileConvertSystem;
 import com.chua.common.support.file.converter.FileSource;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,8 +111,8 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
      * @return 找到的 Python 命令名称
      */
     private static String findPython() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        String[] candidates = osName.contains("win")
+        boolean windows = OsFamily.current().isWindows();
+        String[] candidates = windows
                 ? new String[]{"python", "python3", "py"}
                 : new String[]{"python3", "python"};
 

@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.function.Consumer;
+import com.chua.common.support.lang.cmd.OsFamily;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Playwright 截图工具
@@ -155,17 +157,17 @@ public class PlaywrightScreenshot {
      * <p>当自动安装失败时，打印下载地址和放置路径，方便离线环境手动安装。</p>
      */
     public static void printManualInstallGuide() {
-        String osName = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
 
         log.warn("========== Playwright 浏览器手动安装指引 ==========");
         log.warn("Playwright 版本: {}", PLAYWRIGHT_VERSION);
 
         // 确定浏览器存放目录
+        OsFamily os = OsFamily.current();
         String browserDir;
-        if (osName.contains("win")) {
+        if (os.isWindows()) {
             browserDir = userHome + "\\AppData\\Local\\ms-playwright";
-        } else if (osName.contains("mac")) {
+        } else if (os.isMacOs()) {
             browserDir = userHome + "/Library/Caches/ms-playwright";
         } else {
             browserDir = userHome + "/.cache/ms-playwright";
@@ -211,7 +213,7 @@ public class PlaywrightScreenshot {
         page.navigate(config.getBaseUrl() != null ? config.getBaseUrl() : "");
 
         // 根据配置等待页面加载
-        if (waitSelector != null && !waitSelector.isEmpty()) {
+        if (StringUtils.isNotEmpty(waitSelector)) {
             // 等待特定元素出现
             log.debug("等待元素出现: {}", waitSelector);
             page.waitForSelector(waitSelector, new Page.WaitForSelectorOptions()

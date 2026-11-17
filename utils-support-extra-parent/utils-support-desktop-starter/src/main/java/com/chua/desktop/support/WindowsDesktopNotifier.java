@@ -1,4 +1,7 @@
 package com.chua.desktop.support;
+
+import com.chua.common.support.lang.cmd.OsFamily;
+
 /**
  * Windows 桌面通知实现。
  *
@@ -24,6 +27,6 @@ public class WindowsDesktopNotifier implements NativeDesktopNotifier {
         Process p = pb.start();
         p.waitFor();
     }
-    @Override public boolean isSupported() { return System.getProperty("os.name","").toLowerCase().contains("win"); }
+    @Override public boolean isSupported() { return OsFamily.current().isWindows(); }
     @Override public String getPlatform() { return "windows"; }
 }

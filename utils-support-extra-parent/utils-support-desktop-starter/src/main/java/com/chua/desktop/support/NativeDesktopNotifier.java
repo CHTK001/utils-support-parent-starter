@@ -1,5 +1,7 @@
 package com.chua.desktop.support;
 
+import com.chua.common.support.lang.cmd.OsFamily;
+
 /**
  * 桌面通知 SPI 接口。
  *
@@ -38,10 +40,10 @@ public interface NativeDesktopNotifier {
      * @return 桌面通知实例
      */
     static NativeDesktopNotifier create() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
+        OsFamily os = OsFamily.current();
+        if (os.isWindows()) {
             return new WindowsDesktopNotifier();
-        } else if (os.contains("mac")) {
+        } else if (os.isMacOs()) {
             return new MacOsDesktopNotifier();
         } else {
             return new LinuxDesktopNotifier();

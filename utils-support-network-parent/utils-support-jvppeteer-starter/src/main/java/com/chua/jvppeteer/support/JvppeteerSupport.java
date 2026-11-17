@@ -1,5 +1,6 @@
 package com.chua.jvppeteer.support;
 
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.utils.StringUtils;
 import com.ruiyun.jvppeteer.api.core.Browser;
 import com.ruiyun.jvppeteer.cdp.core.Puppeteer;
@@ -188,13 +189,14 @@ public final class JvppeteerSupport {
      */
     private static List<String> candidates() {
         List<String> list = new ArrayList<>();
-        String os = System.getProperty("os.name", "").toLowerCase();
+        boolean windows = OsFamily.current().isWindows();
+        boolean mac = OsFamily.current().isMacOs();
         String localAppData = System.getenv("LOCALAPPDATA");
         String programFiles = System.getenv("ProgramFiles");
         String programFilesX86 = System.getenv("ProgramFiles(x86)");
         String home = System.getProperty("user.home");
 
-        if (os.contains("win")) {
+        if (windows) {
             add(list, localAppData, "Google/Chrome/Application/chrome.exe");
             add(list, programFiles, "Google/Chrome/Application/chrome.exe");
             add(list, programFilesX86, "Google/Chrome/Application/chrome.exe");
@@ -203,7 +205,7 @@ public final class JvppeteerSupport {
             add(list, programFiles, "Microsoft/Edge/Application/msedge.exe");
             add(list, programFilesX86, "Microsoft/Edge/Application/msedge.exe");
             add(list, home, ".cache/jvppeteer/chrome/win64-*/chrome-win64/chrome.exe");
-        } else if (os.contains("mac")) {
+        } else if (mac) {
             list.add("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
             list.add("/Applications/Chromium.app/Contents/MacOS/Chromium");
             list.add("/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge");

@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.vector.RuntimeDetector;
 import lombok.extern.slf4j.Slf4j;
@@ -144,10 +145,10 @@ public class WalStoreEnvDetector implements RuntimeDetector {
         }
         try {
             // Windows: 检查卷是否为 SSD
-            String os = System.getProperty("os.name").toLowerCase();
-            if (os.contains("win")) {
+            OsFamily os = OsFamily.current();
+            if (os.isWindows()) {
                 return detectSSDWindows(baseDir);
-            } else if (os.contains("linux")) {
+            } else if (os == OsFamily.LINUX) {
                 return detectSSDLinux(baseDir);
             }
         } catch (Exception e) {

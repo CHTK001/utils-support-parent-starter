@@ -1,6 +1,7 @@
 package com.chua.ffmpeg.support.processor;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 
@@ -51,9 +52,9 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
      * 在系统 路径 和常见路径中查找 ffmpeg。
      */
     protected void locateFFmpeg() {
-        String os = System.getProperty("os.name").toLowerCase();
-        String ffmpegExe = os.contains("win") ? "ffmpeg.exe" : "ffmpeg";
-        String ffprobeExe = os.contains("win") ? "ffprobe.exe" : "ffprobe";
+        boolean windows = OsFamily.current().isWindows();
+        String ffmpegExe = windows ? "ffmpeg.exe" : "ffmpeg";
+        String ffprobeExe = windows ? "ffprobe.exe" : "ffprobe";
 
  // 查找系统 路径
         String pathEnv = System.getenv("PATH");

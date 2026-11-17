@@ -2,6 +2,7 @@
 package com.chua.common.support.vector;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -136,11 +137,11 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      * @return 检查 NVIDIA 驱动的结果
      */
     private boolean checkNvidiaDriver() {
- // 窗口 registry 降级
+        // 窗口 registry 降级
         if (isWindows() && checkNvidiaRegistry()) {
             return true;
         }
- // Linux /proc 降级
+        // Linux /proc 降级
         if (isLinux() && Files.exists(Paths.get("/proc/driver/nvidia"))) {
             return true;
         }
@@ -204,7 +205,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      * @return 是否成功（true 表示成功）
      */
     private boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -213,6 +214,6 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      * @return 是否成功（true 表示成功）
      */
     private boolean isLinux() {
-        return System.getProperty("os.name").toLowerCase().contains("linux");
+        return OsFamily.current() == OsFamily.LINUX;
     }
 }

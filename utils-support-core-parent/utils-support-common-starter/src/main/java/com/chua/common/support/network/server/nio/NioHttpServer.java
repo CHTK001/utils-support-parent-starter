@@ -2,6 +2,7 @@
 package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -42,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 NIO {@link ServerSocketChannel} 的 HTTP/1.1 服务器实现。
@@ -395,7 +397,7 @@ public class NioHttpServer extends AbstractServer {
             // 出现请求超时/连接被拒(WindowsSelectorImpl 多 Selector 并发稳定性限制),
             // 与"百万级 RPS"目标冲突但无法在本平台规避,保持 2 分片确保零失败
             int eventLoops = setting.getEventLoops();
-            boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+            boolean windows = OsFamily.current().isWindows();
             // 分片数统一由 ServerSetting#resolveEventLoops 决定：平台差异（Windows 上
             // WindowsSelectorImpl 多 Selector 并发 select 会丢读事件，故 4 为硬上限）
             // 只在一处收敛，避免各实现各写一套 clamp、结论互相矛盾。
@@ -1572,7 +1574,7 @@ public class NioHttpServer extends AbstractServer {
                 ClassUtils.setAccessible(method);
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic == null || topic.isEmpty()) {
+                if (StringUtils.isEmpty(topic)) {
                     topic = "default";
                 }
                 wsTopicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>())

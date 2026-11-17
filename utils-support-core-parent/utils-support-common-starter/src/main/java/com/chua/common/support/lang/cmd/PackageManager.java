@@ -105,7 +105,7 @@ public class PackageManager {
   */
  private static boolean isAvailable(String command) {
  try {
- boolean win = System.getProperty("os.name").toLowerCase().contains("win");
+ boolean win = OsFamily.current().isWindows();
  CmdResult result = CmdExecutors.execute(win
  ? new String[]{"where", command} : new String[]{"which", command}, 5, TimeUnit.SECONDS);
  return result.isSuccess();

@@ -1,6 +1,7 @@
 package com.chua.network.support.tshark.cli;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark 下载制品解析器：按当前平台把版本号与镜像基址拼成可下载的地址。
@@ -234,7 +236,7 @@ public final class TsharkArtifactResolver {
      */
     @Nonnull
     public static String normalizeVersion(@Nullable String version) {
-        if (version == null || version.isBlank()) {
+        if (StringUtils.isBlank(version)) {
             return TsharkSettings.DEFAULT_DOWNLOAD_VERSION;
         }
         String trimmed = version.trim();
@@ -286,7 +288,7 @@ public final class TsharkArtifactResolver {
      * @return 是 Windows 返回 true
      */
     public static boolean isWindows() {
-        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -295,7 +297,6 @@ public final class TsharkArtifactResolver {
      * @return 是 macOS 返回 true
      */
     public static boolean isMacOs() {
-        String name = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
-        return name.contains("mac") || name.contains("darwin");
+        return OsFamily.current().isMacOs();
     }
 }

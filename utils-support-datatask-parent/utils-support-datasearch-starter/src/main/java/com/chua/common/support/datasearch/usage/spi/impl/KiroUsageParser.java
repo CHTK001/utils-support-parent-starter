@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.sqlite.support.engine.SqliteReactorEngine;
 import reactor.core.publisher.Flux;
@@ -9,6 +10,7 @@ import reactor.core.publisher.Flux;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kiro (AWS) usage parser.
@@ -46,21 +48,21 @@ public class KiroUsageParser extends BaseUsageParser {
      * @return DB 文件路径
      */
     private static Path resolveDbPath() {
-        String osName = System.getProperty("os.name", "").toLowerCase();
-        if (osName.contains("win")) {
+        OsFamily os = OsFamily.current();
+        if (os.isWindows()) {
             String appData = System.getenv("APPDATA");
-            if (appData != null && !appData.isBlank()) {
+            if (StringUtils.isNotBlank(appData)) {
                 return Path.of(appData, "kiro-cli", "data.db");
             }
             return Path.of(System.getProperty("user.home"),
                     "AppData", "Roaming", "kiro-cli", "data.db");
         }
-        if (osName.contains("mac")) {
+        if (os.isMacOs()) {
             return Path.of(System.getProperty("user.home"),
                     "Library", "Application Support", "kiro-cli", "data.db");
         }
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
-        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+        if (StringUtils.isNotBlank(xdgDataHome)) {
             return Path.of(xdgDataHome, "kiro-cli", "data.db");
         }
         return Path.of(System.getProperty("user.home"), ".local", "share", "kiro-cli", "data.db");

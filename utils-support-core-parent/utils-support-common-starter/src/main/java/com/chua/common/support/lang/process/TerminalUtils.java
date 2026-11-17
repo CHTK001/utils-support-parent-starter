@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.process;
 
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.utils.StringUtils;
 
 import java.io.InputStreamReader;
@@ -85,19 +86,11 @@ public class TerminalUtils {
     }
 
     /**
-     * OS名称
-     */
-    private static String osName;
-
-    /**
      * 是否Windows
      * @return 是否成功（true 表示成功）
      */
     private static boolean isWindows() {
-        if (osName == null) {
-            osName = System.getProperty("os.name").toLowerCase();
-        }
-        return osName.contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -105,10 +98,8 @@ public class TerminalUtils {
      * @return 是否成功（true 表示成功）
      */
     private static boolean isUnix() {
-        if (osName == null) {
-            osName = System.getProperty("os.name").toLowerCase();
-        }
-        return osName.contains("nix") || osName.contains("nux") || osName.contains("mac");
+        OsFamily os = OsFamily.current();
+        return os.isUnixLike() || os.isMacOs();
     }
 
     /**
@@ -119,7 +110,7 @@ public class TerminalUtils {
     private static int getTerminalWidthFromEnv() {
         try {
             String columns = System.getenv("COLUMNS");
-            if (columns != null && !columns.isEmpty()) {
+            if (StringUtils.isNotEmpty(columns)) {
                 return Integer.parseInt(columns);
             }
         } catch (Exception e) {
@@ -171,7 +162,7 @@ public class TerminalUtils {
                 new InputStreamReader(process.getInputStream()));
 
             String line = reader.readLine();
-            if (line != null && !line.isEmpty()) {
+            if (StringUtils.isNotEmpty(line)) {
                 // stty size                rows columns
                 String[] parts = line.split("\\s+");
                 if (parts.length >= 2) {

@@ -5,6 +5,7 @@ import com.chua.common.support.lang.cmd.CmdCallback;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.vector.CudaRuntimeDetector;
 import lombok.extern.slf4j.Slf4j;
 
@@ -195,16 +196,16 @@ public final class CudaEnvironmentInstaller {
      * @return 脚本路径；平台不支持或脚本缺失返回 null
      */
     private static Path extractScript() {
-        String os = System.getProperty("os.name", "").toLowerCase();
+        OsFamily os = OsFamily.current();
         String scriptName;
-        if (os.contains("win")) {
+        if (os.isWindows()) {
             scriptName = CudaEnvLoader.get("SCRIPT_WINDOWS", "setup-cuda.bat");
-        } else if (os.contains("linux")) {
+        } else if (os == OsFamily.LINUX) {
             scriptName = CudaEnvLoader.get("SCRIPT_LINUX", "setup-cuda.sh");
-        } else if (os.contains("mac")) {
+        } else if (os.isMacOs()) {
             scriptName = CudaEnvLoader.get("SCRIPT_MACOS", "setup-cuda-macos.sh");
         } else {
-            log.warn("[cuda-env] 不支持的平台: {}", os);
+            log.warn("[cuda-env] 不支持的平台: {}", System.getProperty("os.name", ""));
             return null;
         }
 
@@ -237,8 +238,7 @@ public final class CudaEnvironmentInstaller {
      * @return 命令数组
      */
     private static String[] buildCommand(Path script) {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
+        if (OsFamily.current().isWindows()) {
             return new String[]{"cmd", "/c", script.toAbsolutePath().toString()};
         }
         return new String[]{"sh", script.toAbsolutePath().toString()};

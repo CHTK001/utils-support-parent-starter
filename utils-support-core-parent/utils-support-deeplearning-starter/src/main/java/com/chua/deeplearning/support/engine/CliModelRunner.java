@@ -2,6 +2,7 @@
 package com.chua.deeplearning.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 通用外部 CLI 模型运行器。
@@ -148,10 +150,10 @@ public final class CliModelRunner {
      * @return 描述
      */
     public static CliDescriptor nemoSpeech() {
-        String os = System.getProperty("os.name", "").toLowerCase();
+        OsFamily os = OsFamily.current();
         String arch = System.getProperty("os.arch", "").toLowerCase();
-        boolean windows = os.contains("win");
-        boolean mac = os.contains("mac");
+        boolean windows = os.isWindows();
+        boolean mac = os.isMacOs();
         boolean aarch64 = arch.contains("aarch64") || arch.contains("arm64");
         String osTag = windows ? "windows" : (mac ? "macos" : "linux");
         String archTag = (aarch64 && !windows) ? "aarch64" : "x86_64";
@@ -188,10 +190,10 @@ public final class CliModelRunner {
      * @return 描述
      */
     public static CliDescriptor opencode() {
-        String os = System.getProperty("os.name", "").toLowerCase();
+        OsFamily os = OsFamily.current();
         String arch = System.getProperty("os.arch", "").toLowerCase();
-        boolean windows = os.contains("win");
-        boolean mac = os.contains("mac");
+        boolean windows = os.isWindows();
+        boolean mac = os.isMacOs();
         boolean aarch64 = arch.contains("aarch64") || arch.contains("arm64");
         String osTag = windows ? "windows" : (mac ? "darwin" : "linux");
         String archTag = aarch64 ? "arm64" : "x64";
@@ -306,7 +308,7 @@ public final class CliModelRunner {
      */
     private static Path installTarget(CliDescriptor d) {
         String bin = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".bin");
-        if (bin != null && !bin.isBlank()) {
+        if (StringUtils.isNotBlank(bin)) {
             return Paths.get(bin.trim());
         }
         Path root = archiveRoot(d);
@@ -326,7 +328,7 @@ public final class CliModelRunner {
      */
     private static Path archiveRoot(CliDescriptor d) {
         String dir = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".dir");
-        if (dir != null && !dir.isBlank()) {
+        if (StringUtils.isNotBlank(dir)) {
             return Paths.get(dir.trim());
         }
         return cacheRoot().resolve(CLIS_SUBDIR).resolve(d.cliId());
@@ -384,7 +386,7 @@ public final class CliModelRunner {
      */
     public static Path cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return Paths.get(prop.trim());
         }
         return Paths.get(System.getProperty("java.io.tmpdir"), CACHE_DIR_NAME);
@@ -396,7 +398,7 @@ public final class CliModelRunner {
      * @return 是否
      */
     public static boolean isWindows() {
-        return System.getProperty("os.name", "").toLowerCase().contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -407,7 +409,7 @@ public final class CliModelRunner {
      */
     private static Path findInPath(CliDescriptor d) {
         String pathEnv = System.getenv("PATH");
-        if (pathEnv == null || pathEnv.isBlank()) {
+        if (StringUtils.isBlank(pathEnv)) {
             return null;
         }
         List<String> candidates = Wraps.list();
@@ -490,7 +492,7 @@ public final class CliModelRunner {
      */
     private static Path extractRoot(CliDescriptor d, Path install) {
         String bin = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".bin");
-        if (bin != null && !bin.isBlank()) {
+        if (StringUtils.isNotBlank(bin)) {
             Path parent = install.getParent();
             return parent != null ? parent : archiveRoot(d);
         }

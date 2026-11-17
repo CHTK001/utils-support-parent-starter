@@ -2,6 +2,7 @@
 package com.chua.common.support.vector;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +51,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
 
     @Override
     public boolean isAvailable() {
- // Step 1: onnxruntime 是否在 类路径（gpu 配置文件 引入 onnxruntime_gpu）
+        // Step 1: onnxruntime 是否在 类路径（gpu 配置文件 引入 onnxruntime_gpu）
         if (!isClassPresent(ORT_GPU_CLASS)) {
             log.warn("[cuda-runtime] onnxruntime not found in classpath. "
                     + "Enable GPU profile: mvn -Pgpu 或引入 com.microsoft.onnxruntime:onnxruntime_gpu");
@@ -72,7 +73,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
             return false;
         }
 
- // Step 4: CUDA 运行库是否可从 路径 加载
+        // Step 4: CUDA 运行库是否可从 路径 加载
         if (!checkCudaRuntimeLibraries()) {
             log.warn("[cuda-runtime] CUDA 运行库 (cudart/cublas/cudnn) 未就绪。\n"
                     + "  请先执行 utils-support-native-cuda 模块脚本一键安装:\n"
@@ -176,7 +177,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
             return false;
         }
 
- // 搜索 路径 目录（窗口）与常见库目录（Linux）
+        // 搜索 路径 目录（窗口）与常见库目录（Linux）
         List<Path> searchDirs = Wraps.list();
         String pathEnv = System.getenv(isWindows() ? "PATH" : "LD_LIBRARY_PATH");
         if (pathEnv != null) {
@@ -243,7 +244,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
      * @return 是否成功（true 表示成功）
      */
     private boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**
@@ -252,6 +253,6 @@ public class CudaRuntimeDetector implements RuntimeDetector {
      * @return 是否成功（true 表示成功）
      */
     private boolean isLinux() {
-        return System.getProperty("os.name").toLowerCase().contains("linux");
+        return OsFamily.current() == OsFamily.LINUX;
     }
 }

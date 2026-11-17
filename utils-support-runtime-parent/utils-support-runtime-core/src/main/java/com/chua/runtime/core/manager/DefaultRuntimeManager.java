@@ -6,6 +6,7 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.network.download.Downloader;
 import com.chua.runtime.core.model.LogStream;
 import com.chua.runtime.core.model.ManagedService;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认运行时管理器。
@@ -136,7 +138,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
             return f;
         }
         String url = art.getDownloadUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             CompletableFuture<Boolean> f = new CompletableFuture<>();
             f.completeExceptionally(new IllegalArgumentException("未配置下载 URL"));
             return f;
@@ -500,8 +502,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * @return discover服务管理器的结果
      */
     private ServiceManager discoverServiceManager() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
+        if (OsFamily.current().isWindows()) {
             return new WindowsServiceManager();
         }
         CmdResult r = CmdExecutors.execute(new String[]{"which", "systemctl"}, 5, TimeUnit.SECONDS);

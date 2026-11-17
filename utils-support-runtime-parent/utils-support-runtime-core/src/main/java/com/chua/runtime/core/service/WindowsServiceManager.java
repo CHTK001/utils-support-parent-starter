@@ -3,6 +3,7 @@ package com.chua.runtime.core.service;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.core.model.ManagedService;
@@ -41,8 +42,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     @Override
     public boolean isSupported() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        return os.contains("win");
+        return OsFamily.current().isWindows();
     }
 
     /**

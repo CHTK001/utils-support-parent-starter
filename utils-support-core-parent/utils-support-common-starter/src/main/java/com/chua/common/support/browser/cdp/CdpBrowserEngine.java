@@ -4,6 +4,7 @@ package com.chua.common.support.browser.cdp;
 import com.chua.common.support.browser.BrowserEngine;
 import com.chua.common.support.browser.BrowserOptions;
 import com.chua.common.support.browser.BrowserPage;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -743,9 +744,9 @@ public class CdpBrowserEngine implements BrowserEngine {
         String localAppData = System.getenv("LOCALAPPDATA");
         String programFiles = System.getenv("ProgramFiles");
         String programFilesX86 = System.getenv("ProgramFiles(x86)");
-        String os = System.getProperty("os.name", "").toLowerCase();
+        OsFamily family = OsFamily.current();
 
-        if (os.contains("win")) {
+        if (family.isWindows()) {
             addIfPresent(list, localAppData, "Google/Chrome/Application/chrome.exe");
             addIfPresent(list, programFiles, "Google/Chrome/Application/chrome.exe");
             addIfPresent(list, programFilesX86, "Google/Chrome/Application/chrome.exe");
@@ -753,7 +754,7 @@ public class CdpBrowserEngine implements BrowserEngine {
             addIfPresent(list, localAppData, "Microsoft/Edge/Application/msedge.exe");
             addIfPresent(list, programFiles, "Microsoft/Edge/Application/msedge.exe");
             addIfPresent(list, programFilesX86, "Microsoft/Edge/Application/msedge.exe");
-        } else if (os.contains("mac")) {
+        } else if (family.isMacOs()) {
             list.add("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
             list.add("/Applications/Chromium.app/Contents/MacOS/Chromium");
             list.add("/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge");

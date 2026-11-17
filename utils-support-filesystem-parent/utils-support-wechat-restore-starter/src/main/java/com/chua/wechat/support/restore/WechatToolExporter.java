@@ -4,6 +4,7 @@ package com.chua.wechat.support.restore;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.OsFamily;
 import com.chua.common.support.task.restore.DataRestoreConfig;
 import com.chua.common.support.task.restore.DataRestoreResult;
 import com.chua.common.support.task.restore.ExportFormat;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 微信数据还原的 Python 工具编排路径。
@@ -178,7 +180,7 @@ public final class WechatToolExporter {
 
         // 生成 SQL 脚本
         String tableName = config.getTargetTable();
-        if (tableName == null || tableName.isBlank()) {
+        if (StringUtils.isBlank(tableName)) {
             tableName = DEFAULT_TABLE_NAME;
         }
         File sqlFile = new File(outputDir, tableName + ".sql");
@@ -346,8 +348,8 @@ public final class WechatToolExporter {
      * @return 找到的 Python 命令名称
      */
     private static String findPython() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        String[] candidates = osName.contains("win")
+        boolean windows = OsFamily.current().isWindows();
+        String[] candidates = windows
                 ? new String[]{"python", "python3", "py"}
                 : new String[]{"python3", "python"};
         for (String cmd : candidates) {
