@@ -56,8 +56,6 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.PartialThinking;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.output.TokenUsage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
@@ -71,6 +69,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 langchain4j 实现的 ReAct Agent。
@@ -88,12 +88,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0
  */
+@Slf4j
 public class LangChain4jAgent implements Agent {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(LangChain4jAgent.class);
 
     /**
      * 架构图标题
@@ -420,7 +416,7 @@ public class LangChain4jAgent implements Agent {
      */
     @Override
     public Agent skill(String name, String description, SkillHandler handler) {
-        if (name == null || name.isBlank() || handler == null) {
+        if (StringUtils.isBlank(name) || handler == null) {
             return this;
         }
         localSkills.put(name, new SkillDefinition(name,
@@ -464,7 +460,7 @@ public class LangChain4jAgent implements Agent {
      */
     @Override
     public Agent disableTool(String toolName) {
-        if (toolName != null && !toolName.isBlank()) {
+        if (StringUtils.isNotBlank(toolName)) {
             disabledTools.add(toolName.trim());
         }
         return this;
@@ -1399,7 +1395,7 @@ public class LangChain4jAgent implements Agent {
         model.chat(request, new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String partialResponse) {
-                if (partialResponse != null && !partialResponse.isEmpty()) {
+                if (StringUtils.isNotEmpty(partialResponse)) {
                     emitted[0] = true;
                     sink.next(AgentStreamEvent.reasoningDelta(agentId, partialResponse));
                 }
@@ -1408,7 +1404,7 @@ public class LangChain4jAgent implements Agent {
             @Override
             public void onPartialThinking(PartialThinking partialThinking) {
                 String text = partialThinking != null ? partialThinking.text() : null;
-                if (text != null && !text.isEmpty()) {
+                if (StringUtils.isNotEmpty(text)) {
                     emitted[0] = true;
                     sink.next(AgentStreamEvent.thinkingDelta(agentId, text));
                 }
@@ -1448,7 +1444,7 @@ public class LangChain4jAgent implements Agent {
      */
     private List<ChatMessage> buildHistory(RunPlan plan, String input, String planText) {
         String systemPrompt = plan.systemPrompt;
-        if (planText != null && !planText.isBlank()) {
+        if (StringUtils.isNotBlank(planText)) {
             systemPrompt = systemPrompt + "\n\n【执行计划】\n" + planText;
         }
         List<ChatMessage> history = new ArrayList<>();
@@ -1604,7 +1600,7 @@ public class LangChain4jAgent implements Agent {
         if (definition.isLeader() && !runtimeSubAgents.isEmpty()) {
             prompt = AgentSystemPromptBuilder.build(prompt, runtimeSubAgents);
         }
-        if (prompt == null || prompt.isEmpty()) {
+        if (StringUtils.isEmpty(prompt)) {
             return "You are a helpful assistant.";
         }
         return prompt;
@@ -1648,7 +1644,7 @@ public class LangChain4jAgent implements Agent {
      */
     private String injectMemory(String systemPrompt, String input) {
         MemoryManager manager = resolveMemoryManager();
-        if (manager == null || input == null || input.isBlank()) {
+        if (manager == null || StringUtils.isBlank(input)) {
             return systemPrompt;
         }
         try {
@@ -1678,7 +1674,7 @@ public class LangChain4jAgent implements Agent {
      */
     private void autoSaveMemory(String input, String output) {
         MemoryManager manager = resolveMemoryManager();
-        if (manager == null || output == null || output.isBlank()) {
+        if (manager == null || StringUtils.isBlank(output)) {
             return;
         }
         try {
@@ -1730,7 +1726,7 @@ public class LangChain4jAgent implements Agent {
         }
         String workspace = config.getWorkspace();
         if (workspacePath != null && workspacePath.isBlank() == false
-                && (workspace == null || workspace.isBlank() || ".agent/memory".equals(workspace))) {
+                && (StringUtils.isBlank(workspace) || ".agent/memory".equals(workspace))) {
             String resolved = workspacePath + "/.agent/memory";
             return MemoryConfig.builder()
                     .storeType(config.getStoreType())
@@ -1836,7 +1832,7 @@ public class LangChain4jAgent implements Agent {
      * @return 工作目录
      */
     private String resolveWorkspace() {
-        if (workspacePath != null && !workspacePath.isBlank()) {
+        if (StringUtils.isNotBlank(workspacePath)) {
             return workspacePath;
         }
         return System.getProperty("user.dir");
@@ -1860,7 +1856,7 @@ public class LangChain4jAgent implements Agent {
      * @param output 助手输出
      */
     private void recordSessionTurn(String input, String output) {
-        if (output == null || output.isBlank()) {
+        if (StringUtils.isBlank(output)) {
             return;
         }
         synchronized (sessionHistory) {

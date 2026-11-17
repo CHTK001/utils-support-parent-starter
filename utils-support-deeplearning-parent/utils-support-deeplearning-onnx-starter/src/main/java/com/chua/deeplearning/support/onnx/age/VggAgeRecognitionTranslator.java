@@ -12,8 +12,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.ai.result.PredictResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -35,12 +34,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 2025/11/06
  */
+@Slf4j
 public class VggAgeRecognitionTranslator implements Translator<Image, PredictResult> {
-
-    /**
-     * 日志记录器
-    */
-    private static final Logger LOGGER = LoggerFactory.getLogger(VggAgeRecognitionTranslator.class);
 
     private static final int IMAGE_SIZE = 224;
 
@@ -58,7 +53,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
      */
     @Override
     public void prepare(TranslatorContext ctx) {
-        LOGGER.info("VggAgeRecognitionTranslator 初始化完成");
+        log.info("VggAgeRecognitionTranslator 初始化完成");
     }
 
     /**
@@ -78,8 +73,8 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
+            if (log.isDebugEnabled()) {
+                log.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
             }
 
             NDManager manager = ctx.getNDManager();
@@ -89,14 +84,14 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
 
             //           224  224
             array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE, Image.Interpolation.AREA);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("缩放后尺寸: {}x{}", IMAGE_SIZE, IMAGE_SIZE);
+            if (log.isDebugEnabled()) {
+                log.debug("缩放后尺寸: {}x{}", IMAGE_SIZE, IMAGE_SIZE);
             }
 
             //           CHW        (HWC -> CHW)
             array = array.transpose(2, 0, 1);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("已转置为 CHW 布局");
+            if (log.isDebugEnabled()) {
+                log.debug("已转置为 CHW 布局");
             }
 
             //           float32
@@ -112,14 +107,14 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
             //                 128
             array = array.div(128f);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("归一化后张量形状: {}", array.getShape());
+            if (log.isDebugEnabled()) {
+                log.debug("归一化后张量形状: {}", array.getShape());
             }
 
             return new NDList(array);
 
         } catch (Exception e) {
-            LOGGER.error("年龄识别输入预处理失败: {}", e.getMessage(), e);
+            log.error("年龄识别输入预处理失败: {}", e.getMessage(), e);
             throw new RuntimeException("年龄识别输入预处理失败", e);
         }
     }
@@ -141,14 +136,14 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         try {
             if (list.isEmpty()) {
-                LOGGER.warn("模型输出为空，返回空结果");
+                log.warn("模型输出为空，返回空结果");
                 return PredictResult.empty();
             }
 
             //
             NDArray output = list.getFirst();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("模型输出张量形状: {}", output.getShape());
+            if (log.isDebugEnabled()) {
+                log.debug("模型输出张量形状: {}", output.getShape());
             }
 
             //
@@ -168,7 +163,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
                 //
                 double predictedAge = calculateWeightedAge(probs);
 
-                    LOGGER.info("年龄识别结果: {} 岁", predictedAge);
+                    log.info("年龄识别结果: {} 岁", predictedAge);
 
                 return PredictResult
                     .builder()
@@ -176,13 +171,13 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
                     .confidence(getMaxProbability(probs))
                     .build();
             } else {
-                LOGGER.warn("输出维度不足，无法判定年龄: {}", probs != null ? probs.length : "null");
+                log.warn("输出维度不足，无法判定年龄: {}", probs != null ? probs.length : "null");
             }
 
             return PredictResult.empty();
 
         } catch (Exception e) {
-            LOGGER.error("年龄识别输出处理失败: {}", e.getMessage(), e);
+            log.error("年龄识别输出处理失败: {}", e.getMessage(), e);
             return PredictResult.empty();
         }
     }
@@ -208,8 +203,8 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
         }
 
         //
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("年龄识别结果: {} (置信度: {})", maxIndex, String.format("%.4f", maxProb));
+        if (log.isDebugEnabled()) {
+            log.debug("年龄识别结果: {} (置信度: {})", maxIndex, String.format("%.4f", maxProb));
         }
         return (double) maxIndex;
     }

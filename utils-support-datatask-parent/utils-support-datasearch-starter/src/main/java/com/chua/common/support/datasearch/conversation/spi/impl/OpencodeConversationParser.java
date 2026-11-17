@@ -7,13 +7,13 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.sqlite.support.engine.SqliteReactorEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 打开编码 conversation parser.
@@ -32,9 +32,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("opencode")
+@Slf4j
 public class OpencodeConversationParser implements ConversationParser {
-
-    private static final Logger log = LoggerFactory.getLogger(OpencodeConversationParser.class); // 日志
 
     private static final Path DB_PATH = resolveDbPath(); // db路径
 
@@ -44,7 +43,7 @@ public class OpencodeConversationParser implements ConversationParser {
      */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
-        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+        if (StringUtils.isNotBlank(xdgDataHome)) {
             return Path.of(xdgDataHome, "opencode", "opencode.db");
         }
         return Path.of(System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");

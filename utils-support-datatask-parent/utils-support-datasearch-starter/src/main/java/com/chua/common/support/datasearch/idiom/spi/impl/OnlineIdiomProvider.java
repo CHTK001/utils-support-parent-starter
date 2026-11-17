@@ -9,13 +9,13 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 chinese-xinhua 语料库的成语提供器（在线 JSON + 内置兜底）。
@@ -31,12 +31,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since 4.0.0.42
  */
 @Spi("chinese-xinhua")
+@Slf4j
 public class OnlineIdiomProvider implements IdiomProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(OnlineIdiomProvider.class);
 
     /**
      * 在线数据源地址
@@ -104,7 +100,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     */
     @Override
     public IdiomInfo get(String word) {
-        if (word == null || word.isBlank()) {
+        if (StringUtils.isBlank(word)) {
             return null;
         }
         return loadIndex().get(word.trim());
@@ -115,7 +111,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     */
     @Override
     public List<IdiomInfo> search(String keyword, int limit) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return Collections.emptyList();
         }
         String kw = keyword.trim();
@@ -149,7 +145,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     */
     @Override
     public List<IdiomInfo> chain(String text, int limit) {
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return Collections.emptyList();
         }
         String trimmed = text.trim();
@@ -163,7 +159,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     */
     @Override
     public List<IdiomInfo> findByFirstChar(String firstChar, int limit) {
-        if (firstChar == null || firstChar.isBlank()) {
+        if (StringUtils.isBlank(firstChar)) {
             return Collections.emptyList();
         }
         List<IdiomInfo> candidates = loadFirstCharIndex().get(firstChar.trim().substring(0, 1));
@@ -246,7 +242,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
             Map<String, List<IdiomInfo>> map = new ConcurrentHashMap<>();
             for (IdiomInfo info : loadIndex().values()) {
                 String word = info.getWord();
-                if (word == null || word.isEmpty()) {
+                if (StringUtils.isEmpty(word)) {
                     continue;
                 }
                 String first = word.substring(0, 1);

@@ -9,6 +9,7 @@ import com.chua.common.support.ai.mcp.McpToolResult;
 import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * skills.sh 在线技能市场 MCP 提供器。
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 @Spi("skills-sh")
 public class SkillShMcpProvider extends SkillShProvider implements McpProvider {
 

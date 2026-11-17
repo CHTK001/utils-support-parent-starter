@@ -14,8 +14,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -49,6 +48,7 @@ import java.util.stream.IntStream;
  * @author CH
  * @since 2025/01/26
  */
+@Slf4j
 public class ClTaggerTranslator implements Translator<Image, Classifications> {
 
     /**
@@ -63,10 +63,6 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      * 低信息范围阈值
     */
     private static final float LOW_INFORMATION_RANGE_THRESHOLD = 2.0f;
-    /**
-     * 日志记录器
-    */
-    private static final Logger log = LoggerFactory.getLogger(ClTaggerTranslator.class);
 
     private static final int INPUT_SIZE = 448;
 

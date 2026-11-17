@@ -1,9 +1,8 @@
 package com.chua.image.support.heif;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * HEIC/HEIF 镜像io 注册入口。
@@ -12,9 +11,9 @@ import javax.imageio.ImageIO;
  * @since 4.0.0.42
  * @return 是否可用的结果
  */
+@Slf4j
 public final class HeifImageIoRegistrar {
 
-    private static final Logger log = LoggerFactory.getLogger(HeifImageIoRegistrar.class); // 日志
 /**
  * heif镜像ioregistrar。
  */

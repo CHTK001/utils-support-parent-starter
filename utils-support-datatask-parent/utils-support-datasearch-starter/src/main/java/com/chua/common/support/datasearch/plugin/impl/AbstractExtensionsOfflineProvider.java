@@ -2,8 +2,6 @@ package com.chua.common.support.datasearch.plugin.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * VS Code 风格扩展目录本地提供者抽象基类。
@@ -22,12 +22,8 @@ import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 public abstract class AbstractExtensionsOfflineProvider implements PluginOfflineProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(AbstractExtensionsOfflineProvider.class);
 
     /**
      * 用户主目录
@@ -76,7 +72,7 @@ public abstract class AbstractExtensionsOfflineProvider implements PluginOffline
                 String version = node.get("version").toStringValue();
                 String publisher = node.get("publisher").toStringValue();
                 String extId = extDir.getFileName().toString();
-                String display = (displayName == null || displayName.isBlank())
+                String display = (StringUtils.isBlank(displayName))
                         ? extId : displayName;
                 result.add(new PluginDefinition(
                         extId, display, description == null ? "" : description,

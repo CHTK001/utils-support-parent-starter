@@ -10,9 +10,9 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * wttr.in 天气数据源实现。
@@ -31,9 +31,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("wttr-in")
+@Slf4j
 public class WttrInWeatherProvider implements WeatherProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(WttrInWeatherProvider.class); // 日志
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
@@ -74,7 +73,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
      */
     @Override
     public WeatherInfo getWeather(String city) {
-        if (city == null || city.isBlank()) {
+        if (StringUtils.isBlank(city)) {
             return null;
         }
         String key = city.trim();
@@ -107,7 +106,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
      * @return 天气实体；解析失败返回 空
      */
     private WeatherInfo parse(String json, String city) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return null;
         }
         try {
@@ -198,7 +197,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
      * @return 统一时间格式；无法换算时返回 空
      */
     private String toIsoTime(String date, String raw) {
-        if (date == null || raw == null || raw.isBlank()) {
+        if (date == null || StringUtils.isBlank(raw)) {
             return null;
         }
         try {

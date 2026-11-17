@@ -9,13 +9,12 @@ import io.agentscope.core.model.ChatResponse;
 import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
 import io.agentscope.core.model.ToolSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 将压缩专用 {@link ChatClient} 适配为 Agentscope 的 {@link Model} 接口。
@@ -26,12 +25,8 @@ import java.util.UUID;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class CompressionChatClientModelAdapter implements Model {
-
-    /**
-     * 日志记录器
-    */
-    private static final Logger log = LoggerFactory.getLogger(CompressionChatClientModelAdapter.class);
 
     /**
      * 压缩聊天客户端

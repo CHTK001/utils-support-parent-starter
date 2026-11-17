@@ -6,10 +6,9 @@ import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.spi.ServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 视频聚合检索服务。
@@ -22,9 +21,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class VideoSearchService {
-
-    private static final Logger log = LoggerFactory.getLogger(VideoSearchService.class); // 日志
 
     /**
      * 聚合搜索全部可用视频数据源。

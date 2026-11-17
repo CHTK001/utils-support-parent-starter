@@ -13,12 +13,11 @@ import com.chua.deeplearning.support.core.model.Model3DStyle;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于 HTTP API 的 3D 生成器抽象基类
@@ -26,13 +25,10 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator,
         SketchTo3DGenerator, Model3DStylizer {
 
-    /**
-     * 日志记录器
-    */
-    private static final Logger logger = LoggerFactory.getLogger(AbstractApiModel3DGenerator.class);
     /**
      * JSON 媒体类型
     */
@@ -75,8 +71,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     @Override
     public Model3D generate(String prompt, Model3DFormat format, Model3DStyle style,
                             String quality) throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("[3D] Text-to-3D: prompt={}, format={}, style={}, quality={}", prompt, format, style, quality);
+        if (log.isInfoEnabled()) {
+            log.info("[3D] Text-to-3D: prompt={}, format={}, style={}, quality={}", prompt, format, style, quality);
         }
         String requestBody = buildTextRequestBody(prompt, format, style, quality);
         byte[] result = doPost(requestBody);
@@ -88,8 +84,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     */
     @Override
     public Model3D generate(byte[] image, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("[3D] Image-to-3D: imageSize={}, format={}, style={}, quality={}", image.length, format,
+        if (log.isInfoEnabled()) {
+            log.info("[3D] Image-to-3D: imageSize={}, format={}, style={}, quality={}", image.length, format,
                         style, quality);
         }
         String requestBody = buildImageRequestBody(image, format, style, quality);
@@ -103,8 +99,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     @Override
     public Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style,
                             String quality) throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format,
+        if (log.isInfoEnabled()) {
+            log.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format,
                         style, quality);
         }
         String requestBody = buildMultiViewRequestBody(images, format, style, quality);
@@ -118,8 +114,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     @Override
     public Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style,
                                       String quality) throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("[3D] Sketch-to-3D: description={}, sketchSize={}, format={}, style={}, quality={}",
+        if (log.isInfoEnabled()) {
+            log.info("[3D] Sketch-to-3D: description={}, sketchSize={}, format={}, style={}, quality={}",
                     description, sketch.length, format, style, quality);
         }
         String requestBody = buildSketchRequestBody(sketch, description, format, style, quality);
@@ -141,8 +137,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     */
     @Override
     public Model3D stylize(Model3D model, Model3DStyle style, int resolution) throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("[3D] Stylize: style={}, resolution={}", style, resolution);
+        if (log.isInfoEnabled()) {
+            log.info("[3D] Stylize: style={}, resolution={}", style, resolution);
         }
         String requestBody = buildStylizeRequestBody(model, style, resolution);
         byte[] result = doPost(requestBody);

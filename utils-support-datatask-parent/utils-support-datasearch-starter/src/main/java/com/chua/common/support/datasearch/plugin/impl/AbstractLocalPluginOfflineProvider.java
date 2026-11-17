@@ -3,8 +3,6 @@ package com.chua.common.support.datasearch.plugin.impl;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 本地插件提供者抽象基类。
@@ -22,12 +22,8 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflineProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(AbstractLocalPluginOfflineProvider.class);
 
     /**
      * 用户主目录
@@ -55,7 +51,7 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
      * @return 结果字符串
      */
     protected String readManifestField(String json, String key) {
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             return "";
         }
         try {

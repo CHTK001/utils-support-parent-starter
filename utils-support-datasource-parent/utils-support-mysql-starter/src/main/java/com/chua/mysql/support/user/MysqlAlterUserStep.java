@@ -2,8 +2,6 @@ package com.chua.mysql.support.user;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * MySQL 修改用户链式步骤实现。
@@ -23,9 +22,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MysqlAlterUserStep implements UserManager.AlterUserStep {
-
-    private static final Logger log = LoggerFactory.getLogger(MysqlAlterUserStep.class);
 
     /**
      * 主机白名单：允许 {@code %} 通配、主机名、IPv4，以及 IPv6 网段所需的 {@code : %}

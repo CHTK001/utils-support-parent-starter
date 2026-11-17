@@ -13,8 +13,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * YOLO-uniow 通用开世界目标检测（打开-World 对象 Detection）Translator。
@@ -47,9 +46,8 @@ import java.nio.ByteOrder;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
-
-    private static final Logger log = LoggerFactory.getLogger(YoloUniowTranslator.class); // 日志
 
     /**
      * 输入尺寸

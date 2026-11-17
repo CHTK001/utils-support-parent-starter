@@ -5,8 +5,6 @@ import com.chua.datasource.support.permission.PermissionInfo;
 import com.chua.datasource.support.permission.PermissionManager;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -15,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * MySQL 权限管理器 SPI 实现。
@@ -26,9 +25,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("mysql")
+@Slf4j
 public class MysqlPermissionManager implements PermissionManager, DataSourceAware {
-
-    private static final Logger log = LoggerFactory.getLogger(MysqlPermissionManager.class);
 
     /**
      * 单个权限白名单：权限名 + 可选列清单

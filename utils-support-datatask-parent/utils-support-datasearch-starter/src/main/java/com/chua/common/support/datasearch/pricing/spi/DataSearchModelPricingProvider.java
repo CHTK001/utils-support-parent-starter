@@ -6,12 +6,11 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据搜索 模型定价桥接实现。
@@ -39,12 +38,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("datasearch")
+@Slf4j
 public class DataSearchModelPricingProvider implements ModelPricingProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(DataSearchModelPricingProvider.class);
 
     /**
      * 免费档标记：折叠后模型标识的结尾

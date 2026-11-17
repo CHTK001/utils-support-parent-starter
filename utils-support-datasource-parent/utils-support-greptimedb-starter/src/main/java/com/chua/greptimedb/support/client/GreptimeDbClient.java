@@ -3,8 +3,8 @@ package com.chua.greptimedb.support.client;
 import io.greptime.GreptimeDB;
 import io.greptime.models.AuthInfo;
 import io.greptime.options.GreptimeOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * greptimedb 客户端工厂，基于官方 gRPC Ingester SDK 创建 {@link GreptimeDB} 实例。
@@ -17,12 +17,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class GreptimeDbClient {
-
-    /**
-     * 日志记录器
-     */
-    private static final Logger log = LoggerFactory.getLogger(GreptimeDbClient.class);
 
     /**
      * 缺省数据库名，与 {@link com.chua.greptimedb.support.engine.GreptimeDbEngine} 保持一致
@@ -48,13 +44,13 @@ public final class GreptimeDbClient {
      * @throws IllegalArgumentException 端点为空或主机字面量非法时抛出
      */
     public static GreptimeDB create(String endpoint, String database, String username, String password) {
-        if (endpoint == null || endpoint.isBlank()) {
+        if (StringUtils.isBlank(endpoint)) {
             throw new IllegalArgumentException("GreptimeDB gRPC 端点不能为空");
         }
         // 复用 JDBC 侧的主机解析做前置校验，避免把非法端点推迟到首次写入才暴露
         GreptimeJdbcClient.hostOf(endpoint);
-        String db = database == null || database.isBlank() ? DEFAULT_DATABASE : database.trim();
-        AuthInfo authInfo = (username == null || username.isEmpty())
+        String db = StringUtils.isBlank(database) ? DEFAULT_DATABASE : database.trim();
+        AuthInfo authInfo = (StringUtils.isEmpty(username))
                 ? AuthInfo.noAuthorization()
                 : new AuthInfo(username, password);
         GreptimeOptions opts = GreptimeOptions.newBuilder(endpoint.trim(), db)

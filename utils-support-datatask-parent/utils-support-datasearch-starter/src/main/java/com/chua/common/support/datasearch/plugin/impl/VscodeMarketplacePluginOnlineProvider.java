@@ -7,10 +7,10 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * VS Code Marketplace 在线插件市场提供者。
@@ -23,12 +23,8 @@ import java.util.Map;
  * @since 4.0.0.45
  */
 @Spi("vscode-marketplace")
+@Slf4j
 public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(VscodeMarketplacePluginOnlineProvider.class);
 
     /**
      * 搜索 API
@@ -43,7 +39,7 @@ public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvid
 
     @Override
     public List<PluginDefinition> search(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return List.of();
         }
         try {

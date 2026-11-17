@@ -7,12 +7,12 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 浙江省水利厅台风数据源实现。
@@ -31,9 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Spi("zhejiang-typhoon")
+@Slf4j
 public class ZhejiangTyphoonProvider implements TyphoonProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(ZhejiangTyphoonProvider.class); // 日志
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
@@ -97,7 +96,7 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
 
     @Override
     public TyphoonDetail getTyphoon(String tfid) {
-        if (tfid == null || tfid.isBlank()) {
+        if (StringUtils.isBlank(tfid)) {
             return null;
         }
         Long cachedAt = detailCachedAt.get(tfid);

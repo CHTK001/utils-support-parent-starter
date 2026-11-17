@@ -14,13 +14,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Bing 图片检索的通用表情包提供器。
@@ -33,12 +33,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("bing")
+@Slf4j
 public class BingEmojiProvider implements EmojiProvider {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(BingEmojiProvider.class);
 
     /**
      * 图片搜索地址
@@ -96,7 +92,7 @@ public class BingEmojiProvider implements EmojiProvider {
      */
     @Override
     public List<EmojiInfo> search(String keyword, int page) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return Collections.emptyList();
         }
         int pageNo = page < 1 ? 1 : page;

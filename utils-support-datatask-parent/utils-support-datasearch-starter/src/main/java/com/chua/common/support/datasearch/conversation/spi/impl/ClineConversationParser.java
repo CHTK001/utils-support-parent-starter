@@ -6,8 +6,6 @@ import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -16,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Cline conversation parser.
@@ -39,9 +38,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("cline")
+@Slf4j
 public class ClineConversationParser implements ConversationParser {
-
-    private static final Logger log = LoggerFactory.getLogger(ClineConversationParser.class);
 
     private static final Path SESSIONS_DIR = Path.of(
             System.getProperty("user.home"), ".cline", "data", "sessions");

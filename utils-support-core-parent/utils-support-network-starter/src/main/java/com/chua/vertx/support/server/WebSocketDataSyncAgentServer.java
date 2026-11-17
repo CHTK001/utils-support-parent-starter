@@ -7,8 +7,6 @@ import com.chua.datasync.agent.support.model.SyncDataOffset;
 import com.chua.starter.datasync.agent.DefaultDataSyncAgentServer;
 import com.chua.vertx.support.source.WebSocketAgentDataSyncSource;
 import com.chua.common.support.lang.json.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +25,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * WebSocket 数据同步 Agent 服务端
@@ -42,12 +41,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026-07-20
  */
+@Slf4j
 public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(WebSocketDataSyncAgentServer.class);
 
     /**
      * 监听端口

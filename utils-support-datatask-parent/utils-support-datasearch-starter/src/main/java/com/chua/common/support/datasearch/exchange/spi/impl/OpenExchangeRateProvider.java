@@ -5,13 +5,12 @@ import com.chua.common.support.datasearch.exchange.model.ExchangeRateResponse;
 import com.chua.common.support.datasearch.exchange.spi.ExchangeRateProvider;
 import com.chua.common.support.network.invoker.InvokerFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 打开.er-api.com 汇率数据源实现。
@@ -27,9 +26,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("open-exchange-rate")
+@Slf4j
 public class OpenExchangeRateProvider implements ExchangeRateProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(OpenExchangeRateProvider.class); // 日志
 
     /**
      * 缓存有效期（毫秒）：6 小时

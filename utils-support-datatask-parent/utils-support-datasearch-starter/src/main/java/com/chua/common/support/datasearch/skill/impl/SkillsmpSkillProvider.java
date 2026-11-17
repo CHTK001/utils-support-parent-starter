@@ -8,6 +8,7 @@ import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * skillsmp 技能市场在线提供器。
@@ -17,6 +18,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("skillsmp")
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnlineProvider {
 

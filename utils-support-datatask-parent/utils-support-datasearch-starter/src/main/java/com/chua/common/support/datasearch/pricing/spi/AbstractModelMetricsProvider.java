@@ -14,8 +14,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -25,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 定价提供者抽象基类。
@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public abstract class AbstractModelMetricsProvider implements ModelMetricsProvider {
 
     /**
@@ -80,11 +81,6 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
      */
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(AbstractModelMetricsProvider.class);
 
     /**
      * 配置保存orloader
@@ -237,7 +233,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     protected List<ModelDefinition> scrapeTablePricing(String url, String currency) {
         String html = fetchUrl(url);
         Map<String, ModelDefinition> result = Wraps.linkedMap();
-        if (html != null && !html.isEmpty()) {
+        if (StringUtils.isNotEmpty(html)) {
             collectPagePricing(html, currency, result);
         }
         if (!result.isEmpty()) {
@@ -440,7 +436,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
      * @return true 表示符号与目标币种矛盾，应跳过该行
      */
     private boolean isContradictingCurrency(String text, String currency) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return false;
         }
         boolean dollar = DOLLAR_AMOUNT_PATTERN.matcher(text).find();
@@ -523,7 +519,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
      * @return 模型定价列表
      */
     protected List<ModelDefinition> parseJsonPricing(String json) {
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
         }
         try {

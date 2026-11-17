@@ -2,8 +2,6 @@ package com.chua.oracle.support.user;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,6 +10,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Oracle 修改用户链式步骤实现。
@@ -30,9 +29,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class OracleAlterUserStep implements UserManager.AlterUserStep {
-
-    private static final Logger log = LoggerFactory.getLogger(OracleAlterUserStep.class);
 
     /**
      * 权限白名单：由标识符组成的词组，覆盖系统权限与角色名

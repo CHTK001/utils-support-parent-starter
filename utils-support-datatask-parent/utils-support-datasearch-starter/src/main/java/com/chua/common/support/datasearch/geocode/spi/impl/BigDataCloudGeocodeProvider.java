@@ -7,11 +7,11 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * big数据cloud 逆地理编码实现。
@@ -28,9 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Spi("bigdatacloud")
+@Slf4j
 public class BigDataCloudGeocodeProvider implements GeocodeProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(BigDataCloudGeocodeProvider.class); // 日志
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
@@ -87,7 +86,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
 
     @Override
     public String ipToAddress(String ip) {
-        if (ip == null || ip.isBlank()) {
+        if (StringUtils.isBlank(ip)) {
             return null;
         }
         LocationInfo info = locationProvider.locateIp(ip.trim());
@@ -142,7 +141,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
      * @param part 地址段
      */
     private void append(StringBuilder sb, String part) {
-        if (part == null || part.isBlank()) {
+        if (StringUtils.isBlank(part)) {
             return;
         }
         if (sb.length() > 0) {

@@ -30,8 +30,6 @@ import io.agentscope.core.model.ChatResponse;
 import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
 import io.agentscope.core.model.ToolSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
@@ -43,6 +41,8 @@ import java.util.UUID;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import io.agentscope.core.model.ChatUsage;
 import com.openai.models.completions.CompletionUsage;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 对话客户端模型适配器类。
@@ -53,9 +53,8 @@ import com.openai.models.completions.CompletionUsage;
  * @author CH
  * @since 4.0.0
  */
+@Slf4j
 public class ChatClientModelAdapter implements Model {
-
-    private static final Logger log = LoggerFactory.getLogger(ChatClientModelAdapter.class); // 日志
 
     private final ChatClient chatClient; // 对话客户端
     private final String modelName; // 模型名称
@@ -86,10 +85,10 @@ public class ChatClientModelAdapter implements Model {
                 if (openAiClient == null) {
                     String apiKey = chatClient.getApiKey();
                     String baseUrl = chatClient.getBaseUrl();
-                    if (apiKey == null || apiKey.isBlank()) {
+                    if (StringUtils.isBlank(apiKey)) {
                         apiKey = "";
                     }
-                    if (baseUrl == null || baseUrl.isBlank()) {
+                    if (StringUtils.isBlank(baseUrl)) {
                         baseUrl = "https://api.openai.com/v1";
                     }
                     openAiClient = OpenAIOkHttpClient.builder()
@@ -125,10 +124,10 @@ public class ChatClientModelAdapter implements Model {
                 continue;
             }
             String text = msg.getTextContent();
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 text = toolUsesAsText(msg);
             }
-            if (text == null || text.isBlank()) {
+            if (StringUtils.isBlank(text)) {
                 continue;
             }
             if (role == MsgRole.USER && isLast) {
@@ -190,7 +189,7 @@ public class ChatClientModelAdapter implements Model {
                 chatClient.newChat();
                 chatClient.session(sessionId);
                 // 系统提示词在新会话内、发起对话前设置，确保角色人设随请求送达
-                if (sysPrompt != null && !sysPrompt.isBlank()) {
+                if (StringUtils.isNotBlank(sysPrompt)) {
                     chatClient.system(sysPrompt);
                 }
                 for (ChatMessage cm : hist) {
@@ -211,11 +210,11 @@ public class ChatClientModelAdapter implements Model {
                             // 推理/思考增量实时下发（与正文同一条流，先思考后正文），
                             // 否则推理模型会长时间静默只转圈，直到整段返回
                             String reasoning = resp.getReasoningContent();
-                            if (reasoning != null && !reasoning.isEmpty()) {
+                            if (StringUtils.isNotEmpty(reasoning)) {
                                 sink.next(thinkingDelta(reasoning));
                             }
                             String delta = resp.getContent();
-                            if (delta != null && !delta.isEmpty()) {
+                            if (StringUtils.isNotEmpty(delta)) {
                                 sink.next(textDelta(delta));
                             }
                         }
@@ -269,7 +268,7 @@ public class ChatClientModelAdapter implements Model {
                         // 推理增量（第三方 OpenAI 兼容接口多放在非标准字段 reasoning_content），
                         // 实时下发，避免思考阶段长时间无任何输出
                         String reasoning = extractReasoning(delta);
-                        if (reasoning != null && !reasoning.isEmpty()) {
+                        if (StringUtils.isNotEmpty(reasoning)) {
                             sink.next(thinkingDelta(reasoning));
                         }
                         delta.content().ifPresent(c -> {
@@ -333,7 +332,7 @@ public class ChatClientModelAdapter implements Model {
     private ChatCompletionCreateParams buildToolParams(List<Msg> messages, List<ToolSchema> tools,
                                                        String systemPrompt, GenerateOptions options) {
         String modelId = chatClient.getModel();
-        if (modelId == null || modelId.isBlank()) {
+        if (StringUtils.isBlank(modelId)) {
             modelId = "gpt-4o";
         }
 
@@ -355,10 +354,10 @@ public class ChatClientModelAdapter implements Model {
         // 否则支持显式思考的模型在 function calling 路径不会产出推理内容
         String effort = options != null ? options.getReasoningEffort() : null;
         Integer thinkingBudget = options != null ? options.getThinkingBudget() : null;
-        if ((effort == null || effort.isBlank()) && thinkingBudget != null && thinkingBudget > 0) {
+        if ((StringUtils.isBlank(effort)) && thinkingBudget != null && thinkingBudget > 0) {
             effort = "medium";
         }
-        if (effort != null && !effort.isBlank()) {
+        if (StringUtils.isNotBlank(effort)) {
             paramsBuilder.reasoningEffort(switch (effort.toLowerCase()) {
                 case "low", "minimal" -> ReasoningEffort.LOW;
                 case "medium" -> ReasoningEffort.MEDIUM;
@@ -366,7 +365,7 @@ public class ChatClientModelAdapter implements Model {
             });
         }
 
-        if (systemPrompt != null && !systemPrompt.isBlank()) {
+        if (StringUtils.isNotBlank(systemPrompt)) {
             paramsBuilder.addSystemMessage(systemPrompt);
         }
 
@@ -390,7 +389,7 @@ public class ChatClientModelAdapter implements Model {
                 continue;
             }
             String text = msg.getTextContent();
-            if (text != null && !text.isBlank()) {
+            if (StringUtils.isNotBlank(text)) {
                 paramsBuilder.addUserMessage(text);
                 turns++;
             }
@@ -438,7 +437,7 @@ public class ChatClientModelAdapter implements Model {
         int appended = 0;
         for (ToolResultBlock result : msg.getContentBlocks(ToolResultBlock.class)) {
             String callId = result.getId();
-            if (callId == null || callId.isBlank()) {
+            if (StringUtils.isBlank(callId)) {
                 log.warn("[ChatClientModelAdapter] 工具结果缺少调用标识，已丢弃: tool={}", result.getName());
                 continue;
             }
@@ -465,11 +464,11 @@ public class ChatClientModelAdapter implements Model {
     private ChatCompletionAssistantMessageParam buildAssistantParam(Msg msg, Set<String> pending) {
         ChatCompletionAssistantMessageParam.Builder builder = ChatCompletionAssistantMessageParam.builder();
         String text = msg.getTextContent();
-        boolean hasText = text != null && !text.isBlank();
+        boolean hasText = StringUtils.isNotBlank(text);
         int calls = 0;
         for (ToolUseBlock call : msg.getContentBlocks(ToolUseBlock.class)) {
             String callId = call.getId();
-            if (callId == null || callId.isBlank()) {
+            if (StringUtils.isBlank(callId)) {
                 log.warn("[ChatClientModelAgent] 工具调用缺少标识，已丢弃: tool={}", call.getName());
                 continue;
             }
@@ -546,7 +545,7 @@ public class ChatClientModelAdapter implements Model {
      */
     private static String toolArguments(ToolUseBlock call) {
         String content = call.getContent();
-        if (content != null && !content.isBlank()) {
+        if (StringUtils.isNotBlank(content)) {
             return content;
         }
         Map<String, Object> input = call.getInput();
@@ -602,7 +601,7 @@ public class ChatClientModelAdapter implements Model {
      * @return 结果映射，无数据时为空映射
      */
     private Map<String, Object> parseJson(String json) {
-        if (json == null || json.isBlank()) {
+        if (StringUtils.isBlank(json)) {
             return Collections.emptyMap();
         }
         try {
@@ -680,7 +679,7 @@ public class ChatClientModelAdapter implements Model {
             if (v != null) {
                 try {
                     String s = v.convert(String.class);
-                    if (s != null && !s.isEmpty()) {
+                    if (StringUtils.isNotEmpty(s)) {
                         return s;
                     }
                 } catch (Exception ignored) {
@@ -692,7 +691,7 @@ public class ChatClientModelAdapter implements Model {
             if (e.getKey() != null && e.getKey().toLowerCase().contains("reason")) {
                 try {
                     String s = e.getValue().convert(String.class);
-                    if (s != null && !s.isEmpty()) {
+                    if (StringUtils.isNotEmpty(s)) {
                         return s;
                     }
                 } catch (Exception ignored) {

@@ -54,13 +54,12 @@ import io.agentscope.harness.agent.subagent.SubagentDeclaration;
 import io.agentscope.harness.agent.subagent.WorkspaceMode;
 import io.agentscope.harness.agent.filesystem.spec.LocalFilesystemSpec;
 import java.nio.file.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
 import reactor.core.publisher.Flux;
 import java.util.Iterator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Agentscope 实现：将项目通用 {@link ChatClient} 桥接到 Agentscope Harness，
@@ -69,12 +68,8 @@ import java.util.Iterator;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class AgentScopeAgent implements Agent {
-
-    /**
-     * 日志记录器
-    */
-    private static final Logger log = LoggerFactory.getLogger(AgentScopeAgent.class);
 
     /**
      * 重试相关
@@ -400,7 +395,7 @@ public class AgentScopeAgent implements Agent {
      */
     @Override
     public Agent disableTool(String toolName) {
-        if (toolName != null && !toolName.isBlank()) {
+        if (StringUtils.isNotBlank(toolName)) {
             this.disabledTools.add(toolName.trim());
         }
         return this;
@@ -537,8 +532,8 @@ public class AgentScopeAgent implements Agent {
             config = MemoryConfig.builder().build();
         }
         String workspace = config.getWorkspace();
-        if (workspacePath != null && !workspacePath.isBlank()
-                && (workspace == null || workspace.isBlank() || ".agent/memory".equals(workspace))) {
+        if (StringUtils.isNotBlank(workspacePath)
+                && (StringUtils.isBlank(workspace) || ".agent/memory".equals(workspace))) {
             return MemoryConfig.builder()
                     .storeType(config.getStoreType())
                     .engine(config.getEngine())
@@ -563,7 +558,7 @@ public class AgentScopeAgent implements Agent {
      */
     private String injectMemory(String systemPrompt, String input) {
         MemoryManager manager = resolveMemoryManager();
-        if (manager == null || input == null || input.isBlank()) {
+        if (manager == null || StringUtils.isBlank(input)) {
             return systemPrompt;
         }
         try {
@@ -593,7 +588,7 @@ public class AgentScopeAgent implements Agent {
      */
     private void autoSaveMemory(String input, String output) {
         MemoryManager manager = resolveMemoryManager();
-        if (manager == null || output == null || output.isBlank() || input == null) {
+        if (manager == null || StringUtils.isBlank(output) || input == null) {
             return;
         }
         try {
@@ -1343,7 +1338,7 @@ public class AgentScopeAgent implements Agent {
                                 // 统一记一条“模型输出”轨迹；若此前未通过 delta 输出正文，则补一次正文供渲染
                                 Msg resultMsg = re.getResult();
                                 String fullText = resultMsg != null ? resultMsg.getTextContent() : "";
-                                if (fullText != null && !fullText.isEmpty()) {
+                                if (StringUtils.isNotEmpty(fullText)) {
                                     emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TEXT, aid, null, fullText)));
                                     if (!Boolean.TRUE.equals(textDeltaEmitted.get(aid))) {
@@ -1877,7 +1872,7 @@ public class AgentScopeAgent implements Agent {
     */
     private RuntimeContext buildRuntimeContext() {
         RuntimeContext.Builder builder = RuntimeContext.builder();
-        if (this.defaultSessionId != null && !this.defaultSessionId.isBlank()) {
+        if (StringUtils.isNotBlank(this.defaultSessionId)) {
             builder.sessionId(this.defaultSessionId);
         }
         return builder.build();
@@ -1898,12 +1893,12 @@ public class AgentScopeAgent implements Agent {
                 .modelResolver(ModelRegistry::resolve);
 
         // 设置默认会话标识：进入 Plan / 读取 AgentState 时按 sessionId 定位，缺失会抛 NPE
-        if (this.defaultSessionId != null && !this.defaultSessionId.isBlank()) {
+        if (StringUtils.isNotBlank(this.defaultSessionId)) {
             builder.defaultSessionId(this.defaultSessionId);
         }
 
         // 设置工作目录：文件类工具 / shell 工具以此为根，相对路径在此目录下解析
-        if (this.workspacePath != null && !this.workspacePath.isBlank()) {
+        if (StringUtils.isNotBlank(this.workspacePath)) {
             Path ws = Path.of(this.workspacePath).toAbsolutePath().normalize();
             builder.workspace(ws.toString());
 

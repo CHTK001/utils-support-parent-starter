@@ -8,8 +8,6 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 import java.nio.file.Files;
@@ -24,6 +22,7 @@ import java.nio.LongBuffer;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import org.opencv.core.Size;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Florence-2 视觉理解翻译器，支持多种图像理解任务。
@@ -39,8 +38,8 @@ import org.opencv.core.Size;
  * @param taskPrompt 任务提示符
  * @param pixels pixels
  */
+@Slf4j
 public class Florence2Translator implements ITranslator<Object[], String> {
-    private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class); // 日志
     private static final String NAME = "florence2"; // 名称
     private static final int IMAGE_SIZE = 768; // 镜像大小
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f}; // MEAN

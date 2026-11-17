@@ -10,12 +10,12 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Open-Meteo 天气数据源实现（实况 + 逐小时 + 逐日）。
@@ -35,9 +35,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("open-meteo")
+@Slf4j
 public class OpenMeteoWeatherProvider implements WeatherProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(OpenMeteoWeatherProvider.class); // 日志
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
@@ -112,7 +111,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
 
     @Override
     public WeatherInfo getWeather(String city) {
-        if (city == null || city.isBlank()) {
+        if (StringUtils.isBlank(city)) {
             return null;
         }
         String key = city.trim();

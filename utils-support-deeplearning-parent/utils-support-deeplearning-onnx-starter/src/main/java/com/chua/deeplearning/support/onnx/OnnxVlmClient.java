@@ -6,8 +6,7 @@ import com.chua.deeplearning.support.image.UnderstandResult;
 import com.chua.deeplearning.support.image.UnderstandTask;
 import com.chua.deeplearning.support.image.VlmClient;
 import com.chua.deeplearning.support.translator.ITranslator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ONNX 运行时视觉语言模型客户端实现。
@@ -18,9 +17,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class OnnxVlmClient implements VlmClient {
-
-    private static final Logger log = LoggerFactory.getLogger(OnnxVlmClient.class); // 日志
 
     /**
      * 当前使用的模型名称

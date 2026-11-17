@@ -5,8 +5,8 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.greptimedb.support.dialect.GreptimeDialect;
 import io.greptime.GreptimeDB;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * greptimedb 数据源封装，持有 {@link GreptimeDB} gRPC 客户端实例。
@@ -18,12 +18,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> {
-
-    /**
-     * 日志记录器
-     */
-    private static final Logger log = LoggerFactory.getLogger(GreptimeDbEngineDataSource.class);
 
     /**
      * 方言 SPI 注册键
@@ -83,7 +79,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
      */
     public GreptimeDbEngineDataSource(String name, String url, String username,
                                       String password, String database, GreptimeDB source) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("GreptimeDB 数据源名称不能为空");
         }
         this.name = name;

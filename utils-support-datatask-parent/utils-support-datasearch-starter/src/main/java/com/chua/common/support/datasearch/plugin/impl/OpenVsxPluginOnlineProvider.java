@@ -7,14 +7,14 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Open VSX 在线插件市场提供者。
@@ -26,12 +26,8 @@ import java.util.Map;
  * @since 4.0.0.45
  */
 @Spi("open-vsx")
+@Slf4j
 public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(OpenVsxPluginOnlineProvider.class);
 
     /**
      * API 基础
@@ -45,7 +41,7 @@ public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
 
     @Override
     public List<PluginDefinition> search(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return List.of();
         }
         try {

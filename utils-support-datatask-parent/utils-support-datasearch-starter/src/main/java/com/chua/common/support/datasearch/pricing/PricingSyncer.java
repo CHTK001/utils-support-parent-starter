@@ -6,11 +6,10 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.datasearch.pricing.spi.ModelMetricsProvider;
 import com.chua.common.support.datasearch.usage.spi.UsageFieldCompleter;
 import com.chua.common.support.spi.ServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 定价同步工具。
@@ -35,12 +34,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class PricingSyncer {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(PricingSyncer.class);
 
     /**
      * 创建 pricing同步 实例

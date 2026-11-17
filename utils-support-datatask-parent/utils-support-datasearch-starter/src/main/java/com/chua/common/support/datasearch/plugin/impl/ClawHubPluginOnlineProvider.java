@@ -2,8 +2,7 @@ package com.chua.common.support.datasearch.plugin.impl;
 
 import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ClawHub 插件市场在线提供者。
@@ -15,12 +14,8 @@ import org.slf4j.LoggerFactory;
  * @since 4.0.0.45
  */
 @Spi("clawhub-plugins")
+@Slf4j
 public class ClawHubPluginOnlineProvider implements PluginOnlineProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(ClawHubPluginOnlineProvider.class);
 
     /**
      * 市场主页

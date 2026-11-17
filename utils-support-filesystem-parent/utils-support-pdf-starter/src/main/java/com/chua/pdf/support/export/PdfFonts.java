@@ -9,8 +9,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +17,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * PDF 字体解析器。
@@ -37,12 +37,8 @@ import java.util.stream.Stream;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class PdfFonts {
-
-    /**
-     * 日志。
-     */
-    private static final Logger log = LoggerFactory.getLogger(PdfFonts.class);
 
     /**
      * 字体路径系统属性。
@@ -113,10 +109,10 @@ public final class PdfFonts {
      */
     public static PDFont load(PDDocument document) throws IOException {
         String configured = System.getProperty(FONT_PROPERTY);
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             configured = System.getenv(FONT_ENV);
         }
-        if (configured != null && !configured.isBlank()) {
+        if (StringUtils.isNotBlank(configured)) {
             File file = new File(configured);
             if (file.isFile()) {
                 return fromFile(document, file);
@@ -304,10 +300,10 @@ public final class PdfFonts {
      */
     public static boolean cjkAvailable() {
         String configured = System.getProperty(FONT_PROPERTY);
-        if (configured == null || configured.isBlank()) {
+        if (StringUtils.isBlank(configured)) {
             configured = System.getenv(FONT_ENV);
         }
-        if (configured != null && !configured.isBlank() && new File(configured).isFile()) {
+        if (StringUtils.isNotBlank(configured) && new File(configured).isFile()) {
             return true;
         }
         for (String resource : CLASSPATH_CANDIDATES) {

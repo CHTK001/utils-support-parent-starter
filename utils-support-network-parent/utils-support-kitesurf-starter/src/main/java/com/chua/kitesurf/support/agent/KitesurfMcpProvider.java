@@ -8,12 +8,12 @@ import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.kitesurf.support.renderer.KitesurfRenderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Kitesurf MCP 浏览器自动化提供者。
@@ -32,12 +32,8 @@ import java.util.Map;
  * @since 4.0.0.46
  */
 @Spi("kitesurf")
+@Slf4j
 public class KitesurfMcpProvider implements McpProvider {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(KitesurfMcpProvider.class);
 
     /**
      * 服务地址系统属性键。
@@ -71,11 +67,11 @@ public class KitesurfMcpProvider implements McpProvider {
      */
     public static String resolveBaseUrl() {
         String prop = System.getProperty(BASE_URL_PROPERTY);
-        if (prop != null && !prop.isBlank()) {
+        if (StringUtils.isNotBlank(prop)) {
             return prop.trim();
         }
         String env = System.getenv(BASE_URL_ENV);
-        if (env != null && !env.isBlank()) {
+        if (StringUtils.isNotBlank(env)) {
             return env.trim();
         }
         return KitesurfRenderer.DEFAULT_BASE_URL;
@@ -124,7 +120,7 @@ public class KitesurfMcpProvider implements McpProvider {
                     ? Map.of() : toolCall.getArguments();
             Object urlRaw = args.get("url");
             String url = urlRaw == null ? null : String.valueOf(urlRaw).trim();
-            if (url == null || url.isEmpty()) {
+            if (StringUtils.isEmpty(url)) {
                 return McpToolResult.error("缺少参数: url");
             }
             String baseUrl = resolveBaseUrl();

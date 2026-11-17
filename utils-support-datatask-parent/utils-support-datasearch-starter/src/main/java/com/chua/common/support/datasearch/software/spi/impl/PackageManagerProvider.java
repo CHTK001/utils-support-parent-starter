@@ -14,11 +14,10 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.lang.cmd.PackageManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于 common-starter {@link PackageManager} 的软件包管理器基础提供器，
@@ -30,12 +29,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class PackageManagerProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(PackageManagerProvider.class);
 
     /**
      * 名称

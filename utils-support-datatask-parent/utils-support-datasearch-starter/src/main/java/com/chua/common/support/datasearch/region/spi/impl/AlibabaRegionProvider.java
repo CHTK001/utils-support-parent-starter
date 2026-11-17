@@ -9,12 +9,12 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于阿里云 数据v geoAtlas 的行政区划提供器（在线 API）。
@@ -30,12 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Spi("alibaba")
+@Slf4j
 public class AlibabaRegionProvider implements RegionProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(AlibabaRegionProvider.class);
 
     /**
      * 基础
@@ -111,7 +107,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     */
     @Override
     public List<RegionInfo> getChildren(String parentAdcode) {
-        String code = (parentAdcode == null || parentAdcode.isEmpty()) ? "100000" : parentAdcode;
+        String code = (StringUtils.isEmpty(parentAdcode)) ? "100000" : parentAdcode;
         return fetchChildren(code);
     }
 

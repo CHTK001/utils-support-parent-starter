@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Vercel AI Gateway 模型能力提供者。
@@ -40,6 +42,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("vercel")
 public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
 
@@ -78,7 +81,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(MODELS_URL);
-        if (html == null || html.isEmpty()) {
+        if (StringUtils.isEmpty(html)) {
             return readClasspathPricing();
         }
         try {
@@ -240,7 +243,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
             return null;
         }
         String slug = textOf(item, "slug");
-        if (slug == null || slug.isEmpty() || slug.length() > 128) {
+        if (StringUtils.isEmpty(slug) || slug.length() > 128) {
             return null;
         }
         String displayName = textOf(item, "displayName");
@@ -311,7 +314,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
      */
     private BigDecimal numberOf(JsonNode node, String key) {
         String text = textOf(node, key);
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         try {
@@ -336,7 +339,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
             return node.decimalValue();
         }
         String text = node.asText(null);
-        if (text == null || text.isEmpty() || UNDEFINED.equals(text)) {
+        if (StringUtils.isEmpty(text) || UNDEFINED.equals(text)) {
             return null;
         }
         try {
@@ -359,7 +362,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
             return null;
         }
         String text = value.asText(null);
-        if (text == null || text.isEmpty() || UNDEFINED.equals(text)) {
+        if (StringUtils.isEmpty(text) || UNDEFINED.equals(text)) {
             return null;
         }
         return text;
@@ -379,7 +382,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
         }
         for (JsonNode item : array) {
             String text = item.asText(null);
-            if (text != null && !text.isEmpty()) {
+            if (StringUtils.isNotEmpty(text)) {
                 return text;
             }
         }

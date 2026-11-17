@@ -6,8 +6,6 @@ import com.chua.common.support.ai.mcp.McpProvider;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 外部 MCP 服务安装提供者抽象基类。
@@ -31,12 +31,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorProvider implements McpProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(AbstractExternalMcpInstallerProvider.class);
 
     /**
      * npm 包名（如 agent-browser /
@@ -130,7 +126,7 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
         try {
             Path configFile;
             String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
-            if (envValue != null && !envValue.isBlank()) {
+            if (StringUtils.isNotBlank(envValue)) {
                 configFile = Path.of(envValue).resolve(editor.getMcpConfigFile());
             } else if (editor.isWorkspaceBased()) {
                 List<Path> workspaces = discoverCodebuddyWorkspaces(null);

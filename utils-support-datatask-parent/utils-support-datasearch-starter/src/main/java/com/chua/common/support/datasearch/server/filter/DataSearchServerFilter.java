@@ -36,8 +36,6 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 数据搜索服务过滤器。
@@ -92,12 +92,8 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class DataSearchServerFilter implements ServerFilter {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(DataSearchServerFilter.class);
 
     /**
      * 接口前缀
@@ -341,7 +337,7 @@ public class DataSearchServerFilter implements ServerFilter {
         switch (action) {
             case "check": {
                 String date = request.getParam("date");
-                if (date == null || date.isBlank()) {
+                if (StringUtils.isBlank(date)) {
                     write(response, 400, "missing param: date", null);
                     return;
                 }
@@ -357,7 +353,7 @@ public class DataSearchServerFilter implements ServerFilter {
             }
             case "list": {
                 String year = request.getParam("year");
-                if (year == null || year.isBlank()) {
+                if (StringUtils.isBlank(year)) {
                     write(response, 400, "missing param: year", null);
                     return;
                 }
@@ -533,7 +529,7 @@ public class DataSearchServerFilter implements ServerFilter {
             List<String> names = Wraps.list();
             for (EmojiProvider provider : providers.values()) {
                 String name = provider.name();
-                if (name != null && !name.isBlank() && !names.contains(name)) {
+                if (StringUtils.isNotBlank(name) && !names.contains(name)) {
                     names.add(name);
                 }
             }
@@ -541,7 +537,7 @@ public class DataSearchServerFilter implements ServerFilter {
             return;
         }
         String keyword = request.getParam("keyword");
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             write(response, 400, "missing param: keyword", null);
             return;
         }
@@ -570,7 +566,7 @@ public class DataSearchServerFilter implements ServerFilter {
      * @return 命中返回 true
      */
     private static boolean matchesSource(String source, Map.Entry<String, EmojiProvider> entry) {
-        if (source == null || source.isBlank()) {
+        if (StringUtils.isBlank(source)) {
             return true;
         }
         String name = entry.getValue().name();
@@ -641,7 +637,7 @@ public class DataSearchServerFilter implements ServerFilter {
         }
         String trackingNo = request.getParam("trackingNo");
         String companyCode = request.getParam("companyCode");
-        List<ExpressTrace> traces = (companyCode == null || companyCode.isBlank())
+        List<ExpressTrace> traces = (StringUtils.isBlank(companyCode))
                 ? provider.query(trackingNo)
                 : provider.query(companyCode, trackingNo);
         write(response, 200, "ok", toJsonableList(traces));
@@ -669,7 +665,7 @@ public class DataSearchServerFilter implements ServerFilter {
      */
     private static int limit(ServerRequest request) {
         String value = request.getParam("limit");
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return 0;
         }
         try {
@@ -689,7 +685,7 @@ public class DataSearchServerFilter implements ServerFilter {
      */
     private static int intParam(ServerRequest request, String name, int defaultValue) {
         String value = request.getParam(name);
-        if (value == null || value.isBlank()) {
+        if (StringUtils.isBlank(value)) {
             return defaultValue;
         }
         try {

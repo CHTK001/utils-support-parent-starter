@@ -9,11 +9,11 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 chinese-Poetry 全唐诗语料的诗词提供器（在线 JSON + 内置兜底）。
@@ -28,12 +28,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since 4.0.0.42
  */
 @Spi("chinese-poetry")
+@Slf4j
 public class OnlinePoetryProvider implements PoetryProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(OnlinePoetryProvider.class);
 
     /**
      * 在线数据源地址模板（%d 为分卷序号）
@@ -120,7 +116,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     */
     @Override
     public List<PoetryInfo> byAuthor(String author, int limit) {
-        if (author == null || author.isBlank()) {
+        if (StringUtils.isBlank(author)) {
             return Collections.emptyList();
         }
         List<PoetryInfo> result = Wraps.list();
@@ -140,7 +136,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     */
     @Override
     public List<PoetryInfo> search(String keyword, int limit) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return Collections.emptyList();
         }
         String kw = keyword.trim();

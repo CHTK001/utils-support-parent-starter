@@ -10,12 +10,11 @@ import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * pip 软件包管理器提供器。
@@ -28,12 +27,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("pip")
+@Slf4j
 public class PipSoftwareProvider implements SoftwareProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(PipSoftwareProvider.class);
 
     /**
      * 名称

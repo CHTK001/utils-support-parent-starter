@@ -8,10 +8,10 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Helm 软件包管理器提供器。
@@ -24,12 +24,8 @@ import java.util.concurrent.TimeUnit;
  * @since 4.0.0.42
  */
 @Spi("helm")
+@Slf4j
 public class HelmSoftwareProvider implements SoftwareProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(HelmSoftwareProvider.class);
 
     /**
      * 名称
@@ -191,7 +187,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
      * @return extractchart名称的结果
      */
     private String extractChartName(String url) {
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return "";
         }
         // URL 形如 https://artifacthub.io/packages/helm/<repo>/<name>

@@ -10,11 +10,11 @@ import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * JSON API VIP 解析器。
@@ -26,12 +26,8 @@ import java.util.List;
  * @since 4.0.0.45
  */
 @Spi("json")
+@Slf4j
 public class JsonApiVipParser implements VipParser {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(JsonApiVipParser.class);
 
     @Override
     public String name() {
@@ -46,7 +42,7 @@ public class JsonApiVipParser implements VipParser {
     @Override
     public VipParseResult parse(VipParseRequest request) {
         String url = request.getUrl();
-        if (url == null || url.isBlank()) {
+        if (StringUtils.isBlank(url)) {
             return VipParseResult.error("URL 为空");
         }
         // [P3C A20 豁免]
@@ -93,7 +89,7 @@ public class JsonApiVipParser implements VipParser {
             return VipParseResult.error("无法从 JSON 响应提取播放地址");
         }
         String directUrl = playUrl.toStringValue();
-        if (directUrl == null || directUrl.isBlank()) {
+        if (StringUtils.isBlank(directUrl)) {
             return VipParseResult.error("JSON 播放地址为空");
         }
         VideoPlayAddress addr = new VideoPlayAddress();

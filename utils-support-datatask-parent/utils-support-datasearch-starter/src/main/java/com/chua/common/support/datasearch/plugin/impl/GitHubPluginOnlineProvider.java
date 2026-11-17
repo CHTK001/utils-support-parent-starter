@@ -7,8 +7,6 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -16,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * GitHub 仓库插件在线提供者。
@@ -27,12 +26,8 @@ import java.util.Map;
  * @since 4.0.0.45
  */
 @Spi("github-plugins")
+@Slf4j
 public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(GitHubPluginOnlineProvider.class);
 
     /**
      * GitHub API 基础

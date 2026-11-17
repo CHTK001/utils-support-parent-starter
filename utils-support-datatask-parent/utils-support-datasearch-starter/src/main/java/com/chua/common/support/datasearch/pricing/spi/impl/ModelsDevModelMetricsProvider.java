@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * models.dev 模型目录提供者。
@@ -45,6 +47,7 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("modelsdev")
 public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider {
 
@@ -79,7 +82,7 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String json = fetchUrl(CATALOG_URL);
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return readClasspathPricing();
         }
         try {
@@ -150,7 +153,7 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
      */
     private ModelDefinition toModelDefinition(String providerId, JsonNode model, boolean gateway) {
         String modelId = textOf(model, "id");
-        if (modelId == null || modelId.isEmpty() || modelId.length() > 128) {
+        if (StringUtils.isEmpty(modelId) || modelId.length() > 128) {
             return null;
         }
         JsonNode cost = model.path("cost");
@@ -266,6 +269,6 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
             return null;
         }
         String text = value.asText(null);
-        return (text == null || text.isEmpty()) ? null : text;
+        return (StringUtils.isEmpty(text)) ? null : text;
     }
 }

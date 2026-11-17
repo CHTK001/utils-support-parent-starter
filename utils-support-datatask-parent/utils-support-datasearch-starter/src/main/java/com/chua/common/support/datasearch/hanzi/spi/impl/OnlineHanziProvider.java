@@ -9,12 +9,12 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 chinese-xinhua 字库的汉字字典提供器（在线 JSON + 内置兜底）。
@@ -30,12 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since 4.0.0.42
  */
 @Spi("chinese-xinhua")
+@Slf4j
 public class OnlineHanziProvider implements HanziProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(OnlineHanziProvider.class);
 
     /**
      * 在线数据源地址
@@ -98,7 +94,7 @@ public class OnlineHanziProvider implements HanziProvider {
     */
     @Override
     public HanziInfo get(String character) {
-        if (character == null || character.isBlank()) {
+        if (StringUtils.isBlank(character)) {
             return null;
         }
         return loadIndex().get(character.trim());
@@ -109,7 +105,7 @@ public class OnlineHanziProvider implements HanziProvider {
     */
     @Override
     public List<HanziInfo> search(String keyword, int limit) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return Collections.emptyList();
         }
         String kw = keyword.trim();

@@ -7,8 +7,6 @@ import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * AtomCode usage parser - parses token usage from local session turn transcripts.
@@ -65,9 +65,8 @@ import reactor.core.scheduler.Schedulers;
  * @since 4.0.0.42
  */
 @Spi("atomcode")
+@Slf4j
 public class AtomCodeUsageParser extends BaseUsageParser {
-
-    private static final Logger log = LoggerFactory.getLogger(AtomCodeUsageParser.class); // 日志
 
     /**
      * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
@@ -108,7 +107,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
 
     static {
         String envHome = System.getenv("ATOMCODE_HOME");
-        if (envHome != null && !envHome.isBlank()) {
+        if (StringUtils.isNotBlank(envHome)) {
             ATOMCODE_HOME = Path.of(envHome);
         } else {
             ATOMCODE_HOME = Path.of(System.getProperty("user.home"), ".atomcode");

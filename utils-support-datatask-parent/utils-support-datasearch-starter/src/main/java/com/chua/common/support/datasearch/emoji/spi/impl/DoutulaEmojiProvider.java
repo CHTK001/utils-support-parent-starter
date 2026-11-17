@@ -12,8 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于「斗图啦」垂直站点的表情包提供器。
@@ -39,12 +39,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("doutula")
+@Slf4j
 public class DoutulaEmojiProvider implements EmojiProvider {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(DoutulaEmojiProvider.class);
 
     /**
      * 站点基础地址（该站点 HTTPS 证书已失效，使用 HTTP 访问）
@@ -102,7 +98,7 @@ public class DoutulaEmojiProvider implements EmojiProvider {
      */
     @Override
     public List<EmojiInfo> search(String keyword, int page) {
-        if (keyword == null || keyword.isBlank()) {
+        if (StringUtils.isBlank(keyword)) {
             return Collections.emptyList();
         }
         List<EmojiInfo> all = load(keyword);

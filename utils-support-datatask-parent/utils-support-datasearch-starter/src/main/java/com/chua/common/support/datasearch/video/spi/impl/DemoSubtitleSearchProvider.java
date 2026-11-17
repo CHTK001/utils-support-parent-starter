@@ -13,13 +13,12 @@ import com.chua.common.support.datasearch.video.spi.SubtitleSearchProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * subhd 字幕搜索提供者。
@@ -32,12 +31,9 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("subhd")
+@Slf4j
 public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
 
-    /**
-     * 日志记录器
-    */
-    private static final Logger log = LoggerFactory.getLogger(DemoSubtitleSearchProvider.class);
     /**
      * subhd 搜索接口地址（当前已 404，仅作兼容保留，正常走 HTML 降级）
     */

@@ -16,12 +16,11 @@ import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
 import com.chua.common.support.datasearch.video.spi.DownloadLinkProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * B站资源提供者实现
@@ -30,12 +29,9 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("bilibili")
+@Slf4j
 public class BilibiliResourceProvider extends AbstractResourceProvider {
 
-    /**
-     * 日志记录器
-    */
-    private static final Logger log = LoggerFactory.getLogger(BilibiliResourceProvider.class);
     /**
      * 哔哩哔哩搜索接口地址
     */

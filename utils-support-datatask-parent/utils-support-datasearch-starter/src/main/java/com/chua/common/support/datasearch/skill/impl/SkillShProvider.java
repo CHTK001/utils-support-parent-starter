@@ -11,14 +11,13 @@ import com.chua.common.support.ai.skill.SkillResult;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * skills.sh 技能市场搜索基础提供器。
@@ -29,12 +28,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 public class SkillShProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(SkillShProvider.class);
 
     /**
      * 名称

@@ -2,8 +2,6 @@ package com.chua.oracle.support.user;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Oracle 创建用户链式步骤实现。
@@ -23,9 +22,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class OracleCreateUserStep implements UserManager.CreateUserStep {
-
-    private static final Logger log = LoggerFactory.getLogger(OracleCreateUserStep.class);
 
     /**
      * 口令白名单：除控制字符与双引号外的任意字符，最长 128

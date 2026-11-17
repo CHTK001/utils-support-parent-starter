@@ -2,8 +2,7 @@ package com.chua.springboot.support.application;
 
 import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.common.support.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 模块环境注册器
@@ -13,11 +12,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 2026/01/14
  */
+@Slf4j
 public class ModuleEnvironmentRegistration {
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(ModuleEnvironmentRegistration.class);
 
     /**
      * 使用配置对象类型作为分组标识，将配置注册到全局环境中。

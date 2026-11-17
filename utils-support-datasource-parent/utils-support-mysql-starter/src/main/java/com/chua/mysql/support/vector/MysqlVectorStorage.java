@@ -5,8 +5,6 @@ import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,6 +15,7 @@ import java.sql.Statement;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于 MySQL 原生 向量 类型的向量存储实现。
@@ -49,9 +48,8 @@ import java.util.Map;
  * @since 4.0.0.42
  * @see <a href="https://dev.mysql.com/doc/refman/9.0/en/vector-type.html">MySQL VECTOR Type</a>
  */
+@Slf4j
 public class MysqlVectorStorage extends AbstractVectorStorage {
-
-    private static final Logger log = LoggerFactory.getLogger(MysqlVectorStorage.class);
 
     /**
      * 相似度分值在元数据中的键名

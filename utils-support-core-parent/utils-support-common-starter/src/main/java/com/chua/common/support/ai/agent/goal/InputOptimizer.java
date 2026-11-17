@@ -2,11 +2,11 @@
 package com.chua.common.support.ai.agent.goal;
 
 import com.chua.common.support.ai.chat.ChatClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 输入优化器：在用户发送前，结合会话上下文与当前目标，把原始输入改写成更明确的指令。
@@ -21,9 +21,8 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class InputOptimizer {
-
-    private static final Logger log = LoggerFactory.getLogger(InputOptimizer.class);
 
     /**
      * 上下文最多带入的字符数（超出部分从最旧开始丢弃）。
@@ -55,13 +54,13 @@ public final class InputOptimizer {
      * @return 优化后的输入；任何异常或空结果都回退为原输入
      */
     public String optimize(String rawInput, SessionGoal goal, List<String> recentContext) {
-        if (rawInput == null || rawInput.isBlank()) {
+        if (StringUtils.isBlank(rawInput)) {
             return rawInput;
         }
         String prompt = buildPrompt(rawInput, goal, recentContext);
         try {
             String optimized = chatClient.chatSync(prompt);
-            if (optimized == null || optimized.isBlank()) {
+            if (StringUtils.isBlank(optimized)) {
                 log.warn("[InputOptimizer] 模型返回空结果，回退原输入");
                 return rawInput;
             }
@@ -114,7 +113,7 @@ public final class InputOptimizer {
         int used = 0;
         for (int i = recentContext.size() - 1; i >= 0; i--) {
             String line = recentContext.get(i);
-            if (line == null || line.isBlank()) {
+            if (StringUtils.isBlank(line)) {
                 continue;
             }
             int cost = line.length() + 1;

@@ -6,8 +6,6 @@ import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -15,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Crush conversation parser.
@@ -41,9 +41,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("crush")
+@Slf4j
 public class CrushConversationParser implements ConversationParser {
-
-    private static final Logger log = LoggerFactory.getLogger(CrushConversationParser.class); // 日志
 
     private static final Path PROJECTS_INDEX = Path.of(
             System.getProperty("user.home"), "AppData", "Local", "crush", "projects.json");
@@ -232,7 +231,7 @@ public class CrushConversationParser implements ConversationParser {
      * @return 结果字符串
      */
     private static String firstNonBlank(String value, String fallback) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             return value;
         }
         return fallback;

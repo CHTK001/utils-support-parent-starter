@@ -1,8 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi;
 
 import com.chua.common.support.collection.wrap.Wraps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Qoder 档位码到模型标识的解析器。
@@ -30,12 +30,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class QoderModelCatalog {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(QoderModelCatalog.class);
 
     /**
      * Qoder 下发显示名的文件
@@ -71,7 +67,7 @@ public final class QoderModelCatalog {
      * @return 模型标识；档位码为空、属计费档位或目录未收录时返回原值
      */
     public static String resolve(String code) {
-        if (code == null || code.isEmpty() || PLAN_TIERS.contains(code)) {
+        if (StringUtils.isEmpty(code) || PLAN_TIERS.contains(code)) {
             return code;
         }
         String model = table().get(code);

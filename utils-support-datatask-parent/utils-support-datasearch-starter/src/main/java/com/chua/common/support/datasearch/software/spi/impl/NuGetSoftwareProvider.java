@@ -8,10 +8,10 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * NuGet 软件包管理器提供器。
@@ -24,12 +24,8 @@ import java.util.concurrent.TimeUnit;
  * @since 4.0.0.42
  */
 @Spi("nuget")
+@Slf4j
 public class NuGetSoftwareProvider implements SoftwareProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(NuGetSoftwareProvider.class);
 
     /**
      * 名称
@@ -189,7 +185,7 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
      * @return lookslike版本的结果
      */
     private boolean looksLikeVersion(String s) {
-        if (s == null || s.isEmpty()) {
+        if (StringUtils.isEmpty(s)) {
             return false;
         }
         // 简单判定: 包含数字且不以纯字母开头(排除 Owners 等列)

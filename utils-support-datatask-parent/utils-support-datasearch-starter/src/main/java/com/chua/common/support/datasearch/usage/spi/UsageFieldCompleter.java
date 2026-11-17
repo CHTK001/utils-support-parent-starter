@@ -5,8 +5,6 @@ import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
 import com.chua.common.support.spi.ServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
@@ -16,6 +14,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * {@link AiUsage} 字段补全器 —— 把各 {@link UsageParser} 只解析了原始 Token 计数的记录，
@@ -41,12 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class UsageFieldCompleter {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(UsageFieldCompleter.class);
 
     /**
      * 单价口径的 Token 基数（定价表单价为 币种 / 百万 Token）
@@ -123,8 +119,8 @@ public final class UsageFieldCompleter {
         }
         String recordCurrency = usage.getCurrency();
         String pricingCurrency = pricing.getCurrency();
-        return recordCurrency != null && !recordCurrency.isBlank()
-                && pricingCurrency != null && !pricingCurrency.isBlank()
+        return StringUtils.isNotBlank(recordCurrency)
+                && StringUtils.isNotBlank(pricingCurrency)
                 && !recordCurrency.equalsIgnoreCase(pricingCurrency);
     }
 
@@ -297,7 +293,7 @@ public final class UsageFieldCompleter {
      * @return 定价表记录，查无时返回 空
      */
     private static ModelDefinition resolvePricing(String provider, String model) {
-        if (model == null || model.isBlank() || pricingUnavailable) {
+        if (StringUtils.isBlank(model) || pricingUnavailable) {
             return null;
         }
         String key = model.trim();

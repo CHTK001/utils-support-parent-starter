@@ -1,14 +1,14 @@
 package com.chua.common.support.lang.datasource.flyway;
 
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.chua.common.support.spi.annotations.SpiDefault;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认脚本方言转换器（兜底实现，支持全部协议）。
@@ -59,6 +59,7 @@ import java.util.regex.Pattern;
  */
 @SpiDefault
 @Spi(value = ScriptConverter.SPI_NAME, order = 0)
+@Slf4j
 public class DefaultScriptConverter implements ScriptConverter {
 
     /**
@@ -200,7 +201,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * at return 仅在字面量外做了替换的 SQL
      */
     protected String replaceOutsideLiterals(String sql, Pattern pattern, String replacement) {
-        if (sql == null || sql.isEmpty() || !pattern.matcher(sql).find()) {
+        if (StringUtils.isEmpty(sql) || !pattern.matcher(sql).find()) {
             return sql;
         }
         StringBuilder out = new StringBuilder(sql.length());
@@ -337,7 +338,6 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 转换告警出口：前缀索引这类「目标方言无等价物」的降级需要留痕，
      * 否则表现为「约束凭空消失」，排查时无从下手。
      */
-    private static final Logger log = LoggerFactory.getLogger(DefaultScriptConverter.class);
     /**
      * 批量方言转换：逐条转换，并在建表语句之后补上由行内索引改写生成的 CREATE INDEX。
      *
@@ -361,7 +361,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         }
         List<String> result = new ArrayList<>();
         for (String statement : statements) {
-            if (statement == null || statement.isBlank()) {
+            if (StringUtils.isBlank(statement)) {
                 continue;
             }
             // 先剥块注释再判断语句类型：运行期的 splitStatements 只跳过 "--" 行注释，
@@ -384,7 +384,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                 // H2 的 LONGTEXT→CLOB / DATETIME→TIMESTAMP / INSERT IGNORE→INSERT 等都在那里。
                 // 若这里直接调 applyTypeAndFunctionMapping，子类规则会被整体绕过。
                 String converted = convert(tableSql, protocol);
-                if (converted != null && !converted.isBlank()) {
+                if (StringUtils.isNotBlank(converted)) {
                     // 生成的 CREATE INDEX 也要改写标识符定界（表名/列名来自原脚本，带反引号）
                     if (NO_BACKTICK_PROTOCOLS.contains(protocol.toLowerCase(Locale.ROOT))) {
                         converted = rewriteBackticks(converted);
@@ -398,7 +398,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                 continue;
             }
             String converted = convert(cleaned, protocol);
-            if (converted != null && !converted.isBlank()) {
+            if (StringUtils.isNotBlank(converted)) {
                 // MySQL 风格的反斜杠转义（\' \" \\）改写为标准 SQL 的写法：
                 //   - \'  -> ''（标准 SQL 用成对单引号表示内嵌单引号）
                 //   - \"  -> ""（同理）
@@ -695,7 +695,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @return 丢弃时返回空串（调用方跳过）；不是前缀索引语句时返回 null
      */
     private String dropPrefixIndexForNonMysql(String sql, String protocol) {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             return null;
         }
         if (MYSQL_PROTOCOLS.contains(protocol == null ? "" : protocol.toLowerCase(Locale.ROOT))) {
@@ -810,7 +810,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      */
     private List<String> splitTopLevel(String text, char sep) {
         List<String> parts = new ArrayList<>();
-        if (text == null || text.isBlank()) {
+        if (StringUtils.isBlank(text)) {
             return parts;
         }
         int depth = 0;
@@ -987,7 +987,7 @@ public class DefaultScriptConverter implements ScriptConverter {
 
     @Override
     public String convert(String statement, String protocol) {
-        if (statement == null || statement.isBlank() || protocol == null) {
+        if (StringUtils.isBlank(statement) || protocol == null) {
             return statement;
         }
         String p = protocol.toLowerCase();
@@ -1357,7 +1357,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         boolean unique = matcher.group(1) != null;
         String indexName = matcher.group(2);
         String columns = matcher.group(3);
-        if (columns == null || columns.isBlank() || indexName == null) {
+        if (StringUtils.isBlank(columns) || indexName == null) {
             return null;
         }
         // 前缀索引：列清单里带 (255) 这类长度限定

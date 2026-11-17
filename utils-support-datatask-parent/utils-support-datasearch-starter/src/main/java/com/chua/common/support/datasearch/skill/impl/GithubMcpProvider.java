@@ -9,6 +9,7 @@ import com.chua.common.support.ai.mcp.McpToolResult;
 import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * GitHub 技能仓库 MCP 提供器。
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.45
  */
+@Slf4j
 @Spi("github")
 public class GithubMcpProvider extends GithubSkillProvider implements McpProvider {
 

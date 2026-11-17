@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 打开router 统一模型指标提供者。
@@ -29,6 +31,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("openrouter")
 public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider {
 
@@ -47,7 +50,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String json = fetchUrl(OPENROUTER_URL);
-        if (json == null || json.isEmpty()) {
+        if (StringUtils.isEmpty(json)) {
             return readClasspathPricing();
         }
         try {
@@ -75,7 +78,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
         List<ModelDefinition> result = Wraps.list();
         for (JsonNode item : data) {
             String fullId = item.path("id").asText(null);
-            if (fullId == null || fullId.isEmpty()) {
+            if (StringUtils.isEmpty(fullId)) {
                 continue;
             }
             String slug = fullId.contains("/") ? fullId.substring(fullId.lastIndexOf('/') + 1) : fullId;
@@ -160,7 +163,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             return null;
         }
         String text = node.asText(null);
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         try {
@@ -183,7 +186,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             return null;
         }
         String text = node.asText(null);
-        if (text == null || text.isEmpty() || "0".equals(text)) {
+        if (StringUtils.isEmpty(text) || "0".equals(text)) {
             return null;
         }
         try {
@@ -260,7 +263,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             return null;
         }
         String text = node.asText(null);
-        return (text == null || text.isEmpty()) ? null : text;
+        return (StringUtils.isEmpty(text)) ? null : text;
     }
 
     /**
@@ -274,7 +277,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             return null;
         }
         String text = node.asText(null);
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         try {

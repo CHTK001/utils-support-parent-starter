@@ -6,11 +6,11 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * ip-api.com IP 定位数据源实现。
@@ -27,9 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Spi("ip-api")
+@Slf4j
 public class IpApiLocationProvider implements LocationProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(IpApiLocationProvider.class); // 日志
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
@@ -64,7 +63,7 @@ public class IpApiLocationProvider implements LocationProvider {
 
     @Override
     public LocationInfo locateIp(String ip) {
-        if (ip == null || ip.isBlank()) {
+        if (StringUtils.isBlank(ip)) {
             return null;
         }
         return locate(ip.trim());

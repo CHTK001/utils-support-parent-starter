@@ -10,9 +10,8 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于在线接口的星座运势提供器（在线 API + 内置兜底）。
@@ -28,12 +27,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("vvhan")
+@Slf4j
 public class OnlineHoroscopeProvider implements HoroscopeProvider {
-
-    /**
-     * 日志
-    */
-    private static final Logger log = LoggerFactory.getLogger(OnlineHoroscopeProvider.class);
 
     /**
      * 在线接口地址模板

@@ -6,8 +6,6 @@ import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -15,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * Goose conversation parser.
@@ -37,9 +37,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("goose")
+@Slf4j
 public class GooseConversationParser implements ConversationParser {
-
-    private static final Logger log = LoggerFactory.getLogger(GooseConversationParser.class); // 日志
 
     private static final String SQL_MESSAGES =
             "SELECT message_id, session_id, role, content_json, created_timestamp "
@@ -58,7 +57,7 @@ public class GooseConversationParser implements ConversationParser {
      */
     private static Path resolveDbPath() {
         String appData = System.getenv("APPDATA");
-        if (appData == null || appData.isBlank()) {
+        if (StringUtils.isBlank(appData)) {
             return null;
         }
         return Path.of(appData, "Block", "goose", "data", "sessions", "sessions.db");
@@ -183,7 +182,7 @@ public class GooseConversationParser implements ConversationParser {
      * @return 结果字符串
      */
     private static String firstNonBlank(String value, String fallback) {
-        if (value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(value)) {
             return value;
         }
         return fallback;

@@ -14,8 +14,6 @@ import com.chua.common.support.datasearch.video.model.VideoSource;
 import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
 import com.chua.common.support.datasearch.video.spi.DownloadLinkProvider;
 import com.google.common.base.Joiner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 豆瓣资源提供者实现。
@@ -42,12 +41,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("douban")
+@Slf4j
 public class DoubanResourceProvider extends AbstractResourceProvider {
-
-    /**
-     * 日志对象。
-     */
-    private static final Logger log = LoggerFactory.getLogger(DoubanResourceProvider.class);
 
     /**
      * 豆瓣搜索接口地址前缀。

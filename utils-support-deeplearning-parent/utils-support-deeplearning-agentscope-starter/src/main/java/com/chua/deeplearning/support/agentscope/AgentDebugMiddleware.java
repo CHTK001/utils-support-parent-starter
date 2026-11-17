@@ -13,8 +13,6 @@ import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.state.AgentState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import io.agentscope.core.middleware.ReasoningInput;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
     /**
      * Agent调试 middleware 类。
      * 拦截Agent推理/执行事件，统计迭代次数、工具调用次数与 token 用量，
@@ -31,9 +31,9 @@ import io.agentscope.core.middleware.ReasoningInput;
      * @since 4.0.0
      */
 
+@Slf4j
 public class AgentDebugMiddleware implements MiddlewareBase {
 
-    private static final Logger log = LoggerFactory.getLogger(AgentDebugMiddleware.class); // 日志
     private static final Set<String> PLAN_TOOLS = Set.of("plan_enter", "plan_write", "plan_exit"); // PLAN_TOOLS
 
     private final String agentId; // Agent标识
@@ -131,7 +131,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
     private ReasoningInput injectFeedback(
             io.agentscope.core.agent.RuntimeContext ctx,
             ReasoningInput input) {
-        if (feedbackInjected || feedback == null || feedback.isBlank() || ctx == null || input == null) {
+        if (feedbackInjected || StringUtils.isBlank(feedback) || ctx == null || input == null) {
             return input;
         }
         try {
@@ -227,7 +227,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
             if (event instanceof ToolCallDeltaEvent argDelta) {
                 String callId = argDelta.getToolCallId();
                 String deltaText = argDelta.getDelta();
-                if (callId != null && deltaText != null && !deltaText.isEmpty()) {
+                if (callId != null && StringUtils.isNotEmpty(deltaText)) {
                     toolCallArgs.computeIfAbsent(callId, key -> new StringBuilder()).append(deltaText);
                 }
             }

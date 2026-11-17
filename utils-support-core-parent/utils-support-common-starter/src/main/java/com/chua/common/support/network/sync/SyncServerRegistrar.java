@@ -4,8 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 同步服务端的注册器：把「起服务」和「让客户端找得到」这两件事绑在一起。
@@ -22,12 +21,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.50
  */
+@Slf4j
 public final class SyncServerRegistrar {
-
-    /**
-     * 日志
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncServerRegistrar.class);
 
     /**
      * 同步通道配置
@@ -71,7 +66,7 @@ public final class SyncServerRegistrar {
         }
         int port = server.getPort();
         if (port <= 0) {
-            LOGGER.warn("[Sync] 服务端未绑定端口，跳过注册, service={}", setting.getServiceName());
+            log.warn("[Sync] 服务端未绑定端口，跳过注册, service={}", setting.getServiceName());
             return;
         }
         String scatterId = setting.effectiveScatterId();
@@ -86,10 +81,10 @@ public final class SyncServerRegistrar {
         try {
             setting.getDiscovery().registerService(setting.getServiceName(), discovery);
             registered = true;
-            LOGGER.info("[Sync] 服务端已注册, service={}, scatterId={}, address={}:{}",
+            log.info("[Sync] 服务端已注册, service={}, scatterId={}, address={}:{}",
                     setting.getServiceName(), scatterId, server.getHost(), port);
         } catch (Exception e) {
-            LOGGER.warn("[Sync] 服务端注册失败, service={}, cause={}", setting.getServiceName(), e.getMessage());
+            log.warn("[Sync] 服务端注册失败, service={}, cause={}", setting.getServiceName(), e.getMessage());
         }
     }
 
@@ -112,7 +107,7 @@ public final class SyncServerRegistrar {
         try {
             setting.getDiscovery().unregisterService(setting.getServiceName(), discovery);
         } catch (Exception e) {
-            LOGGER.warn("[Sync] 服务端注销失败, service={}, cause={}", setting.getServiceName(), e.getMessage());
+            log.warn("[Sync] 服务端注销失败, service={}, cause={}", setting.getServiceName(), e.getMessage());
         }
     }
 

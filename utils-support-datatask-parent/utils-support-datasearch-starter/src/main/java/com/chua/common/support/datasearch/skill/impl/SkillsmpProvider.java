@@ -11,13 +11,12 @@ import com.chua.common.support.ai.skill.SkillResult;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * skillsmp 技能市场搜索基础提供器，封装 MCP 和 Skill 的公共能力。
@@ -28,12 +27,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class SkillsmpProvider {
-
-    /**
-     * 日志
-    */
-    protected static final Logger log = LoggerFactory.getLogger(SkillsmpProvider.class);
 
     /**
      * 名称

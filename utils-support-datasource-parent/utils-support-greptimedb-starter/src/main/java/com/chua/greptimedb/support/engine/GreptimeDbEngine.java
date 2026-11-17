@@ -25,8 +25,6 @@ import io.greptime.models.Err;
 import io.greptime.models.Result;
 import io.greptime.models.Table;
 import io.greptime.models.WriteOk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -38,6 +36,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * greptimedb 时序数据库引擎实现。
@@ -62,12 +62,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("greptimedb")
+@Slf4j
 public class GreptimeDbEngine extends AbstractEngine {
-
-    /**
-     * 日志记录器
-     */
-    private static final Logger log = LoggerFactory.getLogger(GreptimeDbEngine.class);
 
     /**
      * 缺省数据库名
@@ -130,10 +126,10 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return this
      */
     public GreptimeDbEngine setJdbcUrl(String jdbcUrl) {
-        if (jdbcUrl != null && !jdbcUrl.isBlank() && !jdbcUrl.trim().startsWith("jdbc:")) {
+        if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.trim().startsWith("jdbc:")) {
             throw new IllegalArgumentException("JDBC URL 必须以 jdbc: 开头: " + jdbcUrl);
         }
-        this.jdbcUrlOverride = jdbcUrl == null || jdbcUrl.isBlank() ? null : jdbcUrl.trim();
+        this.jdbcUrlOverride = StringUtils.isBlank(jdbcUrl) ? null : jdbcUrl.trim();
         return this;
     }
 
@@ -377,7 +373,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @throws IllegalArgumentException 名称为 空 时抛出
      */
     private static void checkName(String name) {
-        if (name == null || name.isBlank()) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("数据源名称不能为空");
         }
     }
@@ -627,7 +623,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return normalizeColumns的结果
      */
     static String normalizeColumns(String expr, Class<?> entityClass) {
-        if (expr == null || expr.isEmpty()) {
+        if (StringUtils.isEmpty(expr)) {
             return expr == null ? "" : expr;
         }
         List<String[]> rules = columnAliasRules(entityClass);
@@ -666,7 +662,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @param canonical 真实列名
      */
     static void addRule(List<String[]> rules, String variant, String canonical) {
-        if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
+        if (StringUtils.isNotEmpty(variant) && !variant.equals(canonical)
                 && rules.stream().noneMatch(r -> r[0].equals(variant))) {
             rules.add(new String[]{variant, canonical});
         }
@@ -845,7 +841,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @throws IllegalArgumentException SQL 为空时抛出
      */
     private static String requireSql(String sql) {
-        if (sql == null || sql.isBlank()) {
+        if (StringUtils.isBlank(sql)) {
             throw new IllegalArgumentException("SQL 语句不能为空");
         }
         return sql.trim();
@@ -1014,7 +1010,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return 匹配字段，未匹配返回 空
      */
     private static Field findField(Map<String, Field> fields, String column) {
-        if (column == null || column.isEmpty()) {
+        if (StringUtils.isEmpty(column)) {
             return null;
         }
         Field exact = fields.get(column);
@@ -1071,7 +1067,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      */
     private static String databaseOf(GreptimeDbEngineDataSource ds) {
         String db = ds.database();
-        return db == null || db.isEmpty() ? DEFAULT_DATABASE : db;
+        return StringUtils.isEmpty(db) ? DEFAULT_DATABASE : db;
     }
 
     /**
@@ -1111,11 +1107,11 @@ public class GreptimeDbEngine extends AbstractEngine {
      */
     private String resolveJdbcUrl(GreptimeDbEngineDataSource ds) {
         String overrideValue = jdbcUrlOverride;
-        if (overrideValue != null && !overrideValue.isEmpty()) {
+        if (StringUtils.isNotEmpty(overrideValue)) {
             return overrideValue;
         }
         String endpoint = ds.url();
-        if (endpoint == null || endpoint.isEmpty()) {
+        if (StringUtils.isEmpty(endpoint)) {
             throw new IllegalStateException("数据源 " + ds.name()
                     + " 缺少端点信息，请调用 setJdbcUrl 指定 JDBC 地址");
         }

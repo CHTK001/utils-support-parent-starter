@@ -6,8 +6,6 @@ import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Command Code 用量解析器——从本地会话转录中解析 token 用量与费用。
@@ -55,9 +54,8 @@ import reactor.core.scheduler.Schedulers;
  * @since 4.0.0.42
  */
 @Spi("command-code")
+@Slf4j
 public class CommandCodeUsageParser extends BaseUsageParser {
-
-    private static final Logger log = LoggerFactory.getLogger(CommandCodeUsageParser.class);
 
     /**
      * Session transcripts root: ~/.commandcode/projects

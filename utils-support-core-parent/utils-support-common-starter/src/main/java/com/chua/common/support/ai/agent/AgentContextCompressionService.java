@@ -9,10 +9,9 @@ import com.chua.common.support.ai.memory.MemoryEntry;
 import com.chua.common.support.ai.memory.MemoryManager;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 上下文压缩服务——两阶段策略。
@@ -30,8 +29,6 @@ import java.util.List;
  */
 @Slf4j
 public class AgentContextCompressionService implements AgentContextCompressionConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(AgentContextCompressionService.class);
 
     /**
      * 基线快照类型标识
@@ -158,7 +155,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             String baselineSummary = cachedBaselineSummary != null
                     ? cachedBaselineSummary
                     : loadBaselineSummary();
-            if (baselineSummary == null || baselineSummary.isEmpty()) {
+            if (StringUtils.isEmpty(baselineSummary)) {
                 baselineSummary = summarizeBaseline(client, baselineContext);
                 saveBaselineSummary(baselineSummary);
             }
@@ -194,10 +191,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         List<ChatMessage> retained = Wraps.list(fullContext.subList(fullContext.size() - retain, fullContext.size()));
 
         String summary = cachedBaselineSummary;
-        if (summary == null || summary.isEmpty()) {
+        if (StringUtils.isEmpty(summary)) {
             summary = loadBaselineSummary();
         }
-        if (summary != null && !summary.isEmpty()) {
+        if (StringUtils.isNotEmpty(summary)) {
             if (!baselineSaved) {
                 baselineSaved = true;
                 roundsAfterBaseline = 0;
@@ -476,7 +473,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
      * @return 结果列表，无数据时为空列表
      */
     private List<ChatMessage> parseMessages(String correctedText, List<ChatMessage> fallback) {
-        if (correctedText == null || correctedText.isBlank()) {
+        if (StringUtils.isBlank(correctedText)) {
             return fallback;
         }
 

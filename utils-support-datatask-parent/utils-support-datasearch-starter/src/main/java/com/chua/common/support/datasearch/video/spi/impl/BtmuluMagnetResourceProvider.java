@@ -15,8 +15,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -33,6 +31,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 磁力资源提供者（斗图啦同级别的中文磁力站「BT目录」）。
@@ -55,12 +54,8 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("btmulu")
+@Slf4j
 public class BtmuluMagnetResourceProvider extends AbstractResourceProvider {
-
-    /**
-     * 日志
-     */
-    private static final Logger log = LoggerFactory.getLogger(BtmuluMagnetResourceProvider.class);
 
     /**
      * 默认站点地址

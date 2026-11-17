@@ -19,12 +19,12 @@ import com.chua.common.support.task.retry.JdkRetryProvider;
 import com.chua.common.support.task.retry.RetryConfig;
 import com.chua.common.support.task.retry.RetryProvider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认流水线实现。
@@ -62,12 +62,8 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class DefaultPipeline implements Pipeline {
-
-    /**
-     * 流水线布局日志器.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultPipeline.class);
 
     /**
      * 内部属性键 — Structured Streaming任务scope 实例，通过 pipeline上下文.attributes 传递给异步节点。
@@ -553,7 +549,7 @@ public class DefaultPipeline implements Pipeline {
      */
     private <T> void applyExecuteResult(PipelineContext<T> ctx, String nodeId, String result) {
         // 优先级：显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT
-        if (result == null || result.isEmpty() || ctx.getAction() != Action.NEXT) {
+        if (StringUtils.isEmpty(result) || ctx.getAction() != Action.NEXT) {
             return;
         }
         if (!nodeMap.containsKey(result)) {
@@ -589,7 +585,7 @@ public class DefaultPipeline implements Pipeline {
      */
     private <T> boolean recoverToNode(PipelineContext<T> ctx, String nodeId,
                                       Throwable error, String recoveryNodeId) {
-        if (recoveryNodeId == null || recoveryNodeId.isEmpty()) {
+        if (StringUtils.isEmpty(recoveryNodeId)) {
             return false;
         }
         // 验证恢复节点是否存在
@@ -1162,7 +1158,7 @@ public class DefaultPipeline implements Pipeline {
         String recoveryNodeId = null;
         for (PipelineListener listener : listeners) {
             String result = listener.onError(ctx, e);
-            if (result != null && !result.isEmpty()) {
+            if (StringUtils.isNotEmpty(result)) {
                 recoveryNodeId = result;
             }
         }
@@ -1207,7 +1203,7 @@ public class DefaultPipeline implements Pipeline {
      * @param line 线
      */
     private void treePrintln(String line) {
-        LOG.info(line);
+        log.info(line);
         if (countingTreeLines) {
             treeLineCounter++;
         }
@@ -1227,7 +1223,7 @@ public class DefaultPipeline implements Pipeline {
         // 上移光标到上次树的位置，清除旧内容
         if (lastTreeLineCount > 0) {
             // ANSI: 上移 N 行 + 清除从光标到屏幕底部
-            LOG.info("\033[" + lastTreeLineCount + "A\033[0J");
+            log.info("\033[" + lastTreeLineCount + "A\033[0J");
         }
         // 重绘树（带行计数）
         treeLineCounter = 0;

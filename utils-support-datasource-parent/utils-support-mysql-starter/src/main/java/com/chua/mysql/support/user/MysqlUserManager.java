@@ -4,8 +4,6 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserInfo;
 import com.chua.datasource.support.user.UserManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * MySQL 用户管理器 SPI 实现。
@@ -23,9 +22,8 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MysqlUserManager implements UserManager, DataSourceAware {
-
-    private static final Logger log = LoggerFactory.getLogger(MysqlUserManager.class);
 
     /**
      * 数据来源
