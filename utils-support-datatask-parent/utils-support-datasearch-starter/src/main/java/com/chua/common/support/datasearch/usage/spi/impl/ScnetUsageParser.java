@@ -58,8 +58,8 @@ import com.chua.common.support.utils.StringUtils;
  * 输出价 + 推理价分别计价），故产出前把推理量净出输出。若某版本改回互斥口径
  * （{@code reasoning > output}），则原样保留输出，避免净出成 0。</p>
  *
- * <p>本机 {@code cost} 四个分段全为 0（按 SCNet 平台额度计费，客户端不落金额），因此不产出费用与
- * 币种，交给定价补全链路按需推算。</p>
+ * <p>本机 {@code cost} 四个分段全为 0（按 SCNet 平台额度计费，客户端不落金额），因此不产出费用
+ * （{@code totalCost} 留空，币种保持 {@code AiUsage} 的默认 {@code USD}），交给定价补全链路按需推算。</p>
  *
  * <p>另有一层容错：若会话改写成轨迹事件形态（{@code type=model.completed}，助手消息收在
  * {@code data.messagesSnapshot[]}、事件级 {@code data.usage} 为本轮累计值），本解析器只认快照里的
