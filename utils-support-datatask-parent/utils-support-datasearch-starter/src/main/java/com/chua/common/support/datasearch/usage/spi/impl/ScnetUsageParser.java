@@ -24,21 +24,42 @@ import com.chua.common.support.utils.StringUtils;
 /**
  * SCNet 客户端（计算服务）用量解析器。
  *
- * <p>SCNet 客户端的 Agent 运行时把每个会话持久化为扁平 JSONL：
- * {@code ~/.sclaw/agent/sessions/<ISO8601>_<sessionId>.jsonl}（会话目录由
- * {@code ~/.sclaw/agent/sessions} 汇总，目录不存在即视为未安装客户端）。</p>
+ * <p>SCNet 客户端的 Agent 运行时把每个会话持久化为扁平 JSONL，且落在两处并列目录：</p>
+ * <ul>
+ *   <li>{@code ~/.sclaw/agent/sessions/<ISO8601>_<sessionId>.jsonl} —— 全局（非项目）会话；</li>
+ *   <li>{@code ~/.sclaw/agent/projects/<projectId>/sessions/<ISO8601>_<sessionId>.jsonl} ——
+ *       按项目归档的会话，是主要数据源。</li>
+ * </ul>
+ *
+ * <p>两处都要扫：本机实测（2026-11-18）全局目录 2 个文件 400 余条带用量消息，项目目录 21 个文件
+ * 1.1 万余条，只扫全局目录会丢掉 96% 以上的用量（两处 responseId 无交集，不存在跨目录重复计数）。</p>
  *
  * <p>会话行是带 {@code type} 的事件信封，实测出现的类型为 {@code session}、{@code session_info}、
- * {@code model_change}、{@code thinking_level_change}、{@code message}、{@code custom}；用量只挂在
- * {@code type=message} 事件的 {@code message} 上，且只出现在 {@code role=assistant} 的消息里。</p>
+ * {@code model_change}、{@code thinking_level_change}、{@code message}、{@code custom}、
+ * {@code compaction}。用量挂在两处：{@code type=message} 事件的 {@code message.usage}（且只出现在
+ * {@code role=assistant} 的消息里），以及 {@code type=compaction} 事件的顶层 {@code usage}。</p>
+ *
+ * <p>{@code compaction} 是上下文压缩（摘要）调用，输入整段上下文，本机（2026-11-18）81 条、输入中位数
+ * 约 14 万 Token；同文件内没有任何一次 {@code message} 调用的用量段与它相同，属于独立计费调用，必须计入，
+ * 否则长会话被压缩后的大量消耗会漏计。它没有 {@code message} 包壳，也无顶层 {@code model}/
+ * {@code modelId}，模型取 {@code details.budget.model}（本机均记录为 {@code SCNet-Max}）。</p>
  *
  * <p>用量信封取客户端自身写入 assistant 消息的结构，字段口径与相同内核的 OpenClaw 一致：
- * {@code usage.{input,output,cacheRead,cacheWrite,totalTokens,cost.{input,output,cacheRead,
- * cacheWrite,total}}}，并带 {@code role}/{@code model}/{@code stopReason}/{@code timestamp}。
- * 四段 Token 互斥，段和即 {@code totalTokens}（本机 2 个会话 29 条带用量消息全部满足
- * {@code total == input + output + cacheRead + cacheWrite}）；按本仓库约定，{@code inputTokens}
- * 必须含缓存命中，因此产出前把 {@code cacheRead} 与 {@code cacheWrite} 并回输入，命中量单独落在
- * {@code cacheTokens}。</p>
+ * {@code usage.{input,output,cacheRead,cacheWrite,reasoning,totalTokens,cost.{input,output,cacheRead,
+ * cacheWrite,total}}}，并带 {@code role}/{@code model}/{@code provider}/{@code stopReason}/
+ * {@code timestamp}/{@code durationMs}。四段 Token 互斥，段和即 {@code totalTokens}（本机 1.1 万余条
+ * 带用量消息全部满足 {@code total == input + output + cacheRead + cacheWrite}）；按本仓库约定，
+ * {@code inputTokens} 必须含缓存命中，因此产出前把 {@code cacheRead} 与 {@code cacheWrite} 并回输入，
+ * 命中量单独落在 {@code cacheTokens}。</p>
+ *
+ * <p>{@code output} 是含推理的合计（{@code reasoning} 不计入 {@code totalTokens}，且本机项目会话里
+ * {@code reasoning/output} 最大 0.98、无一越界），而仓库口径要求
+ * {@code outputTokens} 不含推理、{@code reasoningTokens} 单列（{@code UsageFieldCompleter} 会按
+ * 输出价 + 推理价分别计价），故产出前把推理量净出输出。若某版本改回互斥口径
+ * （{@code reasoning > output}），则原样保留输出，避免净出成 0。</p>
+ *
+ * <p>本机 {@code cost} 四个分段全为 0（按 SCNet 平台额度计费，客户端不落金额），因此不产出费用与
+ * 币种，交给定价补全链路按需推算。</p>
  *
  * <p>另有一层容错：若会话改写成轨迹事件形态（{@code type=model.completed}，助手消息收在
  * {@code data.messagesSnapshot[]}、事件级 {@code data.usage} 为本轮累计值），本解析器只认快照里的
@@ -48,7 +69,9 @@ import com.chua.common.support.utils.StringUtils;
  * <p>去重键优先取上游响应号（{@code responseId}/{@code id}），缺失时退到消息时间戳，
  * 再缺失才用文件内下标，避免同一调用在相邻事件里被计两次。</p>
  *
- * <p>会话转录不记录请求耗时，故 {@code durationMillis} 留空；{@code startTime} 取消息时间戳。</p>
+ * <p>{@code message.timestamp} 是请求发起时刻（本机实测：发起时刻 + {@code durationMs} 落在
+ * 行级 {@code timestamp} 上），故 {@code startTime} 直接取它、{@code durationMillis} 取
+ * {@code durationMs}，二者相加即为本次调用区间。</p>
  *
  * @author CH
  * @since 4.0.0.45
@@ -73,6 +96,12 @@ public class ScnetUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".sclaw", "agent", "sessions");
 
     /**
+     * 默认项目会话目录：{@code ~/.sclaw/agent/projects}
+     */
+    private static final Path DEFAULT_PROJECT_ROOT = Path.of(
+            System.getProperty("user.home"), ".sclaw", "agent", "projects");
+
+    /**
      * 返回 SCNet 的 SPI 名称。
      *
      * @return {@code "scnet"}
@@ -92,6 +121,24 @@ public class ScnetUsageParser extends BaseUsageParser {
     }
 
     /**
+     * 项目会话根目录，子类可覆写以便测试或支持重定向后的数据目录。
+     *
+     * @return 项目会话根目录
+     */
+    protected Path projectRoot() {
+        return DEFAULT_PROJECT_ROOT;
+    }
+
+    /**
+     * 全部会话根目录：全局会话与项目会话并列，缺一即丢量。
+     *
+     * @return 会话根目录列表
+     */
+    protected List<Path> sessionRoots() {
+        return List.of(sessionRoot(), projectRoot());
+    }
+
+    /**
      * 流式输出全部会话文件中的单次调用用量。
      *
      * @return 用量记录流；会话目录缺失时为空流
@@ -100,7 +147,7 @@ public class ScnetUsageParser extends BaseUsageParser {
     public Flux<AiUsage> streamAll() {
         List<Path> files = listSessionFiles();
         if (files.isEmpty()) {
-            log.debug("[scnet] no session files under {}", sessionRoot());
+            log.debug("[scnet] no session files under {}", sessionRoots());
             return Flux.empty();
         }
         log.info("[scnet] streaming from {} session files", files.size());
@@ -114,17 +161,18 @@ public class ScnetUsageParser extends BaseUsageParser {
      * @return 会话文件列表；目录缺失时为空列表
      */
     protected List<Path> listSessionFiles() {
-        Path root = sessionRoot();
-        if (!Files.isDirectory(root)) {
-            return List.of();
-        }
         List<Path> files = Wraps.list();
-        try (Stream<Path> walk = Files.walk(root)) {
-            walk.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
-                    .forEach(files::add);
-        } catch (IOException e) {
-            log.warn("[scnet] scan {} failed: {}", root, e.getMessage(), e);
+        for (Path root : sessionRoots()) {
+            if (!Files.isDirectory(root)) {
+                continue;
+            }
+            try (Stream<Path> walk = Files.walk(root)) {
+                walk.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
+                        .forEach(files::add);
+            } catch (IOException e) {
+                log.warn("[scnet] scan {} failed: {}", root, e.getMessage(), e);
+            }
         }
         return files;
     }
@@ -269,35 +317,58 @@ public class ScnetUsageParser extends BaseUsageParser {
                 "cacheReadInputTokens", "cached_tokens"));
         int cacheWrite = Math.max(0, firstNonZero(usage, "cacheWrite", "cache_write_tokens",
                 "cacheWriteInputTokens"));
+        int reasoning = Math.max(0, firstNonZero(usage, "reasoning", "reasoningTokens", "reasoning_tokens"));
         if (input <= 0 && output <= 0 && cacheRead <= 0) {
             return null;
         }
         // 客户端把 input / cacheRead / cacheWrite / output 拆成互斥段，段和即 totalTokens；
         // 仓库口径要求 inputTokens 含缓存命中，故先并回再产出，命中量单独上报。
         int promptTokens = Math.max(0, input) + cacheRead + cacheWrite;
-        int outputTokens = Math.max(0, output);
+        // output 是含推理的合计，仓库口径要求输出不含推理、推理单列，否则会被按输出价 + 推理价计两遍；
+        // 若某版本改回互斥口径（推理超过输出），原样保留输出。
+        int outputTokens = reasoning > 0 && reasoning <= output
+                ? output - reasoning : Math.max(0, output);
+        long durationMs = message.get("durationMs").toLongValue(0L);
         JsonNode cost = usage.get("cost");
         BigDecimal totalCost = BigDecimal.valueOf(firstNonZeroDouble(cost, "total", "totalCost", "costUSD"));
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_SCNET)
-                .model(firstNonBlank(message.get("model").toStringValue(),
-                        firstNonBlank(context.get("modelId").toStringValue(),
-                                firstNonBlank(context.get("model").toStringValue(), UNKNOWN_MODEL))))
+                .model(resolveModel(message, context))
                 .requestId(firstNonBlank(message.get("responseId").toStringValue(),
                         message.get("id").toStringValue()))
                 .inputTokens(promptTokens)
                 .outputTokens(outputTokens)
                 .totalTokens(promptTokens + outputTokens)
                 .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead) : null)
-                .reasoningTokens(firstPositive(firstNonZero(usage, "reasoningTokens", "reasoning",
-                        "reasoning_tokens")))
-                .currency("USD")
+                .reasoningTokens(firstPositive(reasoning))
                 .startTime(longOrNull(message.get("timestamp").toLongValue(0L)))
+                .durationMillis(durationMs > 0L ? Long.valueOf(durationMs) : null)
                 .finishReason(message.get("stopReason").toStringValue());
         if (totalCost.signum() > 0) {
-            builder.totalCost(totalCost);
+            builder.totalCost(totalCost).currency("USD");
         }
         return builder.build();
+    }
+
+    /**
+     * 按优先级确定模型名：消息自身字段优先，压缩事件退到 {@code details.budget.model}。
+     *
+     * @param message 消息节点
+     * @param context 承载事件（可能相等）
+     * @return 模型名；全部缺失时返回 {@link #UNKNOWN_MODEL}
+     */
+    private static String resolveModel(JsonNode message, JsonNode context) {
+        String model = message.get("model").toStringValue();
+        if (StringUtils.isBlank(model)) {
+            model = context.get("modelId").toStringValue();
+        }
+        if (StringUtils.isBlank(model)) {
+            model = context.get("model").toStringValue();
+        }
+        if (StringUtils.isBlank(model)) {
+            model = context.get("details").get("budget").get("model").toStringValue();
+        }
+        return firstNonBlank(model, UNKNOWN_MODEL);
     }
 
     /**
