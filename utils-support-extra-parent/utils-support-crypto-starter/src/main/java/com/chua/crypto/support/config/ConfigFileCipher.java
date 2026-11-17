@@ -1,5 +1,6 @@
 package com.chua.crypto.support.config;
 
+import com.chua.common.support.config.EncValue;
 import com.chua.crypto.support.Crypto;
 import com.chua.crypto.support.CryptoException;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Base64;
 
 /**
  * 配置文件加解密器
@@ -178,32 +178,13 @@ public final class ConfigFileCipher {
     }
 
     /**
-     * 判断值是否为 ENC(...) 形态
+     * 判断值是否为 ENC(...) 形态（含内部 Base64 合法性校验）
      *
      * @param value 配置值
      * @return true 表示已包裹加密
      */
     public static boolean isEncryptedValue(String value) {
-        if (value == null || value.length() <= VALUE_PREFIX.length() + VALUE_SUFFIX.length()) {
-            return false;
-        }
-        return value.startsWith(VALUE_PREFIX) && value.endsWith(VALUE_SUFFIX)
-                && isBase64(value.substring(VALUE_PREFIX.length(), value.length() - VALUE_SUFFIX.length()));
-    }
-
-    /**
-     * 校验字符串是否为合法 基础64
-     *
-     * @param text 待校验文本
-     * @return true 表示合法
-     */
-    private static boolean isBase64(String text) {
-        try {
-            Base64.getDecoder().decode(text.trim());
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return EncValue.isEncrypted(value);
     }
 
     /**
