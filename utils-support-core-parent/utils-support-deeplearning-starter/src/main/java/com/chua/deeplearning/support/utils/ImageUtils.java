@@ -657,11 +657,30 @@ public final class ImageUtils {
         if (imageData == null || imageData.length == 0) {
             return null;
         }
-        if (!hasValidEof(imageData)) {
-            return null;
-        }
-        return org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
+        // 不再用 hasValidEof 做硬门槛：真实 JPEG 常在 EOI(FFD9) 之后带
+        // 填充 / EXIF 尾巴，「最后两字节必须是 FFD9」会把合法图片误判成
+        // 截断（实测 1.jpg 入库即被拒，报「imdecode 返回空」）。
+        // 解码成败以解码器实际结果为准：先交给 OpenCV imdecode；解不动的
+        // （CMYK JPEG 等非常规编码）再回退 JDK ImageIO。截断图两个解码器
+        // 都会失败，仍返回 null，不放行坏图。
+        Mat mat = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
                 org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+        if (mat == null || mat.empty()) {
+            if (mat != null) {
+                mat.release();
+                mat = null;
+            }
+            try {
+                BufferedImage bi = javax.imageio.ImageIO.read(
+                        new java.io.ByteArrayInputStream(imageData));
+                if (bi != null) {
+                    mat = toMat(bi);
+                }
+            } catch (Exception e) {
+                // ImageIO 也解不动：保持 null，由调用方按「解码失败」处理
+            }
+        }
+        return mat;
     }
 
     /**
