@@ -500,8 +500,11 @@ public final class OpencodeProjectConfig {
      * 声明 {@code env} 环境变量名，由 {@link OpencodeServerProcess#providerCredential}
      * 在启动子进程时注入；1.x 由隔离数据目录的 {@code auth.json} 提供。</p>
      *
-     * <p>2.x 段刻意不写 {@code npm}：{@code package} 才是 2.x 的实现包字段，
-     * 写错会覆盖内置 provider 的原生协议实现。</p>
+     * <p>1.x 段必须写 {@code npm}：1.x 用它选择 AI SDK 实现包，缺省时 provider 的
+     * API 会被解析成 {@code native}，会话起跑即抛
+     * {@code SessionRunnerModel.UnsupportedApiError: Unsupported API for
+     * <provider>/<model>: native}（实测 1.19.5）。2.x 段刻意不写 {@code npm}：
+     * {@code package} 才是 2.x 的实现包字段，写错会覆盖内置 provider 的原生协议实现。</p>
      *
      * @param root 配置根节点
      */
@@ -516,6 +519,7 @@ public final class OpencodeProjectConfig {
             JsonNode existingLegacy = legacy.get(spec.id());
             ObjectNode node = existingLegacy instanceof ObjectNode object ? object : legacy.putObject(spec.id());
             node.put("name", name);
+            node.put("npm", PACKAGE_OPENAI_COMPATIBLE);
             if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
                 childObject(node, "options").put("baseURL", spec.baseUrl());
             }

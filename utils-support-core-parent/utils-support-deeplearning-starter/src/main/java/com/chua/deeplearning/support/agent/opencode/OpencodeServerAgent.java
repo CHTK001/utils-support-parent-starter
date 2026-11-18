@@ -121,9 +121,24 @@ public class OpencodeServerAgent implements Agent {
     private static final String EVENT_TEXT_DELTA = "session.next.text.delta";
 
     /**
+     * 事件名称：正文开始
+     */
+    private static final String EVENT_TEXT_STARTED = "session.next.text.started";
+
+    /**
+     * 事件名称：正文结束（{@code data.text} 携带完整正文）
+     */
+    private static final String EVENT_TEXT_ENDED = "session.next.text.ended";
+
+    /**
      * 事件名称：思考增量
      */
     private static final String EVENT_REASONING_DELTA = "session.next.reasoning.delta";
+
+    /**
+     * 事件名称：思考结束（{@code data.text} 携带完整思考）
+     */
+    private static final String EVENT_REASONING_ENDED = "session.next.reasoning.ended";
 
     /**
      * 事件名称：工具调用开始
@@ -196,6 +211,11 @@ public class OpencodeServerAgent implements Agent {
     private static final String PERMISSION_REJECT = "reject";
 
     /**
+     * 单步结束原因：仍需继续执行工具（本轮未结束）
+     */
+    private static final String FINISH_TOOL_CALLS = "tool-calls";
+
+    /**
      * 派生 opencode 会话 ID 前缀（满足 OpenAPI 的 {@code ^ses} 约束）
      */
     private static final String SESSION_ID_PREFIX = "ses_";
@@ -219,6 +239,18 @@ public class OpencodeServerAgent implements Agent {
      * 本层生成主 agent 时使用的默认名称
      */
     private static final String DEFAULT_MANAGED_AGENT = "chua";
+
+    /**
+     * 托管 agent 默认启用的内置工具。
+     *
+     * <p>opencode 1.19.x 不会把内置工具集继承给配置里自定义的 agent；不显式列出时，
+     * write/read/bash 等调用一律返回 {@code provider.executed=false}（提示
+     * "Unable to write ..."），表现为「模型能聊天但永远改不了文件」。这里显式启用，
+     * 再由 {@code disabledTools} 覆盖关闭项。</p>
+     */
+    private static final List<String> MANAGED_TOOL_NAMES = List.of(
+            "bash", "edit", "write", "read", "glob", "grep", "list", "patch",
+            "webfetch", "task", "todowrite", "todoread");
 
     /**
      * 单轮默认超时秒数
@@ -1803,10 +1835,21 @@ public class OpencodeServerAgent implements Agent {
     /**
      * 写入 agent 的工具开关覆盖。
      *
-     * @return 工具名 -> false；没有关闭任何工具时返回 null
+     * <p>自定义 agent 不会被 opencode 自动赋予内置工具，必须显式列出；未列出的工具
+     * 调用会直接失败。默认启用 {@link #MANAGED_TOOL_NAMES}，{@link #disabledTools}
+     * 中的关闭项优先。</p>
+     *
+     * @return 工具名 -> 是否启用
      */
     private Map<String, Boolean> toolsOverride() {
-        return disabledTools.isEmpty() ? null : disabledTools;
+        Map<String, Boolean> tools = new LinkedHashMap<>();
+        for (String name : MANAGED_TOOL_NAMES) {
+            tools.put(name, Boolean.TRUE);
+        }
+        if (!disabledTools.isEmpty()) {
+            tools.putAll(disabledTools);
+        }
+        return tools;
     }
 
     /**
@@ -2095,6 +2138,16 @@ public class OpencodeServerAgent implements Agent {
         private volatile OpencodeEventStream stream;
 
         /**
+         * 各正文片段的已下发长度（用于 {@code text.ended} 补齐未走增量的余量）
+         */
+        private final Map<String, Integer> textLengths = new ConcurrentHashMap<>();
+
+        /**
+         * 各思考片段的已下发长度
+         */
+        private final Map<String, Integer> reasoningLengths = new ConcurrentHashMap<>();
+
+        /**
          * 累计输入 token
          */
         private long inputTokens;
@@ -2232,10 +2285,10 @@ public class OpencodeServerAgent implements Agent {
                 SESSION_CURSORS.merge(context.sessionId(), seq, Math::max);
             }
             switch (type) {
-                case EVENT_TEXT_DELTA -> emitDelta(AgentStreamEvent.Type.REASONING_DELTA,
-                        data.path("delta").asText(""));
-                case EVENT_REASONING_DELTA -> emitDelta(AgentStreamEvent.Type.THINKING_DELTA,
-                        data.path("delta").asText(""));
+                case EVENT_TEXT_DELTA -> onTextDelta(data, AgentStreamEvent.Type.REASONING_DELTA, textLengths);
+                case EVENT_TEXT_ENDED -> onTextEnded(data, AgentStreamEvent.Type.REASONING_DELTA, textLengths);
+                case EVENT_REASONING_DELTA -> onTextDelta(data, AgentStreamEvent.Type.THINKING_DELTA, reasoningLengths);
+                case EVENT_REASONING_ENDED -> onTextEnded(data, AgentStreamEvent.Type.THINKING_DELTA, reasoningLengths);
                 case EVENT_TOOL_CALLED -> onToolCalled(data);
                 case EVENT_TOOL_SUCCESS -> onToolResult(data, null);
                 case EVENT_TOOL_FAILED -> onToolResult(data, errorText(data.path("error")));
@@ -2271,6 +2324,42 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
+         * 处理正文/思考增量事件。
+         *
+         * @param data    事件数据
+         * @param type    下发的事件类型
+         * @param lengths 已下发长度表
+         */
+        private void onTextDelta(JsonNode data, AgentStreamEvent.Type type, Map<String, Integer> lengths) {
+            String delta = data.path("delta").asText("");
+            if (StringUtils.isEmpty(delta)) {
+                return;
+            }
+            lengths.merge(data.path("textID").asText(""), delta.length(), Integer::sum);
+            emitDelta(type, delta);
+        }
+
+        /**
+         * 处理正文/思考结束事件：增量缺失时用完整文本补齐，已下发部分不重复。
+         *
+         * <p>opencode 1.19.x 的 {@code text.delta} 为非持久事件，重连或非流式上游只会下发
+         * {@code text.ended}，仅靠增量会整轮无正文；这里以完整文本兜底。</p>
+         *
+         * @param data    事件数据
+         * @param type    下发的事件类型
+         * @param lengths 已下发长度表
+         */
+        private void onTextEnded(JsonNode data, AgentStreamEvent.Type type, Map<String, Integer> lengths) {
+            String textId = data.path("textID").asText("");
+            String full = data.path("text").asText("");
+            int emitted = lengths.getOrDefault(textId, 0);
+            if (full.length() > emitted) {
+                emitDelta(type, full.substring(emitted));
+            }
+            lengths.put(textId, full.length());
+        }
+
+        /**
          * 工具调用开始。
          *
          * @param data 事件数据
@@ -2303,10 +2392,25 @@ public class OpencodeServerAgent implements Agent {
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_RESULT)
                     .agentId(agentId())
-                    .toolName(data.path("tool").asText("tool"))
+                    .toolName(toolNameOf(data))
                     .toolOutput(output)
                     .timestamp(System.currentTimeMillis())
                     .build());
+        }
+
+        /**
+         * 解析工具名：1.19.x 的 {@code tool.success/failed} 只带 {@code callID}。
+         *
+         * @param data 事件数据
+         * @return 工具名
+         */
+        private String toolNameOf(JsonNode data) {
+            String tool = data.path("tool").asText("");
+            if (!tool.isBlank()) {
+                return tool;
+            }
+            String name = data.path("name").asText("");
+            return name.isBlank() ? "tool" : name;
         }
 
         /**
@@ -2364,6 +2468,9 @@ public class OpencodeServerAgent implements Agent {
             cacheTokens += tokens.path("cache").path("read").asLong(0L);
             cost = cost.add(BigDecimal.valueOf(data.path("cost").asDouble(0D)));
             finishReason = data.path("finish").asText(finishReason);
+            if (!FINISH_TOOL_CALLS.equals(data.path("finish").asText(""))) {
+                complete();
+            }
         }
 
         /**

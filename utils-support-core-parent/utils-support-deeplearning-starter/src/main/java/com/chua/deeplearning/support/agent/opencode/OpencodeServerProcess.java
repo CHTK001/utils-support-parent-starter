@@ -177,6 +177,28 @@ public final class OpencodeServerProcess {
     private static final String DEFAULT_USERNAME = "opencode";
 
     /**
+     * 必须从子进程环境中剔除的宿主环境变量。
+     *
+     * <p>背景（2026-11-17 真机定位）：宿主进程若是从另一个 opencode 客户端（OpenChamber
+     * 桌面端/终端）里拉起的，会继承它的 {@code OPENCODE_CONFIG} / {@code OPENCODE_SESSION_ID}。
+     * 子进程于是把**别人的**受管配置当自己的配置加载（该文件里的插件路径在本进程不可用，
+     * 加载即失败），项目 {@code opencode.json} 里的 provider 段随之丢失，
+     * 表现为 {@code SessionRunnerModel.ModelUnavailableError: Model unavailable: agnes/agnes-3.0-flash}
+     * ——模型明明存在、密钥也在。</p>
+     *
+     * <p>本进程的配置口径是「隔离 XDG 目录 + 项目 opencode.json」，与宿主无关，
+     * 因此这些变量一律清掉，避免宿主把自己的会话/配置塞给子进程。</p>
+     */
+    private static final String[] HOST_OPENCODE_ENV = {
+            "OPENCODE_CONFIG",
+            "OPENCODE_CONFIG_DIR",
+            "OPENCODE_CONFIG_CONTENT",
+            "OPENCODE_SESSION_ID",
+            "OPENCODE_CWD",
+            "OPENCODE_TERMINAL"
+    };
+
+    /**
      * 默认启动等待秒数
      */
     private static final long DEFAULT_START_TIMEOUT_SECONDS = 90L;
@@ -487,6 +509,11 @@ public final class OpencodeServerProcess {
         environment.put("XDG_CACHE_HOME", cacheHome.toString());
         environment.put("XDG_STATE_HOME", stateHome.toString());
         environment.put("OPENCODE_DISABLE_AUTOUPDATE", "true");
+        // 宿主（可能是另一个 opencode 客户端）把自己的配置/会话塞进了环境变量，
+        // 子进程会当成自己的加载而解析失败 → 见 HOST_OPENCODE_ENV 的说明。
+        for (String key : HOST_OPENCODE_ENV) {
+            environment.remove(key);
+        }
         // 2.x 只从 provider 声明的 env 变量取密钥（auth.json 在 2.x 不再生效），
         // 变量名必须与 OpencodeProjectConfig#providerEnvName 写入 provider.env 的一致。
         synchronized (providerCredentials) {

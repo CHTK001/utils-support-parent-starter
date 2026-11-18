@@ -205,7 +205,9 @@ public final class OpencodeEventStream implements AutoCloseable {
         closed.set(true);
         closeQuietly(body);
         Thread current = worker;
-        if (current != null) {
+        // 关闭可能由事件回调所在读线程自身触发；此时若 interrupt 自己，会打断回调后
+        // 紧接着在同一线程上执行的业务写入（例如落库），表现为 SocketException: Closed by interrupt。
+        if (current != null && current != Thread.currentThread()) {
             current.interrupt();
         }
     }
