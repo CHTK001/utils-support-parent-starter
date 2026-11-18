@@ -246,6 +246,9 @@ public class DateUtils {
      * 日期_格式化
      */
     private final static String[] DATE_FORMATS = {
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm",
             "yyyy-MM-dd'T'HH:mm:ss.SSS+08:00",
             "E M d H:m:s z yyyy",
             "EEE, d MMM yyyy HH:mm:ss z",
