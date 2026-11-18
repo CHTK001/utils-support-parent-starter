@@ -158,4 +158,59 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>verify-fixtures</id>
+            <!-- 三个示例均为离线自检（视频/音乐 SPI 注册表、SCNet 用量夹具），不发起网络请求。
+                 默认不绑定 verify：根 pom 全局 maven.test.skip=true，常规构建不应被示例拉长；
+                 CI 用 mvn -o verify -Pverify-fixtures 一次性跑完。 -->
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.6.4</version>
+                        <executions>
+                            <execution>
+                                <id>verify-video-spi</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.chua.common.support.datasearch.example.VideoResourceProviderExample</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-music-spi</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.chua.common.support.datasearch.example.MusicSourceProviderExample</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-scnet-usage</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.chua.common.support.datasearch.example.ScnetUsageParserExample</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

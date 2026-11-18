@@ -37,6 +37,25 @@
 
 ---
 
+## 回归自检
+
+三个离线自检已接入 `verify-fixtures` profile，CI 一次跑完（不发起网络请求）：
+
+```bash
+mvn -o verify -Pverify-fixtures
+```
+
+| execution | 校验内容 |
+|---|---|
+| `verify-video-spi` | 视频 SPI 注册表：21 个 `ResourceProvider`、1 个 `SubtitleSearchProvider`、注册名大写可反查、`VideoProviderRegistry` 封禁名单大小写不敏感 |
+| `verify-music-spi` | 音乐 SPI 注册表：`tx`/`netease` 两个音源、编码与名称非空、注册名大写可反查 |
+| `verify-scnet-usage` | SCNet 用量解析夹具：双目录扫描、compaction 事件、缓存/推理拆分、耗时、去重与全零剔除 |
+
+单个示例仍可手动执行，例如 `mvn -o test-compile exec:java@run-video-spi-test`（music / scnet 同理）。
+profiles 默认关闭，常规 `mvn verify` 不会触发这些示例。
+
+---
+
 ## 配置说明
 
 本模块为零配置模块，引入依赖后即可使用。
