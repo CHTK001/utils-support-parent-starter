@@ -162,6 +162,39 @@ public class AgentTrace implements Serializable {
     }
 
     /**
+     * 构建一个区间的结束标记：结束时间取此刻，开始时间由调用方从开始标记带过来。
+     *
+     * <p>与 {@link #end(String, String, String, String)} 的区别是这里把
+     * {@code timestamp} 写成开始时刻，于是同一行就构成完整区间
+     * （{@code endTimestamp - timestamp}），落库与回放不必再跨行配对就能算出耗时。
+     * 工具调用必须走本方法，否则 {@code end()} 的 timestamp 与 endTimestamp
+     * 同为「此刻」，相减恒为 0，前端永远显示不出耗时。</p>
+     *
+     * @param kind           类别
+     * @param agentId        Agent 标识
+     * @param spanId         与开始标记相同的区间标识
+     * @param toolName       工具名（可空）
+     * @param text           文本（可空）
+     * @param startTimestamp 区间开始时间（取自开始标记）；非正数或晚于此刻时退化为此刻
+     * @return span 结束 trace
+     */
+    public static AgentTrace spanEnd(String kind, String agentId, String spanId, String toolName,
+                                     String text, long startTimestamp) {
+        long now = System.currentTimeMillis();
+        long start = startTimestamp > 0 && startTimestamp <= now ? startTimestamp : now;
+        return AgentTrace.builder()
+                .kind(kind)
+                .agentId(agentId)
+                .spanId(spanId)
+                .toolName(toolName)
+                .text(text)
+                .timestamp(start)
+                .endTimestamp(now)
+                .spanEnd(true)
+                .build();
+    }
+
+    /**
      * 生成一个区间标识：agentId + 类别 + 序号 + 当前毫秒。
      *
      * <p>不依赖 UUID 是为了让同一轮的同类 span 标识可读，便于排查；

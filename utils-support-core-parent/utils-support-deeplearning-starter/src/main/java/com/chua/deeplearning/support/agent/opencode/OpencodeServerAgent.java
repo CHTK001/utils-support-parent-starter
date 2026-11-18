@@ -14,6 +14,7 @@ import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
+import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
@@ -2148,6 +2149,30 @@ public class OpencodeServerAgent implements Agent {
         private final Map<String, Integer> reasoningLengths = new ConcurrentHashMap<>();
 
         /**
+         * 已开始但未结束的工具调用：调用键 -> 开始时刻与区间标识。
+         *
+         * <p>1.19.x 的 {@code tool.called} 与 {@code tool.success/failed} 之间只靠
+         * {@code callID} 关联，不记下开始时刻就算不出耗时；而 {@code AgentTrace.end}
+         * 自带的 timestamp 与 endTimestamp 同为「此刻」，相减恒为 0，
+         * 工具行因此一直显示不出秒数。</p>
+         */
+        private final Map<String, ToolSpan> toolSpans = new ConcurrentHashMap<>();
+
+        /**
+         * 工具区间序号：同一轮里多次同名调用也能得到不重复的 spanId
+         */
+        private final AtomicInteger toolSeq = new AtomicInteger(0);
+
+        /**
+         * 工具调用区间：开始毫秒 + 区间标识（开始/结束两条 trace 共享 spanId）。
+         *
+         * @param startAt 开始毫秒
+         * @param spanId  区间标识
+         */
+        private record ToolSpan(long startAt, String spanId) {
+        }
+
+        /**
          * 累计输入 token
          */
         private long inputTokens;
@@ -2372,13 +2397,24 @@ public class OpencodeServerAgent implements Agent {
                 log.warn("[opencode-server] {}，已请求中断", guard.describe());
                 requestInterrupt(context);
             }
+            String spanId = AgentTrace.newSpanId(agentId(), "tool", toolSeq.incrementAndGet());
+            long startAt = System.currentTimeMillis();
+            toolSpans.put(toolKey(data, tool), new ToolSpan(startAt, spanId));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_START)
                     .agentId(agentId())
                     .toolName(tool)
                     .toolInput(input)
-                    .timestamp(System.currentTimeMillis())
+                    .timestamp(startAt)
                     .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                    .kind(AgentTrace.KIND_TOOL_CALL)
+                    .agentId(agentId())
+                    .spanId(spanId)
+                    .toolName(tool)
+                    .text("调用工具: " + tool)
+                    .timestamp(startAt)
+                    .build()));
         }
 
         /**
@@ -2388,14 +2424,36 @@ public class OpencodeServerAgent implements Agent {
          * @param error 错误信息；非空表示失败
          */
         private void onToolResult(JsonNode data, String error) {
+            String toolName = toolNameOf(data);
             String output = error != null ? truncate(error) : truncate(toolContent(data));
+            ToolSpan span = toolSpans.remove(toolKey(data, toolName));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_RESULT)
                     .agentId(agentId())
-                    .toolName(toolNameOf(data))
+                    .toolName(toolName)
                     .toolOutput(output)
                     .timestamp(System.currentTimeMillis())
                     .build());
+            // 结束行同时带上开始时刻：同一行即可算出耗时，落库与刷新回放都不必跨行配对。
+            sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                    AgentTrace.KIND_TOOL_RESULT, agentId(),
+                    span == null ? null : span.spanId(), toolName, output,
+                    span == null ? 0L : span.startAt())));
+        }
+
+        /**
+         * 工具调用键：优先 {@code callID}（1.19.x 的结果事件只带它），否则退回工具名。
+         *
+         * @param data     事件数据
+         * @param toolName 工具名
+         * @return 配对键
+         */
+        private String toolKey(JsonNode data, String toolName) {
+            String callId = data.path("callID").asText("");
+            if (callId.isBlank()) {
+                callId = data.path("callId").asText("");
+            }
+            return callId.isBlank() ? toolName : callId;
         }
 
         /**
@@ -2419,13 +2477,25 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onShellStarted(JsonNode data) {
+            String command = truncate(data.path("command").asText(""));
+            String spanId = AgentTrace.newSpanId(agentId(), "shell", toolSeq.incrementAndGet());
+            long startAt = System.currentTimeMillis();
+            toolSpans.put(toolKey(data, "bash"), new ToolSpan(startAt, spanId));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_START)
                     .agentId(agentId())
                     .toolName("bash")
-                    .toolInput(truncate(data.path("command").asText("")))
-                    .timestamp(System.currentTimeMillis())
+                    .toolInput(command)
+                    .timestamp(startAt)
                     .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                    .kind(AgentTrace.KIND_TOOL_CALL)
+                    .agentId(agentId())
+                    .spanId(spanId)
+                    .toolName("bash")
+                    .text("调用工具: bash")
+                    .timestamp(startAt)
+                    .build()));
         }
 
         /**
@@ -2434,13 +2504,19 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onShellEnded(JsonNode data) {
+            String output = truncate(data.path("output").asText(""));
+            ToolSpan span = toolSpans.remove(toolKey(data, "bash"));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_RESULT)
                     .agentId(agentId())
                     .toolName("bash")
-                    .toolOutput(truncate(data.path("output").asText("")))
+                    .toolOutput(output)
                     .timestamp(System.currentTimeMillis())
                     .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                    AgentTrace.KIND_TOOL_RESULT, agentId(),
+                    span == null ? null : span.spanId(), "bash", output,
+                    span == null ? 0L : span.startAt())));
         }
 
         /**

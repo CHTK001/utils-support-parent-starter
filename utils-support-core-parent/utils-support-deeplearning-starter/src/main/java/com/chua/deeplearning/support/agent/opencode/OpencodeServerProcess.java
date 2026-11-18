@@ -23,8 +23,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import com.chua.common.support.utils.StringUtils;
@@ -90,6 +92,16 @@ public final class OpencodeServerProcess {
      * 状态文件名
      */
     private static final String STATE_FILE = "server.json";
+
+    /**
+     * 状态文件里「启动时已注入环境变量的 provider 集合」的键名。
+     *
+     * <p>2.x 只从 provider 声明的环境变量取密钥，而环境变量只在拉起子进程时注入一次。
+     * 热重启复用遗留进程时，如果其后又登记了新的 provider（例如主会话用 moss、
+     * 自动标题用 agnes），复用到的进程里没有那份密钥，回合会一直 403。
+     * 因此把注入集合落盘，复用前先校验「当前已登记 ⊆ 已注入」，不满足就重启。</p>
+     */
+    private static final String STATE_PROVIDERS = "providers";
 
     /**
      * 日志目录名
@@ -324,15 +336,25 @@ public final class OpencodeServerProcess {
         synchronized (lock) {
             ServerInfo current = info;
             if (current != null && isHealthy(current)) {
-                clearFailure();
-                return current;
+                if (coversRegisteredProviders()) {
+                    clearFailure();
+                    return current;
+                }
+                log.info("[opencode] 正在运行的 server 未注入最新 provider 凭据，重启以补全: {}",
+                        missingProviders());
+                stopPersisted(current);
             }
             ServerInfo persisted = readState();
             if (persisted != null && isHealthy(persisted)) {
-                log.info("[opencode] 复用已存在的 server: {}", persisted.baseUrl());
-                info = persisted;
-                clearFailure();
-                return persisted;
+                if (coversRegisteredProviders()) {
+                    log.info("[opencode] 复用已存在的 server: {}", persisted.baseUrl());
+                    info = persisted;
+                    clearFailure();
+                    return persisted;
+                }
+                log.info("[opencode] 遗留 server 缺少新登记 provider 的密钥，重启以注入: {}",
+                        missingProviders());
+                stopPersisted(persisted);
             }
             destroyCurrent();
             preparing = true;
@@ -516,9 +538,11 @@ public final class OpencodeServerProcess {
         }
         // 2.x 只从 provider 声明的 env 变量取密钥（auth.json 在 2.x 不再生效），
         // 变量名必须与 OpencodeProjectConfig#providerEnvName 写入 provider.env 的一致。
+        List<String> injectedProviders = new ArrayList<>();
         synchronized (providerCredentials) {
             providerCredentials.forEach((providerId, apiKey) -> environment.put(
                     OpencodeProjectConfig.providerEnvName(providerId), apiKey));
+            injectedProviders.addAll(providerCredentials.keySet());
         }
 
         log.info("[opencode] 启动 server: {} (port={}, log={})", binary, port, logFile);
@@ -533,7 +557,7 @@ public final class OpencodeServerProcess {
             destroyCurrent();
             throw new IllegalStateException("opencode server 启动失败（健康检查未通过），日志尾部:\n" + tail);
         }
-        writeState(candidate, process.pid());
+        writeState(candidate, process.pid(), injectedProviders);
         log.info("[opencode] server 就绪: {}", candidate.baseUrl());
         return candidate;
     }
@@ -1007,17 +1031,152 @@ public final class OpencodeServerProcess {
     }
 
     /**
+     * 读取状态文件里记录的「启动时已注入的 provider 集合」。
+     *
+     * <p>老版本状态文件没有该字段，返回空集合：此时只要上层登记过 provider，
+     * 就会被判定为「未覆盖」并重启一次，随后状态文件补上该字段。</p>
+     *
+     * @return provider 集合；无状态文件或字段缺失时为空集合
+     */
+    private Set<String> stateProviders() {
+        Path file = home().resolve(STATE_FILE);
+        if (!Files.isRegularFile(file)) {
+            return Set.of();
+        }
+        try {
+            JsonNode node = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
+            Set<String> providers = new LinkedHashSet<>();
+            node.path(STATE_PROVIDERS).forEach(item -> {
+                String id = item.asText("");
+                if (!id.isBlank()) {
+                    providers.add(id);
+                }
+            });
+            return providers;
+        } catch (IOException e) {
+            log.debug("[opencode] 读取状态文件 provider 集合失败: {}", e.getMessage());
+            return Set.of();
+        }
+    }
+
+    /**
+     * 当前已登记但未注入到运行中 server 的 provider。
+     *
+     * @return provider 标识列表，空表示全部已覆盖
+     */
+    private List<String> missingProviders() {
+        Set<String> injected = stateProviders();
+        List<String> missing = new ArrayList<>();
+        synchronized (providerCredentials) {
+            for (String providerId : providerCredentials.keySet()) {
+                if (!injected.contains(providerId)) {
+                    missing.add(providerId);
+                }
+            }
+        }
+        return missing;
+    }
+
+    /**
+     * 运行中的 server 是否已注入全部已登记 provider 的密钥。
+     *
+     * @return 全部覆盖返回 true
+     */
+    private boolean coversRegisteredProviders() {
+        return missingProviders().isEmpty();
+    }
+
+    /**
+     * 结束一个「非本 JVM 托管」的遗留进程，并清掉它的状态文件。
+     *
+     * <p>{@link #destroyCurrent()} 只处理 {@link #process}，对热重启复用来的
+     * 遗留进程（{@link ServerInfo#managed()} 为 false）无效；此时只能按状态文件里的
+     * pid 结束整个进程树，否则新进程会因端口/配置冲突无法拉起。</p>
+     *
+     * @param candidate 遗留服务信息
+     */
+    private void stopPersisted(ServerInfo candidate) {
+        if (candidate == null) {
+            return;
+        }
+        if (process != null) {
+            destroyCurrent();
+            return;
+        }
+        long pid = readStatePid();
+        if (pid > 0L) {
+            log.info("[opencode] 结束遗留 server 进程 pid={}（{}）", pid, candidate.baseUrl());
+            killProcessTree(pid);
+        }
+        info = null;
+        deleteState();
+    }
+
+    /**
+     * 读取状态文件里记录的进程号。
+     *
+     * @return 进程号；无状态文件或字段缺失返回 0
+     */
+    private long readStatePid() {
+        Path file = home().resolve(STATE_FILE);
+        if (!Files.isRegularFile(file)) {
+            return 0L;
+        }
+        try {
+            JsonNode node = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
+            return node.path("pid").asLong(0L);
+        } catch (IOException e) {
+            log.debug("[opencode] 读取状态文件 pid 失败: {}", e.getMessage());
+            return 0L;
+        }
+    }
+
+    /**
+     * 结束指定 pid 的进程树（先礼后兵）。
+     *
+     * @param pid 进程号
+     */
+    private static void killProcessTree(long pid) {
+        ProcessHandle.of(pid).ifPresent(handle -> {
+            handle.descendants().forEach(child -> {
+                try {
+                    child.destroyForcibly();
+                } catch (Exception e) {
+                    log.debug("[opencode] 强制结束遗留子进程失败: {}", e.getMessage());
+                }
+            });
+            try {
+                handle.destroy();
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(SHUTDOWN_WAIT_SECONDS);
+                while (handle.isAlive() && System.nanoTime() < deadline) {
+                    Thread.sleep(HEALTH_POLL_MILLIS);
+                }
+                if (handle.isAlive()) {
+                    handle.destroyForcibly();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                handle.destroyForcibly();
+            } catch (Exception e) {
+                log.warn("[opencode] 结束遗留 server 进程失败: {}", e.getMessage());
+            }
+        });
+    }
+
+    /**
      * 写入状态文件，供热重启复用。
      *
      * @param candidate 服务信息
      * @param pid       进程号
+     * @param providers 本次启动已注入环境变量的 provider 集合
      */
-    private void writeState(ServerInfo candidate, long pid) {
+    private void writeState(ServerInfo candidate, long pid, List<String> providers) {
         Map<String, Object> state = new LinkedHashMap<>();
         state.put("port", URI.create(candidate.baseUrl()).getPort());
         state.put("username", candidate.username());
         state.put("password", candidate.password());
         state.put("pid", pid);
+        state.put(STATE_PROVIDERS, providers == null ? List.of() : providers);
         state.put("updateTime", System.currentTimeMillis());
         Path file = home().resolve(STATE_FILE);
         try {

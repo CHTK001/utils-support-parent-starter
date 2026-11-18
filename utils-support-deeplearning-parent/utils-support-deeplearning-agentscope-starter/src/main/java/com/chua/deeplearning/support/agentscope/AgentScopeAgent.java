@@ -1186,6 +1186,21 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 取出并移除区间开始时刻。
+     *
+     * @param starts spanId -&gt; 开始毫秒
+     * @param spanId 区间标识（可空）
+     * @return 开始毫秒；没有记录时返回 0，由 {@code AgentTrace.spanEnd} 退化为此刻
+     */
+    private static long spanStart(java.util.Map<String, Long> starts, String spanId) {
+        if (spanId == null) {
+            return 0L;
+        }
+        Long value = starts.remove(spanId);
+        return value == null ? 0L : value;
+    }
+
+    /**
      * 驱动一次 Harness 流式运行（runStream / resumeStream 共用）。
      *
      * @param plan       运行计划
@@ -1233,6 +1248,10 @@ public class AgentScopeAgent implements Agent {
              * 是编的数字，比空着更容易误导人。
              */
             final java.util.Map<String, String> openSpan = Wraps.map();
+            // 区间开始时刻与工具名：结束事件上要一并带出，否则耗时与工具行都拼不出来。
+            // 键统一用 spanId（结束事件只能取回 spanId，取不回调用方原始键）。
+            final java.util.Map<String, Long> spanStartAt = Wraps.map();
+            final java.util.Map<String, String> spanToolName = Wraps.map();
             final int[] spanSeq = {0};
 
             return harnessAgent.streamEvents(plan.userMsg, ctx)
@@ -1258,13 +1277,15 @@ public class AgentScopeAgent implements Agent {
                             } else if (event instanceof ThinkingBlockStartEvent e) {
                                 String spanId = AgentTrace.newSpanId(aid, "think", ++spanSeq[0]);
                                 openSpan.put(spanKey("think", e.getBlockId()), spanId);
+                                spanStartAt.put(spanId, System.currentTimeMillis());
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.spanStart(
                                         AgentTrace.KIND_THINKING, aid, spanId, null, "深度思考")));
                             } else if (event instanceof ThinkingBlockEndEvent e) {
                                 String spanId = takeSpan(openSpan, "think", e.getBlockId());
                                 if (spanId != null) {
-                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
-                                            AgentTrace.KIND_THINKING, aid, spanId, "思考结束")));
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                                            AgentTrace.KIND_THINKING, aid, spanId, null, "思考结束",
+                                            spanStart(spanStartAt, spanId))));
                                 }
                             } else if (event instanceof ThinkingBlockDeltaEvent delta) {
                                 if (delta.getDelta() != null && !delta.getDelta().isEmpty()) {
@@ -1278,6 +1299,8 @@ public class AgentScopeAgent implements Agent {
                                 // 以工具调用 id 为键：一次运行里会有多次同名工具调用，
                                 // 只用工具名会把它们并成一根横条
                                 openSpan.put(spanKey("tool", start.getToolCallId()), spanId);
+                                spanStartAt.put(spanId, System.currentTimeMillis());
+                                spanToolName.put(spanId, toolName);
                                 emitted.add(AgentStreamEvent.builder()
                                         .type(AgentStreamEvent.Type.TOOL_START)
                                         .agentId(aid)
@@ -1290,8 +1313,12 @@ public class AgentScopeAgent implements Agent {
                             } else if (event instanceof ToolResultEndEvent e) {
                                 String spanId = takeSpan(openSpan, "tool", e.getToolCallId());
                                 if (spanId != null) {
-                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
-                                            AgentTrace.KIND_TOOL_RESULT, aid, spanId, "工具执行完成")));
+                                    // 结束行必须带工具名与开始时刻：否则回放按工具名聚合时
+                                    // 这一行被跳过，耗时永远算不出来（用户报障：工具没有用时）。
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                                            AgentTrace.KIND_TOOL_RESULT, aid, spanId,
+                                            spanToolName.remove(spanId), "工具执行完成",
+                                            spanStart(spanStartAt, spanId))));
                                 }
                             } else if (event instanceof ToolCallDeltaEvent d) {
                                 if (d.getDelta() != null && !d.getDelta().isEmpty()) {
@@ -1308,13 +1335,15 @@ public class AgentScopeAgent implements Agent {
                                 // 故用固定键 "model"，靠 takeSpan 在结束事件上取回
                                 String spanId = AgentTrace.newSpanId(aid, "turn", ++spanSeq[0]);
                                 openSpan.put(spanKey("model", null), spanId);
+                                spanStartAt.put(spanId, System.currentTimeMillis());
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.spanStart(
                                         AgentTrace.KIND_TURN, aid, spanId, null, "模型调用")));
                             } else if (event instanceof ModelCallEndEvent end) {
                                 String spanId = takeSpan(openSpan, "model", null);
                                 if (spanId != null) {
-                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
-                                            AgentTrace.KIND_TURN, aid, spanId, "模型调用完成")));
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                                            AgentTrace.KIND_TURN, aid, spanId, null, "模型调用完成",
+                                            spanStart(spanStartAt, spanId))));
                                 }
                                 ChatUsage usage = end.getUsage();
                                 if (usage != null) {

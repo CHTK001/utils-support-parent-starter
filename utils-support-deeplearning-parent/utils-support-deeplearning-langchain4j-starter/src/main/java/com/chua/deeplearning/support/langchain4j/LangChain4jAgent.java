@@ -1310,6 +1310,7 @@ public class LangChain4jAgent implements Agent {
             fireDebug(plan.debugHook, "PRE_REASONING", plan.agentId,
                     "调用模型（流式）", iter + 1);
             String spanId = AgentTrace.newSpanId(plan.agentId, "model", iter);
+            long modelStartAt = System.currentTimeMillis();
             sink.next(AgentStreamEvent.trace(AgentTrace.spanStart(
                     "model", plan.agentId, spanId, null, "model call")));
 
@@ -1320,8 +1321,8 @@ public class LangChain4jAgent implements Agent {
             ChatResponse response = streamOnce(streamingModel, request, plan.agentId, sink, emitted);
             acc.add(response.tokenUsage());
 
-            sink.next(AgentStreamEvent.trace(AgentTrace.end(
-                    "model", plan.agentId, spanId, null)));
+            sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                    "model", plan.agentId, spanId, null, null, modelStartAt)));
             AiMessage aiMessage = response.aiMessage();
             if (aiMessage == null) {
                 break;
@@ -1347,13 +1348,23 @@ public class LangChain4jAgent implements Agent {
                     abortReason = loopGuard.describe();
                     break;
                 }
+                long toolStartAt = System.currentTimeMillis();
+                String toolSpanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
                 sink.next(AgentStreamEvent.builder()
                         .type(AgentStreamEvent.Type.TOOL_START)
                         .agentId(plan.agentId)
                         .toolName(toolRequest.name())
                         .toolInput(toolRequest.arguments())
-                        .timestamp(System.currentTimeMillis())
+                        .timestamp(toolStartAt)
                         .build());
+                sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                        .kind(AgentTrace.KIND_TOOL_CALL)
+                        .agentId(plan.agentId)
+                        .spanId(toolSpanId)
+                        .toolName(toolRequest.name())
+                        .text("调用工具: " + toolRequest.name())
+                        .timestamp(toolStartAt)
+                        .build()));
                 String resultText = executeTool(toolRequest, plan.executors);
                 sink.next(AgentStreamEvent.builder()
                         .type(AgentStreamEvent.Type.TOOL_RESULT)
@@ -1362,8 +1373,11 @@ public class LangChain4jAgent implements Agent {
                         .toolOutput(resultText)
                         .timestamp(System.currentTimeMillis())
                         .build());
-                sink.next(AgentStreamEvent.trace(AgentTrace.of(
-                        AgentTrace.KIND_TOOL_RESULT, plan.agentId, toolRequest.name(), resultText)));
+                // 结束行带开始时刻与工具名：回放按工具名聚合时这一行才不会被跳过，
+                // 也才能算出单次工具耗时（原先只发点事件，工具行永远没有用时）。
+                sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                        AgentTrace.KIND_TOOL_RESULT, plan.agentId, toolSpanId,
+                        toolRequest.name(), resultText, toolStartAt)));
                 results.add(ToolExecutionResultMessage.from(toolRequest, resultText));
             }
             fireDebug(plan.debugHook, "POST_ACTING", plan.agentId,
