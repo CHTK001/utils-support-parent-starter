@@ -132,6 +132,15 @@ public final class OpencodeHttpClient {
     }
 
     /**
+     * 服务基地址（已去掉尾部斜杠）。
+     *
+     * @return 基地址，形如 {@code http://127.0.0.1:4096}
+     */
+    public String baseUrl() {
+        return baseUrl;
+    }
+
+    /**
      * GET 并解析 JSON 响应体。
      *
      * @param path 以 {@code /} 开头的接口路径（可带查询串）

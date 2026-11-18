@@ -71,21 +71,39 @@ import com.chua.common.support.utils.StringUtils;
  *
  * <h3>每轮执行</h3>
  * <ol>
+ *   <li>按 server 实际版本选择契约（{@link OpencodeApiProfile}，探测 {@code GET /api/info}，
+ *       1.19.x 回退 {@code /global/health}）：1.x 用会话级事件流
+ *       {@code GET /api/session/{id}/event?after=<seq>}，2.x 用全局
+ *       {@code GET /api/event} 并按 {@code data.sessionID} 过滤本会话</li>
  *   <li>建立/复用会话（{@code POST /api/session}，携带 {@code location.directory}）</li>
  *   <li>按用户配置切换模型（{@code POST /api/session/{id}/model}）与 agent
  *       （{@code POST /api/session/{id}/agent}）</li>
- *   <li>先从历史最大 {@code durable.seq} 之后订阅
- *       {@code GET /api/session/{id}/event?after=<seq>}，再
- *       {@code POST /api/session/{id}/prompt}，确保不丢事件</li>
+ *   <li>订阅事件流后再发消息：1.19.x 的请求体是 {@code {"prompt":{"text":..}}}，
+ *       2.x 是 {@code {"text":..}}（发错会被 {@code additionalProperties:false} 直接 400）</li>
  *   <li>把事件翻译为 {@link AgentStreamEvent}：正文/思考增量、工具开始/结果、
- *       审批请求、错误、完成</li>
+ *       审批请求、提问/表单、错误、完成；事件名统一归一化
+ *       （{@code session.next.*} → {@code session.*}，{@code permission.v2.asked} →
+ *       {@code permission.asked}，{@code question.v2.asked} → {@code question.asked}）</li>
  * </ol>
  *
+ * <p>两版的终态判定也不同：1.19.x 没有会话级终态，只能靠 {@code session.step.ended}
+ * 的 {@code finish != tool-calls}；2.x 以 {@code session.execution.succeeded/failed/
+ * interrupted} 为准，并在断线重连后读一次 {@code GET /api/session/{id}} 按
+ * {@code outcome} 与 {@code time.busy/idle} 补判，避免漏掉断线窗口里的终态事件。</p>
+ *
  * <h3>人工审批</h3>
- * <p>{@code permission.v2.asked} 事件映射为 {@code CONFIRMATION_REQUEST}（{@code replyId}
- * 为权限请求 ID），本轮 Flux 正常结束；{@link #resumeStream} 通过
- * {@code POST /api/session/{id}/permission/{requestID}/reply} 回传 {@code once|reject}
- * 后，从当前游标继续订阅。</p>
+ * <p>{@code permission.asked}（1.19.x 的 {@code permission.v2.asked}）映射为
+ * {@code CONFIRMATION_REQUEST}（{@code replyId} 为权限请求 ID），本轮 Flux 正常结束；
+ * {@link #resumeStream} 通过 {@code POST /api/session/{id}/permission/{requestID}/reply}
+ * 回传决策：1.19.x 用 {@code {"reply":"once|reject"}}，2.x 用
+ * {@code {"decision":"once|always|reject"}}，随后从当前游标继续订阅。</p>
+ *
+ * <h3>结构化提问</h3>
+ * <p>2.x 把提问改成表单：{@code form.created} 的每个字段映射为一个
+ * {@link com.chua.common.support.ai.agent.AgentQuestion}，答案经
+ * {@code POST /api/session/{id}/form/{formID}/reply} 的 {@code {"answer":{key:value}}}
+ * 回传，并按字段类型还原成布尔/数字/数组。1.19.x 仍走 {@code question.asked} 与
+ * {@code {"answers":[[...]]}}。</p>
  *
  * <h3>安全约束（fail-closed）</h3>
  * <ul>
@@ -117,72 +135,127 @@ public class OpencodeServerAgent implements Agent {
     private static final String SESSION_PATH = "/api/session";
 
     /**
+     * 2.x 全局事件流路径（1.19.x 的会话级流是 {@code /api/session/{id}/event}）
+     */
+    private static final String GLOBAL_EVENT_PATH = "/api/event";
+
+    /**
+     * 1.19.x 事件名前缀：2.x 去掉了这一段，解析前统一归一化
+     */
+    private static final String LEGACY_EVENT_PREFIX = "session.next.";
+
+    /**
+     * 归一化后的事件名前缀
+     */
+    private static final String EVENT_PREFIX = "session.";
+
+    /**
      * 事件名称：正文增量
      */
-    private static final String EVENT_TEXT_DELTA = "session.next.text.delta";
+    private static final String EVENT_TEXT_DELTA = "session.text.delta";
 
     /**
      * 事件名称：正文开始
      */
-    private static final String EVENT_TEXT_STARTED = "session.next.text.started";
+    private static final String EVENT_TEXT_STARTED = "session.text.started";
 
     /**
      * 事件名称：正文结束（{@code data.text} 携带完整正文）
      */
-    private static final String EVENT_TEXT_ENDED = "session.next.text.ended";
+    private static final String EVENT_TEXT_ENDED = "session.text.ended";
 
     /**
      * 事件名称：思考增量
      */
-    private static final String EVENT_REASONING_DELTA = "session.next.reasoning.delta";
+    private static final String EVENT_REASONING_DELTA = "session.reasoning.delta";
 
     /**
      * 事件名称：思考结束（{@code data.text} 携带完整思考）
      */
-    private static final String EVENT_REASONING_ENDED = "session.next.reasoning.ended";
+    private static final String EVENT_REASONING_ENDED = "session.reasoning.ended";
+
+    /**
+     * 事件名称：工具入参开始（{@code data.id}/{@code data.name}）
+     */
+    private static final String EVENT_TOOL_INPUT_STARTED = "session.tool.input.started";
+
+    /**
+     * 事件名称：工具入参结束（{@code data.text} 为入参 JSON 原文）
+     */
+    private static final String EVENT_TOOL_INPUT_ENDED = "session.tool.input.ended";
 
     /**
      * 事件名称：工具调用开始
      */
-    private static final String EVENT_TOOL_CALLED = "session.next.tool.called";
+    private static final String EVENT_TOOL_CALLED = "session.tool.called";
 
     /**
      * 事件名称：工具调用成功
      */
-    private static final String EVENT_TOOL_SUCCESS = "session.next.tool.success";
+    private static final String EVENT_TOOL_SUCCESS = "session.tool.success";
 
     /**
      * 事件名称：工具调用失败
      */
-    private static final String EVENT_TOOL_FAILED = "session.next.tool.failed";
+    private static final String EVENT_TOOL_FAILED = "session.tool.failed";
 
     /**
      * 事件名称：shell 开始
      */
-    private static final String EVENT_SHELL_STARTED = "session.next.shell.started";
+    private static final String EVENT_SHELL_STARTED = "session.shell.started";
 
     /**
      * 事件名称：shell 结束
      */
-    private static final String EVENT_SHELL_ENDED = "session.next.shell.ended";
+    private static final String EVENT_SHELL_ENDED = "session.shell.ended";
 
     /**
      * 事件名称：单步开始
      */
-    private static final String EVENT_STEP_STARTED = "session.next.step.started";
+    private static final String EVENT_STEP_STARTED = "session.step.started";
 
     /**
      * 事件名称：单步结束（含 token 与费用）
      */
-    private static final String EVENT_STEP_ENDED = "session.next.step.ended";
+    private static final String EVENT_STEP_ENDED = "session.step.ended";
 
     /**
      * 事件名称：单步失败
      */
-    private static final String EVENT_STEP_FAILED = "session.next.step.failed";
+    private static final String EVENT_STEP_FAILED = "session.step.failed";
 
     /**
-     * 事件名称：会话错误
+     * 事件名称：一轮执行开始
+     */
+    private static final String EVENT_EXECUTION_STARTED = "session.execution.started";
+
+    /**
+     * 事件名称：一轮执行成功（2.x 的权威终态）
+     */
+    private static final String EVENT_EXECUTION_SUCCEEDED = "session.execution.succeeded";
+
+    /**
+     * 事件名称：一轮执行失败
+     */
+    private static final String EVENT_EXECUTION_FAILED = "session.execution.failed";
+
+    /**
+     * 事件名称：一轮执行被中断
+     */
+    private static final String EVENT_EXECUTION_INTERRUPTED = "session.execution.interrupted";
+
+    /**
+     * 事件名称：会话用量更新（{@code cost}/{@code tokens} 为会话累计值）
+     */
+    private static final String EVENT_USAGE_UPDATED = "session.usage.updated";
+
+    /**
+     * 事件名称：重试已排期
+     */
+    private static final String EVENT_RETRY_SCHEDULED = "session.retry.scheduled";
+
+    /**
+     * 事件名称：会话错误（1.19.x）
      */
     private static final String EVENT_SESSION_ERROR = "session.error";
 
@@ -194,12 +267,32 @@ public class OpencodeServerAgent implements Agent {
     /**
      * 事件名称：权限询问
      */
-    private static final String EVENT_PERMISSION_ASKED = "permission.v2.asked";
+    private static final String EVENT_PERMISSION_ASKED = "permission.asked";
 
     /**
-     * 事件名称：提问（v2 question）
+     * 1.19.x 权限询问的旧事件名
      */
-    private static final String EVENT_QUESTION_ASKED = "question.v2.asked";
+    private static final String LEGACY_EVENT_PERMISSION_ASKED = "permission.v2.asked";
+
+    /**
+     * 事件名称：结构化提问（1.19.x）
+     */
+    private static final String EVENT_QUESTION_ASKED = "question.asked";
+
+    /**
+     * 1.19.x 结构化提问的旧事件名
+     */
+    private static final String LEGACY_EVENT_QUESTION_ASKED = "question.v2.asked";
+
+    /**
+     * 事件名称：表单创建（2.x，替代 question）
+     */
+    private static final String EVENT_FORM_CREATED = "form.created";
+
+    /**
+     * 事件名称：表单已取消
+     */
+    private static final String EVENT_FORM_CANCELLED = "form.cancelled";
 
     /**
      * 权限应答：单次允许
@@ -207,14 +300,44 @@ public class OpencodeServerAgent implements Agent {
     private static final String PERMISSION_ONCE = "once";
 
     /**
+     * 权限应答：永久允许
+     */
+    private static final String PERMISSION_ALWAYS = "always";
+
+    /**
      * 权限应答：拒绝
      */
     private static final String PERMISSION_REJECT = "reject";
 
     /**
+     * 2.x 权限回传字段名
+     */
+    private static final String FIELD_DECISION = "decision";
+
+    /**
+     * 1.19.x 权限回传字段名
+     */
+    private static final String FIELD_REPLY = "reply";
+
+    /**
      * 单步结束原因：仍需继续执行工具（本轮未结束）
      */
     private static final String FINISH_TOOL_CALLS = "tool-calls";
+
+    /**
+     * 会话终态：成功
+     */
+    private static final String OUTCOME_SUCCEEDED = "succeeded";
+
+    /**
+     * 会话终态：失败
+     */
+    private static final String OUTCOME_FAILED = "failed";
+
+    /**
+     * 会话终态：被中断
+     */
+    private static final String OUTCOME_INTERRUPTED = "interrupted";
 
     /**
      * 派生 opencode 会话 ID 前缀（满足 OpenAPI 的 {@code ^ses} 约束）
@@ -412,6 +535,11 @@ public class OpencodeServerAgent implements Agent {
      * 待回答的提问：提问请求 ID -> 各问题的 questionId（顺序与提问顺序一致）
      */
     private final Map<String, List<String>> pendingQuestionIds = new ConcurrentHashMap<>();
+
+    /**
+     * 待回答的 2.x 表单：表单请求 ID -> 字段定义（顺序与字段顺序一致）
+     */
+    private final Map<String, List<FormField>> pendingFormFields = new ConcurrentHashMap<>();
 
     /**
      * 单条工具结果触发截断的字符数上限
@@ -1033,6 +1161,7 @@ public class OpencodeServerAgent implements Agent {
     public void close() {
         closed = true;
         pendingQuestionIds.clear();
+        pendingFormFields.clear();
         Turn turn = activeTurn;
         if (turn != null) {
             turn.closeQuietly();
@@ -1145,13 +1274,14 @@ public class OpencodeServerAgent implements Agent {
         String directory = resolveWorkspace(workspacePath);
         String opencodeSessionId = deriveSessionId(directory);
         OpencodeHttpClient client = serverInfo.newClient(directory);
+        OpencodeApiProfile profile = OpencodeApiProfile.detect(client);
         String sessionPath = SESSION_PATH + "/" + opencodeSessionId;
         if (!exists(client, sessionPath)) {
             createSession(client, opencodeSessionId, directory);
         }
         applyModel(client, sessionPath);
         applyAgent(client, sessionPath);
-        SessionContext context = new SessionContext(client, opencodeSessionId, directory);
+        SessionContext context = new SessionContext(client, opencodeSessionId, directory, profile);
         currentSession = context;
         return context;
     }
@@ -1159,14 +1289,22 @@ public class OpencodeServerAgent implements Agent {
     /**
      * 发送一条用户消息。
      *
+     * <p>两个版本的请求体不同：2.x 直接是 {@code {"text":..}}，1.19.x 包一层
+     * {@code {"prompt":{"text":..}}}。发错会被服务端按 {@code additionalProperties:false}
+     * 直接 400，因此必须按 {@link OpencodeApiProfile} 构造。</p>
+     *
      * @param context 会话上下文
      * @param input   用户输入
      */
     private void sendPrompt(SessionContext context, String input) {
         Map<String, Object> prompt = new LinkedHashMap<>();
         prompt.put("text", input);
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("prompt", prompt);
+        Object body = prompt;
+        if (!context.profile().isV2()) {
+            Map<String, Object> legacy = new LinkedHashMap<>();
+            legacy.put("prompt", prompt);
+            body = legacy;
+        }
         context.client().postJson(SESSION_PATH + "/" + context.sessionId() + "/prompt", body);
     }
 
@@ -1195,24 +1333,56 @@ public class OpencodeServerAgent implements Agent {
                 requestId = replyId;
             }
             String reply = decision.isConfirmed() ? PERMISSION_ONCE : PERMISSION_REJECT;
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("reply", reply);
-            if (StringUtils.isNotBlank(feedback)) {
-                body.put("message", feedback);
-            }
+            Map<String, Object> body = permissionReplyBody(context.profile(), reply, feedback);
             context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
                     + "/permission/" + requestId + "/reply", body);
         }
     }
 
     /**
-     * 回传结构化提问的答案。
+     * 构造权限回传请求体。
+     *
+     * @param profile 契约版本
+     * @param reply   {@code once}/{@code always}/{@code reject}
+     * @param message 附加说明，可为空
+     * @return 请求体
+     */
+    private static Map<String, Object> permissionReplyBody(OpencodeApiProfile profile, String reply,
+                                                           String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(profile.isV2() ? FIELD_DECISION : FIELD_REPLY, reply);
+        if (StringUtils.isNotBlank(message)) {
+            body.put("message", message);
+        }
+        return body;
+    }
+
+    /**
+     * 回传结构化提问/表单的答案。
      *
      * @param context 会话上下文
      * @param replyId 提问请求 ID
      * @param answers 已按提问顺序排好的答案
      */
     private void replyQuestion(SessionContext context, String replyId, List<List<String>> answers) {
+        List<FormField> fields = pendingFormFields.remove(replyId);
+        if (fields != null) {
+            Map<String, Object> answer = new LinkedHashMap<>();
+            for (int i = 0; i < fields.size(); i++) {
+                FormField field = fields.get(i);
+                List<String> values = i < answers.size() ? answers.get(i) : List.of();
+                Object value = field.toValue(values);
+                if (value != null) {
+                    answer.put(field.key(), value);
+                }
+            }
+            pendingQuestionIds.remove(replyId);
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("answer", answer);
+            context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
+                    + "/form/" + replyId + "/reply", body);
+            return;
+        }
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("answers", answers);
         context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
@@ -1543,6 +1713,10 @@ public class OpencodeServerAgent implements Agent {
      * @return 起始游标
      */
     private long resolveCursor(SessionContext context) {
+        if (context.v2()) {
+            // 2.x 没有 /history 接口，全局事件流也不接受 after 游标
+            return 0L;
+        }
         Long cached = SESSION_CURSORS.get(context.sessionId());
         if (cached != null) {
             return cached;
@@ -2081,7 +2255,123 @@ public class OpencodeServerAgent implements Agent {
      * @param sessionId opencode 会话 ID
      * @param directory 工作目录
      */
-    private record SessionContext(OpencodeHttpClient client, String sessionId, String directory) {
+    private record SessionContext(OpencodeHttpClient client, String sessionId, String directory,
+                                  OpencodeApiProfile profile) {
+
+        /**
+         * 是否为 2.x 契约。
+         *
+         * @return true 表示 2.x
+         */
+        private boolean v2() {
+            return profile != null && profile.isV2();
+        }
+    }
+
+    /**
+     * 2.x 表单字段（对应 OpenAPI {@code Form.Field}）。
+     *
+     * <p>{@code AgentQuestion} 只有「文本 + 选项」的表达力，因此非字符串字段在这里
+     * 负责把前端回传的字符串还原成表单要求的 JSON 类型：多选为字符串数组、布尔为
+     * {@code true}/{@code false}、数字为 number。</p>
+     *
+     * @param key   字段键（回传 {@code answer} 的对象键）
+     * @param type  字段类型：{@code string}/{@code number}/{@code integer}/{@code boolean}/{@code multiselect}
+     * @param title 字段标题
+     */
+    private record FormField(String key, String type, String title) {
+
+        /**
+         * 类型：多选
+         */
+        private static final String TYPE_MULTISELECT = "multiselect";
+
+        /**
+         * 类型：布尔
+         */
+        private static final String TYPE_BOOLEAN = "boolean";
+
+        /**
+         * 类型：整数
+         */
+        private static final String TYPE_INTEGER = "integer";
+
+        /**
+         * 类型：数字
+         */
+        private static final String TYPE_NUMBER = "number";
+
+        /**
+         * 类型：外部字段（由外部页面处理，无法在本轮回答）
+         */
+        private static final String TYPE_EXTERNAL = "external";
+
+        /**
+         * 布尔字段的选项值
+         */
+        private static final String VALUE_TRUE = "true";
+
+        /**
+         * 布尔字段的选项值
+         */
+        private static final String VALUE_FALSE = "false";
+
+        /**
+         * 把用户答案转成表单要求的 JSON 值。
+         *
+         * @param values 用户答案（按该字段）
+         * @return 表单值；无有效答案返回 null（该字段不出现在请求体里）
+         */
+        private Object toValue(List<String> values) {
+            List<String> items = values == null ? List.of() : values;
+            switch (type == null ? "" : type) {
+                case TYPE_MULTISELECT -> {
+                    return items.isEmpty() ? null : items;
+                }
+                case TYPE_BOOLEAN -> {
+                    if (items.isEmpty()) {
+                        return null;
+                    }
+                    return Boolean.parseBoolean(items.get(0));
+                }
+                case TYPE_INTEGER -> {
+                    if (items.isEmpty() || StringUtils.isBlank(items.get(0))) {
+                        return null;
+                    }
+                    try {
+                        return Long.parseLong(items.get(0).trim());
+                    } catch (NumberFormatException e) {
+                        return items.get(0);
+                    }
+                }
+                case TYPE_NUMBER -> {
+                    if (items.isEmpty() || StringUtils.isBlank(items.get(0))) {
+                        return null;
+                    }
+                    try {
+                        return Double.parseDouble(items.get(0).trim());
+                    } catch (NumberFormatException e) {
+                        return items.get(0);
+                    }
+                }
+                default -> {
+                    return items.isEmpty() ? null : items.get(0);
+                }
+            }
+        }
+    }
+
+    /**
+     * 会话累计用量的快照（2.x 的 {@code usage.updated} 为会话累计值）。
+     *
+     * @param inputTokens     累计输入 token
+     * @param outputTokens    累计输出 token
+     * @param reasoningTokens 累计推理 token
+     * @param cacheTokens     累计缓存读 token
+     * @param cost            累计费用
+     */
+    private record SessionUsage(long inputTokens, long outputTokens, long reasoningTokens,
+                                long cacheTokens, BigDecimal cost) {
     }
 
     /**
@@ -2164,6 +2454,31 @@ public class OpencodeServerAgent implements Agent {
         private final AtomicInteger toolSeq = new AtomicInteger(0);
 
         /**
+         * 工具调用 ID -> 工具名（2.x 的 {@code tool.input.started} 才带名字）
+         */
+        private final Map<String, String> toolNames = new ConcurrentHashMap<>();
+
+        /**
+         * 本轮是否已经收到 {@code session.execution.started}（断线补判的前提）
+         */
+        private volatile boolean executionStarted;
+
+        /**
+         * 本轮是否已收到 {@code session.usage.updated}
+         */
+        private volatile boolean usageSeen;
+
+        /**
+         * 是否已从 {@code session.step.ended} 拿到按步 token（优先于会话累计值）
+         */
+        private volatile boolean stepTokensSeen;
+
+        /**
+         * 本轮开始前的会话累计用量（2.x 的 {@code usage.updated} 是会话累计值，需减基线）
+         */
+        private SessionUsage usageAtStart;
+
+        /**
          * 工具调用区间：开始毫秒 + 区间标识（开始/结束两条 trace 共享 spanId）。
          *
          * @param startAt 开始毫秒
@@ -2217,14 +2532,107 @@ public class OpencodeServerAgent implements Agent {
          * 建立事件订阅（不阻塞等待握手）。
          *
          * <p>opencode 的 SSE 在首条事件产生前不会下发响应头，若在此阻塞等待“已连接”会白白
-         * 拖慢每一轮；而事件本身带 {@code durable.seq}，稍后建立也只会从游标处补齐，不会丢。
-         * 因此这里发起订阅后立即返回，由调用方紧接着发送 prompt。</p>
+         * 拖慢每一轮；而 1.19.x 的事件带 {@code durable.seq} 游标、2.x 的全局流则靠
+         * {@code onReconnect} 补做终态判断，因此这里发起订阅后立即返回，由调用方紧接着
+         * 发送 prompt。</p>
          */
         private void subscribe() {
-            long after = resolveCursor(context);
-            stream = new OpencodeEventStream(context.client(), context.sessionId(), after,
-                    this::onEvent, this::onStreamError);
+            if (context.v2()) {
+                // 2.x 只有全局流：按 data.sessionID 过滤本会话，避免别的会话把本轮带跑
+                captureUsageBaseline();
+                stream = new OpencodeEventStream(context.client(), context.sessionId(), 0L,
+                        GLOBAL_EVENT_PATH, false, this::belongsToSession,
+                        this::onEvent, this::onStreamError, this::onReconnect);
+            } else {
+                long after = resolveCursor(context);
+                stream = new OpencodeEventStream(context.client(), context.sessionId(), after,
+                        this::onEvent, this::onStreamError);
+            }
             stream.start();
+        }
+
+        /**
+         * 记录本轮开始前的会话累计用量。
+         *
+         * <p>2.x 的 {@code session.usage.updated} 给的是<b>会话累计</b>值，只有减去本轮
+         * 基线才是本轮用量。基线在发 prompt 之前读取，取不到时保持 null，
+         * {@link #onUsageUpdated} 就不会拿累计值冒充本轮值。</p>
+         */
+        private void captureUsageBaseline() {
+            try {
+                JsonNode data = context.client()
+                        .getJson(SESSION_PATH + "/" + context.sessionId()).path("data");
+                JsonNode tokens = data.path("tokens");
+                usageAtStart = new SessionUsage(
+                        tokens.path("input").asLong(0L),
+                        tokens.path("output").asLong(0L),
+                        tokens.path("reasoning").asLong(0L),
+                        tokens.path("cache").path("read").asLong(0L),
+                        BigDecimal.valueOf(data.path("cost").asDouble(0D)));
+            } catch (Exception e) {
+                log.debug("[opencode-server] 读取会话 {} 的用量基线失败: {}",
+                        context.sessionId(), e.getMessage());
+            }
+        }
+
+        /**
+         * 2.x 全局事件是否属于本会话。
+         *
+         * <p>会话类事件的 {@code data.sessionID} 一定存在；{@code server.connected} 等
+         * 全局事件没有该字段，对本轮没有意义，一并丢弃。</p>
+         *
+         * @param node 事件 JSON
+         * @return 是否属于本会话
+         */
+        private boolean belongsToSession(JsonNode node) {
+            JsonNode data = node.path("data");
+            String sessionID = data.path("sessionID").asText("");
+            if (sessionID.isBlank()) {
+                // form.created 把会话 ID 放在 form 里，表单事件没有顶层 sessionID
+                sessionID = data.path("form").path("sessionID").asText("");
+            }
+            if (sessionID.isBlank()) {
+                sessionID = node.path("durable").path("aggregateID").asText("");
+            }
+            return context.sessionId().equals(sessionID);
+        }
+
+        /**
+         * 断线重连后补判终态。
+         *
+         * <p>2.x 的全局事件流不保证补发断线期间的事件，若 {@code execution.succeeded}
+         * 恰好落在断线窗口里，本轮会一直挂到超时。这里在重连后读一次会话状态：
+         * 只有本轮确实已开始（收到过 {@code execution.started}）且会话已从忙碌转为空闲
+         * （{@code time.idle >= time.busy}）时，才按 {@code outcome} 补做结束判断。</p>
+         */
+        private void onReconnect() {
+            if (!context.v2() || !executionStarted || isFinished()) {
+                return;
+            }
+            try {
+                JsonNode data = context.client()
+                        .getJson(SESSION_PATH + "/" + context.sessionId()).path("data");
+                long busy = data.path("time").path("busy").asLong(0L);
+                long idle = data.path("time").path("idle").asLong(0L);
+                if (busy <= 0L || idle < busy) {
+                    // 仍在执行（或从未执行过），继续等事件
+                    return;
+                }
+                String outcome = data.path("outcome").asText("");
+                if (OUTCOME_FAILED.equals(outcome)) {
+                    fail(new IllegalStateException(
+                            "opencode 会话执行失败（断线重连后按会话状态补判）"));
+                } else if (OUTCOME_INTERRUPTED.equals(outcome)) {
+                    finishReason = OUTCOME_INTERRUPTED;
+                    complete();
+                } else {
+                    // succeeded 或暂无 outcome：会话已空闲，按成功收流
+                    complete();
+                }
+            } catch (Exception e) {
+                log.warn("[opencode-server] 断线重连后补判会话 {} 状态失败: {}",
+                        context.sessionId(), e.getMessage());
+            }
         }
 
         /**
@@ -2303,17 +2711,21 @@ public class OpencodeServerAgent implements Agent {
          * @param node 事件 JSON
          */
         private void onEvent(JsonNode node) {
-            String type = node.path("type").asText("");
+            String type = canonicalType(node.path("type").asText(""));
             JsonNode data = node.path("data");
             long seq = node.path("durable").path("seq").asLong(-1L);
             if (seq > 0) {
                 SESSION_CURSORS.merge(context.sessionId(), seq, Math::max);
             }
             switch (type) {
+                case EVENT_TEXT_STARTED -> {
+                    // 正文开始只用于分段，正文本身仍由增量/结束事件下发
+                }
                 case EVENT_TEXT_DELTA -> onTextDelta(data, AgentStreamEvent.Type.REASONING_DELTA, textLengths);
                 case EVENT_TEXT_ENDED -> onTextEnded(data, AgentStreamEvent.Type.REASONING_DELTA, textLengths);
                 case EVENT_REASONING_DELTA -> onTextDelta(data, AgentStreamEvent.Type.THINKING_DELTA, reasoningLengths);
                 case EVENT_REASONING_ENDED -> onTextEnded(data, AgentStreamEvent.Type.THINKING_DELTA, reasoningLengths);
+                case EVENT_TOOL_INPUT_STARTED -> onToolInputStarted(data);
                 case EVENT_TOOL_CALLED -> onToolCalled(data);
                 case EVENT_TOOL_SUCCESS -> onToolResult(data, null);
                 case EVENT_TOOL_FAILED -> onToolResult(data, errorText(data.path("error")));
@@ -2322,12 +2734,52 @@ public class OpencodeServerAgent implements Agent {
                 case EVENT_STEP_STARTED -> onStepStarted();
                 case EVENT_STEP_ENDED -> onStepEnded(data);
                 case EVENT_STEP_FAILED -> onStepFailed(data);
+                case EVENT_EXECUTION_STARTED -> executionStarted = true;
+                case EVENT_EXECUTION_SUCCEEDED -> complete();
+                case EVENT_EXECUTION_FAILED -> fail(new IllegalStateException(errorText(data.path("error"))));
+                case EVENT_EXECUTION_INTERRUPTED -> {
+                    finishReason = data.path("reason").asText("interrupted");
+                    complete();
+                }
+                case EVENT_USAGE_UPDATED -> onUsageUpdated(data);
+                case EVENT_RETRY_SCHEDULED -> log.warn("[opencode-server] 会话 {} 第 {} 次重试（{}ms 后）: {}",
+                        context.sessionId(), data.path("attempt").asInt(0), data.path("at").asLong(0L),
+                        errorText(data.path("error")));
                 case EVENT_SESSION_ERROR -> fail(new IllegalStateException(errorText(data.path("error"))));
                 case EVENT_SESSION_IDLE -> complete();
                 case EVENT_PERMISSION_ASKED -> onPermissionAsked(data);
                 case EVENT_QUESTION_ASKED -> onQuestionAsked(data);
+                case EVENT_FORM_CREATED -> onFormCreated(data.path("form"));
+                case EVENT_FORM_CANCELLED -> {
+                    String formId = data.path("id").asText("");
+                    log.info("[opencode-server] 表单 {} 已被取消", formId);
+                    pendingFormFields.remove(formId);
+                    pendingQuestionIds.remove(formId);
+                }
                 default -> log.trace("[opencode-server] 未处理事件: {}", type);
             }
+        }
+
+        /**
+         * 把 1.19.x / 2.x 的事件名归一化成同一套常量。
+         *
+         * @param type 原始事件名
+         * @return 归一化事件名
+         */
+        private String canonicalType(String type) {
+            if (type == null || type.isEmpty()) {
+                return "";
+            }
+            if (type.startsWith(LEGACY_EVENT_PREFIX)) {
+                return EVENT_PREFIX + type.substring(LEGACY_EVENT_PREFIX.length());
+            }
+            if (LEGACY_EVENT_PERMISSION_ASKED.equals(type)) {
+                return EVENT_PERMISSION_ASKED;
+            }
+            if (LEGACY_EVENT_QUESTION_ASKED.equals(type)) {
+                return EVENT_QUESTION_ASKED;
+            }
+            return type;
         }
 
         /**
@@ -2360,14 +2812,35 @@ public class OpencodeServerAgent implements Agent {
             if (StringUtils.isEmpty(delta)) {
                 return;
             }
-            lengths.merge(data.path("textID").asText(""), delta.length(), Integer::sum);
+            lengths.merge(segmentKey(data), delta.length(), Integer::sum);
             emitDelta(type, delta);
+        }
+
+        /**
+         * 正文/思考分段键。
+         *
+         * <p>1.19.x 用 {@code textID}；2.x 改用 {@code assistantMessageID + ordinal}。
+         * 两者都取不到时退回空键（整轮一段），保证补齐逻辑不会把不同段落串在一起。</p>
+         *
+         * @param data 事件数据
+         * @return 分段键
+         */
+        private String segmentKey(JsonNode data) {
+            String textId = data.path("textID").asText("");
+            if (!textId.isBlank()) {
+                return textId;
+            }
+            String messageId = data.path("assistantMessageID").asText("");
+            if (messageId.isBlank()) {
+                return "";
+            }
+            return messageId + "#" + data.path("ordinal").asInt(0);
         }
 
         /**
          * 处理正文/思考结束事件：增量缺失时用完整文本补齐，已下发部分不重复。
          *
-         * <p>opencode 1.19.x 的 {@code text.delta} 为非持久事件，重连或非流式上游只会下发
+         * <p>opencode 的 {@code text.delta} 为非持久事件，重连或非流式上游只会下发
          * {@code text.ended}，仅靠增量会整轮无正文；这里以完整文本兜底。</p>
          *
          * @param data    事件数据
@@ -2375,13 +2848,26 @@ public class OpencodeServerAgent implements Agent {
          * @param lengths 已下发长度表
          */
         private void onTextEnded(JsonNode data, AgentStreamEvent.Type type, Map<String, Integer> lengths) {
-            String textId = data.path("textID").asText("");
+            String key = segmentKey(data);
             String full = data.path("text").asText("");
-            int emitted = lengths.getOrDefault(textId, 0);
+            int emitted = lengths.getOrDefault(key, 0);
             if (full.length() > emitted) {
                 emitDelta(type, full.substring(emitted));
             }
-            lengths.put(textId, full.length());
+            lengths.put(key, full.length());
+        }
+
+        /**
+         * 工具入参开始：2.x 只在此时携带工具名，先记下来供后续事件配对。
+         *
+         * @param data 事件数据
+         */
+        private void onToolInputStarted(JsonNode data) {
+            String callId = callIdOf(data);
+            String name = data.path("name").asText("");
+            if (!callId.isBlank() && !name.isBlank()) {
+                toolNames.put(callId, name);
+            }
         }
 
         /**
@@ -2390,7 +2876,7 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onToolCalled(JsonNode data) {
-            String tool = data.path("tool").asText("tool");
+            String tool = toolNameOf(data);
             String input = truncate(text(data.path("input")));
             AgentLoopGuard guard = loopGuard;
             if (guard != null && guard.recordToolCall(tool, input)) {
@@ -2427,6 +2913,7 @@ public class OpencodeServerAgent implements Agent {
             String toolName = toolNameOf(data);
             String output = error != null ? truncate(error) : truncate(toolContent(data));
             ToolSpan span = toolSpans.remove(toolKey(data, toolName));
+            toolNames.remove(callIdOf(data));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_RESULT)
                     .agentId(agentId())
@@ -2442,27 +2929,54 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
-         * 工具调用键：优先 {@code callID}（1.19.x 的结果事件只带它），否则退回工具名。
+         * 解析工具调用 ID。
+         *
+         * <p>1.19.x 用 {@code callID}/{@code callId}，2.x 用 {@code id}。</p>
+         *
+         * @param data 事件数据
+         * @return 调用 ID；缺失返回空串
+         */
+        private String callIdOf(JsonNode data) {
+            String callId = data.path("callID").asText("");
+            if (callId.isBlank()) {
+                callId = data.path("callId").asText("");
+            }
+            if (callId.isBlank()) {
+                callId = data.path("id").asText("");
+            }
+            return callId;
+        }
+
+        /**
+         * 工具调用键：优先调用 ID，否则退回工具名。
          *
          * @param data     事件数据
          * @param toolName 工具名
          * @return 配对键
          */
         private String toolKey(JsonNode data, String toolName) {
-            String callId = data.path("callID").asText("");
-            if (callId.isBlank()) {
-                callId = data.path("callId").asText("");
-            }
+            String callId = callIdOf(data);
             return callId.isBlank() ? toolName : callId;
         }
 
         /**
-         * 解析工具名：1.19.x 的 {@code tool.success/failed} 只带 {@code callID}。
+         * 解析工具名。
+         *
+         * <p>1.19.x 的结果事件只带 {@code callID}；2.x 的 {@code tool.called/success}
+         * 连名字都没有，只有 {@code tool.input.started} 带 {@code name}，因此先查登记表，
+         * 再退回事件自带的 {@code tool}/{@code name}。</p>
          *
          * @param data 事件数据
          * @return 工具名
          */
         private String toolNameOf(JsonNode data) {
+            String callId = callIdOf(data);
+            if (!callId.isBlank()) {
+                String known = toolNames.get(callId);
+                if (StringUtils.isNotBlank(known)) {
+                    return known;
+                }
+            }
             String tool = data.path("tool").asText("");
             if (!tool.isBlank()) {
                 return tool;
@@ -2477,10 +2991,11 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onShellStarted(JsonNode data) {
-            String command = truncate(data.path("command").asText(""));
+            JsonNode shell = data.path("shell");
+            String command = truncate(shell.path("command").asText(data.path("command").asText("")));
             String spanId = AgentTrace.newSpanId(agentId(), "shell", toolSeq.incrementAndGet());
             long startAt = System.currentTimeMillis();
-            toolSpans.put(toolKey(data, "bash"), new ToolSpan(startAt, spanId));
+            toolSpans.put(shellKey(data), new ToolSpan(startAt, spanId));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_START)
                     .agentId(agentId())
@@ -2504,8 +3019,11 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onShellEnded(JsonNode data) {
-            String output = truncate(data.path("output").asText(""));
-            ToolSpan span = toolSpans.remove(toolKey(data, "bash"));
+            JsonNode outputNode = data.path("output");
+            String output = truncate(outputNode.isObject()
+                    ? outputNode.path("output").asText(outputNode.toString())
+                    : outputNode.asText(""));
+            ToolSpan span = toolSpans.remove(shellKey(data));
             sink.next(AgentStreamEvent.builder()
                     .type(AgentStreamEvent.Type.TOOL_RESULT)
                     .agentId(agentId())
@@ -2517,6 +3035,20 @@ public class OpencodeServerAgent implements Agent {
                     AgentTrace.KIND_TOOL_RESULT, agentId(),
                     span == null ? null : span.spanId(), "bash", output,
                     span == null ? 0L : span.startAt())));
+        }
+
+        /**
+         * shell 事件配对键：2.x 的终态事件只带 {@code shell.id}。
+         *
+         * @param data 事件数据
+         * @return 配对键
+         */
+        private String shellKey(JsonNode data) {
+            String shellId = data.path("shell").path("id").asText("");
+            if (!shellId.isBlank()) {
+                return shellId;
+            }
+            return toolKey(data, "bash");
         }
 
         /**
@@ -2534,19 +3066,61 @@ public class OpencodeServerAgent implements Agent {
         /**
          * 单步结束：聚合 token 与费用。
          *
+         * <p>1.19.x 没有会话级终态，只能靠「finish 不是 tool-calls」判定本轮结束；
+         * 2.x 有 {@code session.execution.succeeded/failed/interrupted}，终态以它为准，
+         * 这里只做聚合，避免早于 usage 事件收流。</p>
+         *
          * @param data 事件数据
          */
         private void onStepEnded(JsonNode data) {
             JsonNode tokens = data.path("tokens");
-            inputTokens += tokens.path("input").asLong(0L);
-            outputTokens += tokens.path("output").asLong(0L);
+            long stepInput = tokens.path("input").asLong(0L);
+            long stepOutput = tokens.path("output").asLong(0L);
+            if (stepInput > 0L || stepOutput > 0L) {
+                stepTokensSeen = true;
+            }
+            inputTokens += stepInput;
+            outputTokens += stepOutput;
             reasoningTokens += tokens.path("reasoning").asLong(0L);
             cacheTokens += tokens.path("cache").path("read").asLong(0L);
             cost = cost.add(BigDecimal.valueOf(data.path("cost").asDouble(0D)));
             finishReason = data.path("finish").asText(finishReason);
+            if (context.v2()) {
+                return;
+            }
             if (!FINISH_TOOL_CALLS.equals(data.path("finish").asText(""))) {
                 complete();
             }
+        }
+
+        /**
+         * 会话用量更新（2.x 的会话累计值）。
+         *
+         * <p>{@code session.step.ended} 已经给出按步 token 时以它为准；只有在完全没有
+         * 步级 token（个别上游不回报）时才退回会话累计值，并减掉本轮开始前的基线。</p>
+         *
+         * @param data 事件数据
+         */
+        private void onUsageUpdated(JsonNode data) {
+            usageSeen = true;
+            if (stepTokensSeen) {
+                return;
+            }
+            SessionUsage base = usageAtStart;
+            if (base == null) {
+                // 没有基线就分不清本轮与会话历史，宁可只记 finish 原因，也不虚报用量
+                log.debug("[opencode-server] 会话 {} 缺少用量基线，跳过累计用量回填",
+                        context.sessionId());
+                return;
+            }
+            JsonNode tokens = data.path("tokens");
+            inputTokens = Math.max(0L, tokens.path("input").asLong(0L) - base.inputTokens());
+            outputTokens = Math.max(0L, tokens.path("output").asLong(0L) - base.outputTokens());
+            reasoningTokens = Math.max(0L, tokens.path("reasoning").asLong(0L) - base.reasoningTokens());
+            cacheTokens = Math.max(0L, tokens.path("cache").path("read").asLong(0L) - base.cacheTokens());
+            BigDecimal total = BigDecimal.valueOf(data.path("cost").asDouble(0D));
+            BigDecimal delta = total.subtract(base.cost());
+            cost = delta.signum() > 0 ? delta : BigDecimal.ZERO;
         }
 
         /**
@@ -2604,6 +3178,92 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
+         * 表单询问：翻译为 QUESTION_REQUEST 并暂停本轮，等待 {@link #answerQuestion} 回传答案。
+         *
+         * <p>2.x 把结构化提问改成了表单：一个表单可含多个字段，答案按键值回传。这里把每个
+         * 可回答字段映射成一个 {@link AgentQuestion}，并把字段定义按顺序存入
+         * {@link #pendingFormFields}，供回传时还原成表单要求的 JSON 类型。</p>
+         *
+         * @param form {@code form.created} 里的 {@code data.form}
+         */
+        private void onFormCreated(JsonNode form) {
+            if (form == null || form.isMissingNode() || form.isNull()) {
+                log.warn("[opencode-server] 收到缺少 form 的 form.created，已忽略");
+                return;
+            }
+            String formId = form.path("id").asText("");
+            if (formId.isBlank()) {
+                log.warn("[opencode-server] 收到缺少 ID 的 form.created，已忽略");
+                return;
+            }
+            String sessionID = form.path("sessionID").asText("");
+            if (!sessionID.isBlank() && !context.sessionId().equals(sessionID)) {
+                return;
+            }
+            String formTitle = form.path("title").asText("");
+            List<AgentQuestion> questions = new ArrayList<>();
+            List<String> questionIds = new ArrayList<>();
+            List<FormField> fields = new ArrayList<>();
+            JsonNode items = form.path("fields");
+            int index = 0;
+            if (items.isArray()) {
+                for (JsonNode item : items) {
+                    int ordinal = index++;
+                    String key = item.path("key").asText("");
+                    String type = item.path("type").asText("");
+                    if (key.isBlank() || type.isBlank()) {
+                        continue;
+                    }
+                    if (item.path("hidden").asBoolean(false)) {
+                        continue;
+                    }
+                    if (FormField.TYPE_EXTERNAL.equals(type)) {
+                        log.warn("[opencode-server] 表单 {} 的字段 {} 是 external 类型（由外部页面处理），"
+                                + "本轮无法回答，已跳过", formId, key);
+                        continue;
+                    }
+                    List<String> options = new ArrayList<>();
+                    JsonNode optionNodes = item.path("options");
+                    if (optionNodes.isArray()) {
+                        for (JsonNode option : optionNodes) {
+                            // 回传的是 option.value，界面展示 label
+                            String value = option.path("value").asText("");
+                            String label = option.path("label").asText("");
+                            String answer = value.isBlank() ? label : value;
+                            if (!answer.isBlank()) {
+                                options.add(answer);
+                            }
+                        }
+                    }
+                    if (FormField.TYPE_BOOLEAN.equals(type)) {
+                        options.add(FormField.VALUE_TRUE);
+                        options.add(FormField.VALUE_FALSE);
+                    }
+                    String title = item.path("title").asText("");
+                    String questionId = formId + "#" + ordinal;
+                    questionIds.add(questionId);
+                    fields.add(new FormField(key, type, title));
+                    questions.add(AgentQuestion.builder()
+                            .id(questionId)
+                            .header(formTitle)
+                            .question(title.isBlank() ? key : title)
+                            .options(options)
+                            .multiple(FormField.TYPE_MULTISELECT.equals(type))
+                            .custom(item.path("custom").asBoolean(options.isEmpty()))
+                            .build());
+                }
+            }
+            if (questions.isEmpty()) {
+                log.warn("[opencode-server] 表单 {} 没有可回答的字段，无法生成提问", formId);
+                return;
+            }
+            pendingFormFields.put(formId, fields);
+            pendingQuestionIds.put(formId, questionIds);
+            sink.next(AgentStreamEvent.questionRequest(agentId(), formId, questions));
+            pause();
+        }
+
+        /**
          * 权限询问：shell 禁令直接拒绝，其余转人工审批。
          *
          * @param data 事件数据
@@ -2634,9 +3294,7 @@ public class OpencodeServerAgent implements Agent {
          * @param message   拒绝原因
          */
         private void rejectPermission(String requestId, String message) {
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("reply", PERMISSION_REJECT);
-            body.put("message", message);
+            Map<String, Object> body = permissionReplyBody(context.profile(), PERMISSION_REJECT, message);
             try {
                 context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
                         + "/permission/" + requestId + "/reply", body);
@@ -2748,6 +3406,10 @@ public class OpencodeServerAgent implements Agent {
          * @return 用量
          */
         private AiUsage buildUsage() {
+            if (context.v2() && !usageSeen && !stepTokensSeen) {
+                log.warn("[opencode-server] 会话 {} 本轮没有收到任何用量事件，用量按 0 上报",
+                        context.sessionId());
+            }
             long total = inputTokens + outputTokens;
             ModelRef ref = resolveModelRef();
             return AiUsage.builder()

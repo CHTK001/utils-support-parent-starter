@@ -84,9 +84,14 @@ public final class OpencodeServerProcess {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-     * 健康检查路径
+     * 健康检查路径（1.19.x）
      */
     private static final String HEALTH_PATH = "/global/health";
+
+    /**
+     * 版本/健康探测路径（2.x）
+     */
+    private static final String INFO_PATH = "/api/info";
 
     /**
      * 状态文件名
@@ -475,9 +480,25 @@ public final class OpencodeServerProcess {
         if (candidate == null || candidate.baseUrl() == null || candidate.baseUrl().isBlank()) {
             return false;
         }
+        // 1.19.x：/global/health 返回 {"healthy":true}
+        if (probe(candidate, HEALTH_PATH, "healthy")) {
+            return true;
+        }
+        // 2.x：/global/health 交给前端 SPA（HTML），健康信息在 /api/info 的 version/pid 上
+        return probe(candidate, INFO_PATH, "version");
+    }
+
+    /**
+     * 探测一个 JSON 健康字段。
+     *
+     * @param candidate 候选服务信息
+     * @param path      接口路径
+     * @param field     必须存在的字段名
+     * @return 是否为健康响应
+     */
+    private boolean probe(ServerInfo candidate, String path, String field) {
         try {
-            HttpRequest.Builder builder = HttpRequest.newBuilder(
-                            URI.create(candidate.baseUrl() + HEALTH_PATH))
+            HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(candidate.baseUrl() + path))
                     .timeout(HEALTH_TIMEOUT)
                     .header("Accept", "application/json")
                     .GET();
@@ -490,7 +511,12 @@ public final class OpencodeServerProcess {
                 return false;
             }
             JsonNode node = MAPPER.readTree(response.body());
-            return node.path("healthy").asBoolean(false);
+            JsonNode value = node.get(field);
+            if (value == null || value.isNull()) {
+                return false;
+            }
+            // healthy 是布尔契约；version 只要求存在（文本）
+            return !"healthy".equals(field) || value.asBoolean(false);
         } catch (Exception e) {
             return false;
         }

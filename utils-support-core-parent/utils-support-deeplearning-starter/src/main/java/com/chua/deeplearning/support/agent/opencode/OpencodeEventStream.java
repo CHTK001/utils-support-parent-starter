@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * opencode 会话持久事件流（SSE）。
@@ -69,9 +70,14 @@ public final class OpencodeEventStream implements AutoCloseable {
     private static final String COMMENT_PREFIX = ":";
 
     /**
-     * 会话事件路径模板
+     * 会话事件路径模板（1.x）
      */
     private static final String PATH_TEMPLATE = "/api/session/%s/event";
+
+    /**
+     * 续播查询串模板（仅 1.x 支持）
+     */
+    private static final String AFTER_QUERY = "?after=";
 
     /**
      * 重连初始退避（毫秒）
@@ -114,6 +120,26 @@ public final class OpencodeEventStream implements AutoCloseable {
     private final Consumer<Throwable> onError;
 
     /**
+     * 断线重连回调（每次重新建立连接后触发，用于补做断线期间丢失的终态判断）
+     */
+    private final Runnable onReconnect;
+
+    /**
+     * 事件流路径
+     */
+    private final String streamPath;
+
+    /**
+     * 是否支持 {@code after} 游标续播（2.x 的全局流不支持）
+     */
+    private final boolean resumable;
+
+    /**
+     * 事件过滤（2.x 全局流按 {@code data.sessionID} 过滤其它会话）
+     */
+    private final Predicate<JsonNode> filter;
+
+    /**
      * 关闭标记
      */
     private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -139,7 +165,7 @@ public final class OpencodeEventStream implements AutoCloseable {
     private volatile InputStream body;
 
     /**
-     * 构造事件流。
+     * 构造 1.x 会话级事件流（带 {@code after} 游标续播）。
      *
      * @param client    事件流客户端
      * @param sessionId opencode 会话 ID
@@ -149,11 +175,40 @@ public final class OpencodeEventStream implements AutoCloseable {
      */
     public OpencodeEventStream(OpencodeHttpClient client, String sessionId, long after,
                                Consumer<JsonNode> onEvent, Consumer<Throwable> onError) {
+        this(client, sessionId, after, String.format(PATH_TEMPLATE, sessionId), true, null,
+                onEvent, onError, null);
+    }
+
+    /**
+     * 构造事件流。
+     *
+     * <p>2.x 只提供全局 {@code GET /api/event}：它<b>不</b>接受 {@code after} 游标，
+     * 也不保证断线期间的事件可补发，因此调用方必须传入 {@code filter} 只放行本会话事件，
+     * 并通过 {@code onReconnect} 在重连后补做终态判断。</p>
+     *
+     * @param client      事件流客户端
+     * @param sessionId   opencode 会话 ID（仅用于线程名与日志）
+     * @param after       起始游标（{@code resumable=false} 时忽略）
+     * @param streamPath  事件流路径
+     * @param resumable   是否支持 {@code after} 游标
+     * @param filter      事件过滤；null 表示全部放行
+     * @param onEvent     事件回调
+     * @param onError     错误回调
+     * @param onReconnect 重连回调；可为 null
+     */
+    public OpencodeEventStream(OpencodeHttpClient client, String sessionId, long after,
+                               String streamPath, boolean resumable, Predicate<JsonNode> filter,
+                               Consumer<JsonNode> onEvent, Consumer<Throwable> onError,
+                               Runnable onReconnect) {
         this.client = client;
         this.sessionId = sessionId;
         this.cursor = Math.max(after, 0L);
+        this.streamPath = streamPath;
+        this.resumable = resumable;
+        this.filter = filter;
         this.onEvent = onEvent;
         this.onError = onError;
+        this.onReconnect = onReconnect;
     }
 
     /**
@@ -218,6 +273,7 @@ public final class OpencodeEventStream implements AutoCloseable {
     private void loop() {
         int failures = 0;
         long backoff = INITIAL_BACKOFF_MILLIS;
+        boolean first = true;
         while (!closed.get()) {
             try {
                 HttpResponse<InputStream> response = client.openStream(path());
@@ -225,6 +281,10 @@ public final class OpencodeEventStream implements AutoCloseable {
                 connected.countDown();
                 failures = 0;
                 backoff = INITIAL_BACKOFF_MILLIS;
+                if (!first) {
+                    notifyReconnect();
+                }
+                first = false;
                 readStream(body);
             } catch (Throwable t) {
                 connected.countDown();
@@ -311,6 +371,10 @@ public final class OpencodeEventStream implements AutoCloseable {
             return;
         }
         long seq = node.path("durable").path("seq").asLong(-1L);
+        if (filter != null && !filter.test(node)) {
+            // 全局流里其它会话的事件不能推进本会话游标
+            return;
+        }
         if (seq > cursor) {
             cursor = seq;
         }
@@ -318,6 +382,20 @@ public final class OpencodeEventStream implements AutoCloseable {
             onEvent.accept(node);
         } catch (Throwable t) {
             log.warn("[opencode] 事件回调失败（已忽略该事件）: {}", t.getMessage());
+        }
+    }
+
+    /**
+     * 通知重连回调。
+     */
+    private void notifyReconnect() {
+        if (onReconnect == null) {
+            return;
+        }
+        try {
+            onReconnect.run();
+        } catch (Throwable t) {
+            log.warn("[opencode] 重连回调失败: {}", t.getMessage());
         }
     }
 
@@ -343,8 +421,10 @@ public final class OpencodeEventStream implements AutoCloseable {
      * @return 路径
      */
     private String path() {
-        String base = String.format(PATH_TEMPLATE, sessionId);
-        return cursor > 0 ? base + "?after=" + cursor : base;
+        if (!resumable) {
+            return streamPath;
+        }
+        return cursor > 0 ? streamPath + AFTER_QUERY + cursor : streamPath;
     }
 
     /**
