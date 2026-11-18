@@ -90,7 +90,7 @@ import com.chua.common.support.utils.StringUtils;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "custom"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "opencode", "custom"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
@@ -102,6 +102,16 @@ public class OpenAiChatClient implements ChatClient {
      * Kilo 免费模型网关默认 API 地址（provider=kilo 且未配置 baseUrl 时使用）
      */
     private static final String KILO_DEFAULT_URL = "https://api.kilo.ai/api/gateway";
+
+    /**
+     * OpenCode Zen 推理网关默认 API 地址（provider=opencode 且未配置 baseUrl 时使用）。
+     *
+     * <p>与账号模块 {@code OpencodeAccountChannelAuthManager} 的 {@code toRouteTarget}
+     * 保持同一口径：它把渠道转成 OpenAI 兼容路由时用的就是
+     * {@code https://opencode.ai/inference/v1}。渠道行走的是直连（账号绑定在本人名下），
+     * 这里缺了默认地址会落到 OpenAI 官方域名，报 401/404。</p>
+     */
+    private static final String OPENCODE_DEFAULT_URL = "https://opencode.ai/inference/v1";
 
     /**
      * 客户端配置
@@ -234,6 +244,15 @@ public class OpenAiChatClient implements ChatClient {
      */
     public OpenAiChatClient(ChatClientSetting setting) {
         this.setting = setting;
+        // 网关缺省地址写回配置：Agent 运行时按 setting.baseUrl 生成 opencode 的 provider 定义，
+        // 为空会跳过定义，模型在 CLI 侧就成了「Model unavailable」。kilo / opencode 的地址
+        // 本来就由本类兜底，这里只是把「实际要用的地址」同步进配置，避免两处口径不一致。
+        if (setting != null && StringUtils.isBlank(setting.getBaseUrl())) {
+            String provider = setting.getProvider();
+            if ("kilo".equalsIgnoreCase(provider) || "opencode".equalsIgnoreCase(provider)) {
+                setting.setBaseUrl(defaultBaseUrlForProvider());
+            }
+        }
         this.model = setting.getModel();
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
@@ -1122,8 +1141,13 @@ public class OpenAiChatClient implements ChatClient {
      */
     private String defaultBaseUrlForProvider() {
         String provider = setting.getProvider();
-        if ("kilo".equals(provider)) {
+        // 渠道行的 platform 是大写（KILO / OPENCODE），ChatClient SPI 名是小写，
+        // 这里必须忽略大小写，否则取不到网关地址会落到 OpenAI 官方域名。
+        if ("kilo".equalsIgnoreCase(provider)) {
             return KILO_DEFAULT_URL;
+        }
+        if ("opencode".equalsIgnoreCase(provider)) {
+            return OPENCODE_DEFAULT_URL;
         }
         return DEFAULT_URL;
     }

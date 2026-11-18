@@ -9,12 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -120,6 +123,18 @@ public final class OpencodeProjectConfig {
      * JSON 解析器（仅本类使用，线程安全）
      */
     private final ObjectMapper mapper = new ObjectMapper();
+
+    /**
+     * 同一工作目录的写盘串行化锁。
+     *
+     * <p>同一工作区会被多个会话线程同时写 {@code opencode.json}（实测两个
+     * {@code onPool-worker} 在同一毫秒各写一次）。{@link Files#writeString} 的
+     * 截断与写入不是原子操作，两个线程各持独立文件位置时会互相穿插，产出
+     * 「一个文档的尾部盖在另一个文档中间」的非法 JSON；opencode 解析失败后
+     * 所有 provider/model 定义一起丢失，表现就是 {@code Model unavailable}。
+     * 因此读改写整个过程按工作目录互斥（跨实例共享，键为绝对路径）。</p>
+     */
+    private static final ConcurrentHashMap<String, Object> WRITE_LOCKS = new ConcurrentHashMap<>();
 
     /**
      * 工作目录
@@ -363,36 +378,40 @@ public final class OpencodeProjectConfig {
      * @return 生成结果
      */
     public Result write() {
-        try {
-            Files.createDirectories(workspace);
-            Path configPath = workspace.resolve(CONFIG_FILE);
-            ObjectNode root = readConfig(configPath);
-            root.put("$schema", SCHEMA_URL);
-            boolean v2 = isV2Shape(root);
-            applyAgents(root, v2);
-            applyProviders(root);
-            applyMcp(root, v2);
-            applyPermissions(root);
-            if (defaultModel != null) {
-                root.put("model", defaultModel);
+        Path absWorkspace = workspace.toAbsolutePath().normalize();
+        Object lock = WRITE_LOCKS.computeIfAbsent(absWorkspace.toString(), key -> new Object());
+        synchronized (lock) {
+            try {
+                Files.createDirectories(workspace);
+                Path configPath = workspace.resolve(CONFIG_FILE);
+                ObjectNode root = readConfig(configPath);
+                root.put("$schema", SCHEMA_URL);
+                boolean v2 = isV2Shape(root);
+                applyAgents(root, v2);
+                applyProviders(root);
+                applyMcp(root, v2);
+                applyPermissions(root);
+                if (defaultModel != null) {
+                    root.put("model", defaultModel);
+                }
+                if (defaultAgent != null) {
+                    root.put("default_agent", defaultAgent);
+                }
+                if (compactionAuto != null) {
+                    childObject(root, "compaction").put("auto", compactionAuto.booleanValue());
+                }
+                applySkills(root);
+                boolean configChanged = writeIfChanged(configPath, toJson(root));
+                Path instructionsPath = workspace.resolve(INSTRUCTIONS_FILE);
+                boolean instructionsChanged = false;
+                if (instructions != null) {
+                    instructionsChanged = writeIfChanged(instructionsPath, renderInstructions());
+                }
+                return new Result(configPath, instructions != null ? instructionsPath : null,
+                        configChanged, instructionsChanged);
+            } catch (IOException e) {
+                throw new IllegalStateException("写入 opencode 配置失败: " + workspace, e);
             }
-            if (defaultAgent != null) {
-                root.put("default_agent", defaultAgent);
-            }
-            if (compactionAuto != null) {
-                childObject(root, "compaction").put("auto", compactionAuto.booleanValue());
-            }
-            applySkills(root);
-            boolean configChanged = writeIfChanged(configPath, toJson(root));
-            Path instructionsPath = workspace.resolve(INSTRUCTIONS_FILE);
-            boolean instructionsChanged = false;
-            if (instructions != null) {
-                instructionsChanged = writeIfChanged(instructionsPath, renderInstructions());
-            }
-            return new Result(configPath, instructions != null ? instructionsPath : null,
-                    configChanged, instructionsChanged);
-        } catch (IOException e) {
-            throw new IllegalStateException("写入 opencode 配置失败: " + workspace, e);
         }
     }
 
@@ -700,7 +719,20 @@ public final class OpencodeProjectConfig {
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8);
+        // 先写临时文件再原子替换：进程被中断时不会留下半截 JSON，
+        // opencode 每次启动都会读取该文件，半截内容等于整套 provider 定义失效。
+        Path temp = Files.createTempFile(parent, path.getFileName().toString(), ".tmp");
+        try {
+            Files.writeString(temp, content, StandardCharsets.UTF_8);
+            try {
+                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temp);
+        }
         return true;
     }
 
