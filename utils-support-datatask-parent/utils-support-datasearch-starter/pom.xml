@@ -84,9 +84,18 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.4</version>
                 <executions>
-                    <!-- 视频 SPI 示例已由 utils-support-example-starter 的
-                         com.chua.example.datasearch.VideoResourceSearchExample 覆盖；
-                         原 run-video-spi-test 指向的 VideoResourceProviderExample 从未提交过，已删除。 -->
+                    <!-- 视频/音乐两个 SPI 均为离线注册表校验，不发起网络请求；
+                         真实站点搜索示例在 utils-support-example-starter 的 VideoResourceSearchExample。 -->
+                    <execution>
+                        <id>run-video-spi-test</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.chua.common.support.datasearch.example.VideoResourceProviderExample</mainClass>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>run-music-spi-test</id>
                         <goals>
