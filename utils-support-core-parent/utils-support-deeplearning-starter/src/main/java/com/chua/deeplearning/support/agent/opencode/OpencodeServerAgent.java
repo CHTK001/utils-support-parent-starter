@@ -23,6 +23,7 @@ import com.chua.common.support.ai.agent.goal.GoalTracker;
 import com.chua.common.support.ai.agent.goal.SessionGoal;
 import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
+import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.mcp.McpManager;
@@ -380,11 +381,6 @@ public class OpencodeServerAgent implements Agent {
      * 单轮默认超时秒数
      */
     private static final long DEFAULT_TURN_TIMEOUT_SECONDS = 1800L;
-
-    /**
-     * 权限资源摘要最多展示条目数
-     */
-    private static final int PERMISSION_RESOURCE_LIMIT = 5;
 
     /**
      * 系统属性：单轮超时秒数
@@ -1332,7 +1328,7 @@ public class OpencodeServerAgent implements Agent {
             if (StringUtils.isBlank(requestId)) {
                 requestId = replyId;
             }
-            String reply = decision.isConfirmed() ? PERMISSION_ONCE : PERMISSION_REJECT;
+            String reply = permissionReplyOf(decision);
             Map<String, Object> body = permissionReplyBody(context.profile(), reply, feedback);
             context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
                     + "/permission/" + requestId + "/reply", body);
@@ -1355,6 +1351,26 @@ public class OpencodeServerAgent implements Agent {
             body.put("message", message);
         }
         return body;
+    }
+
+    /**
+     * 决策 → opencode 权限应答值。
+     *
+     * <p>拒绝 → {@code reject}；批准按决策 {@code mode} 映射：{@code always}
+     * 表示记住该工具（后续同类不再询问），其余（含缺省）按单次放行 {@code once}。</p>
+     *
+     * @param decision 用户决策
+     * @return {@code once}/{@code always}/{@code reject}
+     */
+    private static String permissionReplyOf(ConfirmationDecision decision) {
+        if (!decision.isConfirmed()) {
+            return PERMISSION_REJECT;
+        }
+        String mode = decision.getMode();
+        if (PERMISSION_ALWAYS.equalsIgnoreCase(mode)) {
+            return PERMISSION_ALWAYS;
+        }
+        return PERMISSION_ONCE;
     }
 
     /**
@@ -3277,11 +3293,13 @@ public class OpencodeServerAgent implements Agent {
                 rejectPermission(requestId, "非管理员账号禁止执行 shell 命令");
                 return;
             }
+            String resources = rawResources(data.path("resources"));
             List<ConfirmationItem> items = List.of(ConfirmationItem.builder()
                     .toolCallId(requestId)
                     .toolName(action)
                     .title("需要确认：" + action)
-                    .description(describeResources(data.path("resources")))
+                    .description(truncate(resources))
+                    .riskLevel(ToolRiskPolicy.classify(action, resources))
                     .build());
             sink.next(AgentStreamEvent.confirmationRequest(agentId(), requestId, items));
             pause();
@@ -3315,12 +3333,22 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
-         * 权限资源摘要。
+         * 权限资源摘要（截断版，用于确认卡片描述）。
          *
          * @param resources 资源数组节点
          * @return 摘要文本
          */
         private String describeResources(JsonNode resources) {
+            return truncate(rawResources(resources));
+        }
+
+        /**
+         * 权限资源完整摘要（不截断；风险分级需要看到完整命令行/路径）。
+         *
+         * @param resources 资源数组节点
+         * @return 摘要文本
+         */
+        private String rawResources(JsonNode resources) {
             if (!resources.isArray()) {
                 return "";
             }
@@ -3331,12 +3359,9 @@ public class OpencodeServerAgent implements Agent {
                     sb.append(", ");
                 }
                 sb.append(item.asText(""));
-                if (++index >= PERMISSION_RESOURCE_LIMIT) {
-                    sb.append(" ...");
-                    break;
-                }
+                index++;
             }
-            return truncate(sb.toString());
+            return sb.toString();
         }
 
         /**

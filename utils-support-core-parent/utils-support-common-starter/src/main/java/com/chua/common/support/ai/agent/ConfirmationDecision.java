@@ -16,6 +16,8 @@ import java.io.Serializable;
  * <ul>
  *   <li>{@link #toolCallId} — 对应的待确认工具调用 ID</li>
  *   <li>{@link #confirmed} — true 批准（继续执行）；false 拒绝（回到规划修订）</li>
+ *   <li>{@link #mode} — 批准方式：{@code once} 单次放行 / {@code always} 记住该工具；
+ *       拒绝时忽略。缺省按 once 处理</li>
  * </ul>
  *
  * @author CH
@@ -41,4 +43,12 @@ public class ConfirmationDecision implements Serializable {
      * 是否批准
      */
     private boolean confirmed;
+
+    /**
+     * 批准方式：{@code once} 单次放行（默认） / {@code always} 记住该工具（后续同类不再询问）。
+     *
+     * <p>仅 {@code confirmed=true} 时有意义；网关把它映射为 opencode 的
+     * {@code once}/{@code always} 应答。拒绝时忽略本字段。</p>
+     */
+    private String mode;
 }

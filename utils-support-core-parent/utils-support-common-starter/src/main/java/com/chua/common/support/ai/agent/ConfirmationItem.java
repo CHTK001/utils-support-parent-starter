@@ -19,6 +19,8 @@ import java.io.Serializable;
  *   <li>{@link #toolName} — 工具名称（如 plan_exit）</li>
  *   <li>{@link #title} — 确认卡片标题</li>
  *   <li>{@link #description} — 详细说明（如计划摘要）</li>
+ *   <li>{@link #riskLevel} — 风险等级（low/medium/high/dangerous，见 {@link ToolRiskPolicy}），
+ *       前端据此区分图标与配色，dangerous 走强确认</li>
  * </ul>
  *
  * @author CH
@@ -54,4 +56,14 @@ public class ConfirmationItem implements Serializable {
      * 详细说明
      */
     private String description;
+
+    /**
+     * 风险等级：{@link ToolRiskPolicy#RISK_LOW} / {@link ToolRiskPolicy#RISK_MEDIUM} /
+     * {@link ToolRiskPolicy#RISK_HIGH} / {@link ToolRiskPolicy#RISK_DANGEROUS}。
+     *
+     * <p>由网关在发起确认时按 {@link ToolRiskPolicy#classify} 分级写入；
+     * 前端据此渲染风险图标/配色，并对 dangerous 项强制二次确认。
+     * 旧事件可能不带该字段（null），前端按 medium 兜底。</p>
+     */
+    private String riskLevel;
 }
