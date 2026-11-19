@@ -37,6 +37,22 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
      * 路径
      */
     private final String path;
+    /**
+     * 方法名（构造期预解析，热路径免反射查表）
+     */
+    private final String methodName;
+    /**
+     * 返回类型（构造期预解析）
+     */
+    private final Class<?> returnType;
+    /**
+     * 形参列表（构造期预解析）
+     */
+    private final Parameter[] parameters;
+    /**
+     * 形参类型（构造期预解析）
+     */
+    private final Class<?>[] parameterTypes;
 
     /**
      * 创建 IpcMethodServerHandler 实例
@@ -50,6 +66,10 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         this.targetClass = targetClass;
         this.method = method;
         this.path = path;
+        this.methodName = method.getName();
+        this.returnType = method.getReturnType();
+        this.parameters = method.getParameters();
+        this.parameterTypes = method.getParameterTypes();
     }
 
     /**
@@ -85,11 +105,10 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
             map = Wraps.linkedMap();
         }
 
-        Object[] args = resolveArgs(map.get("params"), method.getParameters());
+        Object[] args = resolveArgs(map.get("params"), parameters);
 
         try {
-            Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(),
-                    method.getParameterTypes(), args);
+            Object result = ReflectUtils.invoke(bean, methodName, returnType, parameterTypes, args);
             Map<String, Object> resultMap = Wraps.linkedMap();
             resultMap.put("success", true);
             resultMap.put("result", result);

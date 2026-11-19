@@ -50,6 +50,18 @@ public class HttpServerRequest implements ServerRequest {
      * attributes
      */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+    /**
+     * 缓存的请求方法(枚举解析结果,避免每次调用重复 valueOf)
+     */
+    private HttpMethod cachedMethod;
+    /**
+     * 缓存的请求头(懒构建,避免每次调用重建)
+     */
+    private HttpHeader cachedHeaders;
+    /**
+     * 缓存的查询参数(懒解析,避免每次调用重复解析 query)
+     */
+    private Map<String, String> cachedParams;
 
     /**
      * 创建 HttpServerRequest 实例
@@ -84,11 +96,16 @@ public class HttpServerRequest implements ServerRequest {
      */
     @Override
     public HttpMethod getMethod() {
-        try {
-            return HttpMethod.valueOf(exchange.getRequestMethod().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return HttpMethod.OPTIONS;
+        HttpMethod method = cachedMethod;
+        if (method == null) {
+            try {
+                method = HttpMethod.valueOf(exchange.getRequestMethod().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                method = HttpMethod.OPTIONS;
+            }
+            cachedMethod = method;
         }
+        return method;
     }
 
     /**
@@ -104,9 +121,14 @@ public class HttpServerRequest implements ServerRequest {
      */
     @Override
     public HttpHeader getHeaders() {
-        HttpHeader h = HttpHeader.create();
-        exchange.getRequestHeaders().forEach((k, v) -> h.add(k, String.join(",", v)));
-        return h;
+        HttpHeader cached = cachedHeaders;
+        if (cached == null) {
+            HttpHeader fresh = HttpHeader.create();
+            exchange.getRequestHeaders().forEach((k, v) -> fresh.add(k, String.join(",", v)));
+            cachedHeaders = fresh;
+            cached = fresh;
+        }
+        return cached;
     }
 
     /**
@@ -114,18 +136,24 @@ public class HttpServerRequest implements ServerRequest {
      */
     @Override
     public Map<String, String> getParams() {
-        String query = exchange.getRequestURI().getQuery();
-        if (StringUtils.isEmpty(query)) {
-            return Map.of();
-        }
-        Map<String, String> map = Wraps.linkedMap();
-        for (String pair : query.split("&")) {
-            String[] kv = pair.split("=", 2);
-            if (kv.length > 0) {
-                map.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+        Map<String, String> params = cachedParams;
+        if (params == null) {
+            String query = exchange.getRequestURI().getQuery();
+            if (StringUtils.isEmpty(query)) {
+                params = Map.of();
+            } else {
+                Map<String, String> map = Wraps.linkedMap();
+                for (String pair : query.split("&")) {
+                    String[] kv = pair.split("=", 2);
+                    if (kv.length > 0) {
+                        map.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+                    }
+                }
+                params = map;
             }
+            cachedParams = params;
         }
-        return map;
+        return params;
     }
 
     /**

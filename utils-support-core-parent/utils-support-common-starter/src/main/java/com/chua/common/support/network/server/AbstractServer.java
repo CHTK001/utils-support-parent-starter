@@ -309,9 +309,10 @@ public abstract class AbstractServer implements ConfigServer {
         long active = metrics.getActiveRequests() + 1;
         metrics.incrementActive();
         metrics.updatePeakActive(active);
-        // 延迟采样：sampleEvery<=1 时全量记录，否则按请求数取模
-        boolean sampleLatency = latencySampleEvery <= 1
-                || (metrics.getTotalRequests() % latencySampleEvery) == 0;
+        // 延迟采样：sampleEvery<=1 时全量记录，否则按请求数取模(局部变量避免重复读 volatile)
+        int sampleEvery = latencySampleEvery;
+        boolean sampleLatency = sampleEvery <= 1
+                || (metrics.getTotalRequests() % sampleEvery) == 0;
         long start = sampleLatency ? System.nanoTime() : 0L;
         CompletionStage<Void> stage;
         try {

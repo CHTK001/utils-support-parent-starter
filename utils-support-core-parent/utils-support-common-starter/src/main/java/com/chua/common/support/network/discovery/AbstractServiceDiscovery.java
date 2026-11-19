@@ -232,11 +232,14 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
 
         String cacheKey = buildCacheKey(normalizedPath, scatterId, balance, protocol);
         long currentVersion = serviceVersion.get();
-        // 收集当前服务表中的 serverId，用于检测服务是否实际变化
-        Set<String> currentServices = services.stream()
-                .map(Discovery::getServerId)
-                .filter(java.util.Objects::nonNull)
-                .collect(java.util.stream.Collectors.toCollection(Wraps::set));
+        // 收集当前服务表中的 serverId，用于检测服务是否实际变化（紧凑循环，免 Stream 链分配）
+        Set<String> currentServices = Wraps.set();
+        for (Discovery d : services) {
+            String serverId = d.getServerId();
+            if (serverId != null) {
+                currentServices.add(serverId);
+            }
+        }
         CachedLoadBalance cached = loadBalanceCache.get(cacheKey);
         if (cached != null && cached.isValid(currentVersion, currentServices)) {
             // 服务表未变，复用已有 LoadBalance 实例，保持 weight 衰减等状态
@@ -370,7 +373,9 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         Set<Discovery> netAddresses = get(path);
         log.debug("getPath result: {} size={}", path, CollectionUtils.size(netAddresses));
 
-        List<String> strings = Arrays.asList(path.replaceFirst("^/", "").split("/"));
+        // 仅剥离一个前导 "/"（与 replaceFirst("^/", "") 等价，且免正则编译）
+        String stripped = path.startsWith("/") ? path.substring(1) : path;
+        List<String> strings = Arrays.asList(stripped.split("/"));
         // 如果路径层级过浅且没找到，尝试根路径
         if (strings.size() <= 1 && CollectionUtils.size(netAddresses) == 0) {
             return get("/");

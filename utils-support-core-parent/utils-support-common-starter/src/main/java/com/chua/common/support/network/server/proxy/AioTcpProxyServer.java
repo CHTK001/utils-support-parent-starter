@@ -296,6 +296,26 @@ public class AioTcpProxyServer extends AbstractServer {
             }
         }
 
+        /**
+         * 写完成回调(提为字段复用,避免每次读完成都新建回调对象)。
+         */
+        private final java.nio.channels.CompletionHandler<Integer, Void> writeHandler =
+                new java.nio.channels.CompletionHandler<Integer, Void>() {
+                    @Override
+                    public void completed(Integer w, Void attachment) {
+                        if (buf.hasRemaining()) {
+                            dst.write(buf, null, this);
+                            return;
+                        }
+                        start();
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        session.close();
+                    }
+                };
+
         @Override
         public void completed(Integer n, Void attachment) {
             if (n == null || n < 0 || !running) {
@@ -303,21 +323,7 @@ public class AioTcpProxyServer extends AbstractServer {
                 return;
             }
             buf.flip();
-            dst.write(buf, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
-                @Override
-                public void completed(Integer w, Void attachment) {
-                    if (buf.hasRemaining()) {
-                        dst.write(buf, null, this);
-                        return;
-                    }
-                    start();
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    session.close();
-                }
-            });
+            dst.write(buf, null, writeHandler);
         }
 
         @Override

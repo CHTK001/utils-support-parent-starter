@@ -96,12 +96,15 @@ public class DefaultServerFilterChain implements ServerFilterChain {
             }
 
             notifyBefore(filter, request, response);
-            long start = System.nanoTime();
+            List<FilterChainListener> chainListeners = getListeners(request);
+            boolean hasListeners = chainListeners != null && !chainListeners.isEmpty();
+            long start = hasListeners ? System.nanoTime() : 0L;
             try {
                 filter.doFilter(request, response, this);
             } finally {
-                long elapsed = System.nanoTime() - start;
-                notifyAfter(filter, elapsed, request, response);
+                if (hasListeners) {
+                    notifyAfter(filter, System.nanoTime() - start, request, response);
+                }
             }
         } else if (handler != null && !response.isEnded()) {
             handler.handle(request, response);
@@ -130,7 +133,10 @@ public class DefaultServerFilterChain implements ServerFilterChain {
             String base = pattern.substring(0, pattern.length() - 2);
             return requestPath.startsWith(base) && requestPath.indexOf('/', base.length()) < 0;
         }
-        return requestPath.startsWith(pattern + "/");
+        int patternLen = pattern.length();
+        return requestPath.length() > patternLen
+                && requestPath.charAt(patternLen) == '/'
+                && requestPath.startsWith(pattern);
     }
 
     /**

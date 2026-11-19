@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -968,6 +969,11 @@ onSignalClosed(clientId);
         private final OutputStream out;
 
         /**
+         * 复用的帧缓冲（仅在 synchronized(out) 内使用）
+         */
+        private byte[] frameBuffer = new byte[256];
+
+        /**
          * 本连接承载过的通道
          */
         private final java.util.Set<String> channels = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -1000,7 +1006,7 @@ onSignalClosed(clientId);
                     String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, 16));
                     byte[] payload = new byte[len - 16];
                     System.arraycopy(frame, 16, payload, 0, payload.length);
-                    log.info("SIP mux recv: key={}, ch={}, payload={}", key, channelId, payload.length);
+                    log.debug("SIP mux recv: key={}, ch={}, payload={}", key, channelId, payload.length);
                     muxRoute(this, channelId, payload);
                 }
             } catch (IOException e) {
@@ -1026,10 +1032,15 @@ onSignalClosed(clientId);
             }
         }
         void sendFrame(String channelId, byte[] payload) {
+            int total = 4 + 16 + payload.length;
             try {
-                byte[] frame = encodeMuxFrame(uuidBytes(channelId), payload);
                 synchronized (out) {
-                    out.write(frame);
+                    if (frameBuffer.length < total) {
+                        frameBuffer = new byte[Math.max(total, frameBuffer.length * 2)];
+                    }
+                    ByteBuffer.wrap(frameBuffer).putInt(16 + payload.length)
+                            .put(uuidBytes(channelId)).put(payload);
+                    out.write(frameBuffer, 0, total);
                     out.flush();
                 }
             } catch (IOException e) {
@@ -1087,12 +1098,7 @@ onSignalClosed(clientId);
      * @return 16 字节
      */
     private static byte[] uuidBytes(String uuid) {
-        String hex = uuid.replace("-", "");
-        byte[] data = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            data[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
-        }
-        return data;
+        return HexFormat.of().parseHex(uuid.replace("-", ""));
     }
 
     /**
@@ -1120,11 +1126,7 @@ onSignalClosed(clientId);
      * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
-        StringBuilder hex = new StringBuilder();
-        for (byte b : data) {
-            hex.append(String.format("%02x", b));
-        }
-        String s = hex.toString();
+        String s = HexFormat.of().formatHex(data);
         return s.substring(0, 8) + "-" + s.substring(8, 12) + "-" + s.substring(12, 16)
                 + "-" + s.substring(16, 20) + "-" + s.substring(20);
     }

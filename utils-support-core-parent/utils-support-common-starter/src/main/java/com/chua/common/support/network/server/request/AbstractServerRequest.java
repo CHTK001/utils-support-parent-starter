@@ -29,9 +29,19 @@ import lombok.ToString;
 public abstract class AbstractServerRequest implements ServerRequest {
 
     /**
+     * 共享空请求体(避免每次返回新分配的空数组)
+     */
+    private static final byte[] EMPTY_BODY = new byte[0];
+
+    /**
      * 请求属性，用于 Filter 间传递数据
      */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+
+    /**
+     * attributes 只读快照缓存(快照语义:setAttribute 时失效,下次调用重建)
+     */
+    private volatile Map<String, Object> attributesView;
 
     /**
      * 缓存的请求体，避免重复读取输入流
@@ -85,7 +95,7 @@ public abstract class AbstractServerRequest implements ServerRequest {
             cachedBody = readBody();
             bodyRead = true;
         }
-        return cachedBody != null ? cachedBody : new byte[0];
+        return cachedBody != null ? cachedBody : EMPTY_BODY;
     }
 
     /**
@@ -109,7 +119,12 @@ public abstract class AbstractServerRequest implements ServerRequest {
      */
     @Override
     public Map<String, Object> getAttributes() {
-        return Wraps.map(attributes);
+        Map<String, Object> view = attributesView;
+        if (view == null) {
+            view = Wraps.map(attributes);
+            attributesView = view;
+        }
+        return view;
     }
 
     /**
@@ -126,6 +141,8 @@ public abstract class AbstractServerRequest implements ServerRequest {
     @Override
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
+        // 快照失效:保证新写入对后续 getAttributes 可见
+        attributesView = null;
     }
 
     /**

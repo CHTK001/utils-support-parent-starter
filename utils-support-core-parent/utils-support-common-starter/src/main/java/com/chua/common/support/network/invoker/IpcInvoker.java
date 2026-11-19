@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import com.chua.common.support.reflection.ReflectUtils;
 import java.util.Comparator;
 import java.util.List;
@@ -181,9 +182,14 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
          */
         private final String namespace;
         /**
-         * Filters
+         * 过滤器数组（按 order 排序后的快照，热路径免 List 取值）
          */
-        private final List<ServerFilter> filters;
+        private final ServerFilter[] filterArray;
+        /**
+         * 方法元数据缓存（键：Method；IpcMethod/RemoteMethod/RemoteHeader/RemoteInject
+         * 注解运行期不可变，解析一次复用）
+         */
+        private final ConcurrentMap<Method, MethodMeta> methodCache = new ConcurrentHashMap<>();
         /**
          * Shared上下文
          */
@@ -197,7 +203,7 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
                 SharedInvocationContext sharedContext) {
             this.baseUrl = baseUrl;
             this.namespace = namespace;
-            this.filters = filters;
+            this.filterArray = filters.toArray(new ServerFilter[0]);
             this.sharedContext = sharedContext;
         }
 
@@ -218,13 +224,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
                 }
             }
 
-            IpcMethod im = method.getAnnotation(IpcMethod.class);
-            String methodName = im != null ? im.value() : resolveMethodName(method);
-            String path = namespace.isEmpty() ? "/ipc/" + methodName : "/ipc/" + namespace + "/" + methodName;
-            String url = baseUrl + path;
+            // 方法元数据（方法名/路径/URL/注解）解析一次并缓存，热路径免反射扫描
+            MethodMeta meta = methodCache.computeIfAbsent(method, this::buildMethodMeta);
 
             InvocationContext ctx = new InvocationContext();
-            ctx.setPath(path);
+            ctx.setPath(meta.path);
             ctx.setAttribute("javaMethod", method);
             ctx.setAttribute("javaArgs", args);
             ctx.setAttribute("targetClass", method.getDeclaringClass());
@@ -235,23 +239,84 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
 
             sharedContext.applyTo(ctx);
 
-            processRemoteHeaders(ctx, method, args);
+            processRemoteHeaders(ctx, meta, args);
 
-            if (!filters.isEmpty()) {
-                runFilterChain(ctx, filters);
+            if (filterArray.length > 0) {
+                runFilterChain(ctx, filterArray);
             }
 
-            processRemoteInject(ctx, method, args);
+            processRemoteInject(ctx, meta, args);
 
             String body = ctx.getBody() != null
                     ? com.chua.common.support.lang.json.Json.toJson(ctx.getBody())
                     : "";
 
-            var builder = HttpClientFactory.of(url).json();
-            ctx.getHeaders().toMap().forEach(builder::header);
+            var builder = HttpClientFactory.of(meta.url).json();
+            ctx.forEachHeader(builder::header);
             String result = builder.body(body).post().getBodyString();
             ctx.setResult(result);
             return result;
+        }
+
+        /**
+         * 方法级元数据：路径、URL 与方法/参数注解的解析期缓存。
+         */
+        private static final class MethodMeta {
+            /**
+             * IPC 请求路径（/ipc/[namespace/]methodName）
+             */
+            final String path;
+            /**
+             * 完整请求 URL（baseUrl + path）
+             */
+            final String url;
+            /**
+             * 方法级 @RemoteHeader 静态头
+             */
+            final RemoteHeader[] methodHeaders;
+            /**
+             * 形参列表
+             */
+            final Parameter[] parameters;
+            /**
+             * 参数级 @RemoteHeader（与 parameters 一一对应）
+             */
+            final RemoteHeader[] paramHeaders;
+            /**
+             * 方法级 @RemoteInject 注入规则
+             */
+            final RemoteInject[] injects;
+
+            MethodMeta(String path, String url, RemoteHeader[] methodHeaders,
+                       Parameter[] parameters, RemoteHeader[] paramHeaders, RemoteInject[] injects) {
+                this.path = path;
+                this.url = url;
+                this.methodHeaders = methodHeaders;
+                this.parameters = parameters;
+                this.paramHeaders = paramHeaders;
+                this.injects = injects;
+            }
+        }
+
+        /**
+         * 构建方法元数据（仅在 methodCache 未命中时调用一次）。
+         *
+         * @param method 接口方法
+         * @return 方法元数据
+         */
+        private MethodMeta buildMethodMeta(Method method) {
+            IpcMethod im = method.getAnnotation(IpcMethod.class);
+            String methodName = im != null ? im.value() : resolveMethodName(method);
+            String path = namespace.isEmpty() ? "/ipc/" + methodName : "/ipc/" + namespace + "/" + methodName;
+            Parameter[] parameters = method.getParameters();
+            RemoteHeader[] paramHeaders = new RemoteHeader[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                paramHeaders[i] = parameters[i].getAnnotation(RemoteHeader.class);
+            }
+            return new MethodMeta(path, baseUrl + path,
+                    method.getAnnotationsByType(RemoteHeader.class),
+                    parameters, paramHeaders,
+                    method.getAnnotationsByType(RemoteInject.class));
         }
 
         /**
@@ -260,16 +325,14 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
          * @param method method
          * @param args args
          */
-        private void processRemoteHeaders(InvocationContext ctx, Method method, Object[] args) {
-            RemoteHeader[] headers = method.getAnnotationsByType(RemoteHeader.class);
-            for (RemoteHeader rh : headers) {
+        private void processRemoteHeaders(InvocationContext ctx, MethodMeta meta, Object[] args) {
+            for (RemoteHeader rh : meta.methodHeaders) {
                 String value = resolvePlaceholders(rh.value());
                 ctx.addHeader(rh.name(), value);
             }
             if (args != null) {
-                java.lang.reflect.Parameter[] params = method.getParameters();
-                for (int i = 0; i < params.length; i++) {
-                    RemoteHeader rh = params[i].getAnnotation(RemoteHeader.class);
+                for (int i = 0; i < meta.parameters.length; i++) {
+                    RemoteHeader rh = meta.paramHeaders[i];
                     if (rh != null && args[i] != null) {
                         ctx.addHeader(rh.name(), args[i].toString());
                     }
@@ -283,8 +346,8 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
          * @param method method
          * @param args args
          */
-        private void processRemoteInject(InvocationContext ctx, Method method, Object[] args) {
-            RemoteInject[] injects = method.getAnnotationsByType(RemoteInject.class);
+        private void processRemoteInject(InvocationContext ctx, MethodMeta meta, Object[] args) {
+            RemoteInject[] injects = meta.injects;
             if (injects.length == 0) {
                 return;
             }
@@ -384,33 +447,47 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
          * @param filters 参数
          * @return 返回值
         */
-        private static void runFilterChain(InvocationContext ctx, List<ServerFilter> filters) {
-            ServerFilterChain chain = new ServerFilterChain() {
-                /**
-                 * 索引
-                 */
-                private int index = 0;
-                /**
-                 * Do过滤
-                 * @param request request
-                 * @param response response
-                 */
-                @Override
-                public void doFilter(com.chua.common.support.network.server.request.ServerRequest request,
-                                     com.chua.common.support.network.server.response.ServerResponse response) {
-                    if (index < filters.size()) {
-                        try {
-                            filters.get(index++).doFilter(request, response, this);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Filter chain error", e);
-                        }
-                    }
-                }
-            };
+        private static void runFilterChain(InvocationContext ctx, ServerFilter[] filters) {
             try {
-                chain.doFilter(ctx, ctx);
+                new IpcFilterChain(filters).doFilter(ctx, ctx);
             } catch (Exception e) {
                 throw new RuntimeException("Filter chain error", e);
+            }
+        }
+
+        /**
+         * IPC 过滤器链：数组 + 游标，避免每次调用创建捕获 List 的匿名类。
+         */
+        private static final class IpcFilterChain implements ServerFilterChain {
+
+            /**
+             * 按序排列的过滤器
+             */
+            private final ServerFilter[] filters;
+            /**
+             * 当前游标
+             */
+            private int index;
+
+            IpcFilterChain(ServerFilter[] filters) {
+                this.filters = filters;
+            }
+
+            /**
+             * Do过滤
+             * @param request request
+             * @param response response
+             */
+            @Override
+            public void doFilter(com.chua.common.support.network.server.request.ServerRequest request,
+                                 com.chua.common.support.network.server.response.ServerResponse response) {
+                if (index < filters.length) {
+                    try {
+                        filters[index++].doFilter(request, response, this);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Filter chain error", e);
+                    }
+                }
             }
         }
     }

@@ -33,6 +33,7 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -157,6 +158,64 @@ public class AioHttpServer extends AbstractServer {
             b.clear();
             COMBINE_POOL.offer(b);
         }
+    }
+
+    /**
+     * TLS 密文分片缓冲池:复用 packetSize 直接内存,消除每次 wrap 的原生内存分配
+     */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> TLS_NET_POOL =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /**
+     * TLS 密文缓冲池上限,超出后交由 GC 释放原生内存
+     */
+    private static final int TLS_NET_POOL_MAX = 64;
+
+    /**
+     * 从池中取 TLS 密文缓冲,池空或容量不足则新分配。
+     *
+     * @param size 所需容量
+     * @return 直接缓冲
+     */
+    private static ByteBuffer acquireTlsNet(int size) {
+        ByteBuffer b = TLS_NET_POOL.poll();
+        if (b == null || b.capacity() < size) {
+            b = ByteBuffer.allocateDirect(size);
+        } else {
+            b.clear();
+        }
+        return b;
+    }
+
+    /**
+     * 归还 TLS 密文缓冲(仅直接缓冲入池;池满则丢弃交由 GC 释放)。
+     *
+     * @param b 待归还缓冲
+     */
+    private static void releaseTlsNet(ByteBuffer b) {
+        if (b != null && b.isDirect() && TLS_NET_POOL.size() < TLS_NET_POOL_MAX) {
+            b.clear();
+            TLS_NET_POOL.offer(b);
+        }
+    }
+
+    /**
+     * 预解析字符集缓存(避免每连接 Charset.forName 查找;首连接解析,良性竞态)
+     */
+    private volatile Charset charsetCache;
+
+    /**
+     * 解析服务端字符集(惰性缓存)。
+     *
+     * @return 字符集
+     */
+    private Charset charset() {
+        Charset c = charsetCache;
+        if (c == null) {
+            c = Charset.forName(setting.getCharset());
+            charsetCache = c;
+        }
+        return c;
     }
 
     /**
@@ -480,28 +539,35 @@ public class AioHttpServer extends AbstractServer {
                 handleWebSocketUpgrade(state);
                 return;
             }
-            NioServerResponse response = new NioServerResponse(null);
-            // 写出钩子:complete() 时把响应头/体字节入待写队列(零拷贝传递,不落中间缓冲)
-            response.setAsyncWriter((header, body) -> enqueueWrite(state, header, body));
-            // 流式直写钩子(纯非阻塞):SSE 分片按序入待写队列,TLS 在队内加密,
-            // 写权空闲则踢异步续写链;分片间 FIFO 保序
-            response.setStreamWriter(bytes -> {
-                // 标记 SSE 流式期:写链排空时不按 HTTP 收尾(见 continueWrite)
-                state.sseActive = true;
-                // 背压门限:慢客户端不读响应时,生产端会持续入队,必须在此拦住,
-                // 否则内存无界增长。超限即视为慢消费者并关闭连接(整帧丢弃,不留半帧)
-                long max = setting.getMaxPendingWriteBytes();
-                if (max > 0 && state.pendingWriteBytes.get() + bytes.length > max) {
-                    log.warn("AIO 待写队列超过背压门限 (pending={}, max={}),关闭连接",
-                            state.pendingWriteBytes.get(), max);
-                    closeConn(state);
-                    return;
-                }
-                enqueueWrite(state, java.nio.ByteBuffer.wrap(bytes), null);
-                if (!state.closed.get() && state.writing.compareAndSet(false, true)) {
-                    continueWrite(state);
-                }
-            });
+            // 响应对象按连接复用:SSE 之外的响应就地归位(钩子随实例保留,零重复分配);
+            // SSE 响应生命周期延续到 handler 返回之后,resetForNextRequest 返回 false,
+            // 此时丢弃重建,流式状态由 ConnState.sseActive/sseEnd 承载
+            NioServerResponse response = state.response;
+            if (response == null || !response.resetForNextRequest()) {
+                response = new NioServerResponse(null);
+                // 写出钩子:complete() 时把响应头/体字节入待写队列(零拷贝传递,不落中间缓冲)
+                response.setAsyncWriter((header, body) -> enqueueWrite(state, header, body));
+                // 流式直写钩子(纯非阻塞):SSE 分片按序入待写队列,TLS 在队内加密,
+                // 写权空闲则踢异步续写链;分片间 FIFO 保序
+                response.setStreamWriter(bytes -> {
+                    // 标记 SSE 流式期:写链排空时不按 HTTP 收尾(见 continueWrite)
+                    state.sseActive = true;
+                    // 背压门限:慢客户端不读响应时,生产端会持续入队,必须在此拦住,
+                    // 否则内存无界增长。超限即视为慢消费者并关闭连接(整帧丢弃,不留半帧)
+                    long max = setting.getMaxPendingWriteBytes();
+                    if (max > 0 && state.pendingWriteBytes.get() + bytes.length > max) {
+                        log.warn("AIO 待写队列超过背压门限 (pending={}, max={}),关闭连接",
+                                state.pendingWriteBytes.get(), max);
+                        closeConn(state);
+                        return;
+                    }
+                    enqueueWrite(state, java.nio.ByteBuffer.wrap(bytes), null);
+                    if (!state.closed.get() && state.writing.compareAndSet(false, true)) {
+                        continueWrite(state);
+                    }
+                });
+                state.response = response;
+            }
             try {
                 handleRequest(state.request, response);
             } catch (Exception e) {
@@ -591,10 +657,11 @@ public class AioHttpServer extends AbstractServer {
                     continue;
                 }
                 while (src.hasRemaining()) {
-                    ByteBuffer netOut = ByteBuffer.allocateDirect(tls.packetSize);
+                    ByteBuffer netOut = acquireTlsNet(tls.packetSize);
                     try {
                         tls.engine.wrap(src, netOut);
                     } catch (Exception e) {
+                        releaseTlsNet(netOut);
                         log.warn("TLS wrap 失败,关闭连接: {}", e.getMessage(), e);
                         closeConn(state);
                         return;
@@ -603,7 +670,10 @@ public class AioHttpServer extends AbstractServer {
                     netOut.flip();
                     if (netOut.hasRemaining()) {
                         state.writeQueue.add(netOut);
+                        state.tlsReturnQueue.add(netOut);
                         state.pendingWriteBytes.addAndGet(netOut.remaining());
+                    } else {
+                        releaseTlsNet(netOut);
                     }
                 }
             }
@@ -770,6 +840,10 @@ public class AioHttpServer extends AbstractServer {
                     // 当前块已全部写出,移除;非直接缓冲归还合并池复用
                     state.writeQueue.poll();
                     releaseCombined(head);
+                    // TLS 密文块归还池(identity 比对:队首确为本连接的 TLS 块才回收)
+                    if (head == state.tlsReturnQueue.peek()) {
+                        releaseTlsNet(state.tlsReturnQueue.poll());
+                    }
                 }
                 // 未写完的块保留在队首,continueWrite 会原地重发剩余部分
             }
@@ -1578,15 +1652,21 @@ public class AioHttpServer extends AbstractServer {
                     return;
                 }
                 while (src.hasRemaining()) {
-                    ByteBuffer netOut = ByteBuffer.allocateDirect(tls.packetSize);
+                    ByteBuffer netOut = acquireTlsNet(tls.packetSize);
                     try {
                         tls.engine.wrap(src, netOut);
                     } catch (Exception e) {
+                        releaseTlsNet(netOut);
                         throw new IOException(e);
                     }
                     drainTasks(tls);
                     netOut.flip();
-                    writeAll(netOut);
+                    try {
+                        writeAll(netOut);
+                    } finally {
+                        // 阻塞写已完成(或抛异常):缓冲同步归还,无跨线程所有权转移
+                        releaseTlsNet(netOut);
+                    }
                 }
             }
 
@@ -1667,6 +1747,12 @@ public class AioHttpServer extends AbstractServer {
     private void closeConn(ConnState state) {
         if (!state.closed.getAndSet(true)) {
             releaseConnection();
+            // 回收在途 TLS 密文缓冲(仍留在 writeQueue 的块随队列废弃,此处统一归还;
+            // 与写完成路径的归还互斥:每块只被 poll 成功的一方归还一次)
+            ByteBuffer buf;
+            while ((buf = state.tlsReturnQueue.poll()) != null) {
+                releaseTlsNet(buf);
+            }
             try {
                 state.channel.close();
             } catch (Exception ignored) {
@@ -1841,6 +1927,18 @@ public class AioHttpServer extends AbstractServer {
         final AtomicBoolean closed = new AtomicBoolean(false);
 
         /**
+         * 按连接复用的响应对象(首个请求惰性创建;SSE 响应用后置空重建)
+         */
+        NioServerResponse response;
+
+        /**
+         * TLS 密文缓冲归还队列:与 writeQueue 中的 TLS 块按入队序一一对应,
+         * 写完一块归还一块(identity 比对防止误归还堆缓冲);连接关闭时统一回收
+         */
+        final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> tlsReturnQueue =
+                new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+        /**
          * 创建连接状态。
          * @param channel 异步通道
          * @return 返回值
@@ -1851,7 +1949,7 @@ public class AioHttpServer extends AbstractServer {
             // 解析状态机与 NIO 实现完全共用(NioServerRequest 传输无关构造)
             InetSocketAddress remote = remoteAddressOrNull(channel);
             this.request = new NioServerRequest((java.net.SocketAddress) remote,
-                    setting.getMaxRequestSize(), setting.getCharset());
+                    setting.getMaxRequestSize(), charset());
         }
 
         /**

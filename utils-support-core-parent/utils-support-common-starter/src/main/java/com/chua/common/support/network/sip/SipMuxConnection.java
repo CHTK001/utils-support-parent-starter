@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,6 +66,11 @@ class SipMuxConnection {
      * 输入流（加密开启时为解密流）
      */
     private final InputStream in;
+
+    /**
+     * 复用的帧缓冲（仅在 synchronized(out) 内使用）
+     */
+    private byte[] frameBuffer = new byte[256];
 
     /**
      * 已挂载的虚拟流（channelId → stream）
@@ -170,14 +176,28 @@ class SipMuxConnection {
      * @throws IOException IO 异常
      */
     void sendFrame(String channelId, byte[] payload) throws IOException {
-        log.info("SIP mux send: role={}, ch={}, payload={}", role, channelId, payload.length);
+        sendFrame(channelId, payload, 0, payload.length);
+    }
+
+    /**
+     * 发送一帧（支持偏移与长度，调用方可复用读取缓冲，避免中间拷贝）。
+     *
+     * @param channelId 通道标识
+     * @param payload   负载数组
+     * @param off       起始偏移
+     * @param len       字节长度（0 表示通道关闭标记）
+     * @throws IOException IO 异常
+     */
+    void sendFrame(String channelId, byte[] payload, int off, int len) throws IOException {
+        log.debug("SIP mux send: role={}, ch={}, payload={}", role, channelId, len);
+        int total = 4 + CH_LEN + len;
         synchronized (out) {
-            byte[] ch = uuidBytes(channelId);
-            ByteBuffer buffer = ByteBuffer.allocate(4 + CH_LEN + payload.length);
-            buffer.putInt(CH_LEN + payload.length);
-            buffer.put(ch);
-            buffer.put(payload);
-            out.write(buffer.array());
+            if (frameBuffer.length < total) {
+                frameBuffer = new byte[Math.max(total, frameBuffer.length * 2)];
+            }
+            ByteBuffer.wrap(frameBuffer).putInt(CH_LEN + len)
+                    .put(uuidBytes(channelId)).put(payload, off, len);
+            out.write(frameBuffer, 0, total);
             out.flush();
         }
     }
@@ -303,12 +323,7 @@ class SipMuxConnection {
      * @return 16 字节
      */
     private static byte[] uuidBytes(String uuid) {
-        String hex = uuid.replace("-", "");
-        byte[] data = new byte[CH_LEN];
-        for (int i = 0; i < CH_LEN; i++) {
-            data[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
-        }
-        return data;
+        return HexFormat.of().parseHex(uuid.replace("-", ""));
     }
 
     /**
@@ -318,11 +333,7 @@ class SipMuxConnection {
      * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
-        StringBuilder hex = new StringBuilder();
-        for (byte b : data) {
-            hex.append(String.format("%02x", b));
-        }
-        String s = hex.toString();
+        String s = HexFormat.of().formatHex(data);
         return s.substring(0, 8) + "-" + s.substring(8, 12) + "-" + s.substring(12, 16)
                 + "-" + s.substring(16, 20) + "-" + s.substring(20);
     }

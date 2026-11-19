@@ -83,10 +83,21 @@ class SipMuxStream {
      * @param payload 负载
      */
     void send(byte[] payload) {
+        send(payload, 0, payload.length);
+    }
+
+    /**
+     * 发送数据（支持偏移与长度，避免调用方中间拷贝）。
+     *
+     * @param payload 负载数组
+     * @param off     起始偏移
+     * @param len     字节长度
+     */
+    void send(byte[] payload, int off, int len) {
 
         if (!closed) {
             try {
-                connection.sendFrame(channelId, payload);
+                connection.sendFrame(channelId, payload, off, len);
             } catch (Exception e) {
                 log.debug("SIP mux 发送失败: {}", e.getMessage());
                 peerClosed();

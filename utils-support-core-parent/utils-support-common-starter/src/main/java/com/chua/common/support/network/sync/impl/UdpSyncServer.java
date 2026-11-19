@@ -279,7 +279,7 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
      * @param topic    主题
      * @param payload  消息体
      */
-    private void notifyMessageListener(String clientId, String topic, String payload) {
+    private void notifyMessageListener(String clientId, String topic, Object payload) {
         for (SyncServerListener listener : listeners) {
             try {
                 listener.onMessage(clientId, topic, payload);

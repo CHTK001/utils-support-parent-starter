@@ -42,6 +42,12 @@ import reactor.core.publisher.Mono;
 public class JdkHttpClientExecutor implements HttpClientExecutor {
 
     /**
+     * 字节数组响应体 handler（无状态，同步/异步所有请求共享，免去每请求新建）
+     */
+    private static final HttpResponse.BodyHandler<byte[]> BYTE_ARRAY_HANDLER =
+            HttpResponse.BodyHandlers.ofByteArray();
+
+    /**
      * JDK 内置 HTTP 客户端实例（跟随重定向）。
      *
      * <p>配置了自动跟随标准重定向（NORMAL 模式：跟随 HTTP→HTTP 和 HTTPS→HTTPS 的重定向，
@@ -177,7 +183,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
         HttpClient targetClient = resolveHttpClient(request);
 
         // 发送请求并获取响应（同步）
-        HttpResponse<byte[]> response = targetClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> response = targetClient.send(builder.build(), BYTE_ARRAY_HANDLER);
 
         // 封装响应
         ClientResponse cr = new ClientResponse();
@@ -294,7 +300,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
 
             HttpClient targetClient = resolveHttpClient(request);
             CompletableFuture<HttpResponse<byte[]>> future = targetClient
-                    .sendAsync(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+                    .sendAsync(builder.build(), BYTE_ARRAY_HANDLER);
             return Mono.fromFuture(future).map(response -> {
                 ClientResponse cr = new ClientResponse();
                 cr.setStatusCode(response.statusCode());

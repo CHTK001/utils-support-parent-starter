@@ -312,6 +312,9 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
             String base = pattern.substring(0, pattern.length() - 2);
             return requestPath.startsWith(base) && requestPath.indexOf('/', base.length()) < 0;
         }
-        return requestPath.startsWith(pattern + "/");
+        int patternLen = pattern.length();
+        return requestPath.length() > patternLen
+                && requestPath.charAt(patternLen) == '/'
+                && requestPath.startsWith(pattern);
     }
 }

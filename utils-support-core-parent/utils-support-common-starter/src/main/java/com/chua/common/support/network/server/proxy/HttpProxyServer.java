@@ -175,15 +175,31 @@ public class HttpProxyServer extends AbstractProxyServer {
     }
 
     /**
+     * 忽略大小写包含判断(避免 toLowerCase 产生中间串)。
+     *
+     * @param text  原文
+     * @param token 目标串
+     * @return 是否包含
+     */
+    private static boolean containsIgnoreCase(String text, String token) {
+        int tl = token.length();
+        for (int i = 0, limit = text.length() - tl; i <= limit; i++) {
+            if (text.regionMatches(true, i, token, 0, tl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 响应头是否 Connection: close（连接不可复用）。
-     * @param header 请求头，不允许为 null
+     * @param head 头部文本，不允许为 null
      * @return 是否成功（true 表示成功）
      */
-    private boolean connectionClose(byte[] header) {
-        String head = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+    private boolean connectionClose(String head) {
         for (String line : head.split("\r\n")) {
-            if (line.toLowerCase().startsWith("connection:")) {
-                return line.toLowerCase().contains("close");
+            if (line.regionMatches(true, 0, "connection:", 0, "connection:".length())) {
+                return containsIgnoreCase(line, "close");
             }
         }
         return false;
@@ -226,7 +242,7 @@ public class HttpProxyServer extends AbstractProxyServer {
                 String path = parts[1];
 
                 // 客户端是否要求 keep-alive（HTTP/1.1 默认 keep-alive）
-                boolean clientKeepAlive = !connectionClose(header);
+                boolean clientKeepAlive = !connectionClose(headText);
 
                 InetSocketAddress backend = targetResolver.resolve(null);
                 if (backend == null || backend.getPort() <= 0) {
@@ -256,14 +272,16 @@ OutputStream backOut = backendSocket.getOutputStream();
                         if (respHeader != null) {
                             out.write(respHeader);
                             out.flush();
-                            if (isChunked(respHeader)) {
+                            // 头只解码一次，后续 isChunked/contentLength/connectionClose 共用
+                            String respText = new String(respHeader, java.nio.charset.StandardCharsets.ISO_8859_1);
+                            if (isChunked(respText)) {
                                 pipeChunked(backIn, out);
-                                backendKeepAlive = !connectionClose(respHeader);
+                                backendKeepAlive = !connectionClose(respText);
                             } else {
-                                int cl = contentLength(respHeader);
+                                int cl = contentLength(respText);
                                 if (cl > 0) {
                                     pipeN(backIn, out, cl);
-                                    backendKeepAlive = !connectionClose(respHeader);
+                                    backendKeepAlive = !connectionClose(respText);
                                 } else {
                                     // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
                                     pipeRaw(backIn, out);
@@ -367,9 +385,8 @@ OutputStream backOut = backendSocket.getOutputStream();
      * @param header 请求头，不允许为 null
      * @return 是否成功（true 表示成功）
      */
-    private boolean isChunked(byte[] header) {
-        String text = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
-        return text.toLowerCase().contains("transfer-encoding: chunked");
+    private boolean isChunked(String text) {
+        return containsIgnoreCase(text, "transfer-encoding: chunked");
     }
 
     /**
@@ -380,7 +397,7 @@ OutputStream backOut = backendSocket.getOutputStream();
      */
     private int contentLength(String headText) {
         for (String line : headText.split("\r\n")) {
-            if (line.toLowerCase().startsWith("content-length:")) {
+            if (line.regionMatches(true, 0, "content-length:", 0, "content-length:".length())) {
                 try {
                     return Integer.parseInt(line.substring("content-length:".length()).trim());
                 } catch (NumberFormatException ignored) {
@@ -389,15 +406,6 @@ OutputStream backOut = backendSocket.getOutputStream();
             }
         }
         return 0;
-    }
-
-    /**
-     * 响应头中的 Content-Length（用于判断是否转发 body）。
-     * @param header 请求头，不允许为 null
-     * @return 结果数值
-     */
-    private int contentLength(byte[] header) {
-        return contentLength(new String(header, java.nio.charset.StandardCharsets.ISO_8859_1));
     }
 
     /**

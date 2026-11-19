@@ -52,6 +52,39 @@ public class AioHttpProxyServer extends AbstractServer {
             new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
+     * 16K 直接中转缓冲池(Pump/LimitedRelay 复用,避免每连接原生内存分配)。
+     */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> RELAY_BUF_POOL =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /**
+     * 中转缓冲池上限,超出后交由 GC 释放原生内存。
+     */
+    private static final int RELAY_BUF_POOL_MAX = 64;
+
+    /**
+     * 从池中取 16K 直接缓冲,池空则新分配。
+     *
+     * @return 直接缓冲
+     */
+    private static ByteBuffer acquireRelayBuf() {
+        ByteBuffer buf = RELAY_BUF_POOL.poll();
+        return buf != null ? buf : ByteBuffer.allocateDirect(16384);
+    }
+
+    /**
+     * 归还 16K 直接缓冲(仅空闲时调用;池满则丢弃交由 GC 释放)。
+     *
+     * @param buf 待归还缓冲
+     */
+    private static void releaseRelayBuf(ByteBuffer buf) {
+        if (buf != null && RELAY_BUF_POOL.size() < RELAY_BUF_POOL_MAX) {
+            buf.clear();
+            RELAY_BUF_POOL.offer(buf);
+        }
+    }
+
+    /**
      * 从池中取或新建后端连接
      */
     private void acquireBackend(String hostKey, InetSocketAddress addr,
@@ -265,9 +298,9 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         private final AsynchronousSocketChannel dst;
         /**
-         * 中转缓冲
+         * 中转缓冲(池化)
          */
-        private final ByteBuffer buf = ByteBuffer.allocateDirect(16384);
+        private final ByteBuffer buf = acquireRelayBuf();
         /**
          * 共享去重标志
          */
@@ -332,6 +365,7 @@ public class AioHttpProxyServer extends AbstractServer {
         */
         private void finish() {
             if (fired.compareAndSet(false, true)) {
+                releaseRelayBuf(buf);
                 closeQuietly(src);
                 closeQuietly(dst);
                 onClose.run();
@@ -607,9 +641,9 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         private final AsynchronousSocketChannel dst;
         /**
-         * 中转缓冲
+         * 中转缓冲(池化)
          */
-        private final ByteBuffer buf = ByteBuffer.allocateDirect(16384);
+        private final ByteBuffer buf = acquireRelayBuf();
         /**
          * 粘包溢出缓冲（可空）：本次 read 超过 left 的多余字节留到此缓冲供后续解析
          */
@@ -676,17 +710,27 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         void start() {
             if (left <= 0 || !running) {
-                onDone.run();
+                end(onDone);
                 return;
             }
             buf.clear();
             src.read(buf, null, this);
         }
 
+        /**
+         * 终态回调：先归还中转缓冲再触发业务回调。
+         *
+         * @param cb 业务回调
+         */
+        private void end(Runnable cb) {
+            releaseRelayBuf(buf);
+            cb.run();
+        }
+
         @Override
         public void completed(Integer nRead, Void attachment) {
             if (nRead == null || nRead < 0) {
-                onEof.run();
+                end(onEof);
                 return;
             }
             buf.flip();
@@ -716,7 +760,7 @@ public class AioHttpProxyServer extends AbstractServer {
                     }
                     left -= toForward;
                     if (left <= 0) {
-                        onDone.run();
+                        end(onDone);
                     } else {
                         LimitedRelay.this.start();
                     }
@@ -724,14 +768,14 @@ public class AioHttpProxyServer extends AbstractServer {
 
                 @Override
                 public void failed(Throwable exc, Void attachment) {
-                    onError.accept(exc);
+                    end(() -> onError.accept(exc));
                 }
             });
         }
 
         @Override
         public void failed(Throwable exc, Void attachment) {
-            onError.accept(exc);
+            end(() -> onError.accept(exc));
         }
     }
 
@@ -918,7 +962,9 @@ public class AioHttpProxyServer extends AbstractServer {
             ERROR
         }
 
-        private final ByteArrayOutputStream acc = new ByteArrayOutputStream(512);
+        private byte[] acc = new byte[512];
+        private int len;
+        private int win;
         private RequestHead head;
 
         /**
@@ -930,13 +976,17 @@ public class AioHttpProxyServer extends AbstractServer {
         Result feed(ByteBuffer in) {
             while (in.hasRemaining()) {
                 int b = in.get() & 0xFF;
-                acc.write(b);
-                if (b == '\n' && endsWithHeaderEnd()) {
-                    head = parse(new String(acc.toByteArray(),
+                if (len == acc.length) {
+                    acc = java.util.Arrays.copyOf(acc, acc.length * 2);
+                }
+                acc[len++] = (byte) b;
+                win = (win << 8) | b;
+                if (win == 0x0D0A0D0A) {
+                    head = parse(new String(acc, 0, len,
                             StandardCharsets.ISO_8859_1));
                     return head == null ? Result.ERROR : Result.DONE;
                 }
-                if (acc.size() > 65536) {
+                if (len > 65536) {
                     return Result.ERROR;
                 }
             }
@@ -956,19 +1006,9 @@ public class AioHttpProxyServer extends AbstractServer {
          * 重置以复用于同连接下一请求。
          */
         void reset() {
-            acc.reset();
+            len = 0;
+            win = 0;
             head = null;
-        }
-
-        /**
-         * ends With Header End
-         * @return 返回值
-        */
-        private boolean endsWithHeaderEnd() {
-            byte[] d = acc.toByteArray();
-            int n = d.length;
-            return n >= 4 && d[n - 4] == '\r' && d[n - 3] == '\n'
-                    && d[n - 2] == '\r' && d[n - 1] == '\n';
         }
 
         /**
@@ -1105,7 +1145,9 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     static final class ResponseParser {
 
-        private final ByteArrayOutputStream acc = new ByteArrayOutputStream(256);
+        private byte[] acc = new byte[256];
+        private int len;
+        private int win;
         private ResponseMeta meta;
 
         /**
@@ -1117,12 +1159,16 @@ public class AioHttpProxyServer extends AbstractServer {
         HeadParser.Result feed(ByteBuffer in) {
             while (in.hasRemaining()) {
                 int b = in.get() & 0xFF;
-                acc.write(b);
-                if (b == '\n' && endsWithHeaderEnd()) {
-                    meta = parse(acc.toByteArray());
+                if (len == acc.length) {
+                    acc = java.util.Arrays.copyOf(acc, acc.length * 2);
+                }
+                acc[len++] = (byte) b;
+                win = (win << 8) | b;
+                if (win == 0x0D0A0D0A) {
+                    meta = parse(java.util.Arrays.copyOf(acc, len));
                     return meta == null ? HeadParser.Result.ERROR : HeadParser.Result.DONE;
                 }
-                if (acc.size() > 65536) {
+                if (len > 65536) {
                     return HeadParser.Result.ERROR;
                 }
             }
@@ -1136,17 +1182,6 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         ResponseMeta meta() {
             return meta;
-        }
-
-        /**
-         * ends With Header End
-         * @return 返回值
-        */
-        private boolean endsWithHeaderEnd() {
-            byte[] d = acc.toByteArray();
-            int n = d.length;
-            return n >= 4 && d[n - 4] == '\r' && d[n - 3] == '\n'
-                    && d[n - 2] == '\r' && d[n - 1] == '\n';
         }
 
         /**

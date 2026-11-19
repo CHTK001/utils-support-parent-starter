@@ -124,6 +124,11 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public ClientResponse execute(ClientRequest request) {
+        // 无拦截器时直接走真实调用：省去每次请求的链对象与 merge 列表分配
+        // （与 executeAsync 的短路一致；重试仍在 doExecute 内处理，语义不变）
+        if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null) {
+            return doExecute(request);
+        }
         return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
                 request, this::doExecute)
                 .proceed(request);

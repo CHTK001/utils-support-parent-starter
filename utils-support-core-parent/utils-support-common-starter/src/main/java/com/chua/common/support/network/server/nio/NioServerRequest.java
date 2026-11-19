@@ -198,6 +198,21 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
+     * 创建 NioServerRequest 实例(NIO 场景,字符集直传重载:调用方已持有
+     * {@link Charset} 时免去每连接 {@link Charset#forName} 查找)。
+     *
+     * @param channel        通道
+     * @param maxRequestSize 最大值请求大小，不允许为 null
+     * @param charset        字符集，不允许为 null
+     */
+    public NioServerRequest(SocketChannel channel, long maxRequestSize, Charset charset) {
+        this.channel = channel;
+        this.remoteAddress = null;
+        this.maxRequestSize = maxRequestSize;
+        this.defaultCharset = charset;
+    }
+
+    /**
      * 创建 NioServerRequest 实例(传输无关场景:AIO/IOCP 等无 {@link SocketChannel} 的实现,
      * 解析状态机与 NIO 完全共用,仅远端地址由调用方在连接建立时预存传入)
      *
@@ -210,6 +225,21 @@ public class NioServerRequest implements ServerRequest {
         this.remoteAddress = remoteAddress;
         this.maxRequestSize = maxRequestSize;
         this.defaultCharset = Charset.forName(charset);
+    }
+
+    /**
+     * 创建 NioServerRequest 实例(传输无关场景,字符集直传重载:调用方已持有
+     * {@link Charset} 时免去每连接 {@link Charset#forName} 查找)。
+     *
+     * @param remoteAddress  远端地址(连接建立时预存,可为 null 表示未知)
+     * @param maxRequestSize 最大请求体尺寸(字节)
+     * @param charset        默认字符集
+     */
+    public NioServerRequest(SocketAddress remoteAddress, long maxRequestSize, Charset charset) {
+        this.channel = null;
+        this.remoteAddress = remoteAddress;
+        this.maxRequestSize = maxRequestSize;
+        this.defaultCharset = charset;
     }
 
     /**
@@ -785,7 +815,9 @@ public class NioServerRequest implements ServerRequest {
             return -1;
         }
     }
-    @Override public byte[] getBody() { return body != null ? body : new byte[0]; }
+    /** 共享空请求体(避免每次返回新分配的空数组) */
+    private static final byte[] EMPTY_BODY = new byte[0];
+    @Override public byte[] getBody() { return body != null ? body : EMPTY_BODY; }
     @Override public String getBodyString() { return new String(getBody(), resolveCharset()); }
     @Override public InputStream getInputStream() { return new ByteArrayInputStream(getBody()); }
     @Override public String getRemoteAddress() {

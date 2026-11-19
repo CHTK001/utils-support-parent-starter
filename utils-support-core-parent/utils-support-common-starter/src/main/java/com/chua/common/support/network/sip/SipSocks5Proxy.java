@@ -140,7 +140,7 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
                         if (!session.isOpen()) {
                             break;
                         }
-                        session.sendBytes(java.util.Arrays.copyOf(buffer, read));
+                        session.sendBytes(buffer, 0, read);
                     }
                 } catch (IOException e) {
                     log.debug("[SIP-SOCKS5] 转发数据读取失败: {}", e.getMessage());

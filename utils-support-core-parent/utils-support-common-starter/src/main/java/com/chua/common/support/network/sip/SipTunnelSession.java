@@ -117,11 +117,23 @@ public class SipTunnelSession {
      * @param data 字节数据
      */
     public void sendBytes(byte[] data) {
+        sendBytes(data, 0, data.length);
+    }
+
+    /**
+     * 向通道对端发送二进制数据（走 frp 数据平面裸字节流）。
+     * 支持偏移与长度，调用方可复用读取缓冲，避免中间拷贝。
+     *
+     * @param data 字节数组
+     * @param off  起始偏移
+     * @param len  字节长度
+     */
+    public void sendBytes(byte[] data, int off, int len) {
 
         SipMuxStream mux = muxStream;
         if (mux != null) {
             if (!mux.isClosed()) {
-                mux.send(data);
+                mux.send(data, off, len);
             } else {
                 log.debug("SIP sendBytes skipped(mux closed): channel={}", channelId);
             }
@@ -130,7 +142,7 @@ public class SipTunnelSession {
         SipTunnelStream stream = dataStream;
         if (stream != null && !stream.isClosed()) {
             try {
-                stream.send(data);
+                stream.send(data, off, len);
             } catch (Exception e) {
                 close();
             }

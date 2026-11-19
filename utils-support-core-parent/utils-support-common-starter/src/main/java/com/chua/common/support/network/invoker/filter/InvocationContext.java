@@ -102,6 +102,18 @@ public class InvocationContext implements ServerRequest, ServerResponse {
         }
     }
 
+    /**
+     * 遍历请求头，直接迭代内部请求头表（保持插入顺序）。
+     *
+     * <p>相比 {@code getHeaders().toMap().forEach(...)} 免去两次中间拷贝；
+     * 回调中不应修改本上下文。</p>
+     *
+     * @param consumer 每个请求头条目的回调（name, value）
+     */
+    public void forEachHeader(java.util.function.BiConsumer<String, String> consumer) {
+        headers.forEach(consumer);
+    }
+
     @Override public String getUri() { return path; }
     @Override public String getHeader(String name) { return headers.get(name); }
     @Override

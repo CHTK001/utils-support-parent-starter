@@ -396,10 +396,38 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         try {
             byte[] data = MessageProtocol.encode(msg);
             DatagramPacket packet = new DatagramPacket(data, data.length,
-                    InetAddress.getByName(target.getHost()), target.getPort());
+                    resolveAddress(target.getHost()), target.getPort());
             udpSocket.send(packet);
         } catch (IOException e) {
             log.debug("UDP 发送失败至 {}: {}", target.getServerId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 主机名 → InetAddress 解析缓存（仅缓存成功结果，解析失败不缓存）。
+     * 心跳/成员传播按目标主机反复发包，缓存后免每次走 {@code InetAddress.getByName} 的查找链。
+     */
+    private static final java.util.concurrent.ConcurrentHashMap<String, InetAddress> RESOLVED_ADDRESSES =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 解析目标主机地址：成功结果按主机名缓存，失败抛出原始 UnknownHostException。
+     *
+     * @param host 主机名/IP
+     * @return 已解析地址
+     * @throws IOException 解析失败（UnknownHostException 原样传播，由调用方按原语义处理）
+     */
+    private static InetAddress resolveAddress(String host) throws IOException {
+        try {
+            return RESOLVED_ADDRESSES.computeIfAbsent(host, h -> {
+                try {
+                    return InetAddress.getByName(h);
+                } catch (IOException e) {
+                    throw new java.io.UncheckedIOException(e);
+                }
+            });
+        } catch (java.io.UncheckedIOException e) {
+            throw e.getCause();
         }
     }
 

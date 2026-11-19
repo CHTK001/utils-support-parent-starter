@@ -167,9 +167,11 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
                     return;
                 }
                 String body = new String(exchange.getRequestBody().readAllBytes());
-                String topic = extractParam(body, "topic");
-                String message = extractParam(body, "message");
-                String cid = extractParam(body, "clientId");
+                // body 只切分一次：原实现每个参数都重新 split("&") 并对全量键值做 URL 解码
+                Map<String, String> formParams = parseFormParams(body);
+                String topic = extractParam(formParams, body, "topic");
+                String message = extractParam(formParams, body, "message");
+                String cid = extractParam(formParams, body, "clientId");
                 if (topic != null && message != null && cid != null) {
                     // 客户端发消息本身也是存活证明：心跳、注册、业务消息都会走到这里
                     touchClient(cid);
@@ -215,7 +217,8 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
                     return;
                 }
                 String body = new String(exchange.getRequestBody().readAllBytes());
-                String clientId = extractParam(body, "clientId");
+                Map<String, String> formParams = parseFormParams(body);
+                String clientId = extractParam(formParams, body, "clientId");
                 if (clientId != null) {
                     clients.putIfAbsent(clientId, Wraps.map());
                     touchClient(clientId);
@@ -352,7 +355,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
         messageQueues.computeIfAbsent(topic, k -> Wraps.deque())
                 .add(topic + ":" + encodeMessage(message));
         signalMessage();
-        notifyListener(l -> l.onMessage(clientId, topic, message));
+        notifyMessageListener(clientId, topic, message);
     }
 
     /**
@@ -510,41 +513,66 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     }
 
     /**
-     * 提取参数（支持 form-urlencoded 和 JSON 格式）
-     * @param body 请求体，不允许为 null
-     * @param key 键，不允许为 null
+     * 把 form-urlencoded 请求体一次性切分为参数表。
+     *
+     * <p>原 {@code extractParam(body, key)} 每取一个参数都要重新 {@code split("&")}
+     * 并对全部键值做 URL 解码；{@code /api/sync/send} 一次请求取 3 个参数就是 3 遍全量切分。
+     * 这里只切分一次；{@code putIfAbsent} 保证同键多次出现时取首个匹配，与原实现的
+     * 顺序扫描语义一致。</p>
+     *
+     * @param body 请求体，允许为 null
+     * @return 参数表（解码后的键值），无表单段时为空表
+     */
+    private Map<String, String> parseFormParams(String body) {
+        Map<String, String> params = Wraps.map();
+        if (body == null || !body.contains("=")) {
+            return params;
+        }
+        for (String pair : body.split("&")) {
+            int idx = pair.indexOf('=');
+            if (idx > 0) {
+                String k = pair.substring(0, idx);
+                String v = pair.substring(idx + 1);
+                try {
+                    k = java.net.URLDecoder.decode(k, "UTF-8");
+                    v = java.net.URLDecoder.decode(v, "UTF-8");
+                } catch (Exception e) {
+                    log.debug("[sync] URL 解码失败，使用原始值: {}", e.getMessage());
+                }
+                params.putIfAbsent(k, v);
+            }
+        }
+        return params;
+    }
+
+    /**
+     * 提取参数：先查一次切分好的表单参数表，未命中再按 JSON {@code "key":"value"} 兜底。
+     *
+     * <p>与原实现语义一致：表单匹配同时接受「URL 编码后的 key」；JSON 兜底只识别
+     * 带引号的字符串值。</p>
+     *
+     * @param formParams 已切分的表单参数
+     * @param body       原始请求体（JSON 兜底扫描用），不允许为 null
+     * @param key        键，不允许为 null
      * @return 结果字符串
      */
-    private String extractParam(String body, String key) {
+    private String extractParam(Map<String, String> formParams, String body, String key) {
         if (body == null || key == null) {
             return null;
         }
-
-        String encodedKey = key;
-        try {
-            encodedKey = java.net.URLEncoder.encode(key, "UTF-8");
-        } catch (Exception e) {
-            log.debug("[sync] URL 编码失败，使用原始 key: {}", e.getMessage());
+        String value = formParams.get(key);
+        if (value != null) {
+            return value;
         }
-
-        if (body.contains("=")) {
-            String[] pairs = body.split("&");
-            for (String pair : pairs) {
-                int idx = pair.indexOf('=');
-                if (idx > 0) {
-                    String k = pair.substring(0, idx);
-                    String v = pair.substring(idx + 1);
-                    try {
-                        k = java.net.URLDecoder.decode(k, "UTF-8");
-                        v = java.net.URLDecoder.decode(v, "UTF-8");
-                    } catch (Exception e) {
-                        log.debug("[sync] URL 解码失败，使用原始值: {}", e.getMessage());
-                    }
-                    if (key.equals(k) || encodedKey.equals(k)) {
-                        return v;
-                    }
-                }
-            }
+        try {
+            // 原实现还会按 URL 编码后的 key 再匹配一次；ASCII key 两者相同，
+            // 保留该分支以完全等价（如中文 key「消息」-> "%E6%B6%88%E6%81%AF"）
+            value = formParams.get(java.net.URLEncoder.encode(key, "UTF-8"));
+        } catch (Exception e) {
+            log.debug("[sync] URL 编码失败，跳过编码 key 匹配: {}", e.getMessage());
+        }
+        if (value != null) {
+            return value;
         }
 
         String pattern = "\"" + key + "\"";
@@ -562,6 +590,23 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
             return null;
         }
         return body.substring(start + 1, end);
+    }
+
+    /**
+     * 通知消息监听器（每消息热路径专用：避免每条消息分配捕获型 lambda）。
+     *
+     * @param clientId 客户端标识
+     * @param topic    主题
+     * @param message  消息体
+     */
+    private void notifyMessageListener(String clientId, String topic, Object message) {
+        for (SyncServerListener listener : listeners) {
+            try {
+                listener.onMessage(clientId, topic, message);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
     /**

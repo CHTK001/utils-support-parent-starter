@@ -13,6 +13,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -97,9 +98,10 @@ public class NativeRpcServer implements RpcServer {
     private ServiceDiscovery serviceDiscovery;
 
     /**
-     * 服务方法缓存：避免每次请求都走 getMethod 反射查找（热路径开销）
+     * 服务方法句柄缓存（未绑定实例）：避免每次请求都做方法查找与
+     * {@code METHOD_HANDLE_CACHE} 键构建（热路径开销）。实例绑定在调用时进行。
      */
-    private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
+    private final Map<MethodKey, MethodHandle> methodCache = new ConcurrentHashMap<>();
 
     /**
      * 请求/响应编解码器（SPI 序列化，Fury 优先）
@@ -206,14 +208,14 @@ public class NativeRpcServer implements RpcServer {
                 response.setError("Service not found: " + request.getService());
                 return response;
             }
-            java.lang.reflect.Method method = resolveMethod(service, request);
-            Object result = ReflectUtils.invoke(service, request.getMethod(), Object.class,
-                    method.getParameterTypes(), request.getArgs());
+            MethodHandle handle = resolveMethodHandle(service, request);
+            Object result = invokeHandle(handle, service, request);
             response.setSuccess(true);
             response.setResult(result);
         } catch (Exception e) {
-            // method.invoke 会把业务方法抛出的异常包装成 InvocationTargetException（其 getMessage 为 null，
-            // toString 只显示包装类名），必须解包根因，否则客户端拿到的远程错误消息丢失原始信息。
+            // resolveMethodHandle 抛出的 NoSuchMethodException 无 cause，直接取自身消息；
+            // 业务调用异常已在 invokeHandle 内按 ReflectUtils.invoke 的
+            // catch Throwable→null 语义消化，不会走到这里。
             Throwable cause = (e instanceof java.lang.reflect.InvocationTargetException ite && ite.getCause() != null)
                     ? ite.getCause() : e;
             response.setSuccess(false);
@@ -223,28 +225,52 @@ public class NativeRpcServer implements RpcServer {
     }
 
     /**
-     * 解析并缓存服务方法：热路径下避免每次请求都做 getMethod 反射查找。
+     * 解析并缓存服务方法的 MethodHandle（未绑定实例）：热路径下避免每次请求都做
+     * 方法查找与全局句柄缓存的键构建。绑定在调用时进行（bindTo 开销极小），
+     * 以保证服务重注册到新实例后行为与反射调用一致。
      *
      * @param service 服务实例
      * @param request RPC 请求
-     * @return 已解析的方法
+     * @return 已解析的方法句柄（未绑定）
      * @throws NoSuchMethodException 方法不存在时抛出
      */
-    private java.lang.reflect.Method resolveMethod(Object service, RpcRequest request) throws NoSuchMethodException {
-        String[] typeNames = request.getParamTypes();
-        MethodKey key = new MethodKey(request.getService(), request.getMethod(), typeNames);
-        java.lang.reflect.Method method = methodCache.get(key);
-        if (method != null) {
-            return method;
+    private MethodHandle resolveMethodHandle(Object service, RpcRequest request) throws NoSuchMethodException {
+        MethodKey key = new MethodKey(request.getService(), request.getMethod(), request.getParamTypes());
+        MethodHandle cached = methodCache.get(key);
+        if (cached != null) {
+            return cached;
         }
-        Class<?>[] paramTypes = resolveParamTypes(typeNames);
-        method = ReflectUtils.findMethod(service.getClass(), request.getMethod(), paramTypes);
+        Class<?>[] paramTypes = resolveParamTypes(request.getParamTypes());
+        java.lang.reflect.Method method = ReflectUtils.findMethod(service.getClass(), request.getMethod(), paramTypes);
         if (method == null) {
             throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
         }
         ClassUtils.setAccessible(method);
-        methodCache.putIfAbsent(key, method);
-        return method;
+        MethodHandle handle = ReflectUtils.findMethodHandle(service.getClass(), request.getMethod(),
+                Object.class, method.getParameterTypes());
+        if (handle == null) {
+            throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
+        }
+        methodCache.putIfAbsent(key, handle);
+        return methodCache.getOrDefault(key, handle);
+    }
+
+    /**
+     * 通过 MethodHandle 调用服务方法。语义与 {@code ReflectUtils.invoke} 一致：
+     * 任何调用异常（含业务异常）记录日志后返回 null，不向上抛出。
+     *
+     * @param handle  方法句柄（未绑定）
+     * @param service 服务实例
+     * @param request RPC 请求
+     * @return 方法返回值，调用异常时返回 null
+     */
+    private Object invokeHandle(MethodHandle handle, Object service, RpcRequest request) {
+        try {
+            return handle.bindTo(service).invokeWithArguments(request.getArgs());
+        } catch (Throwable e) {
+            log.debug("[NativeRpcServer] 方法调用异常: {}.{}", request.getService(), request.getMethod(), e);
+            return null;
+        }
     }
 
     /**

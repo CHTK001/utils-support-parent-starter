@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import com.chua.common.support.utils.StringUtils;
@@ -53,6 +54,21 @@ public class JdkSseClient implements SseClient {
     private static final HttpClient SHARED_HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
             .build();
+
+    /**
+     * 自定义连接超时对应的 HttpClient 缓存（键：connectTimeout 毫秒值）。
+     *
+     * <p>HttpClient 线程安全且各自持有连接池；重连模式下每次 openStream 都新建实例，
+     * 会反复丢弃已建立的连接池并重新握手。按超时值缓存后，除进程级共享的
+     * {@link #SHARED_HTTP_CLIENT}（30000ms）外，自定义超时也只构建一次。</p>
+     */
+    private static final Map<Long, HttpClient> CLIENTS_BY_CONNECT_TIMEOUT = new ConcurrentHashMap<>();
+
+    /**
+     * 共享的 InputStream 响应体 handler（无状态，所有建流复用）
+     */
+    private static final HttpResponse.BodyHandler<InputStream> INPUT_STREAM_HANDLER =
+            HttpResponse.BodyHandlers.ofInputStream();
 
     /**
      * 默认重连间隔（毫秒）
@@ -179,12 +195,13 @@ public class JdkSseClient implements SseClient {
      * @throws Exception 连接或发送失败
      */
     private HttpResponse<InputStream> openStream(SseRequest request, String lastEventId) throws Exception {
-        // 选择客户端：默认超时用共享实例，自定义超时新建
-        HttpClient httpClient = request.getConnectTimeout() == 30000
-                ? SHARED_HTTP_CLIENT
-                : HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofMillis(request.getConnectTimeout()))
-                        .build();
+        // 选择客户端：按连接超时值复用（30000ms 命中进程级共享实例），避免重连时反复建池
+        HttpClient httpClient = CLIENTS_BY_CONNECT_TIMEOUT.computeIfAbsent(
+                request.getConnectTimeout(), timeout -> timeout == 30000L
+                        ? SHARED_HTTP_CLIENT
+                        : HttpClient.newBuilder()
+                                .connectTimeout(Duration.ofMillis(timeout))
+                                .build());
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(request.getUrl()))
@@ -217,7 +234,7 @@ public class JdkSseClient implements SseClient {
                 break;
         }
 
-        return httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+        return httpClient.send(builder.build(), INPUT_STREAM_HANDLER);
     }
 
     /**

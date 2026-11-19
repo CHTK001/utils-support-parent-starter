@@ -263,7 +263,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
                 // 根据注解类型分发处理
                 switch (pa.type) {
-                    case PATH_VARIABLE -> path = path.replace("{" + pa.name + "}", encodePathSegment(sv));
+                    case PATH_VARIABLE -> path = path.replace(pa.token, encodePathSegment(sv));
                     case REQUEST_PARAM -> queryParams.put(pa.name, sv);
                     case REQUEST_HEADER -> headers.put(pa.name, sv);
                     case REQUEST_BODY -> body = arg;
@@ -320,8 +320,8 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * @param headers 请求头容器（就地修改）
      */
     private void applyMethodAnnotations(MethodMetadata meta, Object[] args, Map<String, String> headers) {
-        // 方法级 @RemoteHeader：静态请求头
-        RemoteHeader[] staticHeaders = meta.method.getAnnotationsByType(RemoteHeader.class);
+        // 方法级 @RemoteHeader：静态请求头（解析期已缓存，免每次调用反射扫描）
+        RemoteHeader[] staticHeaders = meta.remoteHeaders;
         for (RemoteHeader rh : staticHeaders) {
             String value = resolvePlaceholders(rh.value());
             if (!StringUtils.isEmpty(value)) {
@@ -330,7 +330,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         }
 
         // 方法级 @RemoteInject：来源提取 + 目标注入
-        RemoteInject[] injects = meta.method.getAnnotationsByType(RemoteInject.class);
+        RemoteInject[] injects = meta.remoteInjects;
         if (injects.length > 0) {
             BeanPath beanPath = BeanPath.getInstance();
             if (beanPath != null) {
@@ -570,7 +570,9 @@ public class HttpApiInvocationHandler implements InvocationHandler {
             pas[i] = resolveParamAnnotation(params[i]);
         }
 
-        return new MethodMetadata(method, httpMethod, pathTemplate, pas);
+        return new MethodMetadata(method, httpMethod, pathTemplate, pas,
+                method.getAnnotationsByType(RemoteHeader.class),
+                method.getAnnotationsByType(RemoteInject.class));
     }
 
     /**
@@ -869,6 +871,10 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
          */
         final String name;
         /**
+         * 路径变量占位符（"{" + name + "}"，解析期预构建，免每调用拼接）
+         */
+        final String token;
+        /**
          * 是否必传（仅 @RequestParam 有效）
          */
         final boolean required;
@@ -898,6 +904,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         ParamAnnotation(ParamType type, String name, boolean required, String defaultValue) {
             this.type = type;
             this.name = name;
+            this.token = "{" + name + "}";
             this.required = required;
             this.defaultValue = defaultValue;
         }
@@ -924,6 +931,14 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
          */
         final ParamAnnotation[] paramAnnotations;
         /**
+         * 方法级 @RemoteHeader 静态头（解析期缓存，方法注解运行期不可变）
+         */
+        final RemoteHeader[] remoteHeaders;
+        /**
+         * 方法级 @RemoteInject 注入规则（解析期缓存）
+         */
+        final RemoteInject[] remoteInjects;
+        /**
          * 方法级注入产生的共享属性（@RemoteInject 与编程式注入规则共用）。
          *
          * <p>本次调用内有效，供链式注入（attributes.X → headers.Y）与
@@ -938,17 +953,22 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         /**
          * 构造
          *
-         * @param method          Java Method 引用
-         * @param httpMethod      HTTP 方法
-         * @param pathTemplate    路径模板
+         * @param method           Java Method 引用
+         * @param httpMethod       HTTP 方法
+         * @param pathTemplate     路径模板
          * @param paramAnnotations 形参注解数组
+         * @param remoteHeaders    方法级 @RemoteHeader 数组
+         * @param remoteInjects    方法级 @RemoteInject 数组
          */
         MethodMetadata(Method method, HttpMethod httpMethod, String pathTemplate,
-                       ParamAnnotation[] paramAnnotations) {
+                       ParamAnnotation[] paramAnnotations, RemoteHeader[] remoteHeaders,
+                       RemoteInject[] remoteInjects) {
             this.method = method;
             this.httpMethod = httpMethod;
             this.pathTemplate = pathTemplate;
             this.paramAnnotations = paramAnnotations;
+            this.remoteHeaders = remoteHeaders;
+            this.remoteInjects = remoteInjects;
         }
     }
 

@@ -200,22 +200,38 @@ public class NativeRpcClient implements RpcClient {
             RpcRequest req = new RpcRequest();
             req.setService(targetType.getName());
             req.setMethod(pm.getMethod().getName());
-            req.setParamTypes(java.util.Arrays.stream(pm.getMethod().getParameterTypes())
-                    .map(Class::getName).toArray(String[]::new));
+            Class<?>[] paramTypes = pm.getMethod().getParameterTypes();
+            String[] paramTypeNames = new String[paramTypes.length];
+            for (int i = 0; i < paramTypes.length; i++) {
+                paramTypeNames[i] = paramTypes[i].getName();
+            }
+            req.setParamTypes(paramTypeNames);
             req.setArgs(pm.getArgs());
 
-            List<String> targets = Wraps.list(addresses);
+            String discovered = null;
             if (serviceDiscovery != null) {
                 String path = "/" + appName + "/" + targetType.getName();
                 Discovery d = serviceDiscovery.getService(path);
                 if (d != null) {
-                    targets.add(0, d.getHost() + ":" + d.getPort());
+                    discovered = d.getHost() + ":" + d.getPort();
                 }
+            }
+            // 无服务发现结果时直接复用只读的 addresses，免每次调用拷贝；
+            // selectFirst 内部自行拷贝，不会修改本列表
+            List<String> targets = addresses;
+            if (discovered != null) {
+                targets = Wraps.list(addresses);
+                targets.add(0, discovered);
             }
             Exception last = null;
             // 按负载均衡策略选择第一个尝试端点；无均衡器或选择失败时退化为顺序遍历
             String first = selectFirst(targets);
-            if (first != null && !first.equals(targets.isEmpty() ? null : targets.getFirst())) {
+            String head = targets.isEmpty() ? null : targets.getFirst();
+            if (first != null && !first.equals(head)) {
+                if (targets == addresses) {
+                    // 需要改序时才拷贝，避免污染共享的 addresses
+                    targets = Wraps.list(addresses);
+                }
                 targets.remove(first);
                 targets.add(0, first);
             }
@@ -251,8 +267,10 @@ public class NativeRpcClient implements RpcClient {
          * @throws Exception 异常
         */
         private Object call(String addr, RpcRequest req) throws Exception {
-            String host = addr.contains(":") ? addr.split(":")[0] : addr;
-            int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
+            // 地址只切分一次（原实现 contains/split 各做两次）
+            int colon = addr.indexOf(':');
+            String host = colon >= 0 ? addr.substring(0, colon) : addr;
+            int port = colon >= 0 ? Integer.parseInt(addr.substring(colon + 1)) : DEFAULT_PORT;
             // 传输层内部维护连接池与超时，此处只做一次请求-响应交换
             byte[] reqData = rpcSerialization.serialize(req);
             byte[] respData = tcpClient.call(host, port, reqData);

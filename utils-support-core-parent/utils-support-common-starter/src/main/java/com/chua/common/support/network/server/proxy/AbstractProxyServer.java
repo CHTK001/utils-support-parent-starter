@@ -136,20 +136,36 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
+     * delegate 方法解析缓存(按过滤器类缓存首次解析结果,避免每连接反射查找)。
+     */
+    private static final java.util.concurrent.ConcurrentHashMap<Class<?>, java.lang.reflect.Method>
+            DELEGATE_METHOD_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
      * 反射取包装的 delegate。
      *
      * @param filter 包装对象
      * @return 被包装的过滤器；没有则 null
      */
     private ServerFilter delegateOf(ServerFilter filter) {
+        Class<?> cls = filter.getClass();
+        java.lang.reflect.Method cached = DELEGATE_METHOD_CACHE.get(cls);
+        if (cached != null) {
+            try {
+                return (ServerFilter) cached.invoke(filter);
+            } catch (ReflectiveOperationException e) {
+                return null;
+            }
+        }
         for (String name : new String[]{"getDelegate", "delegate", "getTarget", "unwrap"}) {
             try {
-                java.lang.reflect.Method method = filter.getClass().getMethod(name);
+                java.lang.reflect.Method method = cls.getMethod(name);
                 if (!ServerFilter.class.isAssignableFrom(method.getReturnType())) {
                     continue;
                 }
                 Object value = method.invoke(filter);
                 if (value instanceof ServerFilter) {
+                    DELEGATE_METHOD_CACHE.putIfAbsent(cls, method);
                     return (ServerFilter) value;
                 }
             } catch (ReflectiveOperationException ignored) {

@@ -128,8 +128,20 @@ class SipTunnelStream {
      * @throws IOException IO 异常
      */
     void send(byte[] payload) throws IOException {
+        send(payload, 0, payload.length);
+    }
+
+    /**
+     * 发送字节流（支持偏移与长度，避免调用方中间拷贝）。
+     *
+     * @param payload 负载数组
+     * @param off     起始偏移
+     * @param len     字节长度
+     * @throws IOException IO 异常
+     */
+    void send(byte[] payload, int off, int len) throws IOException {
         synchronized (out) {
-            out.write(payload);
+            out.write(payload, off, len);
             out.flush();
         }
     }
