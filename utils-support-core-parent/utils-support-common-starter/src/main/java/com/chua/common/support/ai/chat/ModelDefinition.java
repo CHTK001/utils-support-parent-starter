@@ -367,6 +367,18 @@ public class ModelDefinition {
     private BigDecimal internalReasoningPrice;
 
     /**
+     * 输入模态列表
+     *
+     * <p>模型接受的输入类型，如 text / image / audio / video / pdf。
+     * 来自数据源的 {@code modalities.input}（models.dev）或
+     * {@code architecture.input_modalities}（OpenRouter）。</p>
+     *
+     * <p>缺省为 {@code null} 表示「数据源未声明」，不要当成「只支持文本」；
+     * 下游需要按模型类型兜底时自己判断。</p>
+     */
+    private List<String> inputModalities;
+
+    /**
      * 输出模态列表
      *
      * <p>模型支持的输出类型，如 text / image / audio。

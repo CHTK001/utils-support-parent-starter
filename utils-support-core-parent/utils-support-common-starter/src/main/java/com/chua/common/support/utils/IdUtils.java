@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.utils.StringUtils;
@@ -32,6 +33,7 @@ import com.chua.common.support.utils.StringUtils;
  *   <li>{@link #createKafkaSequenceId()} — Kafka 自增序列 ID</li>
  *   <li>{@link #createMacSequenceId()} — 基于 MAC 地址的自增序列 ID</li>
  *   <li>{@link #createTimeId()} / {@link #createTimeId(int)} — 时间戳组合 ID</li>
+ *   <li>{@link #createOrderNo(String)} — 业务单号（前缀+毫秒时间戳+6位随机十六进制）</li>
  *   <li>{@link #createDailySequenceId()} — 日期自增序列 ID（格式：前缀+yyyyMMdd+9位序列）</li>
  *   <li>{@link #getId(Object)} — 基于对象字段值的 MD5 唯一标识</li>
  *   <li>{@link #createMd5(String)} — 通用 MD5 计算</li>
@@ -291,6 +293,25 @@ public class IdUtils {
             return sb.substring(0, length);
         }
         return sb + StringUtils.repeat("0", length - sb.length());
+    }
+
+    /**
+     * 生成业务单号（前缀 + 毫秒时间戳 + 6 位随机十六进制）
+     *
+     * <p>
+     * 格式：{@code 前缀 + System.currentTimeMillis() + UUID 前 6 位十六进制（大写）}，
+     * 适用于订单号、退款单号、交易流水号、提现/转账单号、商户编号等业务单号生成。
+     * 同毫秒内碰撞概率极低且跨节点无需协调；对强有序或强防碰撞场景，
+     * 请改用 {@link #createSnowflakeId()} 或 {@link #createUuidv7()}。
+     * </p>
+     *
+     * @param prefix 业务前缀，如 "ORD"、"REF"、"TRX"，为空时忽略
+     * @return 业务单号字符串
+     */
+    public static String createOrderNo(String prefix) {
+        return (StringUtils.isNotEmpty(prefix) ? prefix : "")
+                + System.currentTimeMillis()
+                + UUID.randomUUID().toString().substring(0, 6).toUpperCase(Locale.ROOT);
     }
 
     /**

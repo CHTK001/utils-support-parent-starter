@@ -1,6 +1,5 @@
 package com.chua.common.support.browser;
 
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +58,28 @@ public final class CdpScreenshot {
      * @param options 配置回调，可为空
      */
     public static void screenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
+        byte[] png = screenshotBytes(url, options);
+        Path target = Path.of(outFile);
+        Path parent = target.getParent();
+        try {
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.write(target, png);
+        } catch (IOException e) {
+            throw new IllegalStateException("写入截图失败: " + outFile, e);
+        }
+        log.info("[cdp] 截图已保存: {}", outFile);
+    }
+
+    /**
+     * 截取 URL 页面并返回 PNG 字节
+     *
+     * @param url     页面地址
+     * @param options 配置回调，可为空
+     * @return PNG 字节
+     */
+    public static byte[] screenshotBytes(String url, Consumer<ScreenshotConfig> options) {
         ScreenshotConfig config = new ScreenshotConfig();
         config.setBaseUrl(url);
         if (options != null) {
@@ -81,25 +102,39 @@ public final class CdpScreenshot {
                 page.setExtraHeaders(config.getExtraHttpHeaders());
             }
             page.navigate(config.getBaseUrl() == null ? "about:blank" : config.getBaseUrl());
-            waitForSelector(page, config);
+            if (StringUtils.isNotBlank(config.getWaitSelector())
+                    && !page.waitForSelector(config.getWaitSelector(), config.getWaitTimeout())) {
+                log.warn("[cdp] 等待选择器超时: {}", config.getWaitSelector());
+            }
             if (config.getExtraWaitMillis() > 0) {
                 sleep(config.getExtraWaitMillis());
             }
-            byte[] png = page.screenshot(config.getFullPage());
-            Path target = Path.of(outFile);
-            Path parent = target.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
-            }
-            Files.write(target, png);
-            log.info("[cdp] 截图已保存: {}", outFile);
-        } catch (IOException e) {
-            throw new IllegalStateException("写入截图失败: " + outFile, e);
+            return page.screenshot(config.getFullPage());
         } catch (Exception e) {
             log.error("[cdp] 截图失败: {}", url, e);
-            printManualInstallGuide();
+            if (isBrowserMissing(e)) {
+                printManualInstallGuide();
+            }
             throw new IllegalStateException("截图失败: " + url, e);
         }
+    }
+
+    /**
+     * 判断异常链里是否为「找不到浏览器」
+     *
+     * @param error 原异常
+     * @return true 表示因缺少浏览器导致
+     */
+    private static boolean isBrowserMissing(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            String message = current.getMessage();
+            if (message != null && message.contains("未找到可用的")) {
+                return true;
+            }
+            current = current.getCause() == current ? null : current.getCause();
+        }
+        return false;
     }
 
     /**
@@ -133,32 +168,6 @@ public final class CdpScreenshot {
                 options.accept(config);
             }
         });
-    }
-
-    /**
-     * 等待选择器出现
-     *
-     * @param page   页面
-     * @param config 配置
-     */
-    private static void waitForSelector(BrowserPage page, ScreenshotConfig config) {
-        if (StringUtils.isBlank(config.getWaitSelector())) {
-            return;
-        }
-        String expression = "document.querySelector(" + Json.toJson(config.getWaitSelector()) + ") != null";
-        long deadline = System.currentTimeMillis() + config.getWaitTimeout();
-        while (System.currentTimeMillis() < deadline) {
-            try {
-                if ("true".equals(page.evaluate(expression, false))) {
-                    return;
-                }
-            } catch (Exception e) {
-                log.debug("[cdp] 查询等待选择器失败: {}", e.getMessage());
-            }
-            // [P3C A20 豁免]
-            sleep(200L);
-        }
-        log.warn("[cdp] 等待选择器超时: {}", config.getWaitSelector());
     }
 
     /**

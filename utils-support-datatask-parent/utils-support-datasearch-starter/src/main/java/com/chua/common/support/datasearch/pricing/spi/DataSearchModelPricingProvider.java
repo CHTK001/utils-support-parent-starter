@@ -376,6 +376,9 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(),
                    target::setInternalReasoningPrice);
         fillIfNull(target::getOutputModalities, src.getOutputModalities(), target::setOutputModalities);
+        fillIfNull(target::getInputModalities, src.getInputModalities(), target::setInputModalities);
+        fillIfNull(target::getMaxOutputTokens, src.getMaxOutputTokens(), target::setMaxOutputTokens);
+        mergeBoolean(target::getAttachment, src.getAttachment(), target::setAttachment);
         fillIfNull(target::getDeprecated, src.getDeprecated(), target::setDeprecated);
         if (src.getCapabilities() != null && !src.getCapabilities().isEmpty()) {
             target.setCapabilities(unionCapabilities(target.getCapabilities(), src.getCapabilities()));

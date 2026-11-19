@@ -38,7 +38,7 @@ import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX
  * Set&lt;Resource&gt; all = ResourceFlow.of("classpath*:META-INF/services/*.xml").getResources();
  *
  * // 自定义配置
- * ResourceConfiguration config = ResourceConfiguration.builder().isParallel(true).build();
+ * ResourceConfiguration config = ResourceConfiguration.builder().parallel(true).build();
  * Set&lt;Resource&gt; custom = ResourceFlow.of("classpath*:com/chua/*.class", config).getResources();
  * </pre>
  *

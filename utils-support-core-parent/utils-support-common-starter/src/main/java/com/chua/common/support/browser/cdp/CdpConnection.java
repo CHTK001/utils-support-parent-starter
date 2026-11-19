@@ -128,9 +128,13 @@ final class CdpConnection implements AutoCloseable {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         pending.put(id, future);
         try {
+            CompletableFuture<WebSocket> sent;
             synchronized (sendLock) {
-                socket.sendText(Json.toJson(message), true).join();
+                // 锁只保护「入队」这一步；若在锁内等待写出完成，
+                // 读线程（selector 线程）将无法入队自身的事件应答，形成环形等待
+                sent = socket.sendText(Json.toJson(message), true);
             }
+            sent.join();
             Map<String, Object> result = future.get(
                     (timeout == null ? DEFAULT_TIMEOUT : timeout).toMillis(), TimeUnit.MILLISECONDS);
             Object error = result.get("__error");
@@ -138,6 +142,8 @@ final class CdpConnection implements AutoCloseable {
                 throw new IllegalStateException("CDP " + method + " 失败: " + Json.toJson(error));
             }
             return result;
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("等待 CDP 命令被中断: " + method, e);
@@ -145,8 +151,41 @@ final class CdpConnection implements AutoCloseable {
             throw new IllegalStateException("CDP 命令异常: " + method, e.getCause());
         } catch (TimeoutException e) {
             throw new IllegalStateException("CDP 命令超时: " + method, e);
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("发送 CDP 命令失败: " + method, e);
         } finally {
             pending.remove(id);
+        }
+    }
+
+    /**
+     * 发送命令但不等待结果
+     *
+     * <p>专供事件回调线程使用：WebSocket 的消息分发与命令等待共用同一条
+     * 读线程，如果在事件处理器里同步等待（无论是等命令结果还是等写出完成），
+     * 读线程会被自身阻塞，造成「对话框 / 帧应答等命令、命令等读线程」的死锁。
+     * 这里只把消息入队、不等待完成，响应回来后因查不到 pending 而被自然忽略。</p>
+     *
+     * @param method    方法名，如 {@code Page.handleJavaScriptDialog}
+     * @param params    参数
+     * @param sessionId 会话 ID；浏览器级命令传 null
+     */
+    void post(String method, Map<String, Object> params, String sessionId) {
+        long id = sequence.incrementAndGet();
+        Map<String, Object> message = new LinkedHashMap<>();
+        message.put("id", id);
+        message.put("method", method);
+        message.put("params", params == null ? Collections.emptyMap() : params);
+        if (StringUtils.isNotBlank(sessionId)) {
+            message.put("sessionId", sessionId);
+        }
+        try {
+            synchronized (sendLock) {
+                // 只入队、绝不等待：调用方通常运行在 WebSocket 读线程上
+                socket.sendText(Json.toJson(message), true);
+            }
+        } catch (RuntimeException e) {
+            log.debug("[cdp] 发送 CDP 命令失败: {} - {}", method, e.getMessage());
         }
     }
 
@@ -226,8 +265,17 @@ final class CdpConnection implements AutoCloseable {
         } catch (Exception e) {
             log.debug("[cdp] 关闭连接失败: {}", e.getMessage());
         }
+        failPending("CDP 连接已关闭");
+    }
+
+    /**
+     * 把全部未完成的命令标记为失败
+     *
+     * @param message 失败原因
+     */
+    private void failPending(String message) {
         for (CompletableFuture<Map<String, Object>> future : pending.values()) {
-            future.completeExceptionally(new IllegalStateException("CDP 连接已关闭"));
+            future.completeExceptionally(new IllegalStateException(message));
         }
         pending.clear();
     }
@@ -283,6 +331,17 @@ final class CdpConnection implements AutoCloseable {
                 return;
             }
             log.warn("[cdp] WebSocket 异常: {}", error.getMessage());
+        }
+
+        @Override
+        public java.util.concurrent.CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+            CdpConnection client = reference.get();
+            if (client == null || client.closing) {
+                return null;
+            }
+            log.debug("[cdp] WebSocket 已被对端关闭: {} {}", statusCode, reason);
+            client.failPending("CDP 连接已被浏览器关闭（" + statusCode + " " + reason + "）");
+            return null;
         }
     }
 }

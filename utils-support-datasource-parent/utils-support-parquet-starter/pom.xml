@@ -56,7 +56,54 @@
             <artifactId>hadoop-client-runtime</artifactId>
             <version>3.5.0</version>
         </dependency>
+
+        <!-- ==================== 数据迁移能力（migration 包） ==================== -->
+        <!-- Spring 容器与自动装配：版本由根 parent 统一管理，禁止在此写死 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jdbc</artifactId>
+        </dependency>
+        <!-- JSR-330 标准注入注解（Spring 7 起不再运行期处理，装配走 @Bean 方法参数解析） -->
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <!-- jakarta @PostConstruct / @PreDestroy 生命周期注解 -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <!-- 单元测试：JUnit 5 + Mockito -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         </dependencies>
+
+    <properties>
+        <!-- 根 POM 默认 skipTests=true，本模块需要执行单元测试，必须显式关闭跳过 -->
+        <maven.test.skip>false</maven.test.skip>
+        <skipTests>false</skipTests>
+    </properties>
 
     <build>
         <plugins>
@@ -64,6 +111,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <!-- 根 POM 默认 skipTests=true，本模块需要执行单元测试，必须显式关闭跳过 -->
+                    <skipTests>false</skipTests>
+                    <skipExec>false</skipExec>
                     <!-- 客户端库存在非守护线程，测试完成后强制回收 fork 进程 -->
                     <forkedProcessExitTimeoutInSeconds>15</forkedProcessExitTimeoutInSeconds>
                     <surefire.timeout>120</surefire.timeout>

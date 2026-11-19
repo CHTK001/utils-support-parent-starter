@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.engine;
 import ai.djl.translate.Translator;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.translator.TranslatorUnwrappable;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -911,7 +912,7 @@ public final class ModelRegistry {
             try {
                 log.info("[deeplearning-engine] 开始下载模型: {} -> {}", modelId, url);
                 Files.createDirectories(downloadDir);
-                Path downloaded = downloader.download(url, target);
+                Path downloaded = downloader.download(url, target, loggingProgressListener(modelId, fileName));
                 log.info("[deeplearning-engine] 模型下载完成: {} -> {}", modelId, downloaded);
                 return finishDownload(modelId, entry, url, downloaded, downloadDir);
             } catch (Exception e) {
@@ -922,6 +923,28 @@ public final class ModelRegistry {
         log.warn("[deeplearning-engine] 远程下载模型全部失败: {} -> {}: {}",
                 modelId, entry.downloadUrl(), lastError == null ? "未知错误" : lastError.getMessage());
         return null;
+    }
+
+    /**
+     * 构建输出到日志的下载进度监听器：有总大小时每 10% 打印一次，无总大小时按回调节奏打印。
+     *
+     * @param modelId  模型标识
+     * @param fileName 下载文件名
+     * @return 进度监听器
+     */
+    private static DownloadProgressListener loggingProgressListener(String modelId, String fileName) {
+        return (file, bytesDone, totalBytes) -> {
+            if (totalBytes > 0) {
+                int percent = (int) (bytesDone * 100 / totalBytes);
+                if (percent % 10 == 0) {
+                    log.info("[deeplearning-engine] 模型下载进度: {} | {} | {} MB / {} MB ({}%)",
+                            modelId, file, bytesDone / (1024 * 1024), totalBytes / (1024 * 1024), percent);
+                }
+            } else {
+                log.info("[deeplearning-engine] 模型下载进度: {} | {} | 已下载 {} MB",
+                        modelId, file, bytesDone / (1024 * 1024));
+            }
+        };
     }
 
     /**
@@ -1382,7 +1405,7 @@ public final class ModelRegistry {
      * 懒加载 DJL Translator：首次推理时才实例化模型。
      */
     private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable,
-            DetectionConfigurable {
+            DetectionConfigurable, TranslatorUnwrappable {
 
         /**
          * 模型标识
@@ -1538,6 +1561,20 @@ public final class ModelRegistry {
         public ITranslator<Object, Object> unwrap() {
             return ensure();
         }
+
+        /**
+         * 解包最内层真实 Translator，使懒加载包装对能力判定（instanceof）透明。
+         *
+         * @return 真实 Translator 实例（已初始化）
+         */
+        @Override
+        public Object unwrapTranslator() {
+            ITranslator<Object, Object> initialized = ensure();
+            if (initialized instanceof ITranslatorDelegate delegate) {
+                return delegate.rawTranslator();
+            }
+            return initialized;
+        }
     }
 
     /**
@@ -1642,6 +1679,15 @@ public final class ModelRegistry {
             this.modelId = modelId;
             this.translator = translator;
             injectModelPath(translator, modelId, modelPath);
+        }
+
+        /**
+         * 返回被包装的原生 Translator 实例。
+         *
+         * @return 原生 Translator
+         */
+        Object rawTranslator() {
+            return translator;
         }
 
         /**
@@ -1776,6 +1822,43 @@ public final class ModelRegistry {
          * @throws Exception 下载异常
          */
         Path download(String url, Path target) throws Exception;
+
+        /**
+         * 下载 URL 到目标路径，并回调下载进度。
+         *
+         * <p>默认实现忽略进度监听器，直接走 {@link #download(String, Path)}；
+         * 支持进度的下载器（如 {@link DefaultModelDownloader}）应重写本方法。</p>
+         *
+         * @param url      远程地址
+         * @param target   本地目标路径
+         * @param listener 进度监听器，可为 空
+         * @return 实际落盘路径
+         * @throws Exception 下载异常
+         */
+        default Path download(String url, Path target, DownloadProgressListener listener) throws Exception {
+            return download(url, target);
+        }
+    }
+
+    /**
+     * 模型下载进度监听器。
+     *
+     * @author CH
+     * @since 4.0.0.51
+     */
+    public interface DownloadProgressListener {
+
+        /**
+         * 下载进度回调。
+         *
+         * <p>有总大小时按百分比变化节流回调；服务端未返回 Content-Length 时
+         * {@code totalBytes} 为 -1，按固定字节数节流回调。</p>
+         *
+         * @param fileName   正在下载的文件名
+         * @param bytesDone  已下载字节数
+         * @param totalBytes 总字节数，未知时为 -1
+         */
+        void onProgress(String fileName, long bytesDone, long totalBytes);
     }
 
     /**
@@ -1784,10 +1867,28 @@ public final class ModelRegistry {
     public static final class DefaultModelDownloader implements ModelDownloader {
 
         /**
+         * 下载拷贝缓冲区大小（字节）
+         */
+        private static final int DOWNLOAD_BUFFER_SIZE = 64 * 1024;
+
+        /**
+         * 无总大小时每 N 个缓冲块回调一次进度（64KB × 256 ≈ 16MB）
+         */
+        private static final int PROGRESS_REPORT_CHUNKS = 256;
+
+        /**
          * Download
         */
         @Override
         public Path download(String url, Path target) throws Exception {
+            return download(url, target, null);
+        }
+
+        /**
+         * Download with progress
+        */
+        @Override
+        public Path download(String url, Path target, DownloadProgressListener listener) throws Exception {
             HttpURLConnection conn = null;
             try {
                 URL u = new URL(url);
@@ -1800,22 +1901,62 @@ public final class ModelRegistry {
                 if (code >= HTTP_REDIRECT_MIN && code < HTTP_REDIRECT_MAX) {
                     String loc = conn.getHeaderField(HEADER_LOCATION);
                     if (loc != null) {
-                        return download(loc, target);
+                        return download(loc, target, listener);
                     }
                 }
                 if (code != HttpURLConnection.HTTP_OK) {
                     throw new IOException("下载失败，HTTP " + code + ": " + url);
                 }
                 Files.createDirectories(target.getParent());
+                long totalBytes = conn.getContentLengthLong();
                 try (InputStream in = conn.getInputStream()) {
                     Path tmp = target.resolveSibling(target.getFileName() + PART_SUFFIX);
-                    Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+                    copyWithProgress(in, tmp, listener, totalBytes);
                     Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
                 }
                 return target;
             } finally {
                 if (conn != null) {
                     conn.disconnect();
+                }
+            }
+        }
+
+        /**
+         * 分块拷贝输入流到临时文件并按节流节奏回调进度；无监听器时退化为一次性拷贝。
+         *
+         * @param in         输入流
+         * @param tmp        临时目标文件
+         * @param listener   进度监听器，可为 空
+         * @param totalBytes 总字节数，未知时为 -1
+         * @throws IOException 读写失败
+         */
+        private void copyWithProgress(InputStream in, Path tmp, DownloadProgressListener listener,
+                                      long totalBytes) throws IOException {
+            if (listener == null) {
+                Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+                return;
+            }
+            String fileName = tmp.getFileName().toString();
+            byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
+            long done = 0;
+            int lastPercent = -1;
+            int chunkCount = 0;
+            try (OutputStream out = Files.newOutputStream(tmp)) {
+                int len;
+                while ((len = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                    done += len;
+                    chunkCount++;
+                    if (totalBytes > 0) {
+                        int percent = (int) (done * 100 / totalBytes);
+                        if (percent != lastPercent) {
+                            lastPercent = percent;
+                            listener.onProgress(fileName, done, totalBytes);
+                        }
+                    } else if (chunkCount % PROGRESS_REPORT_CHUNKS == 0) {
+                        listener.onProgress(fileName, done, -1);
+                    }
                 }
             }
         }

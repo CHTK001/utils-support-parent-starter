@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -46,6 +48,36 @@ import java.util.stream.Stream;
 @Slf4j
 @Spi(BrowserEngine.CDP)
 public class CdpBrowserEngine implements BrowserEngine {
+
+    /**
+     * Chrome 四段版本号匹配（用于 Chrome / Edge 品牌切换） [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern CHROME_VERSION_PATTERN = Pattern.compile("Chrome/(\\d+\\.0\\.0\\.0)");
+
+    /**
+     * Chrome / CriOS 主版本号匹配 [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern CHROME_MAJOR_VERSION_PATTERN = Pattern.compile("(?:Chrome|CriOS)/(\\d+)");
+
+    /**
+     * 任意数字串匹配（UA 主版本解析兜底） [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern FALLBACK_DIGITS_PATTERN = Pattern.compile("(\\d+)");
+
+    /**
+     * Chrome 完整版本号匹配（x.y.z.w） [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern CHROME_FULL_VERSION_PATTERN = Pattern.compile("Chrome/(\\d+\\.\\d+\\.\\d+\\.\\d+)");
+
+    /**
+     * Android 平台版本号匹配 [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern ANDROID_VERSION_PATTERN = Pattern.compile("Android\\s+(\\d+)");
+
+    /**
+     * iOS 平台版本号匹配 [P3C C1 修复] 预编译正则提升为常量
+     */
+    private static final Pattern IOS_VERSION_PATTERN = Pattern.compile("OS (\\d+)_(\\d+)");
 
     /**
      * 显式指定浏览器路径的系统属性
@@ -108,6 +140,11 @@ public class CdpBrowserEngine implements BrowserEngine {
     private CdpConnection connection;
 
     /**
+     * 已打开的页面集合（用于引擎关闭时统一回收标签页）
+     */
+    private final Set<CdpPage> pages = ConcurrentHashMap.newKeySet();
+
+    /**
      * 启动参数
      */
     private BrowserOptions options;
@@ -123,7 +160,7 @@ public class CdpBrowserEngine implements BrowserEngine {
     private volatile boolean closed;
 
     @Override
-    public BrowserPage openPage(BrowserOptions options) {
+    public synchronized BrowserPage openPage(BrowserOptions options) {
         if (closed) {
             throw new IllegalStateException("浏览器引擎已关闭");
         }
@@ -152,7 +189,94 @@ public class CdpBrowserEngine implements BrowserEngine {
         applyUserAgent(sessionId, actual, commandTimeout);
         applyTimezone(sessionId, actual, commandTimeout);
         applyLocale(sessionId, actual, commandTimeout);
-        return new CdpPage(connection, targetId, sessionId, commandTimeout);
+        CdpPage page = new CdpPage(connection, targetId, sessionId, commandTimeout);
+        pages.add(page);
+        page.onClose(() -> pages.remove(page));
+        return page;
+    }
+
+    /**
+     * 启动浏览器进程（已启动时直接复用）
+     *
+     * @param options 启动参数，为空时使用默认值
+     * @return 当前引擎
+     */
+    public synchronized CdpBrowserEngine start(BrowserOptions options) {
+        if (closed) {
+            throw new IllegalStateException("浏览器引擎已关闭");
+        }
+        ensureLaunched(options == null ? new BrowserOptions() : options);
+        return this;
+    }
+
+    /**
+     * 打开一个页面（使用默认启动参数）
+     *
+     * @return 页面
+     */
+    public BrowserPage openPage() {
+        return openPage(new BrowserOptions());
+    }
+
+    /**
+     * 打开一个页面并立即导航
+     *
+     * @param url 目标地址
+     * @return 页面；导航失败时页面会被关闭后抛出异常
+     */
+    public BrowserPage openPage(String url) {
+        return openPage(new BrowserOptions(), url);
+    }
+
+    /**
+     * 打开一个页面并立即导航
+     *
+     * @param options 启动参数
+     * @param url     目标地址
+     * @return 页面；导航失败时页面会被关闭后抛出异常
+     */
+    public BrowserPage openPage(BrowserOptions options, String url) {
+        BrowserPage page = openPage(options);
+        if (url != null && !url.isBlank()) {
+            try {
+                page.navigate(url);
+            } catch (RuntimeException e) {
+                try {
+                    page.close();
+                } catch (Exception ignored) {
+                    // 保留原始导航异常
+                }
+                throw e;
+            }
+        }
+        return page;
+    }
+
+    /**
+     * 当前真实 User-Agent（浏览器启动后可用）
+     *
+     * @return UA；浏览器未启动返回 null
+     */
+    public String userAgent() {
+        return realUserAgent;
+    }
+
+    /**
+     * 浏览器完整版本号（浏览器启动后可用）
+     *
+     * @return 版本号，如 {@code 156.0.3521.66}；未知为空串
+     */
+    public String browserVersion() {
+        return fullVersion;
+    }
+
+    /**
+     * 引擎是否已启动且未关闭
+     *
+     * @return true 表示可用
+     */
+    public boolean isRunning() {
+        return !closed && connection != null;
     }
 
     /**
@@ -228,6 +352,9 @@ public class CdpBrowserEngine implements BrowserEngine {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("userAgent", userAgent);
         params.put("platform", platformToken(userAgent));
+        if (StringUtils.isNotBlank(options.getLocale())) {
+            params.put("acceptLanguage", options.getLocale());
+        }
         try {
             params.put("userAgentMetadata", buildMetadata(userAgent));
         } catch (RuntimeException e) {
@@ -303,7 +430,7 @@ public class CdpBrowserEngine implements BrowserEngine {
      * @return 切换后的 UA；无法识别时返回 null
      */
     private static String switchBrowserBrand(String ua) {
-        Matcher matcher = Pattern.compile("Chrome/(\\d+\\.0\\.0\\.0)").matcher(ua);
+        Matcher matcher = CHROME_VERSION_PATTERN.matcher(ua);
         if (!matcher.find()) {
             return null;
         }
@@ -372,11 +499,11 @@ public class CdpBrowserEngine implements BrowserEngine {
      * @return 主版本号
      */
     private static int majorVersion(String ua) {
-        Matcher matcher = Pattern.compile("(?:Chrome|CriOS)/(\\d+)").matcher(ua);
+        Matcher matcher = CHROME_MAJOR_VERSION_PATTERN.matcher(ua);
         if (matcher.find()) {
             return Integer.parseInt(matcher.group(1));
         }
-        matcher = Pattern.compile("(\\d+)").matcher(ua);
+        matcher = FALLBACK_DIGITS_PATTERN.matcher(ua);
         return matcher.find() ? Integer.parseInt(matcher.group(1)) : 0;
     }
 
@@ -411,7 +538,7 @@ public class CdpBrowserEngine implements BrowserEngine {
             }
         }
         if (ua != null) {
-            Matcher matcher = Pattern.compile("Chrome/(\\d+\\.\\d+\\.\\d+\\.\\d+)").matcher(ua);
+            Matcher matcher = CHROME_FULL_VERSION_PATTERN.matcher(ua);
             if (matcher.find()) {
                 return matcher.group(1);
             }
@@ -449,11 +576,11 @@ public class CdpBrowserEngine implements BrowserEngine {
      */
     private String metaPlatformVersion(String ua) {
         if (ua.contains("Android")) {
-            Matcher matcher = Pattern.compile("Android\\s+(\\d+)").matcher(ua);
+            Matcher matcher = ANDROID_VERSION_PATTERN.matcher(ua);
             return matcher.find() ? matcher.group(1) + ".0.0" : "";
         }
         if (ua.contains("iPhone") || ua.contains("iPad")) {
-            Matcher matcher = Pattern.compile("OS (\\d+)_(\\d+)").matcher(ua);
+            Matcher matcher = IOS_VERSION_PATTERN.matcher(ua);
             return matcher.find() ? matcher.group(1) + "." + matcher.group(2) + ".0" : "";
         }
         if (ua.contains("Macintosh")) {
@@ -526,7 +653,7 @@ public class CdpBrowserEngine implements BrowserEngine {
         command.add("--disable-blink-features=AutomationControlled");
         command.add("--disable-dev-shm-usage");
         command.add("--disable-features=Translate,OptimizationHints");
-        command.add("--window-size=" + actual.getWidth() + "," + actual.getHeight());
+        command.add("--window-size=" + Math.max(actual.getWidth(), 1) + "," + Math.max(actual.getHeight(), 1));
         command.add("--lang=zh-CN");
         if (StringUtils.isNotBlank(actual.getProxy())) {
             command.add("--proxy-server=" + actual.getProxy().trim());
@@ -650,6 +777,14 @@ public class CdpBrowserEngine implements BrowserEngine {
         }
         closed = true;
         if (connection != null) {
+            for (CdpPage page : new ArrayList<>(pages)) {
+                try {
+                    page.close();
+                } catch (Exception e) {
+                    log.debug("[cdp] 关闭页面失败: {}", e.getMessage());
+                }
+            }
+            pages.clear();
             connection.close();
             connection = null;
             realUserAgent = null;

@@ -81,6 +81,17 @@ public final class FlywayScripts {
      */
     private static final char PATH_SEPARATOR = '/';
 
+    /**
+     * 默认分隔符下的脚本命名正则。
+     *
+     * <p>[P3C C1 修复] 原先每次扫描都在方法体内重新编译同一正则；现把默认分隔符
+     * （覆盖「未传分隔符」与显式传默认值两种情况，二者编译出的匹配语义一致）的
+     * 正则预编译为类级常量，仅自定义分隔符仍按原逻辑动态编译。</p>
+     */
+    private static final Pattern DEFAULT_SCRIPT_PATTERN = Pattern.compile(
+            "^V([0-9]+(?:\\.[0-9]+)*)" + DEFAULT_SEPARATOR + "(.*)"
+                    + Pattern.quote(SQL_EXTENSION) + "$", Pattern.CASE_INSENSITIVE);
+
     private FlywayScripts() {
     }
 
@@ -252,9 +263,12 @@ public final class FlywayScripts {
      * @return 命名正则
      */
     private static Pattern scriptPattern(String separator) {
-        String sep = StringUtils.isEmpty(separator)
-                ? DEFAULT_SEPARATOR : Pattern.quote(separator);
-        return Pattern.compile("^V([0-9]+(?:\\.[0-9]+)*)" + sep + "(.*)"
+        // [P3C C1 修复] 默认分隔符（含未传与显式传默认值）复用预编译常量，避免重复编译；
+        // 自定义分隔符仍按原逻辑动态编译（正则串与原实现逐字一致）
+        if (StringUtils.isEmpty(separator) || DEFAULT_SEPARATOR.equals(separator)) {
+            return DEFAULT_SCRIPT_PATTERN;
+        }
+        return Pattern.compile("^V([0-9]+(?:\\.[0-9]+)*)" + Pattern.quote(separator) + "(.*)"
                 + Pattern.quote(SQL_EXTENSION) + "$", Pattern.CASE_INSENSITIVE);
     }
 

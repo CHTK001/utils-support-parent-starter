@@ -381,7 +381,7 @@ public class RabbitmqClient implements AutoCloseable {
         /**
          * 密码
         */
-        private String password = "guest";
+        private String password;
         /**
          * 虚拟主机
         */
@@ -500,6 +500,9 @@ public class RabbitmqClient implements AutoCloseable {
          * @return 构建的结果
          */
         public RabbitmqClient build() {
+            if (password == null || password.isEmpty()) {
+                throw new IllegalArgumentException("RabbitMQ 口令必须显式配置（Builder.password），禁止依赖默认 guest 口令");
+            }
             return new RabbitmqClient(this);
         }
     }

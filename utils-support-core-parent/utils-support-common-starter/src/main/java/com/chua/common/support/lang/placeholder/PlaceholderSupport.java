@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -115,6 +117,45 @@ public class PlaceholderSupport {
      * 用户自定义函数的注册表
      */
     private final Map<String, Function<String, String>> functions = Wraps.map();
+
+    /**
+     * {@code ${key:defaultValue}} 占位符表达式模式。
+     *
+     * <p>结构解析的公共原语：把 {@code ${key:defaultValue}} 拆成「键 + 默认值」。
+     * 模块内 {@code ValueAnnotationBeanPostProcessor} / {@code ConfigValueBeanPostProcessor}
+     * 与底层 {@code ConfigValueBindingManager} 共同唯一使用本方法，避免同一套
+     * 正则解析在 utils 与 spring 两侧双份实现（R4：重复实现 = S0）。</p>
+     */
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}:]+)(?::([^}]*))?}");
+
+    /**
+     * 解析后的占位符表达式。
+     *
+     * <p>非占位符表达式时 {@code key} 为原表达式、{@code defaultValue} 为 {@code null}；
+     * 表达式未写默认值时 {@code defaultValue} 为 {@code null}。</p>
+     *
+     * @param key          配置键
+     * @param defaultValue 默认值（可为 {@code null}）
+     */
+    public record ParsedExpression(String key, String defaultValue) {
+    }
+
+    /**
+     * 解析占位符表达式的结构（键 + 默认值）。
+     *
+     * <p>只做结构解析，不做求值：完整求值能力由 {@link #resolvePlaceholder} 提供。
+     * 与 {@link #PLACEHOLDER_PATTERN} 配套，是全仓唯一的 {@code ${key:default}} 结构解析原语。</p>
+     *
+     * @param expression 表达式，如 {@code "${server.port:8080}"}
+     * @return 解析结果；表达式不含占位符时 key 为原表达式、defaultValue 为 null
+     */
+    public static ParsedExpression parseExpression(String expression) {
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(expression);
+        if (matcher.find()) {
+            return new ParsedExpression(matcher.group(1), matcher.group(2));
+        }
+        return new ParsedExpression(expression, null);
+    }
 
     /**
      * 创建 PlaceholderSupport 实例

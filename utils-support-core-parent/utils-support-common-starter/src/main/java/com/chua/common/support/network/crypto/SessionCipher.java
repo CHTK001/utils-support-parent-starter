@@ -3,8 +3,12 @@ package com.chua.common.support.network.crypto;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 /**
  * 会话级认证加密：根密钥 + 每次连接随机盐 → 双向独立密钥 → AES-256-GCM。
@@ -34,6 +38,11 @@ import java.security.GeneralSecurityException;
  *
  * <p>本类不做握手，也不负责盐的传输与身份认证；它只保证「拿到同一根密钥与同一盐，
  * 才能解开这段流量」。盐建议随每次连接随机生成，连接之间不要复用。</p>
+ *
+ * <h2>流式用法</h2>
+ * <p>{@link #encrypting(OutputStream)} / {@link #decrypting(InputStream)} 把上面的帧语义
+ * 落到流上：发送方向每 {@code write} 一帧、序号自增；接收方向只接受序号连续的帧，
+ * 重放、乱序、篡改一律失败。因此上层不必自己切帧。</p>
  *
  * @author CH
  * @since 4.0.0.50
@@ -206,6 +215,32 @@ public final class SessionCipher {
     }
 
     /**
+     * 把输出流包装为加密流：每次 {@code write} 产生一个带序号的独立加密帧。
+     *
+     * <p>帧格式与 {@link #seal(byte[])} 完全一致（{@code [4B 长度][8B 序号][密文+16B 标签]}），
+     * 大数组自动按 {@link #MAX_PLAIN_LENGTH} 分帧。发送与接收使用各自方向的密钥，
+     * 因此对端把本端发出的密文原样送回来时无法通过认证（反射被拒绝）。</p>
+     *
+     * @param out 原始输出流
+     * @return 加密输出流
+     */
+    public OutputStream encrypting(OutputStream out) {
+        return new EncryptingOutputStream(out);
+    }
+
+    /**
+     * 把输入流包装为解密流：只接受序号连续的帧。
+     *
+     * <p>重放、乱序、篡改都会抛 {@link IOException}（而不是静默解出垃圾）。</p>
+     *
+     * @param in 原始输入流
+     * @return 解密输入流
+     */
+    public InputStream decrypting(InputStream in) {
+        return new DecryptingInputStream(in);
+    }
+
+    /**
      * 加密一帧，序号自增。
      *
      * @param plain 明文，长度不超过 {@link #MAX_PLAIN_LENGTH}
@@ -298,5 +333,176 @@ public final class SessionCipher {
         buffer.put(direction);
         buffer.putLong(sequence);
         return buffer.array();
+    }
+
+    /**
+     * 加密输出流：每次 write 独立成帧，大数组自动按 MAX_PLAIN_LENGTH 分帧。
+     *
+     * <p>写帧与序号自增都在 {@link SessionCipher#seal(byte[])} 内完成（synchronized），
+     * 因此同一会话上多个线程并发写不会产生重号序号。</p>
+     */
+    private final class EncryptingOutputStream extends OutputStream {
+
+        /**
+         * 原始输出流
+         */
+        private final OutputStream out;
+
+        EncryptingOutputStream(OutputStream out) {
+            this.out = out;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            write(new byte[]{(byte) b}, 0, 1);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (len <= 0) {
+                return;
+            }
+            synchronized (out) {
+                int remaining = len;
+                while (remaining > 0) {
+                    int chunk = Math.min(remaining, MAX_PLAIN_LENGTH);
+                    byte[] plain = Arrays.copyOfRange(b, off + len - remaining, off + len - remaining + chunk);
+                    out.write(seal(plain));
+                    remaining -= chunk;
+                }
+                out.flush();
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            out.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            out.close();
+        }
+    }
+
+    /**
+     * 解密输入流：阻塞读取完整帧并解密，以流语义吐出明文。
+     *
+     * <p>序号不连续（重放、乱序、丢帧）直接抛 {@link IOException}；标签校验失败同样抛异常，
+     * 不会把未认证的数据交给上层。</p>
+     */
+    private final class DecryptingInputStream extends InputStream {
+
+        /**
+         * 原始输入流
+         */
+        private final InputStream in;
+
+        /**
+         * 当前明文缓冲
+         */
+        private byte[] buf = new byte[0];
+
+        /**
+         * 缓冲读取位置
+         */
+        private int pos = 0;
+
+        DecryptingInputStream(InputStream in) {
+            this.in = in;
+        }
+
+        /**
+         * 读取并解密下一帧到内部缓冲。
+         *
+         * @return false 表示流已结束
+         * @throws IOException IO 异常或帧非法/序号不连续/认证失败
+         */
+        private boolean fill() throws IOException {
+            byte[] header = readFully(LENGTH_FIELD);
+            if (header == null) {
+                return false;
+            }
+            int bodyLength = ByteBuffer.wrap(header).getInt();
+            if (bodyLength <= SEQ_LENGTH + TAG_LENGTH || bodyLength > MAX_FRAME_LENGTH - LENGTH_FIELD) {
+                throw new IOException("会话帧长度非法: " + bodyLength);
+            }
+            byte[] body = readFully(bodyLength);
+            if (body == null) {
+                throw new IOException("会话帧不完整，连接提前关闭");
+            }
+            ByteBuffer buffer = ByteBuffer.wrap(body);
+            long sequence = buffer.getLong();
+            byte[] cipherText = new byte[bodyLength - SEQ_LENGTH];
+            buffer.get(cipherText);
+            if (sequence != receiveSequence + 1) {
+                throw new IOException("会话帧序号不连续，疑似重放或乱序: " + sequence);
+            }
+            try {
+                Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+                cipher.init(Cipher.DECRYPT_MODE, receiveKey,
+                        new GCMParameterSpec(TAG_LENGTH * Byte.SIZE, nonce(sequence)));
+                cipher.updateAAD(aad(receiveDirection, sequence));
+                buf = cipher.doFinal(cipherText);
+                pos = 0;
+                receiveSequence = sequence;
+                return true;
+            } catch (GeneralSecurityException e) {
+                throw new IOException("会话帧解密失败（密钥不一致或数据被篡改）", e);
+            }
+        }
+
+        /**
+         * 阻塞读满指定长度。
+         *
+         * @param n 期望长度
+         * @return 数据；流结束时返回 null
+         * @throws IOException IO 异常
+         */
+        private byte[] readFully(int n) throws IOException {
+            byte[] data = new byte[n];
+            int offset = 0;
+            while (offset < n) {
+                int read = in.read(data, offset, n - offset);
+                if (read == -1) {
+                    return null;
+                }
+                offset += read;
+            }
+            return data;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (pos >= buf.length && !fill()) {
+                return -1;
+            }
+            return buf[pos++] & 0xFF;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) {
+                return 0;
+            }
+            if (pos >= buf.length && !fill()) {
+                return -1;
+            }
+            int available = buf.length - pos;
+            int copy = Math.min(len, available);
+            System.arraycopy(buf, pos, b, off, copy);
+            pos += copy;
+            return copy;
+        }
+
+        @Override
+        public int available() {
+            return buf.length - pos;
+        }
+
+        @Override
+        public void close() throws IOException {
+            in.close();
+        }
     }
 }

@@ -158,6 +158,8 @@ byte[] enhanced = pipeline.enhance(imageBytes);                // 单独高清�
 | `ModelRegistrar`（函数式接口） | 子模块向 `ModelRegistry` 批量注册模型（下载地址、镜像、能力接口等） |
 | `TranslatorModelDefinition` | `@Builder` 模型描述：`modelDefinition`、`translator`、`modelSize`、`config` |
 | `ITranslator<I, O>` | 翻译器实现：`name()`（对应模型标识）+ `translate(I)` |
+| `ConversationTranslator` | 多轮对话扩展契约：`translate(List<ChatMessage>)` 接收完整 system + 历史 + 本轮输入；`AbstractLocalChatClient` 检测到该契约即透传消息列表（含 system 提示词），否则回退纯文本拼接 |
+| `TranslatorUnwrappable` | 懒加载包装解包契约：`unwrapTranslator()` 返回最内层真实 translator；`AbstractLocalChatClient` 先解包再做能力判定，避免包装链（`LazyDjlTranslator` → `ITranslatorDelegate`）吞掉 `ConversationTranslator` 等能力 |
 
 本模块自带的 `META-INF/extensions/` 注册内容：
 
@@ -199,7 +201,7 @@ utils-support-deeplearning-starter
 - 版本：`4.0.0.51`（与 `utils-support-parent-starter` 全仓一致）
 - 编译：JDK 25，`maven.compiler.source/target=25`（继承父工程），`--enable-preview`（本模块 compilerArgs）
 - 测试：`skipTests=false`（执行单元测试）
-- 镜像源与加载器：`ModelRegistry` 支持多镜像下载（`downloadMirrors`，主地址失败依次尝试）、重定向跟随（3xx）、断点续传（`.part` 后缀）与压缩包解压（`compress` + `downloadFileName`），模型文件后缀支持 `.onnx` / `.pt` / `.pth` / `.pdmodel` / `.pb` / `.safetensors`，类路径模型走 `classpath:` 前缀（`models/onnx/`、`models/pytorch/`、`models/paddle/`、`models/tensorflow/`、`models/safetensors/`，JAR 内嵌自动解压到缓存目录）
+- 镜像源与加载器：`ModelRegistry` 支持多镜像下载（`downloadMirrors`，主地址失败依次尝试）、重定向跟随（3xx）、断点续传（`.part` 后缀）与压缩包解压（`compress` + `downloadFileName`），下载过程按 10% 粒度输出进度日志（服务端未返回 Content-Length 时按约 16MB 步进），并可用 `ModelRegistry.ensureDownloaded(modelId)` 在启动时主动预热下载；模型文件后缀支持 `.onnx` / `.pt` / `.pth` / `.pdmodel` / `.pb` / `.safetensors`，类路径模型走 `classpath:` 前缀（`models/onnx/`、`models/pytorch/`、`models/paddle/`、`models/tensorflow/`、`models/safetensors/`，JAR 内嵌自动解压到缓存目录）
 
 ---
 

@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
@@ -37,6 +39,25 @@ final class CdpPage implements BrowserPage {
      * 绑定名序号
      */
     private static final AtomicInteger BINDING_SEQUENCE = new AtomicInteger();
+
+    /**
+     * 功能键描述：键名小写 → { key, code, 虚拟键码, 产生文本 }
+     */
+    private static final Map<String, String[]> KEY_DESCRIPTORS = Map.ofEntries(
+            Map.entry("enter", new String[]{"Enter", "Enter", "13", "\r"}),
+            Map.entry("backspace", new String[]{"Backspace", "Backspace", "8", null}),
+            Map.entry("delete", new String[]{"Delete", "Delete", "46", null}),
+            Map.entry("tab", new String[]{"Tab", "Tab", "9", null}),
+            Map.entry("escape", new String[]{"Escape", "Escape", "27", null}),
+            Map.entry("space", new String[]{" ", "Space", "32", " "}),
+            Map.entry("arrowup", new String[]{"ArrowUp", "ArrowUp", "38", null}),
+            Map.entry("arrowdown", new String[]{"ArrowDown", "ArrowDown", "40", null}),
+            Map.entry("arrowleft", new String[]{"ArrowLeft", "ArrowLeft", "37", null}),
+            Map.entry("arrowright", new String[]{"ArrowRight", "ArrowRight", "39", null}),
+            Map.entry("home", new String[]{"Home", "Home", "36", null}),
+            Map.entry("end", new String[]{"End", "End", "35", null}),
+            Map.entry("pageup", new String[]{"PageUp", "PageUp", "33", null}),
+            Map.entry("pagedown", new String[]{"PageDown", "PageDown", "34", null}));
 
     /**
      * CDP 连接
@@ -79,6 +100,21 @@ final class CdpPage implements BrowserPage {
     private volatile boolean closed;
 
     /**
+     * JavaScript 对话框处理器；为空时自动关闭对话框
+     */
+    private volatile Consumer<BrowserPage.Dialog> dialogHandler;
+
+    /**
+     * 页面关闭后的回调（引擎用它维护页面集合）
+     */
+    private volatile Runnable onCloseCallback;
+
+    /**
+     * 实时画面帧监听器；为空表示未开启 screencast
+     */
+    private volatile Consumer<byte[]> screencastListener;
+
+    /**
      * 构造页面
      * @param commandTimeout 命令超时
      * @param connection CDP 连接
@@ -93,6 +129,8 @@ final class CdpPage implements BrowserPage {
         this.commandTimeout = commandTimeout;
         this.binding = "__chuaBrowserBridge_" + BINDING_SEQUENCE.incrementAndGet();
         this.connection.on("Runtime.bindingCalled", this::onBindingCalled);
+        this.connection.on("Page.javascriptDialogOpening", this::onDialogOpening);
+        this.connection.on("Page.screencastFrame", this::onScreencastFrame);
         this.connection.call("Runtime.addBinding", Map.of("name", binding), sessionId, commandTimeout);
     }
 
@@ -110,6 +148,191 @@ final class CdpPage implements BrowserPage {
         Consumer<String> current = sink;
         if (current != null && payload != null) {
             current.accept(String.valueOf(payload));
+        }
+    }
+
+    /**
+     * 处理 JavaScript 对话框事件
+     *
+     * <p>已注册处理器时交给处理器决定；未注册或处理器未处理时自动关闭对话框，
+     * 避免页面脚本被 alert / confirm / prompt 永久阻塞。</p>
+     *
+     * @param message CDP 事件
+     */
+    private void onDialogOpening(Map<String, Object> message) {
+        Map<String, Object> params = asMap(message.get("params"));
+        if (params == null) {
+            return;
+        }
+        CdpDialog dialog = new CdpDialog(
+                asString(params.get("type")),
+                asString(params.get("message")),
+                asString(params.get("defaultPrompt")));
+        Consumer<BrowserPage.Dialog> handler = dialogHandler;
+        if (handler != null) {
+            try {
+                handler.accept(dialog);
+            } catch (Exception e) {
+                log.warn("[cdp] 对话框处理失败，自动关闭: {}", e.getMessage());
+            }
+        }
+        if (!dialog.isAnswered()) {
+            dialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onDialog(Consumer<BrowserPage.Dialog> handler) {
+        this.dialogHandler = handler;
+    }
+
+    /**
+     * 处理实时画面帧事件
+     *
+     * <p>先应答帧会话（浏览器收到应答前不会继续推帧），再把 JPEG 字节交给
+     * 监听器。本方法运行在 WebSocket 读线程上，监听器不允许长时间阻塞。</p>
+     *
+     * @param message CDP 事件
+     */
+    private void onScreencastFrame(Map<String, Object> message) {
+        Map<String, Object> params = asMap(message.get("params"));
+        if (params == null) {
+            return;
+        }
+        if (params.get("sessionId") instanceof Number frameSession) {
+            connection.post("Page.screencastFrameAck",
+                    Map.of("sessionId", frameSession.intValue()), sessionId);
+        }
+        Consumer<byte[]> listener = screencastListener;
+        if (listener == null) {
+            return;
+        }
+        Object data = params.get("data");
+        if (!(data instanceof String base64) || base64.isEmpty()) {
+            return;
+        }
+        try {
+            listener.accept(Base64.getDecoder().decode(base64));
+        } catch (Exception e) {
+            log.debug("[cdp] 处理实时画面帧失败: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public AutoCloseable startScreencast(Consumer<byte[]> frameListener) {
+        if (frameListener == null) {
+            throw new IllegalArgumentException("frameListener 不能为空");
+        }
+        this.screencastListener = frameListener;
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("format", "jpeg");
+        params.put("quality", 70);
+        connection.call("Page.startScreencast", params, sessionId, commandTimeout);
+        return this::stopScreencast;
+    }
+
+    /**
+     * 停止实时画面推送
+     */
+    public void stopScreencast() {
+        this.screencastListener = null;
+        try {
+            connection.call("Page.stopScreencast", Map.of(), sessionId, commandTimeout);
+        } catch (Exception e) {
+            log.debug("[cdp] 停止实时画面失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 基于 {@code Page.handleJavaScriptDialog} 的对话框实现
+     */
+    private final class CdpDialog implements BrowserPage.Dialog {
+
+        /**
+         * 对话框类型
+         */
+        private final String type;
+
+        /**
+         * 对话框文本
+         */
+        private final String message;
+
+        /**
+         * prompt 默认值
+         */
+        private final String defaultValue;
+
+        /**
+         * 是否已处理
+         */
+        private final AtomicBoolean answered = new AtomicBoolean();
+
+        /**
+         * 构造对话框
+         *
+         * @param type         类型
+         * @param message      文本
+         * @param defaultValue prompt 默认值
+         */
+        private CdpDialog(String type, String message, String defaultValue) {
+            this.type = type;
+            this.message = message;
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public String type() {
+            return type;
+        }
+
+        @Override
+        public String message() {
+            return message;
+        }
+
+        @Override
+        public String defaultValue() {
+            return defaultValue;
+        }
+
+        @Override
+        public void accept(String promptText) {
+            respond(true, promptText);
+        }
+
+        @Override
+        public void dismiss() {
+            respond(false, null);
+        }
+
+        /**
+         * 是否已被处理
+         *
+         * @return true 表示已 accept / dismiss
+         */
+        private boolean isAnswered() {
+            return answered.get();
+        }
+
+        /**
+         * 回应对话框（只生效一次）
+         *
+         * @param accept     true 表示接受
+         * @param promptText prompt 输入文本
+         */
+        private void respond(boolean accept, String promptText) {
+            if (!answered.compareAndSet(false, true)) {
+                return;
+            }
+            Map<String, Object> params = new LinkedHashMap<>();
+            params.put("accept", accept);
+            if (accept && promptText != null) {
+                params.put("promptText", promptText);
+            }
+            // 事件回调运行在 WebSocket 读线程上，这里必须只发不等：
+            // 同步等待会阻塞消息分发，造成对话框与触发它的命令互相死锁
+            connection.post("Page.handleJavaScriptDialog", params, sessionId);
         }
     }
 
@@ -138,8 +361,152 @@ final class CdpPage implements BrowserPage {
     }
 
     @Override
+    public void click(int x, int y) {
+        Map<String, Object> move = new LinkedHashMap<>();
+        move.put("type", "mouseMoved");
+        move.put("x", x);
+        move.put("y", y);
+        connection.call("Input.dispatchMouseEvent", move, sessionId, commandTimeout);
+        dispatchMouseButton("mousePressed", x, y);
+        dispatchMouseButton("mouseReleased", x, y);
+    }
+
+    @Override
+    public void type(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
+            if (codePoint == '\n' || codePoint == '\r') {
+                // 换行必须派发 Enter 键，仅传 text 无法触发部分输入框的提交
+                dispatchKey("keyDown", "Enter", "Enter", "\r", 13);
+                dispatchKey("keyUp", "Enter", "Enter", null, 13);
+            } else {
+                String ch = new String(Character.toChars(codePoint));
+                // 普通字符必须在 keyDown 上带 text，浏览器才会把它写进输入框
+                dispatchKey("keyDown", ch, ch, ch, 0);
+                dispatchKey("keyUp", ch, ch, null, 0);
+            }
+            i += Character.charCount(codePoint);
+        }
+    }
+
+    @Override
+    public void insertText(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        connection.call("Input.insertText", Map.of("text", text), sessionId, commandTimeout);
+    }
+
+    @Override
+    public void pressKey(String key) {
+        if (key == null || key.isBlank()) {
+            return;
+        }
+        String[] descriptor = KEY_DESCRIPTORS.get(key.trim().toLowerCase(Locale.ROOT));
+        if (descriptor == null) {
+            // 未登记的键按普通文本输入处理
+            type(key.trim());
+            return;
+        }
+        int virtualKey = Integer.parseInt(descriptor[2]);
+        dispatchKey(descriptor[3] == null ? "rawKeyDown" : "keyDown",
+                descriptor[0], descriptor[1], descriptor[3], virtualKey);
+        dispatchKey("keyUp", descriptor[0], descriptor[1], null, virtualKey);
+    }
+
+    @Override
+    public void mouseMove(int x, int y) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("type", "mouseMoved");
+        params.put("x", x);
+        params.put("y", y);
+        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+    }
+
+    @Override
+    public void mouseDown(int x, int y) {
+        dispatchMouseButton("mousePressed", x, y);
+    }
+
+    @Override
+    public void mouseUp(int x, int y) {
+        dispatchMouseButton("mouseReleased", x, y);
+    }
+
+    @Override
+    public void mouseWheel(int x, int y, double deltaX, double deltaY) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("type", "mouseWheel");
+        params.put("x", x);
+        params.put("y", y);
+        params.put("deltaX", deltaX);
+        params.put("deltaY", deltaY);
+        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+    }
+
+    /**
+     * 把页面带到前台
+     *
+     * <p>多标签页场景下，被观看 / 被操作的页面必须是前台标签页，否则滚轮等
+     * 输入事件可能被浏览器静默丢弃。</p>
+     */
+    @Override
+    public void bringToFront() {
+        connection.call("Page.bringToFront", Map.of(), sessionId, commandTimeout);
+    }
+
+    /**
+     * 派发一次鼠标按键事件
+     *
+     * @param type 事件类型（mousePressed / mouseReleased）
+     * @param x    横坐标
+     * @param y    纵坐标
+     */
+    private void dispatchMouseButton(String type, int x, int y) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("type", type);
+        params.put("x", x);
+        params.put("y", y);
+        params.put("button", "left");
+        params.put("clickCount", 1);
+        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+    }
+
+    /**
+     * 派发一次键盘事件
+     *
+     * @param type       事件类型（keyDown / rawKeyDown / keyUp）
+     * @param key        键名
+     * @param code       键码名
+     * @param text       产生的文本，无则为 null
+     * @param virtualKey Windows 虚拟键码，普通字符传 0
+     */
+    private void dispatchKey(String type, String key, String code, String text, int virtualKey) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("type", type);
+        params.put("key", key);
+        params.put("code", code);
+        if (virtualKey > 0) {
+            params.put("windowsVirtualKeyCode", virtualKey);
+            params.put("keyCode", virtualKey);
+        }
+        if (text != null) {
+            params.put("text", text);
+        }
+        connection.call("Input.dispatchKeyEvent", params, sessionId, commandTimeout);
+    }
+
+    @Override
     public void navigate(String url) {
-        connection.call("Page.navigate", Map.of("url", url), sessionId, commandTimeout);
+        Map<String, Object> result = connection.call("Page.navigate",
+                Map.of("url", url), sessionId, commandTimeout);
+        String errorText = asString(result.get("errorText"));
+        if (StringUtils.isNotBlank(errorText)) {
+            throw new IllegalStateException("页面导航失败: " + url + " (" + errorText + ")");
+        }
         waitForDocument();
     }
 
@@ -171,7 +538,7 @@ final class CdpPage implements BrowserPage {
         Map<String, Object> result = connection.call("Runtime.evaluate", params, sessionId, commandTimeout);
         Map<String, Object> exception = asMap(result.get("exceptionDetails"));
         if (exception != null) {
-            throw new IllegalStateException("页面脚本执行失败: " + Json.toJson(exception));
+            throw evaluateException(exception);
         }
         Map<String, Object> value = asMap(result.get("result"));
         if (value == null) {
@@ -179,6 +546,87 @@ final class CdpPage implements BrowserPage {
         }
         Object raw = value.get("value");
         return raw == null ? null : String.valueOf(raw);
+    }
+
+    @Override
+    public Object evaluateJson(String expression, boolean awaitPromise) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("expression", expression);
+        params.put("returnByValue", true);
+        params.put("awaitPromise", awaitPromise);
+        params.put("userGesture", false);
+        Map<String, Object> result = connection.call("Runtime.evaluate", params, sessionId, commandTimeout);
+        Map<String, Object> exception = asMap(result.get("exceptionDetails"));
+        if (exception != null) {
+            throw evaluateException(exception);
+        }
+        Map<String, Object> value = asMap(result.get("result"));
+        return value == null ? null : value.get("value");
+    }
+
+    /**
+     * 把 CDP 的 exceptionDetails 转成 Java 异常
+     *
+     * @param exception exceptionDetails
+     * @return 运行时异常
+     */
+    private static IllegalStateException evaluateException(Map<String, Object> exception) {
+        Object detail = exception.get("exception");
+        Object description = detail instanceof Map<?, ?> map ? map.get("description") : null;
+        if (description == null) {
+            description = exception.get("text");
+        }
+        return new IllegalStateException("页面脚本执行失败: "
+                + (description == null ? Json.toJson(exception) : description));
+    }
+
+    @Override
+    public void clearCookies() {
+        connection.call("Network.clearBrowserCookies", Map.of(), sessionId, commandTimeout);
+    }
+
+    @Override
+    public void reload() {
+        connection.call("Page.reload", Map.of(), sessionId, commandTimeout);
+        waitForDocument();
+    }
+
+    @Override
+    public void goBack() {
+        navigateHistory(-1);
+    }
+
+    @Override
+    public void goForward() {
+        navigateHistory(1);
+    }
+
+    /**
+     * 沿浏览历史前进或后退
+     *
+     * @param delta 偏移量，负数后退、正数前进
+     */
+    private void navigateHistory(int delta) {
+        Map<String, Object> history = connection.call("Page.getNavigationHistory",
+                Map.of(), sessionId, commandTimeout);
+        Number index = history.get("index") instanceof Number number ? number : null;
+        Object rawEntries = history.get("entries");
+        if (index == null || !(rawEntries instanceof List<?> entries)) {
+            return;
+        }
+        int target = index.intValue() + delta;
+        if (target < 0 || target >= entries.size()) {
+            return;
+        }
+        Map<String, Object> entry = asMap(entries.get(target));
+        Number entryId = entry == null ? null
+                : (entry.get("id") instanceof Number number ? number : null);
+        if (entryId == null) {
+            return;
+        }
+        connection.call("Page.navigateToHistoryEntry",
+                Map.of("entryId", entryId.intValue()), sessionId, commandTimeout);
+        waitForDocument();
     }
 
     @Override
@@ -354,7 +802,7 @@ final class CdpPage implements BrowserPage {
         StringBuilder script = new StringBuilder();
         script.append("(async () => {")
                 .append("const send=(o)=>{try{window[").append(bindingLiteral)
-                .append("](JSON.stringify(o));}catch(e){}};")
+                .append("](JSON.stringify(o));}catch(e){/* 忽略：绑定回调未就绪或调用失败，事件仅尽力上报 */}};")
                 .append("try{")
                 .append("const res=await fetch(").append(urlLiteral)
                 .append(",{method:").append(methodLiteral)
@@ -386,6 +834,23 @@ final class CdpPage implements BrowserPage {
         } catch (Exception e) {
             log.debug("[cdp] 关闭标签页失败: {}", e.getMessage());
         }
+        Runnable callback = onCloseCallback;
+        if (callback != null) {
+            try {
+                callback.run();
+            } catch (Exception e) {
+                log.debug("[cdp] 页面关闭回调失败: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 注册页面关闭回调（引擎用它维护存活页面集合）
+     *
+     * @param callback 回调
+     */
+    void onClose(Runnable callback) {
+        this.onCloseCallback = callback;
     }
 
     /**

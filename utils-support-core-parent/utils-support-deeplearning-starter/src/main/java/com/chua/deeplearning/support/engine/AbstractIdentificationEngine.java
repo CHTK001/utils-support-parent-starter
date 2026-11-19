@@ -90,6 +90,16 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     private static final String PROVIDER_TENSORFLOW = "tensorflow";
 
     /**
+     * 提供者 名称：GPU llama3（llama.cpp / GGUF，含进程内与 llama-server sidecar）
+     */
+    private static final String PROVIDER_GPU_LLAMA3 = "gpu-llama3";
+
+    /**
+     * gpu-llama3 模块 Translator 类名前缀（该模块模型统一归属 gpu-llama3 提供者）
+     */
+    private static final String GPU_LLAMA3_TRANSLATOR_PREFIX = "com.chua.deeplearning.support.gpu.llama3.";
+
+    /**
      * 类路径 前缀
      */
     private static final String CLASSPATH_PREFIX = "classpath:";
@@ -233,7 +243,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                     // 懒加载：启动只挂定义，不解析/下载模型路径；
  // 真实路径在首次 translate 时再解析（支持 jar/类路径 / 远程自动下载）
                     ITranslator<?, ?> translator = ModelRegistry.createTranslator(entry.modelId(), null);
-                    String provider = resolveProvider(entry.relativePath());
+                    String provider = resolveProvider(entry);
                     String pathText = entry.relativePath() != null ? entry.relativePath() : "";
                     TranslatorModelDefinition def = TranslatorModelDefinition.builder()
                             .modelDefinition(ModelDefinition.builder()
@@ -387,7 +397,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         }
         try {
             ITranslator<?, ?> translator = ModelRegistry.createTranslator(entry.modelId(), null);
-            String provider = resolveProvider(entry.relativePath());
+            String provider = resolveProvider(entry);
             String pathText = entry.relativePath() != null ? entry.relativePath() : "";
             TranslatorModelDefinition def = TranslatorModelDefinition.builder()
                     .modelDefinition(ModelDefinition.builder()
@@ -580,12 +590,27 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-     * 解析提供者
+     * 解析提供者：优先按注册条目的 Translator 类归属判断（如 gpu-llama3 模块），
+     * 再按模型文件路径后缀推断。
+     *
+     * @param entry 模型注册条目
+     * @return 提供者名称
+     */
+    private static String resolveProvider(ModelRegistry.Entry entry) {
+        if (entry != null && entry.translatorClassName() != null
+                && entry.translatorClassName().startsWith(GPU_LLAMA3_TRANSLATOR_PREFIX)) {
+            return PROVIDER_GPU_LLAMA3;
+        }
+        return resolveProviderByPath(entry == null ? null : entry.relativePath());
+    }
+
+    /**
+     * 按模型文件路径后缀推断提供者。
      *
      * @param relativePath relative路径
-     * @return resolve提供者的结果
+     * @return 提供者名称
      */
-    private static String resolveProvider(String relativePath) {
+    private static String resolveProviderByPath(String relativePath) {
         if (relativePath == null) {
             return DEFAULT_PROVIDER;
         }

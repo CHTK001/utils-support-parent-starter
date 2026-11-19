@@ -186,9 +186,9 @@ public class MysqlMetaUser implements MetaUser {
          */
         private final String username;
         /**
-         * 口令
+         * 口令（必须通过 {@link #withPassword(String)} 显式指定，不设默认值）
          */
-        private String password = "123456";
+        private String password;
         /**
          * 主机
          */
@@ -236,6 +236,9 @@ public class MysqlMetaUser implements MetaUser {
          */
         @Override
         public boolean execute() {
+            if (password == null) {
+                throw new IllegalStateException("创建 MySQL 用户 " + username + " 前必须调用 withPassword 显式指定口令");
+            }
             String account = quoteLiteral(MysqlSqlNames.checkUserName(username)) + "@" + quoteLiteral(checkHost(host));
             String sql = "CREATE USER " + account + " IDENTIFIED BY " + quoteLiteral(checkPassword(password));
             exec(dataSource, sql, "创建 MySQL 用户 " + account);

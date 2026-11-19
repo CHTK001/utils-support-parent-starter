@@ -381,6 +381,15 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             applyNestedPrice(metrics, pricing.get("price"));
             applyNestedPrice(metrics, pricing.get("cost"));
         }
+        // 2.2) intern-ai schema 2.4：价格挂在 input_modalities / output_modalities 的
+        //      pricing 数组里（type=prompt / cached_prompt / completion，unit=token，
+        //      cost_usd 为每 Token 报价），换算成每百万 Token 口径；已有定价不覆盖
+        applyModalityPricing(metrics, model.get("input_modalities"), "prompt",
+                "price_input_per_musd");
+        applyModalityPricing(metrics, model.get("input_modalities"), "cached_prompt",
+                "price_cache_hit_per_musd");
+        applyModalityPricing(metrics, model.get("output_modalities"), "completion",
+                "price_output_per_musd");
 
         // 3) 上下文与输出上限
         Long context = firstLong(model, "context_window", "context_length",
@@ -694,6 +703,37 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             return;
         }
         IndicatorJsonSupport.put(target, key, IndicatorJsonSupport.perMillion(node));
+    }
+
+    /**
+     * 解析模态定价数组（intern-ai schema 2.4）。
+     *
+     * <p>pricing[] 条目形如 {@code {"type":"prompt","unit":"token","cost_usd":"0.000004"}}，
+     * cost_usd 为每 Token 报价，按每百万 Token 口径换算；命中指定定价类型且指标键
+     * 尚未占用时才写入，不覆盖更上游的定价来源。</p>
+     *
+     * @param target     指标 Map
+     * @param modalities 模态数组节点（input_modalities / output_modalities）
+     * @param priceType  目标定价类型（prompt / cached_prompt / completion）
+     * @param key        指标键
+     */
+    private static void applyModalityPricing(Map<String, Object> target, JsonNode modalities,
+                                             String priceType, String key) {
+        if (modalities == null || !modalities.isArray() || IndicatorJsonSupport.has(target, key)) {
+            return;
+        }
+        for (JsonNode modality : modalities) {
+            JsonNode entries = modality.get("pricing");
+            if (entries == null || !entries.isArray()) {
+                continue;
+            }
+            for (JsonNode entry : entries) {
+                if (priceType.equals(entry.path("type").asText())) {
+                    putPerTokenPrice(target, key, entry.get("cost_usd"));
+                    return;
+                }
+            }
+        }
     }
 
     /**

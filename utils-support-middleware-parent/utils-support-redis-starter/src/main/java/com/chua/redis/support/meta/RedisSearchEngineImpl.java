@@ -176,10 +176,13 @@ public class RedisSearchEngineImpl implements SearchEngine {
                 field.setName(stringValue(attrList.get(0)));
                 field.setType(attrList.size() > 1 ? stringValue(attrList.get(1)) : null);
                 if (attrList.size() > 2) {
-                    try {
-                        field.setWeight(Double.parseDouble(stringValue(attrList.get(2)).trim()));
-                    } catch (NumberFormatException | NullPointerException e) {
-                        log.warn("RedisSearch 索引字段 {} 的 weight 回复非数值，按默认权重处理", field.getName());
+                    String weightText = stringValue(attrList.get(2));
+                    if (weightText != null) {
+                        try {
+                            field.setWeight(Double.parseDouble(weightText.trim()));
+                        } catch (NumberFormatException e) {
+                            log.warn("RedisSearch 索引字段 {} 的 weight 回复非数值，按默认权重处理", field.getName());
+                        }
                     }
                 }
             }

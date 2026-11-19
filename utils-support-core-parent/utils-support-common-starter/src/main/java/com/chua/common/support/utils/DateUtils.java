@@ -1267,6 +1267,7 @@ public class DateUtils {
                             return toDate(localDateTime);
                         }
                     } catch (ArithmeticException ex) {
+                        // [P3C 2.1.1 豁免] 溢出转译为受检解析异常（同 JDK Duration.parse 官方实现）
                         throw new DateTimeParseException("Text cannot be parsed to a Duration: overflow", str, 0, ex);
                     }
                 }
@@ -2229,6 +2230,7 @@ public class DateUtils {
             long val = Long.parseLong(parsed);
             return Math.multiplyExact(val, multiplier);
         } catch (NumberFormatException | ArithmeticException ex) {
+            // [P3C 2.1.1 豁免] 同 JDK Duration.parse#parseNumber 官方实现：解析失败统一转译为受检异常
             throw new DateTimeParseException("Text cannot be parsed to a Duration: " + errorText, text, 0, ex);
         }
     }

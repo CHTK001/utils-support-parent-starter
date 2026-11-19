@@ -182,6 +182,8 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
 
         BigDecimal context = numberOf(limit, "context");
         BigDecimal maxOutput = numberOf(limit, "output");
+        List<String> inputModalities = strings(modalities.path("input"));
+        List<String> outputModalities = strings(modalities.path("output"));
 
         return ModelDefinition.builder()
                 .id(modelId)
@@ -194,6 +196,10 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
                 .cacheWritePrice(gateway ? null : priceOf(cost, "cache_write"))
                 .internalReasoningPrice(gateway ? null : priceOf(cost, "reasoning"))
                 .contextWindowTokens(context != null && context.signum() > 0 ? context.longValue() : null)
+                .maxOutputTokens(maxOutput != null && maxOutput.signum() > 0 ? maxOutput.longValue() : null)
+                .inputModalities(inputModalities.isEmpty() ? null : inputModalities)
+                .outputModalities(outputModalities.isEmpty() ? null : outputModalities)
+                .attachment(model.path("attachment").asBoolean(false) ? Boolean.TRUE : null)
                 .reasoning(reasoning ? Boolean.TRUE : null)
                 .functionCalling(functionCalling ? Boolean.TRUE : null)
                 .imageInput(imageInput ? Boolean.TRUE : null)
@@ -235,6 +241,26 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
             return value.decimalValue();
         }
         return null;
+    }
+
+    /**
+     * 读取字符串数组（缺失 / 非数组时返回空列表）。
+     *
+     * @param node 数组节点
+     * @return 值列表
+     */
+    private List<String> strings(JsonNode node) {
+        if (node == null || !node.isArray()) {
+            return Wraps.list();
+        }
+        List<String> list = Wraps.list(node.size());
+        for (JsonNode item : node) {
+            String text = item.asText(null);
+            if (text != null && !text.isBlank() && !list.contains(text)) {
+                list.add(text);
+            }
+        }
+        return list;
     }
 
     /**

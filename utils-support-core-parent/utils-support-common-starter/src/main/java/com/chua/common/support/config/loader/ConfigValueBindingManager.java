@@ -3,6 +3,7 @@ package com.chua.common.support.config.loader;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.center.ConfigListener;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.lang.placeholder.PlaceholderSupport;
 import com.chua.common.support.objects.annotation.ConfigValue;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -16,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -40,12 +39,6 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class ConfigValueBindingManager implements ConfigListener {
-
-    /**
-     * 占位符正则表达式。
-     * 匹配 ${key} 和 ${key:defaultValue} 两种格式。
-     */
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}:]+)(?::([^}]*))?}");
 
     /**
      * 按配置键分组的绑定映射表。
@@ -138,12 +131,12 @@ public class ConfigValueBindingManager implements ConfigListener {
      */
     private void registerFieldBinding(String beanName, Object bean, Field field, ConfigValue annotation) {
         String expression = annotation.value();
-        ParsedExpression parsed = parseExpression(expression);
+        PlaceholderSupport.ParsedExpression parsed = parseExpression(expression);
 
         ConfigValueBinding binding = ConfigValueBinding.builder()
-                .configKey(parsed.key)
+                .configKey(parsed.key())
                 .expression(expression)
-                .defaultValue(parsed.defaultValue)
+                .defaultValue(parsed.defaultValue())
                 .bean(bean)
                 .beanName(beanName)
                 .field(field)
@@ -155,7 +148,7 @@ public class ConfigValueBindingManager implements ConfigListener {
         addBinding(binding);
 
         //
-        String value = resolveValue(parsed.key, parsed.defaultValue);
+        String value = resolveValue(parsed.key(), parsed.defaultValue());
         injectFieldValue(binding, value);
 
         if (log.isDebugEnabled()) {
@@ -173,12 +166,12 @@ public class ConfigValueBindingManager implements ConfigListener {
      */
     private void registerMethodBinding(String beanName, Object bean, Method method, ConfigValue annotation) {
         String expression = annotation.value();
-        ParsedExpression parsed = parseExpression(expression);
+        PlaceholderSupport.ParsedExpression parsed = parseExpression(expression);
 
         ConfigValueBinding binding = ConfigValueBinding.builder()
-                .configKey(parsed.key)
+                .configKey(parsed.key())
                 .expression(expression)
-                .defaultValue(parsed.defaultValue)
+                .defaultValue(parsed.defaultValue())
                 .bean(bean)
                 .beanName(beanName)
                 .method(method)
@@ -190,7 +183,7 @@ public class ConfigValueBindingManager implements ConfigListener {
         addBinding(binding);
 
         //
-        String value = resolveValue(parsed.key, parsed.defaultValue);
+        String value = resolveValue(parsed.key(), parsed.defaultValue());
         injectMethodValue(binding, value);
 
         if (log.isDebugEnabled()) {
@@ -279,18 +272,14 @@ public class ConfigValueBindingManager implements ConfigListener {
     /**
      * 解析占位符表达式。
      *
+     * <p>结构解析统一委托底层 {@link PlaceholderSupport#parseExpression}，
+     * 全仓唯一实现（R4：重复实现 = S0），本类不再持有正则。</p>
+     *
      * @param expression 占位符表达式，如 "${server.port:8080}"
      * @return 解析结果，包含 key 和默认值
      */
-    private ParsedExpression parseExpression(String expression) {
-        Matcher matcher = PLACEHOLDER_PATTERN.matcher(expression);
-        if (matcher.find()) {
-            String key = matcher.group(1);
-            String defaultValue = matcher.group(2);
-            return new ParsedExpression(key, defaultValue);
-        }
-        // 如果表达式不包含占位符，直接作为 key 处理
-        return new ParsedExpression(expression, null);
+    private PlaceholderSupport.ParsedExpression parseExpression(String expression) {
+        return PlaceholderSupport.parseExpression(expression);
     }
 
     /**
@@ -436,25 +425,6 @@ public class ConfigValueBindingManager implements ConfigListener {
                 binding.getConfigKey(), oldValue, newValue);
         } catch (Exception e) {
             log.error("调用回调方法失败: {}.{}", binding.getBeanName(), callbackName, e);
-        }
-    }
-
-    /**
-     * 解析后的表达式结果，包含配置键和默认值。
-     */
-    private static class ParsedExpression {
-        final String key;
-        final String defaultValue;
-
-        /**
-         * Parsed Expression
-         * @param defaultValue 字符串
-         * @param key 字符串
-         * @return 返回值
-        */
-        ParsedExpression(String key, String defaultValue) {
-            this.key = key;
-            this.defaultValue = defaultValue;
         }
     }
 }
