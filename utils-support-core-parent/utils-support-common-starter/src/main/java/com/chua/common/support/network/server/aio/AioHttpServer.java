@@ -544,7 +544,7 @@ public class AioHttpServer extends AbstractServer {
         if (response.isChannelClosed()) {
             return false;
         }
-        String connHeader = request.getHeader("Connection");
+        String connHeader = request.getHeader("connection");
         if (connHeader != null) {
             return "keep-alive".equalsIgnoreCase(connHeader.trim());
         }

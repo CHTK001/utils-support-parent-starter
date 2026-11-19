@@ -133,9 +133,10 @@ public class NioServerRequest implements ServerRequest {
      */
     private boolean bufHasData = true;
     /**
-     * attributes
+     * attributes（惰性创建：绝大多数请求不使用属性，避免每请求急切分配
+     * ConcurrentHashMap；随 {@link #resetForNextRequest()} 置空）
      */
-    private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+    private Map<String, Object> attributes;
 
     /**
      * 查询参数解析缓存（null 表示尚未解析；随 {@link #resetForNextRequest()} 失效）。
@@ -816,9 +817,19 @@ public class NioServerRequest implements ServerRequest {
         }
         return 0;
     }
-    @Override public Map<String, Object> getAttributes() { return attributes; }
-    @Override public Object getAttribute(String name) { return attributes.get(name); }
-    @Override public void setAttribute(String name, Object value) { attributes.put(name, value); }
+    @Override public Map<String, Object> getAttributes() {
+        Map<String, Object> attrs = attributes;
+        if (attrs == null) {
+            attrs = new ConcurrentHashMap<>();
+            attributes = attrs;
+        }
+        return attrs;
+    }
+    @Override public Object getAttribute(String name) {
+        Map<String, Object> attrs = attributes;
+        return attrs == null ? null : attrs.get(name);
+    }
+    @Override public void setAttribute(String name, Object value) { getAttributes().put(name, value); }
     @Override public Map<String, String> getFormData() {
         String ct = getContentType();
         if (ct == null) {
@@ -909,7 +920,7 @@ public class NioServerRequest implements ServerRequest {
         httpVersion = "HTTP/1.1";
         headers.clear();
         body = null;
-        attributes.clear();
+        attributes = null;
         paramsCache = null;
         // 重置状态机(保留缓冲中未消费的数据,供 Keep-Alive 下一条请求复用)
         parseState = ParseState.REQUEST_LINE;

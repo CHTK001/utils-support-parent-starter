@@ -44,11 +44,13 @@ public final class WebSocketProtocol {
      * @return true 表示携带 {@code Upgrade: websocket} 头
      */
     public static boolean isUpgradeRequest(ServerRequest request) {
-        String upgrade = request.getHeader("Upgrade");
+        // 传入已小写的字面量：NIO/AIO 请求头键均按小写存入，getHeader 内部
+        // toLowerCase 对已小写串返回原实例，避免热路径每次分配新 String
+        String upgrade = request.getHeader("upgrade");
         if (upgrade == null || !"websocket".equalsIgnoreCase(upgrade.trim())) {
             return false;
         }
-        String connection = request.getHeader("Connection");
+        String connection = request.getHeader("connection");
         if (connection == null) {
             return false;
         }

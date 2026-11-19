@@ -798,7 +798,8 @@ public class NioHttpServer extends AbstractServer {
                 // 流式直写(SSE):入待写队列并受背压门限约束
                 response.setStreamWriter(writer);
                 // 响应头必须与实际生命周期一致：要关的连接不能对外宣称 keep-alive
-                response.setConnectionClose(!shouldKeepAlive(st.request, response));
+                boolean keepAlive = shouldKeepAlive(st.request, response);
+                response.setConnectionClose(!keepAlive);
                 try {
                     handleRequest(st.request, response);
                 } catch (Exception e) {
@@ -809,7 +810,9 @@ public class NioHttpServer extends AbstractServer {
                 } finally {
                     response.complete();
                 }
-                st.keepAlive = shouldKeepAlive(st.request, response);
+                // 请求头在 handleRequest 前后不变，复用上面的 keep-alive 判定，
+                // 仅补判 handler 期间 channel 是否被关闭（channelClosed 单调 false→true）
+                st.keepAlive = keepAlive && !response.isChannelClosed();
                 st.request.resetForNextRequest();
                 // 响应字节已交付写队列，此刻归位实例供下一条请求复用
                 recycle(st, response);
@@ -1030,7 +1033,8 @@ public class NioHttpServer extends AbstractServer {
                 // 流式直写(SSE):worker 线程排空队列;排不完交由事件循环 OP_WRITE 续写
                 response.setStreamWriter(writer);
                 // 响应头必须与实际生命周期一致：要关的连接不能对外宣称 keep-alive
-                response.setConnectionClose(!shouldKeepAlive(st.request, response));
+                boolean keepAlive = shouldKeepAlive(st.request, response);
+                response.setConnectionClose(!keepAlive);
                 try {
                     handleRequest(st.request, response);
                 } catch (Exception e) {
@@ -1041,7 +1045,9 @@ public class NioHttpServer extends AbstractServer {
                 } finally {
                     response.complete();
                 }
-                st.keepAlive = shouldKeepAlive(st.request, response);
+                // 请求头在 handleRequest 前后不变，复用上面的 keep-alive 判定，
+                // 仅补判 handler 期间 channel 是否被关闭（channelClosed 单调 false→true）
+                st.keepAlive = keepAlive && !response.isChannelClosed();
                 st.request.resetForNextRequest();
                 // 直写:worker 线程同步排空 writeQueue(与事件循环 handleWrite 同锁)。
                 // 未写完(对端背压)时剩余字节交由事件循环 OP_WRITE 续写。
@@ -1811,7 +1817,9 @@ public class NioHttpServer extends AbstractServer {
      */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         boolean closed = response.isChannelClosed();
-        String connHeader = request.getHeader("Connection");
+        // 传入已小写的字面量：headers 键由解析器按小写存入，getHeader 内部的
+        // toLowerCase 对已小写串返回原实例，热路径避免每次分配新 String
+        String connHeader = request.getHeader("connection");
         if (closed) {
             return false;
         }
