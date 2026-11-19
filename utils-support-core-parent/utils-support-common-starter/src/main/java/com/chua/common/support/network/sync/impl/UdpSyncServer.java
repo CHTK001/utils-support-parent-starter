@@ -44,6 +44,13 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
     private final Map<String, ClientInfo> clients = new ConcurrentHashMap<>();
 
     /**
+     * 来源地址索引（address -> clientId）：UDP 无连接，每个非 register 数据报都要
+     * 反查 clientId。原实现对全部 clients 线性扫描（每包 O(n)），索引后 O(1)。
+     * 注册时同步写入；正常部署一个地址对应一个 clientId。
+     */
+    private final Map<InetSocketAddress, String> addressIndex = new ConcurrentHashMap<>();
+
+    /**
      * 监听器列表
      */
     private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
@@ -125,6 +132,7 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
             server = null;
         }
         clients.clear();
+        addressIndex.clear();
     }
 
     /**
@@ -148,7 +156,7 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
             return;
         }
         sendTo(client.address, topic + ":" + message);
-        notifyListener(l -> l.onMessage(clientId, topic, message));
+        notifyMessageListener(clientId, topic, message);
     }
 
     /**
@@ -228,11 +236,12 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
             client.metadata.put("clientId", payload);
             client.metadata.put("address", address.toString());
             clients.put(payload, client);
+            addressIndex.put(address, payload);
             notifyListener(l -> l.onClientConnected(payload, client.metadata));
         } else {
             // UDP 无连接：按来源地址反查已注册的 clientId，保证 send(clientId,...) 能定向回发
             String clientId = findClientIdByAddress(packet);
-            notifyListener(l -> l.onMessage(clientId, topic, payload));
+            notifyMessageListener(clientId, topic, payload);
         }
     }
 
@@ -243,15 +252,8 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
      * @return clientId，未注册返回 null
      */
     private String findClientIdByAddress(DatagramPacket packet) {
-        for (Map.Entry<String, ClientInfo> entry : clients.entrySet()) {
-            ClientInfo info = entry.getValue();
-            if (info.address != null
-                    && info.address.getAddress().equals(packet.getAddress())
-                    && info.address.getPort() == packet.getPort()) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        // 哈希索引反查：键与注册时构造的 InetSocketAddress 等值（同地址同端口）
+        return addressIndex.get(new InetSocketAddress(packet.getAddress(), packet.getPort()));
     }
 
     /**
@@ -267,6 +269,23 @@ public class UdpSyncServer extends AbstractServer implements SyncServer, SyncPro
             server.send(packet);
         } catch (IOException e) {
             log.debug("[sync] UDP 数据报发送失败，已忽略: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 通知消息监听器（每包热路径专用：避免每条消息分配捕获型 lambda）。
+     *
+     * @param clientId 客户端标识
+     * @param topic    主题
+     * @param payload  消息体
+     */
+    private void notifyMessageListener(String clientId, String topic, String payload) {
+        for (SyncServerListener listener : listeners) {
+            try {
+                listener.onMessage(clientId, topic, payload);
+            } catch (Exception e) {
+                log.debug("[sync] 监听器回调执行失败，已忽略: {}", e.getMessage());
+            }
         }
     }
 

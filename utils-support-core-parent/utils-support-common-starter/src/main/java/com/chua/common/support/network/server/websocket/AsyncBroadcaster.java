@@ -107,8 +107,11 @@ public final class AsyncBroadcaster<T extends WsSink> implements AutoCloseable {
     /**
      * 扇出时实际访问过的连接次数（诊断用）：一次广播的理想值等于注册连接数，
      * 若等于「连接数 × 分片数」说明退化回了全量遍历再过滤。
+     *
+     * <p>按分片计数：原单一 AtomicLong 会被各分片 worker 对同一缓存行做原子 RMW，
+     * 高频广播时缓存行在分片间弹跳；每片一个计数器后仅本片 worker 写入，无竞争。</p>
      */
-    private final AtomicLong visitedLinks = new AtomicLong();
+    private final AtomicLong[] visitedByShard;
 
     /**
      * 运行标志。
@@ -123,6 +126,10 @@ public final class AsyncBroadcaster<T extends WsSink> implements AutoCloseable {
      */
     public AsyncBroadcaster(int shards, int queueCapacity) {
         this.shards = Math.max(1, shards);
+        this.visitedByShard = new AtomicLong[this.shards];
+        for (int i = 0; i < this.shards; i++) {
+            visitedByShard[i] = new AtomicLong();
+        }
         int capacity = Math.max(1, queueCapacity);
         for (int i = 0; i < this.shards; i++) {
             BlockingQueue<Task<T>> queue = new ArrayBlockingQueue<>(capacity);
@@ -207,8 +214,9 @@ public final class AsyncBroadcaster<T extends WsSink> implements AutoCloseable {
                 continue;
             }
             // 只遍历本片：注册时已归档，这里不再做哈希过滤
+            AtomicLong visited = visitedByShard[index];
             for (T sink : shardSinks.get(index)) {
-                visitedLinks.incrementAndGet();
+                visited.incrementAndGet();
                 writeOne(sink, task.frame);
             }
         }
@@ -295,7 +303,11 @@ public final class AsyncBroadcaster<T extends WsSink> implements AutoCloseable {
      * @return 次数
      */
     public long getVisitedLinks() {
-        return visitedLinks.get();
+        long total = 0;
+        for (AtomicLong counter : visitedByShard) {
+            total += counter.get();
+        }
+        return total;
     }
 
     /**

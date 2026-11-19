@@ -639,6 +639,23 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     /**
+     * 通知消息监听器（每消息热路径专用：避免每条消息分配捕获型 lambda）。
+     *
+     * @param clientId 客户端标识
+     * @param topic    主题
+     * @param payload  消息体
+     */
+    private void notifyMessageListener(String clientId, String topic, String payload) {
+        for (SyncServerListener listener : listeners) {
+            try {
+                listener.onMessage(clientId, topic, payload);
+            } catch (Exception e) {
+                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
      * 通知监听器。
      *
      * @param action 动作
@@ -708,6 +725,16 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
         private final Object writeLock = new Object();
 
         /**
+         * 读缓冲锁（仅保护 {@link #readBuffer}）。
+         *
+         * <p>与 {@link #writeLock} 分离：readBuffer 只在本连接的 worker 事件循环线程上
+         * 访问（appendBuffer/drainLines），而 writeQueue/pendingWrite 由业务线程入队、
+         * worker 线程冲刷。两把锁保护的资源完全不重叠，合用一把锁会让高频广播/
+         * 发送时业务线程的入队操作拖慢同连接的行切分。</p>
+         */
+        private final Object readLock = new Object();
+
+        /**
          * 是否已注册写事件
          */
         private final AtomicBoolean writePending = new AtomicBoolean(false);
@@ -737,9 +764,9 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          * @param buffer 数据（读模式）
          */
         void appendBuffer(ByteBuffer buffer) {
-            // 事件循环线程单线程访问本连接，但业务虚拟线程可能同时读 readBuffer
-            // （见 drainLines 的调用顺序），故仍用同一把锁保证可见性
-            synchronized (writeLock) {
+            // readBuffer 仅由本连接的 worker 事件循环线程访问，用独立的 readLock
+            // 保证可见性，不再与发送队列的 writeLock 互相争抢
+            synchronized (readLock) {
                 if (readBuffer == null) {
                     readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE * 2);
                     readBuffer.limit(0);
@@ -765,7 +792,7 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          */
         List<String> drainLines() {
             List<String> lines = Wraps.list();
-            synchronized (writeLock) {
+            synchronized (readLock) {
                 ByteBuffer rb = readBuffer;
                 if (rb == null) {
                     return lines;
@@ -822,7 +849,7 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                 write("registered:" + payload);
                 notifyListener(l -> l.onClientConnected(payload, metadata));
             } else {
-                notifyListener(l -> l.onMessage(clientId, topic, payload));
+                notifyMessageListener(clientId, topic, payload);
             }
         }
 

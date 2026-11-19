@@ -508,7 +508,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
                 }
                 String finalBody = body;
                 String finalTopic = topic;
-                notifyListener(l -> l.onMessage(conn.sessionId, finalTopic, finalBody));
+                notifyMessageListener(conn.sessionId, finalTopic, finalBody);
             }
         }
     }
@@ -534,22 +534,28 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(0x81);
+        // 精确分配帧缓冲：省去 ByteArrayOutputStream 扩容与 toByteArray() 全量拷贝
+        int headerLen = data.length <= 125 ? 2 : (data.length <= 65535 ? 4 : 10);
+        byte[] frame = new byte[headerLen + data.length];
+        frame[0] = (byte) 0x81;
+        int pos;
         if (data.length <= 125) {
-            out.write(data.length);
+            frame[1] = (byte) data.length;
+            pos = 2;
         } else if (data.length <= 65535) {
-            out.write(126);
-            out.write((data.length >> 8) & 0xFF);
-            out.write(data.length & 0xFF);
+            frame[1] = (byte) 126;
+            frame[2] = (byte) ((data.length >> 8) & 0xFF);
+            frame[3] = (byte) (data.length & 0xFF);
+            pos = 4;
         } else {
-            out.write(127);
+            frame[1] = (byte) 127;
             for (int i = 7; i >= 0; i--) {
-                out.write((int) ((data.length >> (8 * i)) & 0xFF));
+                frame[2 + (7 - i)] = (byte) ((data.length >> (8 * i)) & 0xFF);
             }
+            pos = 10;
         }
-        out.write(data);
-        return out.toByteArray();
+        System.arraycopy(data, 0, frame, pos, data.length);
+        return frame;
     }
 
     /**
@@ -581,6 +587,22 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         }
         releaseConnection();
         notifyListener(l -> l.onClientDisconnected(sessionId));
+    }
+
+    /**
+     * 通知消息监听器（每消息热路径专用：避免每条消息分配捕获型 lambda）
+     * @param sessionId 会话标识
+     * @param topic 主题
+     * @param body 消息体
+     */
+    private void notifyMessageListener(String sessionId, String topic, String body) {
+        for (SyncServerListener listener : listeners) {
+            try {
+                listener.onMessage(sessionId, topic, body);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
     /**

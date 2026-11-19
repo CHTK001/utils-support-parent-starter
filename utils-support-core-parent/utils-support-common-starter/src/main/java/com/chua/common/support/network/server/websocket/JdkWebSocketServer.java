@@ -26,6 +26,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -217,7 +218,7 @@ public class JdkWebSocketServer extends AbstractServer {
         }
         try {
             // 帧只编码一次：原实现每条连接都要 getBytes 一遍，百万连接 = 100 万次重复转换
-            byte[] frame = buildTextFrame(payload).getBytes(StandardCharsets.ISO_8859_1);
+            byte[] frame = buildTextFrame(payload);
             fanOut.publish(frame);
         } catch (Exception e) {
             log.debug("[ws] 广播编码失败，已忽略: {}", e.getMessage());
@@ -407,8 +408,7 @@ public class JdkWebSocketServer extends AbstractServer {
                             // 从来没有写回连接，表现为"handler 能收到消息但客户端永远收不到回复"。
                             Object result = response.getResult();
                             if (null != result) {
-                                conn.writeFrame(buildTextFrame(result.toString())
-                                        .getBytes(StandardCharsets.ISO_8859_1));
+                                conn.writeFrame(buildTextFrame(result.toString()));
                                 response.reset();
                             }
                         } catch (Exception e) {
@@ -426,29 +426,33 @@ public class JdkWebSocketServer extends AbstractServer {
      * @return 结果字符串
      * @throws Exception 异常
     */
-    private String buildTextFrame(String payload) throws Exception {
+    private byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(0x81);
+        // 精确分配帧缓冲：省去 ByteArrayOutputStream 扩容、toByteArray() 拷贝，
+        // 以及调用方 getBytes(ISO_8859_1) 的 String 无效往返（ISO_8859_1 往返无损）
+        int headerLen = data.length < 126 ? 2 : (data.length <= 0xFFFF ? 4 : 10);
+        byte[] frame = new byte[headerLen + data.length];
+        frame[0] = (byte) 0x81;
+        int pos;
         if (data.length < 126) {
-            out.write(data.length);
+            frame[1] = (byte) data.length;
+            pos = 2;
         } else if (data.length <= 0xFFFF) {
-            out.write(126);
-            out.write((data.length >> 8) & 0xFF);
-            out.write(data.length & 0xFF);
+            frame[1] = (byte) 126;
+            frame[2] = (byte) ((data.length >> 8) & 0xFF);
+            frame[3] = (byte) (data.length & 0xFF);
+            pos = 4;
         } else {
-            out.write(127);
-            // 64 位长度：高 4 字节为 0，再写低 4 字节。
-            // 原实现先写低 4 字节再写 4 个 0，长度字段顺序是反的——>64KB 的帧会带错误长度。
-            for (int i = 0; i < 4; i++) {
-                out.write(0);
-            }
+            frame[1] = (byte) 127;
+            // 64 位长度：高 4 字节为 0，再写低 4 字节（大端）。
+            // 历史实现曾先写低 4 字节再写 4 个 0，长度字段顺序是反的——>64KB 的帧会带错误长度。
+            pos = 10;
             for (int i = 3; i >= 0; i--) {
-                out.write((data.length >> (i * 8)) & 0xFF);
+                frame[6 + (3 - i)] = (byte) ((data.length >> (i * 8)) & 0xFF);
             }
         }
-        out.write(data, 0, data.length);
-        return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
+        System.arraycopy(data, 0, frame, pos, data.length);
+        return frame;
     }
 
     /**
@@ -484,10 +488,9 @@ public class JdkWebSocketServer extends AbstractServer {
                     response.setResult(result);
                 }
                 if (response instanceof SimpleServerResponse wsResp && wsResp.getCloseMessage() != null) {
-                    String frame = buildCloseFrame(wsResp.getCloseMessage());
+                    byte[] frame = buildCloseFrame(wsResp.getCloseMessage());
                     synchronized (((SimpleServerResponse) response).getConnection()) {
-                        ((SimpleServerResponse) response).getConnection()
-                                .out.write(frame.getBytes(StandardCharsets.ISO_8859_1));
+                        ((SimpleServerResponse) response).getConnection().out.write(frame);
                         ((SimpleServerResponse) response).getConnection().out.flush();
                     }
                 }
@@ -505,15 +508,26 @@ public class JdkWebSocketServer extends AbstractServer {
      * @return 结果字符串
      * @throws Exception 异常
     */
-    private String buildCloseFrame(String reason) throws Exception {
+    private byte[] buildCloseFrame(String reason) throws Exception {
         byte[] data = reason.getBytes(StandardCharsets.UTF_8);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(0x88);
-        out.write(0x80 | data.length);
-        out.write(new byte[4]);
-        out.write(data, 0, data.length);
-        return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
+        // 精确分配帧缓冲：省去 ByteArrayOutputStream 扩容与 String(ISO_8859_1) 往返；
+        // 掩码键保持 4 个 0（new byte[] 零初始化，与原实现一致）
+        byte[] frame = new byte[6 + data.length];
+        frame[0] = (byte) 0x88;
+        frame[1] = (byte) (0x80 | data.length);
+        System.arraycopy(data, 0, frame, 6, data.length);
+        return frame;
     }
+
+    /**
+     * 注解回调方法缓存：每次连接建立/关闭都触发 OnOpen/OnClose 回调，
+     * 原实现对全部 bean 的全部 declaredMethods 做反射扫描 + setAccessible，
+     * 连接 churn 场景下每断开一条连接就全量扫一遍。方法扫描结果按
+     * 「注解类型 + bean 类」缓存——类的声明方法集在运行期不可变，可安全复用；
+     * 新 bean 类惰性补扫，调用行为与原实现一致。
+     */
+    private final Map<Class<? extends Annotation>, Map<Class<?>, List<Method>>> annotatedMethodCache =
+            new ConcurrentHashMap<>();
 
     /**
      * 调用AnnotatedMethods
@@ -523,21 +537,30 @@ public class JdkWebSocketServer extends AbstractServer {
         if (getObjectContext() == null) {
             return;
         }
+        Map<Class<?>, List<Method>> byClass =
+                annotatedMethodCache.computeIfAbsent(annotationType, k -> new ConcurrentHashMap<>());
         Collection<String> beanNames = getObjectContext().getBeanDefinitionNames();
         for (String beanName : beanNames) {
             Object bean = getObjectContext().getBean(beanName, Object.class);
             if (bean == null) {
                 continue;
             }
-            for (Method method : bean.getClass().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(annotationType)) {
-                    ClassUtils.setAccessible(method);
-                    try {
-                        ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
-                    } catch (Exception e) {
-                        log.error("Invoke {} error: {}.{}", annotationType.getSimpleName(),
-                                bean.getClass().getSimpleName(), method.getName(), e);
+            List<Method> methods = byClass.computeIfAbsent(bean.getClass(), clazz -> {
+                List<Method> found = new ArrayList<>();
+                for (Method method : clazz.getDeclaredMethods()) {
+                    if (method.isAnnotationPresent(annotationType)) {
+                        ClassUtils.setAccessible(method);
+                        found.add(method);
                     }
+                }
+                return found;
+            });
+            for (Method method : methods) {
+                try {
+                    ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
+                } catch (Exception e) {
+                    log.error("Invoke {} error: {}.{}", annotationType.getSimpleName(),
+                            bean.getClass().getSimpleName(), method.getName(), e);
                 }
             }
         }
@@ -600,9 +623,27 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         private final String body;
         /**
-         * attributes
+         * attributes（惰性创建：绝大多数消息 handler 不使用 attributes，
+         * 每消息省一个 ConcurrentHashMap 及其内部表的分配）
          */
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        private volatile Map<String, Object> attributes;
+
+        /**
+         * 惰性获取 attributes（DCL，恒非 null，与原实现语义一致）
+         */
+        private Map<String, Object> attributes() {
+            Map<String, Object> attrs = attributes;
+            if (attrs == null) {
+                synchronized (this) {
+                    attrs = attributes;
+                    if (attrs == null) {
+                        attrs = new ConcurrentHashMap<>();
+                        attributes = attrs;
+                    }
+                }
+            }
+            return attrs;
+        }
 
         /**
          * Simple Server Request
@@ -732,7 +773,7 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         @Override
         public Map<String, Object> getAttributes() {
-            return attributes;
+            return attributes();
         }
 
         /**
@@ -740,7 +781,9 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         @Override
         public Object getAttribute(String name) {
-            return attributes.get(name);
+            Map<String, Object> attrs = attributes;
+            // 未初始化时返回 null，与空 map 的 get 结果一致
+            return attrs == null ? null : attrs.get(name);
         }
 
         /**
@@ -748,7 +791,7 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         @Override
         public void setAttribute(String name, Object value) {
-            attributes.put(name, value);
+            attributes().put(name, value);
         }
     }
 
