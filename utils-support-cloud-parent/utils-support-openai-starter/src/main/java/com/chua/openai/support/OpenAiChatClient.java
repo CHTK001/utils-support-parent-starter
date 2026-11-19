@@ -90,7 +90,7 @@ import com.chua.common.support.utils.StringUtils;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "opencode", "custom"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "opencode", "pollinations", "custom"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
@@ -112,6 +112,16 @@ public class OpenAiChatClient implements ChatClient {
      * 这里缺了默认地址会落到 OpenAI 官方域名，报 401/404。</p>
      */
     private static final String OPENCODE_DEFAULT_URL = "https://opencode.ai/inference/v1";
+
+    /**
+     * Pollinations 文本网关默认 API 地址（provider=pollinations 且未配置 baseUrl 时使用）。
+     *
+     * <p>Pollinations 匿名层免登录、免 API Key（模型目录 {@code openai-fast} 的
+     * {@code tier=anonymous}），OpenAI 兼容入口挂在 {@code https://text.pollinations.ai/openai}
+     * （SDK 在其后拼 {@code /chat/completions}）。免登录渠道（{@code chat-pollinations}）
+     * 的路由 baseUrl 恒为空，靠这里的兜底地址落到正确网关，缺了会落到 OpenAI 官方域名报 401/404。</p>
+     */
+    private static final String POLLINATIONS_DEFAULT_URL = "https://text.pollinations.ai/openai";
 
     /**
      * 客户端配置
@@ -245,11 +255,12 @@ public class OpenAiChatClient implements ChatClient {
     public OpenAiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         // 网关缺省地址写回配置：Agent 运行时按 setting.baseUrl 生成 opencode 的 provider 定义，
-        // 为空会跳过定义，模型在 CLI 侧就成了「Model unavailable」。kilo / opencode 的地址
-        // 本来就由本类兜底，这里只是把「实际要用的地址」同步进配置，避免两处口径不一致。
+        // 为空会跳过定义，模型在 CLI 侧就成了「Model unavailable」。kilo / opencode / pollinations
+        // 的地址本来就由本类兜底，这里只是把「实际要用的地址」同步进配置，避免两处口径不一致。
         if (setting != null && StringUtils.isBlank(setting.getBaseUrl())) {
             String provider = setting.getProvider();
-            if ("kilo".equalsIgnoreCase(provider) || "opencode".equalsIgnoreCase(provider)) {
+            if ("kilo".equalsIgnoreCase(provider) || "opencode".equalsIgnoreCase(provider)
+                    || "pollinations".equalsIgnoreCase(provider)) {
                 setting.setBaseUrl(defaultBaseUrlForProvider());
             }
         }
@@ -1148,6 +1159,9 @@ public class OpenAiChatClient implements ChatClient {
         }
         if ("opencode".equalsIgnoreCase(provider)) {
             return OPENCODE_DEFAULT_URL;
+        }
+        if ("pollinations".equalsIgnoreCase(provider)) {
+            return POLLINATIONS_DEFAULT_URL;
         }
         return DEFAULT_URL;
     }
