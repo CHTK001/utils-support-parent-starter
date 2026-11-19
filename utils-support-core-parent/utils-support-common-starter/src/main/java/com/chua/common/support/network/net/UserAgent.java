@@ -5,6 +5,7 @@ import com.chua.common.support.utils.StringUtils;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,14 @@ public class UserAgent implements Serializable {
      * 序列化版本号，用于 {@link Serializable} 反序列化时的版本兼容性校验。
      */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 正则编译缓存：键为正则串，值为编译结果。
+     *
+     * <p>[P3C C1 修复] {@link #match} 的调用点正则均为固定字面量，缓存键有限；
+     * 原先每次调用都在方法体内重新编译同一正则，现按正则串缓存编译结果，同一正则只编译一次。</p>
+     */
+    private static final Map<String, Pattern> REGEX_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 真实浏览器请求必备的基础请求头（键名不区分大小写）。
@@ -786,14 +795,15 @@ public class UserAgent implements Serializable {
     /**
      * 从字符串中提取首个正则匹配的捕获组。
      *
-     * <p>每次调用实时编译正则（内部方法，调用频率低，无需缓存）。</p>
+     * <p>正则编译结果按正则串缓存复用（见 {@link #REGEX_CACHE}），同一正则只编译一次。</p>
      *
      * @param ua    被匹配的小写字符串（非空）
      * @param regex 含一个捕获组的正则表达式
      * @return 首个匹配的捕获组内容；无匹配时返回 {@code null}
      */
     private static String match(String ua, String regex) {
-        Matcher matcher = Pattern.compile(regex).matcher(ua);
+        // [P3C C1 修复] 改用缓存的编译结果，避免同一正则串每次调用重复编译
+        Matcher matcher = REGEX_CACHE.computeIfAbsent(regex, r -> Pattern.compile(r)).matcher(ua);
         return matcher.find() ? matcher.group(1) : null;
     }
 
@@ -885,6 +895,8 @@ public class UserAgent implements Serializable {
             case ANDROID -> "Android";
             case IOS -> "iOS";
             case UNKNOWN -> "Unknown";
+            // [P3C] 补充 default 兜底：枚举扩展未覆盖时显式失败，不静默返回错误名称
+            default -> throw new IllegalStateException("未预期的取值: " + this);
         };
     }
 }

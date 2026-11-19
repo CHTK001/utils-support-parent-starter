@@ -96,6 +96,25 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  private final String suffix;
 
  /**
+  * 占位符查找正则（由实例的 prefix/suffix 构成）。
+  * [P3C C1 修复] 原先在 {@link #placeholderFinder()} 方法体内重复编译，现构造时编译一次复用。
+  */
+ private final Pattern placeholderPattern;
+
+ /**
+  * 整值占位符匹配正则（在占位符查找正则基础上做整行锚定）。
+  * [P3C C1 修复] 原先在 {@link #isWholePlaceholder(String)} 方法体内重复编译，现构造时编译一次复用。
+  */
+ private final Pattern wholePlaceholderPattern;
+
+ /**
+  * 内嵌占位符匹配正则缓存：键为模板文本构建出的正则串，值为编译结果。
+  * [P3C C1 修复] 同一模板重复提取时复用编译结果，避免在 {@link #buildPattern} 方法体内反复编译；
+  * 模板树固定后可出现的正则串有限，按实例缓存不会无界增长。
+  */
+ private final Map<String, Pattern> embeddedPatternCache = Wraps.linkedMap();
+
+ /**
   * 是否采用宽松（JSON5）解析模式，默认开启以容忍格式差异。
   */
  private final boolean lenient;
@@ -141,6 +160,9 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  this.lenient = lenient;
  this.arrayStrategy = arrayStrategy;
  this.tolerantType = tolerantType;
+ // [P3C C1 修复] 占位符相关正则只依赖 prefix/suffix，构造时编译一次，供多次提取复用
+ this.placeholderPattern = Pattern.compile(Pattern.quote(prefix) + "(" + VAR_NAME + ")" + Pattern.quote(suffix));
+ this.wholePlaceholderPattern = Pattern.compile("^" + Pattern.quote(prefix) + "(" + VAR_NAME + ")" + Pattern.quote(suffix) + "$");
  }
 
  /**
@@ -582,9 +604,8 @@ public class JsonTemplateExtractor implements TemplateExtractor {
   */
  private boolean isWholePlaceholder(String text) {
  String trimmed = text.trim();
- Pattern pattern = Pattern.compile(
- "^" + Pattern.quote(prefix) + "(" + VAR_NAME + ")" + Pattern.quote(suffix) + "$");
- return pattern.matcher(trimmed).matches();
+ // [P3C C1 修复] 改用构造时编译好的整值占位符正则，避免每次调用重复编译
+ return wholePlaceholderPattern.matcher(trimmed).matches();
  }
 
  /**
@@ -611,7 +632,8 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  regex.append(Pattern.quote(text.substring(last)));
  }
  regex.append("$");
- return Pattern.compile(regex.toString(), Pattern.DOTALL);
+ // [P3C C1 修复] 按正则串缓存编译结果：同一模板重复提取时不再重复编译
+ return embeddedPatternCache.computeIfAbsent(regex.toString(), r -> Pattern.compile(r, Pattern.DOTALL));
  }
 
  /**
@@ -620,6 +642,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
   * @return 占位符查找正则
   */
  private Pattern placeholderFinder() {
- return Pattern.compile(Pattern.quote(prefix) + "(" + VAR_NAME + ")" + Pattern.quote(suffix));
+ // [P3C C1 修复] 返回构造时编译好的占位符正则，避免每次调用重复编译
+ return placeholderPattern;
  }
 }

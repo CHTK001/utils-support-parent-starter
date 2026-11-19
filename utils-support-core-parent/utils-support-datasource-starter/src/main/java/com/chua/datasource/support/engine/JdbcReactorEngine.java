@@ -1150,6 +1150,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
             long total = 0;
             try {
+                // [P3C 1.4 豁免] sql 为调用方传入的完整查询语句，本接口语义即执行该 SQL（与 query/execute 一致），此处仅包装为 COUNT 子查询，不引入新的注入面
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {
@@ -1283,6 +1284,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
             long total = 0;
             try {
+                // [P3C 1.4 豁免] sql 为调用方传入的完整查询语句，本接口语义即执行该 SQL（与 query/execute 一致），此处仅包装为 COUNT 子查询，不引入新的注入面
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {

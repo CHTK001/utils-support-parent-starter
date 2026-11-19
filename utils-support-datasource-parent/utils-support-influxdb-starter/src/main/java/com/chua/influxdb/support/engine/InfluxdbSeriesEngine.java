@@ -211,7 +211,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
         if (field == null) {
             return List.of();
         }
-        // identifier 已经白名单校验，monitorId 为 Long，无注入面
+        // [P3C 1.4 豁免] target/metricName 已 SqlName.isWord 白名单校验，field 为库内元数据，monitorId 为 Long，无注入面
         String influxQl = "SELECT \"" + field + "\" FROM \"" + target + "\" WHERE \"" + TAG_MONITOR_ID
                 + "\" = '" + monitorId + "' AND time >= " + startMs + "ms AND time <= " + nowMs + "ms";
         List<Object[]> points = Wraps.list();
@@ -288,6 +288,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return field 名列表，不含时间列；无数据时返回空列表
      */
     private List<String> discoverFields(String target, Long monitorId) {
+        // [P3C 1.4 豁免] target 已在 series()/metrics() 入口经 SqlName.isWord 校验，monitorId 为 Long，无注入面
         String probeQl = "SELECT * FROM \"" + target + "\" WHERE \"" + TAG_MONITOR_ID + "\" = '" + monitorId
                 + "' LIMIT 1";
         try {

@@ -195,6 +195,8 @@ public class RateLimitServerFilter implements ServerFilter {
             case GLOBAL -> "__global__";
             case BY_IP -> request.getRemoteAddress();
             case BY_PATH -> pathPrefix != null ? pathPrefix : request.getPath();
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + keyStrategy);
         };
     }
 }

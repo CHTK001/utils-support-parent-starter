@@ -40,6 +40,10 @@ public enum NamingStyle {
             case CAMEL -> name;
             case UNDERSCORE, UPPER_UNDERSCORE -> underscoreToCamel(name);
             case ROMAN -> kebabToCamel(name);
+            default -> {
+                // 兜底：未知命名风格按原样返回，不抛异常
+                yield name;
+            }
         };
     }
 
@@ -55,6 +59,10 @@ public enum NamingStyle {
             case UNDERSCORE -> camelToUnderscore(camel);
             case ROMAN -> camelToKebab(camel);
             case UPPER_UNDERSCORE -> camelToUnderscore(camel).toUpperCase();
+            default -> {
+                // 兜底：未知命名风格按原样返回，不抛异常
+                yield camel;
+            }
         };
     }
 

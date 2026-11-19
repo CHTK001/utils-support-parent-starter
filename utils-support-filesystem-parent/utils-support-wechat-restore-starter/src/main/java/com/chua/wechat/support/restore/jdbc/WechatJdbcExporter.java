@@ -292,6 +292,7 @@ public final class WechatJdbcExporter {
                                                      DataRestoreConfig config,
                                                      List<String> columnsOut) throws SQLException {
         long limit = parseLong(config.getOptions().get(WechatDataRestore.OPTION_LIMIT), 0L);
+        // [P3C 1.4 豁免] table 经 quoteIdentifier 转义，limit 为 long 数值，无注入面
         String sql = "SELECT * FROM " + quoteIdentifier(table) + (limit > 0 ? " LIMIT " + limit : "");
         List<Map<String, Object>> rows = Wraps.list(256);
         try (Statement statement = connection.createStatement();

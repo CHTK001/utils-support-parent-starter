@@ -38,7 +38,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
      * 是否已开始写入图像序列。
      */
-    private boolean isWritingSequence = false;
+    private boolean writingSequence = false;
 
     /**
      * 是否已写入序列头。
@@ -991,6 +991,33 @@ public final class PNGImageWriter extends ImageWriter {
         return true;
     }
 
+    /**
+     * 判断两个写入器是否为同一实例。
+     *
+     * <p>[P3C] equals 与 hashCode 必须成对提供。本类为有状态的流式写入器（持有输出流、
+     * 缩放表等可变运行时状态），不具备值语义，故沿用 {@link Object} 的同一性判断，
+     * 不基于字段做值比较。</p>
+     *
+     * @param obj 待比较对象
+     * @return 同一实例时返回 {@code true}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    /**
+     * 返回对象哈希值。
+     *
+     * <p>[P3C] 与 {@link #equals(Object)} 成对提供；沿用同一性哈希，确保契约一致。</p>
+     *
+     * @return 哈希值
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
  // 初始化 scale/scale0 或 scaleh/scalel 数组，
  // 用于将输入值缩放到所需的输出位深
     /**
@@ -1175,7 +1202,7 @@ public final class PNGImageWriter extends ImageWriter {
 
         resetStreamSettings();
 
-        this.isWritingSequence = true;
+        this.writingSequence = true;
     }
 
     /**
@@ -1197,7 +1224,7 @@ public final class PNGImageWriter extends ImageWriter {
         if (image.hasRaster()) {
             throw new UnsupportedOperationException("image has a Raster!");
         }
-        if (!isWritingSequence) {
+        if (!writingSequence) {
             throw new IllegalStateException("prepareWriteSequence() was not invoked!");
         }
 
@@ -1422,7 +1449,7 @@ public final class PNGImageWriter extends ImageWriter {
         if (stream == null) {
             throw new IllegalStateException("output == null!");
         }
-        if (!isWritingSequence) {
+        if (!writingSequence) {
             throw new IllegalStateException("prepareWriteSequence() was not invoked!");
         }
         // 收尾并通知监听器写入完成
@@ -1444,7 +1471,7 @@ public final class PNGImageWriter extends ImageWriter {
      * 重置流式输出设置
     */
     private void resetStreamSettings() {
-        this.isWritingSequence = false;
+        this.writingSequence = false;
         this.wroteSequenceHeader = false;
         this.metadata = null;
         this.imageIndex = 0;

@@ -52,6 +52,7 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
      * @return Flux 对象
      */
     public Flux<Map<String, Object>> queryAll(String table) {
+        // [P3C 1.4 豁免] table 经 safeIdentifier（SqlName.isWord）白名单校验，无外部输入
         return query("SELECT * FROM " + safeIdentifier(table));
     }
 

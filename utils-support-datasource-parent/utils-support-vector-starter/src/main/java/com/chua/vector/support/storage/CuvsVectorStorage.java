@@ -53,6 +53,8 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             case BRUTE_FORCE -> new BruteForceStrategy();
             case HNSW -> new HnswStrategy();
             case CAGRA -> new CagraStrategy();
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + properties.indexType());
         };
     }
 

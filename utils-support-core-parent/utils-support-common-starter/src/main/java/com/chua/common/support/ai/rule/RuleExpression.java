@@ -163,6 +163,8 @@ public final class RuleExpression {
             case COLUMN -> resolve(node.getOperator(), context);
             case VALUE -> node.getValue();
             case FUNCTION, RAW -> throw new RuleException("表达式暂不支持函数调用与原始节点: " + text);
+            // [P3C] 兜底：未预期的节点类型直接失败，避免静默返回错误求值结果
+            default -> throw new IllegalStateException("未预期的取值: " + node.getType());
         };
     }
 

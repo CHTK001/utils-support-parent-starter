@@ -61,6 +61,13 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
     /**
+     * 详情页 window.location.replace 跳转地址提取正则。
+     * <p>[P3C] Pattern 提升为类级常量，避免每次调用重复编译。</p>
+     */
+    private static final Pattern REDIRECT_PATTERN = Pattern.compile(
+            "window\\.location\\.replace\\('(https?://[^']*)'\\)");
+
+    /**
      * 构造豆瓣资源提供者。
      */
     public DoubanResourceProvider() {
@@ -248,9 +255,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
                     .get()
                     .getBodyString();
 
-            Pattern pattern = Pattern.compile(
-                    "window\\.location\\.replace\\('(https?://[^']*)'\\)");
-            Matcher matcher = pattern.matcher(html);
+            Matcher matcher = REDIRECT_PATTERN.matcher(html);
             if (!matcher.find()) {
                 return null;
             }

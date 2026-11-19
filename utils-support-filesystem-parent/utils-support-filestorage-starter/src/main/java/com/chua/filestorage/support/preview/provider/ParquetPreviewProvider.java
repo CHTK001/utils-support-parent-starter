@@ -72,6 +72,7 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
         try (Connection conn = DriverManager.getConnection("jdbc:duckdb:");
              Statement stmt = conn.createStatement()) {
             // 读取列名
+            // [P3C 1.4 豁免] sqlPath 为代码内生成的临时文件绝对路径（Files.createTempFile），非外部输入
             List<String> fields = Wraps.list();
             ResultSet schemaRs = stmt.executeQuery("DESCRIBE SELECT * FROM " + sqlPath);
             while (schemaRs.next()) {
@@ -79,11 +80,13 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
             }
             // 总行数（Parquet 文件走 footer metadata，开销极小）
             long totalRows;
+            // [P3C 1.4 豁免] sqlPath 为代码内生成的临时文件路径，无外部输入
             try (ResultSet countRs = stmt.executeQuery("SELECT count(*) FROM " + sqlPath)) {
                 totalRows = countRs.next() ? countRs.getLong(1) : 0;
             }
             // 读取前 N 行
             List<List<String>> rows = Wraps.list();
+            // [P3C 1.4 豁免] sqlPath 为代码内生成的临时文件路径，MAX_ROWS 为常量，无外部输入
             try (ResultSet dataRs = stmt.executeQuery("SELECT * FROM " + sqlPath + " LIMIT " + MAX_ROWS)) {
                 ResultSetMetaData meta = dataRs.getMetaData();
                 int cols = meta.getColumnCount();

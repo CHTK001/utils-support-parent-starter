@@ -21,7 +21,7 @@ public class SafeOptional<T, R> {
     /**
      * 标识当前是否已获取到有效值（true表示已匹配/有值，false表示空/未匹配）
      */
-    private final boolean isNone;
+    private final boolean none;
 
     /**
      * 存储转换后的结果值
@@ -30,11 +30,11 @@ public class SafeOptional<T, R> {
 
     /**
      * 创建 SafeOptional 实例
-     * @param isNone isNone
+     * @param none none
      * @param apply 应用，不允许为 null
      */
-    public SafeOptional(boolean isNone, R apply) {
-        this.isNone = isNone;
+    public SafeOptional(boolean none, R apply) {
+        this.none = none;
         this.apply = apply;
     }
 
@@ -56,7 +56,7 @@ public class SafeOptional<T, R> {
      * @return 新的 SafeOptional 实例
      */
     public SafeOptional<T, R> elseCapable(T value, Function<T, R> function) {
-        if (isNone) {
+        if (none) {
             return new SafeOptional<>(true, apply);
         }
         return ifCapable(value, function);
@@ -72,7 +72,7 @@ public class SafeOptional<T, R> {
      * @return 新的 SafeOptional 实例
      */
     public SafeOptional<T, R> elseCapable(boolean condition, T value, Function<T, R> function) {
-        if (isNone) {
+        if (none) {
             return new SafeOptional<>(true, apply);
         }
         if (!condition) {
@@ -89,7 +89,7 @@ public class SafeOptional<T, R> {
      * @return 新的 SafeOptional 实例
      */
     public SafeOptional<T, R> elseCapable(Supplier<R> function) {
-        if (isNone) {
+        if (none) {
             return new SafeOptional<>(true, apply);
         }
         return new SafeOptional<>(true, function.get());

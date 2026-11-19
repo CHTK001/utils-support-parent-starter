@@ -25,6 +25,9 @@ import java.util.UUID;
 public record OptMessage(String id, String toUser, String code, String content, String type, boolean success,
                          String errorMsg, long createdAt, long expiredAt) implements Serializable {
 
+    /** 序列化版本号 */
+    private static final long serialVersionUID = 1L;
+
     /** 验证码类型：纯数字 */
     public static final String TYPE_DIGIT = "DIGIT";
     /** 验证码类型：纯字母 */

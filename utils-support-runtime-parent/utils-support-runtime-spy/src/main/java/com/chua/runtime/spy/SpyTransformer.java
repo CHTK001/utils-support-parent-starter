@@ -482,9 +482,9 @@ public class SpyTransformer implements ClassFileTransformer {
             if (points.isEmpty()) {
                 return mv;
             }
-            boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+            boolean staticFlag = (access & Opcodes.ACC_STATIC) != 0;
             return new SpyMethodVisitor(ASM_API, mv, access, targetClass, name, descriptor, points, exact, spyClass,
-                                        isStatic);
+                                        staticFlag);
         }
     }
 
@@ -526,7 +526,7 @@ public class SpyTransformer implements ClassFileTransformer {
         /**
          * 当前方法是否为静态。
          */
-        private final boolean isStatic;
+        private final boolean staticFlag;
 
         /**
          * Bootstrap 类内部名（runtimespy 或 com.chua.runtime.智能体.Bootstrap）。
@@ -551,7 +551,7 @@ public class SpyTransformer implements ClassFileTransformer {
         SpyMethodVisitor(int api, MethodVisitor mv, int access, String targetClass,
                          String methodName, String descriptor,
                          Set<InterceptPoint> points, boolean exact, String spyClass,
-                         boolean isStatic) {
+                         boolean staticFlag) {
             super(api, mv, access, methodName, descriptor);
             this.targetClass = targetClass;
             this.methodName = methodName;
@@ -559,7 +559,7 @@ public class SpyTransformer implements ClassFileTransformer {
             this.points = points;
             this.exact = exact;
             this.spyClass = spyClass;
-            this.isStatic = isStatic;
+            this.staticFlag = staticFlag;
         }
 
         /**
@@ -664,7 +664,7 @@ public class SpyTransformer implements ClassFileTransformer {
          */
         private void insertInterceptCall(InterceptPoint point) {
  // 压入 thisref（静态方法传 空；实例方法传 ALOAD 0）
-            if (isStatic) {
+            if (staticFlag) {
                 mv.visitInsn(Opcodes.ACONST_NULL);
             } else {
                 mv.visitVarInsn(Opcodes.ALOAD, 0);

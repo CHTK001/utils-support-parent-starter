@@ -479,6 +479,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      */
     private long executeCount() {
         QuerySql<T> sql = buildSql();
+        // [P3C 1.4 豁免] core SQL 由 buildCoreSql 内部生成（表/列名来自实体元数据，值已 ? 参数化），无外部输入
         String countSql = "SELECT COUNT(*) FROM (" + buildCoreSql(sql, false) + ") t_count";
         List<Map<String, Object>> rows = engine.getExecutor().query(countSql, mergedParams(sql));
         if (rows == null || rows.isEmpty()) {

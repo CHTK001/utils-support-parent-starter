@@ -21,7 +21,7 @@ public class WalStoreConfig {
     private final int flushBatchSize;
     private final long flushIntervalMs;
     private final int cpuCores;
-    private final boolean isSSD;
+    private final boolean ssd;
     private final Path baseDir;
     private final String namespace;
 
@@ -36,7 +36,7 @@ public class WalStoreConfig {
         this.flushBatchSize = b.flushBatchSize;
         this.flushIntervalMs = b.flushIntervalMs;
         this.cpuCores = b.cpuCores;
-        this.isSSD = b.isSSD;
+        this.ssd = b.ssd;
         this.baseDir = b.baseDir;
         this.namespace = b.namespace;
     }
@@ -81,7 +81,7 @@ public class WalStoreConfig {
      * @return 返回值
     */
     public boolean isSSD() {
-        return isSSD;
+        return ssd;
     }
     /**
      * base Dir
@@ -112,7 +112,7 @@ public class WalStoreConfig {
         private int flushBatchSize = 1024;
         private long flushIntervalMs = 500L;
         private int cpuCores = Runtime.getRuntime().availableProcessors();
-        private boolean isSSD = false;
+        private boolean ssd = false;
         private Path baseDir;
         private String namespace = "default";
 
@@ -167,7 +167,7 @@ public class WalStoreConfig {
          * @return 返回值
         */
         public Builder isSSD(boolean v) {
-            this.isSSD = v;
+            this.ssd = v;
             return this;
         }
         /**

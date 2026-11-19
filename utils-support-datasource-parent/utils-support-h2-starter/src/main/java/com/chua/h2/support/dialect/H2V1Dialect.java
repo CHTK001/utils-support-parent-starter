@@ -109,6 +109,7 @@ public class H2V1Dialect extends com.chua.datasource.support.dialect.AbstractDia
         if (StringUtils.isEmpty(triggerName)) {
             return null;
         }
+        // [P3C 1.4 豁免] schema/triggerName 均已经 escape() 单引号转义，无外部输入注入面
         return "SELECT * FROM (" + getTriggerListSql(schema) + ") T "
                 + "WHERE TRIGGER_NAME = '" + escape(triggerName) + "'";
     }

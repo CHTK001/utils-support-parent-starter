@@ -199,6 +199,10 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
             case ANY_FAIL -> failCount >= 1;
             case N_FAIL -> failCount >= threshold;
             case N_SUCCESS -> successCount >= threshold;
+            default -> {
+                // 兜底：未知策略按保守处理，不触发提前短路，继续执行剩余任务
+                yield false;
+            }
         };
     }
 
@@ -300,6 +304,10 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
             case ANY_FAIL -> failCount == 0;
             case N_FAIL -> failCount < threshold;
             case N_SUCCESS -> successCount >= threshold;
+            default -> {
+                // 兜底：未知策略无法给出整体判定，直接失败并说明原因
+                throw new IllegalStateException("未预期的取值: " + strategy);
+            }
         };
     }
 }

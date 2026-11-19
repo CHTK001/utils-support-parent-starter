@@ -289,6 +289,8 @@ public final class SqliteReactorHook implements AutoCloseable {
             case INSERT -> SqliteChangeEvent.insert(safeTable, rowId);
             case UPDATE -> SqliteChangeEvent.update(safeTable, rowId);
             case DELETE -> SqliteChangeEvent.delete(safeTable, rowId);
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + eventType);
         };
     }
 

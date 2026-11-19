@@ -139,11 +139,12 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
      */
     private Image createAlphaOnlyImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int a = mask.getRaster().getSample(x, y, 0);
                 result.setRGB(x, y, (a << 16) | (a << 8) | a);
             }
+        }
         return ImageFactory.getInstance().fromImage(result);
     }
 
@@ -155,12 +156,13 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
      */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int a = mask.getRaster().getSample(x, y, 0);
                 int rgb = originalImage.getRGB(x, y) & 0x00FFFFFF;
                 result.setRGB(x, y, (a << 24) | rgb);
             }
+        }
         return ImageFactory.getInstance().fromImage(result);
     }
 
@@ -173,7 +175,7 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
      */
     private Image createRgbImage(BufferedImage mask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int a = mask.getRaster().getSample(x, y, 0);
                 int ia = 255 - a;
@@ -183,6 +185,7 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
                 int b = ((rgb & 0xFF) * a + bgValue * ia) / 255;
                 result.setRGB(x, y, (r << 16) | (g << 8) | b);
             }
+        }
         return ImageFactory.getInstance().fromImage(result);
     }
 

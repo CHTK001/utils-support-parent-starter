@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
@@ -71,12 +72,20 @@ public final class Placeholders {
      */
     private final Pattern pattern;
 
+    /**
+     * 标签正则缓存：按前后缀组合的正则串复用（Pattern 不可变且线程安全）
+     * [P3C C1 修复] 动态正则无法提升为类级常量，改为缓存复用，避免构造器内重复编译
+     */
+    private static final Map<String, Pattern> TAG_PATTERN_CACHE = new ConcurrentHashMap<>();
+
     private Placeholders(TemplateContext context) {
         this.variables = context.variables();
         this.tables = context.tables();
         ExportConfig config = context.config();
-        this.pattern = Pattern.compile(Pattern.quote(config.getTagPrefix())
-                + "\\s*(.*?)\\s*" + Pattern.quote(config.getTagSuffix()));
+        String regex = Pattern.quote(config.getTagPrefix())
+                + "\\s*(.*?)\\s*" + Pattern.quote(config.getTagSuffix());
+        // [P3C C1 修复] 编译结果进缓存复用，同一前后缀组合只编译一次
+        this.pattern = TAG_PATTERN_CACHE.computeIfAbsent(regex, Pattern::compile);
     }
 
     /**

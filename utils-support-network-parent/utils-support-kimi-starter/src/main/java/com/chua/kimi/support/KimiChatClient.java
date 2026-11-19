@@ -50,6 +50,17 @@ import com.chua.common.support.utils.StringUtils;
 @ConditionalOnClass("java.net.http.HttpClient")
 public class KimiChatClient implements ChatClient {
 
+    // [P3C 修复] 预编译正则常量：视频 URL 提取（原 generateVideo 方法内 Pattern.compile 提升）
+    private static final Pattern VIDEO_URL_PATTERN = Pattern.compile(
+            "https?://[^\\s)\"'<>]+(?:\\.(?:mp4|webm|ogg))(?:\\?[^\\s)\"'<>]*)?"
+    );
+
+    // [P3C 修复] 预编译正则常量：图片 URL 提取（原 extractImagesFromText 方法内 Pattern.compile 提升）
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
+            "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|" +
+                    "gif))(?:\\?[^\\s)\"'<>]*)?"
+    );
+
     /**
      * 默认模型。
      */
@@ -601,9 +612,7 @@ public class KimiChatClient implements ChatClient {
         String answer = chatSync(fullPrompt);
         List<VideoGenerationResult.GeneratedVideo> videos = Wraps.list();
         if (answer != null) {
-            Matcher matcher = Pattern.compile(
-                    "https?://[^\\s)\"'<>]+(?:\\.(?:mp4|webm|ogg))(?:\\?[^\\s)\"'<>]*)?"
-            ).matcher(answer);
+            Matcher matcher = VIDEO_URL_PATTERN.matcher(answer);
             while (matcher.find()) {
                 videos.add(new VideoGenerationResult.GeneratedVideo(matcher.group(), "", 0, 0, 0));
             }
@@ -805,10 +814,7 @@ try {
         if (StringUtils.isEmpty(text)) {
             return images;
         }
-        Matcher matcher = Pattern.compile(
-                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|" +
-                        "gif))(?:\\?[^\\s)\"'<>]*)?"
-        ).matcher(text);
+        Matcher matcher = IMAGE_URL_PATTERN.matcher(text);
         int idx = 0;
         while (matcher.find() && idx < 10) {
             String url = matcher.group(1) != null ? matcher.group(1) : matcher.group(0);

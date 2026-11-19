@@ -110,7 +110,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     /**
      * 是否为默认实现。
      */
-    private boolean isDefault;
+    private boolean defaultFlag;
 
     /**
      * 已创建的服务对象实例。
@@ -120,7 +120,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     /**
      * 服务对象是否已经加载完成。
      */
-    private volatile boolean isLoaded;
+    private volatile boolean loaded;
 
     /**
      * 服务加载或实例化过程中产生的异常。
@@ -389,16 +389,16 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      * @return 是否默认的结果
      */
     public boolean isDefault() {
-        return isDefault;
+        return defaultFlag;
     }
 
     /**
      * 设置默认
      *
-     * @param isDefault 是否默认
+     * @param defaultFlag 是否默认
      */
-    public void setDefault(boolean isDefault) {
-        this.isDefault = isDefault;
+    public void setDefault(boolean defaultFlag) {
+        this.defaultFlag = defaultFlag;
     }
 
     /**
@@ -425,7 +425,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      * @return 是否加载的结果
      */
     public boolean isLoaded() {
-        return isLoaded;
+        return loaded;
     }
 
     /**
@@ -434,7 +434,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      * @param loaded 加载
      */
     public void setLoaded(boolean loaded) {
-        isLoaded = loaded;
+        this.loaded = loaded;
     }
 
     /**
@@ -738,10 +738,10 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      * @return 服务实例对象
      */
     public <T> T getObj(ServiceAutowire serviceAutowire) {
-        if (!isLoaded && null == obj) {
+        if (!loaded && null == obj) {
             synchronized (this) {
-                if (!isLoaded && null == obj) {
-                    isLoaded = true;
+                if (!loaded && null == obj) {
+                    loaded = true;
                     try {
                         this.obj = null == implClass ? null : ClassUtils.newInstance(implClass);
                         if (null != serviceAutowire) {

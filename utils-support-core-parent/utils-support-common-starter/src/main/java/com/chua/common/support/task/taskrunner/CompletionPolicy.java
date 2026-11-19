@@ -159,6 +159,8 @@ public record CompletionPolicy(Mode mode, int n, double rate) {
             case SUCCESS_AT_LEAST -> successCount >= n;
             case FAIL_AT_LEAST -> failedCount < n;
             case SUCCESS_RATE -> successCount >= requiredSuccessCount(totalCount);
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 
@@ -195,6 +197,8 @@ public record CompletionPolicy(Mode mode, int n, double rate) {
             case ALL_SUCCESS -> 0;
             case ANY_SUCCESS -> totalCount - 1;
             case SUCCESS_AT_LEAST -> totalCount - Math.min(n, totalCount);
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 }

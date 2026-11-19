@@ -149,6 +149,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
         sb.append("<div class=\"table-block\"><div class=\"table-head\">")
                 .append(escape(table)).append("</div>");
         String quote = '"' + table.replace("\"", "\"\"") + '"';
+        // [P3C 1.4 豁免] table 来自 sqlite_master 枚举且已做双引号转义，MAX_ROWS 为常量，无外部输入
         String sql = "SELECT * FROM " + quote + " LIMIT " + MAX_ROWS;
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {

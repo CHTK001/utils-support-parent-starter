@@ -161,6 +161,7 @@ public class MysqlSlowQueryManager implements SlowQueryManager, DataSourceAware 
         if (schemaCol == null) {
             throw new SQLException("performance_schema.events_statements_history_long 不可查（表不存在或无权限）");
         }
+        // [P3C 1.4 豁免] schemaCol 为探测得到的固定列名（SCHEMA_NAME/CURRENT_SCHEMA 之一），SYSTEM_SCHEMAS 为代码内常量，无外部输入
         String sql = "SELECT h.DIGEST, h.DIGEST_TEXT, h." + schemaCol + " AS SCHEMA_NAME,"
                 + " t.PROCESSLIST_HOST, h.TIMER_WAIT, h.ROWS_EXAMINED, h.ROWS_SENT"
                 + " FROM performance_schema.events_statements_history_long h"

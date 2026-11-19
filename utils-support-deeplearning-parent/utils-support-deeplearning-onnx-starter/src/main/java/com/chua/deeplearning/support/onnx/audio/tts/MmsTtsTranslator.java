@@ -85,6 +85,13 @@ public class MmsTtsTranslator {
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
+     * tokenizer.json 中 "char": id 对的解析正则。
+     * <p>[P3C] Pattern 提升为类级常量，避免每次调用重复编译。</p>
+     */
+    private static final Pattern VOCAB_ENTRY_PATTERN = Pattern
+            .compile("\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*(-?\\d+)");
+
+    /**
      * 字符 → 令牌 标识 映射
      */
     private Map<Character, Integer> charToId;
@@ -171,9 +178,7 @@ public class MmsTtsTranslator {
             int braceEnd = findMatchingBrace(vocabSection);
             String vocabBody = vocabSection.substring(1, braceEnd);
             // 解析 "char": id 对
-            Matcher matcher = Pattern
-                    .compile("\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*(-?\\d+)")
-                    .matcher(vocabBody);
+            Matcher matcher = VOCAB_ENTRY_PATTERN.matcher(vocabBody);
             while (matcher.find()) {
                 String token = unescape(matcher.group(1));
                 int id = Integer.parseInt(matcher.group(2));

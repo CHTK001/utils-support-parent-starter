@@ -1122,6 +1122,12 @@ public abstract class AbstractEngine implements Engine {
             }
             values.append(')');
         }
+        // [P3C 1.4 豁免] table 已由 SqlName.check 白名单校验；列名来自入参 rows 的 key，此处补白名单校验；值均为 ? 占位参数绑定
+        for (String column : columns) {
+            if (!column.matches("^[A-Za-z0-9_]+$")) {
+                throw new IllegalArgumentException("非法标识符: " + column);
+            }
+        }
         return executeSql("INSERT INTO " + table + " (" + String.join(", ", columns)
                 + ") VALUES " + values, params.toArray(new Object[0]));
     }

@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  *
  * <pre>
  * ResourceConfiguration config = ResourceConfiguration.builder()
- *     .isParallel(true)
+ *     .parallel(true)
  *     .excludes("*.class")
  *     .build();
  * Set&lt;Resource&gt; resources = ResourceFlow.of("classpath*:config/*.yml", config).getResources();
@@ -63,7 +63,7 @@ public class ResourceConfiguration {
     /**
      * 是否启用并行扫描。
      */
-    private boolean isParallel;
+    private boolean parallel;
 
     /**
      * 资源命中时的回调消费者。

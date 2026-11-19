@@ -224,6 +224,10 @@ public class ThreadFlow {
             case VIRTUAL -> new VirtualThreadExecutor(strategy, threshold, timeout, timeUnit, maxConcurrent);
             case REACTIVE -> new ReactiveThreadExecutor(strategy, threshold, timeout, timeUnit, maxConcurrent);
             case SYNC -> new SyncThreadExecutor(strategy, threshold, timeout, timeUnit);
+            default -> {
+                // 兜底：未知执行器类型无法创建实例，直接失败并说明原因
+                throw new IllegalStateException("未预期的取值: " + executorType);
+            }
         };
     }
 }

@@ -168,7 +168,7 @@ public class PNGImageReader extends ImageReader {
 
     //private static final boolean debug = true;
 
-    boolean isAnimated;
+    boolean animated;
 
     ImageInputStream stream = null;
 
@@ -372,7 +372,7 @@ public class PNGImageReader extends ImageReader {
         metadata.acTL_num_frames = stream.readInt();
         metadata.acTL_num_plays = stream.readInt();
 
-        isAnimated = true;
+        animated = true;
         metadata.acTL_present = true;
     }
 
@@ -933,12 +933,12 @@ public class PNGImageReader extends ImageReader {
 
                     if (chunkType == acTL_TYPE) {
                         parse_acTL_chunk();
-                    } else if (isAnimated && chunkType == fcTL_TYPE) {
+                    } else if (animated && chunkType == fcTL_TYPE) {
                         if (imageStartPosition == -1L) {
                             animContainsIDAT = true;
                         }
                         parse_fcTL_chunk();
-                    } else if (isAnimated && chunkType == fdAT_TYPE) {
+                    } else if (animated && chunkType == fdAT_TYPE) {
                         int sequenceNumber = stream.readInt();
                         stream.skipBytes(-12);
                         int index = nextImageIndex - 1;
@@ -1548,7 +1548,7 @@ public class PNGImageReader extends ImageReader {
 
                 pixelStream.readFully(curr, 0, bytesPerRow);
             } catch (java.util.zip.ZipException ze) {
-                // TODO[@L1472] - throw a more meaningful exception
+                // TODO(CH): [@L1472] - throw a more meaningful exception
                 throw ze;
             }
 
@@ -1729,16 +1729,16 @@ public class PNGImageReader extends ImageReader {
     private void readImage(int imageIndex, ImageReadParam param) throws IIOException {
         readMetadata();
 
-        if (!isAnimated && imageIndex != 0) {
+        if (!animated && imageIndex != 0) {
             throw new IndexOutOfBoundsException("imageIndex != 0!");
         }
 
-        boolean isAnimated = this.isAnimated;
+        boolean animated = this.animated;
         if (param != null && ((PNGImageReadParam) param).isForceReadIDAT()) {
-            isAnimated = false;
+            animated = false;
         }
         int width, height;
-        if (isAnimated) {
+        if (animated) {
             PNGMetadata metadata = frameMetadata.get(imageIndex);
             if (metadata == null) {
                 throw new IIOException("Frame metadata not exist!");
@@ -1783,7 +1783,7 @@ public class PNGImageReader extends ImageReader {
         try {
             boolean fdAT = false;
             long position = imageStartPosition;
-            if (isAnimated && !(imageIndex == 0 && animContainsIDAT)) {
+            if (animated && !(imageIndex == 0 && animContainsIDAT)) {
                 position = frameImageStartPositions.get(imageIndex);
                 fdAT = true;
             }
@@ -1877,7 +1877,7 @@ public class PNGImageReader extends ImageReader {
                 ("seekForwardOnly and allowSearch can't both be true!");
         }
         readMetadata();
-        return isAnimated ? metadata.acTL_num_frames : 1;
+        return animated ? metadata.acTL_num_frames : 1;
     }
 
     /**
@@ -1889,7 +1889,7 @@ public class PNGImageReader extends ImageReader {
 
         readMetadata();
 
-        if (isAnimated) {
+        if (animated) {
             PNGMetadata metadata = frameMetadata.get(imageIndex);
             if (metadata == null) {
                 throw new IIOException("No image metadata exist this index: " + imageIndex);
@@ -1911,7 +1911,7 @@ public class PNGImageReader extends ImageReader {
 
         readMetadata();
 
-        if (isAnimated) {
+        if (animated) {
             PNGMetadata metadata = frameMetadata.get(imageIndex);
             if (metadata == null) {
                 throw new IIOException("No image metadata exist this index: " + imageIndex);
@@ -1935,7 +1935,7 @@ public class PNGImageReader extends ImageReader {
 
         readMetadata();
 
-        if (!isAnimated && imageIndex != 0) {
+        if (!animated && imageIndex != 0) {
             throw new IndexOutOfBoundsException("imageIndex != 0!");
         }
 
@@ -2189,7 +2189,7 @@ public class PNGImageReader extends ImageReader {
     public IIOMetadata getImageMetadata(int imageIndex) throws IIOException {
         readMetadata();
 
-        if (isAnimated) {
+        if (animated) {
             PNGMetadata metadata = frameMetadata.get(imageIndex);
             if (metadata == null) {
                 throw new IIOException("No image metadata exist for this index: " + imageIndex);
@@ -2244,7 +2244,7 @@ public class PNGImageReader extends ImageReader {
         imageStartPosition = -1L;
         frameImageStartPositions.clear();
         frameMetadata.clear();
-        isAnimated = false;
+        animated = false;
         nextImageIndex = 0;
         animContainsIDAT = false;
     }

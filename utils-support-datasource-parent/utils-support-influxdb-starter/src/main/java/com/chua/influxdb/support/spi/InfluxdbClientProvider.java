@@ -49,6 +49,11 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
      */
     private static final Pattern VERSION_FIELD_PATTERN = Pattern.compile("\"version\"\\s*:\\s*\"([^\"]+)\"");
 
+    /**
+     * JSON 键值对匹配正则（预编译常量，避免每行重复编译）。
+     */
+    private static final Pattern JSON_KV_PATTERN = Pattern.compile("\"([^\"]+)\"\\s*:\\s*(\"[^\"]*\"|[^,}]+)");
+
     /** SPI 名称，同时是注册文件名 */
     public static final String SPI_NAME = "com.chua.datasource.support.middleware.MiddlewareClientProvider";
 
@@ -440,7 +445,8 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
             if (!line.startsWith("{")) {
                 continue;
             }
-            Matcher m = Pattern.compile("\"([^\"]+)\"\\s*:\\s*(\"[^\"]*\"|[^,}]+)").matcher(line);
+            // [P3C 修复] 正则提升为类级常量 JSON_KV_PATTERN，避免每行重复编译
+            Matcher m = JSON_KV_PATTERN.matcher(line);
             Map<String, Object> row = new LinkedHashMap<>();
             while (m.find()) {
                 String k = m.group(1);

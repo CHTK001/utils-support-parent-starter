@@ -112,6 +112,8 @@ public record CompressOptions(
             case L4 -> 128;
             case L5 -> 64;
             case L6 -> 32;
+            // [P3C] 兜底：未预期的压缩等级取值，显式失败避免返回无效色数
+            default -> throw new IllegalStateException("未预期的取值: " + level);
         };
     }
 
@@ -129,6 +131,8 @@ public record CompressOptions(
             case L4 -> 20;
             case L5 -> 50;
             case L6 -> 150;
+            // [P3C] 兜底：未预期的压缩等级取值，显式失败避免返回无效迭代次数
+            default -> throw new IllegalStateException("未预期的取值: " + level);
         };
     }
 
@@ -147,6 +151,8 @@ public record CompressOptions(
             case L4 -> 72;
             case L5 -> 65;
             case L6 -> 60;
+            // [P3C] 兜底：未预期的压缩等级取值，显式失败避免返回无效质量
+            default -> throw new IllegalStateException("未预期的取值: " + level);
         };
     }
 

@@ -178,6 +178,10 @@ public class CircuitBreaker {
             case NOT -> !evaluateNode(node.getRight());
             case COMPARE, COLUMN, VALUE, FUNCTION -> judge.judge(node, context);
             case RAW -> true;
+            default -> {
+                // 兜底：未知节点类型直接失败，由 evaluate() 统一按保守断路处理（返回 false）
+                throw new IllegalStateException("未预期的取值: " + node.getType());
+            }
         };
     }
 

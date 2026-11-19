@@ -59,6 +59,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     /**
      * 默认查询 SQL（适配 sys_AI_usage 表结构）
      */
+    // [P3C 1.4 豁免] 编译期常量字符串，全部为代码内字面量，无外部输入
     private static final String DEFAULT_QUERY_SQL =
             "SELECT sys_ai_usage_provider, sys_ai_usage_model," +
             "       sys_ai_usage_prompt_tokens, sys_ai_usage_completion_tokens," +

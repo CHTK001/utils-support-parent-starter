@@ -48,7 +48,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     /**
      * 是否显示速度
      */
-    private final boolean isSpeedShown;
+    private final boolean speedShown;
 
     /**
      * 速度格式
@@ -63,7 +63,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     /**
      * 是否显示预计剩余时间
      */
-    private final boolean isEtaShown;
+    private final boolean etaShown;
 
     /**
      * 预计剩余时间计算函数
@@ -100,10 +100,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
      * @param unit
      * @param unitName
      * @param unitSize
-     * @param isSpeedShown
+     * @param speedShown
      * @param speedFormat
      * @param speedUnit
-     * @param isEtaShown
+     * @param etaShown
      * @param eta
      */
     protected DefaultProgressBarRenderer(
@@ -111,20 +111,20 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
             ProgressUnit unit,
             String unitName,
             long unitSize,
-            boolean isSpeedShown,
+            boolean speedShown,
             DecimalFormat speedFormat,
             ChronoUnit speedUnit,
-            boolean isEtaShown,
+            boolean etaShown,
             Function<ProgressState, Optional<Duration>> eta
     ) {
         this.style = style;
         this.unit = unit;
         this.unitName = unitName;
         this.unitSize = unitSize;
-        this.isSpeedShown = isSpeedShown;
-        this.speedFormat = isSpeedShown && speedFormat == null ? new DecimalFormat() : speedFormat;
+        this.speedShown = speedShown;
+        this.speedFormat = speedShown && speedFormat == null ? new DecimalFormat() : speedFormat;
         this.speedUnit = speedUnit;
-        this.isEtaShown = isEtaShown;
+        this.etaShown = etaShown;
         this.eta = eta;
     }
 
@@ -261,10 +261,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
         //                         1
         int maxSuffixLength = Math.max(maxLength - prefixLength - 1, 0);
 
-        String speedString = isSpeedShown ? speed(progress) : "";
+        String speedString = speedShown ? speed(progress) : "";
         String suffix = style.rightBracket + " " + ratio(progress) + " ("
                 + Util.formatDuration(progress.getTotalElapsed())
-                + (isEtaShown ? " / " + etaString(progress) : "")
+                + (etaShown ? " / " + etaString(progress) : "")
                 + ") "
                 + speedString + progress.extraMessage;
         int suffixLength = getStringDisplayLength(suffix);

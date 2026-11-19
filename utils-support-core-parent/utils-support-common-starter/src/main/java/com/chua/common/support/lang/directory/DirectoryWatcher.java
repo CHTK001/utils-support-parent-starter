@@ -177,6 +177,8 @@ public class DirectoryWatcher {
                     case CREATE -> l.onCreate(evt, observer);
                     case MODIFY -> l.onModify(evt, observer);
                     case DELETE -> l.onDelete(evt, observer);
+                    // [P3C] 补充 default 兜底：WatcherEvent 枚举扩展未覆盖时显式失败（由外层 catch 记录）
+                    default -> throw new IllegalStateException("未预期的取值: " + evt);
                 }
             } catch (Exception e) {
                 log.error("监听器处理异常: {}", evt, e);

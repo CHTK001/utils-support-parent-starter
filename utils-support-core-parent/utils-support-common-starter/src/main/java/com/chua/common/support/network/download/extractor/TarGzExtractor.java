@@ -98,7 +98,7 @@ public class TarGzExtractor implements Extractor {
                 continue;
             }
 
-            if (tarHeader.isDirectory) {
+            if (tarHeader.directory) {
                 entryFile.mkdirs();
             } else {
                 // 创建父目录
@@ -136,7 +136,7 @@ public class TarGzExtractor implements Extractor {
             }
         }
         char typeFlag = (char) header[156];
-        boolean isDirectory = (typeFlag == '5');
+        boolean directory = (typeFlag == '5');
 
         // 处理 GNU TAR 扩展前缀 (偏移量 345-499，长度 155)
         String prefix = extractString(header, 345, 155);
@@ -144,7 +144,7 @@ public class TarGzExtractor implements Extractor {
             name = prefix + "/" + name;
         }
 
-        return new TarHeader(name, size, isDirectory);
+        return new TarHeader(name, size, directory);
     }
 
     /**
@@ -255,19 +255,19 @@ public class TarGzExtractor implements Extractor {
     private static class TarHeader {
         String name = "";
         long size = 0;
-        boolean isDirectory = false;
+        boolean directory = false;
 
         /**
          * Tar Header
-         * @param isDirectory 布尔值
+         * @param directory 布尔值
          * @param name 字符串
          * @param size 获取数量
          * @return 返回值
         */
-        TarHeader(String name, long size, boolean isDirectory) {
+        TarHeader(String name, long size, boolean directory) {
             this.name = name;
             this.size = size;
-            this.isDirectory = isDirectory;
+            this.directory = directory;
         }
     }
 }

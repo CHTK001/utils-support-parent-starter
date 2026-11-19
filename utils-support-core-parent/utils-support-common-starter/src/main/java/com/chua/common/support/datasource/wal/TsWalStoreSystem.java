@@ -473,6 +473,10 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
             case MAX  -> new TsAggregate(measure, fromTs, toTs, Double.NaN, Double.NaN, max, n, sum);
             case COUNT-> new TsAggregate(measure, fromTs, toTs, Double.NaN, Double.NaN, Double.NaN, n, 0);
             case SUM  -> new TsAggregate(measure, fromTs, toTs, Double.NaN, min, max, n, sum);
+            default -> {
+                // 兜底：未知聚合函数无法计算，直接失败并说明原因
+                throw new IllegalStateException("未预期的取值: " + fn);
+            }
         };
     }
 

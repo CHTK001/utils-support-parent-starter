@@ -45,6 +45,11 @@ public final class OtnlOrmSupport {
     private static final Map<Class<?>, Map<String, Field>> FIELDS = new ConcurrentHashMap<>();
 
     /**
+     * LIKE 模式 -> 正则 编译缓存：同一模式反复匹配时避免重复 Pattern.compile [P3C]
+     */
+    private static final Map<String, Pattern> LIKE_PATTERN_CACHE = new ConcurrentHashMap<>();
+
+    /**
      * 访问器缺失标记（ConcurrentHashMap 不允许 null 值）
      */
     private static final Method NO_ACCESSOR;
@@ -227,6 +232,18 @@ public final class OtnlOrmSupport {
             return false;
         }
         String pattern = String.valueOf(expected);
+        // [P3C] 同一 LIKE 模式只编译一次，避免每次匹配都重复 Pattern.compile
+        Pattern compiled = LIKE_PATTERN_CACHE.computeIfAbsent(pattern, OtnlOrmSupport::compileLikeRegex);
+        return compiled.matcher(String.valueOf(actual)).matches();
+    }
+
+    /**
+     * 把 LIKE 模式转换为正则并编译：{@code %} 对应任意串、{@code _} 对应单字符，大小写不敏感
+     *
+     * @param pattern LIKE 模式
+     * @return 正则
+     */
+    private static Pattern compileLikeRegex(String pattern) {
         StringBuilder regex = new StringBuilder();
         for (int i = 0; i < pattern.length(); i++) {
             char ch = pattern.charAt(i);
@@ -236,8 +253,7 @@ public final class OtnlOrmSupport {
                 default -> regex.append(Pattern.quote(String.valueOf(ch)));
             }
         }
-        return Pattern.compile(regex.toString(), Pattern.CASE_INSENSITIVE | Pattern.DOTALL)
-                .matcher(String.valueOf(actual)).matches();
+        return Pattern.compile(regex.toString(), Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     }
 
     /**

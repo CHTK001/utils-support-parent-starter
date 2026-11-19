@@ -184,6 +184,8 @@ public class NatsClient implements AutoCloseable {
                             case DISCONNECTED -> log.warn("NATS 连接断开: {}", url);
                             case CLOSED -> log.info("NATS 连接关闭");
                             case DISCOVERED_SERVERS -> log.debug("NATS 发现新服务器");
+                            // [P3C 修复] 补充 default 兜底：未预期的连接状态直接暴露，避免静默忽略
+                            default -> throw new IllegalStateException("未预期的取值: " + type);
                         }
                     })
                     .errorListener(new ErrorListener() {
@@ -224,7 +226,7 @@ public class NatsClient implements AutoCloseable {
             // 取消所有订阅
             for (var sub : subscriptions) {
                 try {
-                    if (sub.isJetStream) {
+                    if (sub.jetStream) {
                         sub.jsSubscription.unsubscribe();
                     } else {
                         sub.coreSubscription.unsubscribe();
@@ -1375,7 +1377,7 @@ public class NatsClient implements AutoCloseable {
         /**
          * ISJET流
         */
-        private final boolean isJetStream;
+        private final boolean jetStream;
         /**
          * cancelled
         */
@@ -1383,14 +1385,14 @@ public class NatsClient implements AutoCloseable {
 
         /**
          * Dispatched Subscription
-         * @param isJetStream 布尔值
+         * @param jetStream 布尔值
          * @param subscription 参数
          * @return 返回值
         */
-        DispatchedSubscription(io.nats.client.Subscription subscription, boolean isJetStream) {
+        DispatchedSubscription(io.nats.client.Subscription subscription, boolean jetStream) {
             this.coreSubscription = subscription;
-            this.jsSubscription = isJetStream ? (io.nats.client.JetStreamSubscription) subscription : null;
-            this.isJetStream = isJetStream;
+            this.jsSubscription = jetStream ? (io.nats.client.JetStreamSubscription) subscription : null;
+            this.jetStream = jetStream;
         }
 
         /**
@@ -1399,7 +1401,7 @@ public class NatsClient implements AutoCloseable {
         public void unsubscribe() {
             cancelled = true;
             try {
-                if (isJetStream && jsSubscription != null) {
+                if (jetStream && jsSubscription != null) {
                     jsSubscription.unsubscribe();
                 } else if (coreSubscription != null) {
                     coreSubscription.unsubscribe();

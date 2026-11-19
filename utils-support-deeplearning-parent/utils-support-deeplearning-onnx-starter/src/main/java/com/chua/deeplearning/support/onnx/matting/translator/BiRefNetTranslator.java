@@ -199,6 +199,8 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
             case RGB_BLACK_BG -> createRgb(alphaMask, 0);
             case RGB_WHITE_BG -> createRgb(alphaMask, 255);
             case RGBA -> createRgba(alphaMask);
+            // [P3C] 兜底：未预期的抠图输出模式取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 

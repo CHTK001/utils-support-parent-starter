@@ -159,6 +159,8 @@ public class LetterBoxUtils {
                 left = padW;
                 top = padH;
             }
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + position);
         }
         g2d.drawImage(resized, left, top, null);
         g2d.dispose();

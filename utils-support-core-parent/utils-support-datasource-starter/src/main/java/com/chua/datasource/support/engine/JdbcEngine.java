@@ -354,6 +354,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             countSql = buildSelectSql(sql, false, "COUNT(*)");
         } else {
             String baseSql = buildSelectSql(sql, false);
+            // [P3C 1.4 豁免] baseSql 由 buildSelectSql 内部生成（表/列名来自实体元数据，值已 ? 参数化），无外部输入
             countSql = "SELECT COUNT(*) FROM (" + baseSql + ") t_count";
         }
         try (Connection conn = getJdbcConnection();

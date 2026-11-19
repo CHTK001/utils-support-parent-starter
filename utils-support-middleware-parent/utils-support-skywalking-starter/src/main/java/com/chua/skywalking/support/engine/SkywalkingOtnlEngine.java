@@ -509,6 +509,8 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             case SERVICE_INSTANCE -> query.instanceName();
             case SERVICE, SERVICE_RELATION, ENDPOINT_RELATION -> query.serviceName();
             case ALL -> null;
+            // [P3C 修复] 补充 default 兜底：未知作用域与 ALL 口径一致，返回 null
+            default -> null;
         };
         try {
             Map<String, Object> entity = new LinkedHashMap<>(4);
@@ -651,6 +653,8 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             case SERVICE_INSTANCE -> query.instanceName();
             case SERVICE, SERVICE_RELATION, ENDPOINT_RELATION -> query.serviceName();
             case ALL -> null;
+            // [P3C 修复] 补充 default 兜底：未知作用域与 ALL 口径一致，返回 null
+            default -> null;
         };
     }
 

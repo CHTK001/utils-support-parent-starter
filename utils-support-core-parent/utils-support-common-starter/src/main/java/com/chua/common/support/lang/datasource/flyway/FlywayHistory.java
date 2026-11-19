@@ -109,12 +109,14 @@ public final class FlywayHistory {
     /**
      * 查询已应用脚本
      */
+    // [P3C 1.4 豁免] 拼接值为代码内常量/已校验，无外部输入：HISTORY_TABLE/COL_* 均为本类私有常量
     private static final String SELECT_SQL = "SELECT " + COL_SCRIPT_NAME + ", " + COL_SUCCESS
             + " FROM " + HISTORY_TABLE;
 
     /**
      * 插入执行记录
      */
+    // [P3C 1.4 豁免] 拼接值为代码内常量/已校验，无外部输入：HISTORY_TABLE/COL_* 均为本类私有常量，值用 ? 绑定
     private static final String INSERT_SQL = "INSERT INTO " + HISTORY_TABLE
             + " (" + COL_VERSION + ", " + COL_DESCRIPTION + ", " + COL_SCRIPT_NAME
             + ", " + COL_CHECKSUM + ", " + COL_SUCCESS + ") VALUES (?, ?, ?, ?, ?)";
@@ -208,6 +210,7 @@ public final class FlywayHistory {
      */
     private static boolean exists(Runner runner) {
         try {
+            // [P3C 1.4 豁免] 拼接值为代码内常量/已校验，无外部输入：HISTORY_TABLE/COL_SCRIPT_NAME 均为本类私有常量
             runner.select("SELECT " + COL_SCRIPT_NAME + " FROM " + HISTORY_TABLE + " WHERE 1 = 0");
             return true;
         } catch (RuntimeException e) {

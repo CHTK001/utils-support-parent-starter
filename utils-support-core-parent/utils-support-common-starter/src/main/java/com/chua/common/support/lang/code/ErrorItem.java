@@ -16,7 +16,7 @@ public class ErrorItem {
  /**
   * 无错误
   */
- public static final ErrorItem NO_ERROR = ErrorItem.builder().isError(false).build();
+ public static final ErrorItem NO_ERROR = ErrorItem.builder().error(false).build();
 
  /**
   * 是否错误
@@ -24,7 +24,7 @@ public class ErrorItem {
   * IS错误
   */
  @Builder.Default
- private boolean isError = true;
+ private boolean error = true;
  /**
   * 错误信息
   */

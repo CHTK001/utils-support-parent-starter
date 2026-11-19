@@ -69,6 +69,19 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             "image|clip|vit|vision|multimodal", Pattern.CASE_INSENSITIVE);
 
     /**
+     * 活跃参数量记录：{"label":"...","activeParams":n,"passiveParams":m,"detailsUrl":"/models/slug"}
+     */
+    private static final Pattern ACTIVE_PARAMS_ENTRY = Pattern.compile(
+            "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?),"
+                    + "\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"");
+
+    /**
+     * 思考等级记录："slug":"x","name":"y",...,"effort":{"slug":"level"}
+     */
+    private static final Pattern REASONING_EFFORT_ENTRY = Pattern.compile(
+            "\"slug\":\"([^\"]+)\",\"name\":\"[^\"]*\"[^}]*?\"effort\":\\{\"slug\":\"([^\"]+)\"");
+
+    /**
      * 从排行榜抓取全量模型指标与价格。
      *
      * @return 模型指标列表，页面不可达或结构变化时返回空列表
@@ -301,10 +314,8 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     private Map<String, BigDecimal> parseActiveParams(String html) {
         Map<String, BigDecimal> result = Wraps.linkedMap();
         String esc = html.replace("\\\"", "\"");
-        Matcher m = Pattern.compile(
-                "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?)," +
-                        "\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"")
-                .matcher(esc);
+        // [P3C 修复] 正则提升为类级常量 ACTIVE_PARAMS_ENTRY，避免每次调用重复编译
+        Matcher m = ACTIVE_PARAMS_ENTRY.matcher(esc);
         while (m.find()) {
             result.putIfAbsent(m.group(2), new BigDecimal(m.group(1)));
         }
@@ -323,9 +334,8 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     private Map<String, String> parseReasoningEfforts(String html) {
         Map<String, String> result = Wraps.linkedMap();
         String esc = html.replace("\\\"", "\"");
-        Matcher m = Pattern.compile(
-                "\"slug\":\"([^\"]+)\",\"name\":\"[^\"]*\"[^}]*?\"effort\":\\{\"slug\":\"([^\"]+)\"")
-                .matcher(esc);
+        // [P3C 修复] 正则提升为类级常量 REASONING_EFFORT_ENTRY，避免每次调用重复编译
+        Matcher m = REASONING_EFFORT_ENTRY.matcher(esc);
         while (m.find()) {
             result.putIfAbsent(m.group(1), m.group(2));
         }

@@ -196,6 +196,7 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
                     ? "current_schema()" : PostgresqlMetaData.resolveSchema(metaData)) + "）");
         }
         boolean callable = "PROCEDURE".equals(kind);
+        // [P3C 1.4 豁免] procedureName 已经 readKind 存在性校验且经 PostgresqlMetaData.quote 转义，参数为 ? 占位绑定
         String sql = callable
                 ? "{call " + PostgresqlMetaData.quote(procedureName) + "(" + placeholders + ")}"
                 : "SELECT " + PostgresqlMetaData.quote(procedureName) + "(" + placeholders + ")";

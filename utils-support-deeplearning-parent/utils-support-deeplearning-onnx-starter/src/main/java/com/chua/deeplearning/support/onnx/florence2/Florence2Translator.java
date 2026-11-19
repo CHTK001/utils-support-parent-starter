@@ -214,9 +214,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         OnnxTensor encoderMaskTensor = OnnxTensor.createTensor(ortEnv,
                 LongBuffer.wrap(encMask), new long[]{1, seqLen});
         List<Long> tokens = Wraps.list();
-        try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) tokens.add(t); }
+        try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) { tokens.add(t); } }
         catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage(),
-                e); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
+                e); for (char c : taskPrompt.toCharArray()) { tokens.add((long) c); } }
         List<Long> generatedTokens = Wraps.list(tokens);
         try {
             long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();

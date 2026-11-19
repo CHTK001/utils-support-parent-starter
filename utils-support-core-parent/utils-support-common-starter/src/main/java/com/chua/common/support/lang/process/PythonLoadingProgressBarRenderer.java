@@ -43,7 +43,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     /**
      * 是否显示速度
      */
-    private final boolean isSpeedShown;
+    private final boolean speedShown;
 
     /**
      * 速度格式
@@ -58,7 +58,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     /**
      * 是否显示预计剩余时间
      */
-    private final boolean isEtaShown;
+    private final boolean etaShown;
 
     /**
      * 预计剩余时间计算函数
@@ -72,10 +72,10 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
      * @param unit          进度单位
      * @param unitName      单位名称
      * @param unitSize      单位大小
-     * @param isSpeedShown  是否显示速度
+     * @param speedShown  是否显示速度
      * @param speedFormat   速度格式
      * @param speedUnit     速度单位
-     * @param isEtaShown    是否显示预计剩余时间
+     * @param etaShown    是否显示预计剩余时间
      * @param eta           预计剩余时间计算函数
      */
     public PythonLoadingProgressBarRenderer(
@@ -83,20 +83,20 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
             ProgressUnit unit,
             String unitName,
             long unitSize,
-            boolean isSpeedShown,
+            boolean speedShown,
             DecimalFormat speedFormat,
             ChronoUnit speedUnit,
-            boolean isEtaShown,
+            boolean etaShown,
             Function<ProgressState, Optional<Duration>> eta
     ) {
         this.style = style;
         this.unit = unit;
         this.unitName = unitName;
         this.unitSize = unitSize;
-        this.isSpeedShown = isSpeedShown;
-        this.speedFormat = isSpeedShown && speedFormat == null ? new DecimalFormat("#.0") : speedFormat;
+        this.speedShown = speedShown;
+        this.speedFormat = speedShown && speedFormat == null ? new DecimalFormat("#.0") : speedFormat;
         this.speedUnit = speedUnit;
-        this.isEtaShown = isEtaShown;
+        this.etaShown = etaShown;
         this.eta = eta;
     }
 
@@ -132,14 +132,14 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         String suffix = " " + percentage;
 
         //
-        if (isEtaShown) {
+        if (etaShown) {
             String etaString = getEtaString(progress);
             String elapsedString = Util.formatDuration(progress.getTotalElapsed());
             suffix += "     " + elapsedString + "     " + etaString;
         }
 
         //
-        if (isSpeedShown) {
+        if (speedShown) {
             String speedString = speed(progress);
             suffix += "      " + speedString;
         }

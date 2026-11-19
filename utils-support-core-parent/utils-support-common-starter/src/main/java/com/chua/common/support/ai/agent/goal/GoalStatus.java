@@ -49,6 +49,8 @@ public record GoalStatus(String id, String title, String detail, GoalState state
             case COMPLETED -> "已完成";
             case FAILED -> "失败";
             case CANCELED -> "已取消";
+            // [P3C] 兜底：未知状态展示枚举名，避免后续新增状态时无文案可用
+            default -> state.name();
         };
     }
 

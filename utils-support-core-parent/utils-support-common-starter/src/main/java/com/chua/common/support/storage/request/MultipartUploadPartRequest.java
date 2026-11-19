@@ -32,5 +32,5 @@ public class MultipartUploadPartRequest {
     /**
      * 是否为最后一个分片
      */
-    private Boolean isLastPart;
+    private Boolean lastPart;
 }

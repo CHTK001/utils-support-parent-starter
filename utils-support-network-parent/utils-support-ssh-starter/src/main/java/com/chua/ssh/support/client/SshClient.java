@@ -604,7 +604,7 @@ public class SshClient implements AutoCloseable {
         /**
          * is Remote
          */
-        private boolean isRemote;
+        private boolean remote;
         /**
          * bind Address
          */
@@ -635,7 +635,7 @@ public class SshClient implements AutoCloseable {
             this.remoteHost = remoteHost;
             this.remotePort = remotePort;
             this.dynamic = false;
-            this.isRemote = false;
+            this.remote = false;
             return this;
         }
 
@@ -651,7 +651,7 @@ public class SshClient implements AutoCloseable {
             this.remoteHost = localHost;
             this.remotePort = remotePort;
             this.dynamic = false;
-            this.isRemote = true;
+            this.remote = true;
             return this;
         }
 
@@ -663,7 +663,7 @@ public class SshClient implements AutoCloseable {
         public ForwardOperation dynamic(int localPort) {
             this.localPort = localPort;
             this.dynamic = true;
-            this.isRemote = false;
+            this.remote = false;
             return this;
         }
 
@@ -686,7 +686,7 @@ public class SshClient implements AutoCloseable {
                 if (dynamic) {
                     return startDynamic();
                 }
-                if (isRemote) {
+                if (remote) {
                     return startRemote();
                 }
                 return startLocal();

@@ -130,13 +130,13 @@ public class DoubaoBrowserSession implements AutoCloseable {
                         }
                         if (evt === 2001 || evt === undefined) {
                             let data = obj.event_data;
-                            if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) {} }
+                            if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) { /* 忽略：event_data 非合法 JSON，保留原始字符串继续处理 [P3C 修复] */ } }
                             const msg = data?.message || obj;
                             const ct = msg.content_type || obj.content_type || obj.content?.content_type;
                             if (ct === 10040) { continue; }
                             if (ct === 2010 || ct === 2021) { continue; }
                             let contentRaw = msg.content || obj.content;
-                            if (typeof contentRaw === 'string') { try { contentRaw = JSON.parse(contentRaw); } catch(e) {} }
+                            if (typeof contentRaw === 'string') { try { contentRaw = JSON.parse(contentRaw); } catch(e) { /* 忽略：content 非合法 JSON，保留原始字符串继续处理 [P3C 修复] */ } }
                             if (!contentRaw || contentRaw === '{}') { 
                                 if (msg?.is_finish) { finished = true; }
                                 continue; 

@@ -164,7 +164,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
         // 保存原始方法体语句
         var originalStats = jcMethod.body.stats;
 
-        // 构建 finally 块：if (param != null) { try { param.close(); } catch (Exception e) {} }
+        // 构建 finally 块：if (param != null) { try { param.close(); } catch (Exception e) { /* 忽略：关闭资源失败不应影响业务方法 */ } }
         var finallyBlock = buildFinallyBlock(maker, names, paramName);
 
  // 构建 尝试-最终: 尝试 { 原始stats } 最终 { 最终block }
@@ -202,7 +202,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
                 closeSelect,
                 com.sun.tools.javac.util.List.nil());
 
-        // try { param.close(); } catch (Exception e) {}
+        // try { param.close(); } catch (Exception e) { /* 忽略：关闭资源失败不应影响业务方法 */ }
         var closeStmt = maker.Exec(closeCall);
         var tryBody = maker.Block(0, com.sun.tools.javac.util.List.of(closeStmt));
 
@@ -212,6 +212,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
                 names.fromString("e"),
                 exceptionType,
                 null);
+        // 忽略：此处生成的 catch 块为空是刻意设计——close() 失败不应中断业务方法（见类文档示例）
         var catchBlock = maker.Block(0, com.sun.tools.javac.util.List.nil());
         var catcher = maker.Catch(catchVar, catchBlock);
 

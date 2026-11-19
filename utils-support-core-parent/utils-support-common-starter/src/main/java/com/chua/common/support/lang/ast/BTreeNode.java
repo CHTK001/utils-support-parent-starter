@@ -361,6 +361,10 @@ public class BTreeNode {
             }
             case FUNCTION -> operator + "(" + children + ")";
             case RAW -> operator;
+            default -> {
+                // 兜底：未知节点类型输出原始类型名，避免 toString 抛异常
+                yield String.valueOf(type);
+            }
         };
     }
 }

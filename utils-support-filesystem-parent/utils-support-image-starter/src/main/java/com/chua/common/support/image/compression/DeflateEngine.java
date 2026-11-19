@@ -112,6 +112,8 @@ public interface DeflateEngine {
                 case L0, L1 -> 6;
                 case L2 -> 7;
                 case L3, L4, L5, L6 -> 9;
+                // [P3C] 兜底：未预期的压缩等级取值，显式失败避免返回无效 deflate 级别
+                default -> throw new IllegalStateException("未预期的取值: " + compressLevel);
             };
         }
     }

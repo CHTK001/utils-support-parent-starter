@@ -128,6 +128,8 @@ public class SslSocketChannel extends SocketChannel {
                     handshakeDone = true;
                     return;
                 }
+                // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+                default -> throw new IllegalStateException("未预期的取值: " + hs);
             }
         }
     }
@@ -187,6 +189,8 @@ public class SslSocketChannel extends SocketChannel {
                 case CLOSED -> {
                     return -1;
                 }
+                // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+                default -> throw new IllegalStateException("未预期的取值: " + r.getStatus());
             }
         }
     }
@@ -220,6 +224,8 @@ public class SslSocketChannel extends SocketChannel {
                 case BUFFER_UNDERFLOW ->
                         throw new SSLException("wrap 阶段不应出现 BUFFER_UNDERFLOW");
                 case CLOSED -> throw new SSLException("TLS 会话已关闭，无法写入");
+                // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+                default -> throw new IllegalStateException("未预期的取值: " + r.getStatus());
             }
         }
         return total;

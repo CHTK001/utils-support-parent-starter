@@ -77,6 +77,8 @@ public class SshTunnel implements Tunnel {
                 case REMOTE -> forward.remote(definition.getRemotePort(), definition.getRemoteHost(),
                         definition.getLocalPort());
                 case DYNAMIC -> forward.dynamic(definition.getLocalPort());
+                // [P3C 修复] 补充 default 兜底：未预期的隧道类型直接暴露，避免静默忽略
+                default -> throw new IllegalStateException("未预期的取值: " + definition.getType());
             }
 
             tracker = forward.start();
@@ -181,6 +183,8 @@ public class SshTunnel implements Tunnel {
             case LOCAL -> TunnelType.LOCAL;
             case REMOTE -> TunnelType.REMOTE;
             case DYNAMIC -> TunnelType.DYNAMIC;
+            // [P3C 修复] 补充 default 兜底：未预期的隧道类型直接暴露，避免静默映射
+            default -> throw new IllegalStateException("未预期的取值: " + type);
         };
     }
 }

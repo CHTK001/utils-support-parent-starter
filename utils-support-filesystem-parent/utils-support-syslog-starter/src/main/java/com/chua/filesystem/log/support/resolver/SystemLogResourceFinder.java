@@ -143,6 +143,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
                                 order = val.toLowerCase();
                             }
                         }
+                        // [P3C] 兜底：显式忽略未知的查询参数键，保持宽松解析语义
+                        default -> {
+                        }
                     }
                 }
             }

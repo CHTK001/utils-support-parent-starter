@@ -318,6 +318,8 @@ public class NioServerRequest implements ServerRequest {
                 case COMPLETE -> {
                     return 1;
                 }
+                // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+                default -> throw new IllegalStateException("未预期的取值: " + parseState);
             }
         }
     }

@@ -314,6 +314,10 @@ public final class StructuredConcurrencyFlow {
                 case SUCCESS_COUNT -> executeSuccessCount(executor);
                 case FAILURE_COUNT -> executeFailureCount(executor);
                 case RETRY_ON_FAILURE -> executeWithRetry(executor);
+                default -> {
+                    // 兜底：未实现的失败策略直接失败，避免静默走错分支
+                    throw new IllegalStateException("未预期的取值: " + failureStrategy);
+                }
             };
         } finally {
             executor.shutdown();
@@ -619,6 +623,10 @@ public final class StructuredConcurrencyFlow {
             case FAIL_FAST -> new ShutdownOnFailureStructuredConcurrencyProvider();
             case COLLECT_BEST -> new ShutdownOnSuccessStructuredConcurrencyProvider();
             case SUCCESS_COUNT, FAILURE_COUNT, RETRY_ON_FAILURE -> new VirtualThreadStructuredConcurrencyProvider();
+            default -> {
+                // 兜底：未知失败策略无法创建对应 Provider，直接失败并说明原因
+                throw new IllegalStateException("未预期的取值: " + strategy);
+            }
         };
     }
 }

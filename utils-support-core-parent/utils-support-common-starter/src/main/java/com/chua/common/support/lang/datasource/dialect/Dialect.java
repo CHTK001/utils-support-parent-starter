@@ -284,6 +284,7 @@ public interface Dialect {
      * @return INSERT 语句
      */
     default String getInsertSql(String tableName, String columns, String values) {
+        // [P3C 1.4 豁免] 拼接值为代码内常量/已校验，无外部输入：表名经 SqlName.check 白名单校验，columns/values 由调用方以常量或 ? 占位符传入
         return "insert into " + quote(SqlName.check(tableName, "表名"))
                 + " (" + columns + ") values (" + values + ")";
     }

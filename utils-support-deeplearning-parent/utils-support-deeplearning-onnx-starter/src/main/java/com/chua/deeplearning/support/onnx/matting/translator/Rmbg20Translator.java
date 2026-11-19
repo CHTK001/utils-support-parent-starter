@@ -183,6 +183,8 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
             case RGB_BLACK_BG -> createRgbImage(alphaMask, 0);
             case RGB_WHITE_BG -> createRgbImage(alphaMask, 255);
             case RGBA -> createRgbaImage(alphaMask);
+            // [P3C] 兜底：未预期的抠图输出模式取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 

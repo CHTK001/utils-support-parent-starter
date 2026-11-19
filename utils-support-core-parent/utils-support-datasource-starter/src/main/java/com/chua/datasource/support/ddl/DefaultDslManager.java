@@ -246,7 +246,14 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
     @Override
     public String copyTableStructure(String schemaName, String sourceTableName, String targetTableName) {
         requireContext();
+        if (sourceTableName == null || !sourceTableName.matches("^[A-Za-z0-9_.]+$")) {
+            throw new IllegalArgumentException("非法标识符: " + sourceTableName);
+        }
+        if (targetTableName == null || !targetTableName.matches("^[A-Za-z0-9_.]+$")) {
+            throw new IllegalArgumentException("非法标识符: " + targetTableName);
+        }
         Dialect d = dialect;
+        // [P3C 1.4 豁免] 表名已白名单校验并经 d.quote() 转义，无外部输入注入面
         return "CREATE TABLE " + d.quote(targetTableName)
                 + " AS SELECT * FROM " + d.quote(sourceTableName) + " WHERE 1=0";
     }

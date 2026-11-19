@@ -268,6 +268,7 @@ public final class IbdSqlWriter {
                                                          String schema, String table,
                                                          List<String> columns) {
         String target = StringUtils.isBlank(table) ? definition.name() : table;
+        // [P3C 1.4 豁免] schema/table/columns 经 qualified/joinQuoted 反引号转义（内部反引号翻倍），生成导出脚本文本，无外部输入
         String prefix = "INSERT INTO " + qualified(schema, target) + " ("
                 + joinQuoted(columns) + ") VALUES (";
         java.util.List<String> statements = Wraps.list(rows.size());

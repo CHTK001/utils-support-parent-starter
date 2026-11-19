@@ -303,7 +303,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         String timestampColumn = resolveTimestampColumn(target);
         long nowMs = System.currentTimeMillis();
         long startMs = nowMs - (long) hours * 3600_000L;
-        // identifier 已白名单校验，monitorId 为 Long，无注入面
+        // [P3C 1.4 豁免] target/metric 已 SqlName.isWord 白名单校验，timestampColumn 为库内元数据，monitorId 为 Long，无注入面
         String sql = "SELECT \"" + timestampColumn + "\", \"" + metric + "\" FROM \"" + target
                 + "\" WHERE \"" + TAG_MONITOR_ID + "\" = '" + monitorId + "' AND \"" + timestampColumn
                 + "\" >= '" + toIso(startMs) + "' AND \"" + timestampColumn + "\" <= '" + toIso(nowMs) + "'";
@@ -446,6 +446,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 设计时间戳列名
      */
     private String resolveTimestampColumn(String target) {
+        // [P3C 1.4 豁免] target 已在 series()/purge() 入口经 SqlName.isWord 白名单校验，无外部输入
         JsonNode response = execQuery("SELECT * FROM \"" + target + "\" LIMIT 1", true);
         if (response == null) {
             return DEFAULT_TIMESTAMP_COLUMN;

@@ -262,6 +262,8 @@ public final class DateTime {
             case DateUnit.SECOND -> dateTime.plusSeconds(amount);
             case DateUnit.MS -> dateTime.plusNanos(amount * 1000);
             case DateUnit.CUSTOM -> dateTime.plusDays(amount);
+            // [P3C] 补充 default 兜底：DateUnit 枚举后续扩展未覆盖时显式失败，不静默漏算
+            default -> throw new IllegalStateException("未预期的取值: " + unit);
         };
     }
 

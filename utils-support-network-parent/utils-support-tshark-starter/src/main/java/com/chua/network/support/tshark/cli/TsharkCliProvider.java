@@ -442,6 +442,8 @@ public final class TsharkCliProvider {
             case WINGET -> "WiresharkFoundation.Wireshark";
             case APT, YUM, DNF -> "tshark";
             case CHOCO, BREW, APK -> "wireshark";
+            // [P3C 修复] 补充 default 兜底：未预期的包管理器类型直接暴露，避免静默装错包
+            default -> throw new IllegalStateException("未预期的取值: " + type);
         };
     }
 

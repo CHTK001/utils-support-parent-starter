@@ -228,6 +228,8 @@ public class ChatClientModelAdapter implements Model {
                         }
                         case ERROR -> sink.error(new RuntimeException(
                                 resp.getErrorMessage() != null ? resp.getErrorMessage() : "stream error"));
+                        // [P3C] 兜底：未预期的流式状态取值，显式失败避免静默丢失消息
+                        default -> throw new IllegalStateException("未预期的取值: " + resp.getState());
                     }
                 });
             } catch (Exception e) {

@@ -90,6 +90,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
         if (jdbcUrl == null) {
             throw new IllegalArgumentException("缺少必填配置: jdbc.url");
         }
+        // [P3C 1.4 豁免] listenPath 经 safeIdentifier（SqlName.isWord）白名单校验，无外部输入
         this.querySql = environment.getProperty("query.sql",
                 "SELECT rowid, * FROM " + safeIdentifier(listenPath));
         this.keyColumnIndex = Integer.parseInt(

@@ -191,6 +191,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
                 return false;
             }
             try (Statement stmt = conn.createStatement()) {
+                // [P3C 1.4 豁免] quoted 已经 escapeIdentifier 转义且经 isFtsTable 存在性校验，'optimize' 为固定字面量
                 stmt.execute("INSERT INTO " + quoted + "(" + quoted + ") VALUES('optimize')");
             }
             return true;

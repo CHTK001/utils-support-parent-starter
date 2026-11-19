@@ -505,6 +505,8 @@ public class PackageManagerProvider {
             case YUM -> new String[]{"yum", "search", keyword};
             case DNF -> new String[]{"dnf", "search", keyword};
             case APK -> new String[]{"apk", "search", keyword};
+            // [P3C] 兜底：未预期的包管理器取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + pm);
         };
     }
 
@@ -524,6 +526,8 @@ public class PackageManagerProvider {
             case YUM -> new String[]{"yum", "remove", "-y", packageId};
             case DNF -> new String[]{"dnf", "remove", "-y", packageId};
             case APK -> new String[]{"apk", "del", packageId};
+            // [P3C] 兜底：未预期的包管理器取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + pm);
         };
     }
 
@@ -544,6 +548,8 @@ public class PackageManagerProvider {
             case APT -> parseAptOutput(output);
             case YUM, DNF -> parseYumOutput(output);
             case APK -> parseApkOutput(output);
+            // [P3C] 兜底：未预期的包管理器取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + pm);
         };
     }
 

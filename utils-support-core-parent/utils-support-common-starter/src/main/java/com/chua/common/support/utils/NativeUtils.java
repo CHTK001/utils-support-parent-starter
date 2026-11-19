@@ -150,6 +150,10 @@ public class NativeUtils {
             case "arm" -> { arches.add("x86_64"); }
             case "ppc64le" -> { arches.add("ppc"); }
             case "mips" -> { arches.add("x86_64"); }
+            // [P3C 修复] 补充 default 兜底分支：其余架构（riscv64/s390x/sparc/ia64 等）无需回退候选
+            default -> {
+                // 兜底：保持原行为，不引入新异常
+            }
         }
         return arches.toArray(new String[0]);
     }

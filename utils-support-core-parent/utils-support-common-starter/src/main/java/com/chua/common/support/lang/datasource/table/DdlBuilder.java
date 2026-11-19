@@ -357,6 +357,8 @@ public class DdlBuilder {
             case CREATE -> renderer.renderCreate(def);
             case ALTER -> renderer.renderAlter(def, newTableName);
             case DROP -> renderer.renderDrop(tableName);
+            // [P3C] 补充 default 兜底：Mode 枚举后续扩展未覆盖时显式失败，不静默漏渲
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 

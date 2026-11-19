@@ -148,6 +148,10 @@ public class CypherExpressionParser implements ExpressionParser {
                 yield sb.toString();
             }
             case RAW -> tree.getOperator();
+            default -> {
+                // 兜底：未知节点类型无法生成 Cypher 片段，直接失败并说明原因
+                throw new IllegalStateException("未预期的取值: " + tree.getType());
+            }
         };
     }
 

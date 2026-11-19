@@ -97,6 +97,8 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
             case FIXED -> WaitStrategies.fixedWait(config.getDelay(), TimeUnit.MILLISECONDS);
             case EXPONENTIAL -> exponentialWait(config);
             case FIBONACCI -> fibonacciWait(config);
+            // [P3C] 兜底：未预期的退避策略取值，显式失败避免返回 null
+            default -> throw new IllegalStateException("未预期的取值: " + config.getBackoffStrategy());
         };
     }
 

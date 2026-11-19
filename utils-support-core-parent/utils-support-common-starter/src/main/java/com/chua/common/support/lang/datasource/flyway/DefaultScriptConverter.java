@@ -334,7 +334,82 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 且宽度本身对存储无影响，故统一剥离。</p>
      */
     private static final Pattern INTEGER_DISPLAY_WIDTH = Pattern.compile(
-            "(?i)\\b(TINYINT|SMALLINT|MEDIUMINT|INT|INTEGER|BIGINT)\\s*\\(\\s*\\d+\\s*\\)");    /**
+            "(?i)\\b(TINYINT|SMALLINT|MEDIUMINT|INT|INTEGER|BIGINT)\\s*\\(\\s*\\d+\\s*\\)");
+
+    // ===== [P3C C1 修复] 以下正则常量由方法体内的 Pattern.compile(...) 提升而来，避免每次调用重复编译 =====
+
+    /** ALTER TABLE ... ADD COLUMN 语句头（捕获组 1=表名，2=列名，3=列定义） */
+    private static final Pattern ALTER_ADD_COLUMN_PATTERN = Pattern.compile(
+            "(?is)^ALTER\\s+TABLE\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+ADD\\s+COLUMN\\s+[`\"]?([A-Za-z_]\\w*)[`\"]"
+                    + "?\\s+(.+)$");
+
+    /** DELETE FROM 语句头（捕获组 1=表名，2=其余部分），用于识别「删除时引用自身」的子查询 */
+    private static final Pattern DELETE_FROM_HEAD_PATTERN = Pattern.compile(
+            "(?is)^DELETE\\s+FROM\\s+`?([A-Za-z_]\\w*)`?\\s+(.*)$");
+
+    /** FROM 子句的表名引用（捕获组 1=表名）：配合 {@link #referencesTable} 与目标表名比对，
+     *  替代原先按表名动态拼接并在方法体内编译的正则（表名恒为标识符、无正则元字符，语义一致） */
+    private static final Pattern FROM_TABLE_REF_PATTERN = Pattern.compile(
+            "(?i)\\bFROM\\s+`?(\\w+)`?\\b");
+
+    /** 子查询起始：IN ( 或 EXISTS ( */
+    private static final Pattern SUBQUERY_OPEN_PATTERN = Pattern.compile(
+            "(?is)\\b(IN\\s*\\(|EXISTS\\s*\\()");
+
+    /** 已是派生表的形态：SELECT ... FROM ( */
+    private static final Pattern DERIVED_TABLE_PATTERN = Pattern.compile(
+            "(?is)^SELECT\\s+.*\\bFROM\\s*\\(");
+
+    /** CREATE [UNIQUE] INDEX 语句头（到列清单的左括号为止） */
+    private static final Pattern CREATE_INDEX_HEADER_PATTERN = Pattern.compile(
+            "(?is)^CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
+                    + "[`\"]?\\w+[`\"]?\\s+ON\\s+[`\"]?\\w+[`\"]?\\s*\\(");
+
+    /** 「保留每组最小值」的 DELETE 语句（捕获组 1=表名，2=id 列，3=min 列，4=来源表，5=分组列） */
+    private static final Pattern KEEP_MIN_DELETE_PATTERN = Pattern.compile(
+            "(?is)^DELETE\\s+FROM\\s+(\\w+)\\s+WHERE\\s+(\\w+)\\s+NOT\\s+IN\\s*\\(\\s*"
+                    + "SELECT\\s+MIN\\s*\\(\\s*(\\w+)\\s*\\)\\s+FROM\\s+(\\w+)\\s+"
+                    + "GROUP\\s+BY\\s+(.+?)\\s*\\)\\s*;?\\s*$");
+
+    /** MySQL 多表删除语句头（捕获组 1=删除别名，2=表名，3=表别名，4=其余部分） */
+    private static final Pattern MULTI_TABLE_DELETE_PATTERN = Pattern.compile(
+            "(?is)^DELETE\\s+(\\w+)\\s+FROM\\s+(\\w+)\\s+(\\w+)\\s+(.*)$");
+
+    /** 等值条件：形如 {@code <别名>.c1 = <别名2>.c1}（捕获组 1=分组列） */
+    private static final Pattern EQ_COLUMN_CONDITION_PATTERN = Pattern.compile(
+            "(?i)\\b\\w+\\.(\\w+)\\s*=\\s*\\w+\\.(\\w+)\\b");
+
+    /** 不等条件：形如 {@code <别名>.c2 > <别名2>.c2}（捕获组 1=保留列） */
+    private static final Pattern GT_COLUMN_CONDITION_PATTERN = Pattern.compile(
+            "(?i)\\b\\w+\\.(\\w+)\\s*>\\s*\\w+\\.(\\w+)\\b");
+
+    /** ADD COLUMN 关键字（拆分「一次加多列」的 ALTER 时定位各列子句） */
+    private static final Pattern ADD_COLUMN_KEYWORD_PATTERN = Pattern.compile(
+            "(?i)\\bADD\\s+COLUMN\\b");
+
+    /** CREATE TABLE 语句的表名（捕获组 1=含定界符的表名） */
+    private static final Pattern CREATE_TABLE_NAME_PATTERN = Pattern.compile(
+            "(?i)^\\s*CREATE\\s+(?:UNIQUE\\s+)?TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
+                    + "([`\"]?[A-Za-z_]\\w*[`\"]?)");
+
+    /** 列定义行首：列名（含可选定界符）后跟类型/约束（捕获组 1=含定界符的列名） */
+    private static final Pattern COLUMN_DECLARATION_PATTERN = Pattern.compile(
+            "^([`\"]?[A-Za-z_]\\w*[`\"]?)\\s+\\S");
+
+    /** PRIMARY KEY 子句（重建自增列定义时定位并挪位） */
+    private static final Pattern PRIMARY_KEY_CLAUSE_PATTERN = Pattern.compile(
+            "(?i)PRIMARY\\s+KEY");
+
+    /** MEDIUMTEXT 类型名 */
+    private static final Pattern MEDIUMTEXT_TYPE_PATTERN = Pattern.compile("(?i)\\bMEDIUMTEXT\\b");
+
+    /** LONGTEXT 类型名 */
+    private static final Pattern LONGTEXT_TYPE_PATTERN = Pattern.compile("(?i)\\bLONGTEXT\\b");
+
+    /** TINYTEXT 类型名 */
+    private static final Pattern TINYTEXT_TYPE_PATTERN = Pattern.compile("(?i)\\bTINYTEXT\\b");
+
+    /**
      * 转换告警出口：前缀索引这类「目标方言无等价物」的降级需要留痕，
      * 否则表现为「约束凭空消失」，排查时无从下手。
      */
@@ -542,10 +617,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         String trimmed = sql.trim();
         // 标识符定界要同时认反引号与双引号：rewriteBackticks 在本方法之前执行，
         // 反引号此时已变成双引号，只认反引号会匹配不上
-        java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^ALTER\\s+TABLE\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+ADD\\s+COLUMN\\s+[`\"]?([A-Za-z_]\\w*)[`\"]" +
-                        "?\\s+(.+)$")
-                .matcher(trimmed);
+        java.util.regex.Matcher m = ALTER_ADD_COLUMN_PATTERN.matcher(trimmed);
         if (!m.find()) {
             return null;
         }
@@ -623,19 +695,18 @@ public class DefaultScriptConverter implements ScriptConverter {
      */
     private String rewriteSelfReferencingDelete(String sql) {
         String trimmed = sql.trim();
-        java.util.regex.Matcher head = Pattern.compile(
-                "(?is)^DELETE\\s+FROM\\s+`?([A-Za-z_]\\w*)`?\\s+(.*)$").matcher(trimmed);
+        java.util.regex.Matcher head = DELETE_FROM_HEAD_PATTERN.matcher(trimmed);
         if (!head.find()) {
             return null;
         }
         String table = head.group(1);
         String rest = head.group(2);
         // 子查询里出现同名的表 → 自我引用
-        if (!Pattern.compile("(?i)\\bFROM\\s+`?" + table + "`?\\b").matcher(rest).find()) {
+        if (!referencesTable(rest, table)) {
             return null;
         }
         // 找第一个子查询：IN ( ... ) / NOT IN ( ... ) / EXISTS ( ... )
-        java.util.regex.Matcher sub = Pattern.compile("(?is)\\b(IN\\s*\\(|EXISTS\\s*\\()").matcher(rest);
+        java.util.regex.Matcher sub = SUBQUERY_OPEN_PATTERN.matcher(rest);
         if (!sub.find()) {
             return null;
         }
@@ -647,11 +718,11 @@ public class DefaultScriptConverter implements ScriptConverter {
         String inner = rest.substring(open + 1, close).trim();
         // 已经是派生表（外面套了 FROM ( ... ) alias）就不改
         if (inner.toUpperCase(Locale.ROOT).startsWith("SELECT")
-                && Pattern.compile("(?is)^SELECT\\s+.*\\bFROM\\s*\\(").matcher(inner).find()) {
+                && DERIVED_TABLE_PATTERN.matcher(inner).find()) {
             return null;
         }
         // 只改写「子查询里直接引用目标表」的那一种
-        if (!Pattern.compile("(?i)\\bFROM\\s+`?" + table + "`?\\b").matcher(inner).find()) {
+        if (!referencesTable(inner, table)) {
             return null;
         }
         String alias = "_selfref";
@@ -673,6 +744,28 @@ public class DefaultScriptConverter implements ScriptConverter {
         log.info("[ui] 表 {} 的删除语句里子查询引用了自身，已加派生表："
                 + "MySQL 不允许对正在被修改的表做 FROM 子查询", table);
         return "DELETE FROM " + table + " " + rebuilt;
+    }
+
+    /**
+     * 判断文本里是否引用了指定表（FROM 后跟该表名，允许反引号定界）。
+     *
+     * <p>[P3C C1 修复] 原实现按表名动态拼接正则并在方法体内编译；现统一用预编译的
+     * {@link #FROM_TABLE_REF_PATTERN} 捕获 FROM 后的表名，再与目标表名比对。
+     * 目标表名来自 {@code [A-Za-z_]\w*} 捕获组，不含正则元字符，且原正则带 {@code (?i)}，
+     * 故按忽略大小写比对，语义与原拼接正则一致。</p>
+     *
+     * @param text  待检查的 SQL 片段
+     * @param table 目标表名
+     * @return 片段中存在对目标表的 FROM 引用时返回 true
+     */
+    private static boolean referencesTable(String text, String table) {
+        java.util.regex.Matcher m = FROM_TABLE_REF_PATTERN.matcher(text);
+        while (m.find()) {
+            if (table.equalsIgnoreCase(m.group(1))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -709,9 +802,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         // 列清单里带 (191) 这类长度限定。
         // 列清单要用「括号配平」取 —— 前缀索引的列名自带括号（col(191)），
         // 用 [^)]* 会在第一个右括号处截断，恰好把长度限定丢掉。
-        java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
-                        + "[`\"]?\\w+[`\"]?\\s+ON\\s+[`\"]?\\w+[`\"]?\\s*\\(").matcher(trimmed);
+        java.util.regex.Matcher m = CREATE_INDEX_HEADER_PATTERN.matcher(trimmed);
         if (!m.find()) {
             return null;
         }
@@ -758,10 +849,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      */
     private String rewriteKeepMinPerGroupDelete(String sql) {
         String trimmed = sql.trim();
-        java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^DELETE\\s+FROM\\s+(\\w+)\\s+WHERE\\s+(\\w+)\\s+NOT\\s+IN\\s*\\(\\s*"
-                        + "SELECT\\s+MIN\\s*\\(\\s*(\\w+)\\s*\\)\\s+FROM\\s+(\\w+)\\s+"
-                        + "GROUP\\s+BY\\s+(.+?)\\s*\\)\\s*;?\\s*$").matcher(trimmed);
+        java.util.regex.Matcher m = KEEP_MIN_DELETE_PATTERN.matcher(trimmed);
         if (!m.find()) {
             return null;
         }
@@ -907,8 +995,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @return 改写后的语句；不是多表删除时返回 null     */
     private String rewriteMultiTableDelete(String sql) {
         String trimmed = sql.trim();
-        java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^DELETE\\s+(\\w+)\\s+FROM\\s+(\\w+)\\s+(\\w+)\\s+(.*)$").matcher(trimmed);
+        java.util.regex.Matcher m = MULTI_TABLE_DELETE_PATTERN.matcher(trimmed);
         if (!m.find()) {
             return null;
         }
@@ -920,15 +1007,13 @@ public class DefaultScriptConverter implements ScriptConverter {
         String tableAlias = m.group(3);
         String rest = m.group(4);
         // 分组列：形如 "<别名>.c1 = <别名2>.c1" 的等值条件
-        java.util.regex.Matcher eq = Pattern.compile(
-                "(?i)\\b\\w+\\.(\\w+)\\s*=\\s*\\w+\\.(\\w+)\\b").matcher(rest);
+        java.util.regex.Matcher eq = EQ_COLUMN_CONDITION_PATTERN.matcher(rest);
         if (!eq.find()) {
             return null;
         }
         String groupCol = eq.group(1);
         // 比较列：形如 "<别名>.c2 > <别名2>.c2" 的不等条件
-        java.util.regex.Matcher gt = Pattern.compile(
-                "(?i)\\b\\w+\\.(\\w+)\\s*>\\s*\\w+\\.(\\w+)\\b").matcher(rest);
+        java.util.regex.Matcher gt = GT_COLUMN_CONDITION_PATTERN.matcher(rest);
         if (!gt.find()) {
             return null;
         }
@@ -957,7 +1042,7 @@ public class DefaultScriptConverter implements ScriptConverter {
             return List.of();
         }
         // 找 ADD COLUMN 的出现次数与位置
-        java.util.regex.Matcher m = Pattern.compile("(?i)\\bADD\\s+COLUMN\\b").matcher(sql);
+        java.util.regex.Matcher m = ADD_COLUMN_KEYWORD_PATTERN.matcher(sql);
         List<int[]> positions = new ArrayList<>();
         while (m.find()) {
             positions.add(new int[]{m.start(), m.end()});
@@ -1321,10 +1406,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @return 表名（保留原定界符）；解析不出时返回 null
      */
     private String extractTableName(String sql) {
-        java.util.regex.Matcher m = Pattern.compile(
-                "(?i)^\\s*CREATE\\s+(?:UNIQUE\\s+)?TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
-                        + "([`\"]?[A-Za-z_]\\w*[`\"]?)")
-                .matcher(sql.trim());
+        java.util.regex.Matcher m = CREATE_TABLE_NAME_PATTERN.matcher(sql.trim());
         if (!m.find()) {
             return null;
         }
@@ -1428,8 +1510,7 @@ public class DefaultScriptConverter implements ScriptConverter {
             if (t.isEmpty() || t.startsWith("--") || t.startsWith("/*")) {
                 continue;
             }
-            java.util.regex.Matcher m = Pattern.compile(
-                    "^([`\"]?[A-Za-z_]\\w*[`\"]?)\\s+\\S").matcher(t);
+            java.util.regex.Matcher m = COLUMN_DECLARATION_PATTERN.matcher(t);
             if (!m.find()) {
                 continue;
             }
@@ -1507,7 +1588,7 @@ public class DefaultScriptConverter implements ScriptConverter {
     private String rebuildIdentityColumn(String columnName, String typeAndConstraint, String identity) {
         String prefix = typeAndConstraint == null ? "" : typeAndConstraint.trim();
         // 把 PRIMARY KEY 从约束部分摘出来，挪到自增声明之后
-        java.util.regex.Matcher pk = Pattern.compile("(?i)PRIMARY\\s+KEY").matcher(prefix);
+        java.util.regex.Matcher pk = PRIMARY_KEY_CLAUSE_PATTERN.matcher(prefix);
         String primaryKey = "";
         if (pk.find()) {
             primaryKey = " PRIMARY KEY";
@@ -1575,9 +1656,9 @@ public class DefaultScriptConverter implements ScriptConverter {
     private String applyTypeAndFunctionMapping(String sql, String protocol) {
         switch (protocol) {
             case "postgresql" -> {
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bMEDIUMTEXT\\b"), "TEXT");
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bLONGTEXT\\b"), "TEXT");
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bTINYTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, MEDIUMTEXT_TYPE_PATTERN, "TEXT");
+                sql = replaceOutsideLiterals(sql, LONGTEXT_TYPE_PATTERN, "TEXT");
+                sql = replaceOutsideLiterals(sql, TINYTEXT_TYPE_PATTERN, "TEXT");
                 sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "TIMESTAMP");
                 sql = replaceOutsideLiterals(sql, NOW_FUNCTION_PATTERN, "CURRENT_TIMESTAMP");
                 sql = replaceOutsideLiterals(sql, IFNULL_FUNCTION_PATTERN, "COALESCE(");
@@ -1601,9 +1682,9 @@ public class DefaultScriptConverter implements ScriptConverter {
                 sql = replaceOutsideLiterals(sql, JSON_TYPE_PATTERN, "CLOB");
             }
             case "sqlite" -> {
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bMEDIUMTEXT\\b"), "TEXT");
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bLONGTEXT\\b"), "TEXT");
-                sql = replaceOutsideLiterals(sql, Pattern.compile("(?i)\\bTINYTEXT\\b"), "TEXT");
+                sql = replaceOutsideLiterals(sql, MEDIUMTEXT_TYPE_PATTERN, "TEXT");
+                sql = replaceOutsideLiterals(sql, LONGTEXT_TYPE_PATTERN, "TEXT");
+                sql = replaceOutsideLiterals(sql, TINYTEXT_TYPE_PATTERN, "TEXT");
                 sql = replaceOutsideLiterals(sql, DATETIME_TYPE_PATTERN, "TIMESTAMP");
                 sql = replaceOutsideLiterals(sql, JSON_TYPE_PATTERN, "TEXT");
                 // SQLite 无 NOW() 函数，MySQL 风格脚本需映射到标准 CURRENT_TIMESTAMP

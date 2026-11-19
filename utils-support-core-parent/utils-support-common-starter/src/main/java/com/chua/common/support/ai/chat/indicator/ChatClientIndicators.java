@@ -93,6 +93,8 @@ public final class ChatClientIndicators {
             case VERCEL -> new VercelAiGatewayChatClientIndicator(effective, spec.vercelOwner);
             case MODELS_DEV -> new ModelsDevChatClientIndicator(spec.modelsDevKey);
             case NONE -> null;
+            // [P3C] 兜底：未知类型按「无可用来源」处理，返回 null
+            default -> null;
         };
     }
 

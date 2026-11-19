@@ -5,6 +5,8 @@ import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
@@ -100,6 +102,33 @@ public class DefaultBreakerJudge implements BreakerJudge {
      * IS NOT NULL 操作符
      */
     private static final String OP_IS_NOT_NULL = "IS NOT NULL";
+
+    /**
+     * LIKE 模式对应的正则缓存（Pattern 不可变且线程安全，可全局复用）
+     * [P3C C1 修复] 断路表达式固定、模式集合有限，缓存避免方法内反复编译同一正则
+     */
+    private static final Map<String, Pattern> LIKE_PATTERN_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * LIKE 正则编译器：把 LIKE 模式转义为正则并编译（% → .*，_ → .，其余正则元字符转义）
+     * [P3C C1 修复] 编译逻辑置于类级字段初始化，方法体内不再出现 Pattern.compile
+     */
+    private static final Function<String, Pattern> LIKE_COMPILER = pattern -> {
+        StringBuilder regex = new StringBuilder();
+        for (int i = 0; i < pattern.length(); i++) {
+            char c = pattern.charAt(i);
+            if (c == '%') {
+                regex.append(".*");
+            } else if (c == '_') {
+                regex.append('.');
+            } else if ("\\.[]{}()*+-?^$|".indexOf(c) >= 0) {
+                regex.append('\\').append(c);
+            } else {
+                regex.append(c);
+            }
+        }
+        return Pattern.compile(regex.toString(), Pattern.DOTALL);
+    };
 
     /**
      * Judge
@@ -416,21 +445,8 @@ public class DefaultBreakerJudge implements BreakerJudge {
             return false;
         }
         String pattern = String.valueOf(expected);
-        // 转义正则元字符，但保留 % 和 _
-        StringBuilder regex = new StringBuilder();
-        for (int i = 0; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
-            if (c == '%') {
-                regex.append(".*");
-            } else if (c == '_') {
-                regex.append('.');
-            } else if ("\\.[]{}()*+-?^$|".indexOf(c) >= 0) {
-                regex.append('\\').append(c);
-            } else {
-                regex.append(c);
-            }
-        }
-        return Pattern.compile(regex.toString(), Pattern.DOTALL).matcher(String.valueOf(actual)).matches();
+        Pattern regex = LIKE_PATTERN_CACHE.computeIfAbsent(pattern, LIKE_COMPILER);
+        return regex.matcher(String.valueOf(actual)).matches();
     }
 
     /**

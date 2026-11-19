@@ -597,6 +597,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         }
         String core = buildSelectSql(entityClass, sql.selectColumns(), sql.joins(), sql.whereClause(),
                 sql.groupByColumn(), sql.havingClause(), List.of(), 0, 0);
+        // [P3C 1.4 豁免] core 由 buildSelectSql 内部生成（表/列名来自实体元数据，值已 ? 参数化），无外部输入
         String countSql = "SELECT COUNT(*) FROM (" + core + ") t_count";
         JdbcResult result = execQuery(countSql, params, null);
         List<Object[]> rows = result.rows();
@@ -878,6 +879,7 @@ public class GreptimeDbEngine extends AbstractEngine {
             throw new IllegalStateException("DELETE 必须携带 WHERE 条件（时序库删除需命中 tag/time 列）");
         }
         String table = tableNameOf(sql.entityClass());
+        // [P3C 1.4 豁免] table 来自实体注解元数据；where 由内部条件构建、列名经 normalizeColumns 归一化，值已参数绑定，无外部输入
         String deleteSql = "DELETE FROM " + table + " WHERE "
                 + normalizeColumns(where, sql.entityClass());
         try {

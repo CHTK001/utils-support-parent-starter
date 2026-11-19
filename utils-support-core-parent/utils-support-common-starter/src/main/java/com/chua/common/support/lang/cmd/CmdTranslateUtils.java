@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.cmd;
 import com.chua.common.support.collection.wrap.Wraps;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,11 @@ public final class CmdTranslateUtils {
     private static final String PS_SUFFIX = "\"";
 
     private static final Map<Pattern, String> LINUX_TO_WIN = Wraps.linkedMap();
+
+    /**
+     * 待编译规则表：静态块内先登记，块尾统一编译 [P3C C1 修复] 避免在方法体内编译正则
+     */
+    private static final List<String[]> PENDING_RULES = new ArrayList<>();
 
     static {
         // ---- 网络 ----
@@ -130,6 +137,11 @@ public final class CmdTranslateUtils {
         add("^time\\s*(.*)", ps("(Get-Date).ToString('HH:mm:ss')"));
         add("^pwd\\s*(.*)", ps("Get-Location | Select-Object -ExpandProperty Path"));
         add("^cd\\s+(.*)", "cd $1; pwd");
+
+        // [P3C C1 修复] 正则统一在类加载时一次性编译，方法体内不再出现 Pattern.compile
+        for (String[] rule : PENDING_RULES) {
+            LINUX_TO_WIN.put(Pattern.compile(rule[0], Pattern.CASE_INSENSITIVE), rule[1]);
+        }
     }
 
     /**
@@ -139,7 +151,7 @@ public final class CmdTranslateUtils {
      * @param replacement 方法入参 replacement
      */
     private static void add(String regex, String replacement) {
-        LINUX_TO_WIN.put(Pattern.compile(regex, Pattern.CASE_INSENSITIVE), replacement);
+        PENDING_RULES.add(new String[]{regex, replacement});
     }
 
     /**

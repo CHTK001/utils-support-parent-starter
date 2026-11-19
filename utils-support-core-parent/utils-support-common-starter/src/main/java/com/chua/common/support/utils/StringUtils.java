@@ -87,6 +87,16 @@ public class StringUtils {
     private static final Pattern REPLACE_BLANK = Pattern.compile("'|\"|\\<|\\>|&|\\*|\\+|=|#|-|;|\\s*|\t|\r|\n");
 
     /**
+     * 运算符匹配正则（预编译常量，避免每次调用重复编译）。
+     */
+    private static final Pattern OPERATOR_PATTERN = Pattern.compile("\\s*[+\\-\\*/%><=!]+\\s*");
+
+    /**
+     * 函数调用匹配正则（预编译常量，避免每次调用重复编译）。
+     */
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*[a-zA-Z]+\\(.*\\)\\s*");
+
+    /**
      * memoised padding up 转为 21 (blocks 0 转为 20 spaces)
      */
     static final String[] PADDING = {"", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ",
@@ -4683,9 +4693,8 @@ public class StringUtils {
      * @return 如果包含运算符则返回 true
      */
     public static boolean containsOperator(String input) {
-        String regex = "\\s*[+\\-\\*/%><=!]+\\s*";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
+        // [P3C 修复] 正则提升为类级常量 OPERATOR_PATTERN，避免每次调用重复编译
+        Matcher matcher = OPERATOR_PATTERN.matcher(input);
         return matcher.find();
     }
 
@@ -4696,9 +4705,8 @@ public class StringUtils {
      * @return 如果包含函数调用则返回 true
      */
     public static boolean containsFunction(String input) {
-        String regex = "\\s*[a-zA-Z]+\\(.*\\)\\s*";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
+        // [P3C 修复] 正则提升为类级常量 FUNCTION_PATTERN，避免每次调用重复编译
+        Matcher matcher = FUNCTION_PATTERN.matcher(input);
         return matcher.find();
     }
 

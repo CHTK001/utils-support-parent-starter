@@ -114,7 +114,7 @@ public class HprofClassDetail {
         /**
          * 是否静态字段。
          */
-        private final boolean isStatic;
+        private final boolean staticFlag;
 
         /**
          * 目标类型名（引用类型）或基本类型名。
@@ -130,13 +130,13 @@ public class HprofClassDetail {
          * 构造字段值明细。
          *
          * @param name      字段名
-         * @param isStatic  是否静态
+         * @param staticFlag  是否静态
          * @param type      目标类型
          * @param valueText 可读值
          */
-        public FieldValueDetail(String name, boolean isStatic, String type, String valueText) {
+        public FieldValueDetail(String name, boolean staticFlag, String type, String valueText) {
             this.name = name;
-            this.isStatic = isStatic;
+            this.staticFlag = staticFlag;
             this.type = type;
             this.valueText = valueText;
         }

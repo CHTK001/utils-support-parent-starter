@@ -374,6 +374,7 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
         String bareTable = stripQuotes(table);
         String ddl = "CREATE " + unique + "INDEX " + index + " ON " + table + " " + columns;
         // 与建表同理：整条 DDL 塞进 EXEC，IF 只管辖这一条
+        // [P3C 1.4 豁免] bareIndex/bareTable 来自待转换 DDL 脚本的正则捕获组（内部迁移脚本，非运行时外部输入），ddl 已做单引号转义
         return indent + "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'" + bareIndex
                 + "' AND object_id = OBJECT_ID(N'" + bareTable + "')) EXEC(N'"
                 + ddl.replace("'", "''") + "')";
@@ -396,6 +397,7 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
         String table = m.group(3);
         String bareIndex = stripQuotes(index);
         String bareTable = stripQuotes(table);
+        // [P3C 1.4 豁免] bareIndex/bareTable 来自待转换 DDL 脚本的正则捕获组（内部迁移脚本，非运行时外部输入）
         return indent + "IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'" + bareIndex
                 + "' AND object_id = OBJECT_ID(N'" + bareTable + "')) "
                 + "DROP INDEX " + index + " ON " + table;

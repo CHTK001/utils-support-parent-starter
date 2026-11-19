@@ -21,6 +21,9 @@ import java.util.Objects;
 public record MlpOptions(int epochs, int batchSize, float learningRate, int[] hiddenLayers, long seed)
         implements Serializable {
 
+    /** 序列化版本号 */
+    private static final long serialVersionUID = 1L;
+
     /**
      * 默认隐藏层结构。
      */

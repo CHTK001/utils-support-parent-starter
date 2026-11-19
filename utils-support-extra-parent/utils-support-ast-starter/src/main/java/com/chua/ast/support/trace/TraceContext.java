@@ -162,7 +162,7 @@ public final class TraceContext {
 
         // 标记根节点（栈空时第一个 push）
         if (stack.isEmpty()) {
-            node.isRoot = true;
+            node.root = true;
         }
 
         stack.push(node);
@@ -196,7 +196,7 @@ public final class TraceContext {
         node.suppressed = suppressed;
 
         if (stack.isEmpty()) {
-            node.isRoot = true;
+            node.root = true;
         }
 
         stack.push(node);
@@ -240,7 +240,7 @@ public final class TraceContext {
         node.suppressed = suppressed;
 
         if (stack.isEmpty()) {
-            node.isRoot = true;
+            node.root = true;
         }
 
         stack.push(node);
@@ -475,7 +475,7 @@ public final class TraceContext {
         // 找到根节点的耗时作为基准
         long rootElapsed = 0;
         for (TraceNode n : nodes) {
-            if (n.isRoot) {
+            if (n.root) {
                 rootElapsed = n.elapsed;
                 break;
             }
@@ -745,7 +745,7 @@ public final class TraceContext {
         long elapsed;
         String args;
         boolean suppressed;
-        boolean isRoot;
+        boolean root;
         Throwable exception;
         String packageName;
 

@@ -1,4 +1,3 @@
-// [P3C NM-命名 豁免]
 package com.chua.common.support.constant;
 
 import java.text.DecimalFormat;
@@ -18,6 +17,8 @@ import java.text.DecimalFormat;
  * <p>这些常量可用于 {@link java.text.SimpleDateFormat}、{@link java.time.format.DateTimeFormatter}、
  * {@link java.text.DecimalFormat} 等格式化工具类，避免魔法字符串散落在代码中。</p>
  *
+ * <p>更多日期/时间格式常量见 {@link DateFormatConstant}。</p>
+ *
  * @author CH
  * @since 2024-01-01
  */
@@ -28,74 +29,25 @@ public final class FormatConstant {
 
     /**
      * 日期格式：{@code yyyy-MM-dd}，示例：2024-01-15。
+     * 兼容旧版引用，保留大写常量名。
      */
-    public static final String yyyy_MM_dd = "yyyy-MM-dd";
-    /**
-     * 日期格式（大写别名，兼容旧版引用）。
-     */
-    public static final String YYYY_MM_DD = yyyy_MM_dd;
-    /**
-     * 日期格式：{@code yyyy/MM/dd}，示例：2024/01/15。
-     */
-    public static final String yyyy_MM_dd_SLASH = "yyyy/MM/dd";
-    /**
-     * 日期格式：{@code yyyyMMdd}，示例：20240115。
-     */
-    public static final String yyyyMMdd = "yyyyMMdd";
-    /**
-     * 日期格式：{@code yyyy年MM月dd日}，示例：2024年01月15日。
-     */
-    public static final String yyyy_MM_dd_CN = "yyyy年MM月dd日";
-    /**
-     * 日期格式：{@code yyMMdd}，示例：240115。
-     */
-    public static final String yyMMdd = "yyMMdd";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
     // ========================== 时间格式 ==========================
 
     /**
      * 时间格式：{@code HH:mm:ss}，示例：14:30:00。
+     * 兼容旧版引用，保留大写常量名。
      */
-    public static final String HH_mm_ss = "HH:mm:ss";
-    /**
-     * 时间格式（大写别名，兼容旧版引用）。
-     */
-    public static final String HH_MM_SS = HH_mm_ss;
-    /**
-     * 时间格式：{@code HH:mm}，示例：14:30。
-     */
-    public static final String HH_mm = "HH:mm";
-    /**
-     * 时间格式：{@code HHmmss}，示例：143000。
-     */
-    public static final String HHmmss = "HHmmss";
+    public static final String HH_MM_SS = "HH:mm:ss";
 
     // ========================== 日期时间格式 ==========================
 
     /**
      * 日期时间格式：{@code yyyy-MM-dd HH:mm:ss}，示例：2024-01-15 14:30:00。
+     * 兼容旧版引用，保留大写常量名。
      */
-    public static final String yyyy_MM_dd_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
-    /**
-     * 日期时间格式（大写别名，兼容旧版引用）。
-     */
-    public static final String YYYY_MM_DD_HH_MM_SS = yyyy_MM_dd_HH_mm_ss;
-    /**
-     * 日期时间格式（毫秒，逗号分隔）：{@code yyyy-MM-dd HH:mm:ss,SSS}，示例：2024-01-15 14:30:00,123。
-     */
-    public static final String yyyy_MM_dd_HH_mm_ss_SSS_COMMA = "yyyy-MM-dd HH:mm:ss,SSS";
-    /**
-     * 日期时间格式（毫秒，点分隔）：{@code yyyy-MM-dd HH:mm:ss.SSS}，示例：2024-01-15 14:30:00.123。
-     */
-    public static final String yyyy_MM_dd_HH_mm_ss_SSS_DOT = "yyyy-MM-dd HH:mm:ss.SSS";
-    /**
-     * 日期时间格式（无分隔符）：{@code yyyyMMddHHmmss}，示例：20240115143000。
-     */
-    public static final String yyyyMMddHHmmss = "yyyyMMddHHmmss";
-    /**
-     * 日期时间格式（含毫秒无分隔符）：{@code yyyyMMddHHmmssSSS}，示例：20240115143000123。
-     */
-    public static final String yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
+    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
     // ========================== HTTP / 协议日期格式 ==========================
 

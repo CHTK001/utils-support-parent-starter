@@ -558,6 +558,7 @@ public class SqliteStorage implements ApmStorage {
             return result;
         }
         try {
+            // [P3C 1.4 豁免] DEPENDENCY_COLUMNS 为代码内常量列表，表名字面量固定，无外部输入
             for (String[] row : s.queryRows("SELECT " + StringList.join(DEPENDENCY_COLUMNS)
                     + " FROM dependencies", DEPENDENCY_COLUMNS)) {
                 result.add(mapDependency(row));
@@ -737,15 +738,20 @@ public class SqliteStorage implements ApmStorage {
                 }
                 long n = 0;
                 if (retentionMillis > 0) {
+                    // [P3C 1.4 豁免] cutoff 为 long 数值，无外部输入
                     n += s.execute("DELETE FROM transmissions WHERE start_time < " + cutoff);
+                    // [P3C 1.4 豁免] cutoff 为 long 数值，无外部输入
                     n += s.execute("DELETE FROM logs WHERE timestamp < " + cutoff);
+                    // [P3C 1.4 豁免] cutoff 为 long 数值，无外部输入
                     n += s.execute("DELETE FROM leaks WHERE closed_at > 0 AND closed_at < " + cutoff);
                 }
                 if (capacity > 0) {
                     // 只保留最新的 capacity 行；用 id 做子查询而不是 LIMIT+OFFSET，
                     // 避免在并发写入下漏删或多删
+                    // [P3C 1.4 豁免] capacity 为 int 数值，表名/列名为字面量常量，无外部输入
                     n += s.execute("DELETE FROM transmissions WHERE id NOT IN "
                             + "(SELECT id FROM transmissions ORDER BY id DESC LIMIT " + capacity + ")");
+                    // [P3C 1.4 豁免] capacity 为 int 数值，表名/列名为字面量常量，无外部输入
                     n += s.execute("DELETE FROM logs WHERE id NOT IN "
                             + "(SELECT id FROM logs ORDER BY id DESC LIMIT " + capacity + ")");
                 }
@@ -810,6 +816,7 @@ public class SqliteStorage implements ApmStorage {
                     return;
                 }
                 long n = 0;
+                // [P3C 1.4 豁免] cutoff 为 long 数值，无外部输入
                 n += s.execute("DELETE FROM transmissions WHERE start_time < " + cutoff);
                 n += s.execute("DELETE FROM logs WHERE timestamp < " + cutoff);
                 n += s.execute("DELETE FROM leaks WHERE closed_at > 0 AND closed_at < " + cutoff);
@@ -1130,6 +1137,7 @@ public class SqliteStorage implements ApmStorage {
      * @throws Exception 查询失败
      */
     private long count(SqliteSession s, String table) throws Exception {
+        // [P3C 1.4 豁免] table 仅由内部统计入口传入固定表名常量（transmissions/dependencies/leaks/logs），无外部输入
         return parseLong(s.queryFirstString("SELECT COUNT(*) FROM " + table));
     }
 

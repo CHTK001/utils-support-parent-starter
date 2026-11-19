@@ -159,6 +159,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     public int size() {
         checkNotClosed();
         ensureSchema();
+        // [P3C 1.4 豁免] tableName/idColumn/vectorColumn 均已在构造器 checkIdentifier 白名单校验，无外部输入
         String sql = "SELECT COUNT(*) FROM " + tableName;
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement();
@@ -173,6 +174,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     public boolean remove(String id) {
         checkNotClosed();
         ensureSchema();
+        // [P3C 1.4 豁免] tableName/idColumn 均已在构造器 checkIdentifier 白名单校验，id 值经 ? 参数绑定，无外部输入
         String sql = "DELETE FROM " + tableName + " WHERE " + idColumn + " = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -190,6 +192,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
             return 0;
         }
         ensureSchema();
+        // [P3C 1.4 豁免] tableName/idColumn 均已在构造器 checkIdentifier 白名单校验，前缀值经 ? 参数绑定并转义，无外部输入
         String sql = "DELETE FROM " + tableName + " WHERE " + idColumn + " LIKE ? ESCAPE '\\\\'";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -224,6 +227,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     public void clear() {
         checkNotClosed();
         ensureSchema();
+        // [P3C 1.4 豁免] tableName 已在构造器 checkIdentifier 白名单校验，无外部输入
         String sql = "DELETE FROM " + tableName;
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -341,6 +345,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
      * @return 相似度从高到低的结果
      */
     private List<Vector> searchByDatabase(float[] query, int topK, String metric) {
+        // [P3C 1.4 豁免] tableName/idColumn/vectorColumn 已在构造器 checkIdentifier 白名单校验，metric 来自固定映射常量，向量值经 ? 参数绑定
         String sql = "SELECT " + idColumn + ", " + vectorReadExpression() + " FROM " + tableName
                 + " ORDER BY DISTANCE(" + vectorColumn + ", STRING_TO_VECTOR(?), '" + metric + "') ASC"
                 + " LIMIT ?";
@@ -371,6 +376,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
      * @return 相似度从高到低的结果
      */
     private List<Vector> searchInJvm(float[] query, int topK) {
+        // [P3C 1.4 豁免] tableName/idColumn/vectorColumn 均已在构造器 checkIdentifier 白名单校验，无外部输入
         String sql = "SELECT " + idColumn + ", " + vectorReadExpression() + " FROM " + tableName;
         List<Vector> all = Wraps.list();
         try (Connection conn = dataSource.getConnection();

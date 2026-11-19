@@ -65,6 +65,8 @@ public class JvectorVectorStorageDelegate extends AbstractVectorStorage {
             case ON_DISK -> JVectorStorageProperties.Mode.ON_DISK;
             case LARGER_THAN_MEMORY -> JVectorStorageProperties.Mode.LARGER_THAN_MEMORY;
             case MEMORY -> JVectorStorageProperties.Mode.MEMORY;
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + mode);
         };
     }
 

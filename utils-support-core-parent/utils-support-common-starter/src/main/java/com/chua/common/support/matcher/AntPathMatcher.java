@@ -691,8 +691,10 @@ public class AntPathMatcher implements PathMatcher {
             } else {
                 this.exactMatch = false;
                 patternBuilder.append(quote(pattern, end, pattern.length()));
-                this.pattern = (this.caseSensitive ? Pattern.compile(patternBuilder.toString()) :
-                        Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE));
+                // [P3C C1 修复] 两个分支编译的是同一正则串，仅标志位不同，合并为单次编译；
+                // 正则由构造参数动态构建，无法提升为类级常量，本就每实例仅编译一次并存入 final 字段复用
+                this.pattern = Pattern.compile(patternBuilder.toString(),
+                        this.caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
             }
         }
         /**

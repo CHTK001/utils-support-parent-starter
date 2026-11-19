@@ -109,6 +109,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             case ON_DISK -> new DiskStrategy(dimension(), similarity, properties, getAlgorithm());
             case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties,
                     getAlgorithm());
+            // [P3C 修复] 补充 default 兜底分支：未预期的取值直接抛出异常
+            default -> throw new IllegalStateException("未预期的取值: " + properties.getMode());
         };
     }
 
