@@ -16,6 +16,8 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * 基于 JDK Socket 的 WebSocket 同步客户端实现。
@@ -274,7 +276,14 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         int port = uri.getPort() > 0 ? uri.getPort() : (uri.getScheme().equals("wss") ? 443 : 80);
         String path = uri.getPath().isEmpty() ? "/" : uri.getPath();
 
-        socket = new Socket(host, port);
+        if ("wss".equals(uri.getScheme())) {
+            // wss 必须走 TLS：此前对 wss 也建明文 Socket，连 443 端口后 TLS 握手必然失败
+            SSLSocket sslSocket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
+            sslSocket.startHandshake();
+            socket = sslSocket;
+        } else {
+            socket = new Socket(host, port);
+        }
         output = socket.getOutputStream();
         input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 

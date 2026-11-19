@@ -1045,6 +1045,17 @@ public class ServerSetting {
     private SecurityHeadersConfig securityHeaders = new SecurityHeadersConfig();
 
     /**
+     * 运维管理端点配置（/metrics 指标端点与健康探针）
+     *
+     * <p>默认关闭：这两类端点会暴露运行时信息（QPS、延迟分布、连接数、探针状态），
+     * 在未接入网关鉴权的部署里直接开放有信息泄露风险，与安全响应头一样由使用方显式开启。</p>
+     *
+     * Management
+     */
+    @Builder.Default
+    private ManagementConfig management = new ManagementConfig();
+
+    /**
      * SSL/TLS 配置
      *
      * SSL
@@ -1201,6 +1212,48 @@ public class ServerSetting {
          */
         @Builder.Default
         private String hstsValue = "max-age=31536000; includeSubDomains";
+    }
+
+    /**
+     * 运维管理端点配置。
+     *
+     * <p>控制内建 {@code /metrics} 指标端点（Prometheus 文本格式）与健康探针
+     * （{@code /healthz}、{@code /ping}、{@code /readyz}）是否挂载生效。
+     * 默认全部关闭，保证既有服务升级后行为不变；过滤器在服务构造期挂载、
+     * 每次请求实时读取本配置，因此构造后再回填配置同样生效。</p>
+     *
+     * @since 4.0.0.54
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ManagementConfig {
+
+        /**
+         * 是否启用 /metrics 指标端点（Prometheus 文本格式，供 Pull 型采集器抓取）
+         */
+        @Builder.Default
+        private boolean metricsEnabled = false;
+
+        /**
+         * 指标端点路径（精确匹配），默认 {@code /metrics}
+         */
+        @Builder.Default
+        private String metricsPath = "/metrics";
+
+        /**
+         * 是否启用健康探针端点（命中路径短路返回 200，不进入路由与业务处理）
+         */
+        @Builder.Default
+        private boolean healthEnabled = false;
+
+        /**
+         * 健康探针路径集合（精确匹配），默认 {@code /healthz}、{@code /ping}、{@code /readyz}
+         */
+        @Builder.Default
+        private java.util.Set<String> healthPaths =
+                java.util.Set.of("/healthz", "/ping", "/readyz");
     }
 
     /**

@@ -130,17 +130,23 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     /**
-     * 最内层真实网络调用：委托给底层执行器。
+     * 最内层真实网络调用：委托给底层执行器，并按请求/全局配置执行重试。
+     *
+     * <p>重试仅发生在本层（拦截器之外）：幂等方法在遇到网络异常或可重试状态码
+     * （408/425/429/5xx）时按指数退避重试，详见 {@link HttpRetrySupport}。</p>
      *
      * @param request 请求对象（已被拦截器处理）
      * @return 响应对象
      */
     private ClientResponse doExecute(ClientRequest request) {
-        try {
-            return executor.execute(request);
-        } catch (Exception e) {
-            throw new RuntimeException("HTTP request failed: " + request.getUrl(), e);
-        }
+        return HttpRetrySupport.executeWithRetry(request,
+                HttpRetrySupport.resolveMaxRetries(request, null), req -> {
+                    try {
+                        return executor.execute(req);
+                    } catch (Exception e) {
+                        throw new RuntimeException("HTTP request failed: " + req.getUrl(), e);
+                    }
+                });
     }
 
     /**
@@ -198,12 +204,15 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
-        if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null) {
+        int retries = HttpRetrySupport.resolveMaxRetries(request, null);
+        if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null
+                && retries <= 0) {
             return executor.executeAsync(request);
         }
         return Mono.fromCallable(() -> new InterceptorChain(
                 interceptors, request.getInterceptor(), networkInterceptors,
-                request, req -> executor.executeAsync(req).block())
+                request, req -> HttpRetrySupport.executeWithRetry(req, retries,
+                        retryRequest -> executor.executeAsync(req).block()))
                 .proceed(request))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }

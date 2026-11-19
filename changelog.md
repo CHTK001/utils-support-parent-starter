@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **仓库移除全部测试代码与测试依赖**（`4ea217661`）：`src/test` 下的测试源码与资源、pom 里 test 作用域及 junit/mockito/assertj/testcontainers 等依赖一并删除，根 pom 设 `maven.test.skip=true` / `skipTests=true`，构建不再解析测试组件。本文件自 `[4.0.0.52]` 起各版本列出的用例类与条数（共 45 处提及）都是当时真实跑过的结果，现仅作**历史记录**，当前仓库不能复跑；`能力矩阵.md` 已在文首与 §4 加同口径说明，能力数据本身未改动。
+- **HTTP 执行器连接池跨请求复用**：`OkHttpExecutor` 旧实现构造器不带连接池、每次请求又 `new ConnectionPool(5, keepAlive, ...)` 覆盖，连接完全无法跨请求复用；改为执行器级共享 `ConnectionPool`，`client.newBuilder()` 派生的每请求客户端自动继承（请求级 `keepAliveTimeout` 不再驱动 OkHttp 连接池保活）。`JdkHttpClientExecutor` 对「代理 / 非默认 keepAlive」请求按配置键缓存 JDK `HttpClient`（上限 16、超出清空），不再每请求新建实例级连接池。
+
+### Added
+- `SessionCipher` 新增 `encrypting(OutputStream)` / `decrypting(InputStream)` 两个流式封装：写入/读取 `[4B 长度][8B 序号][密文+16B 标签]` 帧，复用 `seal`/`open`，序号与方向进 AAD，重放/乱序/截断/反射一律抛 `IOException`，不把未认证数据交给上层。
+- `KeyLogStreamCodec` 传输级由 `SessionCipher.initiator/responder(rootKey, salt)` 承载，取代 `AesGcmUtils` 单向密钥与 `HKDF_INFO="chua-transport-v1/aes-256-gcm"` 派生：握手后两把方向子密钥互不相同，每帧单调序号，跨会话/跨方向密文解不开；握手帧加 `1B 协议版本`，新旧两端不匹配立即失败；根密钥在 `finally` 中清零。
+- HTTP 客户端失败自动重试 `HttpRetrySupport`：请求级 `retry(n)` 优先于 `ClientSetting.setMaxRetries(n)`（默认 0 = 不重试）；仅幂等方法（`GET`/`HEAD`/`OPTIONS`/`PUT`/`DELETE`）在连接异常或状态码 `408`/`425`/`429`/`5xx` 时重试；指数退避 200ms 起步、上限 2s、叠加随机抖动，`Retry-After` 优先（上限 5s）；重试挂在拦截器链最内层，拦截器与回调不随重试重复执行；异步 `executeAsync` 同样生效。
+- SSE 自动重连：`JdkSseClient` 断线后自动重连并回调 `SseListener.onReconnect(attempt, delayMillis)`；`Last-Event-ID` 断点续传；重连间隔优先取服务端 `retry:` 字段（上限 60s），否则 3s 起指数退避（上限 30s）；仅 `5xx`/`429` 触发重连。
+- Server 管理端点（默认关闭）：新增 `ServerSetting.ManagementConfig`（`metricsEnabled` / `metricsPath` / `healthEnabled` / `healthPaths`）与 `MetricsEndpointServerFilter`（`GET /metrics` 输出 Prometheus 文本格式，指标与 `ServerMetrics` 同源）；`HealthCheckServerFilter` 支持按配置开关（`/healthz`、`/ping`、`/readyz` 命中短路 200）。过滤器由 `AbstractServer` 构造期挂载、每请求实时读开关，所有 Server 实现可用；`README.md` §7 同步更新（并移除 `ServerSetting` 支持「HTTP/2」的不实表述）。
+
+### Fixed
+- `WebSocketSyncClient` 的 `wss://` 地址此前按明文 `Socket` 连接（TLS 端点上握手必然失败）：现对 `wss` 建立 `SSLSocket` 并完成 TLS 握手后再进行 WebSocket 握手。
 
 ## [4.0.0.53] - 2026-11-14
 

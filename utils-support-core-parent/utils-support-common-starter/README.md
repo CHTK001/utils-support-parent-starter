@@ -922,6 +922,24 @@ my-http=com.example.MyExecutor
 
 其它能力：`connectTimeout` / `readTimeout` / `keepAliveTimeout`、`proxy(host, port)`、`interceptor(...)`、`onRedirect(...)`、`path(...)`、`params(Map)`、`method(HttpMethod)`、`CollapseHttpClient`（请求合并）、`TtlResponseCache`（TTL 缓存）、`HttpApiFactory`（接口式声明）。
 
+#### 失败自动重试
+
+请求级 `retry(n)`，或全局 `ClientSetting.setMaxRetries(n)`（请求级优先；默认 0 = 不重试）：
+
+```java
+ClientResponse resp = HttpClientFactory.of("https://api.example.com/users")
+        .retry(3)                 // 最多重试 3 次（共 4 次尝试）
+        .get();
+```
+
+重试语义（`HttpRetrySupport`）：
+
+- 只重试**幂等方法**：`GET` / `HEAD` / `OPTIONS` / `PUT` / `DELETE`；`POST` / `PATCH` 从不重试；
+- 可重试条件：连接失败（IO 异常），或状态码 `408` / `425` / `429` / `5xx`；
+- 退避：指数退避，200ms 起步、上限 2s，叠加随机抖动；响应带 `Retry-After` 头时优先采用（上限 5s）；
+- 重试发生在拦截器链最内层，拦截器与回调不会随重试重复执行；
+- 异步 `getAsync()` 等同样支持重试（在调度线程上串行重试）。
+
 ### 7.2 服务端（`network.server`）
 
 `Server` 是协议无关接口（`start/stop/isRunning/getPort/getServerUrl`），实现按 SPI 名称装配：
@@ -959,14 +977,39 @@ server.stop();
 // 或：Server server = Server.builder().port(8080).build();
 ```
 
-- `ServerSetting`：线程数、`maxConnections`、`backlog`、`tcpNoDelay`、空闲超时、缓冲区、CORS、安全头、SSL、HTTP/2、Reactor 模式等。
+- `ServerSetting`：线程数、`maxConnections`、`backlog`、`tcpNoDelay`、空闲超时、缓冲区、CORS、安全响应头（`securityHeaders`，默认关闭）、SSL、Reactor 模式等。
+- 传输加密：`ServerSetting.encrypt` / `encryptType`（`aes-gcm`、`keylog`）/ `encryptKey`，基于 `StreamCodec` SPI，未知类型启动即失败；`JdkTcpServer`、`AioTcpServer`、`VertxTcpServer` 已支持，`SipServer` 经 `SipConfig.encrypt` 走同一套线格式。
 - 共享容器：`ServerBuilder.objectContext(ctx)`，多个 Server 复用同一套 Bean。
 - 过滤器 SPI：`ServerFilter`（`ip`、`firewall`、`rate-limit`、`routing`、`request-id`、`request-timeout`、`ipc`、`response-rewrite`、`gzip`、`cors`、`ws-proxy`、`url-mapping`、`invoker_inject`、`ai_token`）。
 - 注解驱动：`ServerHandlerAnnotationParser`（`request-method`、`ipc-method`）、`HandlerMethodArgumentResolver`、`ListenerParser`（`javax` / `custom` / `objectcontext`）。
 
+#### 健康探针与指标端点（默认关闭）
+
+内建两个管理端点过滤器，由 `ServerSetting.ManagementConfig` 统一开关，**默认全部关闭**
+（端点会暴露 QPS、延迟分布、连接数等运行时信息，建议接入网关鉴权后再开启）：
+
+```java
+ServerSetting setting = ServerSetting.defaults();
+setting.getManagement().setMetricsEnabled(true);    // GET /metrics
+setting.getManagement().setHealthEnabled(true);     // /healthz /ping /readyz
+
+AbstractServer server = new NioHttpServer(setting); // 各 Server 实现均支持
+server.registerMapping("/hello", HttpMethod.GET, (req, resp) -> resp.setResult("ok"));
+server.start();
+```
+
+| 端点 | 开关 | 默认路径 | 行为 |
+| --- | --- | --- | --- |
+| 健康探针 | `management.healthEnabled` | `/healthz`、`/ping`、`/readyz` | GET 命中即短路返回 200，不进入路由与业务处理 |
+| 指标端点 | `management.metricsEnabled` | `/metrics` | GET 返回 Prometheus 文本格式指标，可被 Pull 型采集器直接抓取 |
+
+- 路径可改：`setMetricsPath(...)`、`setHealthPaths(Set.of(...))`；
+- 过滤器在服务构造期挂载，开关**每请求实时读取**——服务构造完成后再回填配置同样生效；
+- `/metrics` 数据与 `ServerMetrics` 同源：请求总数、活跃/峰值请求数、错误数、连接数（当前/峰值/累计/拒绝）、延迟直方图（`le_1ms`…`le_5000ms`、`gt_5000ms`、`le_inf`）、平均/最大延迟、运行时长。
+
 ### 7.3 同步（`network.sync`）
 
-`SyncServer` / `SyncClient` 四套传输：`http`、`websocket`、`tcp`、`udp`。旧版 `com.chua.common.support.sync`（Input/Output/Sink）仍保留，但新项目请用 `utils-support-datasync-starter`。
+`SyncServer` / `SyncClient` 四套传输：`http`、`websocket`、`tcp`、`udp`。`websocket` 支持 `ws` 与 `wss`（`wss` 自动建立 TLS 连接并完成握手）。旧版 `com.chua.common.support.sync`（Input/Output/Sink）仍保留，但新项目请用 `utils-support-datasync-starter`。
 
 ### 7.4 发现与对等网格（`network.discovery`、`scatter`）
 
@@ -1023,7 +1066,7 @@ DownloadResult r = Downloader.create()
 
 | 子包 | 能力 |
 | --- | --- |
-| `network.sse` | `SseClient` / `JdkSseClient`、`SseConnection`、`SseEvent`、`SseListener`，SSE 长连接与事件解析 |
+| `network.sse` | `SseClient` / `JdkSseClient`、`SseConnection`、`SseEvent`、`SseListener`，SSE 长连接与事件解析；支持自动重连：指数退避（3s 起步、上限 30s）、服务端 `retry:` 字段优先（上限 60s）、`Last-Event-ID` 断点续传、仅 `5xx`/`429` 触发重连、`SseListener.onReconnect(attempt, delayMillis)` 回调 |
 | `network.dns` | `DnsProvider`、`DnsConfig`、`DnsRecord`（阿里/腾讯/Cloudflare 等由 starter 实现） |
 | `network.ip` | `IpLocation`、`IpPosition`、`GeoCity`、`GeoSetting`（IP 归属地） |
 | `network.ssl` | `JdkCertificateProvider`、`TlsKeyLogDecoder`（TLS 解密调试） |

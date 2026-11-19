@@ -2,6 +2,7 @@
 package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
@@ -41,19 +42,59 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     private final Set<String> healthPaths;
 
     /**
+     * 管理端点配置引用;仅当通过 {@link #HealthCheckServerFilter(ServerSetting.ManagementConfig)}
+     * 构造时非 null,此时每次请求实时读取 {@code healthEnabled} 开关。
+     */
+    private final ServerSetting.ManagementConfig config;
+
+    /**
      * 创建健康检查过滤器(使用默认路径:/healthz、/ping、/readyz)。
+     *
+     * <p>该构造器创建的实例始终启用(不受 ManagementConfig 开关控制),
+     * 供使用方手动 {@code addFilter} 时使用。</p>
      */
     public HealthCheckServerFilter() {
         this.healthPaths = DEFAULT_HEALTH_PATHS;
+        this.config = null;
     }
 
     /**
      * 创建健康检查过滤器(自定义路径)。
      *
+     * <p>该构造器创建的实例始终启用(不受 ManagementConfig 开关控制)。</p>
+     *
      * @param healthPaths 健康检查路径集合(精确匹配)
      */
     public HealthCheckServerFilter(Set<String> healthPaths) {
         this.healthPaths = Set.copyOf(healthPaths);
+        this.config = null;
+    }
+
+    /**
+     * 创建健康检查过滤器(由 {@link ServerSetting.ManagementConfig} 驱动)。
+     *
+     * <p>供 {@code AbstractServer} 挂载内建探针使用:过滤器在服务构造期挂载,
+     * 而配置可能在构造后才回填,因此持有配置引用、每次请求实时读取开关;
+     * {@code healthEnabled=false}(默认)时探针路径不短路,直接放行进入后续链路。</p>
+     *
+     * @param config 管理端点配置,可为 null(视为未启用)
+     */
+    public HealthCheckServerFilter(ServerSetting.ManagementConfig config) {
+        this.config = config;
+        Set<String> configured = config != null ? config.getHealthPaths() : null;
+        this.healthPaths = (configured != null && !configured.isEmpty())
+                ? Set.copyOf(configured) : DEFAULT_HEALTH_PATHS;
+    }
+
+    /**
+     * 判断探针端点当前是否启用。
+     *
+     * <p>构造期未绑定配置时恒为启用;绑定配置后按 {@code healthEnabled} 实时判定。</p>
+     *
+     * @return true 表示启用
+     */
+    private boolean isEndpointEnabled() {
+        return config == null || config.isHealthEnabled();
     }
 
     /**
@@ -90,8 +131,8 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
-        // 探针路径命中:直接响应并终止链,不进入路由与业务处理
-        if (isHealthPath(request)) {
+        // 探针未启用或路径未命中:放行进入后续链路(路由匹配/业务处理)
+        if (isEndpointEnabled() && isHealthPath(request)) {
             respondOk(response);
             return;
         }
@@ -108,7 +149,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
-        if (isHealthPath(request)) {
+        if (isEndpointEnabled() && isHealthPath(request)) {
             respondOk(response);
             return CompletableFuture.completedFuture(null);
         }

@@ -46,4 +46,16 @@ public interface SseListener {
      */
     default void onError(Throwable error) {
     }
+
+    /**
+     * 断线重连回调（仅当 {@link SseRequest#isReconnect()} 为 true 时触发）。
+     *
+     * <p>每次即将重连前调用；连续失败时按指数退避，attempt 递增，
+     * 成功建立连接后归零。默认实现不会执行任何操作。
+     *
+     * @param attempt     即将进行的第几次重连（从 1 开始）
+     * @param delayMillis 本次重连前等待的毫秒数
+     */
+    default void onReconnect(int attempt, long delayMillis) {
+    }
 }

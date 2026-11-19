@@ -32,6 +32,19 @@ public class OkHttpExecutor implements HttpClientExecutor {
     private final OkHttpClient client;
 
     /**
+     * 共享连接池：执行器内所有请求复用同一池。
+     *
+     * <p>旧实现在每次请求时 {@code new ConnectionPool(5, keepAlive, ...)}，
+     * 连接无法跨请求复用，每次都要重新 TCP/TLS 握手，高 QPS 下开销显著。
+     * 改为执行器级共享池（OkHttp 默认 5 个空闲连接、5 分钟保活）后，
+     * {@code client.newBuilder()} 派生的每请求客户端会自动继承该池。</p>
+     *
+     * <p>注意：连接池为执行器级共享后，请求级 {@code keepAliveTimeout}
+     * 不再驱动 OkHttp 连接池的保活时长。</p>
+     */
+    private final ConnectionPool connectionPool = new ConnectionPool();
+
+    /**
      * 创建 okhttp执行器 实例
     */
     public OkHttpExecutor() {
@@ -39,6 +52,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .followRedirects(true)
+                .connectionPool(connectionPool)
                 .build();
     }
 
@@ -91,9 +105,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
             OkHttpClient.Builder clientBuilder = client.newBuilder()
                     .connectTimeout(request.getConnectTimeout(), TimeUnit.MILLISECONDS)
                     .readTimeout(request.getReadTimeout(), TimeUnit.MILLISECONDS)
-                    .followRedirects(request.isFollowRedirects())
-                    .connectionPool(new okhttp3.ConnectionPool(
-                            5, request.getKeepAliveTimeout(), TimeUnit.MILLISECONDS));
+                    .followRedirects(request.isFollowRedirects());
 
             // 配置 HTTP 代理
             if (request.getProxyHost() != null && !request.getProxyHost().isEmpty()) {

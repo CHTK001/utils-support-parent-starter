@@ -175,7 +175,9 @@ public abstract class AbstractHttpClient implements HttpClient {
     private ClientResponse doExecuteWithHooks(ClientRequest request) {
         beforeExecute(request);
         try {
-            return doExecute(request);
+            // 重试发生在最内层：仅重试网络调用本身，before/after 钩子与拦截器不重复执行
+            return HttpRetrySupport.executeWithRetry(request,
+                    HttpRetrySupport.resolveMaxRetries(request, setting), this::doExecute);
         } finally {
             afterExecute(request);
         }

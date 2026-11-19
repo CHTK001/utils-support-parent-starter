@@ -72,9 +72,11 @@ public abstract class AbstractServer implements ConfigServer {
     /**
      * 服务器运行指标统计。
      *
+     * <p>类中已提供手写 {@link #getMetrics()}，此处不再叠加 {@code @Getter}，
+     * 避免 Lombok 与手写访问器冲突。</p>
+     *
      * Metrics
      */
-    @Getter
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
@@ -168,6 +170,11 @@ public abstract class AbstractServer implements ConfigServer {
         // 而使用方通常在 ServerBuilder.build() 之后才通过 getSetting() 回填配置，
         // 若在构造期判定会导致回填永远不生效。此处传入配置引用，过滤器每次请求实时读取。
         addBuiltinFilter(new SecurityHeadersServerFilter(setting.getSecurityHeaders()));
+        // 健康探针与 /metrics 指标端点：默认关闭（暴露运行时信息存在安全风险）。
+        // 与安全响应头同理：配置可能在构造后才回填，故传入配置引用，
+        // 过滤器每次请求实时读取开关；关闭时不短路，直接放行进入后续链路。
+        addBuiltinFilter(new HealthCheckServerFilter(setting.getManagement()));
+        addBuiltinFilter(new MetricsEndpointServerFilter(metrics, setting.getManagement()));
         if (urlMappingFilter != null) {
             addBuiltinFilter(urlMappingFilter);
         }

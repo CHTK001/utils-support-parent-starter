@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
@@ -63,10 +64,22 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
             .build();
 
     /**
+     * 自定义配置客户端缓存（代理 / 非默认保活 / 重定向差异）。
+     *
+     * <p>旧实现每次遇到自定义配置都 {@code HttpClient.newBuilder().build()}，
+     * 而 JDK HttpClient 实例各自持有内部连接池、互不共享，导致这类请求每次
+     * 都要重新 TCP/TLS 握手，高 QPS 下开销显著。改为按配置键缓存客户端实例
+     * （JDK HttpClient 线程安全、内部自带连接池，可全局复用）；上限 16 个，
+     * 超出后整体清空，避免代理轮换等场景下无界增长。</p>
+     */
+    private final Map<String, HttpClient> customClients = new ConcurrentHashMap<>();
+
+    /**
      * 根据请求配置创建或选择对应的 JDK HttpClient 实例。
      *
-     * <p>如果请求设置了代理，则动态创建带代理配置的新客户端；
-     * 否则使用预先创建的两个缓存实例（redirectClient / noRedirectClient）。</p>
+     * <p>如果请求设置了代理或非默认保活时长，则按配置键从 {@link #customClients}
+     * 取缓存实例（未命中才新建）；否则使用预先创建的两个缓存实例
+     * （redirectClient / noRedirectClient）。</p>
      *
      * @param request 请求对象，包含代理和重定向配置
      * @return 适合当前请求的 JDK HttpClient 实例
@@ -75,7 +88,20 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
         // 检查是否需要自定义配置的客户端
         boolean needsCustomClient = (request.getProxyHost() != null && !request.getProxyHost().isEmpty())
                 || request.getKeepAliveTimeout() != 60000;
-        if (needsCustomClient) {
+        if (!needsCustomClient) {
+            // 无自定义配置：使用缓存的客户端实例
+            return request.isFollowRedirects() ? redirectClient : noRedirectClient;
+        }
+        // 有自定义配置：按配置键复用客户端，避免每请求新建连接池
+        String key = (request.getProxyHost() == null ? "" : request.getProxyHost())
+                + ":" + request.getProxyPort()
+                + "|" + request.getKeepAliveTimeout()
+                + "|" + request.isFollowRedirects()
+                + "|" + request.getConnectTimeout();
+        if (customClients.size() > 16) {
+            customClients.clear();
+        }
+        return customClients.computeIfAbsent(key, k -> {
             HttpClient.Builder builder = HttpClient.newBuilder();
             builder.followRedirects(request.isFollowRedirects()
                     ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER);
@@ -86,9 +112,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                         new InetSocketAddress(request.getProxyHost(), request.getProxyPort())));
             }
             return builder.build();
-        }
-        // 无自定义配置：使用缓存的客户端实例
-        return request.isFollowRedirects() ? redirectClient : noRedirectClient;
+        });
     }
 
     /**

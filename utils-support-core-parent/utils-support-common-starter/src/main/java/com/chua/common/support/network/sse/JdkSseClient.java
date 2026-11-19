@@ -14,7 +14,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -22,7 +23,15 @@ import com.chua.common.support.utils.StringUtils;
  *
  * <p>使用 Java 标准库中的 {@link HttpClient} 建立 HTTP 连接，
  * 通过 {@link HttpResponse.BodyHandlers#ofInputStream()} 逐行读取 SSE 事件流，
- * 解析 {@code data:} 前缀并回调 {@link SseListener}。
+ * 使用 {@link SseProtocolParser}（W3C 规范状态机）解析事件并回调 {@link SseListener}。
+ *
+ * <p>支持断线自动重连（{@link SseRequest#isReconnect()}）：
+ * <ul>
+ *   <li>重连请求自动携带 {@code Last-Event-ID} 头，服务端可据此断点续传</li>
+ *   <li>重连间隔优先采用服务端 {@code retry:} 字段建议值，否则按指数退避（3s 起步、上限 30s）</li>
+ *   <li>仅重试 5xx 与 429；4xx（除 429）视为不可恢复，直接结束</li>
+ *   <li>每次重连触发 {@link SseListener#onReconnect(int, long)}</li>
+ * </ul>
  *
  * <p>无需任何第三方依赖，作为 {@link SseClient} SPI 的默认实现。
  *
@@ -32,11 +41,6 @@ import com.chua.common.support.utils.StringUtils;
 @Slf4j
 @Spi("jdk")
 public class JdkSseClient implements SseClient {
-
-    /**
-     * SSE 数据行前缀
-     */
-    private static final String DATA_PREFIX = "data: ";
 
     /**
      * SSE 结束标记
@@ -51,80 +55,57 @@ public class JdkSseClient implements SseClient {
             .build();
 
     /**
+     * 默认重连间隔（毫秒）
+     */
+    private static final long DEFAULT_RECONNECT_INTERVAL_MILLIS = 3000L;
+
+    /**
+     * 指数退避重连间隔上限（毫秒）
+     */
+    private static final long MAX_RECONNECT_INTERVAL_MILLIS = 30000L;
+
+    /**
+     * 服务端 retry 字段重连间隔上限（毫秒），防止异常值导致无限期挂起
+     */
+    private static final long MAX_SERVER_RETRY_MILLIS = 60000L;
+
+    /**
      * 连接
      */
     @Override
     public SseConnection connect(SseRequest request, SseListener listener) {
-        // 选择客户端：默认超时用共享实例，自定义超时新建
-        HttpClient httpClient = request.getConnectTimeout() == 30000
-                ? SHARED_HTTP_CLIENT
-                : HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofMillis(request.getConnectTimeout()))
-                        .build();
+        if (request.isReconnect()) {
+            // 重连模式：连接在后台虚拟线程中建立与维护，立即返回可关闭的句柄
+            JdkSseConnection connection = new JdkSseConnection();
+            Thread readerThread = Thread.ofVirtual().name("sse-reader")
+                    .start(() -> readLoop(request, listener, connection));
+            connection.readerThread = readerThread;
+            return connection;
+        }
+        return connectOnce(request, listener);
+    }
 
+    /**
+     * 单次连接（不重连）：同步建立连接，失败立即回调 onError 并返回已关闭连接。
+     *
+     * <p>保持既有行为：调用方拿到返回值时，HTTP 连接已建立（或已失败）。</p>
+     */
+    private SseConnection connectOnce(SseRequest request, SseListener listener) {
         try {
-            // 构建 HTTP 请求
-            HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(request.getUrl()))
-                    .timeout(readTimeout(request));
-
-            // 设置请求头
-            Map<String, String> headers = request.getHeaders();
-            if (headers != null) {
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    builder.header(entry.getKey(), entry.getValue());
-                }
-            }
-
-            // 设置请求体和 HTTP 方法
-            switch (request.getMethod()) {
-                case POST:
-                    builder.POST(bodyPublisher(request));
-                    break;
-                case PUT:
-                    builder.PUT(bodyPublisher(request));
-                    break;
-                case DELETE:
-                    builder.DELETE();
-                    break;
-                default:
-                    builder.GET();
-                    break;
-            }
-
-            HttpRequest httpRequest = builder.build();
-
-            // 发送请求并获取响应流
-            HttpResponse<InputStream> response = httpClient.send(
-                    httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-
+            HttpResponse<InputStream> response = openStream(request, null);
             if (response.statusCode() != 200) {
-                String errorBody = new String(response.body().readAllBytes(), StandardCharsets.UTF_8);
+                String errorBody = readErrorBody(response.body());
                 listener.onError(new RuntimeException(
                         "SSE 连接失败，状态码: " + response.statusCode() + ", body: " + errorBody));
                 return ClosedSseConnection.INSTANCE;
             }
 
-            // 在虚拟线程中读取 SSE 事件流
             JdkSseConnection connection = new JdkSseConnection();
+            AtomicReference<String> ignoredEventId = new AtomicReference<>();
+            AtomicLong ignoredRetryHint = new AtomicLong(-1);
             Thread readerThread = Thread.ofVirtual().name("sse-reader").start(() -> {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(response.body(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while (connection.isConnected() && (line = reader.readLine()) != null) {
-                        if (!line.startsWith(DATA_PREFIX)) {
-                            continue;
-                        }
-                        String data = line.substring(DATA_PREFIX.length()).trim();
-                        if (data.isEmpty() || DONE_MARKER.equals(data)) {
-                            continue;
-                        }
-                        try {
-                            listener.onData(data);
-                        } catch (Exception e) {
-                            log.warn("SSE onData 回调异常: {}", e.getMessage(), e);
-                        }
-                    }
+                try {
+                    readEvents(response.body(), listener, connection, ignoredEventId, ignoredRetryHint);
                     if (connection.isConnected()) {
                         listener.onComplete();
                     }
@@ -134,13 +115,176 @@ public class JdkSseClient implements SseClient {
                     }
                 }
             });
-
             connection.readerThread = readerThread;
             return connection;
-
         } catch (Exception e) {
             listener.onError(e);
             return ClosedSseConnection.INSTANCE;
+        }
+    }
+
+    /**
+     * 重连模式主循环：断线后按退避策略自动重连，重连时携带 Last-Event-ID 断点续传。
+     */
+    private void readLoop(SseRequest request, SseListener listener, JdkSseConnection connection) {
+        AtomicReference<String> lastEventId = new AtomicReference<>();
+        AtomicLong retryHint = new AtomicLong(-1);
+        long backoff = DEFAULT_RECONNECT_INTERVAL_MILLIS;
+        int attempt = 0;
+        while (connection.isConnected()) {
+            try {
+                HttpResponse<InputStream> response = openStream(request, lastEventId.get());
+                if (response.statusCode() != 200) {
+                    String errorBody = readErrorBody(response.body());
+                    listener.onError(new RuntimeException(
+                            "SSE 连接失败，状态码: " + response.statusCode() + ", body: " + errorBody));
+                    if (!isRetryableStatus(response.statusCode())) {
+                        // 4xx（除 429）等不可恢复状态：放弃重连
+                        connection.close();
+                        return;
+                    }
+                } else {
+                    backoff = DEFAULT_RECONNECT_INTERVAL_MILLIS;
+                    attempt = 0;
+                    readEvents(response.body(), listener, connection, lastEventId, retryHint);
+                    // 正常返回 = 流结束（EOF），重连模式下继续下一轮
+                }
+            } catch (Exception e) {
+                if (!connection.isConnected()) {
+                    return;
+                }
+                listener.onError(e);
+            }
+            if (!connection.isConnected() || !request.isReconnect()) {
+                return;
+            }
+            attempt++;
+            long delay = retryHint.get() > 0
+                    ? Math.min(retryHint.get(), MAX_SERVER_RETRY_MILLIS)
+                    : backoff;
+            listener.onReconnect(attempt, delay);
+            if (!sleepQuietly(delay)) {
+                return;
+            }
+            backoff = Math.min(backoff * 2, MAX_RECONNECT_INTERVAL_MILLIS);
+        }
+    }
+
+    /**
+     * 建立 HTTP 流连接。
+     *
+     * @param request     SSE 请求参数
+     * @param lastEventId 断点续传的事件 ID，null 表示首次连接
+     * @return JDK 响应（InputStream 体）
+     * @throws Exception 连接或发送失败
+     */
+    private HttpResponse<InputStream> openStream(SseRequest request, String lastEventId) throws Exception {
+        // 选择客户端：默认超时用共享实例，自定义超时新建
+        HttpClient httpClient = request.getConnectTimeout() == 30000
+                ? SHARED_HTTP_CLIENT
+                : HttpClient.newBuilder()
+                        .connectTimeout(Duration.ofMillis(request.getConnectTimeout()))
+                        .build();
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(request.getUrl()))
+                .timeout(readTimeout(request));
+
+        Map<String, String> headers = request.getHeaders();
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                builder.header(entry.getKey(), entry.getValue());
+            }
+        }
+
+        // 断点续传：携带最后收到的事件 ID
+        if (StringUtils.isNotEmpty(lastEventId)) {
+            builder.header("Last-Event-ID", lastEventId);
+        }
+
+        switch (request.getMethod()) {
+            case POST:
+                builder.POST(bodyPublisher(request));
+                break;
+            case PUT:
+                builder.PUT(bodyPublisher(request));
+                break;
+            case DELETE:
+                builder.DELETE();
+                break;
+            default:
+                builder.GET();
+                break;
+        }
+
+        return httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+    }
+
+    /**
+     * 读取并解析 SSE 事件流（W3C 规范：data/event/id/retry/注释行）。
+     *
+     * <p>正常返回表示流已结束（EOF）；异常向上抛出由调用方处理。</p>
+     */
+    private void readEvents(InputStream stream, SseListener listener, JdkSseConnection connection,
+            AtomicReference<String> lastEventId, AtomicLong retryHint) throws Exception {
+        SseProtocolParser parser = new SseProtocolParser(event -> {
+            if (StringUtils.isNotEmpty(event.getId())) {
+                lastEventId.set(event.getId());
+            }
+            if (event.getRetry() != null && event.getRetry() > 0) {
+                retryHint.set(event.getRetry());
+            }
+            String data = event.getData();
+            if (StringUtils.isEmpty(data) || DONE_MARKER.equals(data.trim())) {
+                return;
+            }
+            try {
+                listener.onData(data);
+            } catch (Exception e) {
+                log.warn("SSE onData 回调异常: {}", e.getMessage(), e);
+            }
+        });
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            String line;
+            while (connection.isConnected() && (line = reader.readLine()) != null) {
+                parser.parseLine(line);
+            }
+            parser.flush();
+        }
+    }
+
+    /**
+     * 判断该状态码在重连模式下是否值得重试：仅 5xx 与 429。
+     */
+    private static boolean isRetryableStatus(int statusCode) {
+        return statusCode >= 500 || statusCode == 429;
+    }
+
+    /**
+     * 休眠（可中断）：线程被中断时恢复中断标记并返回 false。
+     */
+    private static boolean sleepQuietly(long delayMillis) {
+        if (delayMillis <= 0) {
+            return true;
+        }
+        try {
+            Thread.sleep(delayMillis);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    /**
+     * 读取错误响应体（安全：读取失败返回空串）。
+     */
+    private static String readErrorBody(InputStream body) {
+        try (InputStream in = body) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "";
         }
     }
 
