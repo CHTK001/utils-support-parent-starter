@@ -78,7 +78,36 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
      * @param handler 目标处理器
      */
     public DefaultReactiveFilterChain(List<ReactiveServerFilter> filters, ServerHandler handler) {
-        this.filters = dedupe(filters);
+        this(filters, handler, false);
+    }
+
+    /**
+     * 用「已完成去重」的过滤器列表构造链，不再重复执行 {@link #dedupe}。
+     *
+     * <p>供 {@link ServerFilterManager#buildReactiveChain(ServerHandler)} 使用：
+     * 去重结果只依赖过滤器列表本身，由管理器按代缓存；链对象因游标 {@code index}
+     * 是请求级状态仍需每请求新建，但可零成本复用按代缓存的去重结果，
+     * 省去每请求一次的 {@code IdentityHashMap} + {@code ArrayList} 分配与 N 次插入。</p>
+     *
+     * @param preDedupedFilters 已去重的过滤器列表
+     * @param handler           目标处理器
+     * @return 过滤器链
+     */
+    static DefaultReactiveFilterChain ofPrecomputed(List<ReactiveServerFilter> preDedupedFilters,
+                                                    ServerHandler handler) {
+        return new DefaultReactiveFilterChain(preDedupedFilters, handler, true);
+    }
+
+    /**
+     * 内部统一构造入口。
+     *
+     * @param filters    过滤器列表
+     * @param handler    目标处理器
+     * @param preDeduped true 表示 {@code filters} 已去重，直接持有引用
+     */
+    private DefaultReactiveFilterChain(List<ReactiveServerFilter> filters, ServerHandler handler,
+                                       boolean preDeduped) {
+        this.filters = preDeduped ? filters : dedupe(filters);
         this.handler = handler;
         this.index = 0;
     }
@@ -90,12 +119,13 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
      * 各自可用，会让双接口过滤器同时出现「静态包装面」与「原始响应式面」。同一条链里
      * 执行两遍是有害的：有状态过滤器（并发预算、限流）会算错。去重保留先出现的那份
      * （合并列表先放静态包装面），这样 handler 仍在调用线程内同步完成，NIO 内联快路径
-     * 不会出现「响应先以 200 空体写出、handler 之后才跑」。</p>
+     * 不会出现「响应先以 200 空体写出、handler 之后才跑」。包内共享：
+     * {@link ServerFilterManager} 按代缓存去重结果时复用同一算法。</p>
      *
      * @param filters 原始过滤器列表
      * @return 去重后的列表
      */
-    private static List<ReactiveServerFilter> dedupe(List<ReactiveServerFilter> filters) {
+    static List<ReactiveServerFilter> dedupe(List<ReactiveServerFilter> filters) {
         if (filters == null || filters.isEmpty()) {
             return List.of();
         }

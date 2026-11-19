@@ -60,6 +60,14 @@ public class ServerFilterManager {
     private volatile List<ReactiveServerFilter> mergedReactiveCache;
 
     /**
+     * 去重后的响应式过滤器列表缓存。
+     *
+     * <p>与 {@link #mergedReactiveCache} 同代失效：仅在过滤器列表变化（dirty）时重算。
+     * 供 {@link #buildReactiveChain(ServerHandler)} 复用，避免每请求重复去重。</p>
+     */
+    private volatile List<ReactiveServerFilter> dedupedReactiveCache;
+
+    /**
      * 缓存失效标记。
      */
     private volatile boolean dirty = true;
@@ -286,8 +294,39 @@ public class ServerFilterManager {
         result.addAll(reactiveFilters);
         result.sort(Comparator.comparingInt(ReactiveServerFilter::getOrder));
         mergedReactiveCache = Collections.unmodifiableList(Wraps.list(result));
+        dedupedReactiveCache = Collections.unmodifiableList(DefaultReactiveFilterChain.dedupe(mergedReactiveCache));
         dirty = false;
         return mergedReactiveCache;
+    }
+
+    /**
+     * 获取去重后的响应式过滤器列表（按代缓存，仅在过滤器列表变化时重算）。
+     *
+     * <p>去重语义与 {@link DefaultReactiveFilterChain} 的构造去重完全一致
+     * （按底层过滤器实例去重、保留先出现的一份）。结果不可变。</p>
+     *
+     * @return 去重后的响应式过滤器列表
+     */
+    public List<ReactiveServerFilter> getDedupedReactiveFilters() {
+        List<ReactiveServerFilter> cached = dedupedReactiveCache;
+        if (!dirty && cached != null) {
+            return cached;
+        }
+        getMergedReactiveFilters();
+        return dedupedReactiveCache;
+    }
+
+    /**
+     * 构建响应式过滤器链。
+     *
+     * <p>去重结果按代缓存（见 {@link #getDedupedReactiveFilters()}），
+     * 链对象本身仍每请求新建——其游标是请求级状态，不可复用。</p>
+     *
+     * @param handler 链末端处理器
+     * @return 响应式过滤器链
+     */
+    public DefaultReactiveFilterChain buildReactiveChain(ServerHandler handler) {
+        return DefaultReactiveFilterChain.ofPrecomputed(getDedupedReactiveFilters(), handler);
     }
 
     /**
@@ -402,6 +441,8 @@ public class ServerFilterManager {
         staticFilters.clear();
         reactiveFilters.clear();
         mergedCache = null;
+        mergedReactiveCache = null;
+        dedupedReactiveCache = null;
         dirty = true;
     }
 

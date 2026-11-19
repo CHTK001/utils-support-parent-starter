@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **仓库移除全部测试代码与测试依赖**（`4ea217661`）：`src/test` 下的测试源码与资源、pom 里 test 作用域及 junit/mockito/assertj/testcontainers 等依赖一并删除，根 pom 设 `maven.test.skip=true` / `skipTests=true`，构建不再解析测试组件。本文件自 `[4.0.0.52]` 起各版本列出的用例类与条数（共 45 处提及）都是当时真实跑过的结果，现仅作**历史记录**，当前仓库不能复跑；`能力矩阵.md` 已在文首与 §4 加同口径说明，能力数据本身未改动。
 - **HTTP 执行器连接池跨请求复用**：`OkHttpExecutor` 旧实现构造器不带连接池、每次请求又 `new ConnectionPool(5, keepAlive, ...)` 覆盖，连接完全无法跨请求复用；改为执行器级共享 `ConnectionPool`，`client.newBuilder()` 派生的每请求客户端自动继承（请求级 `keepAliveTimeout` 不再驱动 OkHttp 连接池保活）。`JdkHttpClientExecutor` 对「代理 / 非默认 keepAlive」请求按配置键缓存 JDK `HttpClient`（上限 16、超出清空），不再每请求新建实例级连接池。
+- **服务端响应式过滤器链去重结果按代缓存**：`DefaultReactiveFilterChain` 旧实现每个请求在构造器里执行一次 `dedupe`（新建 `IdentityHashMap` + `ArrayList` 并做 N 次插入），而去重结果只依赖过滤器列表本身。现由 `ServerFilterManager` 在合并响应式过滤器列表重算时一并缓存去重结果（新增 `getDedupedReactiveFilters()`），并新增 `buildReactiveChain(handler)` 供 `AbstractServer` 直接复用按代缓存的去重结果；链对象因游标 `index` 是请求级状态仍每请求新建。原有 public 构造器行为不变（仍自动去重）。回环压测（16 并发×10s，0 错误）多次复跑：`/ping` 28,953→35,256~36,110 QPS（p99 2.86ms→1.41~1.88ms），`/hello` 32,117→37,133~40,932 QPS（p99 1.66ms→1.15~1.64ms）。
 
 ### Added
 - `SessionCipher` 新增 `encrypting(OutputStream)` / `decrypting(InputStream)` 两个流式封装：写入/读取 `[4B 长度][8B 序号][密文+16B 标签]` 帧，复用 `seal`/`open`，序号与方向进 AAD，重放/乱序/截断/反射一律抛 `IOException`，不把未认证数据交给上层。

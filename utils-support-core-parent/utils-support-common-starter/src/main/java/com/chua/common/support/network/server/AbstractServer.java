@@ -286,8 +286,8 @@ public abstract class AbstractServer implements ConfigServer {
      *       或构造注入；</li>
      *   <li>过滤器链对象保持每请求新建：{@link DefaultReactiveFilterChain} 的游标（{@code index}）
      *       是请求级状态，复用会让并发请求互相踩踏；它只有 3 个字段，分配成本远低于争用成本。
-     *       真正的热点在过滤器列表：由 {@link ServerFilterManager#getMergedReactiveFilters()} 按代缓存，
-     *       此处不再对其做二次包装；</li>
+     *       真正的热点在过滤器列表：由 {@link ServerFilterManager} 按代缓存（含去重结果），
+     *       链构造时不再每请求重复去重；</li>
      *   <li>延迟采样改为可配置（默认每 64 个请求记一次）。{@code System.nanoTime()} 本身不贵，
      *       但「总和/最大值/8 个桶」的原子写在全核满载时是可见的缓存行流量，而监控只需要趋势。</li>
      * </ul>
@@ -379,8 +379,7 @@ public abstract class AbstractServer implements ConfigServer {
         @SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
-        DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
-                filterManager.getMergedReactiveFilters(), DEFAULT_404_HANDLER);
+        DefaultReactiveFilterChain reactiveChain = filterManager.buildReactiveChain(DEFAULT_404_HANDLER);
         CompletionStage<Void> stage = reactiveChain.doFilter(request, response);
         // 快路径：链已同步完成（无异步过滤器）时直接收尾，避免 whenComplete 再分配一个
         // CompletableFuture——这是事件循环线程上占比最高的应用侧分配。
