@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 行数据工具 —— 取值、归一化与展示值转换。
@@ -48,6 +50,22 @@ public final class Rows {
      * 默认时间格式。
      */
     public static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
+
+    /**
+     * 字段缓存：导出取值按 行×列 高频走 {@link #findField}，按类缓存查找结果（含父类链查找）。
+     * 值为 {@link Field} 或 {@link #FIELD_MISS}（负缓存，标记该类链上无此字段）。
+     */
+    private static final ConcurrentMap<Class<?>, ConcurrentMap<String, Object>> FIELD_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 字段未命中标记（ConcurrentHashMap 的值不允许为 {@code null}）。
+     */
+    private static final Object FIELD_MISS = new Object();
+
+    /**
+     * 参与缓存的类数量上限，超过后退化为直接查找，避免类加载器频繁更替场景下无界增长。
+     */
+    private static final int MAX_CACHED_CLASSES = 512;
 
     private Rows() {
     }
@@ -199,6 +217,33 @@ public final class Rows {
      * @return 字段，找不到返回 {@code null}
      */
     public static Field findField(Class<?> type, String name) {
+        if (type == null || name == null) {
+            return null;
+        }
+        ConcurrentMap<String, Object> cache = FIELD_CACHE.get(type);
+        if (cache == null) {
+            if (FIELD_CACHE.size() >= MAX_CACHED_CLASSES) {
+                return findFieldUncached(type, name);
+            }
+            cache = FIELD_CACHE.computeIfAbsent(type, key -> new ConcurrentHashMap<>(16));
+        }
+        Object cached = cache.get(name);
+        if (cached != null) {
+            return cached == FIELD_MISS ? null : (Field) cached;
+        }
+        Field found = findFieldUncached(type, name);
+        cache.put(name, found == null ? FIELD_MISS : found);
+        return found;
+    }
+
+    /**
+     * 沿继承链直接查找字段（不走路缓存）。
+     *
+     * @param type 类型
+     * @param name 字段名
+     * @return 字段，找不到返回 {@code null}
+     */
+    private static Field findFieldUncached(Class<?> type, String name) {
         Class<?> current = type;
         while (current != null && current != Object.class) {
             try {

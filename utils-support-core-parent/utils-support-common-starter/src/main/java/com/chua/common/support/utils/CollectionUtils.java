@@ -40,6 +40,11 @@ public class CollectionUtils {
     }
 
     /**
+     * 共享随机源：{@link SecureRandom} 线程安全，复用单例避免每次随机选取都重建实例。
+     */
+    private static final SecureRandom SHARED_RANDOM = new SecureRandom();
+
+    /**
      * 遍历集合中的每个元素并执行回调。
      *
      * <p>安全遍历：如果集合或回调为 {@code null}，则直接返回而不执行任何操作。</p>
@@ -123,8 +128,7 @@ public class CollectionUtils {
         if (isEmpty(source)) {
             return null;
         }
-        SecureRandom random = new SecureRandom();
-        int i = random.nextInt(source.size());
+        int i = SHARED_RANDOM.nextInt(source.size());
         return CollectionUtils.find(source, i);
     }
 
