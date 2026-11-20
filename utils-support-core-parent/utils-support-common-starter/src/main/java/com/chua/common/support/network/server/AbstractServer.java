@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -309,10 +310,12 @@ public abstract class AbstractServer implements ConfigServer {
         long active = metrics.getActiveRequests() + 1;
         metrics.incrementActive();
         metrics.updatePeakActive(active);
-        // 延迟采样：sampleEvery<=1 时全量记录，否则按请求数取模(局部变量避免重复读 volatile)
+        // 延迟采样：sampleEvery<=1 时全量记录，否则按 1/sampleEvery 概率随机抽取
+        // （ThreadLocalRandom 无争用；等价于旧「按请求数取模」的采样率，但省去
+        // 每请求一次 LongAdder 全量求和——sum() 要遍历全部分片单元）
         int sampleEvery = latencySampleEvery;
         boolean sampleLatency = sampleEvery <= 1
-                || (metrics.getTotalRequests() % sampleEvery) == 0;
+                || ThreadLocalRandom.current().nextInt(sampleEvery) == 0;
         long start = sampleLatency ? System.nanoTime() : 0L;
         CompletionStage<Void> stage;
         try {
@@ -377,9 +380,6 @@ public abstract class AbstractServer implements ConfigServer {
      * @return 异步链完成信号,供调用方等待响应真正写完
      */
     protected CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response) {
-        @SuppressWarnings("unchecked")
-        List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
-
         DefaultReactiveFilterChain reactiveChain = filterManager.buildReactiveChain(DEFAULT_404_HANDLER);
         CompletionStage<Void> stage = reactiveChain.doFilter(request, response);
         // 快路径：链已同步完成（无异步过滤器）时直接收尾，避免 whenComplete 再分配一个
@@ -941,6 +941,35 @@ public abstract class AbstractServer implements ConfigServer {
         if (filter instanceof ReactiveServerFilter reactiveFilter) {
             filterManager.addReactiveFilter(reactiveFilter);
         }
+        return this;
+    }
+
+    /**
+     * 添加响应式过滤器（只对响应式过滤器链生效，如 AIO 服务器）。
+     *
+     * <p>与 {@link #addFilter} 的区别：双接口过滤器经 {@link #addFilter} 注册后，
+     * 响应式链会按去重规则优先执行其<b>静态包装面</b>（同步 {@code doFilter}）；
+     * 而纯 {@link ReactiveServerFilter} 实例（如 {@code ChannelQueueServerFilter}）
+     * 只能通过本方法进入响应式链，以保持全程非阻塞。</p>
+     *
+     * @param filter 响应式过滤器
+     * @return 当前服务器实例，支持链式调用
+     */
+    public Server addReactiveFilter(ReactiveServerFilter filter) {
+        filterManager.addReactiveFilter(filter);
+        return this;
+    }
+
+    /**
+     * 移除响应式过滤器。
+     *
+     * <p>与 {@link #addReactiveFilter} 对称，保证热更新时旧实例能从响应式链上摘除。</p>
+     *
+     * @param filter 响应式过滤器
+     * @return 当前服务器实例，支持链式调用
+     */
+    public Server removeReactiveFilter(ReactiveServerFilter filter) {
+        filterManager.removeReactiveFilter(filter);
         return this;
     }
 

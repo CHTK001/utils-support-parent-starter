@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 服务器过滤器管理器。
@@ -386,8 +387,16 @@ public class ServerFilterManager {
         public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                               ReactiveFilterChain chain) {
             try {
-                delegate.doFilter(request, response, chain::doFilter);
-                return COMPLETED;
+                // 同步过滤器经 chain::doFilter 放行时，下游响应式过滤器返回的未完成
+                // stage 绝不能丢弃：丢弃会让调用方误以为请求已同步完成，在 handler
+                // 真正执行前就把响应按默认 200 空体收尾（排队/异步过滤器全部失效）。
+                // 用引用容器把下游 stage 带回；原子引用保证「同步过滤器把放行调用
+                // 挪到其它线程执行」这类少见写法下的可见性。
+                AtomicReference<CompletionStage<Void>> downstream = new AtomicReference<>();
+                delegate.doFilter(request, response,
+                        (req, resp) -> downstream.set(chain.doFilter(req, resp)));
+                CompletionStage<Void> pending = downstream.get();
+                return pending != null ? pending : COMPLETED;
             } catch (Exception e) {
                 CompletableFuture<Void> failed = new CompletableFuture<>();
                 failed.completeExceptionally(e);
