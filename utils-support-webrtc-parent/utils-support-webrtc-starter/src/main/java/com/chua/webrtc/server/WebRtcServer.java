@@ -1,5 +1,6 @@
 package com.chua.webrtc.server;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -182,10 +183,7 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
     @Override
     public List<WebRtcPeer> peers(String sessionId) {
         WebRtcSession session = sessions.get(sessionId);
-        if (session == null) {
-            return List.of();
-        }
-        return session.peers();
+        return Precondition.ifNotNull(session).ifTrueGet(s -> s.peers()).orElse(() -> List.of());
     }
 
     @Override

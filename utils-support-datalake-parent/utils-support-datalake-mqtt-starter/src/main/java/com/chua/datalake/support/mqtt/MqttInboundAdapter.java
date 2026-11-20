@@ -2,6 +2,7 @@
 package com.chua.datalake.support.mqtt;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -236,7 +237,7 @@ public class MqttInboundAdapter {
      */
     @SuppressWarnings("unchecked")
     private void handleMessage(String topic, MqttMessage message) {
-        try {
+        Precondition.tryRun(() -> {
             String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
             Map<String, Object> data = toMap(payload);
             data.put("_mqtt_topic", topic);
@@ -253,9 +254,7 @@ public class MqttInboundAdapter {
 
             pipelineEngine.execute(pipelineId, envelope);
             log.debug("[datalake-mqtt] 消息处理完成: topic={}, count={}", topic, messageCount.get());
-        } catch (Exception e) {
-            log.error("[datalake-mqtt] 消息处理失败: topic={}, error={}", topic, e.getMessage(), e);
-        }
+        }).orElse(e -> log.error("[datalake-mqtt] 消息处理失败: topic={}, error={}", topic, e.getMessage(), e));
     }
 
     /**

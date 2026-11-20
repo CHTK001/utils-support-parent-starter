@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.redis.support.server;
 
+import com.chua.common.support.condition.Precondition;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -103,12 +104,10 @@ public class EmbeddedRedisServer {
      * @return 当前实例，支持链式调用
      */
     public EmbeddedRedisServer stop() {
-        try {
+        Precondition.tryRun(() -> {
             delegate.stop();
             log.info("嵌入式 Redis 停止: port={}", port);
-        } catch (Exception e) {
-            log.warn("嵌入式 Redis 停止异常: {}", e.getMessage(), e);
-        }
+        }).orElse(e -> log.warn("嵌入式 Redis 停止异常: {}", e.getMessage(), e));
         return this;
     }
 

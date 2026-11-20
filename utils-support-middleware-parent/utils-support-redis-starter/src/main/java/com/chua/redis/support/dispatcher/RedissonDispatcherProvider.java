@@ -3,6 +3,7 @@ package com.chua.redis.support.dispatcher;
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
@@ -100,11 +101,8 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
                         var definitions = definitionMap.get(topic);
                         if (definitions != null) {
                             for (var def : definitions) {
-                                try {
-                                    def.dispatch(msg);
-                                } catch (Exception e) {
-                                    log.warn("订阅方法执行异常，主题：{}", topic, e);
-                                }
+                                Precondition.tryRun(() -> def.dispatch(msg))
+                                        .orElse(e -> log.warn("订阅方法执行异常，主题：{}", topic, e));
                             }
                         }
                     }

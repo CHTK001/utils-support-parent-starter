@@ -1,6 +1,7 @@
 package com.chua.runtime.plugin.loader;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -141,14 +142,10 @@ public class PluginScanner {
         if (Files.exists(spiPath)) {
             return true;
         }
-        try {
-            return Files.list(dir)
-                    .filter(p -> p.getFileName().toString().endsWith(".jar"))
-                    .findAny()
-                    .isPresent();
-        } catch (Exception e) {
-            return false;
-        }
+        return Precondition.tryGet(() -> Files.list(dir)
+                .filter(p -> p.getFileName().toString().endsWith(".jar"))
+                .findAny()
+                .isPresent()).orElseGet(e -> false);
     }
 
     /**

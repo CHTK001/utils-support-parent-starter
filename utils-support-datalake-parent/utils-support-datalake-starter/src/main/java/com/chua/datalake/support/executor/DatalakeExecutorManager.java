@@ -1,6 +1,7 @@
 package com.chua.datalake.support.executor;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
+import com.chua.common.support.condition.Precondition;
 import com.chua.datasync.agent.support.executor.ReactorDataSyncExecutor;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.chua.datalake.support.spi.sink.DataSink;
@@ -87,11 +88,8 @@ public class DatalakeExecutorManager implements ExecutorManager {
     @Override
     public void stop() {
         started.set(false);
-        try {
-            executor.stop();
-        } catch (Exception e) {
-            log.warn("[datalake-server] 执行器停止异常", e);
-        }
+        Precondition.tryRun(executor::stop)
+                .orElse(e -> log.warn("[datalake-server] 执行器停止异常", e));
         log.info("[datalake-server] ExecutorManager 停止");
     }
 

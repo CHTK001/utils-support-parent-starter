@@ -17,6 +17,7 @@ import com.chua.common.support.apm.model.OtnlSpan;
 import com.chua.common.support.apm.model.OtnlStatus;
 import com.chua.common.support.apm.model.OtnlTopology;
 import com.chua.common.support.apm.model.OtnlTrace;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.opentelemetry.support.client.OpenTelemetryClient;
 import com.chua.opentelemetry.support.client.OpenTelemetryClientHolder;
@@ -139,12 +140,10 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
         if (client == null) {
             return List.of();
         }
-        try {
-            traces.addAll(client.traces());
-        } catch (Exception e) {
+        traces.addAll(Precondition.tryGet(() -> client.traces()).orElseGet(e -> {
             log.debug("[OpenTelemetry] 读取链路失败: {}", e.getMessage());
             return List.of();
-        }
+        }));
         String serviceFilter = query == null ? null : query.serviceName();
         String endpointFilter = query == null ? null : query.endpointName();
         boolean onlyError = query != null && query.stateOrAll() == com.chua.common.support.apm.OtnlTraceState.ERROR;
@@ -165,16 +164,16 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             if (StringUtils.isNotBlank(serviceFilter) && !serviceFilter.equals(serviceName())) {
                 continue;
             }
-            long start = trace.getStartTime() > 0 ? trace.getStartTime()
-                    : trace.getSpans().stream().mapToLong(Span::getStartTime).min().orElse(0L);
-            long end = trace.getEndTime() > 0 ? trace.getEndTime()
-                    : trace.getSpans().stream().mapToLong(Span::getEndTime).max().orElse(start);
+            long start = Precondition.ifTrue(trace.getStartTime() > 0).ifTrueGet(() -> trace.getStartTime())
+                    .orElse(() -> trace.getSpans().stream().mapToLong(Span::getStartTime).min().orElse(0L));
+            long end = Precondition.ifTrue(trace.getEndTime() > 0).ifTrueGet(() -> trace.getEndTime())
+                    .orElse(() -> trace.getSpans().stream().mapToLong(Span::getEndTime).max().orElse(start));
             result.add(OtnlTrace.summary(trace.getTraceId(), serviceName(), endpoint,
                     Math.max(0L, end - start), start, end, error, trace.getSpans().size()));
         }
-        Comparator<OtnlTrace> comparator = query != null && query.orderByDuration()
-                ? Comparator.comparingLong(OtnlTrace::durationMs).reversed()
-                : Comparator.comparingLong(OtnlTrace::startTime).reversed();
+        Comparator<OtnlTrace> comparator = Precondition.ifTrue(query != null && query.orderByDuration())
+                .ifTrueGet(() -> Comparator.comparingLong(OtnlTrace::durationMs).reversed())
+                .orElse(() -> Comparator.comparingLong(OtnlTrace::startTime).reversed());
         result.sort(comparator);
         return page(result, query);
     }
@@ -185,12 +184,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
         if (client == null || StringUtils.isBlank(traceId)) {
             return null;
         }
-        List<Span> spans;
-        try {
-            spans = client.spansByTraceId(traceId);
-        } catch (Exception e) {
-            return null;
-        }
+        List<Span> spans = Precondition.tryGet(() -> client.spansByTraceId(traceId)).orElseGet(e -> null);
         if (spans == null || spans.isEmpty()) {
             return null;
         }
@@ -287,13 +281,11 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
         if (client == null || client.isClosed()) {
             return List.of();
         }
-        try {
-            List<Span> spans = client.spans();
-            return spans == null ? List.of() : spans;
-        } catch (Exception e) {
+        List<Span> spans = Precondition.tryGet(() -> client.spans()).orElseGet(e -> {
             log.debug("[OpenTelemetry] 读取 Span 失败: {}", e.getMessage());
             return List.of();
-        }
+        });
+        return spans == null ? List.of() : spans;
     }
 
     /**
@@ -303,10 +295,9 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
      */
     private String serviceName() {
         OpenTelemetryClient client = OpenTelemetryClientHolder.get();
-        if (client == null || client.getServiceName() == null || client.getServiceName().isBlank()) {
-            return "unknown-service";
-        }
-        return client.getServiceName();
+        return Precondition.ifTrue(client == null || client.getServiceName() == null || client.getServiceName().isBlank())
+                .ifTrueGet(() -> "unknown-service")
+                .orElse(() -> client.getServiceName());
     }
 
     /**
@@ -330,11 +321,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
      * @return 主机名
      */
     private static String hostName() {
-        try {
-            return java.net.InetAddress.getLocalHost().getHostName();
-        } catch (Exception e) {
-            return "localhost";
-        }
+        return Precondition.tryGet(() -> java.net.InetAddress.getLocalHost().getHostName()).orElseGet(e -> "localhost");
     }
 
     /**

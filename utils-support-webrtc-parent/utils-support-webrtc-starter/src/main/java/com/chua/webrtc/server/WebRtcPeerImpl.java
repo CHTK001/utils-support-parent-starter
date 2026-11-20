@@ -1,5 +1,6 @@
 package com.chua.webrtc.server;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.webrtc.control.ControlEventListener;
@@ -363,12 +364,8 @@ public class WebRtcPeerImpl implements WebRtcPeer {
             byte[] bytes = new byte[buffer.data.remaining()];
             buffer.data.get(bytes);
             String json = new String(bytes, StandardCharsets.UTF_8);
-            ControlEvent event;
-            try {
-                event = new DefaultControlEventFactory().parse(json);
-            } catch (Exception e) {
-                return;
-            }
+            ControlEvent event = Precondition.tryGet(() -> new DefaultControlEventFactory().parse(json))
+                    .orElseGet(e -> null);
             if (event != null) {
                 controlService.onControlEvent(sessionId, id, event.path(), event);
             }

@@ -1,6 +1,7 @@
 package com.chua.runtime.core.manager;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
@@ -123,10 +124,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     @Override
     public long pid() {
         Process p = processRef.get();
-        if (p != null && p.isAlive()) {
-            return p.pid();
-        }
-        return -1;
+        return Precondition.ifTrue(p != null && p.isAlive())
+                .ifTrueGet(() -> p.pid())
+                .orElse(() -> -1L);
     }
 
     /**
@@ -159,7 +159,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .build();
         }
 
-        try {
+        return Precondition.tryGet(() -> {
             List<String> cmd = buildCommand();
             LOG.log(Level.FINE, String.format("启动命令: %s", cmd));
 
@@ -205,8 +205,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .command(artifact.getName())
                     .startTime(startTime)
                     .build();
-
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             status.set(RuntimeStatus.CRASHED);
             LOG.log(Level.SEVERE, String.format("启动失败", e));
             return CmdResult.builder()
@@ -215,7 +214,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .command(artifact.getName())
                     .throwable(e)
                     .build();
-        }
+        });
     }
 
     /**
@@ -278,18 +277,15 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String cmd = artifact.getHealthCheckCommand();
-        if (StringUtils.isNotEmpty(url)) {
-            return healthCheckHttp(url);
-        }
-        if (StringUtils.isNotEmpty(cmd)) {
-            return CmdExecutors.execute(cmd, HEALTH_TIMEOUT, TimeUnit.SECONDS);
-        }
         Process p = processRef.get();
         boolean alive = p != null && p.isAlive();
-        return CmdResult.builder()
-                .exitCode(alive ? 0 : 1)
-                .stdout(alive ? "进程存活" : "进程已退出")
-                .build();
+        return Precondition.ifTrue(StringUtils.isNotEmpty(url))
+                .ifTrueGet(() -> healthCheckHttp(url))
+                .elseIf(StringUtils.isNotEmpty(cmd), () -> CmdExecutors.execute(cmd, HEALTH_TIMEOUT, TimeUnit.SECONDS))
+                .orElse(() -> CmdResult.builder()
+                        .exitCode(alive ? 0 : 1)
+                        .stdout(alive ? "进程存活" : "进程已退出")
+                        .build());
     }
 
     /**
@@ -369,7 +365,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
      * @return 健康检查http的结果
      */
     private CmdResult healthCheckHttp(String url) {
-        try {
+        return Precondition.tryGet(() -> {
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(HEALTH_TIMEOUT)).build();
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
@@ -381,9 +377,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .exitCode(ok ? 0 : resp.statusCode())
                     .stdout("HTTP " + resp.statusCode() + ": " + resp.body())
                     .build();
-        } catch (Exception e) {
-            return CmdResult.builder().exitCode(1).stderr(e.getMessage()).throwable(e).build();
-        }
+        }).orElseGet(e -> CmdResult.builder().exitCode(1).stderr(e.getMessage()).throwable(e).build());
     }
 
     /**

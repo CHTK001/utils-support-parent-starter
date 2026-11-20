@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 
@@ -178,7 +179,7 @@ public final class SkyWalkingPropagator {
      * @return 是否恢复成功
      */
     private static boolean restoreTraceContext(String traceId, String spanId) {
-        try {
+        return Precondition.tryGet(() -> {
             Class<?> snapshotCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceContextSnapshot");
             Class<?> frameCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceStackFrame");
             Object frame = ReflectUtils.instantiate(frameCls, traceId, spanId);
@@ -186,9 +187,7 @@ public final class SkyWalkingPropagator {
             Object snapshot = ReflectUtils.instantiate(snapshotCls, traceId, list);
             ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "restore", void.class, snapshotCls, snapshot);
             return true;
-        } catch (Exception e) {
-            return false;
-        }
+        }).orElseGet(e -> false);
     }
 
     /**
@@ -227,12 +226,8 @@ public final class SkyWalkingPropagator {
      * @return traceId
      */
     private static String readCurrentTraceId() {
-        try {
-            return (String) com.chua.common.support.reflection.ReflectUtils.invokeStatic(
-                    "com.chua.runtime.spy.RuntimeSpy", "getCurrentTraceId", String.class);
-        } catch (Exception e) {
-            return null;
-        }
+        return Precondition.tryGet(() -> (String) com.chua.common.support.reflection.ReflectUtils.invokeStatic(
+                "com.chua.runtime.spy.RuntimeSpy", "getCurrentTraceId", String.class)).orElseGet(e -> null);
     }
 
     /**
@@ -241,12 +236,8 @@ public final class SkyWalkingPropagator {
      * @return spanId
      */
     private static String readCurrentSpanId() {
-        try {
-            return (String) com.chua.common.support.reflection.ReflectUtils.invokeStatic(
-                    "com.chua.runtime.spy.RuntimeSpy", "getCurrentSpanId", String.class);
-        } catch (Exception e) {
-            return null;
-        }
+        return Precondition.tryGet(() -> (String) com.chua.common.support.reflection.ReflectUtils.invokeStatic(
+                "com.chua.runtime.spy.RuntimeSpy", "getCurrentSpanId", String.class)).orElseGet(e -> null);
     }
 
     /**
@@ -276,13 +267,11 @@ public final class SkyWalkingPropagator {
      * @return pid@hostname
      */
     private static String defaultInstanceName() {
-        try {
+        return Precondition.tryGet(() -> {
             long pid = ProcessHandle.current().pid();
             String host = java.net.InetAddress.getLocalHost().getHostName();
             return pid + "@" + host;
-        } catch (Exception e) {
-            return "unknown@host";
-        }
+        }).orElseGet(e -> "unknown@host");
     }
 
     /**

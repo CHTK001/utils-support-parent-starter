@@ -2,6 +2,7 @@
 package com.chua.prometheus.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -154,9 +155,7 @@ public class PrometheusEngine implements Engine {
             log.warn("[Prometheus] 数据源 {} 被替换, 关闭原数据源", name);
             closeQuietly(previous);
         }
-        if (defaultDataSourceName == null) {
-            defaultDataSourceName = name;
-        }
+        defaultDataSourceName = Precondition.ifNotNull(defaultDataSourceName).ifTrueGet(n -> n).orElse(() -> name);
     }
 
     /**

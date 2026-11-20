@@ -1,6 +1,7 @@
 package com.chua.runtime.spy;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -105,7 +106,7 @@ public class SpyBootstrap {
             LOG.warning("Spy 引擎已初始化，跳过");
             return true;
         }
-        try {
+        return Precondition.tryGet(() -> {
             instrumentation = inst;
             parseAgentArgs(args);
             initTransformer(inst);
@@ -113,10 +114,10 @@ public class SpyBootstrap {
             LOG.info("Spy 引擎初始化完成");
             initialized = true;
             return true;
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             LOG.log(Level.SEVERE, "Spy 引擎初始化失败", e);
             return false;
-        }
+        });
     }
 
     /**
@@ -127,12 +128,10 @@ public class SpyBootstrap {
             return;
         }
         if (transformer != null && instrumentation != null) {
-            try {
+            Precondition.tryRun(() -> {
                 instrumentation.removeTransformer(transformer);
                 LOG.info("已移除字节码转换器");
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, "移除转换器失败", e);
-            }
+            }).orElse(e -> LOG.log(Level.WARNING, "移除转换器失败", e));
         }
         if (pluginManager != null) {
             pluginManager.stop();

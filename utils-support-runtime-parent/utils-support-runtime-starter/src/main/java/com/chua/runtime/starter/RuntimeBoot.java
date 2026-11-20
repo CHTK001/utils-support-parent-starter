@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.starter;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
@@ -349,7 +350,7 @@ public class RuntimeBoot {
      * @return 解压后的 agent jar 物理路径；找不到返回 {@code null}
      */
     private static Path extractAgentFromFatJar(Path fatJar) {
-        try {
+        return Precondition.tryGet(() -> {
             java.util.jar.JarFile outer = new java.util.jar.JarFile(fatJar.toFile());
             java.util.Enumeration<java.util.jar.JarEntry> entries = outer.entries();
             java.util.Optional<java.util.jar.JarEntry> target = java.util.Optional.empty();
@@ -376,10 +377,10 @@ public class RuntimeBoot {
             }
             LOG.log(Level.INFO, "自注入 Agent JAR 定位 (fat-jar-extract): " + dest.getAbsolutePath());
             return dest.toPath();
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             LOG.log(Level.WARNING, "从 fat jar 提取 agent jar 失败: " + fatJar, e);
             return null;
-        }
+        });
     }
 
     /**
@@ -459,11 +460,8 @@ public class RuntimeBoot {
         if (apm != null) {
             apm.stop();
         }
-        try {
-            manager.close();
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("关闭管理器异常", e));
-        }
+        Precondition.tryRun(() -> manager.close())
+                .orElse(e -> LOG.log(Level.WARNING, String.format("关闭管理器异常", e)));
         running = false;
     }
 

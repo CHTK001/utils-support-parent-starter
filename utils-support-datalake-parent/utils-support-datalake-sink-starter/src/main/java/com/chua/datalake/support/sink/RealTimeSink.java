@@ -1,6 +1,7 @@
 package com.chua.datalake.support.sink;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -105,13 +106,12 @@ public class RealTimeSink implements AccessSink {
      * @return 去重后的通道列表
      */
     private synchronized List<RealTimeChannel> refreshChannels() {
-        Collection<RealTimeChannel> discovered;
-        try {
-            discovered = ServiceProvider.of(RealTimeChannel.class).collect();
-        } catch (Exception e) {
-            log.error("[datalake-sink] 实时通道发现失败", e);
-            discovered = Collections.emptyList();
-        }
+        Collection<RealTimeChannel> discovered = Precondition
+                .tryGet(() -> ServiceProvider.of(RealTimeChannel.class).collect())
+                .orElseGet(e -> {
+                    log.error("[datalake-sink] 实时通道发现失败", e);
+                    return Collections.emptyList();
+                });
         Map<String, RealTimeChannel> distinct = Wraps.linkedMap();
         for (RealTimeChannel channel : discovered) {
             if (channel != null) {

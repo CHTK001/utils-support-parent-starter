@@ -3,6 +3,7 @@ package com.chua.rabbitmq.support.dispatcher;
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.spi.annotations.Spi;
 import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
@@ -160,12 +161,10 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     @Override
     public void close() {
         closed = true;
-        try {
+        Precondition.tryRun(() -> {
             channel.close();
             connection.close();
-        } catch (Exception e) {
-            log.warn("关闭 RabbitMQ 连接失败", e);
-        }
+        }).orElse(e -> log.warn("关闭 RabbitMQ 连接失败", e));
         executor.shutdown();
         definitionMap.clear();
     }

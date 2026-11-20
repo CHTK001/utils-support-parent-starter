@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.shell;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.command.CommandRegistry;
 import com.chua.runtime.shell.output.Console;
@@ -136,11 +137,8 @@ public class ShellSession implements Runnable {
             console.error("未知命令: " + cmdName + "，输入 help 查看");
             return;
         }
-        try {
-            command.execute(args, console);
-        } catch (Exception e) {
-            console.error("命令执行异常: " + e.getMessage());
-        }
+        Precondition.tryRun(() -> command.execute(args, console))
+                .orElse(e -> console.error("命令执行异常: " + e.getMessage()));
     }
 
     /**

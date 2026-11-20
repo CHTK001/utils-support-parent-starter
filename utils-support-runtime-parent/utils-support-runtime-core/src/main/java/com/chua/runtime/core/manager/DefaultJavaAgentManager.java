@@ -2,6 +2,7 @@
 package com.chua.runtime.core.manager;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -44,7 +45,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     @Override
     public Map<Integer, String> listPids() {
         Map<Integer, String> jvms = Wraps.map();
-        try {
+        Precondition.tryRun(() -> {
             CmdResult r = CmdExecutors.execute(
                     new String[]{"ps", "-eo", "pid,comm,args"},
                     10, TimeUnit.SECONDS);
@@ -65,9 +66,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                     }
                 }
             }
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("列出进程失败", e));
-        }
+        }).orElse(e -> LOG.log(Level.WARNING, String.format("列出进程失败", e)));
         return jvms;
     }
 
@@ -76,7 +75,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     */
     @Override
     public CmdResult inspectJvm(int pid) {
-        try {
+        return Precondition.tryGet(() -> {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
             Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class},
                     String.valueOf(pid));
@@ -85,9 +84,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
             ReflectUtils.invoke(vm, "detach", void.class);
             String result = "PID: " + pid + "\nClassPath: " + classPath + "\nSystemProperties: " + sysProps;
             return CmdResult.builder().exitCode(0).stdout(result).build();
-        } catch (Exception e) {
-            return CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build();
-        }
+        }).orElseGet(e -> CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build());
     }
 
     /**
@@ -96,7 +93,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     @Override
     public CmdResult attach(int pid, Path agentPath, String options) {
         LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]", pid));
-        try {
+        return Precondition.tryGet(() -> {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
             Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class},
                     String.valueOf(pid));
@@ -104,9 +101,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                                 agentPath.toAbsolutePath().toString(), options);
             ReflectUtils.invoke(vm, "detach", void.class);
             return CmdResult.builder().exitCode(0).stdout("Agent 注入成功: PID[" + pid + "]").build();
-        } catch (Exception e) {
-            return CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build();
-        }
+        }).orElseGet(e -> CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build());
     }
 
     /**

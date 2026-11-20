@@ -1,6 +1,7 @@
 package com.chua.datalake.support.cdc;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
@@ -184,13 +185,9 @@ public class MysqlCdcListener {
 
         final CountDownLatch settled = new CountDownLatch(1);
         final Exception[] failure = new Exception[1];
-        newClient.registerEventListener(event -> {
-            try {
-                handleEvent(event);
-            } catch (Exception e) {
-                log.error("[datalake-cdc] 事件处理失败: {}", e.getMessage(), e);
-            }
-        });
+        newClient.registerEventListener(event ->
+                Precondition.tryRun(() -> handleEvent(event))
+                        .orElse(e -> log.error("[datalake-cdc] 事件处理失败: {}", e.getMessage(), e)));
         newClient.registerLifecycleListener(new BinaryLogClient.LifecycleListener() {
             @Override
             public void onConnect(BinaryLogClient client) {
@@ -292,11 +289,8 @@ public class MysqlCdcListener {
      * @param thread  监听线程
      */
     private static void abort(BinaryLogClient current, Thread thread) {
-        try {
-            current.disconnect();
-        } catch (Exception e) {
-            log.debug("[datalake-cdc] 启动失败后的断开异常: {}", e.getMessage());
-        }
+        Precondition.tryRun(() -> current.disconnect())
+                .orElse(e -> log.debug("[datalake-cdc] 启动失败后的断开异常: {}", e.getMessage()));
         if (thread != null) {
             thread.interrupt();
         }
@@ -366,7 +360,7 @@ public class MysqlCdcListener {
      * @return true 表示已进入管线
      */
     private boolean publishEvent(Map<String, Object> data) {
-        try {
+        return Precondition.tryGet(() -> {
             DataEnvelope envelope = DataEnvelope.builder()
                     .parsed(data)
                     .pipelineId(pipelineId)
@@ -382,11 +376,11 @@ public class MysqlCdcListener {
             }
             log.debug("[datalake-cdc] 事件处理完成: op={}, count={}", data.get("_cdc_op"), eventCount.get());
             return true;
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             failureCount.increment();
             log.error("[datalake-cdc] 事件发布失败: {}", e.getMessage(), e);
             return false;
-        }
+        });
     }
 
     /**

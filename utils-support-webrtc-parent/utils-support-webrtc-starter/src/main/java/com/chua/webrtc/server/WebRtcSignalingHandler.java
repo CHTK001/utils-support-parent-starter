@@ -1,6 +1,7 @@
 package com.chua.webrtc.server;
 
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -379,14 +380,12 @@ public class WebRtcSignalingHandler implements ServerHandler {
     }
 
     private static String extractPeerId(String message) {
-        try {
+        return Precondition.tryGet(() -> {
             JsonObject json = Json.fromJson(message, JsonObject.class);
             if (json == null || !json.containsKey("peerId")) {
                 return null;
             }
             return String.valueOf(json.get("peerId"));
-        } catch (Exception ignore) {
-            return null;
-        }
+        }).orElseGet(e -> null);
     }
 }

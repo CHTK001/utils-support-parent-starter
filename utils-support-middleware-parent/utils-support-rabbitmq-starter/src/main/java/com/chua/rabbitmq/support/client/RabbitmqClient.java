@@ -2,6 +2,7 @@
 package com.chua.rabbitmq.support.client;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.rabbitmq.client.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -233,11 +234,8 @@ public class RabbitmqClient implements AutoCloseable {
         if (closed.compareAndSet(false, true)) {
             try {
                 for (Channel ch : channelCache.values()) {
-                    try {
-                        ch.close();
-                    } catch (Exception e) {
-                        log.debug("[rabbitmq] 关闭 channel 失败，已忽略: {}", e.getMessage());
-                    }
+                    Precondition.tryRun(ch::close)
+                            .orElse(e -> log.debug("[rabbitmq] 关闭 channel 失败，已忽略: {}", e.getMessage()));
                 }
                 channelCache.clear();
                 if (connection != null && connection.isOpen()) {
@@ -298,11 +296,8 @@ public class RabbitmqClient implements AutoCloseable {
     public void closeChannel(String name) {
         Channel ch = channelCache.remove(name);
         if (ch != null) {
-            try {
-                ch.close();
-            } catch (Exception e) {
-                log.debug("[rabbitmq] 操作失败，已忽略: {}", e.getMessage());
-            }
+            Precondition.tryRun(ch::close)
+                    .orElse(e -> log.debug("[rabbitmq] 操作失败，已忽略: {}", e.getMessage()));
         }
     }
 
@@ -1571,11 +1566,8 @@ public class RabbitmqClient implements AutoCloseable {
                 ch.txCommit();
                 return result;
             } catch (Exception e) {
-                try {
-                    ch.txRollback();
-                } catch (Exception rollbackEx) {
-                    log.debug("[rabbitmq] 事务回滚失败，已忽略: {}", rollbackEx.getMessage());
-                }
+                Precondition.tryRun(ch::txRollback)
+                        .orElse(rollbackEx -> log.debug("[rabbitmq] 事务回滚失败，已忽略: {}", rollbackEx.getMessage()));
                 throw new RabbitmqClientException("事务执行失败", e);
             }
         }

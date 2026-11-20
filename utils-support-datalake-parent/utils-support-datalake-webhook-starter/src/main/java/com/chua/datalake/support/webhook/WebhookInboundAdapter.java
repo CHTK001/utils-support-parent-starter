@@ -2,6 +2,7 @@
 package com.chua.datalake.support.webhook;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.model.PipelineState;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
@@ -369,13 +370,13 @@ public class WebhookInboundAdapter {
                 .traceId("webhook-" + receivedCount.incrementAndGet())
                 .timestamp(System.currentTimeMillis())
                 .build();
-        try {
+        return Precondition.tryGet(() -> {
             pipelineEngine.execute(pipelineId, envelope);
-        } catch (Exception e) {
+            return envelope.getState();
+        }).orElseGet(e -> {
             log.error("[datalake-webhook] 管线执行异常: pipeline={}, error={}", pipelineId, e.getMessage(), e);
             return PipelineState.SINK_FAIL;
-        }
-        return envelope.getState();
+        });
     }
 
     /**
@@ -483,12 +484,9 @@ public class WebhookInboundAdapter {
      * @param reply    应答体
      */
     private void sendJson(HttpExchange exchange, int status, WebhookReply reply) {
-        byte[] bytes;
-        try {
-            bytes = objectMapper.writeValueAsString(reply).getBytes(StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            bytes = "{\"ok\":false,\"status\":\"serialize_error\"}".getBytes(StandardCharsets.UTF_8);
-        }
+        byte[] bytes = Precondition
+                .tryGet(() -> objectMapper.writeValueAsString(reply).getBytes(StandardCharsets.UTF_8))
+                .orElseGet(e -> "{\"ok\":false,\"status\":\"serialize_error\"}".getBytes(StandardCharsets.UTF_8));
         try {
             exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
             exchange.sendResponseHeaders(status, bytes.length);

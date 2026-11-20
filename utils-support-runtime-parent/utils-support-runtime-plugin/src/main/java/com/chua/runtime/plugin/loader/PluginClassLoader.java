@@ -1,6 +1,7 @@
 package com.chua.runtime.plugin.loader;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -110,26 +111,19 @@ public class PluginClassLoader extends URLClassLoader {
      */
     private static URL[] toUrls(Path pluginDir) {
         List<URL> urls = Wraps.list();
-        try {
+        Precondition.tryRun(() -> {
             if (Files.exists(pluginDir)) {
                 urls.add(pluginDir.toUri().toURL());
                 Path libDir = pluginDir.resolve("lib");
                 if (Files.exists(libDir)) {
                     try (var stream = Files.list(libDir)) {
                         stream.filter(p -> p.getFileName().toString().endsWith(".jar"))
-                                .forEach(p -> {
-                                    try {
-                                        urls.add(p.toUri().toURL());
-                                    } catch (Exception e) {
-                                        LOG.log(Level.WARNING, "添加 lib 目录 JAR 失败: " + p, e);
-                                    }
-                                });
+                                .forEach(p -> Precondition.tryRun(() -> urls.add(p.toUri().toURL()))
+                                        .orElse(e -> LOG.log(Level.WARNING, "添加 lib 目录 JAR 失败: " + p, e)));
                     }
                 }
             }
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, "构建插件 URL 失败: " + pluginDir, e);
-        }
+        }).orElse(e -> LOG.log(Level.WARNING, "构建插件 URL 失败: " + pluginDir, e));
         return urls.toArray(new URL[0]);
     }
 

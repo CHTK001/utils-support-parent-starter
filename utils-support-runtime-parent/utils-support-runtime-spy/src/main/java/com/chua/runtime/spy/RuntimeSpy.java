@@ -1,6 +1,7 @@
 package com.chua.runtime.spy;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -193,7 +194,7 @@ public class RuntimeSpy {
      */
     private static void syncTransformerRule(String className, String methodName,
                                             InterceptPoint point, boolean register) {
-        try {
+        Precondition.tryRun(() -> {
             if (SpyBootstrap.isInitialized()) {
                 SpyTransformer transformer = SpyBootstrap.getTransformer();
                 if (transformer != null) {
@@ -207,9 +208,7 @@ public class RuntimeSpy {
                     }
                 }
             }
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("同步插桩规则失败: %s.%s.%s", className, methodName, e.getMessage()));
-        }
+        }).orElse(e -> LOG.log(Level.WARNING, String.format("同步插桩规则失败: %s.%s.%s", className, methodName, e.getMessage())));
     }
 
     /**
@@ -226,7 +225,7 @@ public class RuntimeSpy {
         if (inst == null) {
             return;
         }
-        try {
+        Precondition.tryRun(() -> {
             Class<?> target = null;
             for (Class<?> c : inst.getAllLoadedClasses()) {
                 if (c.getName().equals(internalName.replace('/', '.'))) {
@@ -243,9 +242,7 @@ public class RuntimeSpy {
             }
             inst.retransformClasses(target);
             LOG.log(Level.INFO, "已对 " + internalName + " 触发重变换");
-        } catch (Throwable e) {
-            LOG.log(Level.WARNING, "retransform " + internalName + " 失败: " + e.getMessage());
-        }
+        }).orElse(e -> LOG.log(Level.WARNING, "retransform " + internalName + " 失败: " + e.getMessage()));
     }
 
     /**
@@ -358,7 +355,7 @@ public class RuntimeSpy {
 
  // 调用 拦截器（如果有匹配）
         if (interceptor != null) {
-            try {
+            Precondition.tryRun(() -> {
                 TraceStackFrame topFrame = TRACE_STACK.get().peek();
                 InterceptContext.TraceStack traceStack = null;
                 if (topFrame != null) {
@@ -379,9 +376,7 @@ public class RuntimeSpy {
                     ctx.setTraceStack(traceStack);
                 }
                 interceptor.onIntercept(ctx);
-            } catch (Throwable e) {
-                LOG.log(Level.SEVERE, "拦截器执行异常: " + key, e);
-            }
+            }).orElse(e -> LOG.log(Level.SEVERE, "拦截器执行异常: " + key, e));
         }
 
         // 维护 ENTRY/EXIT 计数 + 链路追踪栈弹栈
@@ -581,7 +576,7 @@ public class RuntimeSpy {
         if (interceptor == null) {
             return;
         }
-        try {
+        Precondition.tryRun(() -> {
             InterceptContext ctx = InterceptContext.builder()
                     .className(internalName)
                     .methodName(methodName)
@@ -591,9 +586,7 @@ public class RuntimeSpy {
                     .throwable(throwable)
                     .build();
             interceptor.onIntercept(ctx);
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, String.format("异常拦截器执行异常: %s", key, e));
-        }
+        }).orElse(e -> LOG.log(Level.SEVERE, String.format("异常拦截器执行异常: %s", key, e)));
     }
 
     /**
@@ -798,7 +791,7 @@ public class RuntimeSpy {
             return null;
         }
         TraceContextSnapshot snapshot = capture();
-        try {
+        Precondition.tryRun(() -> {
             Runnable originalTarget = (Runnable) ReflectUtils.getField(thread, "target");
             ReflectUtils.setField(thread, "target", (Runnable) () -> {
                 restore(snapshot);
@@ -810,9 +803,7 @@ public class RuntimeSpy {
                     clearMdc();
                 }
             });
-        } catch (Exception e) {
-            LOG.log(Level.FINE, String.format("包装 Thread 失败: %s", e.getMessage()));
-        }
+        }).orElse(e -> LOG.log(Level.FINE, String.format("包装 Thread 失败: %s", e.getMessage())));
         return thread;
     }
 

@@ -1,5 +1,6 @@
 package com.chua.datalake.support.pipeline;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.json.Json;
 import com.chua.datalake.support.engine.DefaultPipelineEngine;
 import com.chua.datalake.support.spi.pipeline.PipelineConfig;
@@ -116,14 +117,12 @@ public class DefaultPipelineManager implements PipelineManager {
  // 先写原始 存储（保证即使编译失败，原始数据也不丢失）
         store.put(pipelineId, jsonDsl);
  // 同步编译：将 JSON 解析为 pipeline配置 对象
-        try {
+        Precondition.tryRun(() -> {
             PipelineConfig config = Json.fromJson(jsonDsl, PipelineConfig.class);
             if (config != null) {
                 compiledCache.put(pipelineId, config);
             }
-        } catch (Exception e) {
-            log.warn("[pipeline-mgr] 编译管线 DSL 失败: pipelineId={}, error={}", pipelineId, e.getMessage(), e);
-        }
+        }).orElse(e -> log.warn("[pipeline-mgr] 编译管线 DSL 失败: pipelineId={}, error={}", pipelineId, e.getMessage(), e));
         // 通知引擎失效对应管线的 Sink 编译缓存，确保重新保存后新配置生效
         if (engine != null) {
             engine.invalidateSinkCache(pipelineId);

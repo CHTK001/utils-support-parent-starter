@@ -1,6 +1,7 @@
 package com.chua.datalake.support.manager;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.datalake.support.spi.sink.AccessSink;
 import com.chua.datalake.support.spi.sink.DataSink;
 import lombok.extern.slf4j.Slf4j;
@@ -55,12 +56,10 @@ public class SinkManager {
      */
     public void stop() {
         for (DataSink sink : sinkMap.values()) {
-            try {
-                sink.stop();
-            } catch (Exception e) {
+            Precondition.tryRun(sink::stop).orElse(e -> {
                 // 停机阶段同样隔离，保证每个 sink 都有释放资源的机会
                 log.error("[datalake-server] sink 停止失败: type={}", sink.type(), e);
-            }
+            });
         }
     }
 

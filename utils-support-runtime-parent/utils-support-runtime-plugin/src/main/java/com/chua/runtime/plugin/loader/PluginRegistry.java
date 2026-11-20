@@ -1,6 +1,7 @@
 package com.chua.runtime.plugin.loader;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.plugin.loader.PluginScanner.PluginInfo;
@@ -123,12 +124,10 @@ public class PluginRegistry {
      */
     public void startAll() {
         for (PluginInfo info : pluginList) {
-            try {
+            Precondition.tryRun(() -> {
                 info.plugin().start();
                 LOG.log(Level.INFO, String.format("插件[%s] 启动成功", info.name()));
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("插件[%s] 启动失败", info.name(), e));
-            }
+            }).orElse(e -> LOG.log(Level.SEVERE, String.format("插件[%s] 启动失败", info.name(), e)));
         }
     }
 
@@ -137,12 +136,10 @@ public class PluginRegistry {
      */
     public void stopAll() {
         for (PluginInfo info : pluginList) {
-            try {
+            Precondition.tryRun(() -> {
                 info.plugin().stop();
                 LOG.log(Level.INFO, String.format("插件[%s] 停止成功", info.name()));
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("插件[%s] 停止失败", info.name(), e));
-            }
+            }).orElse(e -> LOG.log(Level.SEVERE, String.format("插件[%s] 停止失败", info.name(), e)));
         }
     }
 

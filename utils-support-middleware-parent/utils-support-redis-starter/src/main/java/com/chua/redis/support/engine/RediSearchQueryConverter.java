@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -129,10 +130,8 @@ public class RediSearchQueryConverter {
      * @return "|" 或 " "
      */
     private String detectTopLevelOp(String expr) {
-        if (expr.toUpperCase().contains(" OR ")) {
-            return "|";
-        }
-        return " ";
+        return Precondition.ifTrue(expr.toUpperCase().contains(" OR "))
+                .ifTrueGet(() -> "|").orElse(() -> " ");
     }
 
     /**
@@ -285,11 +284,8 @@ public class RediSearchQueryConverter {
          * @return 参数值
          */
         Object next() {
-            if (idx < params.size()) {
-                prev = params.get(idx);
-            } else {
-                prev = "";
-            }
+            prev = Precondition.ifTrue(idx < params.size())
+                    .ifTrueGet(() -> params.get(idx)).orElse(() -> "");
             idx++;
             return prev;
         }

@@ -1,6 +1,7 @@
 package com.chua.redis.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
@@ -411,11 +412,8 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
         StatefulRedisConnection<String, String> conn = sharedConnection;
         sharedConnection = null;
         if (conn != null) {
-            try {
-                conn.close();
-            } catch (Exception e) {
-                log.warn("[SeriesEngine] Redis 共享连接关闭失败: {}", e.getMessage(), e);
-            }
+            Precondition.tryRun(conn::close)
+                    .orElse(e -> log.warn("[SeriesEngine] Redis 共享连接关闭失败: {}", e.getMessage(), e));
         }
         if (ownsClient && redisClient != null) {
             redisClient.shutdown();

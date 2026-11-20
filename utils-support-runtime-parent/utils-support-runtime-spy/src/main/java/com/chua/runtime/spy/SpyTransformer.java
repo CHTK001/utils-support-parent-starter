@@ -1,6 +1,7 @@
 package com.chua.runtime.spy;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
@@ -231,7 +232,7 @@ public class SpyTransformer implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
-        try {
+        return Precondition.tryGet(() -> {
             if (className == null) {
                 return null;
             }
@@ -249,12 +250,11 @@ public class SpyTransformer implements ClassFileTransformer {
                 }
             }
             return transformClass(className, classfileBuffer, loader);
-
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             LOG.log(Level.WARNING,
                     String.format("插桩失败: %s — %s: %s", className, e.getClass().getName(), e.getMessage()), e);
             return null;
-        }
+        });
     }
 
     /**
@@ -341,12 +341,11 @@ public class SpyTransformer implements ClassFileTransformer {
          * @return Class 实例
          */
         private static Class<?> loadClass(String type, ClassLoader loader) {
-            try {
-                return ReflectUtils.forName(type.replace('/', '.'), loader);
-            } catch (Throwable e) {
-                // 引用类型不可加载时，回退到最安全的上界
-                return Object.class;
-            }
+            return Precondition.tryGet(() -> ReflectUtils.forName(type.replace('/', '.'), loader))
+                    .orElseGet(e -> {
+                        // 引用类型不可加载时，回退到最安全的上界
+                        return Object.class;
+                    });
         }
     }
 

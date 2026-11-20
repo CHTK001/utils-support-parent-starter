@@ -1,5 +1,6 @@
 package com.chua.redis.support.discovery;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.*;
 import com.chua.common.support.spi.annotations.Spi;
@@ -175,14 +176,12 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
             if (StringUtils.isBlank(value)) {
                 continue;
             }
-            try {
+            Precondition.tryRun(() -> {
                 Discovery discovery = Json.fromJson(value, Discovery.class);
                 if (discovery != null) {
                     result.add(discovery);
                 }
-            } catch (Exception e) {
-                log.warn("[Discovery] Redis 记录解析失败, path={}, cause={}", path, e.getMessage());
-            }
+            }).orElse(e -> log.warn("[Discovery] Redis 记录解析失败, path={}, cause={}", path, e.getMessage()));
         }
         return result;
     }

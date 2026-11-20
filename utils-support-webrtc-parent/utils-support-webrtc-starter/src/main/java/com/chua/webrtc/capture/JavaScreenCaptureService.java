@@ -1,5 +1,6 @@
 package com.chua.webrtc.capture;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 import dev.onvoid.webrtc.media.video.VideoTrack;
@@ -214,12 +215,8 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
      * @return 主屏尺寸；headless 或 AWT 不可用时返回 null
      */
     private Rectangle primaryScreenBounds() {
-        try {
-            return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-                    .getDefaultConfiguration().getBounds();
-        } catch (Exception e) {
-            return null;
-        }
+        return Precondition.tryGet(() -> GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+                .getDefaultConfiguration().getBounds()).orElseGet(e -> null);
     }
 
     /**

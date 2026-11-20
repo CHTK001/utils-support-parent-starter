@@ -1,6 +1,7 @@
 package com.chua.nats.support.client;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import io.nats.client.*;
 import io.nats.client.api.*;
 import lombok.Getter;
@@ -225,15 +226,10 @@ public class NatsClient implements AutoCloseable {
         if (closed.compareAndSet(false, true)) {
             // 取消所有订阅
             for (var sub : subscriptions) {
-                try {
-                    if (sub.jetStream) {
-                        sub.jsSubscription.unsubscribe();
-                    } else {
-                        sub.coreSubscription.unsubscribe();
-                    }
-                } catch (Exception e) {
-                    log.debug("[nats] 取消订阅失败，已忽略: {}", e.getMessage());
-                }
+                Precondition.tryRun(() -> Precondition.ifTrue(sub.jetStream)
+                        .ifTrue(() -> sub.jsSubscription.unsubscribe())
+                        .orElse(() -> sub.coreSubscription.unsubscribe()))
+                        .orElse(e -> log.debug("[nats] 取消订阅失败，已忽略: {}", e.getMessage()));
             }
             subscriptions.clear();
 
@@ -630,9 +626,7 @@ public class NatsClient implements AutoCloseable {
          * @return 头部的结果
          */
         public PublishOperation header(String key, String value) {
-            if (headers == null) {
-                headers = Wraps.linkedMap();
-            }
+            headers = Precondition.ifNotNull(headers).ifTrueGet(h -> h).orElse(() -> Wraps.linkedMap());
             headers.put(key, value);
             return this;
         }
@@ -962,10 +956,8 @@ public class NatsClient implements AutoCloseable {
          */
         public StreamInfo addStream() {
             try {
-                var cfg = config != null ? config : StreamConfiguration.builder()
-                        .name(streamName)
-                        .storageType(StorageType.File)
-                        .build();
+                var cfg = Precondition.ifNotNull(config).ifTrueGet(c -> c)
+                        .orElse(() -> StreamConfiguration.builder().name(streamName).storageType(StorageType.File).build());
                 return client.jetStreamManagement.addStream(cfg);
             } catch (IOException | JetStreamApiException e) {
                 throw new NatsClientException("添加 JetStream 流失败: " + streamName, e);
@@ -1129,10 +1121,8 @@ public class NatsClient implements AutoCloseable {
             } catch (IOException e) {
                 // 存储桶不存在，创建新桶
                 try {
-                    var cfg = config != null ? config : KeyValueConfiguration.builder()
-                            .name(bucketName)
-                            .storageType(StorageType.File)
-                            .build();
+                    var cfg = Precondition.ifNotNull(config).ifTrueGet(c -> c)
+                            .orElse(() -> KeyValueConfiguration.builder().name(bucketName).storageType(StorageType.File).build());
                     client.connection.keyValueManagement().create(cfg);
                     return client.connection.keyValue(bucketName);
                 } catch (IOException | JetStreamApiException ex) {

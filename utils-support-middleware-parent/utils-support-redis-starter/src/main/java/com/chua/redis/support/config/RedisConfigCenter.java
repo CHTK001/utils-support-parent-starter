@@ -2,6 +2,7 @@
 package com.chua.redis.support.config;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.config.center.AbstractConfigCenter;
 import com.chua.common.support.config.center.ConfigCenterSetting;
 import com.chua.common.support.spi.annotations.Spi;
@@ -299,7 +300,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJsonContent(String content) {
-        try {
+        return Precondition.tryGet(() -> {
             Map<String, Object> result = Wraps.map();
 
             // 简单 JSON 对象解析
@@ -318,10 +319,10 @@ public class RedisConfigCenter extends AbstractConfigCenter {
             }
 
             return MapUtils.flattenMap(result);
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             log.warn("JSON 配置解析失败，返回原始内容: {}", e.getMessage(), e);
             return Collections.singletonMap("value", content);
-        }
+        });
     }
 
     /**

@@ -2,6 +2,7 @@
 package com.chua.runtime.core.manager;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -90,11 +91,8 @@ public class DefaultRuntimeManager implements RuntimeManager {
     public RuntimeArtifact registerOrReplace(RuntimeArtifact artifact) {
         RuntimeInstance old = instanceMap.get(artifact.getId());
         if (old != null) {
-            try {
-                old.close();
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, String.format("关闭旧实例异常", e));
-            }
+            Precondition.tryRun(old::close)
+                    .orElse(e -> LOG.log(Level.WARNING, String.format("关闭旧实例异常", e)));
             instanceMap.remove(artifact.getId());
         }
         return artifactMap.put(artifact.getId(), artifact);
@@ -107,11 +105,8 @@ public class DefaultRuntimeManager implements RuntimeManager {
     public boolean unregister(String id) {
         RuntimeInstance inst = instanceMap.get(id);
         if (inst != null) {
-            try {
-                inst.close();
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, String.format("关闭异常", e));
-            }
+            Precondition.tryRun(inst::close)
+                    .orElse(e -> LOG.log(Level.WARNING, String.format("关闭异常", e)));
             instanceMap.remove(id);
         }
         RuntimeArtifact removed = artifactMap.remove(id);
@@ -150,8 +145,9 @@ public class DefaultRuntimeManager implements RuntimeManager {
                 if (!Files.exists(targetDir)) {
                     Files.createDirectories(targetDir);
                 }
-                String filename = art.getDownloadFilename() != null && !art.getDownloadFilename().isBlank()
-                        ? art.getDownloadFilename() : url.substring(url.lastIndexOf('/') + 1);
+                String filename = Precondition.ifTrue(art.getDownloadFilename() != null && !art.getDownloadFilename().isBlank())
+                        .ifTrueGet(art::getDownloadFilename)
+                        .orElse(() -> url.substring(url.lastIndexOf('/') + 1));
                 Path targetFile = targetDir.resolve(filename);
 
                 if (callback != null) {
@@ -242,13 +238,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public RuntimeStatus status(String id) {
         RuntimeInstance inst = instanceMap.get(id);
-        if (inst != null) {
-            return inst.status();
-        }
-        if (artifactMap.containsKey(id)) {
-            return RuntimeStatus.STOPPED;
-        }
-        return RuntimeStatus.UNKNOWN;
+        return Precondition.ifTrue(inst != null)
+                .ifTrueGet(() -> inst.status())
+                .elseIf(artifactMap.containsKey(id), () -> RuntimeStatus.STOPPED)
+                .orElse(() -> RuntimeStatus.UNKNOWN);
     }
 
     /**
@@ -337,27 +330,30 @@ public class DefaultRuntimeManager implements RuntimeManager {
         if (sm == null) {
             return CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr("无可用服务管理器").build();
         }
-        if (service.getExecutable() == null && art.getExecutable() != null) {
-            ManagedService updated = ManagedService.builder()
-                    .serviceType(service.getServiceType())
-                    .serviceName(service.getServiceName())
-                    .displayName(service.getDisplayName() != null ? service.getDisplayName() : art.getName())
-                    .description(service.getDescription() != null ? service.getDescription() : art.getName())
-                    .artifactId(id)
-                    .executable(art.getExecutable().toAbsolutePath().toString())
-                    .args(service.getArgs() != null ? service.getArgs() : art.getArgs())
-                    .workDir(service.getWorkDir() != null ? service.getWorkDir()
-                            : (art.getWorkDir() != null ? art.getWorkDir().toString() : null))
-                    .env(service.getEnv() != null ? service.getEnv() : art.getEnv())
-                    .startupType(service.getStartupType())
-                    .runAsUser(service.getRunAsUser())
-                    .dependencies(service.getDependencies())
-                    .autoRestart(service.isAutoRestart())
-                    .restartSec(service.getRestartSec())
-                    .build();
-            return sm.install(updated);
-        }
-        return sm.install(service);
+        return Precondition.ifTrue(service.getExecutable() == null && art.getExecutable() != null)
+                .ifTrueGet(() -> {
+                    ManagedService updated = ManagedService.builder()
+                            .serviceType(service.getServiceType())
+                            .serviceName(service.getServiceName())
+                            .displayName(service.getDisplayName() != null ? service.getDisplayName() : art.getName())
+                            .description(service.getDescription() != null ? service.getDescription() : art.getName())
+                            .artifactId(id)
+                            .executable(art.getExecutable().toAbsolutePath().toString())
+                            .args(service.getArgs() != null ? service.getArgs() : art.getArgs())
+                            .workDir(Precondition.ifTrue(service.getWorkDir() != null)
+                                    .ifTrueGet(service::getWorkDir)
+                                    .elseIf(art.getWorkDir() != null, () -> art.getWorkDir().toString())
+                                    .orElse(() -> null))
+                            .env(service.getEnv() != null ? service.getEnv() : art.getEnv())
+                            .startupType(service.getStartupType())
+                            .runAsUser(service.getRunAsUser())
+                            .dependencies(service.getDependencies())
+                            .autoRestart(service.isAutoRestart())
+                            .restartSec(service.getRestartSec())
+                            .build();
+                    return sm.install(updated);
+                })
+                .orElse(() -> sm.install(service));
     }
 
     /**
@@ -450,7 +446,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public CmdResult attachToJvm(int pid, Path agentPath, String options) {
         LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]...", pid));
-        try {
+        return Precondition.tryGet(() -> {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
             Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class},
                     String.valueOf(pid));
@@ -458,9 +454,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
                                 agentPath.toAbsolutePath().toString(), options);
             ReflectUtils.invoke(vm, "detach", void.class);
             return CmdResult.builder().exitCode(0).stdout("Agent 注入成功: PID[" + pid + "]").build();
-        } catch (Exception e) {
-            return CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build();
-        }
+        }).orElseGet(e -> CmdResult.builder().exitCode(CmdResult.EXIT_CODE_ERROR).stderr(e.getMessage()).throwable(e).build());
     }
 
     /**
@@ -469,7 +463,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public Map<Integer, String> listJavaProcesses() {
         Map<Integer, String> jvms = Wraps.linkedMap();
-        try {
+        Precondition.tryRun(() -> {
             CmdResult r = CmdExecutors.execute(
                     new String[]{"ps", "-eo", "pid,comm,args"},
                     10, TimeUnit.SECONDS);
@@ -490,9 +484,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
                     }
                 }
             }
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("列出 Java 进程失败", e));
-        }
+        }).orElse(e -> LOG.log(Level.WARNING, String.format("列出 Java 进程失败", e)));
         return jvms;
     }
 
@@ -518,11 +510,8 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public void close() throws Exception {
         for (RuntimeInstance i : instanceMap.values()) {
-            try {
-                i.close();
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, String.format("关闭异常", e));
-            }
+            Precondition.tryRun(i::close)
+                    .orElse(e -> LOG.log(Level.WARNING, String.format("关闭异常", e)));
         }
         instanceMap.clear();
         artifactMap.clear();

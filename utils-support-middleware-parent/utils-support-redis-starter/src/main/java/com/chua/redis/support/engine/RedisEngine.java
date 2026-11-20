@@ -2,6 +2,7 @@
 package com.chua.redis.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -62,9 +63,7 @@ public class RedisEngine {
         } else {
             throw new IllegalArgumentException("RedisEngine仅支持JedisPool或连接URL字符串");
         }
-        if (defaultDataSourceName == null) {
-            defaultDataSourceName = name;
-        }
+        defaultDataSourceName = Precondition.ifNotNull(defaultDataSourceName).ifTrueGet(v -> v).orElse(() -> name);
     }
 
     /**
@@ -104,9 +103,7 @@ public class RedisEngine {
         JedisPool pool = new JedisPool(targetHost, targetPort);
         SimpleRedisDataSource dataSource = new SimpleRedisDataSource(name, pool);
         dataSources.put(name, dataSource);
-        if (defaultDataSourceName == null) {
-            defaultDataSourceName = name;
-        }
+        defaultDataSourceName = Precondition.ifNotNull(defaultDataSourceName).ifTrueGet(v -> v).orElse(() -> name);
         return this;
     }
 
@@ -201,11 +198,8 @@ public class RedisEngine {
             return;
         }
         for (EngineDataSource<JedisPool> eds : dataSources.values()) {
-            try {
-                eds.getSource().close();
-            } catch (Exception e) {
-                log.warn("关闭Redis连接池失败: {}", e.getMessage(), e);
-            }
+            Precondition.tryRun(() -> eds.getSource().close())
+                    .orElse(e -> log.warn("关闭Redis连接池失败: {}", e.getMessage(), e));
         }
         dataSources.clear();
     }

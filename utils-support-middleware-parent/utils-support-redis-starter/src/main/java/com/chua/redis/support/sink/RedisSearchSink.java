@@ -2,6 +2,7 @@
 package com.chua.redis.support.sink;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datalake.support.model.DataEnvelope;
@@ -146,11 +147,9 @@ public class RedisSearchSink implements DataSink {
         config.setMaxTotal(10);
         config.setMaxIdle(5);
         config.setMinIdle(1);
-        if (StringUtils.isNotEmpty(password)) {
-            pool = new JedisPool(config, host, port, timeout, password, database);
-        } else {
-            pool = new JedisPool(config, host, port, timeout, null, database);
-        }
+        pool = Precondition.ifTrue(StringUtils.isNotEmpty(password))
+                .ifTrueGet(() -> new JedisPool(config, host, port, timeout, password, database))
+                .orElse(() -> new JedisPool(config, host, port, timeout, null, database));
         log.info("[RedisSearchSink] connected {}:{}", host, port);
     }
 
@@ -182,8 +181,9 @@ public class RedisSearchSink implements DataSink {
             if (data == null || data.isEmpty()) {
                 return false;
             }
-            String topic = envelope.getTopics() != null && !envelope.getTopics().isEmpty()
-                    ? envelope.getTopics().iterator().next() : "default";
+            String topic = Precondition.ifTrue(envelope.getTopics() != null && !envelope.getTopics().isEmpty())
+                    .ifTrueGet(() -> envelope.getTopics().iterator().next())
+                    .orElse(() -> "default");
 
             String indexName = IDX_PREFIX + topic;
             if (indexCreated.putIfAbsent(indexName, true) == null) {
@@ -222,7 +222,7 @@ public class RedisSearchSink implements DataSink {
                     schema.append(" ").append(key).append(" TEXT");
                 }
             }
-            try {
+            Precondition.tryRun(() -> {
  // 将 模式 按空格拆分成多个 FT.创建 参数，逐个编码为字节数组
                 String[] schemaParts = schema.toString().split(" ");
                 byte[][] args = new byte[schemaParts.length + 1][];
@@ -232,9 +232,8 @@ public class RedisSearchSink implements DataSink {
                 }
                 jedis.sendCommand(FT_CREATE, args);
                 log.info("[RedisSearchSink] index created: {}", indexName);
-            } catch (Exception e2) {
-                log.warn("[RedisSearchSink] create index failed (may already exist): {}", e2.getMessage(), e2);
-            }
+            }).orElse(e2 -> log.warn("[RedisSearchSink] create index failed (may already exist): {}",
+                    e2.getMessage(), e2));
         }
     }
 

@@ -2,6 +2,7 @@
 package com.chua.opentelemetry.support.client;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.runtime.protocol.Span;
 import com.chua.runtime.protocol.SpanEvent;
 import com.chua.runtime.protocol.StatusCode;
@@ -267,17 +268,11 @@ public class OpenTelemetryClient implements AutoCloseable {
         if (!closed.compareAndSet(false, true)) {
             return;
         }
-        try {
-            tracerProvider.shutdown().join(5, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.warn("OpenTelemetryClient 关闭 tracerProvider 失败: {}", e.getMessage());
-        }
+        Precondition.tryRun(() -> tracerProvider.shutdown().join(5, TimeUnit.SECONDS))
+                .orElse(e -> log.warn("OpenTelemetryClient 关闭 tracerProvider 失败: {}", e.getMessage()));
         if (spanExporter != null) {
-            try {
-                spanExporter.shutdown().join(5, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                log.warn("OpenTelemetryClient 关闭 spanExporter 失败: {}", e.getMessage());
-            }
+            Precondition.tryRun(() -> spanExporter.shutdown().join(5, TimeUnit.SECONDS))
+                    .orElse(e -> log.warn("OpenTelemetryClient 关闭 spanExporter 失败: {}", e.getMessage()));
         }
     }
 
@@ -536,11 +531,7 @@ public class OpenTelemetryClient implements AutoCloseable {
      * @param span Span 实例
      */
     protected void endSpan(io.opentelemetry.api.trace.Span span) {
-        try {
-            span.end();
-        } catch (Exception e) {
-            log.warn("Span 停止失败: {}", e.getMessage());
-        }
+        Precondition.tryRun(span::end).orElse(e -> log.warn("Span 停止失败: {}", e.getMessage()));
     }
 
     /**
@@ -598,9 +589,8 @@ public class OpenTelemetryClient implements AutoCloseable {
          * @return this
          */
         public OpenTelemetryClientBuilder attribute(String key, String value) {
-            if (attributeBuilder == null) {
-                attributeBuilder = Attributes.builder();
-            }
+            attributeBuilder = Precondition.ifNotNull(attributeBuilder).ifTrueGet(ab -> ab)
+                    .orElse(() -> Attributes.builder());
             attributeBuilder.put(key, value);
             return this;
         }

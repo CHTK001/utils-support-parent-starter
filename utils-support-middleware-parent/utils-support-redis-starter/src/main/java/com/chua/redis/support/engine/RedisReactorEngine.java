@@ -2,6 +2,7 @@
 package com.chua.redis.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
@@ -125,9 +126,8 @@ public class RedisReactorEngine implements ReactorEngine {
         }
         String url = attachPassword(normalizeUrl(redisUrl), password);
         lettuceClients.put(name, RedisClient.create(url));
-        if (defaultDataSourceName == null) {
-            defaultDataSourceName = name;
-        }
+        defaultDataSourceName = Precondition.ifNotNull(defaultDataSourceName)
+                .ifTrueGet(x -> x).orElse(() -> name);
         log.info("Redis 数据源已添加: name={}, url={}", name, maskUrl(url));
         return this;
     }
@@ -140,10 +140,9 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     private static String normalizeUrl(String redisUrl) {
         String url = redisUrl.trim();
-        if (url.startsWith("redis://") || url.startsWith("rediss://") || url.startsWith("unix://")) {
-            return url;
-        }
-        return REDIS_PREFIX + url;
+        return Precondition.ifTrue(url.startsWith("redis://") || url.startsWith("rediss://")
+                        || url.startsWith("unix://"))
+                .ifTrueGet(() -> url).orElse(() -> REDIS_PREFIX + url);
     }
 
     /**
@@ -318,15 +317,13 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Flux.error(new IllegalStateException("未配置 Redis 数据源"));
         }
-        try {
+        return Precondition.<Flux<Map<String, Object>>>tryGet(() -> {
             Object result = executeSingleCommand(name, sql, params);
             if (result == null) {
                 return Flux.empty();
             }
             return Flux.just(Collections.singletonMap("value", result));
-        } catch (Exception e) {
-            return Flux.error(e);
-        }
+        }).orElseGet(e -> Flux.error(e));
     }
 
     /**
@@ -344,15 +341,13 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Flux.error(new IllegalStateException("未配置 Redis 数据源"));
         }
-        try {
+        return Precondition.<Flux<T>>tryGet(() -> {
             Object result = executeSingleCommand(name, sql, params);
             if (result == null) {
                 return Flux.empty();
             }
             return Flux.just(convertTo(result, rowType));
-        } catch (Exception e) {
-            return Flux.error(e);
-        }
+        }).orElseGet(e -> Flux.error(e));
     }
 
     /**
@@ -953,19 +948,13 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public void close() {
         for (StatefulRedisConnection<String, String> conn : connections.values()) {
-            try {
-                conn.close();
-            } catch (Exception e) {
-                log.warn("关闭 Redis 共享连接失败: {}", e.getMessage(), e);
-            }
+            Precondition.tryRun(conn::close)
+                    .orElse(e -> log.warn("关闭 Redis 共享连接失败: {}", e.getMessage(), e));
         }
         connections.clear();
         for (RedisClient client : lettuceClients.values()) {
-            try {
-                client.shutdown();
-            } catch (Exception e) {
-                log.warn("关闭 Lettuce 客户端失败: {}", e.getMessage(), e);
-            }
+            Precondition.tryRun(client::shutdown)
+                    .orElse(e -> log.warn("关闭 Lettuce 客户端失败: {}", e.getMessage(), e));
         }
         lettuceClients.clear();
         timeouts.clear();
@@ -1013,10 +1002,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return Long 值
      */
     private static long parseLong(Long converted, String raw) {
-        if (converted != null) {
-            return converted;
-        }
-        return Long.parseLong(raw);
+        return Precondition.ifNotNull(converted).ifTrueGet(x -> x).orElse(() -> Long.parseLong(raw));
     }
 
     /**
@@ -1027,10 +1013,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return Integer 值
      */
     private static int parseInt(Integer converted, String raw) {
-        if (converted != null) {
-            return converted;
-        }
-        return Integer.parseInt(raw);
+        return Precondition.ifNotNull(converted).ifTrueGet(x -> x).orElse(() -> Integer.parseInt(raw));
     }
 
     /**
@@ -1041,9 +1024,6 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return Double 值
      */
     private static double parseDouble(Double converted, String raw) {
-        if (converted != null) {
-            return converted;
-        }
-        return Double.parseDouble(raw);
+        return Precondition.ifNotNull(converted).ifTrueGet(x -> x).orElse(() -> Double.parseDouble(raw));
     }
 }
