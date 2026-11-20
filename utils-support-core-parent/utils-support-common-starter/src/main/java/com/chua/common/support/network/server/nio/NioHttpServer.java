@@ -938,69 +938,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
-     * @param st 方法入参 st
-     * @param key 键，不允许为 null
-     */
-    private void processRequest(ConnectionState st, SelectionKey key) {
-        try {
-            // WebSocket 升级:回退到虚拟线程帧协议处理
-            if (WebSocketProtocol.isUpgradeRequest(st.request)) {
-                // 通道已注册到 Selector(非阻塞),直接 configureBlocking(true) 会抛
-                // IllegalBlockingModeException(NIO 禁止已注册通道切阻塞模式),导致握手响应写不出、
-                // 客户端报 "HTTP/1.1 header parser received no bytes";先取消注册再切换
-                key.cancel();
-                st.channel.configureBlocking(true);
-                handleWebSocketUpgrade(st.channel, st.request);
-                closeConn(key, st);
-                return;
-            }
-            NioServerResponse response = st.response();
-            response.setAsyncWriter((header, body) -> {
-                synchronized (st.writeQueue) {
-                    appendResponseBuffers(st, header, body);
-                }
-                // 交由所属分片事件循环线程统一注册 OP_WRITE,避免 worker 线程跨线程改 interestOps 竞态
-                pendingWriteQueues[st.shard].add(key);
-                selectors[st.shard].wakeup();
-            });
-            // 流式直写(SSE):分片入待写队列并由事件循环续写;受背压门限约束
-            response.setStreamWriter(bytes -> {
-                enqueueStream(st, key, bytes);
-                pendingWriteQueues[st.shard].add(key);
-                selectors[st.shard].wakeup();
-            });
-            try {
-                handleRequest(st.request, response);
-            } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage(), e);
-                if (!response.isCommitted()) {
-                    response.sendError(500, "Internal Server Error");
-                }
-            } finally {
-                response.complete();
-            }
-            st.keepAlive = shouldKeepAlive(st.request, response);
-            st.request.resetForNextRequest();
-            recycle(st, response);
-            // 触发写:入队待写 key,由所属分片事件循环线程统一注册 OP_WRITE
-            boolean hasPending;
-            synchronized (st.writeQueue) {
-                hasPending = !st.writeQueue.isEmpty();
-            }
-            if (hasPending) {
-                pendingWriteQueues[st.shard].add(key);
-                selectors[st.shard].wakeup();
-            }
-        } catch (Exception e) {
-            log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
-            closeConn(key, st);
-        }
-    }
-
-    /**
      * worker(虚拟线程)执行 handler 链后,由 worker 线程直接同步写出(直写路径)。
-     * <p>对比 {@link #processRequest}:直写让 socket 写调用在 12 核虚拟线程上并行执行,
+     * <p>与内联路径({@link #processRequestInline})相比:直写让 socket 写调用在 12 核虚拟线程上并行执行,
      * 而非全部串行在 2 个事件循环线程上(Windows 上限),显著提升多核吞吐。</p>
      * <p>线程安全:与事件循环 {@link #handleWrite} 共用 st.writeQueue 同一把锁排空,
      * worker 只操作 writeQueue + rearmReadQueues(仅入队),interestOps 仍只由事件循环修改。</p>
@@ -1358,7 +1297,7 @@ public class NioHttpServer extends AbstractServer {
 
     /**
      * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
-     * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
+     * 普通 HTTP 走事件循环派发(processRequestDirectWrite);SSL 通道无法注册 Selector,回退此处。
      * @param channel 方法入参 channel
      */
     private void handleConnection(SocketChannel channel) {

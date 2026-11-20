@@ -72,6 +72,20 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     private int index;
 
     /**
+     * 当前请求的链路监听器（惰性解析一次）。
+     *
+     * <p>链对象本身每请求新建（游标是请求级状态），因此在链实例内缓存监听器
+     * 不会跨请求串扰；旧实现在每个过滤器步重复读一次请求属性，链上有 N 个
+     * 过滤器就多做 N-1 次哈希查找。</p>
+     */
+    private List<FilterChainListener> resolvedListeners;
+
+    /**
+     * 是否已解析过链路监听器。
+     */
+    private boolean listenersResolved;
+
+    /**
      * 构造响应式过滤器链。
      *
      * @param filters 过滤器列表
@@ -194,7 +208,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         }
 
         try {
-            List<FilterChainListener> listeners = listenersOf(request);
+            List<FilterChainListener> listeners = listeners(request);
             long start = listeners != null ? System.nanoTime() : 0L;
             if (listeners != null) {
                 notifyBefore(listeners, filter, request, response);
@@ -224,10 +238,24 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     }
 
     /**
-     * 读取当前请求挂载的链路监听器。
+     * 读取当前请求挂载的链路监听器（每条链只解析一次）。
      *
      * <p>无监听器时返回 null：未开启链路追踪的请求在下游不会产生任何额外回调开销，
      * 只多一次请求属性读取。</p>
+     *
+     * @param request 当前请求
+     * @return 监听器列表，未挂载时返回 null
+     */
+    private List<FilterChainListener> listeners(ServerRequest request) {
+        if (!listenersResolved) {
+            listenersResolved = true;
+            resolvedListeners = listenersOf(request);
+        }
+        return resolvedListeners;
+    }
+
+    /**
+     * 从请求属性解析链路监听器。
      *
      * @param request 当前请求
      * @return 监听器列表，未挂载时返回 null

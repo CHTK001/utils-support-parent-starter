@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -42,19 +42,45 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     private final ObjectContext objectContext;
 
     /**
-     * 按 HTTP 方法区分的路由表（路径 -> 方法 -> 处理器）
+     * 不可变路由表快照。
+     *
+     * <p>读路径（每请求路由解析）对快照无锁直读；写路径（启动期/运行期路由注册）
+     * 复制-替换后原子换引用。路由解析是所有 Server 协议的每请求热路径，
+     * 读写锁的读锁获取/释放是两次 CAS，快照读只多一次 volatile 读。</p>
      */
-    private final Map<String, Map<HttpMethod, ServerHandler>> routes = Wraps.linkedMap();
+    private static final class RouteTable {
+
+        /**
+         * 空表（无任何路由）。
+         */
+        static final RouteTable EMPTY = new RouteTable(Collections.emptyMap(), Collections.emptyMap());
+
+        /**
+         * 按 HTTP 方法区分的路由表（路径 -> 方法 -> 处理器），不可变。
+         */
+        final Map<String, Map<HttpMethod, ServerHandler>> routes;
+
+        /**
+         * 不区分 HTTP 方法的路由表（路径 -> 处理器），不可变。
+         */
+        final Map<String, ServerHandler> anyMethodRoutes;
+
+        /**
+         * 构造不可变快照。
+         *
+         * @param routes          按方法区分的路由表（调用方保证不可变）
+         * @param anyMethodRoutes 不区分方法的路由表（调用方保证不可变）
+         */
+        RouteTable(Map<String, Map<HttpMethod, ServerHandler>> routes, Map<String, ServerHandler> anyMethodRoutes) {
+            this.routes = routes;
+            this.anyMethodRoutes = anyMethodRoutes;
+        }
+    }
 
     /**
-     * 不区分 HTTP 方法的路由表（路径 -> 处理器）
+     * 当前路由表快照，volatile 保证读线程可见性与写入原子性。
      */
-    private final Map<String, ServerHandler> anyMethodRoutes = Wraps.linkedMap();
-
-    /**
-     * 路由表读写锁
-     */
-    private final ReentrantReadWriteLock routeLock = new ReentrantReadWriteLock();
+    private volatile RouteTable table = RouteTable.EMPTY;
 
     /**
      * 创建 ServerHandlerFactory 实例
@@ -119,12 +145,13 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      */
     public ServerHandlerFactory<T> route(String path, HttpMethod method, ServerHandler handler) {
         validateRoute(path, handler);
-        routeLock.writeLock().lock();
-        try {
-            routes.computeIfAbsent(path, k -> Wraps.linkedMap()).put(method, handler);
-        } finally {
-            routeLock.writeLock().unlock();
-        }
+        RouteTable cur = table;
+        Map<String, Map<HttpMethod, ServerHandler>> routes = new LinkedHashMap<>(cur.routes);
+        Map<HttpMethod, ServerHandler> methodMap = new LinkedHashMap<>(
+                cur.routes.getOrDefault(path, Collections.emptyMap()));
+        methodMap.put(method, handler);
+        routes.put(path, Collections.unmodifiableMap(methodMap));
+        table = new RouteTable(Collections.unmodifiableMap(routes), cur.anyMethodRoutes);
         return this;
     }
 
@@ -137,12 +164,10 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      */
     public ServerHandlerFactory<T> route(String path, ServerHandler handler) {
         validateRoute(path, handler);
-        routeLock.writeLock().lock();
-        try {
-            anyMethodRoutes.put(path, handler);
-        } finally {
-            routeLock.writeLock().unlock();
-        }
+        RouteTable cur = table;
+        Map<String, ServerHandler> anyMethodRoutes = new LinkedHashMap<>(cur.anyMethodRoutes);
+        anyMethodRoutes.put(path, handler);
+        table = new RouteTable(cur.routes, Collections.unmodifiableMap(anyMethodRoutes));
         return this;
     }
 
@@ -169,13 +194,12 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         if (StringUtils.isBlank(path)) {
             return this;
         }
-        routeLock.writeLock().lock();
-        try {
-            routes.remove(path);
-            anyMethodRoutes.remove(path);
-        } finally {
-            routeLock.writeLock().unlock();
-        }
+        RouteTable cur = table;
+        Map<String, Map<HttpMethod, ServerHandler>> routes = new LinkedHashMap<>(cur.routes);
+        routes.remove(path);
+        Map<String, ServerHandler> anyMethodRoutes = new LinkedHashMap<>(cur.anyMethodRoutes);
+        anyMethodRoutes.remove(path);
+        table = new RouteTable(Collections.unmodifiableMap(routes), Collections.unmodifiableMap(anyMethodRoutes));
         return this;
     }
 
@@ -185,12 +209,8 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @return 路由总数
      */
     public int routeCount() {
-        routeLock.readLock().lock();
-        try {
-            return routes.size() + anyMethodRoutes.size();
-        } finally {
-            routeLock.readLock().unlock();
-        }
+        RouteTable cur = table;
+        return cur.routes.size() + cur.anyMethodRoutes.size();
     }
 
     /**
@@ -202,12 +222,8 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     public ServerHandler resolveHandler(ServerRequest request) {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
-        routeLock.readLock().lock();
-        try {
-            return resolveHandlerLocked(path, method, request);
-        } finally {
-            routeLock.readLock().unlock();
-        }
+        RouteTable cur = table;
+        return resolveHandlerIn(cur, path, method, request);
     }
 
     /**
@@ -222,46 +238,43 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         if (StringUtils.isBlank(path)) {
             return null;
         }
-        routeLock.readLock().lock();
-        try {
-            ServerHandler handler = anyMethodRoutes.get(path);
-            if (handler != null) {
-                return handler;
-            }
-            for (Map.Entry<String, ServerHandler> entry : anyMethodRoutes.entrySet()) {
-                String pattern = entry.getKey();
-                if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
-                    continue;
-                }
-                return entry.getValue();
-            }
-            return null;
-        } finally {
-            routeLock.readLock().unlock();
+        RouteTable cur = table;
+        ServerHandler handler = cur.anyMethodRoutes.get(path);
+        if (handler != null) {
+            return handler;
         }
+        for (Map.Entry<String, ServerHandler> entry : cur.anyMethodRoutes.entrySet()) {
+            String pattern = entry.getKey();
+            if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
+                continue;
+            }
+            return entry.getValue();
+        }
+        return null;
     }
 
     /**
-     * 加锁状态下根据路径和方法匹配处理器。
+     * 在指定路由表快照内按路径和方法匹配处理器。
      *
+     * @param t       路由表快照
      * @param path    请求路径
      * @param method  HTTP 方法
      * @param request 请求对象
      * @return 匹配的处理器，未匹配返回 null
      */
-    private ServerHandler resolveHandlerLocked(String path, HttpMethod method, ServerRequest request) {
-        Map<HttpMethod, ServerHandler> methodMap = routes.get(path);
+    private ServerHandler resolveHandlerIn(RouteTable t, String path, HttpMethod method, ServerRequest request) {
+        Map<HttpMethod, ServerHandler> methodMap = t.routes.get(path);
         if (methodMap != null) {
             ServerHandler handler = methodMap.get(method);
             if (handler != null) {
                 return handler;
             }
         }
-        ServerHandler anyMethodHandler = anyMethodRoutes.get(path);
+        ServerHandler anyMethodHandler = t.anyMethodRoutes.get(path);
         if (anyMethodHandler != null) {
             return anyMethodHandler;
         }
-        for (Map.Entry<String, Map<HttpMethod, ServerHandler>> entry : routes.entrySet()) {
+        for (Map.Entry<String, Map<HttpMethod, ServerHandler>> entry : t.routes.entrySet()) {
             String pattern = entry.getKey();
             if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
                 continue;
@@ -269,14 +282,14 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
             methodMap = entry.getValue();
             ServerHandler handler = methodMap.get(method);
             if (handler == null) {
-                handler = anyMethodRoutes.get(pattern);
+                handler = t.anyMethodRoutes.get(pattern);
             }
             if (handler != null) {
                 setPathAttributes(request, pattern, path);
                 return handler;
             }
         }
-        for (Map.Entry<String, ServerHandler> entry : anyMethodRoutes.entrySet()) {
+        for (Map.Entry<String, ServerHandler> entry : t.anyMethodRoutes.entrySet()) {
             String pattern = entry.getKey();
             if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
                 continue;
@@ -321,12 +334,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @return 只读路由表
      */
     public Map<String, Map<HttpMethod, ServerHandler>> getRoutes() {
-        routeLock.readLock().lock();
-        try {
-            return Collections.unmodifiableMap(Wraps.linkedMap(routes));
-        } finally {
-            routeLock.readLock().unlock();
-        }
+        return table.routes;
     }
 
     /**
@@ -335,11 +343,6 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @return 只读路由表
      */
     public Map<String, ServerHandler> getAnyMethodRoutes() {
-        routeLock.readLock().lock();
-        try {
-            return Collections.unmodifiableMap(Wraps.linkedMap(anyMethodRoutes));
-        } finally {
-            routeLock.readLock().unlock();
-        }
+        return table.anyMethodRoutes;
     }
 }
