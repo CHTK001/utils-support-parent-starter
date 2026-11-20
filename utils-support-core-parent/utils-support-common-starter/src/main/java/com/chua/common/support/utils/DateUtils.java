@@ -616,7 +616,7 @@ public class DateUtils {
      * @throws ParseException 异常
     */
     public static String format(ZonedDateTime zonedDateTime, String pattern) throws ParseException {
-        return format(zonedDateTime, DateTimeFormatter.ofPattern(pattern));
+        return format(zonedDateTime, DateFormatConstant.formatterOf(pattern));
     }
     /**
      * 将 zoned日期时间 按指定 {@link DateTimeFormatter} 转换为日期字符串。
@@ -670,7 +670,7 @@ public class DateUtils {
      * @return the 结果
      */
     public static String format(LocalDateTime localDateTime, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(localDateTime);
+        return DateFormatConstant.formatterOf(pattern).format(localDateTime);
     }
     /**
      * <p>
@@ -682,7 +682,7 @@ public class DateUtils {
      * @return the 结果
      */
     public static String format(LocalTime localTime, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(localTime);
+        return DateFormatConstant.formatterOf(pattern).format(localTime);
     }
     /**
      * <p>
@@ -694,7 +694,7 @@ public class DateUtils {
      * @return the 结果
      */
     public static String format(LocalDate localDate, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(localDate);
+        return DateFormatConstant.formatterOf(pattern).format(localDate);
     }
     /**
      * <p>
@@ -1622,7 +1622,7 @@ public class DateUtils {
     public static LocalDate toLocalDate(String str, String format) {
         Objects.requireNonNull(str, "str");
         Objects.requireNonNull(format, "format");
-        return toLocalDate(DateTimeFormatter.ofPattern(format).parse(str));
+        return toLocalDate(DateFormatConstant.formatterOf(format).parse(str));
     }
     /**
      * 本地日期时间   本地日期

@@ -7,6 +7,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
@@ -115,7 +116,8 @@ public final class ObjectContextScanner {
             if (file.isDirectory()) {
                 scanDirectory(file, packageName + "." + file.getName(), result);
             } else if (file.getName().endsWith(".class")) {
-                String className = packageName + "." + file.getName().replace(".class", "");
+                String fileName = file.getName();
+                String className = packageName + "." + fileName.substring(0, fileName.length() - ".class".length());
                 loadClass(className, result);
             }
         }
@@ -138,8 +140,8 @@ public final class ObjectContextScanner {
                     walk.filter(p -> p.toString().endsWith(".class"))
                             .forEach(p -> {
                                 String relativePath = p.toString().replace('\\', '/');
-                                String className = relativePath.replace('/', '.')
-                                        .replace(".class", "");
+                                String className = relativePath.replace('/', '.');
+                                className = className.substring(0, className.length() - ".class".length());
                                 loadClass(className, result);
                             });
                 }
@@ -152,7 +154,9 @@ public final class ObjectContextScanner {
     /**
      * 加载类并验证其是否可被添加到结果列表中。
      * <p>
-     * 仅添加非接口、非枚举、非注解、非记录且拥有无参构造函数的类。
+     * 仅添加非接口、非枚举、非注解、非记录、非抽象且具备公开无参构造的公开类。
+     * 校验口径与 {@code ReflectUtils.instantiate} 一致（公开类 + 公开无参构造），
+     * 但不再真实实例化——原实现会为每个候选类执行一遍构造函数（可能带副作用）并丢弃结果。
      *
      * @param className 类的全限定名。
      * @param result    结果列表。
@@ -163,13 +167,28 @@ public final class ObjectContextScanner {
             if (clazz == null) {
                 return;
             }
-            if (!clazz.isInterface() && !clazz.isEnum() && !clazz.isAnnotation() && !clazz.isRecord()) {
-                // 验证有无参构造（非严格，仅检查实例化可行性）
-                ReflectUtils.instantiate(clazz);
+            if (!clazz.isInterface() && !clazz.isEnum() && !clazz.isAnnotation() && !clazz.isRecord()
+                    && !Modifier.isAbstract(clazz.getModifiers())
+                    && Modifier.isPublic(clazz.getModifiers())
+                    && hasPublicNoArgConstructor(clazz)) {
                 result.add(clazz);
             }
         } catch (Exception | LinkageError e) {
-            log.debug("[scanner] 类实例化校验失败，跳过该类: {}", e.getMessage());
+            log.debug("[scanner] 类加载或构造校验失败，跳过该类: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 判断类是否具备公开的无参构造（与 {@code MethodHandles.Lookup#findConstructor} 的可见性口径一致）。
+     *
+     * @param clazz 目标类
+     * @return 存在公开无参构造时返回 true
+     */
+    private static boolean hasPublicNoArgConstructor(Class<?> clazz) {
+        try {
+            return Modifier.isPublic(clazz.getDeclaredConstructor().getModifiers());
+        } catch (NoSuchMethodException e) {
+            return false;
         }
     }
 }

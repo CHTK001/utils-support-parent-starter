@@ -2,6 +2,7 @@
 package com.chua.common.support.converter;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.converter.definition.*;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ClassUtils;
@@ -543,7 +544,7 @@ public final class Converter {
             return null;
         }
         try {
-            return LocalDate.parse(value, DateTimeFormatter.ofPattern(pattern));
+            return LocalDate.parse(value, DateFormatConstant.formatterOf(pattern));
         } catch (Exception e) {
             log.debug("LocalDate 解析失败：value={}, pattern={}", value, pattern);
             return null;
@@ -562,7 +563,7 @@ public final class Converter {
             return null;
         }
         try {
-            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern(pattern));
+            return LocalDateTime.parse(value, DateFormatConstant.formatterOf(pattern));
         } catch (Exception e) {
             log.debug("LocalDateTime 解析失败：value={}, pattern={}", value, pattern);
             return null;
@@ -579,7 +580,7 @@ public final class Converter {
         if (dateTime == null || pattern == null) {
             return null;
         }
-        return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+        return dateTime.format(DateFormatConstant.formatterOf(pattern));
     }
 
     /**

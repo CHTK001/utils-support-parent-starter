@@ -1,5 +1,6 @@
 package com.chua.common.support.config.loader;
 
+import com.chua.common.support.condition.Precondition;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -124,15 +125,13 @@ public class ConfigValueBinding {
      */
     @Override
     public String toString() {
-        if (isFieldBinding()) {
-            return String.format("ConfigValueBinding[key=%s, bean=%s, field=%s, hotReload=%s]",
-                    configKey, beanName, field.getName(), hotReload);
-        } else if (isMethodBinding()) {
-            return String.format("ConfigValueBinding[key=%s, bean=%s, method=%s, hotReload=%s]",
-                    configKey, beanName, method.getName(), hotReload);
-        } else {
-            return String.format("ConfigValueBinding[key=%s, bean=%s, hotReload=%s]",
-                    configKey, beanName, hotReload);
-        }
+        return Precondition.ifTrue("fieldBinding", isFieldBinding())
+                .ifTrueGet(() -> String.format("ConfigValueBinding[key=%s, bean=%s, field=%s, hotReload=%s]",
+                        configKey, beanName, field.getName(), hotReload))
+                .elseIf("methodBinding", isMethodBinding(),
+                        () -> String.format("ConfigValueBinding[key=%s, bean=%s, method=%s, hotReload=%s]",
+                                configKey, beanName, method.getName(), hotReload))
+                .orElse(() -> String.format("ConfigValueBinding[key=%s, bean=%s, hotReload=%s]",
+                        configKey, beanName, hotReload));
     }
 }

@@ -4,12 +4,12 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -33,6 +33,12 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Slf4j
 public class HashedWheelTimer implements Timer {
+
+    /**
+     * 任务编号发生器：进程内单调递增，替代 UUID 作为任务唯一标识
+     * （省去 SecureRandom 取用与 36 字符的 UUID 串分配，调度语义只需进程内唯一）
+     */
+    private static final AtomicLong TASK_SEQ = new AtomicLong();
 
     /**
      * 槽位数
@@ -128,7 +134,7 @@ public class HashedWheelTimer implements Timer {
     @Override
     public TimerTask schedule(Runnable task, long delay, TimeUnit timeUnit) {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(delay);
-        TimerTask wrapped = new TimerTask(UUID.randomUUID().toString(), "delay-" + delay + timeUnit,
+        TimerTask wrapped = new TimerTask(nextTaskId(), "delay-" + delay + timeUnit,
                 task, deadline);
  // 时间轮已关闭时拒绝调度，返回 空 由调用方感知
         return schedule(wrapped) ? wrapped : null;
@@ -139,9 +145,18 @@ public class HashedWheelTimer implements Timer {
         long delay = timeUnit.toMillis(initialDelay);
         long periodMs = timeUnit.toMillis(period);
         long deadline = System.currentTimeMillis() + delay;
-        TimerTask wrapped = new TimerTask(UUID.randomUUID().toString(), "periodic-" + period + timeUnit,
+        TimerTask wrapped = new TimerTask(nextTaskId(), "periodic-" + period + timeUnit,
                 task, deadline, periodMs);
         return schedule(wrapped) ? wrapped : null;
+    }
+
+    /**
+     * 生成下一个任务唯一标识。
+     *
+     * @return 形如 {@code wheel-task-<序号>} 的标识
+     */
+    private static String nextTaskId() {
+        return "wheel-task-" + TASK_SEQ.incrementAndGet();
     }
 
     @Override
@@ -371,9 +386,13 @@ public class HashedWheelTimer implements Timer {
          * @return 到期列表
          */
         List<TimerTask> drain() {
-            List<TimerTask> out = Wraps.list();
             lock.lock();
             try {
+                if (head == null) {
+                    // 空槽快速路径：绝大多数 tick 扫到的是空槽，避免每次分配临时列表
+                    return List.of();
+                }
+                List<TimerTask> out = Wraps.list(size.get());
                 TaskNode cur = head;
                 while (cur != null) {
                     out.add(cur.taskFromWheel);
@@ -382,10 +401,10 @@ public class HashedWheelTimer implements Timer {
                 head = null;
                 tail = null;
                 size.set(0);
+                return out;
             } finally {
                 lock.unlock();
             }
-            return out;
         }
 
         /**

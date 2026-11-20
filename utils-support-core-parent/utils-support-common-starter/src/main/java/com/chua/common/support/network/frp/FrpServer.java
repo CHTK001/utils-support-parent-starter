@@ -740,11 +740,9 @@ public class FrpServer extends AbstractServer implements TcpServer {
                     "no provider for target: " + key));
             return;
         }
-        if (providerId.equals(clientId)) {
-            send(clientId, FrpProtocol.line(FrpProtocol.PREFIX_ERROR, requestId,
-                    "cannot open own expose: " + key));
-            return;
-        }
+        // 允许访问方开启到自己暴露的目标（providerId == clientId）：单客户端可能同时
+        // 登记 expose 与 map 规则（如 FRP 面板的单客户端拓扑），数据面经服务端回环，
+        // 由提供方 onTunnelOpen 连接目标服务，不会递归，属合法链路。
         SignalConnection provider = registry.get(providerId);
         if (provider == null) {
             send(clientId, FrpProtocol.line(FrpProtocol.PREFIX_ERROR, requestId,

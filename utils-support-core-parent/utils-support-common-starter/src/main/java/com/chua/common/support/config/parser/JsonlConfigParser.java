@@ -1,6 +1,7 @@
 package com.chua.common.support.config.parser;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertySource;
 import com.chua.common.support.lang.json.Json;
@@ -34,7 +35,7 @@ public class JsonlConfigParser implements ConfigParser {
 
     @Override
     public PropertySource parse(String urlPath, InputStream is) {
-        try {
+        return Precondition.<PropertySource>tryGet(() -> {
             String content = IoUtils.asString(is, StandardCharsets.UTF_8);
             Map<String, Object> merged = Wraps.linkedMap();
 
@@ -53,9 +54,9 @@ public class JsonlConfigParser implements ConfigParser {
                 }
             }
             return new MapPropertySource(urlPath, merged);
-        } catch (Exception e) {
+        }).orElseGet(e -> {
             log.error("Failed to parse JSONL config file: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
-        }
+        });
     }
 }

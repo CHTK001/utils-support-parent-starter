@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 内存引擎实现，基于 并发哈希映射 提供表级别的轻量数据存储与查询。
@@ -272,9 +274,14 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 表名
      * @throws IllegalArgumentException 缺少 从 子句时抛出
      */
+    /**
+     * 匹配 FROM 子句后表名的预编译正则；extractTable 位于查询热路径，
+     * 预编译复用可避免每次调用重复 {@code Pattern.compile}。
+     */
+    private static final Pattern FROM_TABLE_PATTERN = Pattern.compile("(?i)FROM\\s+([\\w]+)");
+
     private static String extractTable(String sql) {
-        java.util.regex.Matcher m = java.util.regex.Pattern
-                .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
+        Matcher m = FROM_TABLE_PATTERN.matcher(sql);
         if (!m.find()) {
             throw new IllegalArgumentException("缺少 FROM 子句: " + sql);
         }

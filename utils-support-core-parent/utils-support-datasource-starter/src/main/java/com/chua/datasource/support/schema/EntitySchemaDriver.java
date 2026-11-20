@@ -363,6 +363,8 @@ public class EntitySchemaDriver implements SchemaDriver {
     private String builtinCreateTable(String tableName, List<ColumnDef> columns) {
         StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
         List<String> primaryKeys = new ArrayList<>();
+        // 主键子句也作为一个参与逗号分隔的元素，避免最后一列与 PRIMARY KEY 之间缺逗号
+        int parts = columns.size() + (primaryKeys.isEmpty() ? 0 : 1);
         for (int i = 0; i < columns.size(); i++) {
             ColumnDef column = columns.get(i);
             sql.append("  ").append(column.getName()).append(' ')
@@ -377,7 +379,7 @@ public class EntitySchemaDriver implements SchemaDriver {
             if (column.isAutoIncrement()) {
                 sql.append(" AUTO_INCREMENT");
             }
-            sql.append(i < columns.size() - 1 ? ",\n" : "\n");
+            sql.append(i < parts - 1 ? ",\n" : "\n");
         }
         if (!primaryKeys.isEmpty()) {
             sql.append("  PRIMARY KEY (").append(String.join(", ", primaryKeys)).append(")\n");
@@ -565,7 +567,7 @@ public class EntitySchemaDriver implements SchemaDriver {
             default -> null;
         };
         if (cached != null) {
-            return cached == Void.class ? null : cached;
+            return (Class<?>) cached == Void.class ? null : cached;
         }
         synchronized (EntitySchemaDriver.class) {
             cached = switch (className) {
@@ -579,7 +581,7 @@ public class EntitySchemaDriver implements SchemaDriver {
                     cached = Class.forName(className).asSubclass(Annotation.class);
                 } catch (Throwable e) {
                     // classpath 未提供 MyBatis-Plus 时按无注解处理
-                    cached = Void.class;
+                    cached = (Class<? extends Annotation>) (Class<?>) Void.class;
                 }
             }
             switch (className) {
@@ -589,7 +591,7 @@ public class EntitySchemaDriver implements SchemaDriver {
                 default -> {
                 }
             }
-            return cached == Void.class ? null : cached;
+            return (Class<?>) cached == Void.class ? null : cached;
         }
     }
 

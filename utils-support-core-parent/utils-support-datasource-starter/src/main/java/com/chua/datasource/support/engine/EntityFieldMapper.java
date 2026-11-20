@@ -1,9 +1,12 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -23,10 +26,33 @@ import com.chua.common.support.utils.StringUtils;
  *   <li>忽略大小写与下划线的宽松匹配 —— {@code DEPT_ID} → {@code deptId}</li>
  * </ol>
  *
+ * <p><b>性能口径</b>：本方法在结果集逐行逐列的循环里执行，属于最热路径。
+ * 早期实现每个单元格都要构造候选名数组、做大小写/驼峰/去下划线归一化，
+ * 并沿继承链用「抛 {@code NoSuchFieldException}」的方式试探字段，
+ * 宽松匹配还要克隆整张 {@code getDeclaredFields()} 表——一次万行查询
+ * 可能产生百万级临时对象与异常。现改为按「实体类 + 列标签」缓存解析结果：
+ * 同一结果集的列标签逐行重复，首次解析后每格只剩一次哈希查找与一次字段写入；
+ * 无对应字段的辅助列（如 {@code ROW_NUM}）以哨兵做负缓存，不再反复解析。
+ * 缓存键对类用软引用持有，类随类加载器回收后缓存项可被 JVM 自然释放。</p>
+ *
  * @author CH
  * @since 4.0.0.50
  */
 final class EntityFieldMapper {
+
+    /**
+     * 「该列名没有对应字段」的负缓存哨兵：区分「尚未解析」与「解析过、确无字段」，
+     * 避免辅助列每个单元格都重走一遍四层查找。
+     */
+    private static final Object MISSING = new Object();
+
+    /**
+     * 绑定缓存：实体类 → (结果集列标签 → 字段或 {@link #MISSING})。
+     *
+     * <p>类键用软引用持有：运行中实体类不会被回收，类加载器整体回收时缓存项随之可释放，
+     * 不造成类加载器泄漏。</p>
+     */
+    private static final Map<Class<?>, Map<String, Object>> BINDINGS = new ConcurrentReferenceHashMap<>();
 
     /**
      * 工具类，禁止实例化。
@@ -49,43 +75,69 @@ final class EntityFieldMapper {
         if (instance == null || StringUtils.isEmpty(columnName)) {
             return;
         }
+        Field field = bindingOf(instance.getClass(), columnName);
+        if (field == null) {
+            return;
+        }
+        if (field.getType().isPrimitive() && value == null) {
+            return;
+        }
+        // 复用转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
+        Object converted = Converter.convertIfNecessary(value, field.getType());
+        if (converted != null) {
+            ReflectUtils.setField(instance, field.getName(), converted);
+        }
+    }
+
+    /**
+     * 取「实体类 + 列标签」的绑定字段：优先命中缓存，未命中时按四层规则解析一次并回填。
+     *
+     * @param entityClass 实体类
+     * @param columnName  结果集列标签
+     * @return 匹配字段，无对应字段返回 null
+     */
+    private static Field bindingOf(Class<?> entityClass, String columnName) {
+        Map<String, Object> bindings = BINDINGS.computeIfAbsent(entityClass, k -> new ConcurrentHashMap<>(32));
+        Object cached = bindings.get(columnName);
+        if (cached != null) {
+            return cached == MISSING ? null : (Field) cached;
+        }
+        Field resolved = resolveField(entityClass, columnName);
+        // 并发下重复解析结果确定，put 互相覆盖无副作用
+        bindings.put(columnName, resolved == null ? MISSING : resolved);
+        return resolved;
+    }
+
+    /**
+     * 按四层规则解析列名对应的字段（仅缓存未命中时调用）。
+     *
+     * @param entityClass 实体类
+     * @param columnName  结果集列标签
+     * @return 匹配字段，无对应字段返回 null
+     */
+    private static Field resolveField(Class<?> entityClass, String columnName) {
         String[] candidates = {
                 columnName,
                 columnName.toLowerCase(),
                 toCamelCase(columnName)
         };
-        Class<?> current = instance.getClass();
+        Class<?> current = entityClass;
         while (current != null && current != Object.class) {
             for (String candidate : candidates) {
                 Field field = ReflectUtils.findField(current, candidate);
-                if (field == null) {
-                    continue;
+                if (field != null) {
+                    return field;
                 }
-                if (field.getType().isPrimitive() && value == null) {
-                    return;
-                }
-                // 复用转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
-                Object converted = Converter.convertIfNecessary(value, field.getType());
-                if (converted != null) {
-                    ReflectUtils.setField(instance, candidate, converted);
-                }
-                return;
             }
             // 兜底：忽略大小写与下划线的宽松匹配，覆盖 H2/Oracle 大写蛇形标签
             // （如 DEPT_ID → 字段 deptId、TOTAL_SALARY → totalSalary）
             Field loose = findFieldLoose(current, columnName);
             if (loose != null) {
-                if (loose.getType().isPrimitive() && value == null) {
-                    return;
-                }
-                Object converted = Converter.convertIfNecessary(value, loose.getType());
-                if (converted != null) {
-                    ReflectUtils.setField(instance, loose.getName(), converted);
-                }
-                return;
+                return loose;
             }
             current = current.getSuperclass();
         }
+        return null;
     }
 
     /**

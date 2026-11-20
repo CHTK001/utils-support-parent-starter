@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.json.annotation;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -182,7 +183,7 @@ public final class JsonBeanMapper {
         if (value instanceof Date) {
             return new java.text.SimpleDateFormat(pattern).format((Date) value);
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        DateTimeFormatter formatter = DateFormatConstant.formatterOf(pattern);
         if (value instanceof LocalDateTime) {
             return ((LocalDateTime) value).format(formatter);
         }
@@ -214,7 +215,7 @@ public final class JsonBeanMapper {
                 return value;
             }
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        DateTimeFormatter formatter = DateFormatConstant.formatterOf(pattern);
         try {
             if (LocalDateTime.class.isAssignableFrom(type)) {
                 return LocalDateTime.parse(String.valueOf(value), formatter);

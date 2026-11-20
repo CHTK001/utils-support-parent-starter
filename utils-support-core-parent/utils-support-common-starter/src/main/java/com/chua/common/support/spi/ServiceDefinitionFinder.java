@@ -126,12 +126,15 @@ public class ServiceDefinitionFinder {
             type = split[0];
             name1 = split[1];
         }
-        String cacheKey = (null == type ? "" : type) + ':' + name1.toUpperCase();
-        if (missCache.contains(cacheKey)) {
-            // 已确认不存在：直接返回，不再触发动态解析（每次解析都会扫 classpath）
-            return DEFAULT_DEFINITION;
+        // 未命中缓存非空时才构建 key：热路径（正常注册完成后）通常不再变化，
+        // 避免每次查询都拼接字符串。
+        if (!missCache.isEmpty()) {
+            String cacheKey = buildMissCacheKey(type, name1);
+            if (missCache.contains(cacheKey)) {
+                // 已确认不存在：直接返回，不再触发动态解析（每次解析都会扫 classpath）
+                return DEFAULT_DEFINITION;
+            }
         }
-        SortedList<ServiceDefinition> definitions = new SortedArrayList<>(COMPARATOR);
 
         // 快路径：definitions 的 key 就是服务名，直接取，不必为了大小写兼容全表扫描。
         // 这是 getExtension 的热路径（协议选实现/Server/Filter 枚举都走它）。
@@ -143,20 +146,25 @@ public class ServiceDefinitionFinder {
             direct = this.definitions.get(name1.toLowerCase());
         }
         if (null != direct) {
+            // 直接取优先级最高的匹配项，不再为每次查询分配 SortedArrayList
+            ServiceDefinition best = null;
             synchronized (direct) {
                 for (ServiceDefinition serviceDefinition : direct) {
                     if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType()))
                             && name1.equalsIgnoreCase(serviceDefinition.getName())) {
-                        definitions.add(serviceDefinition);
+                        if (null == best || COMPARATOR.compare(serviceDefinition, best) < 0) {
+                            best = serviceDefinition;
+                        }
                     }
                 }
             }
-            if (!definitions.isEmpty()) {
-                return definitions.first();
+            if (null != best) {
+                return best;
             }
         }
 
         // 兜底：历史行为，逐条扫描（兼容 describeType 变体与非常规 key）
+        SortedList<ServiceDefinition> definitions = new SortedArrayList<>(COMPARATOR);
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : this.definitions.entrySet()) {
             SortedList<ServiceDefinition> entryValue = entry.getValue();
             synchronized (entryValue) {
@@ -209,9 +217,20 @@ public class ServiceDefinitionFinder {
                 return getServiceDefinition(name1.substring(METHOD_GETTER.length()), args);
             }
             // 连动态解析也没找到：记下来，避免同名查询反复扫 classpath
-            missCache.add(cacheKey);
+            missCache.add(buildMissCacheKey(type, name1));
         }
         return definitions2.isEmpty() ? DEFAULT_DEFINITION : definitions2.first();
+    }
+
+    /**
+     * 构建未命中缓存的 key（格式与历史行为保持一致：type + ':' + 大写服务名）。
+     *
+     * @param type 描述类型，可为 {@code null}
+     * @param name1 服务名（原始大小写）
+     * @return 缓存 key
+     */
+    private static String buildMissCacheKey(String type, String name1) {
+        return (null == type ? "" : type) + ':' + name1.toUpperCase();
     }
 
     /**

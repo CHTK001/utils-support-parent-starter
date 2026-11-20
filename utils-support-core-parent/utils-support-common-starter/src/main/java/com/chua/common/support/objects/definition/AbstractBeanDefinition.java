@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.definition;
 
+import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -21,9 +22,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import com.chua.common.support.utils.StringUtils;
 
@@ -156,12 +160,14 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * 按名称查找 Bean 的函数，用于服务注入
      */
+    @Getter
     @Setter
     protected Function<String, Object> beanNameProvider; // Bean名称提供者
 
     /**
      * 按类型查找 Bean 的函数，用于服务注入
      */
+    @Getter
     @Setter
     protected Function<Class<?>, Object> beanTypeProvider; // Bean类型提供者
 
@@ -639,6 +645,87 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         }
     }
 
+    // ==================== 注入 SPI 与反射元数据缓存 ====================
+
+    /**
+     * 空的按名称查找兜底函数（避免每次注入都分配 lambda）。
+     */
+    private static final Function<String, Object> NULL_NAME_PROVIDER = name -> null;
+
+    /**
+     * 空的按类型查找兜底函数（避免每次注入都分配 lambda）。
+     */
+    private static final Function<Class<?>, Object> NULL_TYPE_PROVIDER = type -> null;
+
+    /**
+     * 服务注入器缓存。注入器属于「启动期 SPI」：实现由类路径装配阶段确定，运行期不预期动态增删，
+     * 因此按 CAS 缓存 {@code collect()} 结果——此前每次建 Bean 都要重建实例映射、过滤并拷贝列表。
+     * 失败时不落缓存，下次调用重试，保持与逐次调用一致的失败语义。
+     */
+    private static final AtomicReference<List<BeanDefinitionServiceInjector>> SERVICE_INJECTORS = new AtomicReference<>();
+
+    /**
+     * 方法注入器缓存（语义同 {@link #SERVICE_INJECTORS}）。
+     */
+    private static final AtomicReference<List<BeanDefinitionMethodInjector>> METHOD_INJECTORS = new AtomicReference<>();
+
+    /**
+     * 配置注入器缓存（语义同 {@link #SERVICE_INJECTORS}）。
+     */
+    private static final AtomicReference<List<BeanDefinitionConfigInjector>> CONFIG_INJECTORS = new AtomicReference<>();
+
+    /**
+     * 全部字段（沿继承链）缓存：Entry 整体软可达，类随类加载器回收后条目可被 GC 释放。
+     */
+    private static final ConcurrentReferenceHashMap<Class<?>, List<Field>> ALL_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
+
+    /**
+     * 单参 setter 方法缓存（沿继承链，子类优先）：Entry 整体软可达，避免类加载器泄漏。
+     */
+    private static final ConcurrentReferenceHashMap<Class<?>, Map<String, Method>> SETTER_CACHE = new ConcurrentReferenceHashMap<>();
+
+    private static List<BeanDefinitionServiceInjector> serviceInjectors() {
+        return cachedInjectors(SERVICE_INJECTORS, BeanDefinitionServiceInjector.class);
+    }
+
+    private static List<BeanDefinitionMethodInjector> methodInjectors() {
+        return cachedInjectors(METHOD_INJECTORS, BeanDefinitionMethodInjector.class);
+    }
+
+    private static List<BeanDefinitionConfigInjector> configInjectors() {
+        return cachedInjectors(CONFIG_INJECTORS, BeanDefinitionConfigInjector.class);
+    }
+
+    /**
+     * 按 CAS 缓存 SPI {@code collect()} 结果；并发下重复计算以先到者为准。
+     */
+    private static <T> List<T> cachedInjectors(AtomicReference<List<T>> cache, Class<T> type) {
+        List<T> list = cache.get();
+        if (list == null) {
+            list = List.copyOf(ServiceProvider.of(type).collect());
+            cache.compareAndSet(null, list);
+            list = cache.get();
+        }
+        return list;
+    }
+
+    /**
+     * 获取类及其父类中所有单参 setter（方法名 -> 方法，子类覆盖父类），结果缓存。
+     */
+    private static Map<String, Method> settersOf(Class<?> clazz) {
+        return SETTER_CACHE.computeIfAbsent(clazz, c -> {
+            Map<String, Method> setters = new HashMap<>();
+            for (Class<?> current = c; current != null && current != Object.class; current = current.getSuperclass()) {
+                for (Method method : current.getDeclaredMethods()) {
+                    if (method.getParameterCount() == 1 && method.getName().startsWith("set")) {
+                        setters.putIfAbsent(method.getName(), method);
+                    }
+                }
+            }
+            return Map.copyOf(setters);
+        });
+    }
+
     // ==================== 依赖注入 ====================
 
     /**
@@ -666,8 +753,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             return;
         }
         List<Field> fields = getAllFields(instance.getClass());
-        var serviceInjectors = ServiceProvider.of(BeanDefinitionServiceInjector.class).collect();
-        var configInjectors = ServiceProvider.of(BeanDefinitionConfigInjector.class).collect();
+        var serviceInjectors = serviceInjectors();
+        var configInjectors = configInjectors();
 
         for (Field field : fields) {
             // 先服务注入
@@ -696,18 +783,29 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * 先按字段名找 setter 方法，有则调用 setter，无则直接设字段。
      *
+     * <p>setter 查找结果按类缓存（{@link #SETTER_CACHE}），不再以「反射调用失败」探测 setter
+     * 是否存在——原实现 {@code ReflectUtils.invoke} 找不到方法时返回 null 而不抛异常，
+     * 导致方法末尾的字段回退分支不可达、无 setter 的字段实际永远不会被写入；
+     * 这里显式查找后再调用，缺失时真正回退到字段写入。</p>
+     *
      * @param field   目标字段
      * @param instance Bean 实例
      * @param value   注入值
      */
     private void setFieldOrSetter(Field field, Object instance, Object value) {
-        String setterName = "set" + Character.toUpperCase(field.getName().charAt(0)) + field.getName().substring(1);
-        try {
-            ReflectUtils.invoke(instance, setterName, void.class, field.getType(), value);
-            return;
-        } catch (Exception e) {
-            // 没有 setter 或调用失败，回退到直接设字段
-            log.warn("setter 调用失败，回退到字段注入: {}.{}", instance.getClass().getSimpleName(), setterName, e);
+        String fieldName = field.getName();
+        if (!fieldName.isEmpty()) {
+            String setterName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            Method setter = settersOf(instance.getClass()).get(setterName);
+            if (setter != null && setter.getParameterTypes()[0] == field.getType()) {
+                try {
+                    ClassUtils.setAccessible(setter);
+                    setter.invoke(instance, value);
+                    return;
+                } catch (Exception e) {
+                    log.warn("setter 调用失败，回退到字段注入: {}.{}", instance.getClass().getSimpleName(), setterName, e);
+                }
+            }
         }
         ClassUtils.setFieldValue(field, instance.getClass(), value, instance);
     }
@@ -722,15 +820,15 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             return;
         }
         List<Method> methods = ClassUtils.getLocalMethods(instance.getClass());
-        var methodInjectors = ServiceProvider.of(BeanDefinitionMethodInjector.class).collect();
-        var configInjectors = ServiceProvider.of(BeanDefinitionConfigInjector.class).collect();
+        var methodInjectors = methodInjectors();
+        var configInjectors = configInjectors();
+        Function<String, Object> nameProvider = beanNameProvider != null ? beanNameProvider : NULL_NAME_PROVIDER;
+        Function<Class<?>, Object> typeProvider = beanTypeProvider != null ? beanTypeProvider : NULL_TYPE_PROVIDER;
 
         for (Method method : methods) {
             if (method.getParameterCount() == 0) {
                 continue;
             }
-            Function<String, Object> nameProvider = beanNameProvider != null ? beanNameProvider : n -> null;
-            Function<Class<?>, Object> typeProvider = beanTypeProvider != null ? beanTypeProvider : t -> null;
             boolean injected = false;
 
             // 先尝试服务注入（按 SPI 链）
@@ -795,8 +893,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         }
         for (BeanDefinitionServiceInjector injector : serviceInjectors) {
             if (injector.isSupport(field, this)) {
-                Function<String, Object> nameProvider = beanNameProvider != null ? beanNameProvider : n -> null;
-                Function<Class<?>, Object> typeProvider = beanTypeProvider != null ? beanTypeProvider : t -> null;
+                Function<String, Object> nameProvider = beanNameProvider != null ? beanNameProvider : NULL_NAME_PROVIDER;
+                Function<Class<?>, Object> typeProvider = beanTypeProvider != null ? beanTypeProvider : NULL_TYPE_PROVIDER;
                 return injector.inject(field, instance, this, nameProvider, typeProvider);
             }
         }
@@ -841,17 +939,22 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * 获取类及其所有父类的所有字段（包括私有字段）。
      *
+     * <p>结果按类缓存（{@link #ALL_FIELDS_CACHE}，Entry 软可达），同一类的重复实例化
+     * 不再反复沿继承链做反射扫描。</p>
+     *
      * @param clazz 目标类
      * @return 所有字段列表
      */
     protected List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields = Wraps.list();
-        Class<?> current = clazz;
-        while (current != null && current != Object.class) {
-            fields.addAll(Arrays.asList(current.getDeclaredFields()));
-            current = current.getSuperclass();
-        }
-        return fields;
+        return ALL_FIELDS_CACHE.computeIfAbsent(clazz, c -> {
+            List<Field> fields = Wraps.list();
+            Class<?> current = c;
+            while (current != null && current != Object.class) {
+                fields.addAll(Arrays.asList(current.getDeclaredFields()));
+                current = current.getSuperclass();
+            }
+            return List.copyOf(fields);
+        });
     }
 
     // ==================== 类型缓存 ====================

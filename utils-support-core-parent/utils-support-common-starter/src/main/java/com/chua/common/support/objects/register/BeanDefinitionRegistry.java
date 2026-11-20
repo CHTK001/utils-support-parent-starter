@@ -5,6 +5,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
+import com.chua.common.support.objects.generator.BeanDefinitionGenerators;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -579,10 +580,7 @@ public class BeanDefinitionRegistry {
         if (beanClass == null) {
             return false;
         }
-        List<BeanDefinitionGenerator> generators = ServiceProvider.of(BeanDefinitionGenerator.class)
-                .collect().stream()
-                .sorted(Comparator.comparingInt(BeanDefinitionGenerator::getPriority).reversed())
-                .toList();
+        List<BeanDefinitionGenerator> generators = BeanDefinitionGenerators.sorted();
         List<BeanDefinition> definitions = Wraps.list();
         for (BeanDefinitionGenerator generator : generators) {
             Boolean isSupport = generator.isSupport(beanClass);

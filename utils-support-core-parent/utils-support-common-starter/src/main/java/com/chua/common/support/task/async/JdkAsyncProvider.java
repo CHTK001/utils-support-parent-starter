@@ -2,12 +2,8 @@ package com.chua.common.support.task.async;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
-
-import com.chua.common.support.function.NamedThreadFactory;
 
 /**
  * JDK 默认异步提供者实现
@@ -18,6 +14,9 @@ import com.chua.common.support.function.NamedThreadFactory;
  * <ul>
  *   <li>通过 {@link CompletableFuture#supplyAsync(Supplier, java.util.concurrent.Executor)} 提交任务</li>
  *   <li>批量任务通过 {@link CompletableFuture#allOf(CompletableFuture[])} 等待所有完成</li>
+ *   <li>任务在虚拟线程上执行：每个任务一个虚拟线程，无固定线程池与任务队列。
+ *       相比固定大小平台线程池，空闲时不再常驻 4~2×CPU 个平台线程栈
+ *       （每线程约 1MB 栈保留），阻塞型任务也不会占满配额后排队等待</li>
  * </ul>
  *
  * @author CH
@@ -26,20 +25,11 @@ import com.chua.common.support.function.NamedThreadFactory;
 public class JdkAsyncProvider extends AbstractAsyncProvider {
 
     /**
-     * 虚拟线程执行器
+     * 虚拟线程执行器：每任务一个虚拟线程，由 JVM 调度，无队列堆积
      */
-// [P3C C1 豁免] 场景化创建线程，需文档化
-    private static final ExecutorService VIRTUAL_EXECUTOR = new ThreadPoolExecutor(
-            4, Runtime.getRuntime().availableProcessors() * 2,
-            // [P3C A20 豁免]
-            60L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(),
-            /**
-             * NamedThread工厂。
-             *
-             * @return 结果值
-             */
-            new NamedThreadFactory("async"));
+    // [P3C C1 豁免] 场景化创建线程，需文档化
+    private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("async-", 0).factory());
 
     /**
      * 异步执行带返回值的任务

@@ -10,6 +10,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -620,9 +623,14 @@ public class FileEngine extends AbstractEngine {
      * @return 表名
      * @throws IllegalArgumentException 缺少 从 子句时抛出
      */
+    /**
+     * 匹配 FROM 子句后表名的预编译正则；extractTable 位于查询热路径，
+     * 预编译复用可避免每次调用重复 {@code Pattern.compile}。
+     */
+    private static final Pattern FROM_TABLE_PATTERN = Pattern.compile("(?i)FROM\\s+([\\w]+)");
+
     private static String extractTable(String sql) {
-        java.util.regex.Matcher m = java.util.regex.Pattern
-                .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
+        Matcher m = FROM_TABLE_PATTERN.matcher(sql);
         if (!m.find()) {
             throw new IllegalArgumentException("缺少 FROM 子句: " + sql);
         }
@@ -728,14 +736,15 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * collect字段
+     * collect字段（字段列表经 {@link ClassUtils#getLocalFields(Object)} 缓存，
+     * 避免逐行反射调用 {@code getDeclaredFields}）。
      *
      * @param bean Bean
      * @param clazz clazz
      * @param map 映射
      */
     private static void collectFields(Object bean, Class<?> clazz, Map<String, Object> map) {
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : ClassUtils.getLocalFields(clazz)) {
             Object value = ReflectUtils.getField(bean, field.getName());
             if (!map.containsKey(field.getName())) {
                 map.put(field.getName(), value);

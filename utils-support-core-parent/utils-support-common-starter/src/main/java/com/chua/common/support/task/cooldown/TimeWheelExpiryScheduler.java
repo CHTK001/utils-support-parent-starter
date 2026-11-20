@@ -37,10 +37,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
 
     /**
-     * 已登记任务：{@code scope|key} → 队列项
+     * 已登记任务：{@code (scope, key)} → 队列项
      */
     // [P3C A20 豁免]
-    private final Map<String, Ready> pending = new ConcurrentHashMap<>(16);
+    private final Map<ScopeKey, Ready> pending = new ConcurrentHashMap<>(16);
 
     /**
      * 到期派发队列：按 (到期时刻, 序号) 排序，保证先进先出
@@ -66,7 +66,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
      * 创建调度器并启动派发线程。
      */
     public TimeWheelExpiryScheduler() {
-        // [P3C C1 豁免]
+         // [P3C C1 豁免]
         this.dispatcher = Executors.newSingleThreadExecutor(runnable -> {
             // [P3C C1 豁免]
             Thread thread = new Thread(runnable, "cooldown-recovery");
@@ -81,7 +81,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
         if (!running || onExpire == null) {
             return;
         }
-        String id = idOf(scope, key);
+        ScopeKey id = ScopeKey.of(scope, key);
         long delay = Math.max(0L, delayMillis);
         Ready entry = new Ready(id, System.currentTimeMillis() + delay, sequence.incrementAndGet(), onExpire);
         // 必须在登记线程上同步入队 —— 这是出队顺序唯一确定的来源。
@@ -113,14 +113,14 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
 
     @Override
     public void cancel(String scope, String key) {
-        cancelPending(idOf(scope, key));
+        cancelPending(ScopeKey.of(scope, key));
     }
 
     @Override
     public void clearScope(String scope) {
-        String prefix = (scope == null ? "default" : scope) + "|";
-        for (String id : pending.keySet()) {
-            if (id.startsWith(prefix)) {
+        String normalized = scope == null ? "default" : scope;
+        for (ScopeKey id : pending.keySet()) {
+            if (id.scope().equals(normalized)) {
                 cancelPending(id);
             }
         }
@@ -148,9 +148,9 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
     /**
      * 取消一个已登记任务（队列项 + 登记表）。
      *
-     * @param id 作用域|键
+     * @param id 作用域与键
      */
-    private void cancelPending(String id) {
+    private void cancelPending(ScopeKey id) {
         Ready old = pending.remove(id);
         if (old == null) {
             return;
@@ -171,11 +171,11 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
                 }
                 // 必须带值删除：并发重新登记同一个键时，pending 里已经是新项，
                 // 无值 remove 会把这条还没到期的新登记一起抹掉，导致它永不恢复。
-                pending.remove(entry.id, entry);
+                pending.remove(entry.key, entry);
                 try {
                     entry.action.run();
                 } catch (Exception e) {
-                    log.warn("[Cooldown] 到期回调执行失败 {}: {}", entry.id, e.getMessage());
+                    log.warn("[Cooldown] 到期回调执行失败 {}: {}", entry.key, e.getMessage());
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -185,14 +185,29 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
     }
 
     /**
-     * 拼任务标识。
+     * 登记键：作用域 + 冷却键 的轻量承载。
      *
-     * @param scope 作用域
-     * @param key   冷却键
-     * @return 标识
+     * <p>替代此前的 {@code scope|key} 字符串拼接：每次登记/取消都要新拼一个字符串，
+     * 而这里以两个既有引用做等值比较与哈希，登记路径不再产生拼接分配；
+     * {@link #clearScope(String)} 也从「字符串前缀扫描」变为「作用域相等判断」。</p>
      */
-    private static String idOf(String scope, String key) {
-        return (scope == null ? "default" : scope) + "|" + key;
+    private record ScopeKey(String scope, String key) {
+
+        /**
+         * 构造登记键，空作用域归一化为 {@code default}。
+         *
+         * @param scope 作用域
+         * @param key   冷却键
+         * @return 登记键
+         */
+        private static ScopeKey of(String scope, String key) {
+            return new ScopeKey(scope == null ? "default" : scope, key);
+        }
+
+        @Override
+        public String toString() {
+            return scope + "|" + key;
+        }
     }
 
     /**
@@ -201,9 +216,9 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
     private static final class Ready implements Delayed {
 
         /**
-         * 任务标识
+         * 登记键（作用域 + 冷却键）
          */
-        private final String id;
+        private final ScopeKey key;
 
         /**
          * 到期时刻（毫秒）
@@ -228,13 +243,13 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
         /**
          * 构造。
          *
-         * @param id       标识
+         * @param key      登记键
          * @param deadline 到期时刻
          * @param sequence 序号
          * @param action   动作
          */
-        private Ready(String id, long deadline, long sequence, Runnable action) {
-            this.id = id;
+        private Ready(ScopeKey key, long deadline, long sequence, Runnable action) {
+            this.key = key;
             this.deadline = deadline;
             this.sequence = sequence;
             this.action = action;
@@ -267,7 +282,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
 
         @Override
         public String toString() {
-            return "Ready{" + id + ", deadline=" + deadline + ", seq=" + sequence + '}';
+            return "Ready{" + key + ", deadline=" + deadline + ", seq=" + sequence + '}';
         }
     }
 

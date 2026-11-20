@@ -12,10 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -537,6 +540,37 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         Boolean.parseBoolean(System.getProperty("spi.constructor.cache.enabled", "true"));
 
     /**
+     * 构造器缓存（按实参类型列表）。
+     * <p>同一定义的构造器集合在类加载后不再变化，按实参类型缓存精确匹配结果，
+     * 避免每次实例化都重新遍历 {@code getDeclaredConstructors()}。
+     * key 为参数类型列表（{@code Arrays.asList} 的值等价语义）；
+     * 未匹配到构造器时不缓存，交由后续兜底逻辑处理。</p>
+     */
+    private final Map<List<Class<?>>, Constructor<?>> constructorCache = new ConcurrentHashMap<>(8);
+
+    /**
+     * 按实参类型查找精确匹配的构造器（带缓存，受 {@link #ENABLE_CONSTRUCTOR_CACHE} 控制）。
+     *
+     * @param argTypes 实参类型数组
+     * @return 匹配的构造器；无匹配返回 {@code null}
+     */
+    private Constructor<?> findConstructorCached(Class<?>[] argTypes) {
+        if (!ENABLE_CONSTRUCTOR_CACHE) {
+            return ClassUtils.getConstructor(implClass, argTypes);
+        }
+        List<Class<?>> key = Arrays.asList(argTypes);
+        Constructor<?> cached = constructorCache.get(key);
+        if (null != cached) {
+            return cached;
+        }
+        Constructor<?> resolved = ClassUtils.getConstructor(implClass, argTypes);
+        if (null != resolved) {
+            constructorCache.put(key, resolved);
+        }
+        return resolved;
+    }
+
+    /**
      * 根据给定参数创建服务实例，并执行依赖注入与 SPI 条件检查。
      *
      * @param serviceAutowire 服务注入器
@@ -551,7 +585,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         }
 
         try {
-            Constructor<?> declaredConstructor = ClassUtils.getConstructor(implClass, ClassUtils.toType(args));
+            Constructor<?> declaredConstructor = findConstructorCached(ClassUtils.toType(args));
             if (null != declaredConstructor) {
                 ClassUtils.setAccessible(declaredConstructor);
                 T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));

@@ -1,6 +1,7 @@
 package com.chua.common.support.export.support;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.export.ExportException;
 import com.chua.common.support.export.convert.Converters;
 import com.chua.common.support.export.meta.ColumnMeta;
@@ -276,7 +277,7 @@ public final class Rows {
         if (value instanceof CharSequence text) {
             return text;
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        DateTimeFormatter formatter = DateFormatConstant.formatterOf(pattern);
         if (value instanceof LocalDateTime dateTime) {
             return dateTime.format(formatter);
         }

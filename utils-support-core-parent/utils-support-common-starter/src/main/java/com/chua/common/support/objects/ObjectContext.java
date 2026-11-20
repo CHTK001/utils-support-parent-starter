@@ -6,12 +6,12 @@ import com.chua.common.support.objects.definition.MethodDefinition;
 import com.chua.common.support.objects.definition.SingletonBeanDefinition;
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
+import com.chua.common.support.objects.generator.BeanDefinitionGenerators;
 import com.chua.common.support.objects.provider.ObjectProvider;
 import com.chua.common.support.objects.publisher.EventPublisher;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
 import com.chua.common.support.objects.scanner.ObjectContextScanner;
-import com.chua.common.support.spi.ServiceProvider;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -404,10 +404,7 @@ public interface ObjectContext {
             return;
         }
 
-        List<BeanDefinitionGenerator> generators = ServiceProvider.of(BeanDefinitionGenerator.class)
-                .collect().stream()
-                .sorted(Comparator.comparingInt(BeanDefinitionGenerator::getPriority).reversed())
-                .toList();
+        List<BeanDefinitionGenerator> generators = BeanDefinitionGenerators.sorted();
 
         boolean registered = false;
         for (BeanDefinitionGenerator gen : generators) {

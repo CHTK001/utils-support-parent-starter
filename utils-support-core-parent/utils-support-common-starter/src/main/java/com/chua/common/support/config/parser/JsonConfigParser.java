@@ -1,5 +1,6 @@
 package com.chua.common.support.config.parser;
 
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertiesMutiPropertySource;
 import com.chua.common.support.config.source.PropertySource;
@@ -38,23 +39,20 @@ public class JsonConfigParser implements ConfigParser {
      */
     @Override
     public PropertySource parse(String urlPath, InputStream is) {
-        try {
+        return Precondition.tryGet(() -> {
             String content = IoUtils.asString(is, StandardCharsets.UTF_8);
             String trimmed = content.trim();
 
             // Check if List or Object
-            if (trimmed.startsWith("[")) {
-                // List format, use MutiPropertySource
-                List<Object> list = Json.fromJson(trimmed, List.class);
-                return new PropertiesMutiPropertySource(urlPath, list);
-            } else {
-                // Object format
-                Map<String, Object> map = Json.fromJson(trimmed, Map.class);
-                return new MapPropertySource(urlPath, map);
-            }
-        } catch (Exception e) {
+            return Precondition.ifTrue(trimmed.startsWith("["))
+                    // List format, use MutiPropertySource
+                    .<PropertySource>ifTrueGet(() -> new PropertiesMutiPropertySource(urlPath,
+                            Json.fromJson(trimmed, List.class)))
+                    // Object format
+                    .orElse(() -> new MapPropertySource(urlPath, Json.fromJson(trimmed, Map.class)));
+        }).orElseGet(e -> {
             log.error("Failed to parse JSON/JSON5 config file: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
-        }
+        });
     }
 }

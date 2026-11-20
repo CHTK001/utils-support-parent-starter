@@ -6,11 +6,11 @@ import com.chua.common.support.objects.environment.DefaultEnvironment;
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.exception.BeanNotFoundException;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
+import com.chua.common.support.objects.generator.BeanDefinitionGenerators;
 import com.chua.common.support.objects.provider.DefaultObjectProvider;
 import com.chua.common.support.objects.provider.ObjectProvider;
 import com.chua.common.support.objects.publisher.EventPublisher;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,8 +41,7 @@ import java.util.function.Function;
  * context.init(ObjectContextConfig.defaults());
  * context.registerBean(new MyService());
  * MyService service = context.getBean(MyService.class);
- * }</pre>an(new MyService());
- * MyService service = context.getBean(MyService.class);
+ * }</pre>
  * }
  *
  * @author CH
@@ -182,10 +181,17 @@ public class DefaultObjectContext implements ObjectContext {
 
     /**
      * 为单个 Beandefinition 设置容器回调。
+     *
+     * <p>幂等：回调与环境只设置一次。{@code getBean} 是最高频入口，
+     * 逐次设置意味着每次查找都要分配 2 个 lambda 并写 3 个字段。</p>
+     *
      * @param def def
      */
     private void configureBeanDefinitionProvider(BeanDefinition def) {
         if (!(def instanceof AbstractBeanDefinition abd)) {
+            return;
+        }
+        if (abd.getBeanNameProvider() != null && abd.getBeanTypeProvider() != null && abd.getEnvironment() != null) {
             return;
         }
         abd.setBeanTypeProvider(this::getBeanOfType);
@@ -279,31 +285,16 @@ public class DefaultObjectContext implements ObjectContext {
         if (registry.containsInstance(bean)) {
             return;
         }
-        List<BeanDefinitionGenerator> generators = ServiceProvider.of(BeanDefinitionGenerator.class)
-                .collect().stream()
-                .sorted(Comparator.comparingInt(BeanDefinitionGenerator::getPriority).reversed())
-                .toList();
+        List<BeanDefinitionGenerator> generators = BeanDefinitionGenerators.sorted();
 
         boolean registered = false;
         for (BeanDefinitionGenerator gen : generators) {
             if (Boolean.TRUE.equals(gen.isSupport(bean.getClass()))) {
                 List<BeanDefinition> defs = gen.generate(bean.getClass());
                 if (defs != null && !defs.isEmpty()) {
-                    BeanDefinition def = defs.getFirst();
-                    SingletonBeanDefinition singletonDef = new SingletonBeanDefinition(def, bean);
-                    singletonDef.setBeanNameProvider(name -> getBean(name, null));
-                    singletonDef.setBeanTypeProvider(this::getBeanOfType);
-                    singletonDef.setEnvironment(getEnvironment());
-                    if (registry.register(singletonDef)) {
-                        try {
-                            singletonDef.getBean();
-                            registered = true;
-                        } catch (Exception e) {
-                            // 初始化失败回滚注册
-                            registry.unregister(singletonDef);
-                            throw new com.chua.common.support.objects.exception.BeanDefinitionException(
-                                    "Bean 初始化失败: " + bean.getClass().getName(), e);
-                        }
+                    // 注册被拒时保持原语义：不抛异常，落空后走下方类型兜底
+                    if (registerSingletonDefinition(registry, defs.getFirst(), bean, false)) {
+                        registered = true;
                     }
                 }
                 break;
@@ -314,23 +305,42 @@ public class DefaultObjectContext implements ObjectContext {
             com.chua.common.support.objects.definition.TypeBeanDefinition def =
                     com.chua.common.support.objects.definition.TypeBeanDefinition.of(bean.getClass());
             if (def != null) {
-                SingletonBeanDefinition singletonDef = new SingletonBeanDefinition(def, bean);
-                singletonDef.setBeanNameProvider(name -> getBean(name, null));
-                singletonDef.setBeanTypeProvider(this::getBeanOfType);
-                singletonDef.setEnvironment(getEnvironment());
-                if (!registry.register(singletonDef)) {
-                    throw new com.chua.common.support.objects.exception.BeanDefinitionException(
-                            "Bean 注册失败: " + bean.getClass().getName());
-                }
-                try {
-                    singletonDef.getBean();
-                } catch (Exception e) {
-                    registry.unregister(singletonDef);
-                    throw new com.chua.common.support.objects.exception.BeanDefinitionException(
-                            "Bean 初始化失败: " + bean.getClass().getName(), e);
-                }
+                registerSingletonDefinition(registry, def, bean, true);
             }
         }
+    }
+
+    /**
+     * 注册单例 Bean 定义并完成初始化。
+     *
+     * @param registry       注册中心
+     * @param def            由生成器或类型推断得到的 Bean 定义
+     * @param bean           Bean 实例
+     * @param failIfRejected 注册被拒时是否抛异常
+     * @return 是否注册并初始化成功
+     */
+    private boolean registerSingletonDefinition(BeanDefinitionRegistry registry, BeanDefinition def,
+                                                Object bean, boolean failIfRejected) {
+        SingletonBeanDefinition singletonDef = new SingletonBeanDefinition(def, bean);
+        singletonDef.setBeanNameProvider(name -> getBean(name, null));
+        singletonDef.setBeanTypeProvider(this::getBeanOfType);
+        singletonDef.setEnvironment(getEnvironment());
+        if (!registry.register(singletonDef)) {
+            if (failIfRejected) {
+                throw new com.chua.common.support.objects.exception.BeanDefinitionException(
+                        "Bean 注册失败: " + bean.getClass().getName());
+            }
+            return false;
+        }
+        try {
+            singletonDef.getBean();
+        } catch (Exception e) {
+            // 初始化失败回滚注册
+            registry.unregister(singletonDef);
+            throw new com.chua.common.support.objects.exception.BeanDefinitionException(
+                    "Bean 初始化失败: " + bean.getClass().getName(), e);
+        }
+        return true;
     }
 
         /**
@@ -368,6 +378,10 @@ public class DefaultObjectContext implements ObjectContext {
         if (name == null || closed) {
             return null;
         }
+        if (registry == null) {
+            // 容器尚未初始化任何定义，等同于找不到 Bean，而不是 NPE
+            throw new com.chua.common.support.objects.exception.BeanNotFoundException(name, type);
+        }
         BeanDefinition def = registry.getBeanDefinition(name);
         if (def == null) {
             throw new com.chua.common.support.objects.exception.BeanNotFoundException(name, type);
@@ -397,6 +411,20 @@ public class DefaultObjectContext implements ObjectContext {
         }
         Collection<BeanDefinition> defs = registry.getBeanDefinitionOfType(type);
         if (defs.isEmpty()) {
+            return null;
+        }
+        // 单实现快路径：免拷贝、免排序（绝大多数按类型查找命中唯一实现）
+        if (defs.size() == 1) {
+            BeanDefinition def = defs.iterator().next();
+            try {
+                configureBeanDefinitionProvider(def);
+                Object bean = def.getBean();
+                if (type.isInstance(bean)) {
+                    return type.cast(bean);
+                }
+            } catch (Exception e) {
+                log.debug("获取 Bean 失败: {}", def.getName(), e);
+            }
             return null;
         }
         List<BeanDefinition> sorted = Wraps.list(defs);
@@ -436,9 +464,26 @@ public class DefaultObjectContext implements ObjectContext {
             return Collections.emptyMap();
         }
         Collection<BeanDefinition> defs = registry.getBeanDefinitionOfType(type);
+        if (defs.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String, T> result = Wraps.linkedMap();
+        // 单实现快路径：免拷贝、免排序
+        if (defs.size() == 1) {
+            BeanDefinition def = defs.iterator().next();
+            try {
+                configureBeanDefinitionProvider(def);
+                Object bean = def.getBean();
+                if (type.isInstance(bean)) {
+                    result.put(def.getName(), type.cast(bean));
+                }
+            } catch (Exception e) {
+                log.debug("获取 Bean 失败: {}", def.getName(), e);
+            }
+            return result;
+        }
         List<BeanDefinition> sorted = Wraps.list(defs);
         sorted.sort(Comparator.comparingInt(BeanDefinition::getPriority).reversed());
-        Map<String, T> result = Wraps.linkedMap();
         for (BeanDefinition def : sorted) {
             try {
                 configureBeanDefinitionProvider(def);

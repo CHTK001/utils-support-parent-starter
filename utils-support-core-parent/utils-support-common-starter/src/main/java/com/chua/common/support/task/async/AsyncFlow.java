@@ -49,6 +49,12 @@ public class AsyncFlow {
     private final AsyncProvider provider;
 
     /**
+     * 共享默认提供者：{@link JdkAsyncProvider} 无状态，可跨实例复用，
+     * 避免每次 {@link #of()} 都新建一个门面对象
+     */
+    private static final AsyncProvider DEFAULT_PROVIDER = new JdkAsyncProvider();
+
+    /**
      * 创建默认的异步流管理器。
      *
      * <p>使用 {@link JdkAsyncProvider} 作为默认异步实现。</p>
@@ -63,7 +69,7 @@ public class AsyncFlow {
      * 创建默认的异步流管理器。
      */
     public AsyncFlow() {
-        this(new JdkAsyncProvider());
+        this(DEFAULT_PROVIDER);
     }
 
     /**

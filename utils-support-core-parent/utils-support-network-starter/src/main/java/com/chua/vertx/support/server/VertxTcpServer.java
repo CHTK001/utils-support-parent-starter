@@ -243,26 +243,25 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
  // URL 路由模式：走 过滤器 Chain
             workerPool.submit(() -> processViaFilterChain(socket, codec));
         } else if (frameHandler != null) {
-            // 帧模式(TcpServer 接口):短连接一请求一响应,读完整帧→处理→写响应→关闭
+            // 帧模式(TcpServer 接口):keep-alive 帧循环,与 JdkTcpServer.handleFrameConnection 对齐:
+            // 一条连接持续 读一帧→处理→写响应,直到对端 EOF 才关闭;旧实现一帧一关,
+            // 长连接客户端第二个请求起全部 EOF,且响应异步入队后立即 close 可能丢写
             workerPool.submit(() -> {
                 try {
                     StreamCodec.Streams streams = openStreams(socket, codec);
                     InputStream in = streams.in();
                     OutputStream out = streams.out();
-                    byte[] frame = readFrame(in);
-                    if (frame != null) {
-                        byte[] response = frameHandler.handle(frame);
-                        if (response != null) {
- // 响应帧协议（与 jdktcp客户端.exchange 对称）：4 字节长度头 + 主体
-                            byte[] len = new byte[4];
-                            len[0] = (byte) (response.length >>> 24);
-                            len[1] = (byte) (response.length >>> 16);
-                            len[2] = (byte) (response.length >>> 8);
-                            len[3] = (byte) response.length;
-                            out.write(len);
-                            out.write(response);
-                            out.flush();
+                    while (true) {
+                        byte[] frame = readFrame(in);
+                        if (frame == null) {
+                            // 对端正常关闭
+                            break;
                         }
+                        byte[] response = frameHandler.handle(frame);
+                        if (response == null) {
+                            continue;
+                        }
+                        writeFrame(out, response);
                     }
                 } catch (Exception e) {
                     log.debug("帧处理异常: {}", e.getMessage());
@@ -332,14 +331,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             }
             byte[] respFrame = response.getReadyBytes();
             if (respFrame != null && respFrame.length > 0) {
-                byte[] len = new byte[4];
-                len[0] = (byte) (respFrame.length >>> 24);
-                len[1] = (byte) (respFrame.length >>> 16);
-                len[2] = (byte) (respFrame.length >>> 8);
-                len[3] = (byte) respFrame.length;
-                out.write(len);
-                out.write(respFrame);
-                out.flush();
+                writeFrame(out, respFrame);
             }
         } catch (Exception e) {
             log.debug("URL 路由处理异常: {}", e.getMessage());
@@ -393,6 +385,24 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             total += r;
         }
         return total;
+    }
+
+    /**
+     * 写响应帧（与 jdktcp 客户端.exchange 对称）：4 字节大端序长度头 + 主体，写后立即冲刷。
+     *
+     * @param out 输出流，不允许为 null
+     * @param body 响应主体，不允许为 null
+     * @throws IOException 写出失败
+     */
+    private static void writeFrame(OutputStream out, byte[] body) throws IOException {
+        byte[] len = new byte[4];
+        len[0] = (byte) (body.length >>> 24);
+        len[1] = (byte) (body.length >>> 16);
+        len[2] = (byte) (body.length >>> 8);
+        len[3] = (byte) body.length;
+        out.write(len);
+        out.write(body);
+        out.flush();
     }
 
     /**

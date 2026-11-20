@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.constant.DateFormatConstant;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -8,8 +9,8 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -560,7 +561,7 @@ public class PlaceholderSupport {
         if (StringUtils.isEmpty(format)) {
             format = "yyyy-MM-dd HH:mm:ss";
         }
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(format));
+        return LocalDateTime.now().format(DateFormatConstant.formatterOf(format));
     }
 
     /**
@@ -586,7 +587,7 @@ public class PlaceholderSupport {
         } catch (NumberFormatException e) {
             LOG.log(System.Logger.Level.DEBUG, "[placeholder] 解析数字失败，已忽略: " + e.getMessage(), e);
         }
-        return String.valueOf(new Random().nextInt(bound));
+        return String.valueOf(ThreadLocalRandom.current().nextInt(bound));
     }
 
     /**

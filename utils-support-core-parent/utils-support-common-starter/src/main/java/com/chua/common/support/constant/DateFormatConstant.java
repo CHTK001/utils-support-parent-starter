@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import static com.chua.common.support.lang.date.enums.ZoneIdEnum.CTT;
 /**
  *                         <br>
@@ -23,6 +25,43 @@ import static com.chua.common.support.lang.date.enums.ZoneIdEnum.CTT;
  */
 public final class DateFormatConstant {
     private DateFormatConstant() {}
+
+    /**
+     * DateTimeFormatter 缓存：{@link DateTimeFormatter} 不可变且线程安全，按模式缓存
+     * 可消除热路径（日志、导出、ID 生成、报文转换）上重复的模式解析开销。
+     * 注意：按「模式字符串」命中缓存，JVM 默认 Locale 在运行期被更改的极端场景不感知。
+     */
+    private static final ConcurrentMap<String, DateTimeFormatter> FORMATTER_CACHE =
+            new ConcurrentHashMap<>(64);
+
+    /**
+     * DateTimeFormatter 缓存条目上限，防止动态拼接模式导致无界增长
+     */
+    private static final int FORMATTER_CACHE_MAX = 256;
+
+    /**
+     * 取指定模式的 {@link DateTimeFormatter}（带缓存）。
+     *
+     * <p>等价于 {@code DateTimeFormatter.ofPattern(pattern)}，但按模式缓存实例；
+     * 模式相同时返回同一格式化器，减少重复解析与对象分配。</p>
+     *
+     * @param pattern 日期模式，如 "yyyy-MM-dd HH:mm:ss"，为 null 时返回 null
+     * @return 缓存的格式化器实例
+     */
+    public static DateTimeFormatter formatterOf(String pattern) {
+        if (pattern == null) {
+            return null;
+        }
+        DateTimeFormatter cached = FORMATTER_CACHE.get(pattern);
+        if (null != cached) {
+            return cached;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        if (FORMATTER_CACHE.size() < FORMATTER_CACHE_MAX) {
+            FORMATTER_CACHE.put(pattern, formatter);
+        }
+        return formatter;
+    }
     public static final String[] MONTHS_OF_CHINESE = {"一月", "二月", "三月", "四月", "五月", "六月",
             "七月", "八月", "九月", "十月", "十一月", "十二月"};
     // ==================================yyyy-MM-dd      Pattern==================================

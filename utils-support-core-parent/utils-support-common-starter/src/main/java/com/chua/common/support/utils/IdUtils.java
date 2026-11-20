@@ -78,6 +78,11 @@ public class IdUtils {
     private static final DateTimeFormatter DAILY_SEQ_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     /**
+     * 时间 标识 格式化器（{@link DateTimeFormatter} 不可变且线程安全，静态复用避免每次生成 ID 重复解析模式）
+     */
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(TIME_FORMAT);
+
+    /**
      * 日期序列 标识 最大序列值
      */
     private static final long MAX_DAILY_SEQ = 999_999_999L;
@@ -266,7 +271,7 @@ public class IdUtils {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         LocalDateTime localDateTime = LocalDateTime.now();
         StringBuilder sb = new StringBuilder();
-        sb.append(localDateTime.format(DateTimeFormatter.ofPattern(TIME_FORMAT)));
+        sb.append(localDateTime.format(TIME_FORMATTER));
         synchronized (LOCK) {
             sb.append(System.nanoTime());
             sb.append(StringUtils.padAfter(random.nextInt() + "", 8, '0'));
@@ -284,7 +289,7 @@ public class IdUtils {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         LocalDateTime localDateTime = LocalDateTime.now();
         StringBuilder sb = new StringBuilder();
-        sb.append(localDateTime.format(DateTimeFormatter.ofPattern(TIME_FORMAT)));
+        sb.append(localDateTime.format(TIME_FORMATTER));
         synchronized (LOCK) {
             sb.append(System.nanoTime());
             sb.append(StringUtils.padAfter(random.nextInt() + "", 8, '0'));
@@ -345,7 +350,7 @@ public class IdUtils {
             prefix = prefix.substring(0, 4);
         }
         var localDateTime = LocalDateTime.now();
-        var timePart = localDateTime.format(DateTimeFormatter.ofPattern(TIME_FORMAT));
+        var timePart = localDateTime.format(TIME_FORMATTER);
         var snowflakeId = createSnowflakeId();
         var idPart = String.valueOf(snowflakeId);
         var idSuffix = idPart.length() > 4 ? idPart.substring(idPart.length() - 4)

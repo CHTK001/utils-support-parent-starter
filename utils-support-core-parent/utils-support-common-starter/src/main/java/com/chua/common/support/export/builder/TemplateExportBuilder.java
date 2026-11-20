@@ -2,6 +2,7 @@
 package com.chua.common.support.export.builder;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.export.ExportConfig;
 import com.chua.common.support.export.ExportException;
 import com.chua.common.support.export.ExportFormats;
@@ -492,7 +493,7 @@ public class TemplateExportBuilder {
         vars.put("sheetName", meta.resolveSheetName());
         vars.put("headers", meta.headers());
         vars.put("count", data.size());
-        vars.put("exportTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT)));
+        vars.put("exportTime", LocalDateTime.now().format(DateFormatConstant.formatterOf(TIME_FORMAT)));
         vars.putAll(source == null ? Wraps.<String, Object>map() : source.variables());
         vars.putAll(variables);
         return new TemplateContext(meta, vars, resolved, data, config);

@@ -67,6 +67,11 @@ public class JdkHttpServer extends AbstractServer {
     @Override
     protected void doStart() {
         rejectStreamEncryption("HTTP 实现请改用 ServerSetting#ssl（SslConfig.auto 或 keyStore/pem）启用 TLS");
+        // JDK 内置 HttpServer 的 keep-alive 空闲连接缓存默认上限 200
+        // （sun.net.httpserver.maxIdleConnections），超出即被空闲回收线程关闭，
+        // 万级长连接下连接数会被钳制在 200。该值仅在 ServerConfig 类加载时读取一次、
+        // 无公开 API，只能在创建 HttpServer 前注入系统属性；宿主已显式配置时不覆盖。
+        tuneMaxIdleConnections();
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             ServerSetting.SslConfig ssl = setting.getSsl();
@@ -88,6 +93,21 @@ public class JdkHttpServer extends AbstractServer {
                     setting.getHost(), setting.getPort(), setting.resolveBacklog(8192));
         } catch (IOException e) {
             throw new RuntimeException("HTTP 服务启动失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 放宽 JDK 内置 HttpServer 的空闲 keep-alive 连接缓存上限。
+     *
+     * <p>默认 200：长连接数一旦超过 200，空闲回收线程会持续关闭最久未活动的连接，
+     * 高并发长连接场景下连接数被钳制在 200。这里在 ServerConfig 类加载前注入 65536
+     * 的上限；空闲连接由 dispatcher 统一持有、不占线程（虚拟线程 per exchange），
+     * 放大缓存无额外线程开销。宿主已显式设置该系统属性时尊重宿主配置。</p>
+     */
+    private static void tuneMaxIdleConnections() {
+        final String key = "sun.net.httpserver.maxIdleConnections";
+        if (System.getProperty(key) == null) {
+            System.setProperty(key, "65536");
         }
     }
 

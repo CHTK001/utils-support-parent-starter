@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.lang.date;
 
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.lang.date.enums.ZoneIdEnum;
 import com.chua.common.support.lang.date.unit.DateUnit;
 import com.chua.common.support.spi.ServiceProvider;
@@ -96,7 +97,7 @@ public final class DateTime {
      * @return {@link LocalDateTime}
      */
     public static LocalDateTime parse(String timeStr, String pattern) {
-        return LocalDateTime.parse(timeStr, DateTimeFormatter.ofPattern(pattern));
+        return LocalDateTime.parse(timeStr, DateFormatConstant.formatterOf(pattern));
     }
 
     /**
@@ -135,7 +136,7 @@ public final class DateTime {
         if (dateTime == null) {
             return "";
         }
-        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return dateTime.format(DateFormatConstant.formatterOf("yyyy-MM-dd HH:mm:ss"));
     }
 
     /**
@@ -149,7 +150,7 @@ public final class DateTime {
         if (dateTime == null) {
             return "";
         }
-        return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+        return dateTime.format(DateFormatConstant.formatterOf(pattern));
     }
 
     /**
@@ -437,7 +438,7 @@ public final class DateTime {
         if (dateTime == null || zone == null || pattern == null) {
             return "";
         }
-        return dateTime.atZone(zone).format(DateTimeFormatter.ofPattern(pattern));
+        return dateTime.atZone(zone).format(DateFormatConstant.formatterOf(pattern));
     }
 
     /**

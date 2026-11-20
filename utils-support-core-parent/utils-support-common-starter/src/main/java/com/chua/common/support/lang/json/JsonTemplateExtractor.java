@@ -396,11 +396,14 @@ public class JsonTemplateExtractor implements TemplateExtractor {
   *
   * @return ObjectMapper 实例
   */
+ /** 严格模式复用的 ObjectMapper：默认配置、不可变且线程安全，避免每次提取重复构建 */
+ private static final ObjectMapper STRICT_MAPPER = new ObjectMapper();
+
  private ObjectMapper mapper() {
  if (lenient) {
  return Json.getMapper();
  }
- return new ObjectMapper();
+ return STRICT_MAPPER;
  }
 
  /**

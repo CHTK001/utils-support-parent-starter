@@ -1,5 +1,6 @@
 package com.chua.common.support.config.parser;
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.condition.Precondition;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertiesMutiPropertySource;
 import com.chua.common.support.config.source.PropertySource;
@@ -224,12 +225,9 @@ public class XmlConfigParser implements ConfigParser {
                 Element childElement = (Element) child;
                 String tagName = childElement.getTagName();
 
-                Object value;
-                if (hasOnlyTextContent(childElement)) {
-                    value = childElement.getTextContent().trim();
-                } else {
-                    value = parseElement(childElement);
-                }
+                Object value = Precondition.ifTrue(hasOnlyTextContent(childElement))
+                        .<Object>ifTrueGet(() -> childElement.getTextContent().trim())
+                        .orElse(() -> parseElement(childElement));
 
                 childMap.computeIfAbsent(tagName, k -> Wraps.list()).add(value);
             }
@@ -238,11 +236,9 @@ public class XmlConfigParser implements ConfigParser {
         //
         for (Map.Entry<String, List<Object>> entry : childMap.entrySet()) {
             List<Object> values = entry.getValue();
-            if (values.size() == 1) {
-                result.put(entry.getKey(), values.getFirst());
-            } else {
-                result.put(entry.getKey(), values);
-            }
+            Precondition.ifTrue(values.size() == 1)
+                    .ifTrue(() -> result.put(entry.getKey(), values.getFirst()))
+                    .orElse(() -> result.put(entry.getKey(), values));
         }
 
         return result;

@@ -3,6 +3,7 @@ package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.annotation.FieldProperty;
+import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.converter.FieldConverter;
 import com.chua.common.support.converter.FieldMappingContext;
@@ -375,7 +376,7 @@ public final class BeanUtils {
             return value;
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
+        DateTimeFormatter formatter = DateFormatConstant.formatterOf(fmt);
         if (value instanceof LocalDateTime ldt) {
             return ldt.format(formatter);
         }

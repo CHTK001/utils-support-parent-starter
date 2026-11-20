@@ -84,6 +84,48 @@ public final class ReflectUtils {
     private static final ConcurrentMap<String, Class<?>> CLASS_NAME_CACHE = new ConcurrentHashMap<>(256);
 
     /**
+     * 声明构造器缓存：构造器集合在类加载后不再变化，按类缓存消除重复的 JVM 元数据复制
+     * （{@code getDeclaredConstructors()} 每次调用都会在 JVM 侧复制元数据并分配新数组）。
+     */
+    private static final ConcurrentMap<Class<?>, Constructor<?>[]> DECLARED_CONSTRUCTOR_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 声明构造器缓存条目上限，防止动态生成类等极端场景下无界增长
+     */
+    private static final int DECLARED_CONSTRUCTOR_CACHE_MAX = 4096;
+
+    /**
+     * 可持久化字段缓存：ORM 引擎按行摊平实体时逐行查询，按实体类缓存继承链字段清单。
+     * 缓存值为不可变列表（{@code List.copyOf}），调用方只读。
+     */
+    private static final ConcurrentMap<Class<?>, java.util.List<java.lang.reflect.Field>> PERSISTENT_FIELDS_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 可持久化字段缓存条目上限
+     */
+    private static final int PERSISTENT_FIELDS_CACHE_MAX = 4096;
+
+    /**
+     * 声明字段缓存：字段集合在类加载后不再变化，按类缓存消除重复的 JVM 元数据复制
+     */
+    private static final ConcurrentMap<Class<?>, Field[]> DECLARED_FIELDS_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 声明方法缓存（含私有，不含继承）
+     */
+    private static final ConcurrentMap<Class<?>, Method[]> DECLARED_METHODS_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 公共方法缓存（含父类/接口继承，语义同 {@code getMethods()}）
+     */
+    private static final ConcurrentMap<Class<?>, Method[]> PUBLIC_METHODS_CACHE = new ConcurrentHashMap<>(256);
+
+    /**
+     * 反射元数据缓存条目上限，防止动态生成类等极端场景下无界增长
+     */
+    private static final int REFLECT_METADATA_CACHE_MAX = 4096;
+
+    /**
      * 方法处理.Lookup 实例
      */
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
@@ -203,7 +245,7 @@ public final class ReflectUtils {
         if (null == type || null == argTypes) {
             return null;
         }
-        for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+        for (Constructor<?> constructor : declaredConstructors(type)) {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length != argTypes.length) {
                 continue;
@@ -226,6 +268,91 @@ public final class ReflectUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 取类的声明构造器数组（带缓存）。
+     *
+     * <p>构造器集合在类加载完成后不再变化；{@code getDeclaredConstructors()} 每次调用
+     * 都会在 JVM 侧复制元数据并分配新数组，而本查询位于 SPI 实例化、动态代理、Bean 装配
+     * 的公共热路径上，按类缓存可消除重复的元数据读取。缓存容量封顶，超出后退化为
+     * 每次直读（行为不变），防止动态生成类场景下无界膨胀。</p>
+     *
+     * @param type 目标类，不为 null
+     * @return 声明构造器数组（命中缓存时为共享数组，调用方不得修改数组内容）
+     */
+    private static Constructor<?>[] declaredConstructors(Class<?> type) {
+        Constructor<?>[] cached = DECLARED_CONSTRUCTOR_CACHE.get(type);
+        if (null != cached) {
+            return cached;
+        }
+        Constructor<?>[] constructors =
+                type.getDeclaredConstructors(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（构造器元数据封装）
+        if (DECLARED_CONSTRUCTOR_CACHE.size() < DECLARED_CONSTRUCTOR_CACHE_MAX) {
+            DECLARED_CONSTRUCTOR_CACHE.put(type, constructors);
+        }
+        return constructors;
+    }
+
+    /**
+     * 取类的声明字段数组（带缓存）。
+     *
+     * <p>字段集合在类加载完成后不再变化；{@code getDeclaredFields()} 每次调用都会在
+     * JVM 侧复制元数据并分配新数组，按类缓存可消除重复读取。缓存容量封顶，超出后
+     * 退化为每次直读（行为不变）。</p>
+     *
+     * @param type 目标类，不为 null
+     * @return 声明字段数组（命中缓存时为共享数组，调用方不得修改数组内容）
+     */
+    private static Field[] declaredFields(Class<?> type) {
+        Field[] cached = DECLARED_FIELDS_CACHE.get(type);
+        if (null != cached) {
+            return cached;
+        }
+        Field[] fields =
+                type.getDeclaredFields(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（字段元数据封装）
+        if (DECLARED_FIELDS_CACHE.size() < REFLECT_METADATA_CACHE_MAX) {
+            DECLARED_FIELDS_CACHE.put(type, fields);
+        }
+        return fields;
+    }
+
+    /**
+     * 取类的声明方法数组（带缓存，含私有、不含继承）。
+     *
+     * @param type 目标类，不为 null
+     * @return 声明方法数组（命中缓存时为共享数组，调用方不得修改数组内容）
+     */
+    private static Method[] declaredMethods(Class<?> type) {
+        Method[] cached = DECLARED_METHODS_CACHE.get(type);
+        if (null != cached) {
+            return cached;
+        }
+        Method[] methods =
+                type.getDeclaredMethods(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（方法元数据封装）
+        if (DECLARED_METHODS_CACHE.size() < REFLECT_METADATA_CACHE_MAX) {
+            DECLARED_METHODS_CACHE.put(type, methods);
+        }
+        return methods;
+    }
+
+    /**
+     * 取类的全部公共方法数组（带缓存，含父类/接口继承，语义同 {@code getMethods()}）。
+     *
+     * @param type 目标类，不为 null
+     * @return 公共方法数组（命中缓存时为共享数组，调用方不得修改数组内容）
+     */
+    private static Method[] publicMethods(Class<?> type) {
+        Method[] cached = PUBLIC_METHODS_CACHE.get(type);
+        if (null != cached) {
+            return cached;
+        }
+        Method[] methods =
+                type.getMethods(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（方法元数据封装）
+        if (PUBLIC_METHODS_CACHE.size() < REFLECT_METADATA_CACHE_MAX) {
+            PUBLIC_METHODS_CACHE.put(type, methods);
+        }
+        return methods;
     }
 
     /**
@@ -769,6 +896,10 @@ public final class ReflectUtils {
         if (clazz == null) {
             return java.util.List.of();
         }
+        java.util.List<java.lang.reflect.Field> cached = PERSISTENT_FIELDS_CACHE.get(clazz);
+        if (null != cached) {
+            return cached;
+        }
         java.util.Deque<Class<?>> hierarchy = Wraps.deque();
         for (Class<?> c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
             hierarchy.addFirst(c);
@@ -776,7 +907,7 @@ public final class ReflectUtils {
         java.util.List<java.lang.reflect.Field> fields = Wraps.list();
         for (Class<?> c : hierarchy) {
             // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（getPersistentFields 对外封装）
-            for (java.lang.reflect.Field f : c.getDeclaredFields()) {
+            for (java.lang.reflect.Field f : declaredFields(c)) {
                 int mods = f.getModifiers();
                 if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || f.isSynthetic()) {
                     continue;
@@ -788,7 +919,11 @@ public final class ReflectUtils {
                 fields.add(f);
             }
         }
-        return java.util.List.copyOf(fields);
+        java.util.List<java.lang.reflect.Field> result = java.util.List.copyOf(fields);
+        if (PERSISTENT_FIELDS_CACHE.size() < PERSISTENT_FIELDS_CACHE_MAX) {
+            PERSISTENT_FIELDS_CACHE.put(clazz, result);
+        }
+        return result;
     }
 
     /**
@@ -803,7 +938,7 @@ public final class ReflectUtils {
             return null;
         }
         try {
-            for (java.lang.reflect.Field f : target.getClass().getDeclaredFields()) {
+            for (java.lang.reflect.Field f : declaredFields(target.getClass())) {
                 if (f.getName().toLowerCase().contains(nameSubstring.toLowerCase())) {
                     MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(f.getDeclaringClass(), LOOKUP);
                     MethodHandle handle = lookup.unreflectGetter(f);
@@ -860,7 +995,7 @@ public final class ReflectUtils {
         if (clazz == null || methodName == null || annotationType == null) {
             return null;
         }
-        for (java.lang.reflect.Method method : clazz.getMethods()) {
+        for (java.lang.reflect.Method method : publicMethods(clazz)) {
             if (method.getName().equals(methodName)) {
                 A annotation = method.getAnnotation(annotationType);
                 if (null != annotation) {
@@ -869,7 +1004,7 @@ public final class ReflectUtils {
             }
         }
         for (Class<?> current = clazz; null != current; current = current.getSuperclass()) {
-            for (java.lang.reflect.Method method : current.getDeclaredMethods()) {
+            for (java.lang.reflect.Method method : declaredMethods(current)) {
                 if (method.getName().equals(methodName)) {
                     A annotation = method.getAnnotation(annotationType);
                     if (null != annotation) {
@@ -949,7 +1084,7 @@ public final class ReflectUtils {
         if (clazz == null) {
             return methods;
         }
-        for (java.lang.reflect.Method method : clazz.getMethods()) {
+        for (java.lang.reflect.Method method : publicMethods(clazz)) {
             methods.add(method);
         }
         return methods;
@@ -968,7 +1103,9 @@ public final class ReflectUtils {
         if (clazz == null) {
             return new java.lang.reflect.Constructor<?>[0];
         }
-        return clazz.getDeclaredConstructors(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredConstructors 对外封装）
+        // 元数据按类缓存，返回防御性拷贝：调用方拿到的仍是独立可变数组，
+        // 但不再重复触发 JVM 侧的构造器元数据读取
+        return declaredConstructors(clazz).clone();
     }
 
     // ==================== 实例化 ====================
@@ -1174,7 +1311,7 @@ public final class ReflectUtils {
      */
     private static MethodHandle findWithActualReturnType(Class<?> clazz, String methodName,
                                                          Class<?>[] paramTypes) {
-        for (java.lang.reflect.Method method : clazz.getMethods()) {
+        for (java.lang.reflect.Method method : publicMethods(clazz)) {
             if (!method.getName().equals(methodName)
                     || method.getParameterCount() != paramTypes.length) {
                 continue;
@@ -1284,7 +1421,7 @@ public final class ReflectUtils {
         if (clazz == null) {
             return methods;
         }
-        for (java.lang.reflect.Method method : clazz.getMethods()) {
+        for (java.lang.reflect.Method method : publicMethods(clazz)) {
             int modifiers = method.getModifiers();
             if (!Modifier.isPublic(modifiers) || !Modifier.isStatic(modifiers) || method.isSynthetic()) {
                 continue;
