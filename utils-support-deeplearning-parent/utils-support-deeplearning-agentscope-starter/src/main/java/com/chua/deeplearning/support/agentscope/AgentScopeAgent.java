@@ -21,6 +21,7 @@ import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.agent.ImageDefinition;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
@@ -164,6 +165,11 @@ public class AgentScopeAgent implements Agent {
      * 工作目录：文件类工具与 shell 工具以此为根，由系统设置「工作目录基路径」解析
      */
     private String workspacePath;
+    /**
+     * 决策客户端：会话配置的决策模型（System one / decisions 协议），
+     * 由门面按会话配置挂载，供决策类工具按选择调用；未配置时为 null
+     */
+    private DecisionsClient decisionsClient;
 
     /**
      * 是否允许 shell 工具：默认 true 沿用底层默认（开启）。
@@ -687,6 +693,22 @@ public class AgentScopeAgent implements Agent {
     public Agent workspace(String workspace) {
         this.workspacePath = workspace;
         return this;
+    }
+
+    /**
+     * 决策客户端（会话配置的决策模型）
+     */
+    @Override
+    public Agent decisionsClient(DecisionsClient decisionsClient) {
+        this.decisionsClient = decisionsClient;
+        return this;
+    }
+
+    /**
+     * 取决策客户端；未配置决策模型时为 {@code null}
+     */
+    public DecisionsClient decisionsClient() {
+        return decisionsClient;
     }
 
     /**

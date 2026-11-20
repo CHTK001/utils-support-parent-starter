@@ -5,6 +5,7 @@ import com.chua.common.support.ai.agent.goal.GoalTracker;
 import com.chua.common.support.ai.agent.goal.SessionGoal;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.memory.MemoryManager;
 import com.chua.common.support.ai.mcp.McpManager;
@@ -856,6 +857,21 @@ public interface Agent extends AutoCloseable {
      * @return 当前 Agent 实例，支持链式调用
      */
     default Agent workspace(String workspace) {
+        return this;
+    }
+
+    /**
+     * 设置决策客户端（会话配置的决策模型）。
+     *
+     * <p>决策模型走「System one / decisions」协议（{@link DecisionsClient}，
+     * {@code POST /v1/systemone} 或 {@code /v1/decisions}），与对话用 {@link ChatClient}
+     * 是两套接口。会话配置了决策模型时由门面挂载，供 Agent 的决策类工具按选择调用；
+     * 未配置时沿用本默认实现（无副作用）。</p>
+     *
+     * @param decisionsClient 决策客户端，不应为 null
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent decisionsClient(DecisionsClient decisionsClient) {
         return this;
     }
 
