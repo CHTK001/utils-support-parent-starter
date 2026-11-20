@@ -197,7 +197,10 @@ public class FtpServer extends AbstractServer implements TcpServer {
                     setting.resolveBacklog(128));
             setting.setPort(controlServerSocket.getLocalPort());
             running = true;
-            acceptThread = Thread.ofVirtual().name(ACCEPT_THREAD_NAME).start(this::acceptLoop);
+            // accept 用平台线程：海量长驻连接以虚拟线程承载，若 accept 也跑在虚拟线程上，
+            // 会与数万个 parked 连接线程竞争同一调度队列，建连速率随连接数增长而退化。
+            // 平台线程阻塞在 accept() 系统调用上，不参与虚拟线程调度，保证突发建连吞吐。
+            acceptThread = Thread.ofPlatform().daemon().name(ACCEPT_THREAD_NAME).start(this::acceptLoop);
             log.info("FTP 服务器启动成功: {}:{}", controlServerSocket.getInetAddress().getHostAddress(),
                     controlServerSocket.getLocalPort());
         } catch (IOException e) {

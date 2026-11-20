@@ -41,6 +41,12 @@ public class NmapTool extends CliTool {
             Pattern.compile("Nmap version (\\d[\\d.]*)");
 
     /**
+     * 开放端口行格式：22/tcp open ssh，或含端口范围 80-82/tcp open http
+     */
+    private static final Pattern OPEN_PORT_PATTERN =
+            Pattern.compile("(\\d+(?:-\\d+)?)/(\\w+)\\s+open\\s+(\\S+)(?:\\s+(.*))?");
+
+    /**
      * 创建 nmap 工具实例，使用预置的工具描述。
      */
     public NmapTool() {
@@ -106,10 +112,8 @@ public class NmapTool extends CliTool {
         }
         // 标准输出格式：22/tcp open ssh
         // 或含端口范围：80-82/tcp open http
-        java.util.regex.Pattern linePattern = java.util.regex.Pattern.compile(
-                "(\\d+(?:-\\d+)?)/(\\w+)\\s+open\\s+(\\S+)(?:\\s+(.*))?");
         for (String line : stdout.split("\\r?\\n")) {
-            java.util.regex.Matcher m = linePattern.matcher(line.trim());
+            java.util.regex.Matcher m = OPEN_PORT_PATTERN.matcher(line.trim());
             if (m.find()) {
                 String portSpec = m.group(1);
                 String protocol = m.group(2);

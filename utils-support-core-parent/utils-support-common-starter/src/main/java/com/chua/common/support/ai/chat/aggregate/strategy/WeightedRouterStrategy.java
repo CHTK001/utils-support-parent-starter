@@ -3,7 +3,7 @@ package com.chua.common.support.ai.chat.aggregate.strategy;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 权重策略 — 按权重比例随机选择客户端。
@@ -18,11 +18,6 @@ import java.util.Random;
 public class WeightedRouterStrategy implements RouterStrategy {
 
     /**
-     * 随机数生成器
-     */
-    private final Random random = new Random();
-
-    /**
      * 选择
      */
     @Override
@@ -33,10 +28,10 @@ public class WeightedRouterStrategy implements RouterStrategy {
 
         int totalWeight = clients.stream().mapToInt(WeightedClient::weight).sum();
         if (totalWeight <= 0) {
-            return clients.get(random.nextInt(clients.size()));
+            return clients.get(ThreadLocalRandom.current().nextInt(clients.size()));
         }
 
-        int point = random.nextInt(totalWeight);
+        int point = ThreadLocalRandom.current().nextInt(totalWeight);
         int cumulative = 0;
         for (WeightedClient wc : clients) {
             cumulative += wc.weight();
