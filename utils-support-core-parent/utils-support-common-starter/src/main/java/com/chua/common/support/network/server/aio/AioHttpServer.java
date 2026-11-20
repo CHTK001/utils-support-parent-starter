@@ -127,19 +127,38 @@ public class AioHttpServer extends AbstractServer {
     private static final int MAX_PIPELINE_DEPTH = Integer.getInteger("aio.pipeline.max", 4096);
 
     /**
-     * 合并缓冲池:复用直接内存,消除每响应分配
+     * 大响应合并缓冲池（容量 >= {@link #COMBINE_THRESHOLD} 的堆缓冲）。
+     *
+     * <p>合并写上限即 {@code COMBINE_THRESHOLD}，故本池实际只回收恰好 64KB 的合并缓冲；
+     * 常规小响应走 {@link #SMALL_COMBINE_POOL}。</p>
      */
     private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> COMBINE_POOL =
             new java.util.concurrent.ConcurrentLinkedQueue<>();
 
     /**
+     * 小响应合并缓冲池：复用低于 {@link #COMBINE_THRESHOLD} 的堆缓冲。
+     *
+     * <p>原实现仅回收 >=64KB 的缓冲，而合并路径上限恰为 64KB，常规小响应的
+     * 合并缓冲全部直接丢弃给 GC；本池按容量归位回收，消除每响应一次的小对象分配。</p>
+     */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> SMALL_COMBINE_POOL =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /**
+     * 小缓冲池上限，超出后交由 GC 释放
+     */
+    private static final int SMALL_COMBINE_POOL_MAX = 128;
+
+    /**
      * acquireCombined。
      *
-     * @param size 大小，不允许为 null
+     * @param size 大小
      * @return Byte缓冲区 对象
      */
     private static ByteBuffer acquireCombined(int size) {
-        ByteBuffer b = COMBINE_POOL.poll();
+        java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> pool =
+                size >= COMBINE_THRESHOLD ? COMBINE_POOL : SMALL_COMBINE_POOL;
+        ByteBuffer b = pool.poll();
         if (b == null || b.capacity() < size) {
             b = ByteBuffer.allocate(size);
         } else {
@@ -151,12 +170,20 @@ public class AioHttpServer extends AbstractServer {
     /**
      * releaseCombined。
      *
+     * <p>按缓冲容量归位到对应池（取出过小被弃的缓冲由其他在途响应归还补齐）。</p>
+     *
      * @param b 方法入参 b
      */
     private static void releaseCombined(ByteBuffer b) {
-        if (b != null && b.capacity() >= COMBINE_THRESHOLD && COMBINE_POOL.size() < 64) {
+        if (b == null) {
+            return;
+        }
+        java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> pool =
+                b.capacity() >= COMBINE_THRESHOLD ? COMBINE_POOL : SMALL_COMBINE_POOL;
+        int max = pool == COMBINE_POOL ? 64 : SMALL_COMBINE_POOL_MAX;
+        if (pool.size() < max) {
             b.clear();
-            COMBINE_POOL.offer(b);
+            pool.offer(b);
         }
     }
 

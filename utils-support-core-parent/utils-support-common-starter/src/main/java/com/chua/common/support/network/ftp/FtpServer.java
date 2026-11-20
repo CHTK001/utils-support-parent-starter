@@ -271,7 +271,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
             session = new FtpSession(socket, ftpConfig);
             sessions.put(session.getId(), session);
             session.reply(220, "FTP Server Ready. Welcome to " + ftpConfig.getHost());
-            log.info("FTP 控制连接建立: {} from {}", session.getId(), socket.getRemoteSocketAddress());
+            // 每连接一条，生产高并发下 INFO 会形成日志洪水，降为 debug
+            log.debug("FTP 控制连接建立: {} from {}", session.getId(), socket.getRemoteSocketAddress());
 
             String line;
             while (running && !session.isClosed()) {

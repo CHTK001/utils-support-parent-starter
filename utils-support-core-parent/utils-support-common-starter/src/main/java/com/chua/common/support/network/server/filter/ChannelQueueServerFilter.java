@@ -464,11 +464,25 @@ public class ChannelQueueServerFilter implements ReactiveServerFilter, AutoClose
     /**
      * 调度一次令牌探测：同通道同时最多一个探测任务在飞，避免重试风暴。
      *
+     * <p>令牌间隔明显大于轮询粒度时（低 QPS 通道）按限流器预估值精确对齐下一次放行，
+     * 消除固定轮询平均半个周期的额外排队延迟；令牌间隔较短时维持固定轮询——
+     * 短间隔下「调度触发到任务执行」的微秒级滞后会让精确唤醒周期性早醒空探、
+     * 反复多等一个整周期，而固定轮询可凭令牌桶突发存量拿满吞吐。</p>
+     *
      * @param channel 目标通道
      */
     private void scheduleDrain(Channel channel) {
         if (channel.drainScheduled.compareAndSet(false, true)) {
-            SCHEDULER.schedule(() -> drain(channel), retryIntervalMs, TimeUnit.MILLISECONDS);
+            long delay = retryIntervalMs;
+            if (channel.limiter != null) {
+                long estimated = channel.limiter.estimateNextAvailableMillis(channel.key);
+                // 仅当预估间隔大于轮询粒度时启用精确对齐；+1ms 覆盖调度滞后防早醒空探，
+                // 上限钳到 queueTimeoutMs，保证排队超时拒绝仍能按期被 drain 探测到
+                if (estimated > retryIntervalMs) {
+                    delay = Math.min(estimated + 1, queueTimeoutMs);
+                }
+            }
+            SCHEDULER.schedule(() -> drain(channel), delay, TimeUnit.MILLISECONDS);
         }
     }
 

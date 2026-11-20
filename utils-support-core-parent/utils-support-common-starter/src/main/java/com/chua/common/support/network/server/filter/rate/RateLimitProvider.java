@@ -92,5 +92,21 @@ public interface RateLimitProvider {
          * @return QPS
          */
         double getCapacity();
+
+        /**
+         * 预估下一次令牌可用前需要等待的毫秒数（可选能力）。
+         *
+         * <p>供排队场景精确调度：调用方在 {@link #tryAcquire(String)} 失败后，
+         * 可按该预估值安排下一次令牌探测，而不是固定间隔轮询。
+         * 实现应返回「保守不早于」的等待时长，避免调用方提前唤醒空探。</p>
+         *
+         * <p>返回 {@code -1} 表示实现无法预估，调用方应退回固定间隔轮询。</p>
+         *
+         * @param key 限流 key
+         * @return 预估等待毫秒数（>=1）；无法预估时返回 -1
+         */
+        default long estimateNextAvailableMillis(String key) {
+            return -1L;
+        }
     }
 }

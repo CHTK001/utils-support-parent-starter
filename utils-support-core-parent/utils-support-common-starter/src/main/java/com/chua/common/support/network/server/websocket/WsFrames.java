@@ -53,6 +53,19 @@ public final class WsFrames {
     private static final int MASK_SIZE = 4;
 
     /**
+     * 帧头 2 字节暂存（每线程复用）。
+     *
+     * <p>帧头/扩展长度字节解析完即弃，可安全复用；掩码键因随 {@link FrameHeader#mask}
+     * 逃逸出本方法、生命周期与帧对象绑定，必须保持每帧新分配，不入暂存。</p>
+     */
+    private static final ThreadLocal<byte[]> HEAD_SCRATCH = ThreadLocal.withInitial(() -> new byte[2]);
+
+    /**
+     * 扩展长度暂存（最长 8 字节，每线程复用）。
+     */
+    private static final ThreadLocal<byte[]> EXT_SCRATCH = ThreadLocal.withInitial(() -> new byte[8]);
+
+    /**
      * 工具类不允许实例化。
      */
     private WsFrames() {
@@ -114,7 +127,7 @@ public final class WsFrames {
      * @throws IOException 读取失败或帧头不完整
      */
     public static FrameHeader readHeader(InputStream in) throws IOException {
-        byte[] head = new byte[2];
+        byte[] head = HEAD_SCRATCH.get();
         int first = in.read();
         if (first < 0) {
             return null;
@@ -130,11 +143,11 @@ public final class WsFrames {
         long length = b1 & 0x7F;
 
         if (length == LEN_16) {
-            byte[] ext = new byte[2];
+            byte[] ext = EXT_SCRATCH.get();
             readFully(in, ext, 0, 2);
             length = ((ext[0] & 0xFF) << 8) | (ext[1] & 0xFF);
         } else if (length == LEN_64) {
-            byte[] ext = new byte[8];
+            byte[] ext = EXT_SCRATCH.get();
             readFully(in, ext, 0, 8);
             long value = 0L;
             for (byte b : ext) {

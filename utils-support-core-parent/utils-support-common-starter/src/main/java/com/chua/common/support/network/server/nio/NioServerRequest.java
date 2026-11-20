@@ -721,7 +721,69 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
+     * 常见请求头名预驻留字典（全小写）。
+     *
+     * <p>HTTP 请求头名高度重复：解析时若能按字节比对直接命中常量，
+     * 即可省掉每个请求每个头一次 {@code new String} 分配与入 map 前的重复哈希。
+     * 覆盖 RFC 9110/9111 常用头与常见代理头；未命中走原路径按需建串。</p>
+     */
+    private static final String[] COMMON_HEADER_NAMES = {
+            "accept", "accept-charset", "accept-encoding", "accept-language", "accept-ranges",
+            "authorization", "cache-control", "connection", "content-disposition",
+            "content-encoding", "content-length", "content-location", "content-range",
+            "content-type", "cookie", "date", "etag", "expect", "expires", "from", "host",
+            "if-match", "if-modified-since", "if-none-match", "if-range",
+            "if-unmodified-since", "last-modified", "location", "max-forwards", "origin",
+            "pragma", "proxy-authorization", "proxy-connection", "range", "referer",
+            "retry-after", "server", "te", "trailer", "transfer-encoding", "upgrade",
+            "user-agent", "vary", "via", "warning", "www-authenticate",
+            "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto", "x-real-ip",
+            "x-requested-with"
+    };
+
+    /**
+     * 在解析缓冲上按字节比对头名（忽略 ASCII 大小写），命中预驻留字典则零分配返回常量。
+     *
+     * @param a    解析缓冲底层数组
+     * @param base 头名起始绝对下标
+     * @param len  头名长度
+     * @return 字典中的小写常量；未命中返回 null
+     */
+    private static String canonicalHeaderName(byte[] a, int base, int len) {
+        for (String name : COMMON_HEADER_NAMES) {
+            if (name.length() == len && matchesIgnoreCase(a, base, name)) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断缓冲中 [base, base+len) 的 ASCII 字节忽略大小写后是否与给定小写常量一致。
+     *
+     * @param a      缓冲底层数组
+     * @param base   起始绝对下标
+     * @param target 全小写目标常量（长度须与比对范围一致）
+     * @return true 一致
+     */
+    private static boolean matchesIgnoreCase(byte[] a, int base, String target) {
+        for (int i = 0; i < target.length(); i++) {
+            byte b = a[base + i];
+            if (b >= 'A' && b <= 'Z') {
+                b = (byte) (b + 32);
+            }
+            if (b != target.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 读取头部名并就地转小写(HTTP 头部名只允许 ASCII,超出范围按原字节保留)。
+     *
+     * <p>常见头名先查预驻留字典，命中直接返回共享常量，消除每请求每头的
+     * String 分配；未命中才按需建串。</p>
      *
      * @param off 起始下标
      * @param len 长度
@@ -733,6 +795,11 @@ public class NioServerRequest implements ServerRequest {
         }
         byte[] a = buf.array();
         int base = buf.arrayOffset() + off;
+        // 快路径：常见头名命中预驻留字典，零分配
+        String canonical = canonicalHeaderName(a, base, len);
+        if (canonical != null) {
+            return canonical;
+        }
         boolean hasUpper = false;
         for (int i = 0; i < len; i++) {
             byte b = a[base + i];

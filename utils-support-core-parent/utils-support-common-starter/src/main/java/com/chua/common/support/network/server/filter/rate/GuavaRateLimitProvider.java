@@ -94,6 +94,16 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
         public double getCapacity() {
             return capacity;
         }
+
+        /**
+         * 预估下一次令牌可用毫秒数
+         */
+        @Override
+        public long estimateNextAvailableMillis(String key) {
+            // tryAcquire 失败说明存量令牌已耗尽，平滑限流器下一个令牌约在 1/qps 后成熟；
+            // 向上取整保证调用方不会早于令牌成熟时刻唤醒
+            return Math.max(1L, (long) Math.ceil(1000.0 / capacity));
+        }
     }
 
     /**
@@ -148,6 +158,15 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
         @Override
         public double getCapacity() {
             return qps;
+        }
+
+        /**
+         * 预估下一次令牌可用毫秒数
+         */
+        @Override
+        public long estimateNextAvailableMillis(String key) {
+            // 各 key 的限流器同为 1/qps 间隔，向上取整防早醒
+            return Math.max(1L, (long) Math.ceil(1000.0 / qps));
         }
 
         /**

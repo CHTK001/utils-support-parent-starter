@@ -324,7 +324,8 @@ public class JdbcMetaTable extends AbstractMetaTable {
                 if (col.getDefaultValue() != null && !col.getDefaultValue().isEmpty()) {
                     sql.append(" DEFAULT ").append(col.getDefaultValue());
                 }
-                if (i < columns.size() - 1) {
+                // 还有后续列或独立主键子句时都需要逗号分隔
+                if (i < columns.size() - 1 || !primaryKeys.isEmpty()) {
                     sql.append(",");
                 }
                 sql.append("\n");

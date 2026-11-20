@@ -195,7 +195,9 @@ public class FtpsServer extends FtpServer {
                     setting.resolveBacklog(128));
             listenSocket = candidate;
             markRunning();
-            Thread.ofVirtual().name("ftps-accept").start(this::acceptLoop);
+            // accept 用平台线程：与 FtpServer 同口径，避免与海量长驻连接的虚拟线程
+            // 竞争调度导致建连速率退化；阻塞在 accept() 上不占虚拟线程调度。
+            Thread.ofPlatform().daemon().name("ftps-accept").start(this::acceptLoop);
             log.info("FTPS 服务器启动成功: {}:{} (隐式={})",
                     getFtpConfig().getHost(), getFtpConfig().getControlPort(), implicitSsl);
         } catch (IOException e) {
@@ -259,7 +261,8 @@ public class FtpsServer extends FtpServer {
             } else {
                 session.reply(220, "FTPS Server Ready. Use AUTH TLS to secure connection.");
             }
-            log.info("FTPS 控制连接建立: {} from {}", session.getId(), socket.getRemoteSocketAddress());
+            // 每连接一条，生产高并发下 INFO 会形成日志洪水，降为 debug
+            log.debug("FTPS 控制连接建立: {} from {}", session.getId(), socket.getRemoteSocketAddress());
 
             String line;
             while (!session.isClosed()) {

@@ -361,30 +361,29 @@ public class EntitySchemaDriver implements SchemaDriver {
      * @return 建表 SQL
      */
     private String builtinCreateTable(String tableName, List<ColumnDef> columns) {
-        StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
         List<String> primaryKeys = new ArrayList<>();
-        // 主键子句也作为一个参与逗号分隔的元素，避免最后一列与 PRIMARY KEY 之间缺逗号
-        int parts = columns.size() + (primaryKeys.isEmpty() ? 0 : 1);
-        for (int i = 0; i < columns.size(); i++) {
-            ColumnDef column = columns.get(i);
-            sql.append("  ").append(column.getName()).append(' ')
+        List<String> columnDefs = new ArrayList<>();
+        for (ColumnDef column : columns) {
+            StringBuilder def = new StringBuilder("  ").append(column.getName()).append(' ')
                     .append(column.getType() == null || column.getType().isBlank()
                             ? "VARCHAR(255)" : column.getType());
             if (column.isPrimaryKey()) {
-                sql.append(" NOT NULL");
+                def.append(" NOT NULL");
                 primaryKeys.add(column.getName());
             } else {
-                sql.append(column.isNullable() ? " NULL" : " NOT NULL");
+                def.append(column.isNullable() ? " NULL" : " NOT NULL");
             }
             if (column.isAutoIncrement()) {
-                sql.append(" AUTO_INCREMENT");
+                def.append(" AUTO_INCREMENT");
             }
-            sql.append(i < parts - 1 ? ",\n" : "\n");
+            columnDefs.add(def.toString());
         }
+        // 主键子句与列定义一样参与逗号分隔，避免最后一列与 PRIMARY KEY 之间缺逗号
         if (!primaryKeys.isEmpty()) {
-            sql.append("  PRIMARY KEY (").append(String.join(", ", primaryKeys)).append(")\n");
+            columnDefs.add("  PRIMARY KEY (" + String.join(", ", primaryKeys) + ")");
         }
-        return sql.append(")").toString();
+        return new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(tableName)
+                .append(" (\n").append(String.join(",\n", columnDefs)).append("\n)").toString();
     }
 
     /**
