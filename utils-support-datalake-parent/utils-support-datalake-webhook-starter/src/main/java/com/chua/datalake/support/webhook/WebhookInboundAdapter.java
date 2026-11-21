@@ -460,7 +460,7 @@ public class WebhookInboundAdapter {
      */
     private String readBody(HttpExchange exchange) throws IOException, WebhookRejectException {
         try (InputStream in = exchange.getRequestBody()) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            var out = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
             int read;
             long total = 0;

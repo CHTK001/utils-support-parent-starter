@@ -50,7 +50,7 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         pipeline
                 .add(new Resize(INPUT_SIZE))
                 .add(new ToTensor())
@@ -100,7 +100,7 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
         if (norm < EPSILON) {
             return feature;
         }
-        float[] result = new float[feature.length];
+        var result = new float[feature.length];
         for (int i = 0; i < feature.length; i++) {
             result[i] = (float) (feature[i] / norm);
         }

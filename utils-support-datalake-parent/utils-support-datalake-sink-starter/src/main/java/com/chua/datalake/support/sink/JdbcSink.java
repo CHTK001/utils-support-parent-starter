@@ -87,7 +87,7 @@ public class JdbcSink implements DataSink {
         }
 
         String safeTable = SqlName.check(targetTable, "表名");
-        StringBuilder sql = new StringBuilder("INSERT INTO ").append(safeTable).append(" (");
+        var sql = new StringBuilder("INSERT INTO ").append(safeTable).append(" (");
         sql.append(String.join(", ", columns));
         sql.append(") VALUES (");
         for (int i = 0; i < columns.size(); i++) {

@@ -44,7 +44,7 @@ public final class UebaConfigSerializer {
     public static void write(Path target, UebaConfig config) {
         Objects.requireNonNull(target, "target must not be null");
         Objects.requireNonNull(config, "config must not be null");
-        DumperOptions dumperOptions = new DumperOptions();
+        var dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         dumperOptions.setIndent(2);
         Yaml yaml = new Yaml(dumperOptions);

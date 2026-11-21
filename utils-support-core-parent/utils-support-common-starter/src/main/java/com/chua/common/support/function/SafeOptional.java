@@ -11,32 +11,14 @@ import java.util.function.Supplier;
  *
  * @param <T> 输入参数类型
  * @param <R> 返回值类型
+ * @param none 标识当前是否已获取到有效值（true表示已匹配/有值，false表示空/未匹配）
+ * @param apply 存储转换后的结果值
  * @author CH
  * @since 4.0.0.42
  */
-public class SafeOptional<T, R> {
+public record SafeOptional<T, R>(boolean none, R apply) {
 
     private static final SafeOptional<?, ?> EMPTY = new SafeOptional<>(false, null);
-
-    /**
-     * 标识当前是否已获取到有效值（true表示已匹配/有值，false表示空/未匹配）
-     */
-    private final boolean none;
-
-    /**
-     * 存储转换后的结果值
-     */
-    private final R apply;
-
-    /**
-     * 创建 SafeOptional 实例
-     * @param none none
-     * @param apply 应用，不允许为 null
-     */
-    public SafeOptional(boolean none, R apply) {
-        this.none = none;
-        this.apply = apply;
-    }
 
     /**
      * 获取结果值

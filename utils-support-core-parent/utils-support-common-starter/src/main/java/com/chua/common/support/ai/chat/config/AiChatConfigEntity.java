@@ -74,7 +74,7 @@ public class AiChatConfigEntity {
      * @return 头实体
      */
     public static AiChatConfigEntity from(AiChatConfig config, String name) {
-        AiChatConfigEntity entity = new AiChatConfigEntity();
+        var entity = new AiChatConfigEntity();
         entity.setName(name);
         entity.setStrategy(config.getStrategy());
         entity.setMonitor(true);

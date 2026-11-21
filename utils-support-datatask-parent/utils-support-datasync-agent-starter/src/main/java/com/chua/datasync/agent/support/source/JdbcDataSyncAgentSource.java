@@ -124,7 +124,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
      * @return 创建数据源的结果
      */
     private HikariDataSource createDataSource(String url, String user, String pass) {
-        HikariConfig config = new HikariConfig();
+        var config = new HikariConfig();
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(pass);
@@ -312,7 +312,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         }
         String text = String.valueOf(offsetValue).trim();
         if (text.startsWith("[") && text.endsWith("]")) {
-            java.util.List<String> parsed = new java.util.ArrayList<>();
+            var parsed = new java.util.ArrayList<String>();
             for (String item : text.substring(1, text.length() - 1).split(",")) {
                 String value = item.trim();
                 if (value.startsWith("\"") && value.endsWith("\"") && value.length() >= 2) {

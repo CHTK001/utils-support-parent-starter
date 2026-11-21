@@ -13,17 +13,21 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * @author CH
  * @since 4.0.0.42
  */
-public class StartNode implements PipelineNode {
+public record StartNode(String id, String nextNodeId) implements PipelineNode {
 
     /**
      * 节点唯一标识
      */
-    private final String id;
+    public String id() {
+        return id;
+    }
 
     /**
      * 起始节点的下一节点 标识
      */
-    private final String nextNodeId;
+    public String nextNodeId() {
+        return nextNodeId;
+    }
 
     /**
      * 构造起始节点。
@@ -31,9 +35,7 @@ public class StartNode implements PipelineNode {
      * @param id         节点唯一标识
      * @param nextNodeId 下一节点 标识
      */
-    public StartNode(String id, String nextNodeId) {
-        this.id = id;
-        this.nextNodeId = nextNodeId;
+    public StartNode {
     }
 
     /**
@@ -42,7 +44,7 @@ public class StartNode implements PipelineNode {
      * @return 节点 标识
      */
     public String getId() {
-        return id;
+        return id();
     }
 
     /**
@@ -58,7 +60,7 @@ public class StartNode implements PipelineNode {
      */
     @Override
     public String execute(PipelineContext<?> context) {
-        context.setCurrentNodeId(id);
-        return nextNodeId;
+        context.setCurrentNodeId(id());
+        return nextNodeId();
     }
 }

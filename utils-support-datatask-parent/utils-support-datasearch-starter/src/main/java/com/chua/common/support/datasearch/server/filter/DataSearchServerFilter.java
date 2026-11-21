@@ -544,7 +544,7 @@ public class DataSearchServerFilter implements ServerFilter {
         int page = intParam(request, "page", 1);
         String source = request.getParam("source");
         List<Object> result = Wraps.list();
-        Set<String> seen = new HashSet<>();
+        var seen = new HashSet<String>();
         for (Map.Entry<String, EmojiProvider> entry : providers.entrySet()) {
             if (!matchesSource(source, entry)) {
                 continue;

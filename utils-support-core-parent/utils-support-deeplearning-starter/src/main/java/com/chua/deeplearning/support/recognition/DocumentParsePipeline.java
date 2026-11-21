@@ -170,7 +170,7 @@ public class DocumentParsePipeline {
      */
     public List<Object> recognize(byte[] imageData) {
         DocumentParseContext dc = new DocumentParseContext(imageData);
-        PipelineContext<DocumentParseContext> ctx = new PipelineContext<>(pipeline.getId(), dc);
+        var ctx = new PipelineContext<DocumentParseContext>(pipeline.getId(), dc);
         ctx.setAttribute("document", dc);
         ctx.setNextNodeId(NODE_RECOGNIZE);
         pipeline.resume(ctx);

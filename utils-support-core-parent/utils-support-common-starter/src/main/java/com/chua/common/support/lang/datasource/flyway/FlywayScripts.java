@@ -402,7 +402,7 @@ public final class FlywayScripts {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] bytes = digest.digest(content.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder(bytes.length * 2);
+            var builder = new StringBuilder(bytes.length * 2);
             for (byte b : bytes) {
                 // [P3C A20 豁免]
                 builder.append(Character.forDigit((b >> 4) & 0xF, 16));
@@ -437,7 +437,7 @@ public final class FlywayScripts {
         if (StringUtils.isEmpty(sql)) {
             return statements;
         }
-        StringBuilder current = new StringBuilder();
+        var current = new StringBuilder();
         boolean inString = false;
         for (int i = 0; i < sql.length(); i++) {
             char c = sql.charAt(i);

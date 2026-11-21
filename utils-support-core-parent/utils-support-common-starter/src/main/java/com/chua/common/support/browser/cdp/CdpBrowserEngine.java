@@ -325,7 +325,7 @@ public class CdpBrowserEngine implements BrowserEngine {
      * @param timeout   超时
      */
     private void applyViewport(String sessionId, BrowserOptions options, Duration timeout) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("width", Math.max(options.getWidth(), 1));
         params.put("height", Math.max(options.getHeight(), 1));
         params.put("deviceScaleFactor", 1);
@@ -349,7 +349,7 @@ public class CdpBrowserEngine implements BrowserEngine {
         if (StringUtils.isBlank(userAgent)) {
             return;
         }
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("userAgent", userAgent);
         params.put("platform", platformToken(userAgent));
         if (StringUtils.isNotBlank(options.getLocale())) {
@@ -411,7 +411,7 @@ public class CdpBrowserEngine implements BrowserEngine {
      * @return UA 池
      */
     private List<String> defaultUserAgentPool() {
-        List<String> pool = new ArrayList<>();
+        var pool = new ArrayList<String>();
         if (StringUtils.isBlank(realUserAgent)) {
             return pool;
         }
@@ -464,7 +464,7 @@ public class CdpBrowserEngine implements BrowserEngine {
         fullVersionList.add(brand("Chromium", full));
         fullVersionList.add(brand(brandName, full));
 
-        Map<String, Object> metadata = new LinkedHashMap<>();
+        var metadata = new LinkedHashMap<String, Object>();
         metadata.put("brands", brands);
         metadata.put("fullVersionList", fullVersionList);
         metadata.put("fullVersion", full);
@@ -641,7 +641,7 @@ public class CdpBrowserEngine implements BrowserEngine {
             throw new IllegalStateException("创建浏览器临时目录失败: " + e.getMessage(), e);
         }
 
-        List<String> command = new ArrayList<>();
+        var command = new ArrayList<String>();
         command.add(executable);
         if (actual.isHeadless()) {
             command.add("--headless=new");
@@ -875,7 +875,7 @@ public class CdpBrowserEngine implements BrowserEngine {
      * @return 候选路径
      */
     private static List<String> candidates() {
-        List<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
         String localAppData = System.getenv("LOCALAPPDATA");
         String programFiles = System.getenv("ProgramFiles");
         String programFilesX86 = System.getenv("ProgramFiles(x86)");

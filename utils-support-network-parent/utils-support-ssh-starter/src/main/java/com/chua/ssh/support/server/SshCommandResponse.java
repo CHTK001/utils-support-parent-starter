@@ -107,7 +107,7 @@ public class SshCommandResponse implements ServerResponse {
     */
     @Override
     public HttpHeader getHeaders() {
-        HttpHeader result = new HttpHeader();
+        var result = new HttpHeader();
         for (var entry : headers.entrySet()) {
             result.add(entry.getKey(), entry.getValue());
         }

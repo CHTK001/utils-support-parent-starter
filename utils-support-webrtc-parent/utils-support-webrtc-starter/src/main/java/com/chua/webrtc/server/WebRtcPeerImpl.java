@@ -141,7 +141,7 @@ public class WebRtcPeerImpl implements WebRtcPeer {
         }
         try {
             JsonObject json = Json.fromJson(candidate, JsonObject.class);
-            RTCIceCandidate iceCandidate = new RTCIceCandidate(
+            var iceCandidate = new RTCIceCandidate(
                     json.getType("sdpMid", "0", String.class),
                     json.getType("sdpMLineIndex", 0, Integer.class),
                     json.getType("sdp", "", String.class));

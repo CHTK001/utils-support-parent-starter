@@ -60,7 +60,7 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
      * @return BitList 实例
      */
     public static BitList of(boolean[] values) {
-        BitList list = new BitList(values.length);
+        var list = new BitList(values.length);
         for (int i = 0; i < values.length; i++) {
             if (values[i]) {
                 list.set(i, true);

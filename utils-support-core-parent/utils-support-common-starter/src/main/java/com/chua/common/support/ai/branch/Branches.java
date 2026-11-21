@@ -35,7 +35,7 @@ public final class Branches {
      * @return 新的 when 段 builder
      */
     public static BranchWhenBuilder when(Predicate<RuleContext> condition) {
-        BranchFlowState state = new BranchFlowState();
+        var state = new BranchFlowState();
         state.openBranch(condition);
         return new BranchWhenBuilder(state);
     }
@@ -47,7 +47,7 @@ public final class Branches {
      * @return 新的 when 段 builder
      */
     public static BranchWhenBuilder when(String expression) {
-        BranchFlowState state = new BranchFlowState();
+        var state = new BranchFlowState();
         state.openBranch(expression);
         return new BranchWhenBuilder(state);
     }

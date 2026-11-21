@@ -174,7 +174,7 @@ public class RouteTarget {
      */
     public List<String> accountKeys() {
         if (apiKeys != null && !apiKeys.isEmpty()) {
-            List<String> cleaned = new java.util.ArrayList<>(apiKeys.size());
+            var cleaned = new java.util.ArrayList<String>(apiKeys.size());
             for (String key : apiKeys) {
                 if (key != null) {
                     cleaned.add(key);

@@ -726,7 +726,7 @@ public class SipClient {
      */
     public CompletableFuture<SipTunnelSession> openTunnelAsync(String serviceName) {
         String requestId = UUID.randomUUID().toString();
-        CompletableFuture<SipTunnelSession> future = new CompletableFuture<>();
+        var future = new CompletableFuture<SipTunnelSession>();
         pendingTunnels.put(requestId, future);
         future.whenComplete((session, error) -> pendingTunnels.remove(requestId));
         sendSignal(SipProtocol.line(SipProtocol.PREFIX_OPEN, sessionToken, requestId, serviceName));

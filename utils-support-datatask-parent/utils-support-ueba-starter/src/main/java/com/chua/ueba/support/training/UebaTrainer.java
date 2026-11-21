@@ -180,10 +180,10 @@ public class UebaTrainer {
     public TrainingResult execute() {
         TrainingResult prepared = prepare();
         try {
-            Process process = new ProcessBuilder(parseCommand(prepared.command()))
+            var process = new ProcessBuilder(parseCommand(prepared.command()))
                     .redirectErrorStream(true)
                     .start();
-            StringBuilder output = new StringBuilder(1024);
+            var output = new StringBuilder(1024);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                     process.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
@@ -287,7 +287,7 @@ public class UebaTrainer {
      */
     private static List<String> parseCommand(String command) {
         List<String> result = Wraps.list(8);
-        StringBuilder current = new StringBuilder();
+        var current = new StringBuilder();
         boolean inQuote = false;
         for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);

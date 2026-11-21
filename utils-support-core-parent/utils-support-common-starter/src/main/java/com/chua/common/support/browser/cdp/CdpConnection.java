@@ -117,7 +117,7 @@ final class CdpConnection implements AutoCloseable {
      */
     Map<String, Object> call(String method, Map<String, Object> params, String sessionId, Duration timeout) {
         long id = sequence.incrementAndGet();
-        Map<String, Object> message = new LinkedHashMap<>();
+        var message = new LinkedHashMap<String, Object>();
         message.put("id", id);
         message.put("method", method);
         message.put("params", params == null ? Collections.emptyMap() : params);
@@ -172,7 +172,7 @@ final class CdpConnection implements AutoCloseable {
      */
     void post(String method, Map<String, Object> params, String sessionId) {
         long id = sequence.incrementAndGet();
-        Map<String, Object> message = new LinkedHashMap<>();
+        var message = new LinkedHashMap<String, Object>();
         message.put("id", id);
         message.put("method", method);
         message.put("params", params == null ? Collections.emptyMap() : params);
@@ -222,7 +222,7 @@ final class CdpConnection implements AutoCloseable {
             if (future != null) {
                 Object error = message.get("error");
                 Object result = message.get("result");
-                Map<String, Object> value = new LinkedHashMap<>();
+                var value = new LinkedHashMap<String, Object>();
                 if (error != null) {
                     value.put("__error", error);
                 } else if (result instanceof Map<?, ?> map) {

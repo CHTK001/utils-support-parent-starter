@@ -371,8 +371,8 @@ public class ProcessCmdExecutor implements CmdExecutor {
             }
 
             // 异步读取标准输出与错误输出
-            StreamGobbler stdoutGobbler = new StreamGobbler(process.getInputStream(), charset);
-            StreamGobbler stderrGobbler = new StreamGobbler(process.getErrorStream(), charset);
+            var stdoutGobbler = new StreamGobbler(process.getInputStream(), charset);
+            var stderrGobbler = new StreamGobbler(process.getErrorStream(), charset);
             stdoutGobbler.start();
             stderrGobbler.start();
 
@@ -641,7 +641,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
             Process process = pb.start();
 
-            LineStreamGobbler outputGobbler = new LineStreamGobbler(process.getInputStream(), charset, callback);
+            var outputGobbler = new LineStreamGobbler(process.getInputStream(), charset, callback);
             outputGobbler.start();
 
             boolean timedOut = false;
@@ -713,7 +713,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                 }
             }
 
-            LineStreamGobbler outputGobbler = new LineStreamGobbler(process.getInputStream(), charset, callback);
+            var outputGobbler = new LineStreamGobbler(process.getInputStream(), charset, callback);
             outputGobbler.start();
 
             boolean timedOut = false;
@@ -774,7 +774,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             String workDirStr = (workDir != null) ? workDir.getAbsolutePath() : null;
             WindowsConPtyProcess conPty = WindowsConPtyProcess.start(cmdArray, workDirStr);
 
-            LineStreamGobbler outputGobbler = new LineStreamGobbler(
+            var outputGobbler = new LineStreamGobbler(
                     conPty.getInputStream(), charset, callback);
             outputGobbler.start();
 

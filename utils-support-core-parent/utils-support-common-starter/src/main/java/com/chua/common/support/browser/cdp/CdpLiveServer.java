@@ -649,7 +649,7 @@ public final class CdpLiveServer implements AutoCloseable {
      * @return 参数表
      */
     private static Map<String, String> parseForm(String raw) {
-        Map<String, String> result = new LinkedHashMap<>();
+        var result = new LinkedHashMap<String, String>();
         if (raw == null || raw.isEmpty()) {
             return result;
         }

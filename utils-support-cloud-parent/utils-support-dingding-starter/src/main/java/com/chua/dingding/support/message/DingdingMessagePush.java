@@ -109,10 +109,10 @@ public class DingdingMessagePush implements MessagePush {
 
         String msgType = "markdown".equalsIgnoreCase(request.getContentType()) ? "markdown" : "text";
 
-        JsonObject json = new JsonObject();
+        var json = new JsonObject();
         json.fluentPut("msgtype", msgType);
 
-        JsonObject contentObj = new JsonObject();
+        var contentObj = new JsonObject();
         if ("markdown".equals(msgType)) {
             contentObj.fluentPut("title", request.getSubject() != null ? request.getSubject() : "");
             contentObj.fluentPut("text", request.getContent());

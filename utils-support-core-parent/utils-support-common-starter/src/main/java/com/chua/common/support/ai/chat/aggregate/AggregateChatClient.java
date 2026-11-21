@@ -802,7 +802,7 @@ public class AggregateChatClient implements ChatClient {
             log.debug("[Aggregate] 已绑定过协议过滤器，跳过重复挂载");
             return;
         }
-        AiProtocolServerFilter filter = new AiProtocolServerFilter(this);
+        var filter = new AiProtocolServerFilter(this);
         server.addFilter(filter);
         this.protocolServerFilter = filter;
         log.info("[Aggregate] 聚合 ChatClient 已绑定协议 Server: {} 三协议路由可用",

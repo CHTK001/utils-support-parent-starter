@@ -18,26 +18,14 @@ import java.io.*;
  * @author CH
  * @since 2026-07-16
  */
-public class FileConvertSystemFlow {
-
-    /**
-     * 数据源
-     */
-    private final Object source;
-
-    /**
-     * 目标
-     */
-    private final Object target;
+public record FileConvertSystemFlow(Object source, Object target) {
 
     /**
      * 创建 FileConvertSystemFlow 实例
      * @param source source
      * @param target 目标，不允许为 null
      */
-    private FileConvertSystemFlow(Object source, Object target) {
-        this.source = source;
-        this.target = target;
+    public FileConvertSystemFlow {
     }
 
     /**

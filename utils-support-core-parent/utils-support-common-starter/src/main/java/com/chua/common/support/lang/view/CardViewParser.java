@@ -88,7 +88,7 @@ public class CardViewParser implements ViewParser {
         int innerWidth = Math.max(maxKeyLen + KEY_VALUE_GAP + PADDING + maxValLen, title.length() + PADDING);
         int width = Math.max(innerWidth + PADDING, MIN_WIDTH);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         // 顶线
         sb.append('┌').append("─".repeat(width - 2)).append('┐').append('\n');
         // 标题（居中）

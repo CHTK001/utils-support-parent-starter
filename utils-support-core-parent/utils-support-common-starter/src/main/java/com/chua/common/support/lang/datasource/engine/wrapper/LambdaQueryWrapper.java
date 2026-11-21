@@ -450,7 +450,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return 查询 SQL 信息
      */
     public QuerySql buildSql() {
-        StringBuilder where = new StringBuilder();
+        var where = new StringBuilder();
         List<Object> params = Wraps.list();
         buildWhere(where, params);
         return new QuerySql(entityClass, selectColumns, where.toString(), params,
@@ -482,7 +482,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
             String methodName = lambda.getImplMethodName();
             String field = methodName.startsWith("is") ? methodName.substring(2)
                     : methodName.startsWith("get") ? methodName.substring(3) : methodName;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < field.length(); i++) {
                 char ch = field.charAt(i);
                 if (Character.isUpperCase(ch)) {

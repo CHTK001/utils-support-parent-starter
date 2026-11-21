@@ -72,7 +72,7 @@ public class ClusterNode implements AutoCloseable {
         this.selfNodeId = clusterSetting.getNodeId();
 
         ScatterSetting scatterSetting = clusterSetting.toScatterSetting();
-        TcpScatterBuilder builder = new TcpScatterBuilder(scatterSetting);
+        var builder = new TcpScatterBuilder(scatterSetting);
         this.discovery = builder.buildDiscovery();
         ScatterRemoteClient remoteClient = builder.buildRemoteClient();
         if (remoteClient != null) {
@@ -103,7 +103,7 @@ public class ClusterNode implements AutoCloseable {
         if (clusterSetting.isHttpEnabled()) {
             httpServer = ServerBuilder.create().type("jdk-http")
                     .host(clusterSetting.getHost()).port(clusterSetting.getPort()).build();
-            ServiceDiscoveryServerFilter filter = new ServiceDiscoveryServerFilter(discovery);
+            var filter = new ServiceDiscoveryServerFilter(discovery);
             for (String path : resolveServicePaths()) {
                 String pattern = path.endsWith("/") ? path + "**" : path + "/**";
                 filter.addRoute(pattern, path);

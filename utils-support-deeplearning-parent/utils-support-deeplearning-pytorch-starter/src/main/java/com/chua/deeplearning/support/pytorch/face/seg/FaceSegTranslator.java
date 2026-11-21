@@ -97,16 +97,16 @@ public class FaceSegTranslator implements Translator<Image, Image> {
         int ww = (int) w;
 
         // 按 MASK_COLORMAP 生成二值 mask（单通道 CV_8UC1）
-        byte[] bytes = new byte[hh * ww];
+        var bytes = new byte[hh * ww];
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = (byte) MASK_COLORMAP[(int) clsArr[i]];
         }
-        Mat mask = new Mat(hh, ww, CvType.CV_8UC1);
+        var mask = new Mat(hh, ww, CvType.CV_8UC1);
         mask.put(0, 0, bytes);
 
         // 高斯模糊两次（AIAS 同款，101×101，sigma 11）
-        Mat blur1 = new Mat();
-        Mat blur2 = new Mat();
+        var blur1 = new Mat();
+        var blur2 = new Mat();
         Imgproc.GaussianBlur(mask, blur1, new Size(GAUSSIAN_KERNEL, GAUSSIAN_KERNEL), GAUSSIAN_SIGMA);
         Imgproc.GaussianBlur(blur1, blur2, new Size(GAUSSIAN_KERNEL, GAUSSIAN_KERNEL), GAUSSIAN_SIGMA);
         mask.release();
@@ -121,10 +121,10 @@ public class FaceSegTranslator implements Translator<Image, Image> {
         }
 
         // Mat -> float[] -> 3 通道 RGB NDArray（Image 通用表示，避免单通道特例）
-        byte[] outBytes = new byte[hh * ww];
+        var outBytes = new byte[hh * ww];
         blur2.get(0, 0, outBytes);
         blur2.release();
-        byte[] rgb = new byte[hh * ww * 3];
+        var rgb = new byte[hh * ww * 3];
         for (int i = 0; i < hh * ww; i++) {
             byte v = outBytes[i];
             rgb[i * 3] = v;

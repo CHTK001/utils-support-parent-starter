@@ -363,7 +363,7 @@ public abstract class SqlFormatter implements Formatter {
             return parts;
         }
 
-        StringBuilder current = new StringBuilder();
+        var current = new StringBuilder();
         // 当前括号嵌套深度
         int parenDepth = 0;
         // 是否在单引号字符串内

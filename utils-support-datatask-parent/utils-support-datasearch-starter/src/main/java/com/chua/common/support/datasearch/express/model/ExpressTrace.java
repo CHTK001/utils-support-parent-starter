@@ -7,23 +7,12 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ *
+ * @param time 轨迹时间
+ * @param context 轨迹描述（如：已签收 / 运输中 / 派送中）
+ * @param location 轨迹地点（部分数据源可能为空）
  */
-public class ExpressTrace {
-
-    /**
-     * 轨迹时间
-     */
-    private final String time;
-
-    /**
-     * 轨迹描述（如：已签收 / 运输中 / 派送中）
-     */
-    private final String context;
-
-    /**
-     * 轨迹地点（部分数据源可能为空）
-     */
-    private final String location;
+public record ExpressTrace(String time, String context, String location) {
 
     /**
      * 创建 express追踪 实例

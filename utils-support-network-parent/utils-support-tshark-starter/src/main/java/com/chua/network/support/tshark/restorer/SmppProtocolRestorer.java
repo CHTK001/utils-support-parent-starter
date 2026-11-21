@@ -130,7 +130,7 @@ public class SmppProtocolRestorer extends AbstractProtocolRestorer {
         boolean response = (command & RESPONSE_BIT) != 0;
         int base = command & ~RESPONSE_BIT;
         int end = Math.min(rawData.length, Math.max(HEADER_LEN, length));
-        Cursor cursor = new Cursor(rawData, HEADER_LEN, end);
+        var cursor = new Cursor(rawData, HEADER_LEN, end);
 
         StringBuilder sb = new StringBuilder("[SMPP] ");
         sb.append(commandName(base));

@@ -141,7 +141,7 @@ public record AnnotationDefinition(
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("@").append(annotationClass.getSimpleName());
         if (!attributes.isEmpty()) {
             sb.append("(");

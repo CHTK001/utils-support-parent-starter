@@ -609,7 +609,7 @@ public class MavenClientBuilder {
         if (path == null) {
             return new File("pom.xml").getAbsolutePath();
         }
-        File file = new File(path);
+        var file = new File(path);
         if (file.isDirectory()) {
             return new File(file, "pom.xml").getAbsolutePath();
         }

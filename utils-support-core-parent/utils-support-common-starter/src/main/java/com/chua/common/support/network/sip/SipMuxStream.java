@@ -47,6 +47,11 @@ class SipMuxStream {
     private volatile boolean closed;
 
     /**
+     * 预解析的 16 字节通道标识（发送热路径免每帧 hex 解析）
+     */
+    private final byte[] channelIdBytes;
+
+    /**
      * 构造方法，创建 SipMux流 实例。
      * @param channelId channelID，不允许为 null
      * @param connection 连接，不允许为 null
@@ -54,6 +59,7 @@ class SipMuxStream {
     */
     SipMuxStream(String channelId, SipMuxConnection connection) {
         this.channelId = channelId;
+        this.channelIdBytes = SipMuxConnection.uuidBytes(channelId);
         this.connection = connection;
     }
 
@@ -97,7 +103,7 @@ class SipMuxStream {
 
         if (!closed) {
             try {
-                connection.sendFrame(channelId, payload, off, len);
+                connection.sendFrame(channelIdBytes, payload, off, len);
             } catch (Exception e) {
                 log.debug("SIP mux 发送失败: {}", e.getMessage());
                 peerClosed();

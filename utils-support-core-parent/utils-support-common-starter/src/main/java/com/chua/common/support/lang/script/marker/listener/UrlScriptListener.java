@@ -126,7 +126,7 @@ public class UrlScriptListener implements Listener {
             connection.setReadTimeout(timeout);
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line).append('\n');

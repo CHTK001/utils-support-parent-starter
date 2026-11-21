@@ -438,7 +438,7 @@ public class ServerFilterManager {
                 // 真正执行前就把响应按默认 200 空体收尾（排队/异步过滤器全部失效）。
                 // 用引用容器把下游 stage 带回；原子引用保证「同步过滤器把放行调用
                 // 挪到其它线程执行」这类少见写法下的可见性。
-                AtomicReference<CompletionStage<Void>> downstream = new AtomicReference<>();
+                var downstream = new AtomicReference<CompletionStage<Void>>();
                 delegate.doFilter(request, response,
                         (req, resp) -> downstream.set(chain.doFilter(req, resp)));
                 CompletionStage<Void> pending = downstream.get();

@@ -293,7 +293,7 @@ public class MossImageClient implements ImageClient {
         }
         String actualModel = model != null ? model : DEFAULT_MODEL;
         String sizeStr = buildSize();
-        StringBuilder bodyBuilder = new StringBuilder();
+        var bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"model\":\"").append(actualModel)
                 .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
                 .append("\",\"size\":\"").append(sizeStr).append("\"")

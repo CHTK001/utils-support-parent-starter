@@ -565,7 +565,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
      */
     private Map<String, Object> buildRequestBody(DecisionsRequest request) {
         DecisionsProtocol protocol = protocol();
-        Map<String, Object> body = new LinkedHashMap<>();
+        var body = new LinkedHashMap<String, Object>();
         body.put("model", getModel());
         if (StringUtils.isNotBlank(system)) {
             body.put("system", system);

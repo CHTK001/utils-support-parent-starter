@@ -95,7 +95,7 @@ public class BarChartViewParser implements ViewParser {
             return ALL_ZEROS_PLACEHOLDER;
         }
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (Entry e : entries) {
             // 按最大值归一化计算填充块数
             double pct = e.value / maxVal * 100;

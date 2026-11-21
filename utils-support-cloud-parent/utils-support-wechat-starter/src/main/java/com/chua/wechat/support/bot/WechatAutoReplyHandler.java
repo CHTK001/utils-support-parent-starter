@@ -134,7 +134,7 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
             new LinkedBlockingQueue<>(QUEUE_CAPACITY),
             runnable -> {
 // [P3C C1 豁免] 场景化创建线程，需文档化
-                Thread thread = new Thread(runnable, REPLY_THREAD_NAME);
+                var thread = new Thread(runnable, REPLY_THREAD_NAME);
                 thread.setDaemon(true);
                 return thread;
             },

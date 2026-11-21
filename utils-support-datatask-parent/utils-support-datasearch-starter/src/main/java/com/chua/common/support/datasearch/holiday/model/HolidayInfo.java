@@ -9,28 +9,13 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ *
+ * @param date 日期
+ * @param name 节假日名称（如：元旦、春节、劳动节；调休上班标注为「XX调休上班」）
+ * @param type 类型：假日=法定节假日，work=调休补班（占用休息日上班）
+ * @param offDay 是否放假（类型=假日 为 true）
  */
-public class HolidayInfo {
-
-    /**
-     * 日期
-     */
-    private final LocalDate date;
-
-    /**
-     * 节假日名称（如：元旦、春节、劳动节；调休上班标注为「XX调休上班」）
-     */
-    private final String name;
-
-    /**
-     * 类型：假日=法定节假日，work=调休补班（占用休息日上班）
-     */
-    private final String type;
-
-    /**
-     * 是否放假（类型=假日 为 true）
-     */
-    private final boolean offDay;
+public record HolidayInfo(LocalDate date, String name, String type, boolean offDay) {
 
     /**
      * 创建 假日信息 实例

@@ -403,7 +403,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
 
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> models = new ArrayList<>(2);
+        var models = new ArrayList<ModelDefinition>(2);
         models.add(ModelDefinition.builder()
                 .id("moss-tts-1.5-flash")
                 .name("moss-tts-1.5-flash")

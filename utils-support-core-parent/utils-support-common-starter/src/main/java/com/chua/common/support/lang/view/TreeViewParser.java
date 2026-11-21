@@ -133,7 +133,7 @@ public class TreeViewParser implements ViewParser {
             return;
         }
 
-        List<Map.Entry<Object, Object>> childList = toChildren(value);
+        var childList = toChildren(value);
         if (childList == null) {
             // 叶子节点，显示值
             sb.append(KEY_VALUE_SEPARATOR).append(value).append('\n');

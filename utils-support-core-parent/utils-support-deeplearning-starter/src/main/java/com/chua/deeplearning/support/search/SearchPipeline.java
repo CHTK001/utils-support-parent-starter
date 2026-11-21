@@ -146,7 +146,7 @@ public class SearchPipeline {
      */
     public List<Vector> search(byte[] imageData, int topK) {
         SearchContext sc = new SearchContext(imageData, topK);
-        PipelineContext<SearchContext> ctx = new PipelineContext<>(pipeline.getId(), sc);
+        var ctx = new PipelineContext<SearchContext>(pipeline.getId(), sc);
         ctx.setAttribute("search", sc);
         ctx.setNextNodeId(NODE_EXTRACT);
         pipeline.resume(ctx);

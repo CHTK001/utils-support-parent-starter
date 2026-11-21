@@ -37,7 +37,7 @@ public class PropertiesConfigParser implements ConfigParser {
     @Override
     public PropertySource parse(String urlPath, InputStream is) {
         // 创建新的 Properties 实例用于存储配置项
-        Properties properties = new Properties();
+        var properties = new Properties();
 
         try {
             // 从输入流中加载属性数据

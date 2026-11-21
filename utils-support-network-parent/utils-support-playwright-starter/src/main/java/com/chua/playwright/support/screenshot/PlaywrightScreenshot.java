@@ -59,7 +59,7 @@ public class PlaywrightScreenshot {
      * @param options 配置回调，可设置视口大小、等待条件等
      */
     public static void screenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
-        ScreenshotConfig config = new ScreenshotConfig();
+        var config = new ScreenshotConfig();
         config.setBaseUrl(url);
         if (options != null) {
             options.accept(config);

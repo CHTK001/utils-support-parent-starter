@@ -260,7 +260,7 @@ public class PythonScriptProvider implements ScriptProvider {
      */
     static String resolvePython() {
         String[] candidates = {"python", "python3", "py"};
-        StringBuilder tried = new StringBuilder();
+        var tried = new StringBuilder();
         for (String candidate : candidates) {
             CmdResult probe = CmdExecutors.execute(
                     new String[]{candidate, "--version"}, 5_000L, TimeUnit.MILLISECONDS);
@@ -286,7 +286,7 @@ public class PythonScriptProvider implements ScriptProvider {
      * @return 绑定表
      */
     private static Map<String, Object> bindingsOf(Object context) {
-        Map<String, Object> bindings = new LinkedHashMap<>();
+        var bindings = new LinkedHashMap<String, Object>();
         if (context instanceof Map<?, ?> map) {
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 if (entry.getKey() instanceof String key && !SCRIPT_HOST_KEY.equals(key)) {
@@ -313,7 +313,7 @@ public class PythonScriptProvider implements ScriptProvider {
      * @return JSON 文本
      */
     private static String toJson(Map<String, Object> bindings) {
-        StringBuilder builder = new StringBuilder("{");
+        var builder = new StringBuilder("{");
         boolean first = true;
         for (Map.Entry<String, Object> entry : bindings.entrySet()) {
             if (!first) {
@@ -339,7 +339,7 @@ public class PythonScriptProvider implements ScriptProvider {
             return String.valueOf(value);
         }
         if (value instanceof Map<?, ?> map) {
-            StringBuilder builder = new StringBuilder("{");
+            var builder = new StringBuilder("{");
             boolean first = true;
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 if (!first) {
@@ -351,7 +351,7 @@ public class PythonScriptProvider implements ScriptProvider {
             return builder.append('}').toString();
         }
         if (value instanceof Iterable<?> iterable) {
-            StringBuilder builder = new StringBuilder("[");
+            var builder = new StringBuilder("[");
             boolean first = true;
             for (Object item : iterable) {
                 if (!first) {
@@ -375,7 +375,7 @@ public class PythonScriptProvider implements ScriptProvider {
         if (text == null) {
             return "\"\"";
         }
-        StringBuilder builder = new StringBuilder("\"");
+        var builder = new StringBuilder("\"");
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             switch (c) {
@@ -428,7 +428,7 @@ public class PythonScriptProvider implements ScriptProvider {
         }
         String[] lines = stderr.strip().split("\n");
         int count = Math.min(lines.length, 6);
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         for (int i = 0; i < count; i++) {
             if (i > 0) {
                 builder.append('\n');
@@ -538,7 +538,7 @@ public class PythonScriptProvider implements ScriptProvider {
          * @return Map
          */
         private Map<String, Object> object() {
-            Map<String, Object> map = new LinkedHashMap<>();
+            var map = new LinkedHashMap<String, Object>();
             pos++;
             skipBlank();
             if (peek() == '}') {
@@ -568,7 +568,7 @@ public class PythonScriptProvider implements ScriptProvider {
          * @return List
          */
         private java.util.List<Object> array() {
-            java.util.List<Object> list = new java.util.ArrayList<>();
+            var list = new java.util.ArrayList<Object>();
             pos++;
             skipBlank();
             if (peek() == ']') {
@@ -595,7 +595,7 @@ public class PythonScriptProvider implements ScriptProvider {
          */
         private String string() {
             expect('"');
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             while (pos < text.length()) {
                 char c = text.charAt(pos++);
                 if (c == '"') {

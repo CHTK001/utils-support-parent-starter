@@ -202,7 +202,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         if (StringUtils.isBlank(expression)) {
             throw new IllegalArgumentException(ERROR_EXPR_EMPTY);
         }
-        Parser parser = new Parser(expression.trim());
+        var parser = new Parser(expression.trim());
         BTreeNode result = parser.parseOr();
         if (!parser.isEnd()) {
             throw new IllegalArgumentException(ERROR_EXPR_INCOMPLETE + parser.remaining());
@@ -283,7 +283,7 @@ public class DefaultExpressionParser implements ExpressionParser {
      * @return 文本表示
      */
     private String generateFunction(BTreeNode tree) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(tree.getOperator());
         sb.append("(");
         List<BTreeNode> children = tree.getChildren();
@@ -430,7 +430,7 @@ public class DefaultExpressionParser implements ExpressionParser {
          */
         BTreeNode parseInList() {
             expect('(');
-            StringBuilder list = new StringBuilder();
+            var list = new StringBuilder();
             list.append('(');
             skipWhitespace();
             int count = 0;

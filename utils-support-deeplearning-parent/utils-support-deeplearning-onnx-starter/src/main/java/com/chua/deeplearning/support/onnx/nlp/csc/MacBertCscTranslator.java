@@ -246,7 +246,7 @@ public class MacBertCscTranslator implements ITranslator<String, String>, AutoCl
             vocab.put(lines.get(i), i);
         }
         tokenizer = new MiniLMTokenizer(vocab, true, true);
-        Set<Integer> specials = new HashSet<>();
+        var specials = new HashSet<Integer>();
         for (String token : new String[]{
                 MiniLMTokenizer.CLS, MiniLMTokenizer.SEP, MiniLMTokenizer.PAD, MiniLMTokenizer.UNK, "[MASK]"}) {
             Integer id = vocab.get(token);

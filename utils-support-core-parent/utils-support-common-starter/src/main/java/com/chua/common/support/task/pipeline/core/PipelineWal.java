@@ -235,7 +235,7 @@ public class PipelineWal implements AutoCloseable {
      */
     public void appendNodeComplete(PipelineContext<?> ctx) throws IOException {
         ensureOpen();
-        ContextSnapshot snapshot = new ContextSnapshot(ctx);
+        var snapshot = new ContextSnapshot(ctx);
         byte[] payload = serializeObject(snapshot);
         walLog.append(OP_NODE_COMPLETE, payload);
     }
@@ -307,7 +307,7 @@ public class PipelineWal implements AutoCloseable {
         // 从快照恢复上下文
         @SuppressWarnings("unchecked")
         T restoredInput = originalInput != null ? (T) originalInput : input;
-        PipelineContext<T> ctx = new PipelineContext<>(pipelineId, restoredInput);
+        var ctx = new PipelineContext<T>(pipelineId, restoredInput);
 
         // 恢复快照状态
         ctx.setCurrentNodeId(lastSnapshot.currentNodeId);
@@ -466,7 +466,7 @@ public class PipelineWal implements AutoCloseable {
             return null;
         }
         try {
-            String json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
+            var json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
             return MAPPER.readValue(json, Object.class);
         } catch (Exception e) {
             log.warn("WAL 反序列化失败, pipelineId={}, payloadBytes={}", pipelineId, payload.length, e);
@@ -486,7 +486,7 @@ public class PipelineWal implements AutoCloseable {
             return null;
         }
         try {
-            String json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
+            var json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
             return MAPPER.readValue(json, ContextSnapshot.class);
         } catch (Exception e) {
             log.warn("WAL 快照反序列化失败, pipelineId={}, payloadBytes={}",

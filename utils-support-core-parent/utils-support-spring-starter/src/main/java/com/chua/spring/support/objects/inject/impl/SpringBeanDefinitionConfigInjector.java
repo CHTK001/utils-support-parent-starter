@@ -151,7 +151,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
             if (expression.startsWith("#{") && expression.endsWith("}")) {
                 String spel = expression.substring(2, expression.length() - 1);
                 Expression expr = PARSER.parseExpression(spel);
-                StandardEvaluationContext ctx = new StandardEvaluationContext();
+                var ctx = new StandardEvaluationContext();
                 ctx.setRootObject(System.getProperties());
                 ctx.setVariable("env", springEnv);
                 Object val = expr.getValue(ctx);

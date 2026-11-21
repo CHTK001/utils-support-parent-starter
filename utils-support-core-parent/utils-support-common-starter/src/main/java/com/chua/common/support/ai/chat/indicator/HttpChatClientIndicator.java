@@ -338,7 +338,7 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
      * @return 指标 Map（可能为空，不会返回 null）
      */
     public static Map<String, Object> parseModelMetrics(JsonNode model) {
-        Map<String, Object> metrics = new LinkedHashMap<>(32);
+        var metrics = new LinkedHashMap<String, Object>(32);
         if (model == null || !model.isObject()) {
             return metrics;
         }

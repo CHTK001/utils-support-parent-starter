@@ -150,8 +150,8 @@ public class WebhookMessagePush implements MessagePush {
     private String buildRequestBody(String contentType, String content) {
         String normalized = contentType == null ? "" : contentType.toLowerCase();
         if (normalized.contains(CONTENT_TYPE_MARKDOWN)) {
-            JsonObject body = new JsonObject();
-            JsonObject markdown = new JsonObject();
+            var body = new JsonObject();
+            var markdown = new JsonObject();
             markdown.fluentPut("content", content);
             body.fluentPut("msgtype", CONTENT_TYPE_MARKDOWN);
             body.fluentPut("markdown", markdown);
@@ -164,8 +164,8 @@ public class WebhookMessagePush implements MessagePush {
                 // 内容不是合法 JSON 时回退为文本格式
             }
         }
-        JsonObject body = new JsonObject();
-        JsonObject text = new JsonObject();
+        var body = new JsonObject();
+        var text = new JsonObject();
         text.fluentPut("content", content);
         body.fluentPut("msgtype", CONTENT_TYPE_TEXT);
         body.fluentPut("text", text);

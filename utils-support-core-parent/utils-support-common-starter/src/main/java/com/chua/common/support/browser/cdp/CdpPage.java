@@ -224,7 +224,7 @@ final class CdpPage implements BrowserPage {
             throw new IllegalArgumentException("frameListener 不能为空");
         }
         this.screencastListener = frameListener;
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("format", "jpeg");
         params.put("quality", 70);
         connection.call("Page.startScreencast", params, sessionId, commandTimeout);
@@ -325,7 +325,7 @@ final class CdpPage implements BrowserPage {
             if (!answered.compareAndSet(false, true)) {
                 return;
             }
-            Map<String, Object> params = new LinkedHashMap<>();
+            var params = new LinkedHashMap<String, Object>();
             params.put("accept", accept);
             if (accept && promptText != null) {
                 params.put("promptText", promptText);
@@ -362,7 +362,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void click(int x, int y) {
-        Map<String, Object> move = new LinkedHashMap<>();
+        var move = new LinkedHashMap<String, Object>();
         move.put("type", "mouseMoved");
         move.put("x", x);
         move.put("y", y);
@@ -419,7 +419,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void mouseMove(int x, int y) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("type", "mouseMoved");
         params.put("x", x);
         params.put("y", y);
@@ -438,7 +438,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void mouseWheel(int x, int y, double deltaX, double deltaY) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("type", "mouseWheel");
         params.put("x", x);
         params.put("y", y);
@@ -466,7 +466,7 @@ final class CdpPage implements BrowserPage {
      * @param y    纵坐标
      */
     private void dispatchMouseButton(String type, int x, int y) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("type", type);
         params.put("x", x);
         params.put("y", y);
@@ -485,7 +485,7 @@ final class CdpPage implements BrowserPage {
      * @param virtualKey Windows 虚拟键码，普通字符传 0
      */
     private void dispatchKey(String type, String key, String code, String text, int virtualKey) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("type", type);
         params.put("key", key);
         params.put("code", code);
@@ -530,7 +530,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public String evaluate(String expression, boolean awaitPromise) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("expression", expression);
         params.put("returnByValue", true);
         params.put("awaitPromise", awaitPromise);
@@ -550,7 +550,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public Object evaluateJson(String expression, boolean awaitPromise) {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("expression", expression);
         params.put("returnByValue", true);
         params.put("awaitPromise", awaitPromise);
@@ -636,7 +636,7 @@ final class CdpPage implements BrowserPage {
         }
         List<Map<String, Object>> list = new ArrayList<>(cookies.size());
         for (Map.Entry<String, String> entry : cookies.entrySet()) {
-            Map<String, Object> cookie = new LinkedHashMap<>();
+            var cookie = new LinkedHashMap<String, Object>();
             cookie.put("name", entry.getKey());
             cookie.put("value", entry.getValue());
             cookie.put("domain", domain);
@@ -653,7 +653,7 @@ final class CdpPage implements BrowserPage {
         }
         List<Map<String, Object>> list = new ArrayList<>(cookies.size());
         for (Map.Entry<String, String> entry : cookies.entrySet()) {
-            Map<String, Object> cookie = new LinkedHashMap<>();
+            var cookie = new LinkedHashMap<String, Object>();
             cookie.put("name", entry.getKey());
             cookie.put("value", entry.getValue());
             cookie.put("url", url);
@@ -674,7 +674,7 @@ final class CdpPage implements BrowserPage {
     @Override
     public Map<String, String> cookies() {
         Map<String, Object> result = connection.call("Network.getCookies", Map.of(), sessionId, commandTimeout);
-        Map<String, String> cookies = new LinkedHashMap<>();
+        var cookies = new LinkedHashMap<String, String>();
         Object raw = result.get("cookies");
         if (!(raw instanceof List<?> list)) {
             return cookies;
@@ -701,7 +701,7 @@ final class CdpPage implements BrowserPage {
             Map<String, Object> css = asMap(metrics.get("cssContentSize"));
             int width = (int) Math.ceil(asDouble(css == null ? null : css.get("width"), 1280));
             int height = (int) Math.ceil(asDouble(css == null ? null : css.get("height"), 900));
-            Map<String, Object> override = new LinkedHashMap<>();
+            var override = new LinkedHashMap<String, Object>();
             override.put("width", Math.max(width, 1));
             override.put("height", Math.max(height, 1));
             override.put("deviceScaleFactor", 1);
@@ -724,7 +724,7 @@ final class CdpPage implements BrowserPage {
      * @return Base64 编码的 PNG
      */
     private String capturePng() {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         params.put("format", "png");
         params.put("captureBeyondViewport", true);
         Map<String, Object> result = connection.call("Page.captureScreenshot", params, sessionId, commandTimeout);
@@ -873,7 +873,7 @@ final class CdpPage implements BrowserPage {
         if (!(value instanceof Map<?, ?> map)) {
             return null;
         }
-        Map<String, Object> result = new LinkedHashMap<>();
+        var result = new LinkedHashMap<String, Object>();
         map.forEach((key, item) -> result.put(String.valueOf(key), item));
         return result;
     }

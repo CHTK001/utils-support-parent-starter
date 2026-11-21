@@ -201,7 +201,7 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket socket = serverSocket.accept();
-                Connection conn = new Connection(socket);
+                var conn = new Connection(socket);
                 connections.add(conn);
                 String sessionId = "netty-ws-" + connectionIdSeq.incrementAndGet();
                 conn.sessionId = sessionId;
@@ -243,7 +243,7 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
     */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
-        ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
+        var reqBuf = new ByteArrayOutputStream();
         byte[] buf = new byte[4096];
         int read = in.read(buf);
         if (read <= 0) {
@@ -371,7 +371,7 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
     */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var out = new ByteArrayOutputStream();
         out.write(0x81);
         if (data.length <= 125) {
             out.write(data.length);

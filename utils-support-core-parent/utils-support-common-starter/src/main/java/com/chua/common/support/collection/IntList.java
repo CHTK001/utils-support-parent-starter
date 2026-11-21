@@ -77,7 +77,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
      * @return IntList 实例
      */
     public static IntList of(int[] values) {
-        IntList list = new IntList(values.length);
+        var list = new IntList(values.length);
         list.addAll(values);
         return list;
     }

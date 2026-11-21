@@ -229,7 +229,7 @@ public class SevenZFileSystem implements FileSystem {
                         }
                     }
 
-                    File outFile = new File(targetDir, entry.getName());
+                    var outFile = new File(targetDir, entry.getName());
                     if (!outFile.getCanonicalPath().startsWith(targetDir.getCanonicalPath())) {
                         throw new IOException("7z entry outside target: " + entry.getName());
                     }
@@ -425,7 +425,7 @@ public class SevenZFileSystem implements FileSystem {
         private void finishNormal() {
             try (SevenZOutputFile szOut = createOutputFile()) {
                 for (EntryData ed : entries) {
-                    SevenZArchiveEntry entry = new SevenZArchiveEntry();
+                    var entry = new SevenZArchiveEntry();
                     entry.setName(ed.getEntryName());
                     if (ed.getBytes() != null) {
                         entry.setSize(ed.getBytes().length);
@@ -457,7 +457,7 @@ public class SevenZFileSystem implements FileSystem {
                 tempFile = File.createTempFile("7z-split-", ".7z", file.getParentFile());
                 try (SevenZOutputFile szOut = createOutputFile(tempFile)) {
                     for (EntryData ed : entries) {
-                        SevenZArchiveEntry entry = new SevenZArchiveEntry();
+                        var entry = new SevenZArchiveEntry();
                         entry.setName(ed.getEntryName());
                         if (ed.getBytes() != null) {
                             entry.setSize(ed.getBytes().length);
@@ -589,7 +589,7 @@ public class SevenZFileSystem implements FileSystem {
          * @throws IOException IO 异常
          */
         private SevenZOutputFile createOutputFile(File outputFile) throws IOException {
-            SevenZOutputFile szOut = new SevenZOutputFile(outputFile);
+            var szOut = new SevenZOutputFile(outputFile);
             if (compressionMethod != null) {
                 szOut.setContentMethods(
                         Collections.singletonList(

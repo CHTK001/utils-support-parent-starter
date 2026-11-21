@@ -97,10 +97,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     */
     @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
         long[] indices = tokens.argMax(1).toLongArray();
-        boolean[] selection = new boolean[indices.length];
+        var selection = new boolean[indices.length];
         Arrays.fill(selection, true);
         for (int i = 1; i < indices.length; i++) {
             if (indices[i] == indices[i - 1]) {

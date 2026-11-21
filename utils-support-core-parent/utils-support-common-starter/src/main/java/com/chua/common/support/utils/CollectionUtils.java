@@ -1108,7 +1108,7 @@ public class CollectionUtils {
      * @return
      */
     private static Object[] toArray(Collection arg, List<String> names) {
-        Object[] rs = new Object[names.size()];
+        var rs = new Object[names.size()];
         if (CollectionUtils.isEmpty(arg)) {
             return rs;
         }
@@ -1131,7 +1131,7 @@ public class CollectionUtils {
      * @return
      */
     private static Object[] toArray(Map arg, List<String> names) {
-        Object[] rs = new Object[names.size()];
+        var rs = new Object[names.size()];
         if (MapUtils.isEmpty(arg)) {
             return rs;
         }

@@ -178,13 +178,13 @@ public final class Cooldown<T> {
         if (candidates == null || candidates.isEmpty()) {
             return List.of();
         }
-        List<T> qualified = new ArrayList<>(candidates.size());
+        var qualified = new ArrayList<T>(candidates.size());
         for (T item : candidates) {
             if (item != null && precondition.test(item)) {
                 qualified.add(item);
             }
         }
-        List<T> usable = new ArrayList<>(qualified.size());
+        var usable = new ArrayList<T>(qualified.size());
         for (T item : qualified) {
             if (!gate.blocked(keyOf.apply(item))) {
                 usable.add(item);

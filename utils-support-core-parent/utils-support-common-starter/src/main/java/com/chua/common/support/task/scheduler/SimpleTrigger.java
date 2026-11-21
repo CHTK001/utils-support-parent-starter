@@ -11,20 +11,21 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public class SimpleTrigger implements Trigger {
+public record SimpleTrigger(Duration interval) implements Trigger {
 
     /**
      * 固定触发间隔
      */
-    private final Duration interval;
+    public Duration interval() {
+        return interval;
+    }
 
     /**
      * 构造简单触发器。
      *
      * @param interval 触发间隔
      */
-    public SimpleTrigger(Duration interval) {
-        this.interval = interval;
+    public SimpleTrigger {
     }
 
     /**
@@ -32,7 +33,7 @@ public class SimpleTrigger implements Trigger {
      */
     @Override
     public LocalDateTime nextExecutionTime() {
-        return LocalDateTime.now().plus(interval);
+        return LocalDateTime.now().plus(interval());
     }
 
     /**
@@ -40,7 +41,7 @@ public class SimpleTrigger implements Trigger {
      */
     @Override
     public LocalDateTime nextExecutionTime(LocalDateTime from) {
-        return from.plus(interval);
+        return from.plus(interval());
     }
 
     /**
@@ -58,10 +59,10 @@ public class SimpleTrigger implements Trigger {
     @Override
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
         List<LocalDateTime> times = Wraps.list(count);
-        LocalDateTime t = from.plus(interval);
+        LocalDateTime t = from.plus(interval());
         for (int i = 0; i < count; i++) {
             times.add(t);
-            t = t.plus(interval);
+            t = t.plus(interval());
         }
         return times;
     }

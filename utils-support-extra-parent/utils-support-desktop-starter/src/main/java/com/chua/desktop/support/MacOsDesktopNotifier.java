@@ -18,7 +18,7 @@ public class MacOsDesktopNotifier implements NativeDesktopNotifier {
         String script = String.format("display notification \"%s\" with title \"%s\"",
             content.replace("\\", "\\\\").replace("\"", "\\\""),
             title.replace("\\", "\\\\").replace("\"", "\\\""));
-        ProcessBuilder pb = new ProcessBuilder("osascript", "-e", script);
+        var pb = new ProcessBuilder("osascript", "-e", script);
         pb.redirectErrorStream(true);
         Process p = pb.start();
         p.waitFor();

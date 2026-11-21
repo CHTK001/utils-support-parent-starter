@@ -59,14 +59,14 @@ public class ResNet50TransferTrainer implements Trainer {
             listener.onStarted(progress);
         }
 
-        ResNet50Model model = new ResNet50Model();
+        var model = new ResNet50Model();
         model.setBatchSize(argument.getBatchSize());
         model.setNClasses(argument.getNClasses());
         // 迁移学习超参（微调学习率/动量），未显式传入时用模型默认值
         model.setLearningRate(argument.getLearningRate());
         model.setLrMomentum(argument.getLrMomentum());
 
-        File dataDir = new File(dataRootPath);
+        var dataDir = new File(dataRootPath);
         if (!dataDir.exists() || !dataDir.isDirectory()) {
             throw new IllegalArgumentException("数据目录不存在: " + dataRootPath);
         }
@@ -123,7 +123,7 @@ public class ResNet50TransferTrainer implements Trainer {
             log.info("[DL4J] epoch {} 完成", i + 1);
 
             // 评估
-            Evaluation eval = new Evaluation(argument.getNClasses());
+            var eval = new Evaluation(argument.getNClasses());
             testIter.reset();
             while (testIter.hasNext()) {
                 DataSet t = testIter.next();
@@ -177,9 +177,9 @@ public class ResNet50TransferTrainer implements Trainer {
      * @return 保存用模型文件
      */
     private File resolveModelFile(String savePath) {
-        File target = new File(savePath);
+        var target = new File(savePath);
         if (target.isDirectory() || savePath.endsWith(File.separator)) {
-            File dir = new File(savePath);
+            var dir = new File(savePath);
             if (!dir.exists()) {
                 dir.mkdirs();
             }

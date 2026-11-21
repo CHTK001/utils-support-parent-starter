@@ -97,7 +97,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return Condition 对象
      */
     private Condition createCondition(SFunction<T, ?> column, String operator, Object value) {
-        Condition c = new Condition(column, operator, value);
+        var c = new Condition(column, operator, value);
         c.setColumnName(resolveColumn(column));
         return c;
     }

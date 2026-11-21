@@ -161,7 +161,7 @@ public class EacChatClient extends OpenAiChatClient {
         */
         private static String buildPath(HttpRequest request) {
             String baseUrl = request.baseUrl();
-            StringBuilder path = new StringBuilder();
+            var path = new StringBuilder();
             if (baseUrl != null) {
                 int schemeEnd = baseUrl.indexOf("://");
                 if (schemeEnd > 0) {

@@ -30,7 +30,7 @@ public class EvolveFaceTranslator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         pipeline
                 .add(new Resize(INPUT_SIZE, INPUT_SIZE))
                 .add(new ToTensor())

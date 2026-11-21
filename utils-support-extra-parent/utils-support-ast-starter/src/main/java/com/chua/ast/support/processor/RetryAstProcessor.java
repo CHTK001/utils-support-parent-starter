@@ -124,7 +124,7 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         JCTree.JCUnary increment = maker.Unary(JCTree.Tag.POSTINC, retryCountIdent);
         JCTree.JCExpressionStatement incrementStmt = maker.Exec(increment);
 
-        com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement> tryStats = new com.sun.tools.javac.util.ListBuffer<>();
+        var tryStats = new com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement>();
         boolean hasReturn = false;
         for (JCTree.JCStatement stmt : originalBody.stats) {
             tryStats.append(stmt);
@@ -182,7 +182,7 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
                 tryStatement);
 
  // 包装在 尝试-卡扣 中，确保异常被抛出
-        com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement> stats = new com.sun.tools.javac.util.ListBuffer<>();
+        var stats = new com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement>();
         stats.append(forLoop);
  // 添加不可能到达的 返回 语句，避免编译器报错
         stats.append(maker.Return(maker.Literal(com.sun.tools.javac.code.TypeTag.BOT, null)));

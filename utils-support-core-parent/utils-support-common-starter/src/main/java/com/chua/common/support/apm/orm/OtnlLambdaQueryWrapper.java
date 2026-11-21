@@ -127,7 +127,7 @@ public class OtnlLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         if (orderBys == null || orderBys.isEmpty() || rows.size() < 2) {
             return;
         }
-        List<OtnlOrmSupport.OrderKey> keys = new ArrayList<>(orderBys.size());
+        var keys = new ArrayList<OtnlOrmSupport.OrderKey>(orderBys.size());
         for (String orderBy : orderBys) {
             OtnlOrmSupport.OrderKey key = OtnlOrmSupport.orderKey(orderBy);
             if (!key.column().isBlank()) {

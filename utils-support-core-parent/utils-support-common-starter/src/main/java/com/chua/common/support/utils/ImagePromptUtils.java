@@ -146,7 +146,7 @@ public final class ImagePromptUtils {
         double sumWarm = 0.0;
         int opaque = 0;
         int[] hueBins = new int[HUE_EN.length];
-        Map<Integer, int[]> bins = new LinkedHashMap<>();
+        var bins = new LinkedHashMap<Integer, int[]>();
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int argb = img.getRGB(x, y);

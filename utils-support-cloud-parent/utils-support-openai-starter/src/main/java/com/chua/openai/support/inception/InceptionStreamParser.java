@@ -258,7 +258,7 @@ final class InceptionStreamParser {
         if (!(value instanceof Map<?, ?> map)) {
             return null;
         }
-        Map<String, Object> result = new LinkedHashMap<>();
+        var result = new LinkedHashMap<String, Object>();
         map.forEach((key, item) -> result.put(String.valueOf(key), item));
         return result;
     }

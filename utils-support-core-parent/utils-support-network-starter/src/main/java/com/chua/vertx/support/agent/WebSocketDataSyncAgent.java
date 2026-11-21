@@ -191,7 +191,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     */
     private void startMessageLoop() {
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-        Thread t = new Thread(() -> {
+        var t = new Thread(() -> {
             while (running && !Thread.currentThread().isInterrupted()) {
                 try {
                     String msg = messageQueue.take();

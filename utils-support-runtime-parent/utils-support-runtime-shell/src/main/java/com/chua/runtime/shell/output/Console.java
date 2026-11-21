@@ -57,7 +57,7 @@ public class Console {
      */
     public void header(String title) {
         int width = Math.max(title.length() + 4, 40);
-        StringBuilder line = new StringBuilder(width);
+        var line = new StringBuilder(width);
         for (int i = 0; i < width; i++) {
             line.append('=');
         }
@@ -121,7 +121,7 @@ public class Console {
      * @param count 数量
      */
     private void printRepeat(char ch, int count) {
-        StringBuilder sb = new StringBuilder(count);
+        var sb = new StringBuilder(count);
         for (int i = 0; i < count; i++) {
             sb.append(ch);
         }

@@ -155,7 +155,7 @@ public class KeyLogStreamCodec implements StreamCodec {
      */
     private static void writeFrame(OutputStream out, byte[] salt, byte[] handshake) throws IOException {
         int bodyLength = 1 + SALT_LENGTH + Integer.BYTES + handshake.length;
-        DataOutputStream data = new DataOutputStream(out);
+        var data = new DataOutputStream(out);
         data.writeInt(bodyLength);
         data.writeByte(PROTOCOL_VERSION);
         data.write(salt);
@@ -172,7 +172,7 @@ public class KeyLogStreamCodec implements StreamCodec {
      * @throws IOException 读取失败或长度非法
      */
     private static byte[] readFrame(InputStream in) throws IOException {
-        DataInputStream data = new DataInputStream(in);
+        var data = new DataInputStream(in);
         int bodyLength = data.readInt();
         if (bodyLength <= 1 + SALT_LENGTH + Integer.BYTES || bodyLength > MAX_FRAME_LENGTH) {
             throw new IOException("keylog 握手帧长度非法: " + bodyLength);

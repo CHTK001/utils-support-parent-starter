@@ -99,7 +99,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         // 未知类型直接失败，不静默退回明文（与 JdkTcpServer 同口径）
         initStreamCodec();
         try {
-            VertxOptions opts = new VertxOptions()
+            var opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))
                     .setWorkerPoolSize(Math.max(setting.getWorkerThreads(),
                             Runtime.getRuntime().availableProcessors() * 4))
@@ -107,7 +107,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             vertx = Vertx.vertx(opts);
             workerPool = ThreadUtils.newVirtualThreadPerTaskExecutor();
 
-            NetServerOptions options = new NetServerOptions()
+            var options = new NetServerOptions()
                     .setHost(setting.getHost())
                     .setPort(setting.getPort())
                     .setTcpNoDelay(setting.isTcpNoDelay())
@@ -306,7 +306,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             InputStream in;
             OutputStream out;
             if (codec == null) {
-                NetSocketInputStream rawIn = new NetSocketInputStream(socket);
+                var rawIn = new NetSocketInputStream(socket);
                 in = rawIn;
                 out = new NetSocketOutputStream(socket);
             } else {
@@ -318,8 +318,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             if (frame == null) {
                 return;
             }
-            TcpServerRequest request = new TcpServerRequest(frame, null, StandardCharsets.UTF_8);
-            TcpServerResponse response = new TcpServerResponse();
+            var request = new TcpServerRequest(frame, null, StandardCharsets.UTF_8);
+            var response = new TcpServerResponse();
             try {
                 handleRequest(request, response);
             } catch (Exception e) {

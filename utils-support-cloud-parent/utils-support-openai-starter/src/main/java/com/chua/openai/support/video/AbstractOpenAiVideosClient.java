@@ -405,7 +405,7 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      * @return 合并风格与反向描述后的提示词
      */
     private String composePrompt(String base) {
-        StringBuilder sb = new StringBuilder(base);
+        var sb = new StringBuilder(base);
         if (StringUtils.isNotBlank(style)) {
             sb.append("，画面风格：").append(style);
         }

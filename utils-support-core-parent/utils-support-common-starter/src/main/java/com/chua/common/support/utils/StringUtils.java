@@ -2322,7 +2322,7 @@ public class StringUtils {
             return ObjectUtils.nullSafeToString(arr[0]);
         }
 
-        StringJoiner sj = new StringJoiner(delim);
+        var sj = new StringJoiner(delim);
         for (Object elem : arr) {
             sj.add(String.valueOf(elem));
         }

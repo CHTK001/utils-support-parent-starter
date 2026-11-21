@@ -169,7 +169,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
             double decodedH = Math.exp(h * variance[1]) * prior[3];
             double decodedX = x * variance[0] * prior[2] + prior[0] - decodedW * 0.5d;
             double decodedY = y * variance[0] * prior[3] + prior[1] - decodedH * 0.5d;
-            Rectangle rectangle = new Rectangle(
+            var rectangle = new Rectangle(
                     clip(decodedX),
                     clip(decodedY),
                     clipSize(decodedX, decodedW),
@@ -242,7 +242,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
                 }
             }
         }
-        double[][] boxes = new double[defaultBoxes.size()][4];
+        var boxes = new double[defaultBoxes.size()][4];
         for (int i = 0; i < defaultBoxes.size(); i++) {
             boxes[i] = defaultBoxes.get(i);
         }

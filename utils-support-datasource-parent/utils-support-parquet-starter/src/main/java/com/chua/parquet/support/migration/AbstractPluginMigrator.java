@@ -182,7 +182,7 @@ public abstract class AbstractPluginMigrator implements DataMigrator {
         if (dataSource == null || dataSource.url() == null) {
             throw new IllegalStateException("Parquet 引擎未注册数据源，无法定位表文件: " + table);
         }
-        File dir = new File(dataSource.url().trim());
+        var dir = new File(dataSource.url().trim());
         if (!dir.isDirectory()) {
             throw new IllegalStateException("Parquet 目录不存在: " + dir.getAbsolutePath());
         }
@@ -196,7 +196,7 @@ public abstract class AbstractPluginMigrator implements DataMigrator {
      * @return 记录列表
      */
     protected static List<GenericRecord> readRecords(File file) {
-        List<GenericRecord> records = new ArrayList<>();
+        var records = new ArrayList<GenericRecord>();
         if (!file.exists() || file.length() == 0L) {
             return records;
         }
@@ -220,7 +220,7 @@ public abstract class AbstractPluginMigrator implements DataMigrator {
      * @param records 待写入记录
      */
     protected static void writeRecords(File file, Schema schema, List<GenericRecord> records) {
-        File tmp = new File(file.getParentFile(),
+        var tmp = new File(file.getParentFile(),
                 file.getName() + ".migrating-" + TMP_SEQ.incrementAndGet() + ".tmp");
         try {
             try (ParquetWriter<GenericRecord> writer = AvroParquetWriter

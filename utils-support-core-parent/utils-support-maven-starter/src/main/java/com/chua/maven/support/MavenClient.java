@@ -313,8 +313,8 @@ public class MavenClient implements AutoCloseable {
         }
 
         // 2. 准备输出收集
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(outputStream, true);
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream, true);
         List<String> errorLines = Wraps.list();
         int[] progressHolder = {0};
 
@@ -325,7 +325,7 @@ public class MavenClient implements AutoCloseable {
         if (StringUtils.isNotBlank(javaHome)) {
             // 允许填 JDK 根目录 / bin 目录 / java 可执行文件本身，统一归一成 JDK 根目录：
             // Maven fork 出去的进程要的是 JAVA_HOME，指到 bin 里会找不到 lib/tools.jar。
-            File home = new File(normalizeJavaHome(javaHome.trim()));
+            var home = new File(normalizeJavaHome(javaHome.trim()));
             if (home.isDirectory()) {
                 // fork 出去的 Maven 进程用它自己的 JAVA_HOME，和启动脚本用的是同一套 JDK
                 request.setJavaHome(home);
@@ -338,7 +338,7 @@ public class MavenClient implements AutoCloseable {
             request.setProfiles(profiles);
         }
 
-        Properties props = new Properties();
+        var props = new Properties();
         if (skipTests) {
             props.setProperty("skipTests", "true");
             props.setProperty("maven.test.skip", "true");
@@ -369,7 +369,7 @@ public class MavenClient implements AutoCloseable {
 
         // 5. 执行编译
         try {
-            DefaultInvoker invoker = new DefaultInvoker();
+            var invoker = new DefaultInvoker();
             invoker.setMavenHome(new File(mavenHome).getAbsoluteFile());
 
             InvocationResult invocationResult = invoker.execute(request);
@@ -484,7 +484,7 @@ public class MavenClient implements AutoCloseable {
     private String resolveMavenHome() {
         // 0. 调用方显式指定的 Maven（项目级配置，优先且不写全局属性）
         if (StringUtils.isNotBlank(mavenHome)) {
-            File home = new File(mavenHome.trim());
+            var home = new File(mavenHome.trim());
             if (home.isDirectory()) {
                 return home.getAbsolutePath();
             }
@@ -514,13 +514,13 @@ public class MavenClient implements AutoCloseable {
         if (pathEnv != null) {
             String[] pathDirs = pathEnv.split(File.pathSeparator);
             for (String dir : pathDirs) {
-                File mvnCmd = new File(dir, "mvn.cmd");
-                File mvnSh = new File(dir, "mvn");
+                var mvnCmd = new File(dir, "mvn.cmd");
+                var mvnSh = new File(dir, "mvn");
                 if (mvnCmd.exists() || mvnSh.exists()) {
-                    File binDir = new File(dir);
+                    var binDir = new File(dir);
                     File mavenDir = binDir.getParentFile();
                     if (mavenDir != null) {
-                        File libDir = new File(mavenDir, "lib");
+                        var libDir = new File(mavenDir, "lib");
                         if (libDir.exists()) {
                             return mavenDir.getAbsolutePath();
                         }

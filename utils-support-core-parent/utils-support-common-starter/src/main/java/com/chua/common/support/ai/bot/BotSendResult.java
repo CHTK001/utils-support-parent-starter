@@ -44,7 +44,7 @@ public class BotSendResult {
      * @return 发送结果
      */
     public static BotSendResult ok(String msgId) {
-        BotSendResult result = new BotSendResult();
+        var result = new BotSendResult();
         result.success = true;
         result.msgId = msgId;
         return result;
@@ -58,7 +58,7 @@ public class BotSendResult {
      * @return 发送结果
      */
     public static BotSendResult fail(int errorCode, String errorMessage) {
-        BotSendResult result = new BotSendResult();
+        var result = new BotSendResult();
         result.success = false;
         result.errorCode = errorCode;
         result.errorMessage = errorMessage;

@@ -113,7 +113,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
         }
         requireWhereCondition("更新");
         List<Object> params = Wraps.list();
-        StringBuilder setSb = new StringBuilder();
+        var setSb = new StringBuilder();
         for (Map.Entry<String, Object> e : setValues.entrySet()) {
             if (!setSb.isEmpty()) {
                 setSb.append(", ");
@@ -122,7 +122,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
             params.add(e.getValue());
         }
 
-        StringBuilder where = new StringBuilder();
+        var where = new StringBuilder();
         buildWhere(where, params);
 
         return new UpdateSql(entityClass, setSb.toString(), where.toString(), params);
@@ -178,7 +178,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
             String methodName = lambda.getImplMethodName();
             String field = methodName.startsWith("is") ? methodName.substring(2)
                     : methodName.startsWith("get") ? methodName.substring(3) : methodName;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < field.length(); i++) {
                 char ch = field.charAt(i);
                 if (Character.isUpperCase(ch)) {

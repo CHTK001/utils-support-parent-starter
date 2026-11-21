@@ -243,7 +243,7 @@ final class SqliteWriteQueue {
      * 写线程主循环。
      */
     private void loop() {
-        List<Action> buffer = new ArrayList<>(MAX_BATCH);
+        var buffer = new ArrayList<Action>(MAX_BATCH);
         while (true) {
             try {
                 Action first = queue.poll(200L, TimeUnit.MILLISECONDS);

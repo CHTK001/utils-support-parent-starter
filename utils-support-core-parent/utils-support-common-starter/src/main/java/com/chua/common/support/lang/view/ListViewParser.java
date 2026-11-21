@@ -61,7 +61,7 @@ public class ListViewParser implements ViewParser {
             return EMPTY_PLACEHOLDER;
         }
         int digits = String.valueOf(items.size()).length();
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < items.size(); i++) {
             // 编号右对齐，位数不足时前置空格
             String num = String.valueOf(i + 1);

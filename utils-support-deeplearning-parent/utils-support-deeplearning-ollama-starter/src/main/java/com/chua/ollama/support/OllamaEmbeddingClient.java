@@ -124,7 +124,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         if (embeddings == null) {
             return new float[0][];
         }
-        float[][] out = new float[embeddings.size()][];
+        var out = new float[embeddings.size()][];
         for (int i = 0; i < embeddings.size(); i++) {
             out[i] = toFloats(embeddings.get(i));
         }
@@ -149,7 +149,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     @Override
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
-        AtomicInteger idx = new AtomicInteger(0);
+        var idx = new AtomicInteger(0);
         List<EmbeddingResponse.Embedding> embs = Wraps.list(vs.length);
         for (float[] v : vs) {
             embs.add(EmbeddingResponse.Embedding.builder()
@@ -203,7 +203,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
      */
     private OllamaEmbedResult doEmbed(List<String> texts) {
         String resolvedModel = StringUtils.isNotBlank(model) ? model : "nomic-embed-text";
-        OllamaEmbedRequest request = new OllamaEmbedRequest(resolvedModel, texts);
+        var request = new OllamaEmbedRequest(resolvedModel, texts);
         if (dimensions != null) {
             request.setOptions(java.util.Map.of("dimensions", dimensions));
         }
@@ -224,7 +224,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         if (doubles == null) {
             return new float[0];
         }
-        float[] out = new float[doubles.size()];
+        var out = new float[doubles.size()];
         for (int i = 0; i < doubles.size(); i++) {
             out[i] = doubles.get(i) != null ? doubles.get(i).floatValue() : 0f;
         }

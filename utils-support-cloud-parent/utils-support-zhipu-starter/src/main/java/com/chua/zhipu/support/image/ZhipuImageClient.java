@@ -173,7 +173,7 @@ public BufferedImage generate(String prompt) {
         }
         String actualModel = model != null ? model : "cogview-3";
         String sizeStr = buildSize();
-        StringBuilder bodyBuilder = new StringBuilder();
+        var bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"model\":\"").append(actualModel)
                 .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
                 .append("\",\"n\":1")

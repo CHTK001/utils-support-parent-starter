@@ -47,7 +47,7 @@ public class AesGcmStreamCodec implements StreamCodec {
         }
         ensureKey();
         try {
-            ByteArrayOutputStream sink = new ByteArrayOutputStream();
+            var sink = new ByteArrayOutputStream();
             OutputStream encrypting = AesGcmUtils.encrypting(sink, keySpec);
             encrypting.write(data.getBytes(StandardCharsets.UTF_8));
             encrypting.flush();

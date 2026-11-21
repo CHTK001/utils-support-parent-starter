@@ -196,7 +196,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
      * @return 连接池配置
      */
     private JedisPoolConfig createPoolConfig() {
-        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        var poolConfig = new JedisPoolConfig();
 
         // 最大连接数
         poolConfig.setMaxTotal(20);

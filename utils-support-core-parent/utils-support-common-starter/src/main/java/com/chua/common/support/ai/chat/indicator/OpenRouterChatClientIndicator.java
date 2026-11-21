@@ -234,7 +234,7 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
             result.modelMetrics = metricsByModel;
             List<Map<String, Object>> parameterList = new ArrayList<>(parameters.size());
             for (String name : parameters) {
-                Map<String, Object> row = new LinkedHashMap<>(2);
+                var row = new LinkedHashMap<String, Object>(2);
                 row.put("name", name);
                 parameterList.add(row);
             }

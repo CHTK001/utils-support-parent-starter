@@ -97,7 +97,7 @@ public class WevisdocMarkdownParser {
             return new int[LAYOUT_LABELS.length];
         }
 
-        int[] counts = new int[LAYOUT_LABELS.length];
+        var counts = new int[LAYOUT_LABELS.length];
 
         // 统计标题（paragraph_title）
         Matcher headerMatcher = HEADER_PATTERN.matcher(markdown);

@@ -144,7 +144,7 @@ public record MethodDefinition(
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (isPublic()) {
             sb.append("public ");
         }

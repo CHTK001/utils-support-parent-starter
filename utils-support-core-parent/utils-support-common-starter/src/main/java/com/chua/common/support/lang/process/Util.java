@@ -37,7 +37,7 @@ class Util {
      * @return
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(int predefinedWidth) {
-        PrintStream real = new PrintStream(new FileOutputStream(FileDescriptor.out));
+        var real = new PrintStream(new FileOutputStream(FileDescriptor.out));
         return createConsoleConsumer(real, predefinedWidth);
     }
     /**

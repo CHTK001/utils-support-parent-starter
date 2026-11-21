@@ -184,7 +184,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
      * @return 扁平属性表
      */
     private Map<String, Object> parseProperties(String content) {
-        Properties properties = new Properties();
+        var properties = new Properties();
         try {
             properties.load(new StringReader(content));
         } catch (Exception e) {

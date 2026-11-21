@@ -170,7 +170,7 @@ public class JacksonJsonProvider implements JsonProvider {
         objectMapper.setDateFormat(newYyyyMmDdHhMmSsSdf());
 
         // 注册 Java 8 Time 模块以处理 java.time 包下的类
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        var javaTimeModule = new JavaTimeModule();
         // 添加 LocalDateTime 的序列化器
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(YYYY_MM_DD_HH_MM_SS_FMT));
         // 添加 LocalDate 的序列化器

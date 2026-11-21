@@ -69,8 +69,8 @@ public class TencentCosFileStorage extends AbstractFileStorage {
      */
     public TencentCosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
-        BasicCOSCredentials credentials = new BasicCOSCredentials(accessKeyId, accessKeySecret);
-        ClientConfig clientConfig = new ClientConfig(new Region(region));
+        var credentials = new BasicCOSCredentials(accessKeyId, accessKeySecret);
+        var clientConfig = new ClientConfig(new Region(region));
         this.cosClient = new COSClient(credentials, clientConfig);
     }
 

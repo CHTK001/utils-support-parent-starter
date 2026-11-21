@@ -148,7 +148,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
 
             double[] boxArr = boundingBoxes.get(currMaxLoc).toDoubleArray();
             double[] landmsArr = landms.get(currMaxLoc).toDoubleArray();
-            Rectangle rect = new Rectangle(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
+            var rect = new Rectangle(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
             boolean belowIoU = true;
             for (BoundingBox box : boxes) {
                 double iou = getIoU(rect, box.getBounds());
@@ -173,7 +173,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
                 if (eyeDist < EYE_DIST_THRESHOLD / Math.max(width, height)) {
                     continue;
                 }
-                Landmark landmark = new Landmark(boxArr[0], boxArr[1], boxArr[2], boxArr[3], keyPoints);
+                var landmark = new Landmark(boxArr[0], boxArr[1], boxArr[2], boxArr[3], keyPoints);
                 boxes.add(landmark);
                 retNames.add("face");
                 retProbs.add(probability);
@@ -193,7 +193,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
      * @return boxRecover的结果
      */
     private NDArray boxRecover(NDManager manager, int width, int height, int[][] scales, int[] steps) {
-        int[][] aspectRatio = new int[steps.length][2];
+        var aspectRatio = new int[steps.length][2];
         for (int i = 0; i < steps.length; i++) {
             aspectRatio[i] = new int[]{
                     (int) Math.ceil((float) height / steps[i]),

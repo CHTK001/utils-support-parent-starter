@@ -132,7 +132,7 @@ public final class AsyncBroadcaster<T extends WsSink> implements AutoCloseable {
         }
         int capacity = Math.max(1, queueCapacity);
         for (int i = 0; i < this.shards; i++) {
-            BlockingQueue<Task<T>> queue = new ArrayBlockingQueue<>(capacity);
+            var queue = new ArrayBlockingQueue<Task<T>>(capacity);
             queues.add(queue);
             shardSinks.add(ConcurrentHashMap.newKeySet());
             final int index = i;

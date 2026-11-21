@@ -136,7 +136,7 @@ public class OllamaImageClient implements ImageClient {
     @Override
     public BufferedImage generate(String prompt) {
         String text = prompt != null ? prompt : null;
-        OllamaGenerateImageRequest request = new OllamaGenerateImageRequest();
+        var request = new OllamaGenerateImageRequest();
         request.setModel(StringUtils.isNotBlank(model) ? model : "image-model");
         request.setPrompt(text != null ? text : "");
         request.setWidth(width);
@@ -249,7 +249,7 @@ public class OllamaImageClient implements ImageClient {
      */
     private byte[] toBytes(BufferedImage image) {
         try {
-            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            var out = new java.io.ByteArrayOutputStream();
             ImageIO.write(image, "png", out);
             return out.toByteArray();
         } catch (java.io.IOException e) {

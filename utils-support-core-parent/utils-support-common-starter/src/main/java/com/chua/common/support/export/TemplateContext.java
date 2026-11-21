@@ -30,32 +30,9 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-public final class TemplateContext {
-
-    /**
-     * 文档元数据。
-     */
-    private final DocumentMeta meta;
-
-    /**
-     * 标量变量。
-     */
-    private final Map<String, Object> variables;
-
-    /**
-     * 循环表格：标签 → 展开后的行 Map 列表。
-     */
-    private final Map<String, List<Map<String, Object>>> tables;
-
-    /**
-     * 原始行数据。
-     */
-    private final List<Object> rows;
-
-    /**
-     * 导出配置。
-     */
-    private final ExportConfig config;
+public record TemplateContext(DocumentMeta meta, Map<String, Object> variables,
+                              Map<String, List<Map<String, Object>>> tables,
+                              List<Object> rows, ExportConfig config) {
 
     /**
      * 构造模板上下文。
@@ -66,14 +43,11 @@ public final class TemplateContext {
      * @param rows      原始行数据
      * @param config    导出配置
      */
-    public TemplateContext(DocumentMeta meta, Map<String, Object> variables,
-                           Map<String, List<Map<String, Object>>> tables,
-                           List<Object> rows, ExportConfig config) {
-        this.meta = meta;
-        this.variables = variables == null ? Wraps.map() : variables;
-        this.tables = tables == null ? Wraps.map() : tables;
-        this.rows = rows == null ? Wraps.list() : rows;
-        this.config = config == null ? ExportConfig.EMPTY : config;
+    public TemplateContext {
+        variables = variables == null ? Wraps.map() : variables;
+        tables = tables == null ? Wraps.map() : tables;
+        rows = rows == null ? Wraps.list() : rows;
+        config = config == null ? ExportConfig.EMPTY : config;
     }
 
     /**

@@ -128,7 +128,7 @@ public class PipelineJsonParser {
             switch (type) {
                 case "task": {
                     // 创建占位 TaskNode（回调返回 null，后续可通过代码覆盖注入逻辑）
-                    TaskNode taskNode = new TaskNode(nodeId, ctx -> null);
+                    var taskNode = new TaskNode(nodeId, ctx -> null);
                     if (params != null && !params.isEmpty()) {
                         taskNode.setParams(params);
                     }
@@ -140,7 +140,7 @@ public class PipelineJsonParser {
                     // 解析 branches（可选，用于可视化）
                     Map<String, String> branches = node.getObjectAsStringMap("branches");
                     // 创建占位 DecisionNode（回调返回 null，后续可通过代码覆盖注入路由逻辑）
-                    DecisionNode decisionNode = new DecisionNode(nodeId, ctx -> null);
+                    var decisionNode = new DecisionNode(nodeId, ctx -> null);
                     if (branches != null && !branches.isEmpty()) {
                         decisionNode.branches(branches);
                     }
@@ -351,7 +351,7 @@ public class PipelineJsonParser {
         }
         // 跳过起始双引号
         pos[0]++;
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         while (pos[0] < json.length()) {
             char c = json.charAt(pos[0]);
             if (c == '\\') {

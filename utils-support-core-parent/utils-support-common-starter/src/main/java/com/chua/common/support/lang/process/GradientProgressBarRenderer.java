@@ -110,7 +110,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     @Override
     public String render(ProgressState progress, int length) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         //
         sb.append("[");
         if (progress.indefinite) {

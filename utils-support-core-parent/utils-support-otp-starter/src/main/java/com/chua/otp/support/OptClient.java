@@ -284,7 +284,7 @@ public class OptClient implements MessagePush {
         } else {
             bound = CODE_DIGIT_SIZE;
         }
-        StringBuilder builder = new StringBuilder(length);
+        var builder = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             int code = RandomUtils.randomInt(0, bound);
             if (OptMessage.TYPE_LETTER.equals(type)) {

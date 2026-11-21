@@ -123,7 +123,7 @@ public class OllamaAudioClient implements VirtualClient {
     public String transcribe(Path path) {
         byte[] audioBytes = readAudio(path, setting != null ? setting.getAudio() : null);
         String prompt = buildTranscribePrompt(audioBytes);
-        OllamaGenerateRequest request = new OllamaGenerateRequest(
+        var request = new OllamaGenerateRequest(
                 StringUtils.isNotBlank(model) ? model : "whisper", prompt);
         try {
             OllamaResult result = ollama.generate(request, null);
@@ -245,7 +245,7 @@ public class OllamaAudioClient implements VirtualClient {
      */
     private String buildTranscribePrompt(byte[] audioBytes) {
         String encoded = Base64.getEncoder().encodeToString(audioBytes);
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (StringUtils.isNotBlank(language)) {
             sb.append("识别 语言 为 ").append(language).append(" 的 音频：");
         } else {

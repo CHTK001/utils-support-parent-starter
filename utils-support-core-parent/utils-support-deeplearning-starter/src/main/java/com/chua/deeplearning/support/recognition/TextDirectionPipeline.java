@@ -166,7 +166,7 @@ public class TextDirectionPipeline {
      */
     public List<Object> recognize(byte[] imageData) {
         TextDirectionContext dc = new TextDirectionContext(imageData);
-        PipelineContext<TextDirectionContext> ctx = new PipelineContext<>(pipeline.getId(), dc);
+        var ctx = new PipelineContext<TextDirectionContext>(pipeline.getId(), dc);
         ctx.setAttribute("direction", dc);
         ctx.setNextNodeId(NODE_RECOGNIZE);
         pipeline.resume(ctx);

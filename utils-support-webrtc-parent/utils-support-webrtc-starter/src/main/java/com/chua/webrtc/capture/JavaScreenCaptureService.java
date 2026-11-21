@@ -289,18 +289,8 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
     /**
      * 屏幕信息默认实现
      */
-    private static class DefaultScreenInfo implements ScreenCaptureService.ScreenInfo {
-        private final String id;
-        private final String name;
-        private final int width;
-        private final int height;
-
-        DefaultScreenInfo(String id, String name, int width, int height) {
-            this.id = id;
-            this.name = name;
-            this.width = width;
-            this.height = height;
-        }
+    private record DefaultScreenInfo(String id, String name, int width, int height)
+            implements ScreenCaptureService.ScreenInfo {
 
         @Override
         public String id() {

@@ -69,7 +69,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
          // [P3C C1 豁免]
         this.dispatcher = Executors.newSingleThreadExecutor(runnable -> {
             // [P3C C1 豁免]
-            Thread thread = new Thread(runnable, "cooldown-recovery");
+            var thread = new Thread(runnable, "cooldown-recovery");
             thread.setDaemon(true);
             return thread;
         });
@@ -83,7 +83,7 @@ public final class TimeWheelExpiryScheduler implements ExpiryScheduler {
         }
         ScopeKey id = ScopeKey.of(scope, key);
         long delay = Math.max(0L, delayMillis);
-        Ready entry = new Ready(id, System.currentTimeMillis() + delay, sequence.incrementAndGet(), onExpire);
+        var entry = new Ready(id, System.currentTimeMillis() + delay, sequence.incrementAndGet(), onExpire);
         // 必须在登记线程上同步入队 —— 这是出队顺序唯一确定的来源。
         // 若交给时间轮回调去 offer，回调跑在「每任务一个虚拟线程」上，
         // 同批任务谁先入队不可控，而 take() 会立刻取走第一个到达的元素，

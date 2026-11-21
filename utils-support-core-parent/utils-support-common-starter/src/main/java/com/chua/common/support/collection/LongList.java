@@ -77,7 +77,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
      * @return LongList 实例
      */
     public static LongList of(long[] values) {
-        LongList list = new LongList(values.length);
+        var list = new LongList(values.length);
         list.addAll(values);
         return list;
     }

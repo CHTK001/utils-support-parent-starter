@@ -96,7 +96,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
         }
         vus.sort(Integer::compareTo);
 
-        StringBuilder table = new StringBuilder();
+        var table = new StringBuilder();
         for (String impl : impls) {
             table.append("<tr class=\"impl-header\"><td colspan=\"7\"><b>")
                     .append(escape(impl.toUpperCase())).append(" HttpServer</b></td></tr>\n");
@@ -120,8 +120,8 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
         }
 
         // 构造 ECharts 数据
-        StringBuilder jsImpls = new StringBuilder();
-        StringBuilder jsVus = new StringBuilder();
+        var jsImpls = new StringBuilder();
+        var jsVus = new StringBuilder();
         Map<String, String> series = Wraps.linkedMap();
         series.put("rate", "successRate");
         series.put("p95", "p95");
@@ -140,7 +140,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
             jsVus.append(vus.get(i)).append(" 并发");
         }
 
-        StringBuilder dataMap = new StringBuilder();
+        var dataMap = new StringBuilder();
         for (Map.Entry<String, String> e : series.entrySet()) {
             String key = e.getKey();
             dataMap.append("const ").append(key).append("Data = {};\n");

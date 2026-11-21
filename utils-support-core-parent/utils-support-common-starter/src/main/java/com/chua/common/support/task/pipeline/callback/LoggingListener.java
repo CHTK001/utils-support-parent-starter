@@ -21,25 +21,12 @@ import java.util.logging.Logger;
  * @author CH
  * @since 4.0.0.42
  */
-public class LoggingListener implements PipelineListener {
+public record LoggingListener(Level nodeLevel, Level completeLevel, Level errorLevel) implements PipelineListener {
 
     /**
      * 日志记录器
      */
     private static final Logger LOGGER = Logger.getLogger(LoggingListener.class.getName());
-
-    /**
-     * 节点级别
-     */
-    private final Level nodeLevel;
-    /**
-     * 完成级别
-     */
-    private final Level completeLevel;
-    /**
-     * 错误级别
-     */
-    private final Level errorLevel;
 
     /**
      * 构造默认日志监听器。
@@ -56,10 +43,28 @@ public class LoggingListener implements PipelineListener {
      * @param completeLevel 流水线完成的日志级别
      * @param errorLevel   异常的日志级别
      */
-    public LoggingListener(Level nodeLevel, Level completeLevel, Level errorLevel) {
-        this.nodeLevel = nodeLevel;
-        this.completeLevel = completeLevel;
-        this.errorLevel = errorLevel;
+    public LoggingListener {
+    }
+
+    /**
+     * 节点级别
+     */
+    public Level nodeLevel() {
+        return nodeLevel;
+    }
+
+    /**
+     * 完成级别
+     */
+    public Level completeLevel() {
+        return completeLevel;
+    }
+
+    /**
+     * 错误级别
+     */
+    public Level errorLevel() {
+        return errorLevel;
     }
 
     /**
@@ -67,8 +72,8 @@ public class LoggingListener implements PipelineListener {
      */
     @Override
     public void beforeNode(PipelineContext<?> context) {
-        if (LOGGER.isLoggable(nodeLevel)) {
-            LOGGER.log(nodeLevel, "[Pipeline:{0}] >> Enter node: {1}",
+        if (LOGGER.isLoggable(nodeLevel())) {
+            LOGGER.log(nodeLevel(), "[Pipeline:{0}] >> Enter node: {1}",
                     new Object[]{context.getPipelineId(), context.getCurrentNodeId()});
         }
     }
@@ -78,8 +83,8 @@ public class LoggingListener implements PipelineListener {
      */
     @Override
     public void afterNode(PipelineContext<?> context) {
-        if (LOGGER.isLoggable(nodeLevel)) {
-            LOGGER.log(nodeLevel, "[Pipeline:{0}] << Leave node: {1}",
+        if (LOGGER.isLoggable(nodeLevel())) {
+            LOGGER.log(nodeLevel(), "[Pipeline:{0}] << Leave node: {1}",
                     new Object[]{context.getPipelineId(), context.getCurrentNodeId()});
         }
     }
@@ -89,7 +94,7 @@ public class LoggingListener implements PipelineListener {
      */
     @Override
     public String onError(PipelineContext<?> context, Throwable e) {
-        LOGGER.log(errorLevel, "[Pipeline:" + context.getPipelineId()
+        LOGGER.log(errorLevel(), "[Pipeline:" + context.getPipelineId()
                 + "] !! Error at node: " + context.getCurrentNodeId(), e);
  // 默认返回 空（终止流水线），不干预错误恢复路由
         return null;
@@ -100,8 +105,8 @@ public class LoggingListener implements PipelineListener {
      */
     @Override
     public void onComplete(PipelineContext<?> context) {
-        if (LOGGER.isLoggable(completeLevel)) {
-            LOGGER.log(completeLevel, "[Pipeline:{0}] == Completed. History: {1}",
+        if (LOGGER.isLoggable(completeLevel())) {
+            LOGGER.log(completeLevel(), "[Pipeline:{0}] == Completed. History: {1}",
                     new Object[]{context.getPipelineId(), context.getHistory()});
         }
     }

@@ -83,9 +83,7 @@ public class APIRequestContext {
     /**
      * API 响应结果的只读包装。
      */
-    public static class ApiResponse {
-        private final int status;
-        private final String body;
+    public record ApiResponse(int status, String body) {
 
         /**
          * 基于引擎侧响应数据创建包装对象。
@@ -93,8 +91,7 @@ public class APIRequestContext {
          * @param d 引擎侧响应数据
          */
         public ApiResponse(Engine.ApiResponseData d) {
-            this.status = d.status;
-            this.body = d.body;
+            this(d.status, d.body);
         }
 
         /**
@@ -102,6 +99,7 @@ public class APIRequestContext {
          *
          * @return 状态码
          */
+        @Override
         public int status() {
             return status;
         }
@@ -111,6 +109,7 @@ public class APIRequestContext {
          *
          * @return 响应体
          */
+        @Override
         public String body() {
             return body;
         }

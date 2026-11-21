@@ -773,7 +773,7 @@ public class OcrPipeline {
      * @param oc 上下文
      */
     private void runSingle(OcrContext oc) {
-        PipelineContext<OcrContext> ctx = new PipelineContext<>(pipeline.getId(), oc);
+        var ctx = new PipelineContext<OcrContext>(pipeline.getId(), oc);
         ctx.setAttribute("ocr", oc);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);

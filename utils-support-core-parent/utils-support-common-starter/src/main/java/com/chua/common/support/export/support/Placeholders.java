@@ -173,7 +173,7 @@ public final class Placeholders {
             return text;
         }
         Matcher matcher = pattern.matcher(text);
-        StringBuilder sb = new StringBuilder(text.length() + 32);
+        var sb = new StringBuilder(text.length() + 32);
         while (matcher.find()) {
             Object value = lookup(matcher.group(1).trim(), row, rowIndex, rowCount);
             matcher.appendReplacement(sb, Matcher.quoteReplacement(value == null ? "" : String.valueOf(value)));

@@ -235,7 +235,7 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
      * @return 返回值
     */
     private Map<String, Object> parseModel(JsonNode item) {
-        Map<String, Object> metrics = new LinkedHashMap<>(24);
+        var metrics = new LinkedHashMap<String, Object>(24);
         JsonNode pricing = item.get("pricing");
         if (pricing != null && pricing.isObject()) {
             IndicatorJsonSupport.put(metrics, "price_input_per_musd",

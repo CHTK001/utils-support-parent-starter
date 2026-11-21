@@ -316,7 +316,7 @@ public class OpenTelemetryClient implements AutoCloseable {
         for (SpanData datum : data) {
             grouped.computeIfAbsent(datum.getTraceId(), k -> Wraps.list()).add(toSpan(datum));
         }
-        List<Trace> traces = new ArrayList<>();
+        var traces = new ArrayList<Trace>();
         for (Map.Entry<String, List<Span>> entry : grouped.entrySet()) {
             traces.add(toTrace(entry.getKey(), entry.getValue()));
         }

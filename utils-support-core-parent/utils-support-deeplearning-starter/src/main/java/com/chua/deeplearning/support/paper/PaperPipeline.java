@@ -291,7 +291,7 @@ public class PaperPipeline {
         if (grouped == null) {
             return new LinkedHashMap<>();
         }
-        Map<String, List<PredictRectangle>> copy = new LinkedHashMap<>();
+        var copy = new LinkedHashMap<String, List<PredictRectangle>>();
         for (Map.Entry<String, List<PredictRectangle>> entry : grouped.entrySet()) {
             List<PredictRectangle> list = entry.getValue();
             copy.put(entry.getKey(), list == null ? List.of() : List.copyOf(list));

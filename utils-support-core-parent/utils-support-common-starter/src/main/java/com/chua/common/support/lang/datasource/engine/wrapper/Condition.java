@@ -112,7 +112,7 @@ public class Condition {
      * @return Condition 实例
      */
     public static Condition of(String columnName, String operator, Object value) {
-        Condition condition = new Condition((SFunction<?, ?>) null, operator, value);
+        var condition = new Condition((SFunction<?, ?>) null, operator, value);
         condition.columnName = columnName;
         return condition;
     }

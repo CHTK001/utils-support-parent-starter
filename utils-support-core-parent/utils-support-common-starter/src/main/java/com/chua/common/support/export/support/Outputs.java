@@ -82,7 +82,7 @@ public final class Outputs {
             }
             return in;
         }
-        File file = new File(source);
+        var file = new File(source);
         if (file.isFile()) {
             return new FileInputStream(file);
         }

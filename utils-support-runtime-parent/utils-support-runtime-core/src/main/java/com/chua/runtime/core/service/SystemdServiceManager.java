@@ -230,7 +230,7 @@ public class SystemdServiceManager implements ServiceManager {
      * @return generate服务文件的结果
      */
     private String generateServiceFile(ManagedService service) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("[Unit]\n");
         sb.append("Description=").append(service.getDisplayName() != null
                 ? service.getDisplayName()

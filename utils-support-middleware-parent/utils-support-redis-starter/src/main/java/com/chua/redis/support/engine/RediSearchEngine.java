@@ -490,7 +490,7 @@ import com.chua.common.support.utils.StringUtils;
          * @return 入的结果
          */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.append("@").append(escape(col)).append(":(");
             Iterator<?> it = vals.iterator();
             while (it.hasNext()) {

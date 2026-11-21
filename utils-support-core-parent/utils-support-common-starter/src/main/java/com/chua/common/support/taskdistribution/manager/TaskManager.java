@@ -127,7 +127,7 @@ private long cleanExpireMs = 60000;
         if (task == null || task.getTaskId() == null) {
             return;
         }
-        TaskHolder holder = new TaskHolder(task, callback);
+        var holder = new TaskHolder(task, callback);
         tasks.put(task.getTaskId(), holder);
         if (store != null) {
             store.saveTask(task, TaskStatus.PENDING);

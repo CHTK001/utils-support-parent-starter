@@ -189,14 +189,29 @@ class SipMuxConnection {
      * @throws IOException IO 异常
      */
     void sendFrame(String channelId, byte[] payload, int off, int len) throws IOException {
-        log.debug("SIP mux send: role={}, ch={}, payload={}", role, channelId, len);
+        if (log.isDebugEnabled()) {
+            log.debug("SIP mux send: role={}, ch={}, payload={}", role, channelId, len);
+        }
+        sendFrame(uuidBytes(channelId), payload, off, len);
+    }
+
+    /**
+     * 发送一帧（热路径）：channelId 以预解析的 16 字节给出，免除每帧 hex 解析。
+     *
+     * @param channelIdBytes 16 字节通道标识
+     * @param payload        负载数组
+     * @param off            起始偏移
+     * @param len            字节长度（0 表示通道关闭标记）
+     * @throws IOException IO 异常
+     */
+    void sendFrame(byte[] channelIdBytes, byte[] payload, int off, int len) throws IOException {
         int total = 4 + CH_LEN + len;
         synchronized (out) {
             if (frameBuffer.length < total) {
                 frameBuffer = new byte[Math.max(total, frameBuffer.length * 2)];
             }
             ByteBuffer.wrap(frameBuffer).putInt(CH_LEN + len)
-                    .put(uuidBytes(channelId)).put(payload, off, len);
+                    .put(channelIdBytes).put(payload, off, len);
             out.write(frameBuffer, 0, total);
             out.flush();
         }
@@ -252,15 +267,16 @@ class SipMuxConnection {
      * 读循环：解帧并按 channelId 分发。
      */
     private void readLoop() {
+        byte[] header = new byte[4];
         try {
             while (!closed) {
-                byte[] header = readFully(4);
+                readFully(header, 4);
                 int len = ByteBuffer.wrap(header).getInt();
                 if (len < CH_LEN || len > CH_LEN + MAX_PAYLOAD) {
                     throw new IOException("SIP mux 帧长度非法: " + len);
                 }
                 byte[] frame = readFully(len);
-                String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, CH_LEN));
+                String channelId = uuidString(frame, 0, CH_LEN);
                 byte[] payload = new byte[len - CH_LEN];
                 System.arraycopy(frame, CH_LEN, payload, 0, payload.length);
                 SipMuxStream stream = streams.get(channelId);
@@ -297,14 +313,13 @@ class SipMuxConnection {
     }
 
     /**
-     * 阻塞读满指定长度。
+     * 阻塞读满指定长度（填充调用方提供的缓冲，支持读缓冲复用）。
      *
-     * @param n 期望长度
-     * @return 数据
+     * @param data 目标缓冲
+     * @param n    期望长度（不超过 data 长度）
      * @throws IOException 流结束
      */
-    private byte[] readFully(int n) throws IOException {
-        byte[] data = new byte[n];
+    private void readFully(byte[] data, int n) throws IOException {
         int offset = 0;
         while (offset < n) {
             int read = in.read(data, offset, n - offset);
@@ -313,6 +328,18 @@ class SipMuxConnection {
             }
             offset += read;
         }
+    }
+
+    /**
+     * 阻塞读满指定长度。
+     *
+     * @param n 期望长度
+     * @return 数据
+     * @throws IOException 流结束
+     */
+    private byte[] readFully(int n) throws IOException {
+        byte[] data = new byte[n];
+        readFully(data, n);
         return data;
     }
 
@@ -322,7 +349,7 @@ class SipMuxConnection {
      * @param uuid UUID 字符串
      * @return 16 字节
      */
-    private static byte[] uuidBytes(String uuid) {
+    static byte[] uuidBytes(String uuid) {
         return HexFormat.of().parseHex(uuid.replace("-", ""));
     }
 
@@ -333,7 +360,19 @@ class SipMuxConnection {
      * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
-        String s = HexFormat.of().formatHex(data);
+        return uuidString(data, 0, data.length);
+    }
+
+    /**
+     * 字节数组区间转 UUID 字符串（免 16 字节中间拷贝）。
+     *
+     * @param data 字节数组
+     * @param from 起始偏移（含）
+     * @param to   结束偏移（不含）
+     * @return UUID 字符串
+     */
+    private static String uuidString(byte[] data, int from, int to) {
+        String s = HexFormat.of().formatHex(data, from, to);
         return s.substring(0, 8) + "-" + s.substring(8, 12) + "-" + s.substring(12, 16)
                 + "-" + s.substring(16, 20) + "-" + s.substring(20);
     }

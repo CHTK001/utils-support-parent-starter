@@ -175,7 +175,7 @@ public class MysqlCdcListener {
         if (started) {
             return;
         }
-        final BinaryLogClient newClient = new BinaryLogClient(host, port, username, password);
+        final var newClient = new BinaryLogClient(host, port, username, password);
         newClient.setServerId(serverId);
         newClient.setConnectTimeout(connectTimeoutMillis);
         if (StringUtils.isNotBlank(binlogFile)) {
@@ -183,8 +183,8 @@ public class MysqlCdcListener {
             newClient.setBinlogPosition(binlogPosition);
         }
 
-        final CountDownLatch settled = new CountDownLatch(1);
-        final Exception[] failure = new Exception[1];
+        final var settled = new CountDownLatch(1);
+        final var failure = new Exception[1];
         newClient.registerEventListener(event ->
                 Precondition.tryRun(() -> handleEvent(event))
                         .orElse(e -> log.error("[datalake-cdc] 事件处理失败: {}", e.getMessage(), e)));
@@ -212,7 +212,7 @@ public class MysqlCdcListener {
         });
 
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-        Thread thread = new Thread(() -> {
+        var thread = new Thread(() -> {
             try {
                 // connect() 阻塞直到 binlog 流结束，因此必须放在独立线程
                 newClient.connect();

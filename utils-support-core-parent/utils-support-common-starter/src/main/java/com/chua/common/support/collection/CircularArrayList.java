@@ -84,7 +84,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
         }
-        CircularArrayList<E> list = new CircularArrayList<>(capacity);
+        var list = new CircularArrayList<E>(capacity);
         if (c != null) {
             for (E e : c) {
                 list.add(e);

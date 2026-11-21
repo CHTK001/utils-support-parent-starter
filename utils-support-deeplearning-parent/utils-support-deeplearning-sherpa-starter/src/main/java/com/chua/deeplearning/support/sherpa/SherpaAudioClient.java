@@ -266,7 +266,7 @@ public class SherpaAudioClient implements VirtualClient {
         int chunk = Math.max(1, resolveSampleRate() / 10);
         for (int offset = 0; offset < samples.length; offset += chunk) {
             int length = Math.min(chunk, samples.length - offset);
-            float[] slice = new float[length];
+            var slice = new float[length];
             System.arraycopy(samples, offset, slice, 0, length);
             engine.accept(slice);
         }
@@ -378,7 +378,7 @@ public class SherpaAudioClient implements VirtualClient {
     public AudioResponse queryTask(String taskId) {
         try {
             SherpaRecognitionResult result = recognizeDetail();
-            List<AudioResponse.Segment> segments = new ArrayList<>();
+            var segments = new ArrayList<AudioResponse.Segment>();
             if (result.getSegments() != null) {
                 for (SherpaRecognitionResult.Segment segment : result.getSegments()) {
                     segments.add(AudioResponse.Segment.builder()
@@ -526,7 +526,7 @@ public class SherpaAudioClient implements VirtualClient {
      */
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> result = new ArrayList<>();
+        var result = new ArrayList<ModelDefinition>();
         String root = System.getProperty(SherpaModelResolver.PROP_MODEL_DIR);
         if (StringUtils.isBlank(root)) {
             return result;

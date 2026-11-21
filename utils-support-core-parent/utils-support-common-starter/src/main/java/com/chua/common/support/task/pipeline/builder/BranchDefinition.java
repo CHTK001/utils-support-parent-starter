@@ -48,17 +48,21 @@ package com.chua.common.support.task.pipeline.builder;
  * @since 4.0.0.42
  * @see TaskDecisionDefinition#branch(String)
  */
-public class BranchDefinition {
+public record BranchDefinition(String key, TaskDecisionDefinition parent) {
 
     /**
      * 分支标签（处理器 返回值匹配的 键）
      */
-    private final String key;
+    public String key() {
+        return key;
+    }
 
     /**
      * 父级判断节点定义
      */
-    private final TaskDecisionDefinition parent;
+    public TaskDecisionDefinition parent() {
+        return parent;
+    }
 
     /**
      * 构造分支定义。
@@ -66,9 +70,7 @@ public class BranchDefinition {
      * @param parent 父级判断节点定义
      * @return 返回值
     */
-    BranchDefinition(String key, TaskDecisionDefinition parent) {
-        this.key = key;
-        this.parent = parent;
+    public BranchDefinition {
     }
 
     /**
@@ -116,7 +118,7 @@ public class BranchDefinition {
      * @return 父级判断节点定义，继续配置其他分支
      */
     public TaskDecisionDefinition toNode(String nodeId) {
-        parent.branch(key, nodeId);
-        return parent;
+        parent().branch(key(), nodeId);
+        return parent();
     }
 }

@@ -43,7 +43,7 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
     @SneakyThrows
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
-        javassist.util.proxy.ProxyFactory proxyFactory = new javassist.util.proxy.ProxyFactory();
+        var proxyFactory = new javassist.util.proxy.ProxyFactory();
         proxyFactory.setSuperclass(target);
         proxyFactory.setInterfaces(interfaces);
 

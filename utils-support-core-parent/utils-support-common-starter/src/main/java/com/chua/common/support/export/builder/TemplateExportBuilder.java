@@ -479,7 +479,7 @@ public class TemplateExportBuilder {
         DocumentMeta meta = DocumentExporters.buildMeta(metaSource);
         ExportConfig config = configBuilder.format(format).engine(engine).build();
 
-        Map<String, List<Map<String, Object>>> resolved = new LinkedHashMap<>();
+        var resolved = new LinkedHashMap<String, List<Map<String, Object>>>();
         TemplateContext ctx = new TemplateContext(meta, new LinkedHashMap<>(), resolved, data, config);
         for (Map.Entry<String, Object> entry : tables.entrySet()) {
             resolved.put(entry.getKey(), ctx.flattenAll(Rows.normalize(entry.getValue())));

@@ -290,7 +290,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
             throw new IllegalStateException("模型尚未训练，请先调用 train()");
         }
 
-        ModelData modelData = new ModelData();
+        var modelData = new ModelData();
         modelData.setAlgorithm("Sigmoid");
         modelData.setK(params.getK());
         modelData.setT(params.getT());

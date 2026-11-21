@@ -98,7 +98,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
      * @throws IllegalArgumentException 如果 capacity 小于等于 0
      */
     public static <E> CircularArrayQueue<E> of(int capacity, Collection<? extends E> c) {
-        CircularArrayQueue<E> queue = new CircularArrayQueue<>(capacity, OverflowPolicy.EVICT_ELDEST);
+        var queue = new CircularArrayQueue<E>(capacity, OverflowPolicy.EVICT_ELDEST);
         if (c != null) {
             for (E e : c) {
                 queue.offer(e);

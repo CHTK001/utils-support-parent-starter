@@ -8,28 +8,7 @@ package com.chua.deeplearning.support.ocr;
  * @author CH
  * @since 4.0.0.42
  */
-public class DirectionInfo {
-
-    /**
-     * 方向名称（"0" / "90" / "180" / "270"）
-     */
-    private final String name;
-
-    /**
-     * 对应概率（0~1）
-     */
-    private final double probability;
-
-    /**
-     * 构造方向检测结果。
-     *
-     * @param name        方向名称
-     * @param probability 对应概率
-     */
-    public DirectionInfo(String name, double probability) {
-        this.name = name;
-        this.probability = probability;
-    }
+public record DirectionInfo(String name, double probability) {
 
     /**
      * 获取方向名称。

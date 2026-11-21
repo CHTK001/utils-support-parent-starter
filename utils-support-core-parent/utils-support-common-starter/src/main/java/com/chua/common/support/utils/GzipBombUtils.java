@@ -136,7 +136,7 @@ public class GzipBombUtils {
      * @return DEFLATE 压缩模板字节
      */
     private static byte[] createDeflateBombTemplate() {
-        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
+        var deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
         byte[] input = new byte[TEMPLATE_INPUT_BYTES];
         deflater.setInput(input);
         deflater.finish();

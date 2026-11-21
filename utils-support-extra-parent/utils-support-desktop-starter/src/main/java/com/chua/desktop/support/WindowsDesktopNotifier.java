@@ -22,7 +22,7 @@ public class WindowsDesktopNotifier implements NativeDesktopNotifier {
             + "$ni.Visible=True;"
             + "$ni.ShowBalloonTip(5000,'%s','%s',[System.Windows.Forms.ToolTipIcon]::Info)",
             title.replace("'", "''"), content.replace("'", "''"));
-        ProcessBuilder pb = new ProcessBuilder("powershell", "-NoProfile", "-Command", script);
+        var pb = new ProcessBuilder("powershell", "-NoProfile", "-Command", script);
         pb.redirectErrorStream(true);
         Process p = pb.start();
         p.waitFor();

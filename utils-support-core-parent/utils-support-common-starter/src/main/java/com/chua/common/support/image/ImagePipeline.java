@@ -25,89 +25,22 @@ import java.util.Map;
  * byte[] out = pipeline.process(inputBytes);
  * }</pre>
  *
+ * @param processor        底层图像处理器（SPI 自动降级）。
+ * @param grayscale        是否启用灰度化。
+ * @param binarize         是否启用二值化。
+ * @param binarizeThreshold 二值化阈值。
+ * @param denoise          是否启用降噪。
+ * @param denoiseRadius    降噪邻域半径。
+ * @param erode            是否启用腐蚀。
+ * @param erodeKernel      腐蚀核尺寸。
+ * @param dilate           是否启用膨胀。
+ * @param dilateKernel     膨胀核尺寸。
  * @author CH
  * @since 4.0.0.42
  */
-public class ImagePipeline {
-
-    /**
-     * 底层图像处理器（SPI 自动降级）。
-     */
-    private final ImageProcessor processor;
-
-    /**
-     * 是否启用灰度化。
-     */
-    private final boolean grayscale;
-
-    /**
-     * 是否启用二值化。
-     */
-    private final boolean binarize;
-
-    /**
-     * 二值化阈值。
-     */
-    private final int binarizeThreshold;
-
-    /**
-     * 是否启用降噪。
-     */
-    private final boolean denoise;
-
-    /**
-     * 降噪邻域半径。
-     */
-    private final int denoiseRadius;
-
-    /**
-     * 是否启用腐蚀。
-     */
-    private final boolean erode;
-
-    /**
-     * 腐蚀核尺寸。
-     */
-    private final int erodeKernel;
-
-    /**
-     * 是否启用膨胀。
-     */
-    private final boolean dilate;
-
-    /**
-     * 膨胀核尺寸。
-     */
-    private final int dilateKernel;
-
-    /**
-     * 构造图像管线。
-     *
-     * @param processor        底层处理器
-     * @param grayscale        启用灰度化
-     * @param binarize         启用二值化
-     * @param binarizeThreshold 二值化阈值
-     * @param denoise          启用降噪
-     * @param denoiseRadius    降噪半径
-     * @param erode            启用腐蚀
-     * @param erodeKernel      腐蚀核
-     * @param dilate           启用膨胀
-     * @param dilateKernel     膨胀核
-     */
-    public ImagePipeline(ImageProcessor processor, boolean grayscale, boolean binarize,
-                         int binarizeThreshold, boolean denoise, int denoiseRadius,
-                         boolean erode, int erodeKernel, boolean dilate, int dilateKernel) {
-        this.processor = processor;
-        this.grayscale = grayscale;
-        this.binarize = binarize;
-        this.binarizeThreshold = binarizeThreshold;
-        this.denoise = denoise;
-        this.denoiseRadius = denoiseRadius;
-        this.erode = erode;
-        this.erodeKernel = erodeKernel;
-        this.dilate = dilate;
-        this.dilateKernel = dilateKernel;
-    }
+public record ImagePipeline(ImageProcessor processor, boolean grayscale, boolean binarize,
+                            int binarizeThreshold, boolean denoise, int denoiseRadius,
+                            boolean erode, int erodeKernel, boolean dilate, int dilateKernel) {
 
     /**
      * 构建器。
@@ -175,15 +108,6 @@ public class ImagePipeline {
         } catch (Exception e) {
             throw new IllegalStateException("图像操作失败: " + operation + " -> " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * 底层图像处理器。
-     *
-     * @return ImageProcessor
-     */
-    public ImageProcessor processor() {
-        return processor;
     }
 
     /**

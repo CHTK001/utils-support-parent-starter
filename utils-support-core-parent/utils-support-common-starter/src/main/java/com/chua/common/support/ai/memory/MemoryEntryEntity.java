@@ -60,7 +60,7 @@ public class MemoryEntryEntity {
         if (entry == null) {
             return null;
         }
-        MemoryEntryEntity e = new MemoryEntryEntity();
+        var e = new MemoryEntryEntity();
         e.id = entry.getId();
         e.content = entry.getContent();
         e.type = entry.getType();

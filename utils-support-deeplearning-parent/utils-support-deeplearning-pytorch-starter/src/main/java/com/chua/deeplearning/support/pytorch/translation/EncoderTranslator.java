@@ -25,7 +25,7 @@ public class EncoderTranslator implements NoBatchifyTranslator<long[], NDArray> 
         NDArray inputIdArray = manager.create(input).expandDims(0);
         inputIdArray.setName("input_ids");
 
-        long[] attentionMask = new long[input.length];
+        var attentionMask = new long[input.length];
         Arrays.fill(attentionMask, 1);
         NDArray attentionMaskArray = manager.create(attentionMask).expandDims(0);
         attentionMaskArray.setName("attention_mask");

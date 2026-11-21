@@ -164,7 +164,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     private Object parseEmbedding(Map<String, Object> result) {
         Object emb = result.get("embedding");
         if (emb instanceof List<?> list) {
-            float[] arr = new float[list.size()];
+            var arr = new float[list.size()];
             for (int i = 0; i < list.size(); i++) {
                 arr[i] = ((Number) list.get(i)).floatValue();
             }
@@ -174,7 +174,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
             return arr;
         }
         if (emb instanceof double[] arr) {
-            float[] f = new float[arr.length];
+            var f = new float[arr.length];
             for (int i = 0; i < arr.length; i++) {
                 f[i] = (float) arr[i];
             }

@@ -233,7 +233,7 @@ public class PlatePipeline {
      * @param pc 上下文
      */
     private void runSingle(PlateContext pc) {
-        PipelineContext<PlateContext> ctx = new PipelineContext<>(pipeline.getId(), pc);
+        var ctx = new PipelineContext<PlateContext>(pipeline.getId(), pc);
         ctx.setAttribute("plate", pc);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);

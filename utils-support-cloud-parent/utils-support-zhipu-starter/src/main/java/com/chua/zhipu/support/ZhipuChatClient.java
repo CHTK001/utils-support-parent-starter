@@ -296,7 +296,7 @@ public class ZhipuChatClient implements ChatClient {
      * @return 包含文本与用量的响应
      */
     private ChatSyncResponse chatSyncInternal(String prompt) {
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         AiUsage[] usageHolder = new AiUsage[1];
         /**
          * chat
@@ -407,7 +407,7 @@ public class ZhipuChatClient implements ChatClient {
                             .totalTokens(usage.getTotalTokens());
                 }
 
-                StringBuilder content = new StringBuilder();
+                var content = new StringBuilder();
                 List<Choice> choices = response.getData().getChoices();
                 if (choices != null) {
                     for (Choice choice : choices) {

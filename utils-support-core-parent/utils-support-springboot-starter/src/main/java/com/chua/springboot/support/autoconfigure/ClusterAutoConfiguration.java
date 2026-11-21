@@ -89,7 +89,7 @@ public class ClusterAutoConfiguration {
         ClusterProperties props = clusterProperties;
 
  // 构建 clustersetting
-        ClusterSetting setting = new ClusterSetting();
+        var setting = new ClusterSetting();
         setting.setNodeId(props.getNodeId());
         setting.setHost(props.getHost());
         setting.setScatterId(props.getScatterId());

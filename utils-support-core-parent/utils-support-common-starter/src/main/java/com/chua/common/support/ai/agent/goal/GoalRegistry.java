@@ -71,7 +71,7 @@ public final class GoalRegistry {
     public GoalTracker bind(SessionGoal goal) {
         Objects.requireNonNull(goal, "goal 不能为 null");
         evictIfNeeded(goal.sessionId());
-        GoalTracker tracker = new GoalTracker(goal);
+        var tracker = new GoalTracker(goal);
         trackers.put(goal.sessionId(), tracker);
         return tracker;
     }

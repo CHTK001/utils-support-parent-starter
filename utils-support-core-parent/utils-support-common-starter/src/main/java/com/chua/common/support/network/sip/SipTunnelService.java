@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -245,13 +244,14 @@ public class SipTunnelService {
     private void readSocket(Socket socket, SipTunnelSession session) {
         ThreadUtils.startVirtualThread("sip-tunnel-service-" + serviceName, () -> {
             try (InputStream in = socket.getInputStream()) {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[64 * 1024];
                 int read;
                 while ((read = in.read(buffer)) != -1) {
                     if (!session.isOpen()) {
                         break;
                     }
-                    session.sendBytes(Arrays.copyOf(buffer, read));
+                    // 直接传缓冲视图，避免每轮 Arrays.copyOf 中间拷贝（sendBytes 内部同步写出，不会滞留引用）
+                    session.sendBytes(buffer, 0, read);
                 }
             } catch (IOException e) {
                 log.debug("[SIP-Tunnel] 隧道数据读取失败: {}", e.getMessage());

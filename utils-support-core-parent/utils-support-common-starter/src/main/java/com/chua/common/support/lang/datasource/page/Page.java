@@ -37,24 +37,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
-public class Page<T> {
-
-    /**
-     * 页NUM
-     */
-    private final int pageNum;
-    /**
-     * 每页大小
-     */
-    private final int pageSize;
-    /**
-     * 总数
-     */
-    private final long total;
-    /**
-     * Records
-     */
-    private final List<T> records;
+public record Page<T>(int pageNum, int pageSize, long total, List<T> records) {
 
     /**
      * 构造分页结果。
@@ -64,11 +47,8 @@ public class Page<T> {
      * @param total    总记录数
      * @param records  当前页数据列表（null 视为空列表）
      */
-    public Page(int pageNum, int pageSize, long total, List<T> records) {
-        this.pageNum = pageNum;
-        this.pageSize = pageSize;
-        this.total = total;
-        this.records = records != null ? records : Collections.emptyList();
+    public Page {
+        records = records != null ? records : Collections.emptyList();
     }
 
     /**

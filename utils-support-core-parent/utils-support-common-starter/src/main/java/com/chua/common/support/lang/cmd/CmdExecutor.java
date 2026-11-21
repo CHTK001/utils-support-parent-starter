@@ -239,7 +239,7 @@ public interface CmdExecutor extends AutoCloseable {
         if (command == null || command.length == 0) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (String arg : command) {
             if (arg == null) {
                 continue;
@@ -287,7 +287,7 @@ public interface CmdExecutor extends AutoCloseable {
      */
     default CmdResult executeWithOutput(String command, long timeout, TimeUnit unit, LineCallback callback) {
         CmdResult[] result = new CmdResult[1];
-        Object lock = new Object();
+        var lock = new Object();
         /**
          * Cmd Callback
          * @param CmdCallback( 参数

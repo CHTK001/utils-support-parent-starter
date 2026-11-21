@@ -276,7 +276,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
         int length = maxLength - prefixLength - suffixLength;
 
-        StringBuilder sb = new StringBuilder(maxLength);
+        var sb = new StringBuilder(maxLength);
         sb.append(prefix);
 
         //

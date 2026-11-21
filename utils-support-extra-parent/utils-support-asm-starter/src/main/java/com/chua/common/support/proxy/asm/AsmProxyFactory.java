@@ -58,7 +58,7 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
         String targetInternalName = Type.getInternalName(target);
         String proxyInternalName = targetInternalName + "$AsmProxy";
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC, proxyInternalName, null, targetInternalName, null);
 
         // 添加拦截器字段

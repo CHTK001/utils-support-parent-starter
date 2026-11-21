@@ -1213,7 +1213,7 @@ public class RagPipeline implements RagClient {
      * @return 文档 ID → 分块数
      */
     private Map<String, Integer> countCachedChunks() {
-        Map<String, Integer> counts = new HashMap<>();
+        var counts = new HashMap<String, Integer>();
         for (String chunkId : chunkContentCache.keySet()) {
             String docId = docIdFromChunkId(chunkId);
             if (docId == null) {

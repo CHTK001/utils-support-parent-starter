@@ -111,14 +111,14 @@ public class VertxHttpServer extends AbstractServer {
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
 
-        VertxOptions opts = new VertxOptions()
+        var opts = new VertxOptions()
                 .setEventLoopPoolSize(eventLoopPoolSize)
                 .setWorkerPoolSize(workerPoolSize)
                 .setPreferNativeTransport(true);
         vertx = Vertx.vertx(opts);
 
         boolean isWindows = com.chua.common.support.lang.cmd.WindowsConPtyProcess.isWindows();
-        HttpServerOptions httpOpts = new HttpServerOptions()
+        var httpOpts = new HttpServerOptions()
                 .setHost(setting.getHost())
                 .setPort(setting.getPort())
                 // 关键:header/请求行必须用紧凑缓冲,不能直接用 maxRequestSize(默认 10MB),
@@ -266,10 +266,10 @@ public class VertxHttpServer extends AbstractServer {
                 });
                 return;
             }
-            VertxServerRequest request = new VertxServerRequest(ctx);
+            var request = new VertxServerRequest(ctx);
  // 暴露底层 routing上下文，供 WebSocket 反向代理等 过滤器 完成升级
             request.setAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT, ctx);
-            VertxServerResponse response = new VertxServerResponse(ctx);
+            var response = new VertxServerResponse(ctx);
 
             if (benchmarkMode) {
  // 极速路径:工人 线程池执行 过滤器 链,on完成 回调在 事件 循环 线程写响应
@@ -323,51 +323,6 @@ public class VertxHttpServer extends AbstractServer {
         setting.setPort(server.actualPort());
         log.info("Vertx HTTP Server started on {}:{} (eventLoopSize={}, workerPoolSize={}, reactive={})",
                 setting.getHost(), setting.getPort(), eventLoopPoolSize, workerPoolSize, reactive);
-    }
-
-    /**
-     * 执行处理
-     *
-     * @param request 请求
-     * @param response 响应
-     */
-    private void doHandle(VertxServerRequest request, VertxServerResponse response) {
-        // WebSocket 升级检测
-        String upgrade = request.getHeader("Upgrade");
-        if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
-            handleWebSocketUpgrade(request, response);
-            return;
-        }
-        try {
-            handleRequest(request, response);
-        } catch (Exception e) {
-            log.warn("过滤器链执行异常: {}", e.getMessage(), e);
-            if (!response.isEnded()) {
-                response.sendError(500, "Internal Server Error");
-            }
-        }
-    }
-
-    /**
-     * WebSocket 升级处理：切换到 Vert.x 原生 WebSocket，
-     * 按 "topic\nbody" 约定路由消息到已注册的主题处理器。
-     * @param request 请求
-     * @param response 响应
-     */
-    private void handleWebSocketUpgrade(VertxServerRequest request, VertxServerResponse response) {
-        var routingCtx = request.getAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT);
-        if (routingCtx instanceof io.vertx.ext.web.RoutingContext rc) {
-            rc.request().toWebSocket().onSuccess(ws -> {
-                ws.textMessageHandler(msg -> {
-                    dispatchWsMessage(ws, msg.toString());
-                });
-            }).onFailure(err -> {
-                log.warn("WebSocket 升级失败: {}", err.getMessage(), err);
-                response.sendError(500, "WebSocket upgrade failed");
-            });
-        } else {
-            response.sendError(426, "Upgrade Required");
-        }
     }
 
     /**
@@ -553,25 +508,8 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-     * 执行处理
-     *
-     * @param request 请求
-     * @param response 响应
-     */
-    private void doHandleOriginal(VertxServerRequest request, VertxServerResponse response) {
-        try {
-            handleRequest(request, response);
-        } catch (Exception e) {
-            log.warn("过滤器链执行异常: {}", e.getMessage(), e);
-            if (!response.isEnded()) {
-                response.sendError(500, "Internal Server Error");
-            }
-        }
-    }
-
-    /**
      * 执行停止
-    */
+     */
     @Override
     protected void doStop() {
         if (server != null) {
@@ -595,10 +533,6 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerResponse implements ServerResponse {
 
-        /**
-         * Benchmark模式:预分配响应缓冲 (thread本地复用)
-        */
-        private static final ThreadLocal<byte[]> ECHO_BUF = ThreadLocal.withInitial(() -> new byte[128]);
         /**
          * CTX
         */
@@ -894,7 +828,7 @@ public class VertxHttpServer extends AbstractServer {
             if (!sseMode) {
                 return;
             }
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             if (StringUtils.isNotEmpty(event)) {
                 sb.append("event: ").append(event).append("\n");
             }

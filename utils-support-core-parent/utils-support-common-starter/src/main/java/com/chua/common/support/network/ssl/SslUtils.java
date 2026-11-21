@@ -468,7 +468,7 @@ public final class SslUtils {
      * @return 每条记录为 {label, clientRandom, secret} 三元组
      */
     public static List<String[]> parseKeyLog(String text) {
-        List<String[]> entries = new ArrayList<>();
+        var entries = new ArrayList<String[]>();
         if (StringUtils.isBlank(text)) {
             return entries;
         }

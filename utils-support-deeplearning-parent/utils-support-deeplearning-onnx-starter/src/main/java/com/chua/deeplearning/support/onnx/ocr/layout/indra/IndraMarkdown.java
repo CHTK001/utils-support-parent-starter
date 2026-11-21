@@ -52,7 +52,7 @@ public final class IndraMarkdown {
     public static String pageMarkdown(float[][] boxes, List<String> texts, int[] order,
                                       float[][] cls, double[][] same, double[][][] tab,
                                       boolean keepFurniture) {
-        List<String> parts = new ArrayList<>();
+        var parts = new ArrayList<String>();
         for (int[] blk : IndraOrderPost.splitBlocks(order, same)) {
             blockPart(parts, blk, boxes, texts, cls, keepFurniture, tab);
         }

@@ -101,7 +101,7 @@ public class BackupManager {
      */
     public BackupResult backupPolledDirectory(BackupConfig config,
                                               PolledDirectoryBackup.RecordTransformer transformer) {
-        PolledDirectoryBackup strategy = new PolledDirectoryBackup(transformer);
+        var strategy = new PolledDirectoryBackup(transformer);
         return strategy.execute(config);
     }
 

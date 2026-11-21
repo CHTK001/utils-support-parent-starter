@@ -48,7 +48,7 @@ public class IniParser {
      * @return 解析后的属性映射
      */
     public static Properties parseContent(String content) {
-        Properties properties = new Properties();
+        var properties = new Properties();
         parseToMap(content, properties, "");
         return properties;
     }
@@ -206,7 +206,7 @@ public class IniParser {
      * @return INI 格式字符串
      */
     public static String propertiesToIni(Properties properties) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         Map<String, Map<String, String>> sections = Wraps.linkedMap();
 
         // 首先按 Section 分组

@@ -158,7 +158,7 @@ final class ExceptionBranch<R> implements Precondition.Try<R> {
 
     @Override
     public String trace() {
-        List<String> footers = new ArrayList<>();
+        var footers = new ArrayList<String>();
         footers.add("value: " + value);
         footers.add(error == null ? "error: -" : "error: " + error);
         return TraceRenderer.render("Precondition.Try flow", log.steps(), footers);

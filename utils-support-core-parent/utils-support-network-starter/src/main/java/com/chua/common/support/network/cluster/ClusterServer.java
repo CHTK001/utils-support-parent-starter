@@ -285,8 +285,8 @@ public class ClusterServer implements AutoCloseable {
         */
         public ClusterServer build() throws Exception {
             setting.setServerEntries(Wraps.list(entries));
-            ClusterNode node = new ClusterNode(setting);
-            ClusterManager mgr = new ClusterManager(node.discovery(),
+            var node = new ClusterNode(setting);
+            var mgr = new ClusterManager(node.discovery(),
                     setting.getBalance(), setting.getNodeId());
             return new ClusterServer(setting, node, mgr);
         }

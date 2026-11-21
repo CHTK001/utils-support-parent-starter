@@ -68,7 +68,7 @@ public class OxrDetectTranslator implements ITranslator<byte[], Object> {
 
     @Override
     public Object translate(byte[] input) {
-        Map<String, List<PredictRectangle>> grouped = new LinkedHashMap<>();
+        var grouped = new LinkedHashMap<String, List<PredictRectangle>>();
         if (input == null || input.length == 0) {
             return grouped;
         }

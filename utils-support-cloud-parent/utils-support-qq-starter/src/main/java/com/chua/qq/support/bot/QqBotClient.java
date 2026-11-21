@@ -650,7 +650,7 @@ public class QqBotClient implements BotClient {
      */
     private void startWebSocketLoop() {
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-        Thread thread = new Thread(this::runWebSocketLoop, "qq-bot-ws");
+        var thread = new Thread(this::runWebSocketLoop, "qq-bot-ws");
         thread.setDaemon(true);
         wsThread = thread;
         thread.start();
@@ -662,7 +662,7 @@ public class QqBotClient implements BotClient {
     private void runWebSocketLoop() {
         long backoff = BACKOFF_INITIAL_MS;
         while (running.get() && reconnectAllowed) {
-            CountDownLatch latch = new CountDownLatch(1);
+            var latch = new CountDownLatch(1);
             sessionLatch = latch;
             try {
                 openSession();

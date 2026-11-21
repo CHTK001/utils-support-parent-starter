@@ -74,7 +74,7 @@ public class SourceExtensionResolver implements ServiceResolver {
                 if (instance == null) {
                     continue;
                 }
-                ServiceDefinition definition = new ServiceDefinition();
+                var definition = new ServiceDefinition();
                 definition.setName(factory.extensionName().toUpperCase());
                 definition.setImplClass(instance.getClass());
                 definition.setType(type);

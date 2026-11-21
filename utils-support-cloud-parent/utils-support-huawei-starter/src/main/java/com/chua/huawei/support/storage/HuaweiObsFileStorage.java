@@ -153,7 +153,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
-            ListObjectsRequest listReq = new ListObjectsRequest(bucket);
+            var listReq = new ListObjectsRequest(bucket);
             listReq.setPrefix(request.getFilePath());
             listReq.setMaxKeys(request.getLimit());
  // 设置分页 记号笔

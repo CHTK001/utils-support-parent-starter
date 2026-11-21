@@ -281,7 +281,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
      * @return 含独占实例名的配置属性
      */
     private static Properties dedicatedConfig() {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(PROP_INSTANCE_NAME, "chua-quartz-" + INSTANCE_SEQUENCE.incrementAndGet());
         props.setProperty(PROP_THREAD_COUNT, String.valueOf(DEFAULT_THREAD_COUNT));
         props.setProperty(PROP_DAEMON_THREAD, Boolean.TRUE.toString());
@@ -519,7 +519,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
         if (translated.isEmpty()) {
             return part;
         }
-        StringBuilder text = new StringBuilder();
+        var text = new StringBuilder();
         for (Integer weekday : translated) {
             if (text.length() > 0) {
                 text.append(',');

@@ -581,7 +581,7 @@ public class SimpleWalLog implements WalLog {
                     throw WalException.crcMismatch(lsn);
                 }
                 if (lsn >= fromLsn && lsn < toLsn) {
-                    WalRecord record = new WalRecord(lsn, op, payload);
+                    var record = new WalRecord(lsn, op, payload);
                     records.add(record);
                     try {
                         boolean cont = handler.onRecord(lsn, op, payload);

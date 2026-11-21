@@ -303,7 +303,7 @@ public final class ViewFormatter {
         for (int i = 0; i < widths.length; i++) {
             widths[i] += pad * 2;
         }
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(hLine(widths, '┌', '┬', '┐')).append('\n');
         appendRow(sb, rows.getFirst(), widths, '│');
         sb.append(hLine(widths, '├', '┼', '┤')).append('\n');
@@ -329,7 +329,7 @@ public final class ViewFormatter {
         for (int i = 0; i < widths.length; i++) {
             widths[i] += pad;
         }
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(plainRow(rows.getFirst(), widths));
         for (int i = 1; i < rows.size(); i++) {
             sb.append('\n').append(plainRow(padRow(rows.get(i), widths.length), widths));
@@ -350,7 +350,7 @@ public final class ViewFormatter {
         }
         int colCount = rows.stream().mapToInt(r -> r.length).max().orElse(1);
         int[] widths = calcColumnWidths(rows);
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         appendMdRow(sb, rows.getFirst(), widths, pad);
         sb.append('|');
         for (int w : widths) {
@@ -373,7 +373,7 @@ public final class ViewFormatter {
      * @return 水平线字符串
      */
     public static String hLine(int[] widths, char left, char cross, char right) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(left);
         for (int i = 0; i < widths.length; i++) {
             sb.append("─".repeat(widths[i]));
@@ -412,7 +412,7 @@ public final class ViewFormatter {
      * @return 行文本，已去除行尾空白
      */
     public static String plainRow(String[] row, int[] widths) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < widths.length; i++) {
             String cell = i < row.length ? row[i] : "";
             if (i > 0) {

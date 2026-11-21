@@ -36,7 +36,7 @@ public class WriteOption {
      * @return 写入Option 对象
      */
     public static WriteOption maps() {
-        WriteOption option = new WriteOption();
+        var option = new WriteOption();
         option.writeType = WriteType.MAP;
         return option;
     }

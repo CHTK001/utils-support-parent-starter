@@ -687,7 +687,7 @@ public class Version implements Comparable<Version> {
             if (startIndex < suffix.length()) {
                 final int maxStartIndex = Math.min(startIndex + 2, suffix.length());
                 if (containsNumeric(suffix.substring(startIndex, maxStartIndex))) {
-                    final StringBuilder versionNumber = new StringBuilder();
+                    var versionNumber = new StringBuilder();
                     for (int i = startIndex; i < suffix.length(); i++) {
                         final char c = suffix.charAt(i);
                         if (Character.isDigit(c)) {

@@ -60,7 +60,7 @@ public class YamlConfigParser implements ConfigParser {
     public PropertySource parse(String urlPath, InputStream is) {
         Map<String, Object> result = Wraps.linkedMap();
         try {
-            Yaml yaml = new Yaml();
+            var yaml = new Yaml();
             result = yaml.load(is);
             log.debug("[filesystem-impl] 解析 YAML 配置成功，共 {} 项", result.size());
         } catch (Exception e) {

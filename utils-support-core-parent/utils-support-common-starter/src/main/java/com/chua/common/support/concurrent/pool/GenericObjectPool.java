@@ -159,7 +159,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 // 2. 尝试创建新对象
                 if (allObjects.size() < config.getMaxTotal()) {
                     T obj = createAndInit();
-                    PooledObject<T> newPooled = new PooledObject<>(obj);
+                    var newPooled = new PooledObject<>(obj);
                     newPooled.markBorrowed();
                     allObjects.add(newPooled);
                     return obj;
@@ -405,7 +405,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         try {
             for (int i = 0; i < config.getMinIdle(); i++) {
                 T obj = createAndInit();
-                PooledObject<T> pooled = new PooledObject<>(obj);
+                var pooled = new PooledObject<>(obj);
                 idleObjects.addLast(pooled);
                 allObjects.add(pooled);
             }

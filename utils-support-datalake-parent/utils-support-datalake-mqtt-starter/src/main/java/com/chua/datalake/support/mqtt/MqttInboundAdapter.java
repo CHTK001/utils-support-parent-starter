@@ -141,7 +141,7 @@ public class MqttInboundAdapter {
         }
         try {
             client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
-            MqttConnectionOptions connOpts = new MqttConnectionOptions();
+            var connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(true);
             connOpts.setKeepAliveInterval(30);
             if (username != null) {

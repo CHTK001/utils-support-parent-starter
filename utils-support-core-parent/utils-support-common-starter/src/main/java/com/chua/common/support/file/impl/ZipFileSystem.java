@@ -614,7 +614,7 @@ public class ZipFileSystem implements FileSystem {
                 zos.setLevel(compressionLevel);
 
                 for (ZipEntryData entryData : entries) {
-                    ZipEntry entry = new ZipEntry(entryData.getEntryName());
+                    var entry = new ZipEntry(entryData.getEntryName());
                     entry.setTime(System.currentTimeMillis());
                     zos.putNextEntry(entry);
 
@@ -648,7 +648,7 @@ public class ZipFileSystem implements FileSystem {
                     zos.setLevel(compressionLevel);
 
                     for (ZipEntryData entryData : entries) {
-                        ZipEntry entry = new ZipEntry(entryData.getEntryName());
+                        var entry = new ZipEntry(entryData.getEntryName());
                         entry.setTime(System.currentTimeMillis());
                         zos.putNextEntry(entry);
 

@@ -107,7 +107,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             return List.of();
         }
         String name = serviceName();
-        List<OtnlTag> attributes = new ArrayList<>();
+        var attributes = new ArrayList<OtnlTag>();
         attributes.add(OtnlTag.of("host", hostName()));
         attributes.add(OtnlTag.of("pid", String.valueOf(ProcessHandle.current().pid())));
         return List.of(new OtnlInstance(name, name, name, "JAVA", System.currentTimeMillis(), attributes));

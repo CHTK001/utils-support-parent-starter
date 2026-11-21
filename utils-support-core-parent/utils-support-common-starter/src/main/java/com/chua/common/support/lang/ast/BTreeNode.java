@@ -118,7 +118,7 @@ public class BTreeNode {
      * @return 逻辑运算节点
      */
     public static BTreeNode logic(String operator, BTreeNode left, BTreeNode right) {
-        BTreeNode node = new BTreeNode(Type.LOGIC, operator, null);
+        var node = new BTreeNode(Type.LOGIC, operator, null);
         node.left = left;
         node.right = right;
         return node;
@@ -151,7 +151,7 @@ public class BTreeNode {
      * @return NOT 节点
      */
     public static BTreeNode not(BTreeNode child) {
-        BTreeNode node = new BTreeNode(Type.NOT, "NOT", null);
+        var node = new BTreeNode(Type.NOT, "NOT", null);
         node.right = child;
         return node;
     }
@@ -165,7 +165,7 @@ public class BTreeNode {
      * @return 比较运算节点
      */
     public static BTreeNode compare(String operator, BTreeNode left, BTreeNode right) {
-        BTreeNode node = new BTreeNode(Type.COMPARE, operator, null);
+        var node = new BTreeNode(Type.COMPARE, operator, null);
         node.left = left;
         node.right = right;
         return node;
@@ -199,7 +199,7 @@ public class BTreeNode {
      * @return 函数节点
      */
     public static BTreeNode function(String functionName, BTreeNode... args) {
-        BTreeNode node = new BTreeNode(Type.FUNCTION, functionName, null);
+        var node = new BTreeNode(Type.FUNCTION, functionName, null);
         for (BTreeNode arg : args) {
             node.children.add(arg);
         }

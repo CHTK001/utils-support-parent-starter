@@ -124,12 +124,12 @@ public class TencentSmsMessagePush implements MessagePush {
             throw new IllegalArgumentException("sms.signName 配置项必填");
         }
 
-        Credential credential = new Credential(secretId, secretKey);
+        var credential = new Credential(secretId, secretKey);
 
-        HttpProfile httpProfile = new HttpProfile();
+        var httpProfile = new HttpProfile();
         httpProfile.setEndpoint("sms.tencentcloudapi.com");
 
-        ClientProfile clientProfile = new ClientProfile();
+        var clientProfile = new ClientProfile();
         clientProfile.setHttpProfile(httpProfile);
 
         SmsClient client = new SmsClient(credential, "ap-guangzhou", clientProfile);
@@ -200,12 +200,12 @@ public class TencentSmsMessagePush implements MessagePush {
                 throw new IllegalArgumentException("sms.secretKey 配置项必填");
             }
 
-            Credential credential = new Credential(secretId, secretKey);
+            var credential = new Credential(secretId, secretKey);
 
-            HttpProfile httpProfile = new HttpProfile();
+            var httpProfile = new HttpProfile();
             httpProfile.setEndpoint("sms.tencentcloudapi.com");
 
-            ClientProfile clientProfile = new ClientProfile();
+            var clientProfile = new ClientProfile();
             clientProfile.setHttpProfile(httpProfile);
 
             com.tencentcloudapi.sms.v20210111.SmsClient client =

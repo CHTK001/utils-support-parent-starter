@@ -66,7 +66,7 @@ final class SpringObjectContextBridge {
  // 注册单例，使 Spring 后续可通过 获取Bean / @Autowired 获取
             ((SingletonBeanRegistry) factory).registerSingleton(beanName, bean);
  // 注册 根Beandefinition，使 获取Beandefinition名称 / 获取Beandefinition数量 等元数据接口可用
-            RootBeanDefinition bd = new RootBeanDefinition(bean.getClass());
+            var bd = new RootBeanDefinition(bean.getClass());
             bd.setScope(org.springframework.beans.factory.config.BeanDefinition.SCOPE_SINGLETON);
             bd.setAutowireCandidate(true);
             factory.registerBeanDefinition(beanName, bd);

@@ -162,7 +162,7 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         public BotClient build() {
-            QqBotClient client = new QqBotClient();
+            var client = new QqBotClient();
             client.configure(appId, appSecret, botToken);
             if (baseUrl != null) {
                 client.baseUrl(baseUrl);

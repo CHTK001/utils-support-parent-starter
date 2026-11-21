@@ -192,7 +192,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
         }
 
         MemorySegment segment = snapshot.get(index);
-        byte[] data = new byte[(int) segment.byteSize()];
+        var data = new byte[(int) segment.byteSize()];
         segment.asByteBuffer().get(data);
 
         return serializer.deserialize(data);

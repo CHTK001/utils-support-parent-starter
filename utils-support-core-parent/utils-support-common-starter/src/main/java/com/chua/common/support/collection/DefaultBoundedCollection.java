@@ -68,7 +68,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
      * @throws IllegalArgumentException 如果 capacity 小于等于 0
      */
     public static <E> BoundedCollection<E> of(int capacity, Collection<? extends E> c) {
-        DefaultBoundedCollection<E> result = new DefaultBoundedCollection<>(capacity, OverflowPolicy.EVICT_ELDEST);
+        var result = new DefaultBoundedCollection<E>(capacity, OverflowPolicy.EVICT_ELDEST);
         if (c != null) {
             result.addAll(c);
         }

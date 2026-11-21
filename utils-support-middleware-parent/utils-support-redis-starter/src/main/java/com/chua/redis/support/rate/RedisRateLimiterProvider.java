@@ -43,7 +43,7 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
      */
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
         this.name = name;
-        Config config = new Config();
+        var config = new Config();
         config.useSingleServer().setAddress(redisUri);
         this.redissonClient = Redisson.create(config);
         this.rateLimiter = redissonClient.getRateLimiter(name);

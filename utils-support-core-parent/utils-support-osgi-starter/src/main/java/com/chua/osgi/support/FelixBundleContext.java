@@ -177,7 +177,7 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
         try {
             for (org.osgi.framework.Bundle bundle : delegate.getBundles()) {
                 if (symbolicName.equals(bundle.getSymbolicName())) {
-                    FelixOsgiBundle wrapped = new FelixOsgiBundle(bundle);
+                    var wrapped = new FelixOsgiBundle(bundle);
                     wrapped.attachLauncher(owner);
                     return wrapped;
                 }

@@ -134,7 +134,7 @@ public class HashedWheelTimer implements Timer {
     @Override
     public TimerTask schedule(Runnable task, long delay, TimeUnit timeUnit) {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(delay);
-        TimerTask wrapped = new TimerTask(nextTaskId(), "delay-" + delay + timeUnit,
+        var wrapped = new TimerTask(nextTaskId(), "delay-" + delay + timeUnit,
                 task, deadline);
  // 时间轮已关闭时拒绝调度，返回 空 由调用方感知
         return schedule(wrapped) ? wrapped : null;
@@ -145,7 +145,7 @@ public class HashedWheelTimer implements Timer {
         long delay = timeUnit.toMillis(initialDelay);
         long periodMs = timeUnit.toMillis(period);
         long deadline = System.currentTimeMillis() + delay;
-        TimerTask wrapped = new TimerTask(nextTaskId(), "periodic-" + period + timeUnit,
+        var wrapped = new TimerTask(nextTaskId(), "periodic-" + period + timeUnit,
                 task, deadline, periodMs);
         return schedule(wrapped) ? wrapped : null;
     }
@@ -216,7 +216,7 @@ public class HashedWheelTimer implements Timer {
      */
     private void startTickThread() {
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-        Thread t = new Thread(() -> {
+        var t = new Thread(() -> {
             long startNanos = System.nanoTime();
             while (running) {
                 long targetNanos = startNanos + (currentTick + 1) * tickMillis * 1_000_000L;
@@ -336,7 +336,7 @@ public class HashedWheelTimer implements Timer {
         void add(TimerTask task) {
             lock.lock();
             try {
-                TaskNode node = new TaskNode(task);
+                var node = new TaskNode(task);
                 node.prev = tail;
                 if (tail != null) {
                     tail.next = node;

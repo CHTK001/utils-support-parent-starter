@@ -205,7 +205,7 @@ public class Zip4jFileSystem implements FileSystem {
          * @return ZipFile 实例
          */
         private ZipFile openZip() {
-            ZipFile zf = new ZipFile(file);
+            var zf = new ZipFile(file);
             if (password != null) {
                 zf.setPassword(password);
             }
@@ -391,7 +391,7 @@ public class Zip4jFileSystem implements FileSystem {
                 }
 
                 for (EntryData ed : entries) {
-                    ZipParameters params = new ZipParameters();
+                    var params = new ZipParameters();
                     params.setCompressionLevel(compressionLevel);
                     params.setFileNameInZip(ed.getEntryName());
 

@@ -151,7 +151,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
+            var reqBuf = new ByteArrayOutputStream();
             byte[] buf = new byte[4096];
             int read = in.read(buf);
             if (read <= 0) {
@@ -186,7 +186,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
             agentId = (String) register.get("agentId");
             String sourceId = (String) register.get("sourceId");
 
-            Connection conn = new Connection(socket, agentId, sourceId);
+            var conn = new Connection(socket, agentId, sourceId);
             connections.put(agentId, conn);
             onAgentConnected(new SimpleDataSyncAgent(agentId, sourceId));
 

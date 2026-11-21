@@ -116,7 +116,7 @@ public class ReactiveTaskManager {
             return (Mono<TaskResult<T>>) (Mono<?>) Mono.just(existing);
         }
  // 用 completable期货 桥接回调
-        CompletableFuture<TaskResult<?>> future = new CompletableFuture<>();
+        var future = new CompletableFuture<TaskResult<?>>();
         submitFutures.put(taskId, future);
         TaskCallback callback = new TaskCallback() {
             @Override

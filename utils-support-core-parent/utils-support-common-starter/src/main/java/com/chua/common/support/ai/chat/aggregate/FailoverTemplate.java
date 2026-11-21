@@ -142,7 +142,7 @@ public final class FailoverTemplate {
 
         // 每个候选客户端在独立线程执行，主线程只等待“首包/错误”，从而能对“慢但不报错”的密钥快速切换
 // [P3C C1 豁免] 场景化创建线程，需文档化
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+        var pool = new ThreadPoolExecutor(
                 0,
                 MAX_STREAM_CANDIDATES,
                 // [P3C A20 豁免]

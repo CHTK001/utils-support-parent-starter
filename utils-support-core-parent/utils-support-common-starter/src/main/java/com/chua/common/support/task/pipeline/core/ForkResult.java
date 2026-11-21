@@ -44,22 +44,28 @@ import java.util.*;
  * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.ForkNode
  */
-public class ForkResult {
+public record ForkResult(String nodeId, Map<String, Object> branches, Map<String, List<String>> histories) {
 
     /**
      * 分叉节点 标识
      */
-    private final String nodeId;
+    public String nodeId() {
+        return nodeId;
+    }
 
     /**
      * 分支输出数据：分支名称 → 分支的最终输出（当前数据）
      */
-    private final Map<String, Object> branches;
+    public Map<String, Object> branches() {
+        return branches;
+    }
 
     /**
      * 分支执行历史：分支名称 → 分支已执行节点标识列表
      */
-    private final Map<String, List<String>> histories;
+    public Map<String, List<String>> histories() {
+        return histories;
+    }
 
     /**
      * 构造分叉结果。
@@ -68,10 +74,9 @@ public class ForkResult {
      * @param branches 分支输出数据
      * @param histories 分支执行历史
      */
-    public ForkResult(String nodeId, Map<String, Object> branches, Map<String, List<String>> histories) {
-        this.nodeId = nodeId;
-        this.branches = branches != null ? Wraps.linkedMap(branches) : Wraps.linkedMap();
-        this.histories = histories != null ? Wraps.linkedMap(histories) : Wraps.linkedMap();
+    public ForkResult {
+        branches = branches != null ? Wraps.linkedMap(branches) : Wraps.linkedMap();
+        histories = histories != null ? Wraps.linkedMap(histories) : Wraps.linkedMap();
     }
 
     /**
@@ -80,7 +85,7 @@ public class ForkResult {
      * @return 节点 标识
      */
     public String getNodeId() {
-        return nodeId;
+        return nodeId();
     }
 
     /**
@@ -89,7 +94,7 @@ public class ForkResult {
      * @return 分支名称 → 输出数据的不可变映射
      */
     public Map<String, Object> getBranches() {
-        return Collections.unmodifiableMap(branches);
+        return Collections.unmodifiableMap(branches());
     }
 
     /**
@@ -101,7 +106,7 @@ public class ForkResult {
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName) {
-        return (V) branches.get(branchName);
+        return (V) branches().get(branchName);
     }
 
     /**
@@ -114,7 +119,7 @@ public class ForkResult {
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName, Class<V> type) {
-        Object value = branches.get(branchName);
+        Object value = branches().get(branchName);
         return value != null ? (V) type.cast(value) : null;
     }
 
@@ -124,7 +129,7 @@ public class ForkResult {
      * @return 分支名称 → 执行历史节点标识列表的不可变映射
      */
     public Map<String, List<String>> getHistories() {
-        return Collections.unmodifiableMap(histories);
+        return Collections.unmodifiableMap(histories());
     }
 
     /**
@@ -134,7 +139,7 @@ public class ForkResult {
      * @return 执行历史节点ID列表，不存在时返回空列表
      */
     public List<String> getHistory(String branchName) {
-        List<String> history = histories.get(branchName);
+        List<String> history = histories().get(branchName);
         return history != null ? Collections.unmodifiableList(history) : Collections.emptyList();
     }
 
@@ -144,7 +149,7 @@ public class ForkResult {
      * @return 分支数量
      */
     public int getBranchCount() {
-        return branches.size();
+        return branches().size();
     }
 
     /**
@@ -154,18 +159,6 @@ public class ForkResult {
      * @return 存在时返回 true
      */
     public boolean hasBranch(String branchName) {
-        return branches.containsKey(branchName);
-    }
-
-    /**
-     * 返回含各分支结果的调试字符串。
-     */
-    @Override
-    public String toString() {
-        return "ForkResult{" +
-                "nodeId='" + nodeId + '\'' +
-                ", branches=" + branches.keySet() +
-                ", histories=" + histories.keySet() +
-                '}';
+        return branches().containsKey(branchName);
     }
 }

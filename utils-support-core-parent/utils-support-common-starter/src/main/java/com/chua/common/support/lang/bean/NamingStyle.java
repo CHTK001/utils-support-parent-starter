@@ -72,7 +72,7 @@ public enum NamingStyle {
      * @return 结果字符串
      */
     private static String underscoreToCamel(String name) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         boolean upper = false;
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
@@ -94,7 +94,7 @@ public enum NamingStyle {
      * @return 结果字符串
      */
     private static String kebabToCamel(String name) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         boolean upper = false;
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
@@ -116,7 +116,7 @@ public enum NamingStyle {
      * @return 结果字符串
      */
     private static String camelToUnderscore(String camel) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {
             char c = camel.charAt(i);
             if (Character.isUpperCase(c)) {
@@ -137,7 +137,7 @@ public enum NamingStyle {
      * @return 结果字符串
      */
     private static String camelToKebab(String camel) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {
             char c = camel.charAt(i);
             if (Character.isUpperCase(c)) {

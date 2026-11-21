@@ -460,7 +460,7 @@ public final class CliOption {
             } else if (typeClass == java.nio.file.Path.class) {
                 this.type = OptionType.PATH;
             } else if (typeClass.isEnum()) {
-                Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) typeClass;
+                var enumCls = (Class<? extends Enum<?>>) typeClass;
                 this.type = OptionType.ENUM;
                 this.enumType = enumCls;
                 this.enumConstants = buildEnumConstants(enumCls);

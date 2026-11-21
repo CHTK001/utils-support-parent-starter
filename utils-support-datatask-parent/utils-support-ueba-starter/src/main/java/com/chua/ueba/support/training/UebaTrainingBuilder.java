@@ -365,7 +365,7 @@ public final class UebaTrainingBuilder {
         try {
             Path tmp = Files.createTempFile("ueba-train-", ".csv");
             tmp.toFile().deleteOnExit();
-            StringBuilder sb = new StringBuilder(256);
+            var sb = new StringBuilder(256);
             sb.append("timestamp,ip,path,method,status,user_agent,response_time,response_size").append('\n');
             for (TrafficEvent e : events) {
                 sb.append(e.getTimestamp()).append(',');

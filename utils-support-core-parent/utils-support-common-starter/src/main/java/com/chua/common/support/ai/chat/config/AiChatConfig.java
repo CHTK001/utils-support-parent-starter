@@ -218,7 +218,7 @@ public class AiChatConfig {
      * @return 配置头实体
      */
     public AiChatConfigEntity toHeader(String name) {
-        AiChatConfigEntity header = new AiChatConfigEntity();
+        var header = new AiChatConfigEntity();
         header.setName(name);
         header.setStrategy(strategy);
         header.setMonitor(true);

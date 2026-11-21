@@ -221,7 +221,7 @@ public final class IndraOrderPost {
      */
     public static List<int[]> cluster(double[][] logits) {
         int n = logits.length;
-        List<int[]> result = new ArrayList<>();
+        var result = new ArrayList<int[]>();
         if (n == 0) {
             return result;
         }
@@ -237,7 +237,7 @@ public final class IndraOrderPost {
         for (int i = 0; i < n; i++) {
             size[i] = 1.0;
             alive[i] = true;
-            List<Integer> mem = new ArrayList<>();
+            var mem = new ArrayList<Integer>();
             mem.add(i);
             members.add(mem);
             for (int j = 0; j < n; j++) {
@@ -547,7 +547,7 @@ public final class IndraOrderPost {
      * @return 块列表（每块为按阅读顺序排列的行索引）
      */
     public static List<int[]> splitBlocks(int[] order, double[][] same) {
-        List<List<Integer>> blocks = new ArrayList<>();
+        var blocks = new ArrayList<List<Integer>>();
         for (int i : order) {
             if (!blocks.isEmpty()) {
                 List<Integer> last = blocks.get(blocks.size() - 1);

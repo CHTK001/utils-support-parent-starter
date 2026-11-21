@@ -145,7 +145,7 @@ public class ZhipuVideoClient implements VideoClient {
      */
     public VideoClient referenceImage(BufferedImage image) {
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            var bos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", bos);
             this.referenceImage = bos.toByteArray();
         } catch (Exception e) {

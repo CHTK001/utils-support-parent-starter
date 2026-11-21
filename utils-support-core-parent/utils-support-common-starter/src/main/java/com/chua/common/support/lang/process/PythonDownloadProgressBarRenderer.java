@@ -140,7 +140,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
         int suffixLength = getStringDisplayLength(suffix);
         int progressBarLength = Math.max(20, maxLength - prefixLength - suffixLength);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(prefix);
 
         //
@@ -193,7 +193,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
      * @return
      */
     private String renderProgressBar(ProgressState progress, int length) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         if (progress.indefinite) {
             //

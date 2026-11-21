@@ -93,14 +93,14 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
             tokens = tokens.subList(0, maxSequenceLength - 2);
         }
         long[] indices = tokens.stream().mapToLong(vocabulary::getIndex).toArray();
-        long[] inputIds = new long[tokens.size() + 2];
+        var inputIds = new long[tokens.size() + 2];
         inputIds[0] = vocabulary.getIndex("[CLS]");
         inputIds[inputIds.length - 1] = vocabulary.getIndex("[SEP]");
         System.arraycopy(indices, 0, inputIds, 1, indices.length);
 
-        long[] tokenTypeIds = new long[inputIds.length];
+        var tokenTypeIds = new long[inputIds.length];
         Arrays.fill(tokenTypeIds, 0);
-        long[] attentionMask = new long[inputIds.length];
+        var attentionMask = new long[inputIds.length];
         Arrays.fill(attentionMask, 1);
 
         NDManager manager = ctx.getNDManager();

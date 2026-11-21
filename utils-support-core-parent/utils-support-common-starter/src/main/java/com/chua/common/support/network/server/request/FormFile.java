@@ -7,27 +7,7 @@ package com.chua.common.support.network.server.request;
  * @author CH
  * @since 2026/07/17
  */
-public class FormFile {
-
-    /**
-     * 表单字段名
-     */
-    private final String fieldName;
-
-    /**
-     * 原始文件名
-     */
-    private final String fileName;
-
-    /**
-     * 文件内容类型
-     */
-    private final String contentType;
-
-    /**
-     * 文件字节数据
-     */
-    private final byte[] data;
+public record FormFile(String fieldName, String fileName, String contentType, byte[] data) {
 
     /**
      * 创建 FormFile 实例
@@ -36,11 +16,7 @@ public class FormFile {
      * @param fileName 文件名称，不允许为 null
      * @param contentType 内容类型，不允许为 null
      */
-    public FormFile(String fieldName, String fileName, String contentType, byte[] data) {
-        this.fieldName = fieldName;
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.data = data;
+    public FormFile {
     }
 
     /**

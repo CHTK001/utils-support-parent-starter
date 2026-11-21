@@ -12,7 +12,9 @@ import java.lang.annotation.Annotation;
  * @author CH
  * @since 4.0.0.43
  */
-public final class AnnotationDefinition<A extends Annotation> {
+public record AnnotationDefinition<A extends Annotation>(A annotation, Source source,
+                                                         Class<A> annotationClass,
+                                                         boolean subclassOverridesParent) {
 
     /**
      * 注解来源标记。
@@ -42,23 +44,13 @@ public final class AnnotationDefinition<A extends Annotation> {
         ALIAS_RESOLVED
     }
 
-    private final A annotation;
-    private final Source source;
-    private final Class<A> annotationClass;
-    private final boolean subclassOverridesParent;
-
-    private AnnotationDefinition(A annotation, Source source, Class<A> annotationClass,
-                                 boolean subclassOverridesParent) {
-        this.annotation = annotation;
-        this.source = source;
-        this.annotationClass = annotationClass;
-        this.subclassOverridesParent = subclassOverridesParent;
     /**
      * 是否可继承。
      * @param annotation 注解
      * @param annotationClass 注解类
      * @return 是否可继承的结果
      */
+    public AnnotationDefinition {
     }
 
     /**
@@ -70,12 +62,12 @@ public final class AnnotationDefinition<A extends Annotation> {
      */
     public static <A extends Annotation> AnnotationDefinition<A> ofDirect(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, false);
-    /**
-     * 的别名resolved。
-     * @param annotation 注解
-     * @param annotationClass 注解类
-     * @return 的别名resolved的结果
-     */
+        /**
+         * 的别名resolved。
+         * @param annotation 注解
+         * @param annotationClass 注解类
+         * @return 的别名resolved的结果
+         */
     }
 
     /**
@@ -112,9 +104,4 @@ public final class AnnotationDefinition<A extends Annotation> {
             A annotation) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, true);
     }
-
-
-
-
-
 }

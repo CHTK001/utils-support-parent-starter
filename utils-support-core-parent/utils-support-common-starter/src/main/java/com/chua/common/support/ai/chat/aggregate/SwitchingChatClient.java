@@ -376,7 +376,7 @@ public abstract class SwitchingChatClient implements ChatClient {
      */
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> result = new ArrayList<>();
+        var result = new ArrayList<ModelDefinition>();
         for (SwitchingMember m : members) {
             try {
                 List<ModelDefinition> list = m.client().models();

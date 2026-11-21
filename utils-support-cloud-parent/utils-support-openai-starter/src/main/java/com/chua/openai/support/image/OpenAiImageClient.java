@@ -191,6 +191,15 @@ public class OpenAiImageClient implements ImageClient {
         return this;
     }
     /**
+     * 支持参考图：参考图以 {@code image} 数组随请求下发（图生图）。
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean supportsReferenceImage() {
+        return true;
+    }
+    /**
      * 镜像strength
     */
     @Override
@@ -218,8 +227,13 @@ public class OpenAiImageClient implements ImageClient {
         if (referenceImage == null || referenceImage.length == 0) {
             return List.of();
         }
-        return List.of("data:" + referenceImageMime + ";base64,"
+        List<String> payload = List.of("data:" + referenceImageMime + ";base64,"
                 + Base64.getEncoder().encodeToString(referenceImage));
+        // 一次性消费：解析器缓存客户端实例（5 分钟）复用，参考图残留在字段里会把
+        // 上一个任务的参考图串进下一个任务（串图），载荷构建后必须立即清空。
+        this.referenceImage = null;
+        this.referenceImageMime = "image/png";
+        return payload;
     }
 
     /**

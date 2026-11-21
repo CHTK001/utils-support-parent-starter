@@ -73,7 +73,7 @@ public class BoundFinderV2 {
         this.pointsCollection = Wraps.list();
         this.width = grid.length;
         this.height = grid[0].length;
-        boolean[][] visited = new boolean[width][height];
+        var visited = new boolean[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (grid[i][j] && !visited[i][j]) {

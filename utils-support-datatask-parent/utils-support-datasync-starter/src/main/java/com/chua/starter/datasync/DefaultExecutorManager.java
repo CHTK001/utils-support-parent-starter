@@ -92,7 +92,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     @Override
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
-            ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);
+            var executor = new ReactorDataSyncExecutor(t, true);
             executor.setDirectDispatch(directDispatch);
             if (started.get()) {
                 executor.start();

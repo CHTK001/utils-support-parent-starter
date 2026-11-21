@@ -121,7 +121,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
             }
 
             // 初始化 HMAC-SHA1 密钥
-            SecretKeySpec signKey = new SecretKeySpec(secret, HMAC_SHA1);
+            var signKey = new SecretKeySpec(secret, HMAC_SHA1);
             Mac mac = Mac.getInstance(HMAC_SHA1);
             mac.init(signKey);
 
@@ -144,7 +144,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
             int otp = binaryCode % (int) Math.pow(10, otpLength);
 
             // 格式化为指定位数的字符串，不足补零
-            StringBuilder result = new StringBuilder(Integer.toString(otp));
+            var result = new StringBuilder(Integer.toString(otp));
             while (result.length() < otpLength) {
                 result.insert(0, '0');
             }

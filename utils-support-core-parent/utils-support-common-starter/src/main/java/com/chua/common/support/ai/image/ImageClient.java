@@ -200,6 +200,20 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     }
 
     /**
+     * 当前实现是否真正支持参考图（图生图）。
+     *
+     * <p>默认不支持：{@link #referenceImage(byte[])} 的默认实现是空操作，
+     * 参考图会被静默忽略。真正携带参考图发起生成的实现必须覆盖本方法返回
+     * {@code true}，供上层在任务落库前做能力闸门，避免「传了参考图却按
+     * 文生图出图」的假成功。</p>
+     *
+     * @return true 表示支持参考图
+     */
+    default boolean supportsReferenceImage() {
+        return false;
+    }
+
+    /**
      * 设置参考图影响强度
      *
      * <p>控制参考图对生成结果的影响程度，取值范围 0.0 ~ 1.0。

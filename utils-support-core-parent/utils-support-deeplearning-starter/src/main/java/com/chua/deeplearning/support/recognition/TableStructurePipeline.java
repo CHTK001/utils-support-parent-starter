@@ -167,7 +167,7 @@ public class TableStructurePipeline {
      */
     public List<Object> recognize(byte[] imageData) {
         TableStructureContext tc = new TableStructureContext(imageData);
-        PipelineContext<TableStructureContext> ctx = new PipelineContext<>(pipeline.getId(), tc);
+        var ctx = new PipelineContext<TableStructureContext>(pipeline.getId(), tc);
         ctx.setAttribute("table", tc);
         ctx.setNextNodeId(NODE_RECOGNIZE);
         pipeline.resume(ctx);

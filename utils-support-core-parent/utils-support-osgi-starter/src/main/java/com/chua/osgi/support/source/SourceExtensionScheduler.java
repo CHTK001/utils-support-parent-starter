@@ -99,7 +99,7 @@ public class SourceExtensionScheduler {
 // [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
 // [P3C C1 豁免] 场景化创建线程，需文档化
-            Thread thread = new Thread(runnable, "osgi-source-scheduler");
+            var thread = new Thread(runnable, "osgi-source-scheduler");
             thread.setDaemon(true);
             return thread;
         });
@@ -229,7 +229,7 @@ public class SourceExtensionScheduler {
         if (!Files.isDirectory(dir)) {
             return "empty";
         }
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         try (Stream<Path> stream = Files.walk(dir)) {
             for (Path path : stream.filter(Files::isRegularFile).sorted().toList()) {
                 if (!isSourceFile(path)) {

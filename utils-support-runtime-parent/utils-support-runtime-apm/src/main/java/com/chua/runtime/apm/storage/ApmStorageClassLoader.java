@@ -296,7 +296,7 @@ public final class ApmStorageClassLoader {
      * @return jar 列表（去重、排序，保证可复现）
      */
     private static List<URL> collectUrls(Map<String, String> config) {
-        List<URL> urls = new ArrayList<>();
+        var urls = new ArrayList<URL>();
         List<File> files = new ArrayList<>();
 
         String libs = config == null ? null : config.get(KEY_JDBC_LIBS);

@@ -198,7 +198,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         try {
             Framework target = framework;
             if (target == null) {
-                FrameworkFactory factory = new FrameworkFactory();
+                var factory = new FrameworkFactory();
                 target = factory.newFramework(felixConfig);
                 target.init();
                 framework = target;
@@ -233,7 +233,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         }
         try {
             unregisterFrameworkListener();
-            BundleContext ctx = new FelixBundleContext(current.getBundleContext(), this);
+            var ctx = new FelixBundleContext(current.getBundleContext(), this);
             for (BundleApplication app : applications) {
                 try {
                     app.onBundleStop(ctx);
@@ -834,7 +834,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             // 自动启动成功时等 STARTED，否则只等 INSTALLED，
             // 避免调用方在事件队列尚未消费时就读到滞后状态
             awaitBundleEvent("installBundle", bundleId, started ? BundleEvent.STARTED : BundleEvent.INSTALLED, 0);
-            FelixOsgiBundle wrapped = new FelixOsgiBundle(bundle);
+            var wrapped = new FelixOsgiBundle(bundle);
             wrapped.attachLauncher(this);
             return wrapped;
         } catch (Exception e) {
@@ -1100,7 +1100,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         if (frameworkListener != null) {
             return;
         }
-        BundleListener listener = new FrameworkBundleListener();
+        var listener = new FrameworkBundleListener();
         try {
             context.addBundleListener(listener);
             frameworkListener = listener;
@@ -1132,7 +1132,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      * 通知所有 {@link BundleApplication} 框架已就绪。
      */
     private void notifyApplications() {
-        BundleContext ctx = new FelixBundleContext(framework.getBundleContext(), this);
+        var ctx = new FelixBundleContext(framework.getBundleContext(), this);
         ServiceProvider<BundleApplication> provider = ServiceProvider.of(BundleApplication.class);
         provider.forEach((name, app) -> {
             try {
@@ -1166,7 +1166,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      */
     private FelixOsgiBundle wrap(Bundle bundle) {
         return bundlesById.computeIfAbsent(bundle.getBundleId(), id -> {
-            FelixOsgiBundle wrapped = new FelixOsgiBundle(bundle);
+            var wrapped = new FelixOsgiBundle(bundle);
             wrapped.attachLauncher(this);
             return wrapped;
         });

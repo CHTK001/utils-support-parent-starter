@@ -709,7 +709,7 @@ public class HuggingfaceHubClient {
     private static String sha256Hex(byte[] content) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256").digest(content);
-            StringBuilder sb = new StringBuilder(digest.length * 2);
+            var sb = new StringBuilder(digest.length * 2);
             for (byte b : digest) {
                 sb.append(String.format("%02x", b));
             }

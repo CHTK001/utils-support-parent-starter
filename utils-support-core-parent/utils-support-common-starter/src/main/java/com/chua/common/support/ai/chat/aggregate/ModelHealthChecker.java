@@ -65,7 +65,7 @@ public class ModelHealthChecker {
      */
     public void register(ChatClient client, String provider, String model) {
         Objects.requireNonNull(client, "client must not be null");
-        ModelHealth health = new ModelHealth(provider, model);
+        var health = new ModelHealth(provider, model);
         clientHealthMap.put(client, health);
         clients.add(client);
         log.info("[ModelHealthChecker] registered: {}:{}", provider, model);

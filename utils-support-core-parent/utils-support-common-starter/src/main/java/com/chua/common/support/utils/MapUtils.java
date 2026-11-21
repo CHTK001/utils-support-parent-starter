@@ -1740,7 +1740,7 @@ public class MapUtils {
      * @return 新的 multi链接值映射
      */
     public static <K, V> MultiValueMap<K, V> ofMultiMap(K k, V v) {
-        MultiValueMap<K, V> rs = new MultiLinkedValueMap<>();
+        var rs = new MultiLinkedValueMap<K, V>();
         rs.add(k, v);
         return rs;
     }

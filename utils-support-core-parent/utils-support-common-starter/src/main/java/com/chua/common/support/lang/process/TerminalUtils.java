@@ -128,7 +128,7 @@ public class TerminalUtils {
         try {
             //              Windows CMD
             Process process = new ProcessBuilder("cmd", "/c", "mode con").start();
-            java.io.BufferedReader reader = new java.io.BufferedReader(
+            var reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream(), java.nio.charset.Charset.defaultCharset()));
 
             String line;
@@ -158,7 +158,7 @@ public class TerminalUtils {
         try {
             //        stty
             Process process = new ProcessBuilder("sh", "-c", "stty size < /dev/tty").start();
-            java.io.BufferedReader reader = new java.io.BufferedReader(
+            var reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream()));
 
             String line = reader.readLine();

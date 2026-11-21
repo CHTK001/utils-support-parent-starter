@@ -70,7 +70,7 @@ public class MigrationService {
      */
     @PostConstruct
     public void init() {
-        Set<String> seen = new java.util.HashSet<>();
+        var seen = new java.util.HashSet<String>();
         for (DataMigrator migrator : migrators) {
             String name = migrator.getName();
             if (name == null || name.isBlank()) {

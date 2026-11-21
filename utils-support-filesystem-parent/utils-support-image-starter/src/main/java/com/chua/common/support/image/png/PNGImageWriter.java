@@ -811,7 +811,7 @@ public final class PNGImageWriter extends ImageWriter {
 
         int bitDepth = metadata.IHDR_bitDepth;
         for (int row = minY + yOffset; row < minY + height; row += ySkip) {
-            Rectangle rect = new Rectangle(minX, row, width, 1);
+            var rect = new Rectangle(minX, row, width, 1);
             Raster ras = image.getData(rect);
             if (sourceBands != null) {
                 ras = ras.createChild(minX, row, width, 1, minX, row,

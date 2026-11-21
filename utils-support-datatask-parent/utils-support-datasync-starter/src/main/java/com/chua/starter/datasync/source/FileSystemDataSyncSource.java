@@ -131,7 +131,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseYaml(String content) {
         List<Map<String, Object>> rows = Wraps.list();
-        Yaml yaml = new Yaml();
+        var yaml = new Yaml();
         Object obj = yaml.load(content);
         if (obj instanceof List<?> list) {
             for (Object item : list) {

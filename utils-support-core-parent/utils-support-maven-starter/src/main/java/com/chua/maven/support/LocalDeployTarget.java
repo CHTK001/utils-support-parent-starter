@@ -81,7 +81,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
     */
     @Override
     public void connect() {
-        File dir = new File(rootDir);
+        var dir = new File(rootDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -115,7 +115,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
     @Override
     public void createDirectory(String path) {
         ensureReady();
-        File dir = new File(rootDir, path);
+        var dir = new File(rootDir, path);
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -135,7 +135,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
     */
     @Override
     public void delete(String path) {
-        File file = new File(rootDir, path);
+        var file = new File(rootDir, path);
         if (file.exists()) {
             try {
                 Files.delete(file.toPath());

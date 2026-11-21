@@ -96,7 +96,7 @@ public class ModbusRtuServer implements ModbusServer {
         try {
             ModbusSlave created = ModbusSlaveFactory.createSerialSlave(
                     SerialParameterUtils.toSerialParameters(setting));
-            DataStoreProcessImage image = new DataStoreProcessImage(dataStore);
+            var image = new DataStoreProcessImage(dataStore);
             created.addProcessImage(unitId, image);
             created.open();
             this.slave = created;

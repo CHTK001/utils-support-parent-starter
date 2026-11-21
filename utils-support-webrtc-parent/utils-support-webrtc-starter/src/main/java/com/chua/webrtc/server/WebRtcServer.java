@@ -213,7 +213,7 @@ public class WebRtcServer extends AbstractServer implements WebRtcService {
             old.disconnect();
             session.removePeer(old);
         }
-        WebRtcPeerImpl peer = new WebRtcPeerImpl("peer-0", sessionId, this, peerConnectionFactory);
+        var peer = new WebRtcPeerImpl("peer-0", sessionId, this, peerConnectionFactory);
         session.addPeer(peer);
         peer.sendOffer(offer);
     }

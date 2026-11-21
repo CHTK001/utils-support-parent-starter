@@ -90,7 +90,7 @@ public class VertxTcpProxyServer extends AbstractServer {
     protected void doStart() {
         rejectStreamEncryption("字节透传代理，加解密必须由端点完成");
         try {
-            VertxOptions opts = new VertxOptions()
+            var opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))
                     .setWorkerPoolSize(Math.max(setting.getWorkerThreads(),
                             Runtime.getRuntime().availableProcessors() * 4))
@@ -105,7 +105,7 @@ public class VertxTcpProxyServer extends AbstractServer {
                     .setTcpQuickAck(true)
                     .setReconnectAttempts(0));
 
-            NetServerOptions options = new NetServerOptions()
+            var options = new NetServerOptions()
                     .setHost(setting.getHost())
                     .setPort(setting.getPort())
                     .setTcpNoDelay(setting.isTcpNoDelay())
@@ -120,7 +120,7 @@ public class VertxTcpProxyServer extends AbstractServer {
             netServer = vertx.createNetServer(options);
             netServer.connectHandler(this::handleProxy);
  // Vert.x 5.x:监听 返回 期货,异步完成;用 插销 等监听就绪并回填端口
-            CountDownLatch ready = new CountDownLatch(1);
+            var ready = new CountDownLatch(1);
             netServer.listen().onSuccess(server -> {
                 setting.setPort(netServer.actualPort());
                 log.info("Vertx TcpProxyServer started on {}:{} (eventLoops={}, reactive=true)",

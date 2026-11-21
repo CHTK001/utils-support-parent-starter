@@ -389,7 +389,7 @@ public class CrawlerServerFilter implements ServerFilter {
     private void startCleanup() {
         cleanupExecutor = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-            Thread thread = new Thread(r, "crawler-filter-cleanup");
+            var thread = new Thread(r, "crawler-filter-cleanup");
             thread.setDaemon(true);
             return thread;
         });

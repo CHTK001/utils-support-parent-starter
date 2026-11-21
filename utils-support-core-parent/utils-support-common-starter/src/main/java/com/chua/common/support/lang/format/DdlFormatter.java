@@ -232,7 +232,7 @@ public class DdlFormatter extends SqlFormatter {
         parseColumnDefinitions(columnsPart, columnDefs, constraintDefs);
 
         // 4. 构建格式化后的SQL
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
 
         // 4.1 添加 CREATE TABLE 表名
         result.append(formatKeyword("CREATE TABLE"))
@@ -318,7 +318,7 @@ public class DdlFormatter extends SqlFormatter {
         }
 
         // 使用StringBuilder缓存当前正在构建的定义
-        StringBuilder current = new StringBuilder();
+        var current = new StringBuilder();
 
         // 状态变量
         // // 当前括号嵌套深度
@@ -530,7 +530,7 @@ public class DdlFormatter extends SqlFormatter {
         }
 
         // 4. 构建格式化结果
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         result.append(formatKeyword("ALTER TABLE"))
                 .append(" ")
                 .append(tableName)

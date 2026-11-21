@@ -98,7 +98,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] ids = encoding.getIds();
-        int[] tokenValues = new int[MAX_LENGTH];
+        var tokenValues = new int[MAX_LENGTH];
         int copy = Math.min(ids.length, MAX_LENGTH);
         for (int i = 0; i < copy; i++) {
             tokenValues[i] = (int) ids[i];

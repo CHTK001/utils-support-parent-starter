@@ -191,7 +191,7 @@ public final class ScatterSyncHelper {
             socket.setSoTimeout((int) Math.min(timeoutMillis, Integer.MAX_VALUE));
             socket.send(new java.net.DatagramPacket(payload, payload.length,
                     new java.net.InetSocketAddress(host, port)));
-            byte[] buffer = new byte[65536];
+            var buffer = new byte[65536];
             java.net.DatagramPacket respPacket = new java.net.DatagramPacket(buffer, buffer.length);
             socket.receive(respPacket);
             return java.util.Arrays.copyOf(respPacket.getData(), respPacket.getLength());

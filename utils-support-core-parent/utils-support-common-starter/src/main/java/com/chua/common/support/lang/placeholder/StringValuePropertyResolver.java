@@ -96,7 +96,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
         if (startIndex == -1) {
             return value;
         }
-        StringBuilder result = new StringBuilder(value);
+        var result = new StringBuilder(value);
         while (startIndex != -1) {
             // 查找占位符结束索引（匹配后缀）
             int endIndex = findPlaceholderEndIndex(result, startIndex);
@@ -222,7 +222,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
             return value;
         }
 
-        StringBuilder result = new StringBuilder(value);
+        var result = new StringBuilder(value);
         while (startIndex != -1) {
             int endIndex = findPlaceholderEndIndex(result, startIndex);
             if (endIndex != -1) {

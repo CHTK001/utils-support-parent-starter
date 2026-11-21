@@ -583,7 +583,7 @@ public class FeishuBotClient implements BotClient {
     */
     @Override
     public Map<String, Object> getConfig() {
-        Map<String, Object> config = new ConcurrentHashMap<>();
+        var config = new ConcurrentHashMap<String, Object>();
         config.put("appId", appId != null ? appId : "");
         config.put("baseUrl", baseUrl);
         config.put("running", running.get());

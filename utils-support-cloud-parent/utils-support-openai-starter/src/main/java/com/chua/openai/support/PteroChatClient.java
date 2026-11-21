@@ -355,7 +355,7 @@ public class PteroChatClient implements ChatClient {
         boolean saved = this.stream;
         this.stream = false;
         try {
-            StringBuilder text = new StringBuilder();
+            var text = new StringBuilder();
             AiUsage[] usage = new AiUsage[1];
             String[] failure = new String[1];
             /**

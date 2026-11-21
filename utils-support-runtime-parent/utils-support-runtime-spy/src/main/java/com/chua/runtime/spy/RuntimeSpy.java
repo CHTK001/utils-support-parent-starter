@@ -480,13 +480,13 @@ public class RuntimeSpy {
             return;
         }
         TraceEnvelope env = CROSS_THREAD_TRACES.remove(key);
-        if (env == null || CollectionUtils.isEmpty(env.frames)) {
+        if (env == null || CollectionUtils.isEmpty(env.frames())) {
             TRACE_STACK.get().clear();
             return;
         }
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
         stack.clear();
-        TraceStackFrame top = env.frames.get(env.frames.size() - 1);
+        TraceStackFrame top = env.frames().get(env.frames().size() - 1);
         String traceId = top.traceId();
         stack.push(new TraceStackFrame(traceId, top.spanId()));
     }
@@ -873,9 +873,7 @@ public class RuntimeSpy {
     /**
      * 跨线程追踪上下文条目 — 携带过期时间戳,支持 TTL 清理。
      */
-    private static final class TraceEnvelope {
-        final List<TraceStackFrame> frames;
-        final long createdAt;
+    private record TraceEnvelope(List<TraceStackFrame> frames, long createdAt) {
 
         /**
          * Trace Envelope
@@ -963,7 +961,7 @@ public class RuntimeSpy {
             }
             V v = map.get(key);
             if (v instanceof TraceEnvelope) {
-                if (now - ((TraceEnvelope) v).createdAt > ttlMs) {
+                if (now - ((TraceEnvelope) v).createdAt() > ttlMs) {
                     map.remove(key);
                     return null;
                 }
@@ -1005,7 +1003,7 @@ public class RuntimeSpy {
         private void cleanup(long now) {
             map.entrySet().removeIf(e -> {
                 if (e.getValue() instanceof TraceEnvelope) {
-                    return now - ((TraceEnvelope) e.getValue()).createdAt > ttlMs;
+                    return now - ((TraceEnvelope) e.getValue()).createdAt() > ttlMs;
                 }
                 return false;
             });

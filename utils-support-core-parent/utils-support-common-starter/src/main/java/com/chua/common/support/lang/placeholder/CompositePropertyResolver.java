@@ -285,7 +285,7 @@ public class CompositePropertyResolver implements PropertyResolver {
             List<PropertyResolver> resolvers = Wraps.list();
             for (PlaceholderConfig config : configs) {
                 // 为每种格式创建对应的 PlaceholderSupport 配置
-                PlaceholderSupport support = new PlaceholderSupport(
+                var support = new PlaceholderSupport(
                         config.prefix, config.suffix, config.separator);
                 support.setIgnoreUnresolvablePlaceholders(ignoreUnresolvablePlaceholders);
                 support.setTrimValues(trimValues);

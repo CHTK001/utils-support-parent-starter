@@ -762,16 +762,12 @@ public class AntPathMatcher implements PathMatcher {
      * <li>                              </li>
      * </ul>
      */
-    protected static class AntPatternComparator implements Comparator<String> {
-        private final String path;
-        /**
-         *        AntPatternComparator
-         *
-         * @param path
-         */
-        public AntPatternComparator(String path) {
-            this.path = path;
-        }
+    /**
+     *        AntPatternComparator
+     *
+     * @param path
+     */
+    protected record AntPatternComparator(String path) implements Comparator<String> {
         /**
          * 比较两个值。
          *
@@ -969,23 +965,20 @@ public class AntPathMatcher implements PathMatcher {
     /**
      * 路径分隔符模式缓存。
      */
-    private static class PathSeparatorPatternCache {
-        /**
-         *                (*)
-         */
-        private final String endsOnWildCard;
-        /**
-         *                (**)
-         */
-        private final String endsOnDoubleWildCard;
+    /**
+     *        PathSeparatorPatternCache
+     *
+     * @param pathSeparator
+     */
+    private record PathSeparatorPatternCache(String endsOnWildCard, String endsOnDoubleWildCard) {
+
         /**
          *        PathSeparatorPatternCache
          *
          * @param pathSeparator
          */
         public PathSeparatorPatternCache(String pathSeparator) {
-            this.endsOnWildCard = pathSeparator + "*";
-            this.endsOnDoubleWildCard = pathSeparator + SYMBOL_ASTERISK_ANY;
+            this(pathSeparator + "*", pathSeparator + SYMBOL_ASTERISK_ANY);
         }
         /**
          * 获取 EndsOnWildCard。
@@ -994,7 +987,7 @@ public class AntPathMatcher implements PathMatcher {
          * @return
          */
         public String getEndsOnWildCard() {
-            return this.endsOnWildCard;
+            return endsOnWildCard;
         }
         /**
          * 获取 EndsOnDoubleWildCard。
@@ -1003,7 +996,7 @@ public class AntPathMatcher implements PathMatcher {
          * @return
          */
         public String getEndsOnDoubleWildCard() {
-            return this.endsOnDoubleWildCard;
+            return endsOnDoubleWildCard;
         }
     }
 }

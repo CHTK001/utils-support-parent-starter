@@ -44,27 +44,35 @@ import java.util.*;
  * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.SubPipelineNode
  */
-public class SubPipelineResult {
+public record SubPipelineResult(String nodeId, Object output, List<String> history, String pipelineId) {
 
     /**
      * 子流水线节点 标识
      */
-    private final String nodeId;
+    public String nodeId() {
+        return nodeId;
+    }
 
     /**
      * 子流水线的最终输出数据（子上下文的 当前数据）
      */
-    private final Object output;
+    public Object output() {
+        return output;
+    }
 
     /**
      * 子流水线的执行历史（子上下文的 历史）
      */
-    private final List<String> history;
+    public List<String> history() {
+        return history;
+    }
 
     /**
      * 子流水线 标识
      */
-    private final String pipelineId;
+    public String pipelineId() {
+        return pipelineId;
+    }
 
     /**
      * 构造子流水线结果。
@@ -74,11 +82,8 @@ public class SubPipelineResult {
      * @param history    子流水线的执行历史
      * @param pipelineId 子流水线 标识
      */
-    public SubPipelineResult(String nodeId, Object output, List<String> history, String pipelineId) {
-        this.nodeId = nodeId;
-        this.output = output;
-        this.history = history != null ? Wraps.list(history) : Wraps.list();
-        this.pipelineId = pipelineId;
+    public SubPipelineResult {
+        history = history != null ? Wraps.list(history) : Wraps.list();
     }
 
     /**
@@ -87,7 +92,7 @@ public class SubPipelineResult {
      * @return 节点 标识
      */
     public String getNodeId() {
-        return nodeId;
+        return nodeId();
     }
 
     /**
@@ -98,7 +103,7 @@ public class SubPipelineResult {
      */
     @SuppressWarnings("unchecked")
     public <V> V getOutput() {
-        return (V) output;
+        return (V) output();
     }
 
     /**
@@ -110,7 +115,7 @@ public class SubPipelineResult {
      */
     @SuppressWarnings("unchecked")
     public <V> V getOutput(Class<V> type) {
-        return output != null ? (V) type.cast(output) : null;
+        return output() != null ? (V) type.cast(output()) : null;
     }
 
     /**
@@ -119,7 +124,7 @@ public class SubPipelineResult {
      * @return 执行历史节点ID列表的不可变视图
      */
     public List<String> getHistory() {
-        return Collections.unmodifiableList(history);
+        return Collections.unmodifiableList(history());
     }
 
     /**
@@ -128,18 +133,6 @@ public class SubPipelineResult {
      * @return 子流水线 标识
      */
     public String getPipelineId() {
-        return pipelineId;
-    }
-
-    /**
-     * 返回含子流水线执行信息的调试字符串。
-     */
-    @Override
-    public String toString() {
-        return "SubPipelineResult{" +
-                "nodeId='" + nodeId + '\'' +
-                ", pipelineId='" + pipelineId + '\'' +
-                ", history=" + history +
-                '}';
+        return pipelineId();
     }
 }

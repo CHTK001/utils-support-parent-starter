@@ -243,8 +243,8 @@ public class WechatMessagePush implements MessagePush {
         String contentType = request.getContentType();
         boolean markdown = contentType != null && contentType.toLowerCase().contains("markdown");
 
-        JsonObject json = new JsonObject();
-        JsonObject content = new JsonObject();
+        var json = new JsonObject();
+        var content = new JsonObject();
         if (markdown) {
             content.fluentPut("content", request.getContent());
             json.fluentPut("msgtype", "markdown");
@@ -280,7 +280,7 @@ public class WechatMessagePush implements MessagePush {
             return MessageResponse.failure("模板 ID 未配置（wechat.templateId 或 request.templateId）");
         }
 
-        JsonObject body = new JsonObject();
+        var body = new JsonObject();
         body.fluentPut("touser", openId);
         body.fluentPut("template_id", templateId);
         if (StringUtils.isNotBlank(request.getSubject())) {
@@ -315,7 +315,7 @@ public class WechatMessagePush implements MessagePush {
             return MessageResponse.failure("模板 ID 未配置（wechat.templateId 或 request.templateId）");
         }
 
-        JsonObject body = new JsonObject();
+        var body = new JsonObject();
         body.fluentPut("touser", openId);
         body.fluentPut("template_id", templateId);
         if (StringUtils.isNotBlank(request.getSubject())) {
@@ -350,12 +350,12 @@ public class WechatMessagePush implements MessagePush {
      * @return 微信 数据 JSON
      */
     private JsonObject buildData(Map<String, String> params) {
-        JsonObject data = new JsonObject();
+        var data = new JsonObject();
         if (MapUtils.isEmpty(params)) {
             return data;
         }
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            JsonObject item = new JsonObject();
+            var item = new JsonObject();
             item.fluentPut("value", entry.getValue() == null ? "" : entry.getValue());
             data.fluentPut(entry.getKey(), item);
         }

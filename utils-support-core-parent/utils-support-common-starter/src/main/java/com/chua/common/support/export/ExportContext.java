@@ -14,27 +14,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-public final class ExportContext {
-
-    /**
-     * 文档元数据。
-     */
-    private final DocumentMeta meta;
-
-    /**
-     * 行数据。
-     */
-    private final List<Object> rows;
-
-    /**
-     * 附加标量变量。
-     */
-    private final Map<String, Object> variables;
-
-    /**
-     * 导出配置。
-     */
-    private final ExportConfig config;
+public record ExportContext(DocumentMeta meta, List<Object> rows, Map<String, Object> variables, ExportConfig config) {
 
     /**
      * 构造导出上下文。
@@ -44,11 +24,10 @@ public final class ExportContext {
      * @param variables 附加变量
      * @param config    导出配置
      */
-    public ExportContext(DocumentMeta meta, List<Object> rows, Map<String, Object> variables, ExportConfig config) {
-        this.meta = meta;
-        this.rows = rows == null ? Wraps.list() : rows;
-        this.variables = variables == null ? Wraps.map() : variables;
-        this.config = config == null ? ExportConfig.EMPTY : config;
+    public ExportContext {
+        rows = rows == null ? Wraps.list() : rows;
+        variables = variables == null ? Wraps.map() : variables;
+        config = config == null ? ExportConfig.EMPTY : config;
     }
 
     /**

@@ -179,7 +179,7 @@ public final class CollectionBackends {
      * @return 名称（小写）到后端的有序映射
      */
     private static Map<String, CollectionBackend> candidates() {
-        Map<String, CollectionBackend> map = new LinkedHashMap<>();
+        var map = new LinkedHashMap<String, CollectionBackend>();
         // 1. 内置：Eclipse 仅在 classpath 存在时注册，避免触发构造失败。
         // 直接用后端自带的无缓存探测：ClassUtils.isPresent 以类名为唯一键做跨
         // ClassLoader 缓存，一次误判会毒化整个 JVM，这里不能用它。

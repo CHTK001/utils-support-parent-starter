@@ -100,7 +100,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
      * @throws IllegalArgumentException 如果 capacity 小于等于 0
      */
     public static <E> CircularLinkedSet<E> of(int capacity, Collection<? extends E> c) {
-        CircularLinkedSet<E> set = new CircularLinkedSet<>(capacity);
+        var set = new CircularLinkedSet<E>(capacity);
         if (c != null) {
             set.addAll(c);
         }

@@ -43,7 +43,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
      * 创建空队列，初始化哨兵节点。
      */
     public MichaelScottQueue() {
-        Node<E> sentinel = new Node<>(null);
+        var sentinel = new Node<E>(null);
         head.set(sentinel);
         tail.set(sentinel);
     }
@@ -61,7 +61,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
         if (element == null) {
             throw new NullPointerException("element must not be null");
         }
-        Node<E> node = new Node<>(element);
+        var node = new Node<>(element);
         while (true) {
             Node<E> last = tail.getAcquire();
             Node<E> next = last.next.getAcquire();

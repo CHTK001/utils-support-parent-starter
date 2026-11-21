@@ -56,7 +56,7 @@ public class ObjectContextAutoConfiguration {
         log.info("[springboot-context] 创建 SpringBootObjectContext...");
 
         ObjectContextConfig config = ObjectContextConfig.defaults();
-        SpringBootObjectContext context = new SpringBootObjectContext(applicationContext, config);
+        var context = new SpringBootObjectContext(applicationContext, config);
 
         log.info("[springboot-context] SpringBootObjectContext 已创建，Bean总数: {}",
                 context.getBeanDefinitionCount());

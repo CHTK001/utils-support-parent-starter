@@ -107,36 +107,12 @@ public class PoiTemplateFiller implements TemplateFiller {
 
     /**
      * 循环区块。
+     *
+     * @param startRow 起始行下标（含）
+     * @param endRow   结束行下标（含）
+     * @param tag      标签名
      */
-    private static final class Block {
-
-        /**
-         * 起始行下标（含）。
-         */
-        private final int startRow;
-
-        /**
-         * 结束行下标（含）。
-         */
-        private final int endRow;
-
-        /**
-         * 标签名。
-         */
-        private final String tag;
-
-        /**
-         * 构造区块。
-         *
-         * @param startRow 起始行
-         * @param endRow   结束行
-         * @param tag      标签
-         */
-        private Block(int startRow, int endRow, String tag) {
-            this.startRow = startRow;
-            this.endRow = endRow;
-            this.tag = tag;
-        }
+    private record Block(int startRow, int endRow, String tag) {
     }
 
     /**
@@ -178,12 +154,12 @@ public class PoiTemplateFiller implements TemplateFiller {
      * @param block  区块
      */
     private void applyBlock(Sheet sheet, Placeholders engine, Block block) {
-        List<Map<String, Object>> data = engine.table(block.tag);
-        int templateRows = block.endRow - block.startRow - 1;
+        List<Map<String, Object>> data = engine.table(block.tag());
+        int templateRows = block.endRow() - block.startRow() - 1;
 
         // 收集模板行的完整快照，保证多次复制不受插入影响
         List<RowSnapshot> snapshots = new ArrayList<>(Math.max(templateRows, 0));
-        for (int r = block.startRow + 1; r < block.endRow; r++) {
+        for (int r = block.startRow() + 1; r < block.endRow(); r++) {
             snapshots.add(RowSnapshot.of(sheet.getRow(r)));
         }
         List<CellRangeAddress> merges = mergedRegions(sheet, block);
@@ -197,7 +173,7 @@ public class PoiTemplateFiller implements TemplateFiller {
             return;
         }
 
-        int writeAt = block.startRow;
+        int writeAt = block.startRow();
         for (int i = 0; i < data.size(); i++) {
             Map<String, Object> row = data.get(i);
             for (RowSnapshot snapshot : snapshots) {
@@ -207,7 +183,7 @@ public class PoiTemplateFiller implements TemplateFiller {
         // 模板行上的合并区域按数据条数平移重建
         int blockHeight = Math.max(templateRows, 1);
         for (int i = 0; i < data.size(); i++) {
-            int base = block.startRow + i * blockHeight;
+            int base = block.startRow() + i * blockHeight;
             for (CellRangeAddress region : merges) {
                 sheet.addMergedRegion(new CellRangeAddress(
                         base + region.getFirstRow() - block.startRow - 1,
@@ -227,7 +203,7 @@ public class PoiTemplateFiller implements TemplateFiller {
     private static List<CellRangeAddress> mergedRegions(Sheet sheet, Block block) {
         List<CellRangeAddress> regions = new ArrayList<>();
         for (CellRangeAddress region : sheet.getMergedRegions()) {
-            if (region.getFirstRow() > block.startRow && region.getLastRow() < block.endRow) {
+            if (region.getFirstRow() > block.startRow() && region.getLastRow() < block.endRow()) {
                 regions.add(region.copy());
             }
         }

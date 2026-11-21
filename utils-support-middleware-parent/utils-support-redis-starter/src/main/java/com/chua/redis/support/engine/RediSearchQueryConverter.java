@@ -34,8 +34,8 @@ public class RediSearchQueryConverter {
             return "*";
         }
 
-        ParamHolder ph = new ParamHolder(params);
-        StringBuilder out = new StringBuilder();
+        var ph = new ParamHolder(params);
+        var out = new StringBuilder();
         parse(where, ph, out);
         String result = out.toString().trim();
         if (result.isEmpty()) {

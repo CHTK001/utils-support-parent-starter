@@ -155,7 +155,7 @@ public class MavenDeployClient {
             target.createDirectory(".");
             for (int i = 0; i < count; i++) {
                 String artifactPath = artifacts.get(i);
-                File sourceFile = new File(artifactPath);
+                var sourceFile = new File(artifactPath);
                 target.upload(artifactPath, sourceFile.getName());
                 deployed.add(sourceFile.getName());
 
@@ -203,7 +203,7 @@ public class MavenDeployClient {
             throw new MavenDeployException("无法部署: 编译失败或无产物");
         }
 
-        File targetFile = new File(targetFilePath);
+        var targetFile = new File(targetFilePath);
         String main = result.getMainArtifact();
         if (main == null) {
             throw new MavenDeployException("无产物可部署");
@@ -240,9 +240,9 @@ public class MavenDeployClient {
         if (sourcePath == null) {
             throw new MavenDeployException("无产物可重命名");
         }
-        File sourceFile = new File(sourcePath);
+        var sourceFile = new File(sourcePath);
         File parentDir = sourceFile.getParentFile();
-        File renamedFile = new File(parentDir, newName);
+        var renamedFile = new File(parentDir, newName);
         try {
             Files.move(sourceFile.toPath(), renamedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             log.info("[maven] 重命名: {} -> {}", sourcePath, renamedFile.getAbsolutePath());

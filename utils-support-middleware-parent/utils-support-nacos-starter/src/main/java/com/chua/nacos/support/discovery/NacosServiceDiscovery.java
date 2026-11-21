@@ -113,7 +113,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         discovery.setUriSpec(path);
-        Instance instance = new Instance();
+        var instance = new Instance();
         instance.setIp(discovery.getHost());
         instance.setPort(discovery.getPort());
         String name = path.startsWith("/") ? path.substring(1) : path;

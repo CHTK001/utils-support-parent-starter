@@ -127,7 +127,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listTopNodes(MiddlewareConnectRequest request) {
-        List<MiddlewareTreeNode> out = new ArrayList<>();
+        var out = new ArrayList<MiddlewareTreeNode>();
         try (RestClient client = client(request)) {
             JsonNode rows = readJson(client,
                                      catIndices("/_cat/indices?format=json&h=index,docs.count,store.size," +
@@ -151,7 +151,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
-        List<MiddlewareTreeNode> out = new ArrayList<>();
+        var out = new ArrayList<MiddlewareTreeNode>();
         if (StringUtils.isEmpty(parentKey)) {
             return out;
         }
@@ -211,9 +211,9 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
             if ("indices".equals(lower)) {
                 JsonNode rows = readJson(client, catIndices(
                         "/_cat/indices?format=json&h=index,docs.count,deleted,store.size,health,status"));
-                List<Map<String, Object>> out = new ArrayList<>();
+                var out = new ArrayList<Map<String, Object>>();
                 for (JsonNode r : rows) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    var row = new LinkedHashMap<String, Object>();
                     row.put("index", r.path("index").asText(""));
                     row.put("docs.count", parseLong(r.path("docs.count").asText("")));
                     row.put("deleted", parseLong(r.path("deleted").asText("")));
@@ -243,7 +243,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
                     return MiddlewareQueryResult.fail("用法：get <index> <id>");
                 }
                 JsonNode doc = readJson(client, new Request("GET", "/" + enc(a[0]) + "/_doc/" + enc(a[1])));
-                Map<String, Object> row = new LinkedHashMap<>();
+                var row = new LinkedHashMap<String, Object>();
                 row.put("_index", doc.path("_index").asText(a[0]));
                 row.put("_id", doc.path("_id").asText(a[1]));
                 row.put("_source", doc.path("_source").toString());
@@ -278,9 +278,9 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         Request req = new Request("POST", "/" + enc(index) + "/_search");
         req.setEntity(new NStringEntity(body, ContentType.APPLICATION_JSON));
         JsonNode hits = readJson(client, req).path("hits").path("hits");
-        List<Map<String, Object>> out = new ArrayList<>();
+        var out = new ArrayList<Map<String, Object>>();
         for (JsonNode h : hits) {
-            Map<String, Object> row = new LinkedHashMap<>();
+            var row = new LinkedHashMap<String, Object>();
             row.put("_id", h.path("_id").asText(""));
             row.put("_score", h.path("_score").asDouble(0D));
             row.put("_source", h.path("_source").toString());
@@ -320,9 +320,9 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     */
     private List<Map<String, Object>> nodeRows(RestClient client) throws Exception {
         JsonNode rows = readJson(client, new Request("GET", "/_cat/nodes?format=json&h=ip,node.role,master,name"));
-        List<Map<String, Object>> out = new ArrayList<>();
+        var out = new ArrayList<Map<String, Object>>();
         for (JsonNode r : rows) {
-            Map<String, Object> row = new LinkedHashMap<>();
+            var row = new LinkedHashMap<String, Object>();
             row.put("node", r.path("name").asText("-"));
             row.put("name", r.path("ip").asText("-"));
             row.put("roles", r.path("node.role").asText("-"));
@@ -338,7 +338,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
      * @return 返回值
     */
     private List<Map<String, Object>> fieldRows(JsonNode mapping, String index) {
-        List<Map<String, Object>> out = new ArrayList<>();
+        var out = new ArrayList<Map<String, Object>>();
         JsonNode props = mappingProperties(mapping, index);
         if (!props.isObject()) {
             return out;
@@ -346,7 +346,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         Iterator<Map.Entry<String, JsonNode>> it = props.fields();
         while (it.hasNext()) {
             Map.Entry<String, JsonNode> e = it.next();
-            Map<String, Object> row = new LinkedHashMap<>();
+            var row = new LinkedHashMap<String, Object>();
             row.put("field", e.getKey());
             row.put("type", e.getValue().path("type").asText("-"));
             out.add(row);

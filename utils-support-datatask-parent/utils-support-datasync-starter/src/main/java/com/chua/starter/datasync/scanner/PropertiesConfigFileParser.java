@@ -30,7 +30,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
     */
     @Override
     public DataSyncConfigDefinition parse(Path file) throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         try (InputStream is = Files.newInputStream(file)) {
             props.load(is);
         }

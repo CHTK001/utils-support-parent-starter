@@ -65,7 +65,7 @@ public class IniWriteBuilder extends WriteBuilder {
         callback.onStart();
         callback.onBeginWrite();
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         for (Object entry : pending) {
             if (entry instanceof Map) {

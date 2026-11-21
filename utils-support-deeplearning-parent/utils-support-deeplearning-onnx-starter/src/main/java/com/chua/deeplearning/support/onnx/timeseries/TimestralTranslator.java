@@ -227,7 +227,7 @@ public class TimestralTranslator implements TimeSeriesForecaster {
             // time_mask: [2, 1, 17, 17] — boolean 以 byte(0/1) 存储
             // variate_mask: [17, 1, 2, 2]
 
-            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+            var inputs = new LinkedHashMap<String, OnnxTensor>();
             inputs.put("scaled", OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(scaled), new long[]{2, CONTEXT}));
             inputs.put("missing", OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(missing), new long[]{2, CONTEXT}));
             inputs.put("time_mask", OnnxTensor.createTensor(ortEnv, ByteBuffer.wrap(timeMask),

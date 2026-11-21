@@ -214,7 +214,7 @@ public class IdUtils {
      */
     public static String createUuid() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        UUID uuid = new UUID(random.nextLong(), random.nextLong());
+        var uuid = new UUID(random.nextLong(), random.nextLong());
         return uuid.toString();
     }
 

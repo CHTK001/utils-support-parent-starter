@@ -346,7 +346,7 @@ public interface BrowserPage extends AutoCloseable {
      * @return 文本列表；无命中元素时为空列表
      */
     default List<String> texts(String selector) {
-        List<String> result = new ArrayList<>();
+        var result = new ArrayList<String>();
         if (StringUtils.isBlank(selector)) {
             return result;
         }

@@ -205,7 +205,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
      */
     @Override
     public int cleanExpired(BackupConfig config) {
-        DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
+        var delegate = new DefaultDailyBackupStrategy();
         return delegate.cleanExpired(config);
     }
 
@@ -214,7 +214,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
      */
     @Override
     public List<Path> listBackups(BackupConfig config) {
-        DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
+        var delegate = new DefaultDailyBackupStrategy();
         return delegate.listBackups(config);
     }
 }

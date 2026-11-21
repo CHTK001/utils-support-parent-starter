@@ -40,7 +40,7 @@ public class KeyValueViewParser implements ViewParser {
             return ViewFormatter.EMPTY_PLACEHOLDER;
         }
         int maxKeyLen = map.keySet().stream().mapToInt(String::length).max().orElse(0);
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (var entry : map.entrySet()) {
             sb.append(entry.getKey());
             for (int i = entry.getKey().length(); i < maxKeyLen + KEY_VALUE_GAP; i++) {

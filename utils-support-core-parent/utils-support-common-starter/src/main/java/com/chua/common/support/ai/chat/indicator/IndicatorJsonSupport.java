@@ -207,7 +207,7 @@ final class IndicatorJsonSupport {
             return node.asBoolean();
         }
         if (node.isArray()) {
-            List<Object> values = new ArrayList<>(node.size());
+            var values = new ArrayList<Object>(node.size());
             for (JsonNode item : node) {
                 values.add(toJava(item));
             }

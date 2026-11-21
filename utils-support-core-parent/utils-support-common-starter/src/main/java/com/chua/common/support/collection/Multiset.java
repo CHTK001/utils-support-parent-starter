@@ -54,7 +54,7 @@ public class Multiset<E> extends AbstractSet<E> {
      * @return Multiset 实例
      */
     public static <E> Multiset<E> of(Collection<? extends E> c) {
-        Multiset<E> bag = new Multiset<>();
+        var bag = new Multiset<E>();
         if (c != null) {
             bag.addAll(c);
         }

@@ -42,7 +42,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     */
     @Override
     public DataSyncConfigDefinition parse(Path file) throws Exception {
-        Yaml yaml = new Yaml();
+        var yaml = new Yaml();
         try (InputStream is = Files.newInputStream(file)) {
             Map<String, Object> map = yaml.load(is);
             return mapToConfig(map);

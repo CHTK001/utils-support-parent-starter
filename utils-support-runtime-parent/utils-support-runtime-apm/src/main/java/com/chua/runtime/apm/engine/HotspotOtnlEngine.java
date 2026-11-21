@@ -113,7 +113,7 @@ public class HotspotOtnlEngine implements OtnlEngine {
 
     @Override
     public List<OtnlEndpoint> endpoints(String serviceName, OtnlQuery query) {
-        Map<String, Statistics> groups = new LinkedHashMap<>();
+        var groups = new LinkedHashMap<String, Statistics>();
         String keyword = query == null || query.keyword() == null ? "" : query.keyword().toLowerCase();
         for (TraceHandler.Span span : spans(query)) {
             String name = endpoint(span);

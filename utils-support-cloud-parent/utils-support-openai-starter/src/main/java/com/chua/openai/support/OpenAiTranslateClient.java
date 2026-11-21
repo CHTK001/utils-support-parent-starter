@@ -241,7 +241,7 @@ public class OpenAiTranslateClient implements TranslateClient {
         boolean savedStream = this.stream;
         this.stream = false;
         try {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             final AiUsage[] usage = new AiUsage[1];
             /**
              * translate

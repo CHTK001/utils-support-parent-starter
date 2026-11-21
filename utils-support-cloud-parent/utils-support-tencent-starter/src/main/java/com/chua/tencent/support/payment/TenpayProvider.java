@@ -87,13 +87,13 @@ public class TenpayProvider implements PaymentChannel {
         if (config == null) {
             return null;
         }
-        WxPayConfig payConfig = new WxPayConfig();
+        var payConfig = new WxPayConfig();
         BeanUtils.copyProperties(config, payConfig);
         if (config.getCertPath() != null) {
             payConfig.setKeyPath(config.getCertPath());
         }
 
-        WxPayServiceImpl payService = new WxPayServiceImpl();
+        var payService = new WxPayServiceImpl();
         payService.setConfig(payConfig);
         return payService;
     }
@@ -218,7 +218,7 @@ public class TenpayProvider implements PaymentChannel {
      * @return bar编码薪酬的结果
      */
     private PaymentResponse barCodePay(PaymentRequest request) {
-        WxPayMicropayRequest micropayRequest = new WxPayMicropayRequest();
+        var micropayRequest = new WxPayMicropayRequest();
         if (request.getExtParams() != null) {
             micropayRequest.setAuthCode(request.getExtParams().get("authCode"));
         }
@@ -250,7 +250,7 @@ public class TenpayProvider implements PaymentChannel {
      * @return 构建订单请求的结果
      */
     private WxPayUnifiedOrderRequest buildOrderRequest(PaymentRequest request) {
-        WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+        var orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setBody(request.getSubject());
         orderRequest.setOutTradeNo(request.getOutTradeNo());
         orderRequest.setTotalFee(request.getAmount().multiply(BigDecimal.valueOf(100)).intValue());

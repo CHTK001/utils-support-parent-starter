@@ -417,7 +417,7 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
      * @return 去重后的新列表
      */
     private static List<String> dedupe(List<String> values) {
-        List<String> result = new java.util.ArrayList<>(values.size());
+        var result = new java.util.ArrayList<String>(values.size());
         for (String value : values) {
             if (value != null && !value.isBlank() && !result.contains(value)) {
                 result.add(value.trim());

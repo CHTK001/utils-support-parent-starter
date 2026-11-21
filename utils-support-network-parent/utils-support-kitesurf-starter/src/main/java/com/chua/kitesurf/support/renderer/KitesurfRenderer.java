@@ -62,7 +62,7 @@ public class KitesurfRenderer {
      * @param options 配置回调，可设置服务地址、超时等
      */
     public static void screenshot(String url, String outFile, Consumer<RenderConfig> options) {
-        RenderConfig config = new RenderConfig();
+        var config = new RenderConfig();
         if (options != null) {
             options.accept(config);
         }

@@ -1661,7 +1661,7 @@ public class ClassUtils {
             List<Field> result = Wraps.list();
             Class<?> newClass = aClass12;
             while (!ClassUtils.isObject(newClass)) {
-                Field[] fields = new Field[0];
+                var fields = new Field[0];
                 try {
                     fields = newClass.getDeclaredFields();
                     result.addAll(Arrays.asList(fields));
@@ -1720,7 +1720,7 @@ public class ClassUtils {
             List<Field> result = Wraps.list();
             Class<?> newClass = aClass12;
             while (!ClassUtils.isObject(newClass)) {
-                Field[] fields = new Field[0];
+                var fields = new Field[0];
                 try {
                     fields = newClass.getDeclaredFields();
                     result.addAll(Arrays.asList(fields));

@@ -32,7 +32,7 @@ public class ReadOption {
      * @return 读取选项
      */
     public static ReadOption maps() {
-        ReadOption option = new ReadOption();
+        var option = new ReadOption();
         option.asMap = true;
         return option;
     }

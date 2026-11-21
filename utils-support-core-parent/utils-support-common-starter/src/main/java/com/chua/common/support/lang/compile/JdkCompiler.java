@@ -43,7 +43,7 @@ public class JdkCompiler implements Compiler {
         // 添加待编译的源文件
         dynamicCompiler.addSource(name, source);
         // 执行编译构建过程，返回编译生成的类映射表
-        Map<String, Class<?>> build = dynamicCompiler.build();
+        var build = dynamicCompiler.build();
         // 如果没有生成任何类，返回 null
         if (build.isEmpty()) {
             return null;

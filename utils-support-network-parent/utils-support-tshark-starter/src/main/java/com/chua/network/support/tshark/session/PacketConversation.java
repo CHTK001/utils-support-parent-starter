@@ -205,7 +205,7 @@ public final class PacketConversation {
             // 服务端先发言（协议握手方向相反），无请求可配
             return List.of();
         }
-        ProtocolExchange exchange = new ProtocolExchange(key, streamIdOf(record), record.protocol(),
+        var exchange = new ProtocolExchange(key, streamIdOf(record), record.protocol(),
                 pendingRequest, record, pendingRequestText, record.restoredText(),
                 pendingRequestMillis, millis);
         pendingRequest = null;

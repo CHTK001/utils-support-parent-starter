@@ -431,7 +431,7 @@ public class ChannelQueueServerFilter implements ReactiveServerFilter, AutoClose
                     .whenComplete((unused, error) -> channel.active.decrementAndGet());
         } catch (Throwable throwable) {
             channel.active.decrementAndGet();
-            CompletableFuture<Void> failed = new CompletableFuture<>();
+            var failed = new CompletableFuture<Void>();
             failed.completeExceptionally(throwable);
             return failed;
         }

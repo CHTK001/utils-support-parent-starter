@@ -69,7 +69,7 @@ public class DateConvertConfiguration {
      */
     @Bean
     public ConversionService conversionService() {
-        DefaultConversionService conversionService = new DefaultConversionService();
+        var conversionService = new DefaultConversionService();
 
  // 注册 本地日期 转换器
         conversionService.addConverter(new LocalDateToStringConverter(datePattern));

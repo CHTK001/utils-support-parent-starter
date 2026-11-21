@@ -466,7 +466,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的输入流
      */
     public static InputStream wrap(InputStream is, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(is, pbb);
     }
 
@@ -494,7 +494,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的输出流
      */
     public static OutputStream wrap(OutputStream os, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(os, pbb);
     }
 
@@ -519,7 +519,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的 Reader
      */
     public static Reader wrap(Reader reader, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(reader, pbb);
     }
 
@@ -544,7 +544,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的 Writer
      */
     public static Writer wrap(Writer writer, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(writer, pbb);
     }
 
@@ -570,7 +570,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的 Spliterator
      */
     public static <T> Spliterator<T> wrap(Spliterator<T> sp, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(sp, pbb);
     }
 
@@ -601,7 +601,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的 Stream
      */
     public static <T, S extends BaseStream<T, S>> Stream<T> wrap(S stream, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(stream, pbb);
     }
 
@@ -630,7 +630,7 @@ public class ProgressBar implements AutoCloseable {
      * @return 包装后的 Stream
      */
     public static <T> Stream<T> wrap(T[] array, String task) {
-        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
+        var pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(array, pbb);
     }
 

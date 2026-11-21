@@ -70,7 +70,7 @@ public class VertxWebSocketServer extends AbstractServer {
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
 
-        VertxOptions opts = new VertxOptions()
+        var opts = new VertxOptions()
                 .setEventLoopPoolSize(eventLoopPoolSize)
                 .setWorkerPoolSize(workerPoolSize)
                 .setPreferNativeTransport(true);
@@ -111,8 +111,8 @@ public class VertxWebSocketServer extends AbstractServer {
                 // 直接调用订阅处理器：原实现走 handleRequest（路由/过滤器链），
                 // 那条路径不查 topicHandlers，导致 onSubscribe 注册的处理器永远不会被调用。
                 for (ServerHandler handler : handlers) {
-                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                    VertxServerResponse response = new VertxServerResponse(ws);
+                    var request = new VertxServerRequest(finalTopic, finalBody);
+                    var response = new VertxServerResponse(ws);
                     try {
                         handler.handle(request, response);
                     } catch (Exception e) {
@@ -142,8 +142,8 @@ public class VertxWebSocketServer extends AbstractServer {
                 // 直接调用订阅处理器：原实现走 handleRequest（路由/过滤器链），
                 // 那条路径不查 topicHandlers，导致 onSubscribe 注册的处理器永远不会被调用。
                 for (ServerHandler handler : handlers) {
-                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                    VertxServerResponse response = new VertxServerResponse(ws);
+                    var request = new VertxServerRequest(finalTopic, finalBody);
+                    var response = new VertxServerResponse(ws);
                     try {
                         handler.handle(request, response);
                     } catch (Exception e) {

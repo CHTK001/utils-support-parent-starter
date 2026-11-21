@@ -361,7 +361,7 @@ public final class DocumentMeta {
      * @return 可见列列表
      */
     public List<ColumnMeta> visibleColumns() {
-        List<ColumnMeta> list = new ArrayList<>();
+        var list = new ArrayList<ColumnMeta>();
         for (ColumnMeta meta : columns.values()) {
             if (!meta.isIgnore()) {
                 list.add(meta);

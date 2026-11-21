@@ -494,7 +494,7 @@ public class ILinkBotClient implements BotClient {
      */
     private BotSendResult sendWithToken(String toUser, String content) {
         try {
-            JsonObject msg = new JsonObject();
+            var msg = new JsonObject();
             msg.fluentPut("from_user_id", "");
             msg.fluentPut("to_user_id", toUser);
             msg.fluentPut("client_id", "openclaw-weixin-" + System.nanoTime());
@@ -515,15 +515,15 @@ public class ILinkBotClient implements BotClient {
             if (ctx != null) {
                 msg.fluentPut("context_token", ctx);
             }
-            JsonObject item = new JsonObject();
+            var item = new JsonObject();
             item.fluentPut("type", 1); // 消息item类型.文本
             item.fluentPut("text_item", new JsonObject().fluentPut("text", content));
             msg.fluentPut("item_list", new com.chua.common.support.lang.json.JsonArray().fluent(item));
 
-            JsonObject baseInfo = new JsonObject();
+            var baseInfo = new JsonObject();
             baseInfo.fluentPut("channel_version", CHANNEL_VERSION);
             baseInfo.fluentPut("bot_agent", DEFAULT_BOT_AGENT);
-            JsonObject req = new JsonObject();
+            var req = new JsonObject();
             req.fluentPut("msg", msg);
             req.fluentPut("base_info", baseInfo);
 
@@ -598,7 +598,7 @@ public class ILinkBotClient implements BotClient {
     private List<BotInboundMessage> pollMessages() {
         List<BotInboundMessage> result = Wraps.list();
         try {
-            JsonObject body = new JsonObject();
+            var body = new JsonObject();
             body.fluentPut("base_info", new JsonObject().fluentPut("channel_version", CHANNEL_VERSION)
                     .fluentPut("bot_agent", DEFAULT_BOT_AGENT));
             body.fluentPut("get_updates_buf", getUpdatesBuf);

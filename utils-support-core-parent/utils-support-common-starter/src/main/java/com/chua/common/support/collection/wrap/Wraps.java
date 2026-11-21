@@ -110,7 +110,7 @@ public final class Wraps {
      * @return 分装列表
      */
     public static <E> List<E> list(Collection<? extends E> c) {
-        WrappedList<E> wrapped = new WrappedList<>(CollectionBackends.get().newList(c.size()));
+        var wrapped = new WrappedList<E>(CollectionBackends.get().newList(c.size()));
         wrapped.addAll(c);
         return wrapped;
     }

@@ -142,7 +142,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
         }
         String requestBody = buildStylizeRequestBody(model, style, resolution);
         byte[] result = doPost(requestBody);
-        DefaultModel3D styled = new DefaultModel3D("stylized-" + model.getName(), model.getFormat(), result);
+        var styled = new DefaultModel3D("stylized-" + model.getName(), model.getFormat(), result);
         styled.setTexture(model.getTexture());
         return styled;
     }
@@ -209,7 +209,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     */
     protected byte[] doPost(String requestBody) throws IOException {
         RequestBody body = RequestBody.create(requestBody, JSON);
-        Request.Builder builder = new Request.Builder()
+        var builder = new Request.Builder()
                 .url(config.getEndpoint() + "/generate")
                 .post(body);
         if (config.getApiKey() != null && !config.getApiKey().isEmpty()) {

@@ -94,7 +94,7 @@ public final class IndraLineNet {
         }
         int[] label = new int[n];
         int[] stack = new int[n];
-        List<Comp> comps = new ArrayList<>();
+        var comps = new ArrayList<Comp>();
         int next = 0;
         for (int start = 0; start < n; start++) {
             if (!mask[start] || label[start] != 0) {

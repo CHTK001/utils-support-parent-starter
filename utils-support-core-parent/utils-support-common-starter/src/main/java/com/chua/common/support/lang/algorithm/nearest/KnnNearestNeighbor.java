@@ -65,7 +65,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
             double[] sample = dataset.get(i);
             double distance = euclideanDistance(target, sample);
 
-            NeighborResult result = new NeighborResult(i, distance, sample);
+            var result = new NeighborResult(i, distance, sample);
 
             if (maxHeap.size() < actualK) {
                 maxHeap.offer(result);

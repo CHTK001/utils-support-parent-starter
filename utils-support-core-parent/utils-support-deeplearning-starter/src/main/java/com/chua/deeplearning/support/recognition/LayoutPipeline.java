@@ -221,7 +221,7 @@ public class LayoutPipeline {
      */
     public List<Object> recognize(byte[] imageData) {
         LayoutContext lc = new LayoutContext(imageData);
-        PipelineContext<LayoutContext> ctx = new PipelineContext<>(pipeline.getId(), lc);
+        var ctx = new PipelineContext<LayoutContext>(pipeline.getId(), lc);
         ctx.setAttribute("layout", lc);
         ctx.setNextNodeId(NODE_PREPROCESS);
         pipeline.resume(ctx);

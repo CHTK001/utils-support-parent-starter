@@ -577,7 +577,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
         }
 
         this.rejectedSnapshots = Map.copyOf(rejected);
-        Snapshot rebuilt = new Snapshot(version, Map.copyOf(byName), List.copyOf(names), Map.copyOf(nameToType));
+        var rebuilt = new Snapshot(version, Map.copyOf(byName), List.copyOf(names), Map.copyOf(nameToType));
         this.snapshot = rebuilt;
         log.debug("[osgi] 扩展对象快照已重建: {} 个桥接定义（{} 个未通过验收）", names.size(), rejected.size());
         return rebuilt;

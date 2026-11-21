@@ -106,8 +106,8 @@ public final class InceptionHttpTransport implements InceptionTransport {
     @Override
     public void chat(String payloadJson, InceptionStreamListener listener) throws Exception {
         String token = readSessionToken();
-        InceptionStreamParser parser = new InceptionStreamParser(listener);
-        CountDownLatch done = new CountDownLatch(1);
+        var parser = new InceptionStreamParser(listener);
+        var done = new CountDownLatch(1);
         Throwable[] failure = new Throwable[1];
         SseConnection[] holder = new SseConnection[1];
 

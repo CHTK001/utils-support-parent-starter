@@ -11,45 +11,27 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.45
+ *
+ * @param id           插件唯一标识（市场/仓库 + 名称）。
+ * @param name         插件名称。
+ * @param description  插件描述。
+ * @param author       作者/发布者。
+ * @param version      版本。
+ * @param location     插件落盘位置（本地）或市场主页（在线）。
+ * @param source       来源标识（如 claude / trae-cn / open-vsx / clawhub）。
+ * @param manifestPath 插件清单路径（如 plugin.json / package.json）。
+ * @param extra        额外元信息。
  */
-public class PluginDefinition {
-
-    /**
-     * 插件唯一标识（市场/仓库 + 名称）。
-    */
-    private final String id;
-    /**
-     * 插件名称。
-    */
-    private final String name;
-    /**
-     * 插件描述。
-    */
-    private final String description;
-    /**
-     * 作者/发布者。
-    */
-    private final String author;
-    /**
-     * 版本。
-    */
-    private final String version;
-    /**
-     * 插件落盘位置（本地）或市场主页（在线）。
-    */
-    private final String location;
-    /**
-     * 来源标识（如 claude / trae-cn / open-vsx / clawhub）。
-     */
-    private final String source;
-    /**
-     * 插件清单路径（如 plugin.json / package.json）。
-    */
-    private final String manifestPath;
-    /**
-     * 额外元信息。
-    */
-    private final Map<String, Object> extra;
+public record PluginDefinition(
+        String id,
+        String name,
+        String description,
+        String author,
+        String version,
+        String location,
+        String source,
+        String manifestPath,
+        Map<String, Object> extra) {
 
     /**
      * 全参构造器。
@@ -64,18 +46,8 @@ public class PluginDefinition {
      * @param manifestPath 插件清单路径
      * @param extra        额外元信息
      */
-    public PluginDefinition(String id, String name, String description, String author,
-                            String version, String location, String source,
-                            String manifestPath, Map<String, Object> extra) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.author = author;
-        this.version = version;
-        this.location = location;
-        this.source = source;
-        this.manifestPath = manifestPath;
-        this.extra = extra != null ? extra : Collections.emptyMap();
+    public PluginDefinition {
+        extra = extra != null ? extra : Collections.emptyMap();
     }
 
     /**

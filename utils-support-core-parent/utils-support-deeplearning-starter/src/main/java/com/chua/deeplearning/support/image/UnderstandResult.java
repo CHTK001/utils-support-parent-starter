@@ -9,16 +9,7 @@ import com.chua.common.support.utils.StringUtils;
  * @author CH
  * @since 4.0.0.42
  */
-public class UnderstandResult {
-
-    /**
-     * 执行的任务类型
-    */
-    private final UnderstandTask task;
-    /**
-     * 模型返回的文本结果
-    */
-    private final String text;
+public record UnderstandResult(UnderstandTask task, String text) {
 
     /**
      * 创建理解结果。
@@ -26,9 +17,8 @@ public class UnderstandResult {
      * @param task 执行的任务类型
      * @param text 模型返回文本，可为 空（自动 修剪 为 空）
      */
-    public UnderstandResult(UnderstandTask task, String text) {
-        this.task = task;
-        this.text = text != null ? text.trim() : "";
+    public UnderstandResult {
+        text = text != null ? text.trim() : "";
     }
 
     /**

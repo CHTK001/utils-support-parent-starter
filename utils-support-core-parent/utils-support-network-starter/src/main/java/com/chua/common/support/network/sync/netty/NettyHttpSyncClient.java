@@ -227,7 +227,7 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
             Thread.sleep(500);
             return;
         }
-        StringBuilder topics = new StringBuilder();
+        var topics = new StringBuilder();
         for (String topic : subscriptions.keySet()) {
             if (topics.length() > 0) {
                 topics.append(",");

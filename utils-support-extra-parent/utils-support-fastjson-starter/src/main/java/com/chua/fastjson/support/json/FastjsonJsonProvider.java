@@ -326,7 +326,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         if (null != ignores && ignores.length > 0) {
             if (mapped instanceof Map<?, ?> source) {
                 // 剔除必须作用在副本上，入参 Map 由调用方持有
-                JSONObject tree = new JSONObject(true);
+                var tree = new JSONObject(true);
                 tree.putAll((Map<? extends String, ?>) source);
                 for (String ignore : ignores) {
                     tree.remove(ignore);
@@ -334,7 +334,7 @@ public class FastjsonJsonProvider implements JsonProvider {
                 return JSON.toJSONString(tree, SerializerFeature.WriteDateUseDateFormat);
             }
             // 普通 bean 交给属性前置过滤器剔除字段，否则 ignores 会被静默丢弃导致敏感字段照常输出
-            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
+            var filter = new SimplePropertyPreFilter();
             filter.getExcludes().addAll(Arrays.asList(ignores));
             return JSON.toJSONString(mapped, new SerializeFilter[] {filter}, SerializerFeature.WriteDateUseDateFormat);
         }

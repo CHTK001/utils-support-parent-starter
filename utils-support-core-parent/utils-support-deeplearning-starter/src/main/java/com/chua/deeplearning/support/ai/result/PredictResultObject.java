@@ -10,34 +10,13 @@ package com.chua.deeplearning.support.ai.result;
  * @author CH
  * @since 4.0.0.42
  */
-public class PredictResultObject<T> {
-
-    /**
-     * 结果数据
-     */
-    private final T result;
-
-    /**
-     * 原始输入
-     */
-    private final Object input;
+public record PredictResultObject<T>(T result, Object input) {
 
     /**
      * 创建空的预测结果封装。
      */
     public PredictResultObject() {
         this(null, null);
-    }
-
-    /**
-     * 创建预测结果封装。
-     *
-     * @param result 结果数据
-     * @param input  原始输入
-     */
-    public PredictResultObject(T result, Object input) {
-        this.result = result;
-        this.input = input;
     }
 
     /**

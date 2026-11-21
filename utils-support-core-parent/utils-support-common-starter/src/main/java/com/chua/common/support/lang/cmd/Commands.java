@@ -332,7 +332,7 @@ public final class Commands {
             return "命令不存在: " + name + "\n" + listCommands();
         }
         // 获取 CLI 帮助文本
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        var baos = new java.io.ByteArrayOutputStream();
         cmd.cli().printHelp(new java.io.PrintStream(baos));
         return baos.toString();
     }

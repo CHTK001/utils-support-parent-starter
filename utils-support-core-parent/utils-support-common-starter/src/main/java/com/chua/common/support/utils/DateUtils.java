@@ -1217,7 +1217,7 @@ public class DateUtils {
         if (null != loc) {
             parser.setCalendar(Calendar.getInstance(TimeZone.getDefault(), loc));
         }
-        ParsePosition pos = new ParsePosition(0);
+        var pos = new ParsePosition(0);
         for (String parsePattern : parsePatterns) {
             String pattern = parsePattern;
             // LANG-530 - need to make sure 'ZZ' output doesn't get passed to SimpleDateFormat

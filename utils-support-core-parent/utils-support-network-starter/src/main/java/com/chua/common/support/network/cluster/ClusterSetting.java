@@ -108,7 +108,7 @@ public class ClusterSetting {
      * @return 转为scattersetting的结果
      */
     public ScatterSetting toScatterSetting() {
-        ScatterSetting setting = new ScatterSetting();
+        var setting = new ScatterSetting();
         setting.setNodeId(nodeId != null ? nodeId : (host + ":" + port));
         setting.setHost(host);
         // scatter 通信端口：显式 scatterPort 或默认 port+2，与 HTTP(port)/TCP 代理(port+1)分离

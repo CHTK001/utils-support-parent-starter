@@ -463,8 +463,8 @@ public class InceptionChatClient implements ChatClient {
         boolean savedStream = this.stream;
         this.stream = false;
         try {
-            StringBuilder text = new StringBuilder();
-            StringBuilder reasoning = new StringBuilder();
+            var text = new StringBuilder();
+            var reasoning = new StringBuilder();
             final AiUsage[] usage = new AiUsage[1];
             /**
              * chat

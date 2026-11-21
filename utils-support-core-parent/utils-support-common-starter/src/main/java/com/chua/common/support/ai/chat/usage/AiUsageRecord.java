@@ -196,7 +196,7 @@ public class AiUsageRecord {
         if (usage == null) {
             return null;
         }
-        AiUsageRecord record = new AiUsageRecord();
+        var record = new AiUsageRecord();
         record.inputTokens = usage.getInputTokens();
         record.outputTokens = usage.getOutputTokens();
         record.totalTokens = usage.getTotalTokens();

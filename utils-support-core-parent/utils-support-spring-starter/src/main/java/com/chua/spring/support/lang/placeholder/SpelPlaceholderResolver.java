@@ -72,7 +72,7 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
      * @return 绑定 Bean 解析器的求值上下文
      */
     private StandardEvaluationContext createEvaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
+        var context = new StandardEvaluationContext();
         if (SpringBeanUtils.getApplicationContextOrNull() != null) {
             context.setBeanResolver(new BeanFactoryResolver(SpringBeanUtils.getApplicationContext()));
         }

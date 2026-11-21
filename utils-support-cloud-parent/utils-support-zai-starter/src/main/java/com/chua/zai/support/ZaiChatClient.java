@@ -285,7 +285,7 @@ public class ZaiChatClient implements ChatClient {
     */
     @Override
     public String chatSync(String prompt) {
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         /**
          * chat
          * @param prompt 参数

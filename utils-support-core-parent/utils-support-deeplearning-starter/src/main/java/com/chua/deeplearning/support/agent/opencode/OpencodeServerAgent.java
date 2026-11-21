@@ -1415,7 +1415,7 @@ public class OpencodeServerAgent implements Agent {
      */
     private List<List<String>> orderAnswers(String replyId, List<AgentQuestionAnswer> answers) {
         List<String> questionIds = pendingQuestionIds.get(replyId);
-        Map<String, List<String>> byId = new LinkedHashMap<>();
+        var byId = new LinkedHashMap<String, List<String>>();
         if (answers != null) {
             for (AgentQuestionAnswer answer : answers) {
                 if (answer == null) {

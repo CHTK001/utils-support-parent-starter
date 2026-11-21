@@ -9,7 +9,7 @@ package com.chua.common.support.network.ip;
  * @author CH
  * @since 1.0.0
  */
-public class GeoSetting {
+public record GeoSetting(String databaseFile, String licenseKey) {
 
     /**
      * 默认配置
@@ -17,23 +17,11 @@ public class GeoSetting {
     public static final GeoSetting DEFAULT = new GeoSetting("", "");
 
     /**
-     * 数据库文件路径
-     */
-    private final String databaseFile;
-
-    /**
-     * MaxMind License Key（用于自动下载 GeoLite2 数据库）
-     */
-    private final String licenseKey;
-
-    /**
      * 创建 GeoSetting 实例
      * @param databaseFile databaseFile
      * @param licenseKey license键，不允许为 null
      */
-    public GeoSetting(String databaseFile, String licenseKey) {
-        this.databaseFile = databaseFile;
-        this.licenseKey = licenseKey;
+    public GeoSetting {
     }
 
     /**

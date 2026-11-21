@@ -27,7 +27,7 @@ public class TomlStringToConfigConverter implements StringToConfigConverter {
     public Map<String, Object> convert(String value) {
         try {
  // 使用 Jackson 的 toml工厂 解析 TOML
-            ObjectMapper mapper = new ObjectMapper(new TomlFactory());
+            var mapper = new ObjectMapper(new TomlFactory());
             return mapper.readValue(value, Map.class);
         } catch (Exception e) {
             log.error("[filesystem-converter] TOML 配置文件解析失败", e);

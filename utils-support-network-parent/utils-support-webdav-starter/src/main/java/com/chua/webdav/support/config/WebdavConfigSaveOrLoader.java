@@ -77,7 +77,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
         String parent = normalized.substring(0, normalized.lastIndexOf('/'));
         String[] parts = parent.split("/");
-        StringBuilder path = new StringBuilder(baseUrl);
+        var path = new StringBuilder(baseUrl);
         for (String part : parts) {
             path.append(part).append("/");
             if (!sardine.exists(path.toString())) {

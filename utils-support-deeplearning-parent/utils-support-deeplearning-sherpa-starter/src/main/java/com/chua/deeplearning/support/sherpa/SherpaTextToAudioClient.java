@@ -328,7 +328,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
             return List.of();
         }
         try {
-            List<String> names = new ArrayList<>();
+            var names = new ArrayList<String>();
             for (String line : Files.readAllLines(speakers)) {
                 String trimmed = line.trim();
                 if (!trimmed.isEmpty()) {
@@ -383,7 +383,7 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
      */
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> result = new ArrayList<>();
+        var result = new ArrayList<ModelDefinition>();
         String root = System.getProperty(SherpaModelResolver.PROP_MODEL_DIR);
         if (StringUtils.isBlank(root)) {
             return result;

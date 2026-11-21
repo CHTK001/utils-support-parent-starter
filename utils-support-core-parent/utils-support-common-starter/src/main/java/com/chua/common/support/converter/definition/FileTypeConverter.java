@@ -220,7 +220,7 @@ public class FileTypeConverter implements TypeConverter<File> {
         }
 
         try {
-            File file = new File(str);
+            var file = new File(str);
             if (file.exists()) {
                 return file;
             }

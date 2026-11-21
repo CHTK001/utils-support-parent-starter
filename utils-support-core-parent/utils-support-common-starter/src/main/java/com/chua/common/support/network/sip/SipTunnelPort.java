@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * 端口侧隧道代理，将本机端口映射到对端隧道服务。
@@ -194,13 +193,14 @@ public class SipTunnelPort {
      */
     private void readSocket(Socket socket, SipTunnelSession session) {
         try (InputStream in = socket.getInputStream()) {
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[64 * 1024];
             int read;
             while ((read = in.read(buffer)) != -1) {
                 if (!session.isOpen()) {
                     break;
                 }
-                session.sendBytes(Arrays.copyOf(buffer, read));
+                // 直接传缓冲视图，避免每轮 Arrays.copyOf 中间拷贝
+                session.sendBytes(buffer, 0, read);
             }
         } catch (IOException e) {
             log.debug("[sip] IO 操作失败，已忽略: {}", e.getMessage());

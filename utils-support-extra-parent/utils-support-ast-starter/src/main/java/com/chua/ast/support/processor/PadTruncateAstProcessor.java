@@ -125,7 +125,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         JCTree.JCLiteral nullLiteral = maker.Literal(com.sun.tools.javac.code.TypeTag.BOT, null);
         JCTree.JCBinary notNullCheck = maker.Binary(JCTree.Tag.NE, paramIdent, nullLiteral);
 
-        com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement> bodyStats = new com.sun.tools.javac.util.ListBuffer<>();
+        var bodyStats = new com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement>();
 
         if (maxLength < Integer.MAX_VALUE) {
             JCTree.JCExpression lengthCall = maker.Apply(

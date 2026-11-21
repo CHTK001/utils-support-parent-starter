@@ -722,7 +722,7 @@ public class SpringBeanUtils {
         if (getApplicationContext().containsBean("taskExecutor")) {
             return getApplicationContext().getBean("taskExecutor", TaskExecutor.class);
         }
-        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("spring-support-");
+        var executor = new SimpleAsyncTaskExecutor("spring-support-");
         executor.setConcurrencyLimit(0);
         return executor;
     }

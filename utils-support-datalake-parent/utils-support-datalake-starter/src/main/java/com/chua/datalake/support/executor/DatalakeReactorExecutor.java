@@ -98,7 +98,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                                 long now = System.currentTimeMillis();
                                 for (Map<String, Object> row : data) {
                                     try {
-                                        DataEnvelope envelope = new DataEnvelope(row);
+                                        var envelope = new DataEnvelope(row);
                                         envelope.setTimestamp(now);
                                         pipelineEngine.execute(sinkId, envelope);
                                     } catch (Exception e) {
@@ -143,7 +143,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
         }
         long now = System.currentTimeMillis();
         for (Map<String, Object> row : data) {
-            DataEnvelope envelope = new DataEnvelope(row);
+            var envelope = new DataEnvelope(row);
             envelope.setTimestamp(now);
             try {
                 if (pipelineEngine != null) {

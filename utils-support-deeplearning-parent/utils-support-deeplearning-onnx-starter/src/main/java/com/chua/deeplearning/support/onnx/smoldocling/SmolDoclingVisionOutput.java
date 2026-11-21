@@ -10,19 +10,13 @@ import java.util.Arrays;
  * @author CH
  * @since 2025/01/22
  */
-public class SmolDoclingVisionOutput {
-
-    /**
-     * 图像特征
-    */
-    private final NDArray imageFeatures;
+public record SmolDoclingVisionOutput(NDArray imageFeatures) {
 
     /**
      * 创建 smoldoclingvision输出 实例
      * @param imageFeatures 镜像特征
      */
-    public SmolDoclingVisionOutput(NDArray imageFeatures) {
-        this.imageFeatures = imageFeatures;
+    public SmolDoclingVisionOutput {
     }
 
     /**

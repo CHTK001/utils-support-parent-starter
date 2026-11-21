@@ -132,7 +132,7 @@ public final class InitSqlMerger {
      */
     public static String merge(final List<Path> scripts, final Path root, final Charset charset,
                                final boolean header, final boolean timestamp, final String title) throws IOException {
-        final StringBuilder builder = new StringBuilder();
+        final var builder = new StringBuilder();
         if (header) {
             appendHeader(builder, scripts.size(), timestamp, title);
         }
@@ -423,7 +423,7 @@ public final class InitSqlMerger {
      * @return 已锚定正则
      */
     private static String globToRegex(final String glob) {
-        final StringBuilder regex = new StringBuilder("^");
+        final var regex = new StringBuilder("^");
         final int length = glob.length();
         for (int i = 0; i < length; i++) {
             final char c = glob.charAt(i);

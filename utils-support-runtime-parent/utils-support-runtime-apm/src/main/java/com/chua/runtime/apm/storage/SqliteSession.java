@@ -164,7 +164,7 @@ public final class SqliteSession {
      * @throws SQLException 失败
      */
     public List<String> queryStrings(String sql) throws SQLException {
-        List<String> values = new ArrayList<>();
+        var values = new ArrayList<String>();
         Statement st = null;
         ResultSet rs = null;
         try {
@@ -189,7 +189,7 @@ public final class SqliteSession {
      * @throws SQLException 失败
      */
     public List<String[]> queryRows(String sql, String[] columns) throws SQLException {
-        List<String[]> rows = new ArrayList<>();
+        var rows = new ArrayList<String[]>();
         Statement st = null;
         ResultSet rs = null;
         try {

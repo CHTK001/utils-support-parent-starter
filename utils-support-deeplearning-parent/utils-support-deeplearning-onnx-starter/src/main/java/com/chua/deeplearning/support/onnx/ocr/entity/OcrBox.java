@@ -6,24 +6,7 @@ package com.chua.deeplearning.support.onnx.ocr.entity;
  * @author CH
  * @since 4.0.0.42
  */
-public class OcrBox {
-
-    /**
-     * 左上角点
-    */
-    private final Point topLeft;
-    /**
-     * 右上角点
-    */
-    private final Point topRight;
-    /**
-     * 右下角点
-    */
-    private final Point bottomRight;
-    /**
-     * 左下角点
-    */
-    private final Point bottomLeft;
+public record OcrBox(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
 
     /**
      * 创建 ocrbox 实例
@@ -32,11 +15,7 @@ public class OcrBox {
      * @param bottomRight bottomright
      * @param bottomLeft bottomleft
      */
-    public OcrBox(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
-        this.topLeft = topLeft;
-        this.topRight = topRight;
-        this.bottomRight = bottomRight;
-        this.bottomLeft = bottomLeft;
+    public OcrBox {
     }
 
     /**

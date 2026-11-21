@@ -61,22 +61,28 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * @see TaskForkDefinition#startFork(String)
  * @see TaskForkDefinition#endFork()
  */
-public class ForkBranchBuilder {
+public record ForkBranchBuilder(String branchName, PipelineBuilder innerBuilder, TaskForkDefinition parent) {
 
     /**
      * 分支名称
      */
-    private final String branchName;
+    public String branchName() {
+        return branchName;
+    }
 
     /**
      * 内部构建器，用于构建分支流水线
      */
-    private final PipelineBuilder innerBuilder;
+    public PipelineBuilder innerBuilder() {
+        return innerBuilder;
+    }
 
     /**
      * 父分叉定义，结束fork() 时返回
      */
-    private final TaskForkDefinition parent;
+    public TaskForkDefinition parent() {
+        return parent;
+    }
 
     /**
      * 构造分支定义构建器。
@@ -84,10 +90,14 @@ public class ForkBranchBuilder {
      * @param parent 父分叉定义
      * @return 返回值
     */
+    public ForkBranchBuilder {
+        if (innerBuilder == null) {
+            innerBuilder = PipelineBuilder.newBuilder(branchName);
+        }
+    }
+
     ForkBranchBuilder(String branchName, TaskForkDefinition parent) {
-        this.branchName = branchName;
-        this.innerBuilder = PipelineBuilder.newBuilder(branchName);
-        this.parent = parent;
+        this(branchName, null, parent);
     }
 
     // ========== 便捷方法（返回 this，链式流畅） ==========
@@ -102,7 +112,7 @@ public class ForkBranchBuilder {
      * @return this
      */
     public ForkBranchBuilder step(String id, PipelineNode handler) {
-        innerBuilder.task(id, handler).taskEnd();
+        innerBuilder().task(id, handler).taskEnd();
         return this;
     }
 
@@ -114,7 +124,7 @@ public class ForkBranchBuilder {
      * @return this
      */
     public ForkBranchBuilder task(String id, PipelineNode handler) {
-        innerBuilder.task(id, handler).taskEnd();
+        innerBuilder().task(id, handler).taskEnd();
         return this;
     }
 
@@ -128,7 +138,7 @@ public class ForkBranchBuilder {
      * @return this
      */
     public ForkBranchBuilder decision(String id, PipelineNode router) {
-        innerBuilder.decision(id, router);
+        innerBuilder().decision(id, router);
         return this;
     }
 
@@ -140,7 +150,7 @@ public class ForkBranchBuilder {
      * @return this
      */
     public ForkBranchBuilder pipeline(String id, Pipeline subPipeline) {
-        innerBuilder.pipeline(id, subPipeline);
+        innerBuilder().pipeline(id, subPipeline);
         return this;
     }
 
@@ -155,7 +165,7 @@ public class ForkBranchBuilder {
      * @return TaskForkDefinition 嵌套分叉定义
      */
     public TaskForkDefinition fork(String id) {
-        return innerBuilder.fork(id);
+        return innerBuilder().fork(id);
     }
 
     // ========== 完整编排能力 ==========
@@ -194,7 +204,7 @@ public class ForkBranchBuilder {
      * @return 内部 pipeline构建器
      */
     public PipelineBuilder builder() {
-        return innerBuilder;
+        return innerBuilder();
     }
 
     // ========== 结束分支 ==========
@@ -208,8 +218,8 @@ public class ForkBranchBuilder {
      * @return TaskForkDefinition 父分叉定义
      */
     public TaskForkDefinition endFork() {
-        Pipeline branchPipeline = innerBuilder.build();
-        parent.branch(branchName, branchPipeline);
-        return parent;
+        Pipeline branchPipeline = innerBuilder().build();
+        parent().branch(branchName(), branchPipeline);
+        return parent();
     }
 }

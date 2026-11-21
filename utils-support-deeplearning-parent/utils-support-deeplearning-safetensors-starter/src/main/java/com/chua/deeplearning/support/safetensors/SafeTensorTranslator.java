@@ -90,7 +90,7 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
                 return List.of();
             }
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> faces = (List<Map<String, Object>>) result.get("faces");
+            var faces = (List<Map<String, Object>>) result.get("faces");
             if (faces == null) {
                 return List.of();
             }

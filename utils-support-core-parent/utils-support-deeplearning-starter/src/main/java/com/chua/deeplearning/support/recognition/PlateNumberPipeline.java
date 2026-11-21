@@ -244,7 +244,7 @@ public class PlateNumberPipeline {
         }
         PlateNumberContext pc = new PlateNumberContext(imageData, rects);
         while (pc.advance()) {
-            PipelineContext<PlateNumberContext> ctx = new PipelineContext<>(pipeline.getId(), pc);
+            var ctx = new PipelineContext<PlateNumberContext>(pipeline.getId(), pc);
             ctx.setAttribute("plateNumber", pc);
             ctx.setNextNodeId(NODE_CROP);
             pipeline.resume(ctx);

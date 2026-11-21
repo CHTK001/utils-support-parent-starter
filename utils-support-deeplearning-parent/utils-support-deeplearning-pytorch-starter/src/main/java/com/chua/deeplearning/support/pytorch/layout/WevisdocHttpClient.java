@@ -129,7 +129,7 @@ public class WevisdocHttpClient {
      * @throws Exception 异常
     */
     private static byte[] toPngBytes(Image image) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        var baos = new ByteArrayOutputStream();
         image.save(baos, "png");
         return baos.toByteArray();
     }

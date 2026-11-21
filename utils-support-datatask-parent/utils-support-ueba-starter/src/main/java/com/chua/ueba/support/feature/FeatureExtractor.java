@@ -85,7 +85,7 @@ public class FeatureExtractor {
      * @return 特征向量，长度等于配置 特征 数量，顺序与配置一致
      */
     public float[] extractIpFeatures(List<TrafficEvent> window) {
-        float[] vector = new float[features.size()];
+        var vector = new float[features.size()];
         for (int i = 0; i < features.size(); i++) {
             FeatureDefinition def = features.get(i);
             double raw = rawIpFeature(def, window);
@@ -106,7 +106,7 @@ public class FeatureExtractor {
         if (seqLen <= 0) {
             throw new IllegalArgumentException("seqLen 必须大于 0, 实际: " + seqLen);
         }
-        int[] ids = new int[seqLen];
+        var ids = new int[seqLen];
         if (window == null || window.isEmpty()) {
             return ids;
         }
@@ -140,7 +140,7 @@ public class FeatureExtractor {
         if (numNumeric <= 0) {
             throw new IllegalArgumentException("numNumeric 必须大于 0, 实际: " + numNumeric);
         }
-        float[][] numeric = new float[seqLen][numNumeric];
+        var numeric = new float[seqLen][numNumeric];
         if (window == null || window.isEmpty()) {
             return numeric;
         }

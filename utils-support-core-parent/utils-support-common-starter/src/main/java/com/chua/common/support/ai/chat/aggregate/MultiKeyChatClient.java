@@ -187,7 +187,7 @@ public class MultiKeyChatClient extends SwitchingChatClient {
             return result;
         }
         // 冷却中的 Key 先避开；全都冷却时按半开放行（返回全部，交给调用顺序重试）
-        List<SwitchingMember> healthy = new ArrayList<>(result.size());
+        var healthy = new ArrayList<SwitchingMember>(result.size());
         for (SwitchingMember m : result) {
             if (!ClientCooldownRegistry.isCooling(cooldownKey(m))) {
                 healthy.add(m);

@@ -178,7 +178,7 @@ public class DatalakeServerBuilder {
             }
         }
 
-        PipelineEngine pipelineEngine = new DefaultPipelineEngine(
+        var pipelineEngine = new DefaultPipelineEngine(
                 pipelineManager,
                 sinkRegistry,
                 dispatcher);

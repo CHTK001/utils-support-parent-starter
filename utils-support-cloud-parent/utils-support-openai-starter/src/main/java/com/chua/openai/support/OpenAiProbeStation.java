@@ -236,7 +236,7 @@ public class OpenAiProbeStation {
         int maxSniff = Math.min(sniffModels.size(), 10);
         int passCount = 0;
         int totalCount = maxSniff;
-        StringBuilder sniffLog = new StringBuilder();
+        var sniffLog = new StringBuilder();
 
         for (int i = 0; i < maxSniff; i++) {
             String model = sniffModels.get(i);
@@ -562,7 +562,7 @@ public class OpenAiProbeStation {
                     .body(body)
                     .post();
 
-            StringBuilder headerInfo = new StringBuilder();
+            var headerInfo = new StringBuilder();
             String poweredBy = response.getHeader("X-Powered-By");
             String server = response.getHeader("Server");
 

@@ -71,7 +71,7 @@ public final class RouterGroupActivity {
         if (deque == null) {
             return List.of();
         }
-        List<Decision> result = new ArrayList<>(deque.size());
+        var result = new ArrayList<Decision>(deque.size());
         Iterator<Decision> it = deque.iterator();
         while (it.hasNext()) {
             result.add(it.next());

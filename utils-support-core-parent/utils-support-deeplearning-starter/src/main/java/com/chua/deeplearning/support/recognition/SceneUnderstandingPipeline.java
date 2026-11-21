@@ -167,7 +167,7 @@ public class SceneUnderstandingPipeline {
      */
     public List<Object> recognize(byte[] imageData) {
         SceneUnderstandingContext sc = new SceneUnderstandingContext(imageData);
-        PipelineContext<SceneUnderstandingContext> ctx = new PipelineContext<>(pipeline.getId(), sc);
+        var ctx = new PipelineContext<SceneUnderstandingContext>(pipeline.getId(), sc);
         ctx.setAttribute("scene", sc);
         ctx.setNextNodeId(NODE_RECOGNIZE);
         pipeline.resume(ctx);

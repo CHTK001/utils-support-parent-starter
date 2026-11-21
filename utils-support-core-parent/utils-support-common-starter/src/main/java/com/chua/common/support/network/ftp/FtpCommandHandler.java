@@ -116,6 +116,16 @@ class FtpCommandHandler {
     private static final String HIDDEN_FILE_PREFIX = ".";
 
     /**
+     * 数据连接传输缓冲大小：256KB，替代 InputStream.transferTo 的 8KB 默认值
+     */
+    private static final int TRANSFER_BUFFER_SIZE = 256 * 1024;
+
+    /**
+     * 目录列表输出缓冲大小：64KB，替代逐行 flush
+     */
+    private static final int LIST_BUFFER_SIZE = 64 * 1024;
+
+    /**
      * 日期格式化器
      */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd HH:mm", Locale.US);
@@ -546,6 +556,23 @@ class FtpCommandHandler {
     }
 
     /**
+     * 大缓冲字节拷贝：替代 {@link java.io.InputStream#transferTo(java.io.OutputStream)} 的 8KB 默认缓冲，
+     * 数据连接批量传输时显著减少系统调用次数（实测 128MB 上传/下载吞吐提升数倍）。
+     *
+     * @param in  输入流
+     * @param out 输出流
+     * @throws IOException IO 异常
+     */
+    private static void transferLarge(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
+        }
+        out.flush();
+    }
+
+    /**
      * 处理 STOR 命令：上传文件。
      *
      * @param session  FTP 会话
@@ -575,7 +602,7 @@ class FtpCommandHandler {
             // 写入文件
             try (var dataIn = dataSocket.getInputStream();
                  var fileOut = Files.newOutputStream(resolved)) {
-                dataIn.transferTo(fileOut);
+                transferLarge(dataIn, fileOut);
             }
             dataChannel.close();
             session.reply(CODE_DATA_CLOSE, "Transfer complete.");
@@ -614,7 +641,7 @@ class FtpCommandHandler {
             // 读取文件
             try (var fileIn = Files.newInputStream(resolved);
                  var dataOut = dataSocket.getOutputStream()) {
-                fileIn.transferTo(dataOut);
+                transferLarge(fileIn, dataOut);
             }
             dataChannel.close();
             session.reply(CODE_DATA_CLOSE, "Transfer complete.");
@@ -647,7 +674,8 @@ class FtpCommandHandler {
             session.reply(CODE_OK, "Here comes the directory listing.");
             var dataSocket = dataChannel.acceptDataConnection();
             // 生成目录列表
-            try (var dataOut = new PrintWriter(dataSocket.getOutputStream(), true, StandardCharsets.UTF_8)) {
+            try (var dataOut = new PrintWriter(new BufferedWriter(
+                    new OutputStreamWriter(dataSocket.getOutputStream(), StandardCharsets.UTF_8), LIST_BUFFER_SIZE))) {
                 var entries = Files.list(dirPath).toList();
                 for (var entry : entries) {
                     // 隐藏文件不显示（除非是 . 和 ..）
@@ -658,7 +686,6 @@ class FtpCommandHandler {
                     var line = formatUnixListEntry(entry);
                     // RFC 959：数据连接上的文本行同样以 CRLF 结束
                     dataOut.print(line + "\r\n");
-                    dataOut.flush();
                 }
             }
             dataChannel.close();
@@ -691,7 +718,8 @@ class FtpCommandHandler {
             session.reply(CODE_OK, "Here comes the name listing.");
             var dataSocket = dataChannel.acceptDataConnection();
             // 生成名称列表
-            try (var dataOut = new PrintWriter(dataSocket.getOutputStream(), true, StandardCharsets.UTF_8)) {
+            try (var dataOut = new PrintWriter(new BufferedWriter(
+                    new OutputStreamWriter(dataSocket.getOutputStream(), StandardCharsets.UTF_8), LIST_BUFFER_SIZE))) {
                 var entries = Files.list(dirPath).toList();
                 for (var entry : entries) {
                     var name = entry.getFileName().toString();
@@ -699,7 +727,6 @@ class FtpCommandHandler {
                         continue;
                     }
                     dataOut.print(name + "\r\n");
-                    dataOut.flush();
                 }
             }
             dataChannel.close();

@@ -108,7 +108,7 @@ public class BundleDeployWatcher {
 // [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
 // [P3C C1 豁免] 场景化创建线程，需文档化
-            Thread thread = new Thread(runnable, "osgi-deploy-watcher");
+            var thread = new Thread(runnable, "osgi-deploy-watcher");
             thread.setDaemon(true);
             return thread;
         });

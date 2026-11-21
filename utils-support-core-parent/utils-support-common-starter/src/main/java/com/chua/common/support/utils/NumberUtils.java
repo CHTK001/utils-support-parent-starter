@@ -1667,7 +1667,7 @@ public class NumberUtils {
     public static double subtract(double minuend, double reduction, int scale) {
         BigDecimal minuendBd = BigDecimal.valueOf(minuend);
         BigDecimal reductionBd = BigDecimal.valueOf(reduction);
-        MathContext mathContext = new MathContext(scale, RoundingMode.HALF_UP);
+        var mathContext = new MathContext(scale, RoundingMode.HALF_UP);
         return minuendBd.subtract(reductionBd, mathContext).doubleValue();
     }
     /**

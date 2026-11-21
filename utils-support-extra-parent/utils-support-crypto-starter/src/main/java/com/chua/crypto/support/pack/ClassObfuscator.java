@@ -65,8 +65,8 @@ public final class ClassObfuscator {
      * @return 处理后字节
      */
     public static byte[] stripDebug(byte[] bytes) {
-        ClassReader reader = new ClassReader(bytes);
-        ClassWriter writer = new ClassWriter(reader, 0);
+        var reader = new ClassReader(bytes);
+        var writer = new ClassWriter(reader, 0);
         reader.accept(writer, ClassReader.SKIP_DEBUG);
         return writer.toByteArray();
     }
@@ -78,7 +78,7 @@ public final class ClassObfuscator {
      * @return 处理后字节；无可重命名成员时原样返回
      */
     public static byte[] renamePrivates(byte[] bytes) {
-        ClassReader reader = new ClassReader(bytes);
+        var reader = new ClassReader(bytes);
         String internalName = reader.getClassName();
 
         Map<String, String> methodRenames = Wraps.map();
@@ -90,8 +90,8 @@ public final class ClassObfuscator {
         }
 
         Remapper remapper = new PrivateMemberRemapper(internalName, methodRenames, fieldRenames);
-        ClassReader secondPass = new ClassReader(bytes);
-        ClassWriter writer = new ClassWriter(secondPass, 0);
+        var secondPass = new ClassReader(bytes);
+        var writer = new ClassWriter(secondPass, 0);
         secondPass.accept(new ClassRemapper(writer, remapper), ClassReader.SKIP_DEBUG);
         return writer.toByteArray();
     }

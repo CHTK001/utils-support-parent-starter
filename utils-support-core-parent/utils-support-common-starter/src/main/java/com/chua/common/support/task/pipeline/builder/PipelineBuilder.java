@@ -328,7 +328,7 @@ public class PipelineBuilder {
      * @return this
      */
     public PipelineBuilder decision(String id, PipelineNode router) {
-        DecisionNode node = new DecisionNode(id, router);
+        var node = new DecisionNode(id, router);
         nodes.add(node);
         nodeMap.put(id, node);
         return this;
@@ -375,7 +375,7 @@ public class PipelineBuilder {
      * @return this
      */
     public PipelineBuilder pipeline(String id, Pipeline subPipeline) {
-        SubPipelineNode node = new SubPipelineNode(id, subPipeline);
+        var node = new SubPipelineNode(id, subPipeline);
         nodes.add(node);
         nodeMap.put(id, node);
         return this;

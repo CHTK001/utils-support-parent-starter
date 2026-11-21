@@ -111,7 +111,7 @@ public final class SystemUtils {
      */
     private static Map<String, String> export(boolean strong) {
         HostFacts facts = hostFacts();
-        Map<String, String> result = new LinkedHashMap<>();
+        var result = new LinkedHashMap<String, String>();
         for (HostAnchor anchor : HostAnchor.values()) {
             if (anchor.strong() != strong) {
                 continue;

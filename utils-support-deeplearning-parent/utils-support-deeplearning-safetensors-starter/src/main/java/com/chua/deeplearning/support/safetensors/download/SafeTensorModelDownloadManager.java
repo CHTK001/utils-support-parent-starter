@@ -94,7 +94,7 @@ public class SafeTensorModelDownloadManager {
                 return targetPath.toString();
             }
             log.info("[SafeTensor] Python 直接下载: {} -> {}", modelName, targetPath);
-            ProcessBuilder pb = new ProcessBuilder("python", "-m", "modelscope.hub.snapshot_download",
+            var pb = new ProcessBuilder("python", "-m", "modelscope.hub.snapshot_download",
                     modelName, "--cache-dir", modelRoot.toString());
             if (StringUtils.isNotBlank(revision)) {
                 pb.command().add("--revision");

@@ -122,9 +122,9 @@ public class TencentHunyuanChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        Credential credential = new Credential(setting.getAppKey(), setting.getAppSecret());
-        ClientProfile clientProfile = new ClientProfile();
-        HttpProfile httpProfile = new HttpProfile();
+        var credential = new Credential(setting.getAppKey(), setting.getAppSecret());
+        var clientProfile = new ClientProfile();
+        var httpProfile = new HttpProfile();
         applyProxy(httpProfile, setting.getProxy());
         clientProfile.setHttpProfile(httpProfile);
         this.client = new HunyuanClient(credential, DEFAULT_REGION, clientProfile);

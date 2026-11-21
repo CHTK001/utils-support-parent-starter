@@ -93,7 +93,7 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
         List<Map<String, Object>> rows = Wraps.list();
         body = body.trim();
         try {
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Object obj = mapper.readValue(body, Object.class);
             if (obj instanceof List<?> list) {
                 for (Object item : list) {

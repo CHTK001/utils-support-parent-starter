@@ -482,9 +482,9 @@ public final class HostIdentity {
                     Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
         }
         String salt = salt();
-        Set<HostAnchor> matched = new LinkedHashSet<>();
-        Set<HostAnchor> mismatched = new LinkedHashSet<>();
-        Set<HostAnchor> comparable = new LinkedHashSet<>();
+        var matched = new LinkedHashSet<HostAnchor>();
+        var mismatched = new LinkedHashSet<HostAnchor>();
+        var comparable = new LinkedHashSet<HostAnchor>();
         Set<HostAnchor> absent = new LinkedHashSet<>(parsed.anchors());
         for (Map.Entry<HostAnchor, byte[]> entry : parsed.slots().entrySet()) {
             HostAnchor anchor = entry.getKey();

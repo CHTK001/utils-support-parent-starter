@@ -31,7 +31,7 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         pipeline
                 .add(new Resize(INPUT_SIZE, INPUT_SIZE))
                 .add(new ToTensor())
@@ -81,7 +81,7 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
         if (norm <= 1e-12f) {
             return features;
         }
-        float[] result = new float[features.length];
+        var result = new float[features.length];
         for (int i = 0; i < features.length; i++) {
             result[i] = features[i] / norm;
         }

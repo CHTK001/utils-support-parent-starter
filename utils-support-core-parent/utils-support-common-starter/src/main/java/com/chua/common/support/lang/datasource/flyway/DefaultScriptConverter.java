@@ -138,7 +138,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (!upper && !lower) {
             return sql;
         }
-        StringBuilder out = new StringBuilder(sql.length());
+        var out = new StringBuilder(sql.length());
         int i = 0;
         int n = sql.length();
         while (i < n) {
@@ -204,7 +204,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (StringUtils.isEmpty(sql) || !pattern.matcher(sql).find()) {
             return sql;
         }
-        StringBuilder out = new StringBuilder(sql.length());
+        var out = new StringBuilder(sql.length());
         int i = 0;
         int segmentStart = 0;
         while (i < sql.length()) {
@@ -232,7 +232,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (sql == null || sql.indexOf('`') < 0) {
             return sql;
         }
-        StringBuilder out = new StringBuilder(sql.length());
+        var out = new StringBuilder(sql.length());
         int i = 0;
         while (i < sql.length()) {
             char c = sql.charAt(i);
@@ -543,7 +543,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (sql == null || sql.indexOf('\\') < 0) {
             return sql;
         }
-        StringBuilder out = new StringBuilder(sql.length());
+        var out = new StringBuilder(sql.length());
         int i = 0;
         while (i < sql.length()) {
             char c = sql.charAt(i);
@@ -569,7 +569,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (literal.indexOf('\\') < 0) {
             return literal;
         }
-        StringBuilder sb = new StringBuilder(literal.length());
+        var sb = new StringBuilder(literal.length());
         for (int i = 0; i < literal.length(); i++) {
             char c = literal.charAt(i);
             if (c != '\\' || i + 1 >= literal.length()) {
@@ -947,7 +947,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @return 加了前缀的表达式
      */
     private String qualifyColumns(String expr, String qualifier) {
-        StringBuilder out = new StringBuilder(expr.length());
+        var out = new StringBuilder(expr.length());
         int i = 0;
         int n = expr.length();
         while (i < n) {
@@ -1156,7 +1156,7 @@ public class DefaultScriptConverter implements ScriptConverter {
 
         // 表体：逐行剥离行内索引声明（并收集成独立 CREATE INDEX）
         String[] lines = body.split("\n", -1);
-        StringBuilder cleanedBody = new StringBuilder();
+        var cleanedBody = new StringBuilder();
         for (int li = 0; li < lines.length; li++) {
             String line = lines[li];
             if (line.trim().isEmpty()) {
@@ -1168,7 +1168,7 @@ public class DefaultScriptConverter implements ScriptConverter {
             // 否则多行形式匹配不上、整块留在表体里，目标库直接语法错。
             if (isIndexDeclarationStart(line)) {
                 int end = li;
-                StringBuilder block = new StringBuilder();
+                var block = new StringBuilder();
                 while (end < lines.length) {
                     block.append(lines[end]).append('\n');
                     if (indexDeclarationComplete(lines[end])) {
@@ -1281,7 +1281,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (sql == null || sql.indexOf("/*") < 0) {
             return sql;
         }
-        StringBuilder out = new StringBuilder(sql.length());
+        var out = new StringBuilder(sql.length());
         int i = 0;
         while (i < sql.length()) {
             char c = sql.charAt(i);
@@ -1471,7 +1471,7 @@ public class DefaultScriptConverter implements ScriptConverter {
         if (declaredColumns == null || declaredColumns.isEmpty()) {
             return columns;
         }
-        StringBuilder out = new StringBuilder(columns.length());
+        var out = new StringBuilder(columns.length());
         int i = 0;
         while (i < columns.length()) {
             char c = columns.charAt(i);
@@ -1594,7 +1594,7 @@ public class DefaultScriptConverter implements ScriptConverter {
             primaryKey = " PRIMARY KEY";
             prefix = (prefix.substring(0, pk.start()) + prefix.substring(pk.end())).trim();
         }
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(columnName).append(' ');
         if (!prefix.isEmpty()) {
             sb.append(prefix).append(' ');

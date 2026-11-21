@@ -109,7 +109,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
      * @return 创建数据源的结果
      */
     private HikariDataSource createDataSource(String url, String user, String pass) {
-        HikariConfig config = new HikariConfig();
+        var config = new HikariConfig();
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(pass);
@@ -136,7 +136,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     public void write(Flux<Map<String, Object>> data) {
         log.info("[JdbcDataSyncAgentSink] 开始写入数据, sinkId={}, batchSize={}, sql={}", sinkId, batchSize, sql);
 
-        AtomicLong totalCount = new AtomicLong(0);
+        var totalCount = new AtomicLong(0);
         try {
             Connection connection = dataSource.getConnection();
             connection.setAutoCommit(false);

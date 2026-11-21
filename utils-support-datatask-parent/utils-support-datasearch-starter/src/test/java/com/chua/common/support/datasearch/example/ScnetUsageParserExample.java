@@ -344,12 +344,12 @@ public final class ScnetUsageParserExample {
         }
 
         @Override
-        protected Path sessionRoot() {
+        protected Path sessionRoot(Path home) {
             return sessions;
         }
 
         @Override
-        protected Path projectRoot() {
+        protected Path projectRoot(Path home) {
             return projects;
         }
     }

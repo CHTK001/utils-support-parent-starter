@@ -11,14 +11,11 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE
  * 该类提供了对 JSON 字符串是否为空、是否为数组或对象类型的快速检查，
  * 以及直接获取对应的 JsonObject 或 JsonArray 实例的方法。
  *
+ * @param json 内部存储的原始 JSON 字符串（已去除首尾空白）。
  * @author CH
  * @since 4.0.0.42
  */
-public class JsonReference {
- /**
-  * 内部存储的原始 JSON 字符串（已去除首尾空白）。
-  */
- private final String json;
+public record JsonReference(String json) {
 
  /**
   * 构造函数，初始化 JSON 引用。
@@ -26,8 +23,8 @@ public class JsonReference {
   *
   * @param json 待引用的 JSON 字符串。若为 null，则视为无效输入。
   */
- public JsonReference(String json) {
- this.json = null == json ? null : json.trim();
+ public JsonReference {
+ json = null == json ? null : json.trim();
  }
 
  /**

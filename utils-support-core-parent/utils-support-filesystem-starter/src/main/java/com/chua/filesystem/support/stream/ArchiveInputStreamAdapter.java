@@ -15,23 +15,24 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
-public class ArchiveInputStreamAdapter implements ArchiveInputStream {
+public record ArchiveInputStreamAdapter(
+        org.apache.commons.compress.archivers.ArchiveInputStream<
+                ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) implements ArchiveInputStream {
 
     /**
      * 原始Arch Linux Linux输入流（commons-compress）
      */
-    private final org.apache.commons.compress.archivers.ArchiveInputStream<
-            ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate;
+    public org.apache.commons.compress.archivers.ArchiveInputStream<
+            ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate() {
+        return delegate;
+    }
 
     /**
      * 构造函数
      *
      * @param delegate commons-compress的Arch Linux Linux Linux输入流
      */
-    public ArchiveInputStreamAdapter(
-            org.apache.commons.compress.archivers.ArchiveInputStream<
-                    ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) {
-        this.delegate = delegate;
+    public ArchiveInputStreamAdapter {
     }
 
     /**

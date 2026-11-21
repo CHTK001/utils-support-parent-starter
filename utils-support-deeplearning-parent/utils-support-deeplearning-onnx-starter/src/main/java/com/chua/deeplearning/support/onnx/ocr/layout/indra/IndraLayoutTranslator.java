@@ -138,7 +138,7 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
 
     @Override
     public List<DetectionInfo> translate(byte[] imageData) {
-        List<DetectionInfo> out = new ArrayList<>();
+        var out = new ArrayList<DetectionInfo>();
         for (Block b : blocks(imageData)) {
             out.add(new DetectionInfo(b.label(), b.confidence(), b.x(), b.y(), b.width(), b.height()));
         }

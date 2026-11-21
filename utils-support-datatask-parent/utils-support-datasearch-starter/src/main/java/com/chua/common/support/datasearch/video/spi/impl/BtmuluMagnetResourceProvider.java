@@ -220,7 +220,7 @@ public class BtmuluMagnetResourceProvider extends AbstractResourceProvider {
      */
     private List<VideoInfoResult> parseItems(Document document) {
         List<VideoInfoResult> results = Wraps.list();
-        Set<String> seen = new HashSet<>();
+        var seen = new HashSet<String>();
         Elements articles = document.select("article.item");
         for (Element article : articles) {
             Element hashLink = findHashLink(article);

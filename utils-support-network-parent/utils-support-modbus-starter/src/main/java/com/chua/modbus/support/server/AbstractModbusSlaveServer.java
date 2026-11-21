@@ -131,7 +131,7 @@ public abstract class AbstractModbusSlaveServer extends AbstractServer implement
         try {
             InetAddress address = InetAddress.getByName(setting.getHost());
             ModbusSlave created = createSlave(address, setting.getPort());
-            DataStoreProcessImage image = new DataStoreProcessImage(dataStore);
+            var image = new DataStoreProcessImage(dataStore);
             created.addProcessImage(unitId, image);
             created.open();
             this.slave = created;

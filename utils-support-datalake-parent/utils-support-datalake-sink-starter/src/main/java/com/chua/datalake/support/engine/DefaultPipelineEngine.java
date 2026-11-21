@@ -282,7 +282,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
             return new CompiledPipeline(CompiledSinkArray.EMPTY, false, true);
         }
         // 预分配数组（最大容量为 sinks 数量，实际有效长度可能更小）
-        CompiledSink[] result = new CompiledSink[sinks.size()];
+        var result = new CompiledSink[sinks.size()];
         int idx = 0;
         int skipped = 0;
         for (Map<String, Object> sinkCfg : sinks) {

@@ -684,7 +684,7 @@ public final class SqlQueryBuilder {
      * @return 首行 Map，无结果返回 null
      */
     public Map<String, Object> map() {
-        List<Map<String, Object>> rows = list();
+        var rows = list();
         if (rows == null || rows.isEmpty() || rows.getFirst() == null) {
             return null;
         }
@@ -717,7 +717,7 @@ public final class SqlQueryBuilder {
      * @throws UnsupportedOperationException 引擎不支持原生查询时抛出
      */
     public int execute() {
-        List<Map<String, Object>> rows = list();
+        var rows = list();
         return rows == null ? 0 : rows.size();
     }
 

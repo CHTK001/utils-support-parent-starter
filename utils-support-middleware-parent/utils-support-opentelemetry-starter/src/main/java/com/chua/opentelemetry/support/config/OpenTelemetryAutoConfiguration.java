@@ -59,7 +59,7 @@ public class OpenTelemetryAutoConfiguration implements DisposableBean {
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public OpenTelemetryEngine openTelemetryEngine(OpenTelemetryClient client) {
-        OpenTelemetryEngine engine = new OpenTelemetryEngine();
+        var engine = new OpenTelemetryEngine();
         engine.addDataSource("default", client);
         return engine;
     }

@@ -263,7 +263,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
      * @return generatewith限制的结果
      */
     private String generateWithLimit(InferenceParameters parameters) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         LlamaIterator it = model.generate(parameters).iterator();
         int tokens = 0;
         try {

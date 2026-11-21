@@ -47,7 +47,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
      */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
-        BasicAWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);
+        var credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);
         this.s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))

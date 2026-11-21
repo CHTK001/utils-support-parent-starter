@@ -154,7 +154,7 @@ public class K6Benchmark implements Benchmark {
         Path script = workDir.resolve("bench.js");
         Files.writeString(script, K6_SCRIPT, StandardCharsets.UTF_8);
 
-        BenchmarkResult result = new BenchmarkResult();
+        var result = new BenchmarkResult();
         result.setConfig(config);
         for (int vus : levels) {
             int iterations = config.getIterationsPerVus() > 0
@@ -212,7 +212,7 @@ public class K6Benchmark implements Benchmark {
         cmd.add(script.toAbsolutePath().toString());
 
         log.info("执行 k6: {}", String.join(" ", cmd));
-        ProcessBuilder pb = new ProcessBuilder(cmd);
+        var pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(true);
         Process process = pb.start();
         String output;
@@ -236,7 +236,7 @@ public class K6Benchmark implements Benchmark {
         }
         DocumentProvider provider = DocumentProvider.create("benchmark-html");
         BenchmarkHtmlProvider htmlProvider = (BenchmarkHtmlProvider) provider;
-        File out = new File(reportPath);
+        var out = new File(reportPath);
         htmlProvider.export(result.toDocumentData(), out, null);
         return out;
     }

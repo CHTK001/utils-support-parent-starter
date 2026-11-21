@@ -83,7 +83,7 @@ public class SpelExpressionResolver implements ExpressionResolver {
      * @return 求值上下文
      */
     private StandardEvaluationContext createEvaluationContext(Object root, Map<String, Object> variables) {
-        StandardEvaluationContext context = new StandardEvaluationContext();
+        var context = new StandardEvaluationContext();
         if (SpringBeanUtils.getApplicationContextOrNull() != null) {
             context.setBeanResolver(new BeanFactoryResolver(SpringBeanUtils.getApplicationContext()));
         }

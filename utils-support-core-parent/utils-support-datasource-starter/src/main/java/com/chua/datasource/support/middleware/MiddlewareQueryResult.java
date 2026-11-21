@@ -103,7 +103,7 @@ public final class MiddlewareQueryResult {
     public static MiddlewareQueryResult single(String column, Object value) {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put(column, value);
-        List<Map<String, Object>> rows = new ArrayList<>();
+        var rows = new ArrayList<Map<String, Object>>();
         rows.add(row);
         return new MiddlewareQueryResult(List.of(column), rows, false, 1L, 0L, "");
     }

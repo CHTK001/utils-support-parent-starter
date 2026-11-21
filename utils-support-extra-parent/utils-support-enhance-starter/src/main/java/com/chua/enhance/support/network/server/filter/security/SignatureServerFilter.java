@@ -143,7 +143,7 @@ public class SignatureServerFilter implements ServerFilter {
         try {
             if ("HMAC-SHA256".equalsIgnoreCase(algorithm)) {
                 Mac mac = Mac.getInstance("HmacSHA256");
-                SecretKeySpec keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+                var keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
                 mac.init(keySpec);
                 return Base64.getEncoder().encodeToString(mac.doFinal(data));
             }

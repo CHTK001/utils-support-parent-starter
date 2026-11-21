@@ -126,7 +126,7 @@ public abstract class ProcessScriptProvider implements ScriptProvider {
             loaded.put(scriptPath, Boolean.TRUE);
             return true;
         }
-        List<String> command = new ArrayList<>(check.length + 2);
+        var command = new ArrayList<String>(check.length + 2);
         command.add(bin);
         for (String arg : check) {
             command.add(arg);
@@ -158,7 +158,7 @@ public abstract class ProcessScriptProvider implements ScriptProvider {
             throw new IllegalArgumentException(engineName() + " 脚本路径不能为 null");
         }
         String bin = resolveInterpreter();
-        List<String> command = new ArrayList<>();
+        var command = new ArrayList<String>();
         command.add(bin);
         for (String arg : preArgs()) {
             command.add(arg);
@@ -230,10 +230,10 @@ public abstract class ProcessScriptProvider implements ScriptProvider {
         if (cached != null) {
             return cached;
         }
-        StringBuilder tried = new StringBuilder();
+        var tried = new StringBuilder();
         String[] probes = probeArgs();
         for (String candidate : interpreterCandidates()) {
-            List<String> command = new ArrayList<>(probes.length + 1);
+            var command = new ArrayList<String>(probes.length + 1);
             command.add(candidate);
             for (String arg : probes) {
                 command.add(arg);
@@ -265,7 +265,7 @@ public abstract class ProcessScriptProvider implements ScriptProvider {
         }
         String[] lines = stderr.strip().split("\n");
         int count = Math.min(lines.length, STDERR_LINES);
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         for (int i = 0; i < count; i++) {
             if (i > 0) {
                 builder.append('\n');

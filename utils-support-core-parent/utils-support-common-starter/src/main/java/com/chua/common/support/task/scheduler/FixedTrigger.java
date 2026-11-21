@@ -32,27 +32,35 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 1.0.0
  */
-public class FixedTrigger implements Trigger {
+public record FixedTrigger(long initialDelay, long interval, TimeUnit timeUnit, LocalDateTime startTime) implements Trigger {
 
     /**
      * 首次执行前的初始延迟时间
      */
-    private final long initialDelay;
+    public long initialDelay() {
+        return initialDelay;
+    }
 
     /**
      * 两次任务触发之间的时间间隔
      */
-    private final long interval;
+    public long interval() {
+        return interval;
+    }
 
     /**
      * 延迟和间隔的时间单位
      */
-    private final TimeUnit timeUnit;
+    public TimeUnit timeUnit() {
+        return timeUnit;
+    }
 
     /**
      * 触发器创建的基准时间
      */
-    private final LocalDateTime startTime;
+    public LocalDateTime startTime() {
+        return startTime;
+    }
 
     /**
      * 根据间隔创建固定频率触发器（无初始延迟）
@@ -72,10 +80,7 @@ public class FixedTrigger implements Trigger {
      * @param timeUnit     时间单位
      */
     public FixedTrigger(long initialDelay, long interval, TimeUnit timeUnit) {
-        this.initialDelay = initialDelay;
-        this.interval = interval;
-        this.timeUnit = timeUnit;
-        this.startTime = LocalDateTime.now();
+        this(initialDelay, interval, timeUnit, LocalDateTime.now());
     }
 
     /**
@@ -99,13 +104,13 @@ public class FixedTrigger implements Trigger {
      */
     @Override
     public LocalDateTime nextExecutionTime(LocalDateTime from) {
-        long nanos = timeUnit.toNanos(interval);
-        long elapsed = ChronoUnit.NANOS.between(startTime, from);
+        long nanos = timeUnit().toNanos(interval());
+        long elapsed = ChronoUnit.NANOS.between(startTime(), from);
         if (elapsed < 0) {
-            return startTime.plusNanos(timeUnit.toNanos(initialDelay));
+            return startTime().plusNanos(timeUnit().toNanos(initialDelay()));
         }
         long periods = elapsed / nanos;
-        return startTime.plusNanos((periods + 1) * nanos + timeUnit.toNanos(initialDelay));
+        return startTime().plusNanos((periods + 1) * nanos + timeUnit().toNanos(initialDelay()));
     }
 
     /**
@@ -144,7 +149,7 @@ public class FixedTrigger implements Trigger {
      * @return 初始延迟时间（以构造时指定的时间单位表示）
      */
     public long getInitialDelay() {
-        return initialDelay;
+        return initialDelay();
     }
 
     /**
@@ -153,7 +158,7 @@ public class FixedTrigger implements Trigger {
      * @return 时间间隔值（以构造时指定的时间单位表示）
      */
     public long getInterval() {
-        return interval;
+        return interval();
     }
 
     /**
@@ -162,6 +167,6 @@ public class FixedTrigger implements Trigger {
      * @return 时间单位
      */
     public TimeUnit getTimeUnit() {
-        return timeUnit;
+        return timeUnit();
     }
 }

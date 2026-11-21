@@ -546,8 +546,8 @@ public class OpenAiChatClient implements ChatClient {
         boolean savedStream = this.stream;
         this.stream = false;
         try {
-            StringBuilder result = new StringBuilder();
-            StringBuilder reasoning = new StringBuilder();
+            var result = new StringBuilder();
+            var reasoning = new StringBuilder();
             final AiUsage[] usage = new AiUsage[1];
             /**
              * chat

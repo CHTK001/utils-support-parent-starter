@@ -258,7 +258,7 @@ public class WhatsAppBotClient implements BotClient {
      * @return 返回值
     */
     private BotSendResult sendTextChunk(String toUser, String content) {
-        Map<String, Object> text = new LinkedHashMap<>();
+        var text = new LinkedHashMap<String, Object>();
         text.put("preview_url", false);
         text.put("body", content);
         Map<String, Object> payload = basePayload(toUser, "text");
@@ -341,7 +341,7 @@ public class WhatsAppBotClient implements BotClient {
             return BotSendResult.fail(-1,
                     "WhatsApp " + type + " 发送仅支持公网 URL（link）：" + link);
         }
-        Map<String, Object> media = new LinkedHashMap<>();
+        var media = new LinkedHashMap<String, Object>();
         media.put("link", link);
         if (StringUtils.isNotBlank(caption)) {
             media.put("caption", caption);
@@ -765,7 +765,7 @@ public class WhatsAppBotClient implements BotClient {
      * @return 返回值
     */
     private Map<String, Object> basePayload(String toUser, String type) {
-        Map<String, Object> payload = new LinkedHashMap<>();
+        var payload = new LinkedHashMap<String, Object>();
         payload.put("messaging_product", "whatsapp");
         payload.put("recipient_type", "individual");
         payload.put("to", toUser);

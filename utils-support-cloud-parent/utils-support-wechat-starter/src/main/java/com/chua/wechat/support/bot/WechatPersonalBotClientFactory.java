@@ -111,7 +111,7 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
 
         @Override
         public BotClient build() {
-            WechatPersonalBotClient client = new WechatPersonalBotClient();
+            var client = new WechatPersonalBotClient();
             client.baseUrl(baseUrl);
             if (StringUtils.isNotBlank(token)) {
                 client.token(token);

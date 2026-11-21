@@ -248,7 +248,7 @@ public interface OtnlEngine extends Engine {
         if (queries == null || queries.isEmpty()) {
             return List.of();
         }
-        List<OtnlMetricSeries> result = new ArrayList<>(queries.size());
+        var result = new ArrayList<OtnlMetricSeries>(queries.size());
         for (OtnlMetricQuery query : queries) {
             try {
                 result.add(metrics(query));

@@ -277,9 +277,7 @@ public final class SkyWalkingPropagator {
     /**
      * SkyWalking sw8 解析结果。
      */
-    public static class Sw8Context {
-        private final String traceId;
-        private final String spanId;
+    public record Sw8Context(String traceId, String spanId) {
 
         /**
          * 构造解析结果。

@@ -442,7 +442,7 @@ public class DataSyncAgentServer implements AgentServerManager {
             String responseTopic = TOPIC_SOURCE_DATA_PREFIX + agentId + ":" + sourceId;
 
             @SuppressWarnings("rawtypes")
-            SyncServerListener[] listenerHolder = new SyncServerListener[1];
+            var listenerHolder = new SyncServerListener[1];
 
             return Flux.<Map<String, Object>>create(sink -> {
                 SyncServerListener listener = new SyncServerListener() {

@@ -104,8 +104,8 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
      */
     private void analysisResources(Set<Resource> resources, String name, String subPath, Set<Resource> result) {
         long startTime = System.currentTimeMillis();
-        AtomicLong scannedCount = new AtomicLong(0);
-        AtomicLong errorCount = new AtomicLong(0);
+        var scannedCount = new AtomicLong(0);
+        var errorCount = new AtomicLong(0);
 
         Stream<Resource> stream = configuration.isParallel()
                 ? resources.parallelStream()

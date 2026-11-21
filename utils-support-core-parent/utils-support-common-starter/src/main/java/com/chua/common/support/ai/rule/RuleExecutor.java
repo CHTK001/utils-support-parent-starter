@@ -106,7 +106,7 @@ public final class RuleExecutor {
      */
     public RuleResult execute(Object input, Map<String, Object> environment) {
         RuleContext context = RuleContext.of(null, null, input, environment);
-        Acc result = new Acc();
+        var result = new Acc();
 
         // 当前要评估的规则序列：首轮是整个规则集，之后是被 to 指向的单条规则
         List<Rule> pass = ruleSet.rules();

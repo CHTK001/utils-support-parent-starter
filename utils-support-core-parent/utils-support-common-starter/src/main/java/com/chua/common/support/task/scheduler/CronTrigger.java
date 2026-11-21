@@ -26,32 +26,36 @@ import java.util.List;
  * @author CH
  * @since 1.0.0
  */
-public class CronTrigger implements Trigger {
+public record CronTrigger(String cron, CronExpression cronExpression, LocalDateTime baseTime) implements Trigger {
 
     /**
      * Cron 表达式原始字符串
      */
-    private final String cron;
+    public String cron() {
+        return cron;
+    }
 
     /**
      * Cron 表达式解析引擎
      */
-    private final CronExpression cronExpression;
+    public CronExpression cronExpression() {
+        return cronExpression;
+    }
 
     /**
      * 基准时间（当前保留以供扩展使用）
      */
-    private final LocalDateTime baseTime;
+    public LocalDateTime baseTime() {
+        return baseTime;
+    }
 
     /**
      * 根据 Cron 表达式创建触发器
      *
      * @param cron 标准 6 字段 Cron 表达式
      */
-    public CronTrigger(String cron) {
-        this.cron = cron;
-        this.cronExpression = new CronExpression(cron);
-        this.baseTime = LocalDateTime.now();
+    public CronTrigger {
+        cronExpression = new CronExpression(cron);
     }
 
     /**
@@ -61,9 +65,16 @@ public class CronTrigger implements Trigger {
      * @param baseTime 基准时间
      */
     public CronTrigger(String cron, LocalDateTime baseTime) {
-        this.cron = cron;
-        this.cronExpression = new CronExpression(cron);
-        this.baseTime = baseTime;
+        this(cron, null, baseTime);
+    }
+
+    /**
+     * 根据 Cron 表达式创建触发器
+     *
+     * @param cron 标准 6 字段 Cron 表达式
+     */
+    public CronTrigger(String cron) {
+        this(cron, LocalDateTime.now());
     }
 
     /**
@@ -73,7 +84,7 @@ public class CronTrigger implements Trigger {
      */
     @Override
     public LocalDateTime nextExecutionTime() {
-        return cronExpression.nextExecutionTime(LocalDateTime.now());
+        return cronExpression().nextExecutionTime(LocalDateTime.now());
     }
 
     /**
@@ -84,7 +95,7 @@ public class CronTrigger implements Trigger {
      */
     @Override
     public LocalDateTime nextExecutionTime(LocalDateTime from) {
-        return cronExpression.nextExecutionTime(from);
+        return cronExpression().nextExecutionTime(from);
     }
 
     /**
@@ -95,7 +106,7 @@ public class CronTrigger implements Trigger {
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count) {
-        return cronExpression.getFireTimes(count, LocalDateTime.now());
+        return cronExpression().getFireTimes(count, LocalDateTime.now());
     }
 
     /**
@@ -107,7 +118,7 @@ public class CronTrigger implements Trigger {
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
-        return cronExpression.getFireTimes(count, from);
+        return cronExpression().getFireTimes(count, from);
     }
 
     /**
@@ -116,6 +127,6 @@ public class CronTrigger implements Trigger {
      * @return Cron 表达式
      */
     public String getCron() {
-        return cron;
+        return cron();
     }
 }

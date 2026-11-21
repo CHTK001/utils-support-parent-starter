@@ -114,7 +114,7 @@ public class ScatterFrame {
         if (buf.remaining() < pathLen + 4) {
             throw new IllegalArgumentException("帧 path 长度越界");
         }
-        byte[] pathBytes = new byte[pathLen];
+        var pathBytes = new byte[pathLen];
         buf.get(pathBytes);
         String path = new String(pathBytes, StandardCharsets.UTF_8);
         int payloadLen = buf.getInt();

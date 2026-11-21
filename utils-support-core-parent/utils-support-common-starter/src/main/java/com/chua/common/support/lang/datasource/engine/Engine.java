@@ -387,7 +387,7 @@ public interface Engine extends AutoCloseable {
      * @return 首行首列值，无结果或首行为空时返回 null
      */
     default Object queryValue(String ql, Object... params) {
-        List<Map<String, Object>> rows = querySql(ql, params);
+        var rows = querySql(ql, params);
         if (rows == null || rows.isEmpty()) {
             return null;
         }
@@ -433,7 +433,7 @@ public interface Engine extends AutoCloseable {
      * @return 命中至少一行返回 true
      */
     default boolean exists(String ql, Object... params) {
-        List<Map<String, Object>> rows = querySql(ql, params);
+        var rows = querySql(ql, params);
         return rows != null && !rows.isEmpty();
     }
 
@@ -487,7 +487,7 @@ public interface Engine extends AutoCloseable {
                             .setPageNum(pageNum).setPageSize(pageSize);
             return interceptQuery(ql, params, () -> e.queryPage(ql, pagination, params));
         }
-        List<Map<String, Object>> all = querySql(ql, params);
+        var all = querySql(ql, params);
         if (all == null || all.isEmpty()) {
             return List.of();
         }

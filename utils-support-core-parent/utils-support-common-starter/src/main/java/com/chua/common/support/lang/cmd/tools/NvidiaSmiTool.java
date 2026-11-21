@@ -129,7 +129,7 @@ public class NvidiaSmiTool extends CliTool {
         if (StringUtils.isNullOrEmpty(value)) {
             return null;
         }
-        StringBuilder digits = new StringBuilder();
+        var digits = new StringBuilder();
         for (char c : value.toCharArray()) {
             if (Character.isDigit(c)) {
                 digits.append(c);

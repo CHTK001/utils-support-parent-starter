@@ -264,7 +264,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
      * @throws IOException 读失败
      */
     private String readHandshakeHeader() throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        var buffer = new ByteArrayOutputStream();
         int p1 = -1;
         int p2 = -1;
         int p3 = -1;

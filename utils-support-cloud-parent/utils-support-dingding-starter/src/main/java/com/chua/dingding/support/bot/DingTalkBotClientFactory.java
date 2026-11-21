@@ -112,7 +112,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         public BotClient build() {
-            DingTalkBotClient client = new DingTalkBotClient();
+            var client = new DingTalkBotClient();
             client.token(token);
             client.secret(secret);
             client.baseUrl(baseUrl);

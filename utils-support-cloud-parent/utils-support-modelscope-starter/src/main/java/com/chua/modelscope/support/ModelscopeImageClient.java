@@ -154,6 +154,16 @@ public class ModelscopeImageClient implements ImageClient {
         return this;
     }
 
+    /**
+     * 支持参考图：参考图随生成请求下发（图生图）。
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean supportsReferenceImage() {
+        return true;
+    }
+
     @Override
     public ImageClient referenceImage(BufferedImage image) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {

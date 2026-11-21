@@ -136,7 +136,7 @@ public class ChatConfigEntity {
      * @return ChatConfigEntity
      */
     public static ChatConfigEntity from(ChatConfig config, String name) {
-        ChatConfigEntity entity = new ChatConfigEntity();
+        var entity = new ChatConfigEntity();
         entity.setName(name);
         entity.setProvider(config.getProvider());
         entity.setAppKey(config.getApiKey());

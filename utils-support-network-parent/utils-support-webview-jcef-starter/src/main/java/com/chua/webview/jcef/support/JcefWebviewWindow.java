@@ -161,7 +161,7 @@ catch (Throwable e) {
             client = cefApp.createClient();
 
             //        JS   Java
-            CefMessageRouterConfig config = new CefMessageRouterConfig("javaBridge", "javaBridgeCancel");
+            var config = new CefMessageRouterConfig("javaBridge", "javaBridgeCancel");
             CefMessageRouter router = CefMessageRouter.create(config);
             router.addHandler(new IpcMessageRouterHandler(this.ipcServer), true);
             client.addMessageRouter(router);

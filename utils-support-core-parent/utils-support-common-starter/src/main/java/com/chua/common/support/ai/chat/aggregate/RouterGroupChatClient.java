@@ -149,7 +149,7 @@ public class RouterGroupChatClient extends SwitchingChatClient {
      */
     public RouterGroupChatClient loadMembers(List<RouterGroupSetting.Member> members,
                                              Function<RouterGroupSetting.Member, ChatClient> factory) {
-        List<RouterGroupSetting.Member> list = new ArrayList<>();
+        var list = new ArrayList<RouterGroupSetting.Member>();
         Map<String, MemberFacts> nextFacts = new HashMap<>();
         if (members != null) {
             for (RouterGroupSetting.Member m : members) {

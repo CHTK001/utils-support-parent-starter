@@ -50,7 +50,7 @@ public class CollapseAutoConfiguration {
      * @return CollapseConfig 实例
      */
     private static CollapseConfig toGlobalConfig(CollapseProperties properties) {
-        CollapseConfig config = new CollapseConfig();
+        var config = new CollapseConfig();
         config.setWaitThreshold(properties.getWaitThreshold());
         config.setCollectingWaitTime(properties.getCollectingWaitTime());
         return config;

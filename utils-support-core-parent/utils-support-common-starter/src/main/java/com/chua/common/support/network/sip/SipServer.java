@@ -444,11 +444,12 @@ private static ServerSetting serverSetting(SipConfig config) {
     /**
      * mux 帧路由：按通道两端将帧转发给对端复用连接；对端未注册时暂存。
      *
-     * @param from      来源连接
-     * @param channelId 通道标识
-     * @param payload   负载（空数组为通道关闭标记）
+     * @param from       来源连接
+     * @param frame      帧数据，布局 {@code [16B channelId][payload]}（复用读缓冲，方法内不保留其引用）
+     * @param payloadLen 负载长度（0 为通道关闭标记）
      */
-    private void muxRoute(MuxServerConn from, String channelId, byte[] payload) {
+    private void muxRoute(MuxServerConn from, byte[] frame, int payloadLen) {
+        String channelId = uuidString(frame, 0, 16);
         TunnelChannel channel = tunnelChannels.get(channelId);
         if (channel == null) {
             return;
@@ -459,11 +460,11 @@ private static ServerSetting serverSetting(SipConfig config) {
 
 
         // 通道关闭标记
-        if (payload.length == 0) {
+        if (payloadLen == 0) {
             muxPending.remove(channelId + "|" + peerKey);
             MuxServerConn peer = muxConns.get(peerKey);
             if (peer != null) {
-                peer.sendFrame(channelId, payload);
+                peer.sendFrame(channelId, new byte[0]);
             }
             return;
         }
@@ -471,12 +472,13 @@ private static ServerSetting serverSetting(SipConfig config) {
         // 对端连接已注册即可发送：对端客户端的 earlyFrames 会缓冲 attach 前的帧
         MuxServerConn peer = muxConns.get(peerKey);
         if (peer != null) {
-            peer.sendFrame(channelId, payload);
+            // 热路径：channelId 与 payload 直接取自读缓冲，sendFrame 同步写出后即失效
+            peer.sendFrame(frame, payloadLen);
             return;
         }
 
         // 对端连接未注册：缓冲完整帧，注册时冲刷
-        byte[] fullFrame = encodeMuxFrame(uuidBytes(channelId), payload);
+        byte[] fullFrame = encodeMuxFrame(frame, payloadLen);
         List<byte[]> pending = muxPending.computeIfAbsent(channelId + "|" + peerKey,
                 k -> java.util.Collections.synchronizedList(Wraps.list()));
         synchronized (pending) {
@@ -993,21 +995,27 @@ onSignalClosed(clientId);
 
         /**
          * 读循环：解帧并交给路由。
+         *
+         * <p>读缓冲复用：header 固定 4 字节，frame 按最长帧预分配；
+         * 帧在本轮内被同步消费（转发时拷入对端发送缓冲、暂存时拷入独立数组），
+         * 不会滞留引用，可安全复用，消除每帧的 header/payload 中间分配。</p>
          */
         void readLoop() {
+            byte[] header = new byte[4];
+            byte[] frame = new byte[16 + 64 * 1024];
             try {
                 while (running) {
-                    byte[] header = readFullyN(in, 4);
+                    readFullyN(in, header, 4);
                     int len = ByteBuffer.wrap(header).getInt();
                     if (len < 16 || len > 16 + 64 * 1024) {
                         throw new IOException("SIP mux 帧长度非法: " + len);
                     }
-                    byte[] frame = readFullyN(in, len);
-                    String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, 16));
-                    byte[] payload = new byte[len - 16];
-                    System.arraycopy(frame, 16, payload, 0, payload.length);
-                    log.debug("SIP mux recv: key={}, ch={}, payload={}", key, channelId, payload.length);
-                    muxRoute(this, channelId, payload);
+                    readFullyN(in, frame, len);
+                    if (log.isDebugEnabled()) {
+                        log.debug("SIP mux recv: key={}, ch={}, payload={}", key,
+                                uuidString(frame, 0, 16), len - 16);
+                    }
+                    muxRoute(this, frame, len - 16);
                 }
             } catch (IOException e) {
                 log.debug("SIP mux 连接读取结束: key={}, {}", key, e.getMessage());
@@ -1032,6 +1040,16 @@ onSignalClosed(clientId);
             }
         }
         void sendFrame(String channelId, byte[] payload) {
+            sendFrame(uuidBytes(channelId), payload);
+        }
+
+        /**
+         * 发送一帧（channelId 以 16 字节形式给出，免每次 hex 解析）。
+         *
+         * @param channelIdBytes 16 字节通道标识
+         * @param payload        负载（空数组为通道关闭标记）
+         */
+        void sendFrame(byte[] channelIdBytes, byte[] payload) {
             int total = 4 + 16 + payload.length;
             try {
                 synchronized (out) {
@@ -1039,7 +1057,32 @@ onSignalClosed(clientId);
                         frameBuffer = new byte[Math.max(total, frameBuffer.length * 2)];
                     }
                     ByteBuffer.wrap(frameBuffer).putInt(16 + payload.length)
-                            .put(uuidBytes(channelId)).put(payload);
+                            .put(channelIdBytes).put(payload);
+                    out.write(frameBuffer, 0, total);
+                    out.flush();
+                }
+            } catch (IOException e) {
+                log.debug("SIP mux 帧发送失败: key={}, {}", key, e.getMessage());
+            }
+        }
+
+        /**
+         * 发送一帧（热路径）：channelId 与 payload 直接取自复用读缓冲，
+         * 布局 {@code [16B channelId][payload]}，消除中间拷贝；
+         * 帧内容在同步写出完成后即不再引用，调用方本轮消费内安全。
+         *
+         * @param frame      帧数据
+         * @param payloadLen 负载长度
+         */
+        void sendFrame(byte[] frame, int payloadLen) {
+            int total = 4 + 16 + payloadLen;
+            try {
+                synchronized (out) {
+                    if (frameBuffer.length < total) {
+                        frameBuffer = new byte[Math.max(total, frameBuffer.length * 2)];
+                    }
+                    ByteBuffer.wrap(frameBuffer).putInt(16 + payloadLen)
+                            .put(frame, 0, 16).put(frame, 16, payloadLen);
                     out.write(frameBuffer, 0, total);
                     out.flush();
                 }
@@ -1071,15 +1114,14 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 阻塞读满指定长度。
+     * 阻塞读满指定长度（填充调用方提供的缓冲，支持读缓冲复用）。
      *
-     * @param in 输入流
-     * @param n  期望长度
-     * @return 数据
+     * @param in   输入流
+     * @param data 目标缓冲
+     * @param n    期望长度（不超过 data 长度）
      * @throws IOException 流结束
      */
-    private static byte[] readFullyN(InputStream in, int n) throws IOException {
-        byte[] data = new byte[n];
+    private static void readFullyN(InputStream in, byte[] data, int n) throws IOException {
         int offset = 0;
         while (offset < n) {
             int read = in.read(data, offset, n - offset);
@@ -1088,7 +1130,6 @@ onSignalClosed(clientId);
             }
             offset += read;
         }
-        return data;
     }
 
     /**
@@ -1104,18 +1145,17 @@ onSignalClosed(clientId);
     /**
      * 编码 SIP mux 帧：4 字节大端长度头 + 16 字节 channelId + payload。
      *
-     * <p>两处调用点（未注册时缓冲、已注册时直发）原本各写一份同样的
-     * {@code allocate/putInt/put/put}，抽到这里保证帧结构只有一处定义。</p>
+     * <p>用于对端未注册时的暂存场景：从复用读缓冲拷出独立完整帧，
+     * 保证暂存队列持有的数据不受后续读取覆写影响。</p>
      *
-     * @param channelIdBytes 16 字节 channelId
-     * @param payload        帧体
+     * @param frame      帧数据，布局 {@code [16B channelId][payload]}
+     * @param payloadLen 负载长度
      * @return 完整帧字节
      */
-    private static byte[] encodeMuxFrame(byte[] channelIdBytes, byte[] payload) {
-        ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
-        buffer.putInt(16 + payload.length);
-        buffer.put(channelIdBytes);
-        buffer.put(payload);
+    private static byte[] encodeMuxFrame(byte[] frame, int payloadLen) {
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payloadLen);
+        buffer.putInt(16 + payloadLen);
+        buffer.put(frame, 0, 16 + payloadLen);
         return buffer.array();
     }
 
@@ -1126,7 +1166,19 @@ onSignalClosed(clientId);
      * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
-        String s = HexFormat.of().formatHex(data);
+        return uuidString(data, 0, data.length);
+    }
+
+    /**
+     * 字节数组区间转 UUID 字符串（免 16 字节中间拷贝）。
+     *
+     * @param data 字节数组
+     * @param from 起始偏移（含）
+     * @param to   结束偏移（不含）
+     * @return UUID 字符串
+     */
+    private static String uuidString(byte[] data, int from, int to) {
+        String s = HexFormat.of().formatHex(data, from, to);
         return s.substring(0, 8) + "-" + s.substring(8, 12) + "-" + s.substring(12, 16)
                 + "-" + s.substring(16, 20) + "-" + s.substring(20);
     }

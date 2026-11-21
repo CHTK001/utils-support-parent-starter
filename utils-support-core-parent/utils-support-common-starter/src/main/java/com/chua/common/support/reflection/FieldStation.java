@@ -12,31 +12,12 @@ import com.chua.common.support.utils.StringUtils;
  * 提供对 Bean 字段按字符串名称的动态读写能力。
  * </p>
  *
+ * @param instance 实例
+ * @param type     类型
  * @author CH
  * @since 4.0.0.42
  */
-public final class FieldStation {
-
-    /**
-     * 实例
-     */
-    private final Object instance;
-
-    /**
-     * 类型
-     */
-    private final Class<?> type;
-
-    /**
-     * 私有构造。
-     *
-     * @param instance 实例
-     * @param type     类型
-     */
-    private FieldStation(Object instance, Class<?> type) {
-        this.instance = instance;
-        this.type = type;
-    }
+public record FieldStation(Object instance, Class<?> type) {
 
     /**
      * 按类创建 字段状态。

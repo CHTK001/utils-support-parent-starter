@@ -32,7 +32,7 @@ public class AsmCompiler implements Compiler {
             throw new IllegalStateException("No system Java compiler available");
         }
 
-        DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
+        var collector = new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(null, null, null);
 
         InMemoryClassLoader classLoader = new InMemoryClassLoader(Thread.currentThread().getContextClassLoader());

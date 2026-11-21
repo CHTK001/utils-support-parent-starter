@@ -105,32 +105,32 @@ public class FeishuMessagePush implements MessagePush {
 
         String msgType = "rich_text".equalsIgnoreCase(request.getContentType()) ? "post" : "text";
 
-        JsonObject json = new JsonObject();
+        var json = new JsonObject();
 
         if ("post".equals(msgType)) {
             String title = request.getSubject() != null ? request.getSubject() : "";
 
-            JsonObject textItem = new JsonObject();
+            var textItem = new JsonObject();
             textItem.fluentPut("tag", "text");
             textItem.fluentPut("text", request.getContent());
 
             JsonObject[][] contentArr = new JsonObject[1][];
             contentArr[0] = new JsonObject[]{textItem};
 
-            JsonObject zhCn = new JsonObject();
+            var zhCn = new JsonObject();
             zhCn.fluentPut("title", title);
             zhCn.fluentPut("content", contentArr);
 
-            JsonObject postContent = new JsonObject();
+            var postContent = new JsonObject();
             postContent.fluentPut("zh_cn", zhCn);
 
-            JsonObject content = new JsonObject();
+            var content = new JsonObject();
             content.fluentPut("post", postContent);
 
             json.fluentPut("msg_type", "post");
             json.fluentPut("content", content);
         } else {
-            JsonObject content = new JsonObject();
+            var content = new JsonObject();
             content.fluentPut("text", request.getContent());
 
             json.fluentPut("msg_type", "text");

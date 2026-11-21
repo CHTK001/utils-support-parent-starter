@@ -415,7 +415,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 log.warn("映射缺少 sinkId: mappingId={}", mapping.mappingId());
                 return;
             }
-            java.util.LinkedHashMap<String, DataSyncAgentSink> sinks = new java.util.LinkedHashMap<>();
+            var sinks = new java.util.LinkedHashMap<String, DataSyncAgentSink>();
             for (String candidate : sinkIds) {
                 if (candidate == null || candidate.isBlank()) {
                     log.warn("映射含空 sinkId: mappingId={}", mapping.mappingId());

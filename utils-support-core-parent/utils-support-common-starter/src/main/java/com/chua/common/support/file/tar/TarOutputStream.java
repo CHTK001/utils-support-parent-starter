@@ -73,7 +73,7 @@ public class TarOutputStream extends OutputStream {
      */
     public TarOutputStream(final File fout, final boolean append) throws IOException {
         @SuppressWarnings("resource")
-        RandomAccessFile raf = new RandomAccessFile(fout, "rw");
+        var raf = new RandomAccessFile(fout, "rw");
         final long fileSize = fout.length();
         if (append && fileSize > TarConstants.EOF_BLOCK) {
             raf.seek(fileSize - TarConstants.EOF_BLOCK);

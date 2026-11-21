@@ -636,7 +636,7 @@ public class FrpClient implements Closeable {
      */
     public FrpTunnelSession openTunnel(String targetHost, int targetPort) {
         String requestId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-        CompletableFuture<FrpTunnelSession> future = new CompletableFuture<>();
+        var future = new CompletableFuture<FrpTunnelSession>();
         pendingTunnels.put(requestId, future);
         sendSignal(FrpProtocol.line(FrpProtocol.PREFIX_OPEN, sessionToken, requestId,
                 targetHost, String.valueOf(targetPort)));

@@ -8,21 +8,20 @@ package com.chua.common.support.datasource.wal;
  *
  * @author CH
  * @since 4.0.0.42
+ *
+ * @param shardCount 分片数量，不允许为 null
  */
-public final class ShardRouter {
-
-    private final int shardCount;
+public record ShardRouter(int shardCount) {
 
     /**
-     * 构造方法，创建 分片Router 实例。
+     * 紧凑构造方法，创建 分片Router 实例。
      *
      * @param shardCount 分片数量，不允许为 null
      */
-    public ShardRouter(int shardCount) {
+    public ShardRouter {
         if (shardCount < 1) {
             throw new IllegalArgumentException("shardCount must be >= 1");
         }
-        this.shardCount = shardCount;
     }
 
     /**
@@ -34,14 +33,6 @@ public final class ShardRouter {
         int hash = key == null ? 0 : key.hashCode();
         // 避免负数
         return (hash & 0x7FFFFFFF) % shardCount;
-    }
-
-    /**
-     * 返回分片数量。
-     * @return 结果数值
-     */
-    public int shardCount() {
-        return shardCount;
     }
 
     /**

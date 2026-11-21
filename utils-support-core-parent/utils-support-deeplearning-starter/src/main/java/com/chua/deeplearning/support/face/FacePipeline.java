@@ -1147,7 +1147,7 @@ public class FacePipeline {
      * @param pipeline 管线
      */
     private void runSingle(FaceContext fc, Pipeline pipeline) {
-        PipelineContext<FaceContext> ctx = new PipelineContext<>(pipeline.getId(), fc);
+        var ctx = new PipelineContext<FaceContext>(pipeline.getId(), fc);
         ctx.setAttribute("face", fc);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);

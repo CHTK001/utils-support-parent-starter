@@ -117,7 +117,7 @@ public class JdkSseClient implements SseClient {
             }
 
             JdkSseConnection connection = new JdkSseConnection();
-            AtomicReference<String> ignoredEventId = new AtomicReference<>();
+            var ignoredEventId = new AtomicReference<String>();
             AtomicLong ignoredRetryHint = new AtomicLong(-1);
             Thread readerThread = Thread.ofVirtual().name("sse-reader").start(() -> {
                 try {

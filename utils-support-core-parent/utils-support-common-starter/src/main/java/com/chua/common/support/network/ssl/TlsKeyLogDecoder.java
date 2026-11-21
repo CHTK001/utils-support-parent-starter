@@ -58,7 +58,7 @@ public class TlsKeyLogDecoder implements Decoder<String, List<TlsKeyLogDecoder.E
         if (input == null) {
             throw new CodecException("keylog 文本不能为 null");
         }
-        List<Entry> entries = new ArrayList<>();
+        var entries = new ArrayList<Entry>();
         for (String line : input.split("\\R")) {
             String value = line.trim();
             if (value.isEmpty() || value.startsWith("#")) {

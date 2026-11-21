@@ -288,7 +288,7 @@ public class MavenCompileResult {
         if (projectPath == null) {
             return null;
         }
-        File pomFile = new File(projectPath);
+        var pomFile = new File(projectPath);
         File parent = pomFile.getParentFile();
         if (parent == null) {
             return new File(".").getAbsolutePath();
@@ -330,7 +330,7 @@ public class MavenCompileResult {
             if (children != null) {
                 for (File child : children) {
                     if (child.isDirectory()) {
-                        File childTarget = new File(child, "target");
+                        var childTarget = new File(child, "target");
                         if (childTarget.exists()) {
                             scanTargetDir(childTarget, result);
                         }

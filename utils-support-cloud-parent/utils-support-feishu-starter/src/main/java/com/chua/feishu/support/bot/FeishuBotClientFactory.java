@@ -149,7 +149,7 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         */
         @Override
         public BotClient build() {
-            FeishuBotClient client = new FeishuBotClient();
+            var client = new FeishuBotClient();
             if (appId != null) {
                 client.token(appId);
             }

@@ -52,7 +52,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
      */
     public QiniuKodoFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
-        Configuration cfg = new Configuration(Region.autoRegion());
+        var cfg = new Configuration(Region.autoRegion());
         this.auth = Auth.create(accessKeyId, accessKeySecret);
         this.uploadManager = new UploadManager(cfg);
         this.bucketManager = new BucketManager(auth, cfg);

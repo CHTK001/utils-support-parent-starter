@@ -10,17 +10,7 @@ import java.time.Duration;
  * @author CH
  * @since 2026/07/19
  */
-public final class DateTimeRange {
-
-    /**
-     * 开始时间
-     */
-    private final LocalDateTime startTime;
-
-    /**
-     * 结束时间
-     */
-    private final LocalDateTime endTime;
+public record DateTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
 
     /**
      * 构造时间区间。
@@ -29,12 +19,10 @@ public final class DateTimeRange {
      * @param endTime   结束时间
      * @throws IllegalArgumentException 开始时间晚于结束时间
      */
-    public DateTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
+    public DateTimeRange {
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("startTime cannot be after endTime");
         }
-        this.startTime = startTime;
-        this.endTime = endTime;
     }
 
     /**

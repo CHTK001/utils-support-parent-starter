@@ -96,7 +96,7 @@ public class VertxTcpClient implements TcpClient {
             return callEncrypted(codec, host, port, request);
         }
         CompletableFuture<byte[]> future = new CompletableFuture<>();
-        AtomicBoolean done = new AtomicBoolean(false);
+        var done = new AtomicBoolean(false);
         Future<NetSocket> connectFuture = netClient.connect(port, host);
         connectFuture.onSuccess(socket -> {
  // 响应帧协议（与 jdktcp客户端.exchange 对称）：4 字节长度头 + 主体
@@ -162,12 +162,12 @@ public class VertxTcpClient implements TcpClient {
             socket.setSoTimeout(READ_TIMEOUT_MILLIS);
             StreamCodec.Streams streams = codec.open(
                     socket.getInputStream(), socket.getOutputStream(), true);
-            DataOutputStream out = new DataOutputStream(streams.out());
+            var out = new DataOutputStream(streams.out());
             out.writeInt(request.length);
             out.write(request);
             out.flush();
 
-            DataInputStream in = new DataInputStream(streams.in());
+            var in = new DataInputStream(streams.in());
             int bodyLen = in.readInt();
             if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
                 throw new IOException("响应帧长度越界: " + bodyLen);

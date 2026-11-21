@@ -219,7 +219,7 @@ public BufferedImage generate(String prompt) {
         int h = height != null ? height : 1024;
         String q = quality != null ? quality : "standard";
         // 构建请求体
-        StringBuilder bodyBuilder = new StringBuilder();
+        var bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"textToImageParams\":{\"text\":\"")
                 .append(escapeJson(actualPrompt)).append("\"");
         if (StringUtils.isNotBlank(negativePrompt)) {

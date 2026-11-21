@@ -156,7 +156,7 @@ public class UserProfileMockString implements MockString {
         int birthMonth = 1 + environment.nextInt(12);
         int birthDay = 1 + environment.nextInt(daysInMonth(birthYear, birthMonth));
 
-        Map<String, Object> data = new LinkedHashMap<>();
+        var data = new LinkedHashMap<String, Object>();
         data.put("name", randomName(environment));
         data.put("gender", environment.nextInt(2) == 0 ? "男" : "女");
         data.put("birthday", String.format("%04d-%02d-%02d", birthYear, birthMonth, birthDay));

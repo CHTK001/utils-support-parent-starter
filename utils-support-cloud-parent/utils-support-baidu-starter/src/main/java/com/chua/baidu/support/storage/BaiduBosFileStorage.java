@@ -40,7 +40,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
      */
     public BaiduBosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
-        BosClientConfiguration config = new BosClientConfiguration();
+        var config = new BosClientConfiguration();
         config.setCredentials(new DefaultBceCredentials(accessKeyId, accessKeySecret));
         config.setEndpoint(endpoint);
         this.bosClient = new BosClient(config);

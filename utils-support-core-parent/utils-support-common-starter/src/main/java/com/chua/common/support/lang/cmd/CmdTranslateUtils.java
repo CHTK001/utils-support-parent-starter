@@ -204,7 +204,7 @@ public final class CmdTranslateUtils {
      */
     private static String replaceCaptures(java.util.regex.Matcher m, String template) {
         int g = m.groupCount();
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < template.length(); i++) {
             if (template.charAt(i) == '$' && i + 1 < template.length() && Character.isDigit(template.charAt(i + 1))) {
                 int num = template.charAt(i + 1) - '0';

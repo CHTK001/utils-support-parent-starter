@@ -111,7 +111,7 @@ public class SftpClient implements AutoCloseable {
         if (session == null || session.isClosed()) {
             throw new IllegalStateException("SSH 会话未建立或已关闭，无法打开 SFTP 通道: " + host + ":" + port);
         }
-        SftpClient client = new SftpClient(new Builder()
+        var client = new SftpClient(new Builder()
                 .host(host)
                 .username(username)
                 .port(port)

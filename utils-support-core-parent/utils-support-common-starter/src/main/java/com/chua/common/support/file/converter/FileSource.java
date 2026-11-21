@@ -36,51 +36,7 @@ import java.net.URL;
  * @author CH
  * @since 1.0.0
  */
-public class FileSource {
-
-    /**
-     * 文件系统路径（当通过路径创建时非空）
-     */
-    private final String path;
-
-    /**
-     * 网络地址（当通过 URL 创建时非空）
-     */
-    private final URL url;
-
-    /**
-     * 输入数据流（当作为输入源时非空）
-     */
-    private final InputStream inputStream;
-
-    /**
-     * 输出数据流（当作为输出目标时非空）
-     */
-    private final OutputStream outputStream;
-
-    /**
-     * 文件格式类型标识（如 csv, xlsx, pdf, json）
-     */
-    private final String type;
-
-    /**
-     * 创建 FileSource 实例
-     * @param path path
-     */
-    private FileSource(String path) {
-        this(path, null, null, null, null);
-    }
-
-    /**
-     * 创建 FileSource 实例
-     * @param path path
-     * @param inputStream input流，不允许为 null
-     * @param outputStream output流，不允许为 null
-     * @param type 类型，不允许为 null
-     */
-    private FileSource(String path, InputStream inputStream, OutputStream outputStream, String type) {
-        this(path, null, inputStream, outputStream, type);
-    }
+public record FileSource(String path, URL url, InputStream inputStream, OutputStream outputStream, String type) {
 
     /**
      * 创建 FileSource 实例
@@ -90,12 +46,7 @@ public class FileSource {
      * @param outputStream output流，不允许为 null
      * @param type 类型，不允许为 null
      */
-    private FileSource(String path, URL url, InputStream inputStream, OutputStream outputStream, String type) {
-        this.path = path;
-        this.url = url;
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
-        this.type = type;
+    public FileSource {
     }
 
     /**
@@ -104,7 +55,7 @@ public class FileSource {
      * @return 文件来源 对象
      */
     public static FileSource of(String path) {
-        return new FileSource(path);
+        return new FileSource(path, null, null, null, null);
     }
 
     /**

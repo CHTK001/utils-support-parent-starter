@@ -148,7 +148,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         int suffixLength = getStringDisplayLength(suffix);
         int progressBarLength = Math.max(20, maxLength - prefixLength - suffixLength);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(prefix);
 
         //
@@ -252,7 +252,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
      * @return
      */
     private String renderProgressBar(ProgressState progress, int length) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         if (progress.indefinite) {
             //
@@ -369,7 +369,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         }
 
         //
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         int displayLength = 0;
         boolean inAnsiSequence = false;
 

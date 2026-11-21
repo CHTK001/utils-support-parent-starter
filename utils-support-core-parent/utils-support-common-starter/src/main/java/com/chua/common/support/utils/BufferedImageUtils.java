@@ -536,7 +536,7 @@ public class BufferedImageUtils {
                 return (IIOMetadataNode) root.item(i);
             }
         }
-        IIOMetadataNode node = new IIOMetadataNode(nodeName);
+        var node = new IIOMetadataNode(nodeName);
         root.appendChild(node);
         return node;
     }

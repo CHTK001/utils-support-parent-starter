@@ -2088,7 +2088,7 @@ public class ArrayUtils {
         if (array == null) {
             return null;
         }
-        StringJoiner stringJoiner = new StringJoiner(separator);
+        var stringJoiner = new StringJoiner(separator);
         for (Object o : array) {
             if (null == o) {
                 stringJoiner.add(EMPTY_STRING);

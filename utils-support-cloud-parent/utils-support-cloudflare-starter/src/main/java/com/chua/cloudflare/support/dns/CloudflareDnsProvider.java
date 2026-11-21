@@ -132,7 +132,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     */
     public List<DnsRecord> listRecords(String name, String type) {
         ensureReady();
-        StringBuilder path = new StringBuilder("/zones/").append(zoneId).append("/dns_records");
+        var path = new StringBuilder("/zones/").append(zoneId).append("/dns_records");
         if (StringUtils.isNotEmpty(name)) {
             path.append("?name=").append(name);
         }

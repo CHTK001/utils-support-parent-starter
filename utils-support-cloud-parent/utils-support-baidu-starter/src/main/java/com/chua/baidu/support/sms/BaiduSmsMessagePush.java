@@ -129,7 +129,7 @@ public class BaiduSmsMessagePush implements MessagePush {
         String content = request.getContent() != null ? request.getContent() : "";
         String templateId = request.getTemplateId() != null ? request.getTemplateId() : "";
 
-        JsonObject jsonBody = new JsonObject();
+        var jsonBody = new JsonObject();
         jsonBody.fluentPut("phoneNumbers", request.getTo());
         jsonBody.fluentPut("content", content);
         jsonBody.fluentPut("templateId", templateId);

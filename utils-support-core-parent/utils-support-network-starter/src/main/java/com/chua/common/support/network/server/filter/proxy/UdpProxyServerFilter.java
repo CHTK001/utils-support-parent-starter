@@ -221,7 +221,7 @@ public class UdpProxyServerFilter implements ServerFilter {
      */
     private void handlePacket(io.vertx.core.datagram.DatagramPacket packet, DatagramSocket mainSocket) {
         io.vertx.core.net.SocketAddress sender = packet.sender();
-        InetSocketAddress senderAddr = new InetSocketAddress(sender.host(), sender.port());
+        var senderAddr = new InetSocketAddress(sender.host(), sender.port());
         Discovery discovery = targetResolver.resolve(senderAddr);
         if (discovery == null) {
             log.warn("[network-proxy] 无法解析后端地址 for remote={}", senderAddr);

@@ -147,6 +147,31 @@ public class DuckChatClient implements ChatClient {
         return this;
     }
 
+    /**
+     * 获取客户端配置。
+     *
+     * <p>Agent 运行时（OpencodeServerAgent）会经 {@code getSetting()} 读取
+     * provider/model 派生模型标识；不重写将拿到接口默认的 {@code null}，
+     * 导致「ChatClient 无法解析出 provider/model」。认证头、指标等
+     * 默认实现同样依赖本方法。</p>
+     *
+     * @return 客户端配置
+     */
+    @Override
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
+
+    /**
+     * 获取当前模型。
+     *
+     * @return 模型名；未设置时返回 {@code null}
+     */
+    @Override
+    public String getModel() {
+        return model;
+    }
+
     @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());

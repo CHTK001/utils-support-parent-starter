@@ -282,7 +282,7 @@ public class XunfeiChatClient implements ChatClient {
     */
     @Override
     public String chatSync(String prompt) {
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] errorRef = new Throwable[1];
         /**
@@ -387,7 +387,7 @@ public class XunfeiChatClient implements ChatClient {
                 .build();
 
  // 构建 OkHttp客户端（支持代理）
-        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
+        var okBuilder = new OkHttpClient.Builder();
         String proxyStr = setting.getProxy();
         if (StringUtils.isNotEmpty(proxyStr)) {
             okBuilder.proxy(parseProxy(proxyStr));
@@ -403,7 +403,7 @@ public class XunfeiChatClient implements ChatClient {
 
         String resolvedModel = model != null ? model : "spark-3.5";
         CountDownLatch latch = new CountDownLatch(1);
-        StringBuilder contentBuilder = new StringBuilder();
+        var contentBuilder = new StringBuilder();
 
         ChatListener listener = new ChatListener(aiChatRequest) {
             /**

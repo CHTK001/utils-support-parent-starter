@@ -71,7 +71,7 @@ public class CypherExpressionParser implements ExpressionParser {
         if (StringUtils.isBlank(expression)) {
             throw new IllegalArgumentException("Cypher 表达式不能为空");
         }
-        CypherParser parser = new CypherParser(expression.trim());
+        var parser = new CypherParser(expression.trim());
         BTreeNode result = parser.parseOr();
         if (!parser.isEnd()) {
             throw new IllegalArgumentException("Cypher 表达式解析不完整，剩余: " + parser.remaining());
@@ -137,7 +137,7 @@ public class CypherExpressionParser implements ExpressionParser {
                 yield v == null ? "NULL" : String.valueOf(v);
             }
             case FUNCTION -> {
-                StringBuilder sb = new StringBuilder(tree.getOperator()).append("(");
+                var sb = new StringBuilder(tree.getOperator()).append("(");
                 for (int i = 0; i < tree.getChildren().size(); i++) {
                     if (i > 0) {
                         sb.append(", ");
@@ -275,7 +275,7 @@ public class CypherExpressionParser implements ExpressionParser {
          */
         BTreeNode parseInList() {
             if (match('[')) {
-                StringBuilder list = new StringBuilder();
+                var list = new StringBuilder();
                 list.append('(');
                 skipWhitespace();
                 int count = 0;
@@ -479,7 +479,7 @@ public class CypherExpressionParser implements ExpressionParser {
                 skipWhitespace();
                 String second = readIdentifier();
                 if (!second.isEmpty()) {
-                    StringBuilder path = new StringBuilder(first)
+                    var path = new StringBuilder(first)
                             .append('.').append(second);
                     // 支持链式属性访问 a.b.c
                     skipWhitespace();

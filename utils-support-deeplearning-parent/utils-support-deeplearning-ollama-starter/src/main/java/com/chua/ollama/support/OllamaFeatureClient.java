@@ -102,7 +102,7 @@ public class OllamaFeatureClient implements FeatureClient {
             return new float[0];
         }
         String resolvedModel = StringUtils.isNotBlank(model) ? model : "nomic-embed-text";
-        OllamaEmbedRequest request = new OllamaEmbedRequest(resolvedModel, List.of(text));
+        var request = new OllamaEmbedRequest(resolvedModel, List.of(text));
         if (dimensions != null) {
             request.setOptions(java.util.Map.of("dimensions", dimensions));
         }
@@ -113,7 +113,7 @@ public class OllamaFeatureClient implements FeatureClient {
                 return new float[0];
             }
             List<Double> doubles = embeddings.getFirst();
-            float[] out = new float[doubles.size()];
+            var out = new float[doubles.size()];
             for (int i = 0; i < doubles.size(); i++) {
                 out[i] = doubles.get(i) != null ? doubles.get(i).floatValue() : 0f;
             }

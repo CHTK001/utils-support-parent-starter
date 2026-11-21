@@ -221,8 +221,8 @@ public class SqlHighlighter {
      * @return 结果字符串
      */
     private static String highlightInternal(String sql, HighlightConfig config, boolean isHtml) {
-        StringBuilder result = new StringBuilder();
-        StringBuilder currentToken = new StringBuilder();
+        var result = new StringBuilder();
+        var currentToken = new StringBuilder();
 
         // 状态变量
         boolean inSingleQuote = false;

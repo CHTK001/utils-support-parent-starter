@@ -166,7 +166,7 @@ public class SystemOutCaptureHandler implements Plugin {
      * @return 输出条目
      */
     public List<SystemOutEntry> tail(int limit) {
-        List<SystemOutEntry> result = new ArrayList<>(entries);
+        var result = new ArrayList<SystemOutEntry>(entries);
         if (result.size() > limit) {
             result = new ArrayList<>(result.subList(result.size() - limit, result.size()));
         }
@@ -183,7 +183,7 @@ public class SystemOutCaptureHandler implements Plugin {
      * @return 增量条目（按 seq 升序）；无增量返回空列表
      */
     public List<SystemOutEntry> tailAfter(long afterSeq) {
-        List<SystemOutEntry> result = new ArrayList<>();
+        var result = new ArrayList<SystemOutEntry>();
         for (SystemOutEntry e : entries) {
             if (e.getSeq() > afterSeq) {
                 result.add(e);

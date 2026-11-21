@@ -193,7 +193,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     public ServerHandlerFactory<T> route(String path, HttpMethod method, ServerHandler handler) {
         validateRoute(path, handler);
         RouteTable cur = table;
-        Map<String, Map<HttpMethod, ServerHandler>> routes = new LinkedHashMap<>(cur.routes);
+        var routes = new LinkedHashMap<String, Map<HttpMethod, ServerHandler>>(cur.routes);
         Map<HttpMethod, ServerHandler> methodMap = new LinkedHashMap<>(
                 cur.routes.getOrDefault(path, Collections.emptyMap()));
         methodMap.put(method, handler);

@@ -213,7 +213,7 @@ public class ConfigurableMagnetResourceProvider extends AbstractResourceProvider
         int page = Math.max(1, videoSearch.getPage());
         int limit = limit(videoSearch, usable.get(0));
         List<VideoInfoResult> results = Wraps.list();
-        Set<String> seen = new HashSet<>();
+        var seen = new HashSet<String>();
         Exception lastError = null;
         for (ScrapeConfig site : usable) {
             try {
@@ -261,7 +261,7 @@ public class ConfigurableMagnetResourceProvider extends AbstractResourceProvider
             return results;
         }
         Document document = Jsoup.parse(html == null ? "" : html, baseUri == null ? "" : baseUri);
-        Set<String> seen = new HashSet<>();
+        var seen = new HashSet<String>();
         int detailRequests = 0;
         for (Element item : document.select(config.itemSelector)) {
             if (results.size() >= limit) {

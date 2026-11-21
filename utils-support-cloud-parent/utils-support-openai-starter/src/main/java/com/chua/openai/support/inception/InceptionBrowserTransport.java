@@ -144,7 +144,7 @@ public class InceptionBrowserTransport implements InceptionTransport {
                 lastError = null;
                 String token = readSessionToken();
 
-                Map<String, String> headers = new LinkedHashMap<>();
+                var headers = new LinkedHashMap<String, String>();
                 headers.put("content-type", "application/json");
                 headers.put("accept", "text/event-stream");
                 if (StringUtils.isNotBlank(token)) {

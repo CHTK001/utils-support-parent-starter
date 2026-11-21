@@ -680,7 +680,7 @@ public class AgentEditorProvider {
                     result.put("error", "未找到 ResourceProvider: " + type);
                     return result;
                 }
-                VideoSearch search = new VideoSearch();
+                var search = new VideoSearch();
                 search.setKeyword(keyword);
                 search.setPage(page);
                 search.setPageSize(pageSize);
@@ -835,7 +835,7 @@ public class AgentEditorProvider {
      * @return 新创建并加入列表的自定义编辑器实例
      */
     public AgentEditor addCustomEditor(String name, String configDir, String mcpFile, boolean workspaceBased) {
-        AgentEditor custom = new AgentEditor(name, configDir, mcpFile, workspaceBased);
+        var custom = new AgentEditor(name, configDir, mcpFile, workspaceBased);
         customEditors.add(custom);
         return custom;
     }
@@ -1089,7 +1089,7 @@ public class AgentEditorProvider {
                 return List.of();
             }
             return servers.entrySet().stream().map(e -> {
-                McpServerConfig sc = new McpServerConfig();
+                var sc = new McpServerConfig();
                 sc.name = e.getKey();
                 if (e.getValue() instanceof Map) {
                     Map<String, Object> m = (Map<String, Object>) e.getValue();

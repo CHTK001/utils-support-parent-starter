@@ -150,7 +150,7 @@ public final class EmailMessageDecoder {
             return null;
         }
         String[] lines = text.split("\\r?\\n", -1);
-        Map<String, String> headers = new LinkedHashMap<>();
+        var headers = new LinkedHashMap<String, String>();
         String lastName = null;
         int index = 0;
         for (; index < lines.length && index < MAX_HEADER_LINES; index++) {

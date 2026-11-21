@@ -114,7 +114,7 @@ public class BenchmarkDocumentData extends DocumentData {
     public static BenchmarkRow fromK6SummaryJson(String k6SummaryJson, String implementation, int concurrency) {
         Map<String, Object> root = Json.fromJson(k6SummaryJson, Map.class);
         Map<String, Object> metrics = root != null ? (Map<String, Object>) root.get("metrics") : null;
-        BenchmarkRow row = new BenchmarkRow();
+        var row = new BenchmarkRow();
         row.setImplementation(implementation);
         row.setConcurrency(concurrency);
 

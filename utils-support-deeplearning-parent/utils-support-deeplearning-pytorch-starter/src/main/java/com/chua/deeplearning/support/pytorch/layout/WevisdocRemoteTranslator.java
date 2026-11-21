@@ -90,9 +90,9 @@ public class WevisdocRemoteTranslator implements Translator<Image, DetectedObjec
         int n = elements.size();
         int regionH = imgH / n;
 
-        List<String> classNames = new ArrayList<>();
-        List<BoundingBox> rects = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
+        var classNames = new ArrayList<String>();
+        var rects = new ArrayList<BoundingBox>();
+        var probs = new ArrayList<Double>();
 
         for (int i = 0; i < elements.size(); i++) {
             WevisdocLayoutBridge.MarkdownElement elem = elements.get(i);
@@ -107,7 +107,7 @@ public class WevisdocRemoteTranslator implements Translator<Image, DetectedObjec
                 text = text.substring(0, 50) + "...";
             }
 
-            Rectangle rect = new Rectangle(0, y1, 1000, y2 - y1);
+            var rect = new Rectangle(0, y1, 1000, y2 - y1);
             classNames.add(elem.label);
             rects.add(rect);
             probs.add(0.85); // 近似置信度

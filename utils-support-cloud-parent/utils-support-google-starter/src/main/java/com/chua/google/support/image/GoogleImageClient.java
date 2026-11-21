@@ -216,7 +216,7 @@ public BufferedImage generate(String prompt) {
         }
         String actualModel = model != null ? model : "imagen-3.0-generate-001";
         // 构建请求体
-        StringBuilder bodyBuilder = new StringBuilder();
+        var bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"instances\":[{\"prompt\":\"")
                 .append(escapeJson(actualPrompt))
                 .append("\"}],\"parameters\":{\"sampleCount\":1");

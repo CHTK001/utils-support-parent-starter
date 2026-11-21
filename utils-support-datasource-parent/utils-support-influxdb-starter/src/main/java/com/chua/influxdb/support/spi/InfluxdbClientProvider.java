@@ -113,7 +113,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listTopNodes(MiddlewareConnectRequest request) {
-        List<MiddlewareTreeNode> out = new ArrayList<>();
+        var out = new ArrayList<MiddlewareTreeNode>();
         try {
             if (isV3(request)) {
                 // v3：数据库即顶层节点
@@ -132,7 +132,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
 
     @Override
     public List<MiddlewareTreeNode> listChildren(MiddlewareConnectRequest request, String parentKey) {
-        List<MiddlewareTreeNode> out = new ArrayList<>();
+        var out = new ArrayList<MiddlewareTreeNode>();
         try {
             if (isV3(request)) {
                 // v3：度量即子节点（SQL 查 system 表）
@@ -172,9 +172,9 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         long t0 = System.currentTimeMillis();
         try {
             if (cmd.equalsIgnoreCase("buckets")) {
-                List<Map<String, Object>> rows = new ArrayList<>();
+                var rows = new ArrayList<Map<String, Object>>();
                 for (MiddlewareTreeNode n : listTopNodes(request)) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    var row = new LinkedHashMap<String, Object>();
                     row.put("bucket", n.label());
                     rows.add(row);
                 }
@@ -182,10 +182,10 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
                         System.currentTimeMillis() - t0);
             }
             if (cmd.equalsIgnoreCase("measurements")) {
-                List<Map<String, Object>> rows = new ArrayList<>();
+                var rows = new ArrayList<Map<String, Object>>();
                 String bucket = request.database();
                 for (MiddlewareTreeNode n : listChildren(request, bucket)) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    var row = new LinkedHashMap<String, Object>();
                     row.put("measurement", n.label());
                     rows.add(row);
                 }
@@ -363,7 +363,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         }
         String[] lines = csv.split("\n");
         List<String> header = null;
-        List<Map<String, Object>> rows = new ArrayList<>();
+        var rows = new ArrayList<Map<String, Object>>();
         for (String line : lines) {
             if (line.isBlank()) {
                 continue;
@@ -382,7 +382,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
                 }
                 continue;
             }
-            Map<String, Object> row = new LinkedHashMap<>();
+            var row = new LinkedHashMap<String, Object>();
             for (int i = 0; i < header.size() && i < cells.size(); i++) {
                 row.put(header.get(i), cells.get(i));
             }
@@ -437,7 +437,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
             return MiddlewareQueryResult.empty();
         }
         // v3 的 json 格式是每行一个 JSON 对象
-        List<Map<String, Object>> rows = new ArrayList<>();
+        var rows = new ArrayList<Map<String, Object>>();
         List<String> cols = new ArrayList<>();
         Set<String> seen = new java.util.HashSet<>();
         for (String line : json.split("\n")) {
@@ -447,7 +447,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
             }
             // [P3C 修复] 正则提升为类级常量 JSON_KV_PATTERN，避免每行重复编译
             Matcher m = JSON_KV_PATTERN.matcher(line);
-            Map<String, Object> row = new LinkedHashMap<>();
+            var row = new LinkedHashMap<String, Object>();
             while (m.find()) {
                 String k = m.group(1);
                 String v = m.group(2);

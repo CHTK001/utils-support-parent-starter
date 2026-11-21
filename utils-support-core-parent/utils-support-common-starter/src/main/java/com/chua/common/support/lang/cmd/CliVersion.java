@@ -126,7 +126,7 @@ public final class CliVersion implements Comparable<CliVersion> {
             return unknown();
         }
         int[] copy = Arrays.copyOf(numbers, numbers.length);
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = 0; i < copy.length; i++) {
             if (i > 0) {
                 sb.append('.');

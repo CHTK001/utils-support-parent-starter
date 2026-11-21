@@ -61,7 +61,7 @@ public class PrometheusAutoConfiguration {
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public PrometheusEngine prometheusEngine(PrometheusClient client) {
-        PrometheusEngine engine = new PrometheusEngine();
+        var engine = new PrometheusEngine();
         engine.addDataSource("default", client);
         return engine;
     }

@@ -299,7 +299,7 @@ public interface Dialect {
      * @return UPDATE 语句
      */
     default String getUpdateSql(String tableName, String setClause, String whereClause) {
-        StringBuilder sb = new StringBuilder("update ").append(quote(SqlName.check(tableName, "表名")))
+        var sb = new StringBuilder("update ").append(quote(SqlName.check(tableName, "表名")))
                 .append(" set ").append(setClause);
         if (StringUtils.isNotEmpty(whereClause)) {
             sb.append(" where ").append(whereClause);
@@ -316,7 +316,7 @@ public interface Dialect {
      * @return DELETE 语句
      */
     default String getDeleteSql(String tableName, String whereClause) {
-        StringBuilder sb = new StringBuilder("delete from ").append(quote(SqlName.check(tableName, "表名")));
+        var sb = new StringBuilder("delete from ").append(quote(SqlName.check(tableName, "表名")));
         if (StringUtils.isNotEmpty(whereClause)) {
             sb.append(" where ").append(whereClause);
         }
@@ -555,7 +555,7 @@ public interface Dialect {
      * @return CREATE INDEX 语句
      */
     default String getCreateIndexString(IndexMetadata indexMetadata) {
-        StringBuilder sql = new StringBuilder();
+        var sql = new StringBuilder();
         if (indexMetadata.isUnique()) {
             sql.append("CREATE UNIQUE INDEX ");
         } else {

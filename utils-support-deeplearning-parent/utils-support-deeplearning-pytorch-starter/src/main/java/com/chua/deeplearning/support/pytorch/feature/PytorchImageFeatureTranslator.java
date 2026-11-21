@@ -96,7 +96,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
         if (norm < 1e-12) {
             return feature;
         }
-        float[] result = new float[feature.length];
+        var result = new float[feature.length];
         for (int i = 0; i < feature.length; i++) {
             result[i] = (float) (feature[i] / norm);
         }

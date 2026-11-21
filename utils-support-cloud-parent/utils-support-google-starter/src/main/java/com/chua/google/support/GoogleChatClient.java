@@ -277,8 +277,8 @@ public class GoogleChatClient implements ChatClient {
     */
     @Override
     public String chatSync(String prompt) {
-        StringBuilder result = new StringBuilder();
-        StringBuilder reasoning = new StringBuilder();
+        var result = new StringBuilder();
+        var reasoning = new StringBuilder();
         /**
          * chat
          * @param prompt 参数
@@ -382,8 +382,8 @@ public class GoogleChatClient implements ChatClient {
                     .provider("google")
                     .startTime(startTime);
 
-            StringBuilder fullContent = new StringBuilder();
-            StringBuilder reasoningContent = new StringBuilder();
+            var fullContent = new StringBuilder();
+            var reasoningContent = new StringBuilder();
             boolean first = true;
 
             ResponseStream<GenerateContentResponse> stream = client.models.generateContentStream(

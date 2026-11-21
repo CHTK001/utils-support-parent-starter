@@ -127,7 +127,7 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         if (pos + dim * 4 > payload.length) {
             return Optional.empty();
         }
-        float[] data = new float[dim];
+        var data = new float[dim];
         for (int i = 0; i < dim; i++) {
             data[i] = ByteBuffer.wrap(payload, pos + i * 4, 4).getFloat();
         }

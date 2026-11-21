@@ -359,7 +359,7 @@ public class DefaultEngineOrm implements EngineOrm {
         List<Object> values = Wraps.list();
         int depth = 0;
         boolean quoted = false;
-        StringBuilder buffer = new StringBuilder();
+        var buffer = new StringBuilder();
         for (int i = 0; i < body.length(); i++) {
             char ch = body.charAt(i);
             if (ch == '\'') {

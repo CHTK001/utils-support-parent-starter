@@ -259,7 +259,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         }
         order.sort((a, b) -> Double.compare(probabilities.get(b), probabilities.get(a)));
 
-        boolean[] removed = new boolean[n];
+        var removed = new boolean[n];
         List<Integer> keep = Wraps.list();
         for (int i = 0; i < n; i++) {
             int idx = order.get(i);

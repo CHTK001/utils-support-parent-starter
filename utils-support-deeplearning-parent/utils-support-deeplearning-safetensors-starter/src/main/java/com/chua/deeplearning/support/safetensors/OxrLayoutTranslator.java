@@ -93,7 +93,7 @@ public class OxrLayoutTranslator implements ITranslator<byte[], String> {
      * @return 参数 map
      */
     private static Map<String, Object> buildParams() {
-        Map<String, Object> params = new LinkedHashMap<>();
+        var params = new LinkedHashMap<String, Object>();
         putIfPresent(params, "base_url", System.getProperty("oxr.base_url", System.getenv("OXR_BASE_URL")));
         putIfPresent(params, "api_key", System.getProperty("oxr.api_key", System.getenv("OXR_API_KEY")));
         putIfPresent(params, "timeout", System.getProperty("oxr.timeout"));

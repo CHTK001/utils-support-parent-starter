@@ -65,7 +65,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     public DeleteSql buildSql() {
         requireWhereCondition("删除");
         List<Object> params = Wraps.list();
-        StringBuilder where = new StringBuilder();
+        var where = new StringBuilder();
         buildWhere(where, params);
         return new DeleteSql(entityClass, where.toString(), params);
     }
@@ -104,7 +104,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
             String methodName = lambda.getImplMethodName();
             String field = methodName.startsWith("is") ? methodName.substring(2)
                     : methodName.startsWith("get") ? methodName.substring(3) : methodName;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < field.length(); i++) {
                 char ch = field.charAt(i);
                 if (Character.isUpperCase(ch)) {

@@ -41,7 +41,7 @@ public class BenchmarkResult {
      * @return BenchmarkDocumentData
      */
     public BenchmarkDocumentData toDocumentData() {
-        BenchmarkDocumentData data = new BenchmarkDocumentData();
+        var data = new BenchmarkDocumentData();
         data.setTitle(config != null ? config.getTitle() : "HTTP 服务器压测报告");
         data.setEnvironment(config != null ? config.getEnvironment() : null);
         data.setTool(config != null ? config.getTool() : null);

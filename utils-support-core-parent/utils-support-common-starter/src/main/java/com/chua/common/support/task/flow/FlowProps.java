@@ -16,7 +16,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-public class FlowProps {
+public record FlowProps(Map<String, Object> values) {
 
     /**
      * 空属性容器，供无参数节点复用
@@ -26,7 +26,9 @@ public class FlowProps {
     /**
      * 属性键值映射，保持插入顺序
      */
-    private final Map<String, Object> values;
+    public Map<String, Object> values() {
+        return values;
+    }
 
     /**
      * 构造属性容器。
@@ -35,8 +37,8 @@ public class FlowProps {
      *
      * @param values 属性键值映射
      */
-    public FlowProps(Map<String, Object> values) {
-        this.values = values != null ? Wraps.linkedMap(values) : Wraps.linkedMap();
+    public FlowProps {
+        values = values != null ? Wraps.linkedMap(values) : Wraps.linkedMap();
     }
 
     /**
@@ -56,7 +58,7 @@ public class FlowProps {
      * @return 存在返回 true，否则返回 false
      */
     public boolean has(String key) {
-        return values.containsKey(key);
+        return values().containsKey(key);
     }
 
     /**
@@ -66,7 +68,7 @@ public class FlowProps {
      * @return 属性值，不存在时返回 空
      */
     public Object get(String key) {
-        return values.get(key);
+        return values().get(key);
     }
 
     /**
@@ -76,7 +78,7 @@ public class FlowProps {
      * @return 字符串值，不存在或非字符串时返回 空
      */
     public String getString(String key) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         return value != null ? String.valueOf(value) : null;
     }
 
@@ -99,7 +101,7 @@ public class FlowProps {
      * @return 整数值，不存在或转换失败时返回 空
      */
     public Integer getInt(String key) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         if (value == null) {
             return null;
         }
@@ -128,7 +130,7 @@ public class FlowProps {
      * @return 布尔值，不存在或转换失败时返回 空
      */
     public Boolean getBoolean(String key) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         if (value == null) {
             return null;
         }
@@ -145,7 +147,7 @@ public class FlowProps {
      * @return 小数值，不存在或转换失败时返回 空
      */
     public Double getDouble(String key) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         if (value == null) {
             return null;
         }
@@ -167,7 +169,7 @@ public class FlowProps {
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> getList(String key, Class<T> clazz) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         if (!(value instanceof List<?> list)) {
             return Wraps.list();
         }
@@ -200,7 +202,7 @@ public class FlowProps {
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getMap(String key) {
-        Object value = values.get(key);
+        Object value = values().get(key);
         if (value instanceof Map<?, ?> map) {
             Map<String, Object> result = Wraps.linkedMap(map.size());
             for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -217,7 +219,7 @@ public class FlowProps {
      * @return 不可修改的属性映射
      */
     public Map<String, Object> toMap() {
-        return Wraps.linkedMap(values);
+        return Wraps.linkedMap(values());
     }
 
     /**
@@ -226,6 +228,6 @@ public class FlowProps {
      * @return 属性个数
      */
     public int size() {
-        return values.size();
+        return values().size();
     }
 }

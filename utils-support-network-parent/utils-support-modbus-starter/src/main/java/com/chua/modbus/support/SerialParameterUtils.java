@@ -28,7 +28,7 @@ public final class SerialParameterUtils {
      */
     public static SerialParameters toSerialParameters(ModbusSetting setting) {
         setting.validateSerial();
-        SerialParameters parameters = new SerialParameters();
+        var parameters = new SerialParameters();
         parameters.setPortName(setting.getPortName());
         parameters.setBaudRate(setting.getBaudRate());
         parameters.setDatabits(setting.getDataBits());

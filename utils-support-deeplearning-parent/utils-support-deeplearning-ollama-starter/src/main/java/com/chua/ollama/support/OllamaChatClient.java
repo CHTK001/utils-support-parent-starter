@@ -257,7 +257,7 @@ public class OllamaChatClient implements ChatClient {
         }
         String thinking = message.getThinking();
         String response = message.getResponse();
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         if (StringUtils.isNotBlank(thinking)) {
             sb.append(thinking);
         }

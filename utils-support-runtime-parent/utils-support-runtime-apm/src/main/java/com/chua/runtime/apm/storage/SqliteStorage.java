@@ -517,7 +517,7 @@ public class SqliteStorage implements ApmStorage {
      */
     @Override
     public List<TransmissionEvent> queryTransmissions(Query query) {
-        StringBuilder sql = new StringBuilder("SELECT ")
+        var sql = new StringBuilder("SELECT ")
                 .append(StringList.join(TRANSMISSION_COLUMNS)).append(" FROM transmissions WHERE 1=1");
         appendTimeFilter(sql, "start_time", query);
         appendStringFilter(sql, "trace_id", query.getTraceId());
@@ -574,7 +574,7 @@ public class SqliteStorage implements ApmStorage {
      */
     @Override
     public List<LeakRecord> queryLeaks(Query query) {
-        StringBuilder sql = new StringBuilder("SELECT ")
+        var sql = new StringBuilder("SELECT ")
                 .append(StringList.join(LEAK_COLUMNS)).append(" FROM leaks WHERE 1=1");
         appendTimeFilter(sql, "created_at", query);
         sql.append(" ORDER BY created_at DESC LIMIT ").append(query.getLimit())

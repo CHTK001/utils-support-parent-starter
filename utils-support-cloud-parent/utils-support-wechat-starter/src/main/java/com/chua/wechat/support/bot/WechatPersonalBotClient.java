@@ -363,7 +363,7 @@ public class WechatPersonalBotClient implements BotClient {
         if (StringUtils.isBlank(toUser)) {
             return BotSendResult.fail(-1, "接收人 wxid 不能为空");
         }
-        JsonObject body = new JsonObject();
+        var body = new JsonObject();
         body.fluentPut("wxid", toUser);
         body.fluentPut("msg", content == null ? "" : content);
         return post(SEND_TEXT_PATH, body);
@@ -536,7 +536,7 @@ public class WechatPersonalBotClient implements BotClient {
         if (StringUtils.isBlank(toUser) || StringUtils.isBlank(mediaPath)) {
             return BotSendResult.fail(-1, "接收人 wxid 与媒体文件路径不能为空");
         }
-        JsonObject body = new JsonObject();
+        var body = new JsonObject();
         body.fluentPut("wxid", toUser);
         body.fluentPut("path", mediaPath);
         return post(path, body);
@@ -645,7 +645,7 @@ public class WechatPersonalBotClient implements BotClient {
             return;
         }
         try {
-            JsonObject body = new JsonObject();
+            var body = new JsonObject();
             body.fluentPut("url", callbackUrl);
             body.fluentPut("enable", CALLBACK_ENABLED);
             String responseBody = execute(CALLBACK_REGISTER_PATH, HttpMethod.POST, body);

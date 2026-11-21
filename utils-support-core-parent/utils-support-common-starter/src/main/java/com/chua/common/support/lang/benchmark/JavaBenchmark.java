@@ -113,7 +113,7 @@ public class JavaBenchmark implements Benchmark {
                 .build();
         URI uri = URI.create(targetUrl);
 
-        BenchmarkResult result = new BenchmarkResult();
+        var result = new BenchmarkResult();
         result.setConfig(config);
         for (int vus : levels) {
             BenchmarkDocumentData.BenchmarkRow row = runLevel(client, uri, vus);
@@ -138,10 +138,10 @@ public class JavaBenchmark implements Benchmark {
         long totalTarget = (long) vus * perVus;
 
         ExecutorService pool = ThreadUtils.newVirtualThreadPerTaskExecutor();
-        CountDownLatch ready = new CountDownLatch(vus);
-        CountDownLatch start = new CountDownLatch(1);
-        CountDownLatch done = new CountDownLatch(vus);
-        LongAdder errors = new LongAdder();
+        var ready = new CountDownLatch(vus);
+        var start = new CountDownLatch(1);
+        var done = new CountDownLatch(vus);
+        var errors = new LongAdder();
         List<long[]> latencies = java.util.Collections.synchronizedList(Wraps.list(vus));
 
         try {

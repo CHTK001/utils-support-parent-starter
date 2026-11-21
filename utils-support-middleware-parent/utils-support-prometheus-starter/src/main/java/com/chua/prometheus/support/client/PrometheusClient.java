@@ -327,7 +327,7 @@ public class PrometheusClient implements AutoCloseable {
         }
         for (int i = 0; i < active.size(); i++) {
             JsonObject obj = requireObject(active.get(i), PATH_TARGETS, i);
-            PrometheusTarget t = new PrometheusTarget();
+            var t = new PrometheusTarget();
             t.setScrapeUrl(str(obj.get("scrapeUrl")));
             t.setHealth(str(obj.get("health")));
             t.setLastError(str(obj.get("lastError")));

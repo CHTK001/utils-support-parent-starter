@@ -97,7 +97,7 @@ public class BitUtils {
      * @return 8 位二进制位数组
      */
     public static byte[] asBit(byte b) {
-        byte[] byteArr = new byte[8];
+        var byteArr = new byte[8];
         int size = BYTE_BIT_SIZE - 1;
         for (int i = size; i >= 0; i--) {
             //

@@ -595,7 +595,7 @@ public final class WindowsConPtyProcess implements Closeable {
 
                 // 拼接命令行，按需为含空格的参数加引号
                 // 注意：此处保留 StringBuilder 显式拼接，避免 StringUtils.join 改变引号转义行为
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 for (int i = 0; i < cmdArray.length; i++) {
                     if (i > 0) {
                         sb.append(' ');
@@ -671,7 +671,7 @@ public final class WindowsConPtyProcess implements Closeable {
                 inWrite = null;
 
                 // 包装 ReadFile 为标准 InputStream
-                ConPtyInputStream is = new ConPtyInputStream(outRead);
+                var is = new ConPtyInputStream(outRead);
 
                 return new WindowsConPtyProcess(hPC, null, outRead, hProc, hThr, is);
 
@@ -817,7 +817,7 @@ public final class WindowsConPtyProcess implements Closeable {
                 LOG.log(System.Logger.Level.DEBUG, "[conpty] 操作失败，已忽略: " + e.getMessage(), e);
             }
         }
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (Map.Entry<String, String> e : env.entrySet()) {
             sb.append(e.getKey()).append('=').append(e.getValue()).append('\0');
         }

@@ -81,7 +81,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
      */
     public RedissonLockProvider(String name, String redisUri) {
         this.name = name;
-        Config config = new Config();
+        var config = new Config();
         config.useSingleServer().setAddress(redisUri);
         this.redissonClient = Redisson.create(config);
         this.lock = redissonClient.getLock(name);

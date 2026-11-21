@@ -112,7 +112,7 @@ public class WevisdocLayoutBridge {
      * @return 元素列表
      */
     public static List<MarkdownElement> parseMarkdownElements(String markdown) {
-        List<MarkdownElement> elements = new ArrayList<>();
+        var elements = new ArrayList<MarkdownElement>();
         if (StringUtils.isEmpty(markdown)) {
             return elements;
         }
@@ -186,8 +186,8 @@ public class WevisdocLayoutBridge {
             List<OcrBlock> ocrBlocks,
             float iouThreshold) {
 
-        List<OcrBlock> results = new ArrayList<>();
-        List<Boolean> used = new ArrayList<>();
+        var results = new ArrayList<OcrBlock>();
+        var used = new ArrayList<Boolean>();
         for (OcrBlock item : ocrBlocks) {
             used.add(false);
         }
@@ -248,17 +248,17 @@ public class WevisdocLayoutBridge {
         }
 
         // 字符级 Jaccard
-        java.util.Set<Character> setA = new java.util.HashSet<>();
-        java.util.Set<Character> setB = new java.util.HashSet<>();
+        var setA = new java.util.HashSet<Character>();
+        var setB = new java.util.HashSet<Character>();
         for (char c : aLower.toCharArray()) {
             setA.add(c);
         }
         for (char c : bLower.toCharArray()) {
             setB.add(c);
         }
-        java.util.Set<Character> intersection = new java.util.HashSet<>(setA);
+        var intersection = new java.util.HashSet<Character>(setA);
         intersection.retainAll(setB);
-        java.util.Set<Character> union = new java.util.HashSet<>(setA);
+        var union = new java.util.HashSet<Character>(setA);
         union.addAll(setB);
         return union.isEmpty() ? 0 : intersection.size() / (float) union.size();
     }
@@ -270,7 +270,7 @@ public class WevisdocLayoutBridge {
      * @return 合并后的元素列表
      */
     public static List<MarkdownElement> mergeAdjacent(List<MarkdownElement> elements) {
-        List<MarkdownElement> merged = new ArrayList<>();
+        var merged = new ArrayList<MarkdownElement>();
         if (elements.isEmpty()) {
             return merged;
         }

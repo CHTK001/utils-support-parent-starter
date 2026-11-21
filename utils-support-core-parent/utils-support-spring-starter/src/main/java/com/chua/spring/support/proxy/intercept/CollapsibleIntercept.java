@@ -263,7 +263,7 @@ public class CollapsibleIntercept
                                                                    Collapsible annotation,
                                                                    ProxyMethod proxyMethod,
                                                                    CollapseExecutorFactory factory) {
-        CollapseConfig config = new CollapseConfig();
+        var config = new CollapseConfig();
         config.setName(name);
         config.setWaitThreshold(resolveWaitThreshold(annotation));
         config.setCollectingWaitTime(resolveCollectingWaitTime(annotation));
@@ -424,7 +424,7 @@ public class CollapsibleIntercept
         }
         Expression expression = SPEL_CACHE.computeIfAbsent(key, SPEL_PARSER::parseExpression);
         return element -> {
-            StandardEvaluationContext context = new StandardEvaluationContext(element);
+            var context = new StandardEvaluationContext(element);
             return expression.getValue(context);
         };
     }

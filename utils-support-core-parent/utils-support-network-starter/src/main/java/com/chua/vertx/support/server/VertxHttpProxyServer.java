@@ -91,7 +91,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     protected void doStart() {
         rejectStreamEncryption("HTTP 代理按明文 CONNECT/转发设计，加密请让端点或下游自行处理");
         try {
-            VertxOptions opts = new VertxOptions()
+            var opts = new VertxOptions()
                     .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))
                     .setWorkerPoolSize(Math.max(setting.getWorkerThreads(),
                             Runtime.getRuntime().availableProcessors() * 4))
@@ -107,7 +107,7 @@ public class VertxHttpProxyServer extends AbstractServer {
                     .setTcpFastOpen(true)
                     .setTcpQuickAck(true));
 
-            HttpServerOptions options = new HttpServerOptions()
+            var options = new HttpServerOptions()
                     .setHost(setting.getHost())
                     .setPort(setting.getPort())
                     .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
@@ -123,7 +123,7 @@ public class VertxHttpProxyServer extends AbstractServer {
             server = vertx.createHttpServer(options);
             server.requestHandler(this::handleProxy);
  // Vert.x 5.x:监听 返回 期货,异步完成;用 插销 等监听就绪并回填端口
-            CountDownLatch ready = new CountDownLatch(1);
+            var ready = new CountDownLatch(1);
             server.listen().onSuccess(s -> {
                 setting.setPort(server.actualPort());
                 log.info("Vertx HttpProxyServer started on {}:{} (eventLoops={}, reactive=true)",

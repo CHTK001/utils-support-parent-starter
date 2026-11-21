@@ -295,7 +295,7 @@ public final class DetectorUtils {
      * 把英文短语表编译为忽略大小写的整词匹配模式
      */
     private static List<Pattern> buildWordPatterns(String[] phrases) {
-        List<Pattern> patterns = new ArrayList<>(phrases.length);
+        var patterns = new ArrayList<Pattern>(phrases.length);
         for (String phrase : phrases) {
             patterns.add(Pattern.compile("\\b" + Pattern.quote(phrase) + "\\b", Pattern.CASE_INSENSITIVE));
         }

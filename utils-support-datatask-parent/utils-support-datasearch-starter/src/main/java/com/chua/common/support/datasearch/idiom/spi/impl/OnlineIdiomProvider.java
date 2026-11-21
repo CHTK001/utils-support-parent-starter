@@ -239,7 +239,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
             if (!firstCharIndex.isEmpty()) {
                 return firstCharIndex;
             }
-            Map<String, List<IdiomInfo>> map = new ConcurrentHashMap<>();
+            var map = new ConcurrentHashMap<String, List<IdiomInfo>>();
             for (IdiomInfo info : loadIndex().values()) {
                 String word = info.getWord();
                 if (StringUtils.isEmpty(word)) {

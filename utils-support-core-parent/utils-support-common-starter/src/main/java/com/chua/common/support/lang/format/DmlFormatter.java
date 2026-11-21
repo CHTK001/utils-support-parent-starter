@@ -181,7 +181,7 @@ public class DmlFormatter extends SqlFormatter {
             return sql;
         }
 
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         int indentLevel = 0;
 
         // 2. 逐个处理每个子句
@@ -280,7 +280,7 @@ public class DmlFormatter extends SqlFormatter {
 
         // 按空格分割为单词
         String[] words = sql.split("\\s+");
-        StringBuilder current = new StringBuilder();
+        var current = new StringBuilder();
 
         for (String word : words) {
             if (word == null || word.isEmpty()) {
@@ -367,7 +367,7 @@ public class DmlFormatter extends SqlFormatter {
             return formatKeyword("SELECT") + " " + rest;
         } else {
             // 列数多：每个列独占一行
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             result.append(formatKeyword("SELECT")).append("\n");
 
             int indentLevel = 1;
@@ -583,7 +583,7 @@ public class DmlFormatter extends SqlFormatter {
                 if (afterValues.contains("(") && afterValues.contains(",")) {
                     // 复杂情况：将每个值列表放在单独的行
                     String[] valueGroups = splitPreservingParens(afterValues).toArray(new String[0]);
-                    StringBuilder valuesResult = new StringBuilder();
+                    var valuesResult = new StringBuilder();
                     valuesResult.append(beforeValues).append("\n");
                     for (String group : valueGroups) {
                         valuesResult.append(indent(1)).append(group.trim());

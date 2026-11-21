@@ -75,7 +75,7 @@ public final class CipherFlow {
      * @return 门面实例
      */
     public static CipherFlow of(String algorithm, String provider) {
-        CipherFlow flow = new CipherFlow(algorithm);
+        var flow = new CipherFlow(algorithm);
         if (StringUtils.isNotEmpty(provider)) {
             flow.provider = provider;
         }

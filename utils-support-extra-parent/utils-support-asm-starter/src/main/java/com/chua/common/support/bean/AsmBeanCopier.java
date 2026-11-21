@@ -142,7 +142,7 @@ public class AsmBeanCopier implements BeanCopier {
         String sourceInternal = Type.getInternalName(sourceClass);
         String targetInternal = Type.getInternalName(targetClass);
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC, generatedName, null,
                 "java/lang/Object", new String[]{"com/chua/common/support/bean/BeanCopier"});
 
