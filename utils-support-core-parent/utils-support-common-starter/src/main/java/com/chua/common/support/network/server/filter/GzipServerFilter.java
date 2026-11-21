@@ -93,7 +93,9 @@ public class GzipServerFilter implements ServerFilter {
         if (body.length < setting.getGzipMinSize()) {
             return;
         }
-        if (!containsGzip(request.getHeader("Accept-Encoding"))) {
+        // 传已小写字面量：NioServerRequest.getHeader 对参数做 toLowerCase，
+        // 已小写串原样返回，热路径免分配；各传输实现的头查找均为大小写不敏感
+        if (!containsGzip(request.getHeader("accept-encoding"))) {
             return;
         }
 

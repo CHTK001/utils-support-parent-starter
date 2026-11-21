@@ -101,6 +101,15 @@ public class NioServerRequest implements ServerRequest {
      */
     private String method;
     /**
+     * getMethod() 的记忆化缓存。
+     *
+     * <p>getMethod() 在过滤器链、路由分发、访问日志等处每请求被调用 2~4 次，
+     * 原实现每次都做 {@code toUpperCase()} 分配 + 枚举哈希查找；方法名每请求
+     * 只解析一次且结果不可变，故缓存解析出的枚举值，并随 {@code method} 字段
+     * 一同失效（请求行解析赋值与 {@link #resetForNextRequest()} 两处）。</p>
+     */
+    private HttpMethod methodCache;
+    /**
      * URI
      */
     private String uri;
@@ -651,6 +660,7 @@ public class NioServerRequest implements ServerRequest {
             }
         }
         this.method = methodOrString(start, s1 - start);
+        this.methodCache = null;
         int uriStart = s1 + 1;
         int uriEnd = s2 > 0 ? s2 : end;
         this.uri = asciiString(uriStart, uriEnd - uriStart);
@@ -865,14 +875,22 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getUri() { return uri; }
     @Override public String getPath() { return path; }
     @Override public HttpMethod getMethod() {
+        HttpMethod cached = methodCache;
+        if (cached != null) {
+            return cached;
+        }
+        HttpMethod resolved;
         if (StringUtils.isEmpty(method)) {
-            return HttpMethod.GET;
+            resolved = HttpMethod.GET;
+        } else {
+            try {
+                resolved = HttpMethod.valueOf(method.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                resolved = HttpMethod.OPTIONS;
+            }
         }
-        try {
-            return HttpMethod.valueOf(method.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return HttpMethod.OPTIONS;
-        }
+        methodCache = resolved;
+        return resolved;
     }
     @Override public String getHeader(String name) { return headers.get(name.toLowerCase()); }
     @Override
@@ -1048,6 +1066,7 @@ public class NioServerRequest implements ServerRequest {
      */
     public void resetForNextRequest() {
         method = null;
+        methodCache = null;
         uri = null;
         path = null;
         queryString = null;

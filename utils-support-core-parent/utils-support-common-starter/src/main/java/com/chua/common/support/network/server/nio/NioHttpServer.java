@@ -1861,22 +1861,36 @@ public class NioHttpServer extends AbstractServer {
         if (connHeader != null) {
             // Connection 允许多 token（如 "keep-alive, Upgrade"），按逗号切分判断；
             // 整串 equalsIgnoreCase 会把这类合法头误判为不可复用。
+            // 手工扫描代替 split()+trim()：每请求省去 String[] 与若干子串分配，
+            // token 判定口径（trim 范围、忽略大小写比较）与原实现逐字符一致。
             boolean keepAlive = false;
             boolean close = false;
             boolean other = false;
-            for (String token : connHeader.split(",")) {
-                String t = token.trim();
-                if (t.isEmpty()) {
-                    continue;
+            int len = connHeader.length();
+            int i = 0;
+            while (i < len) {
+                while (i < len && connHeader.charAt(i) <= ' ') {
+                    i++;
                 }
-                if ("keep-alive".equalsIgnoreCase(t)) {
-                    keepAlive = true;
-                } else if ("close".equalsIgnoreCase(t)) {
-                    close = true;
-                } else {
-                    // Upgrade 等语义不允许按 HTTP/1.1 默认推断为可复用
-                    other = true;
+                int start = i;
+                while (i < len && connHeader.charAt(i) != ',') {
+                    i++;
                 }
+                int end = i;
+                while (end > start && connHeader.charAt(end - 1) <= ' ') {
+                    end--;
+                }
+                if (end > start) {
+                    if (tokenEqualsIgnoreCase(connHeader, start, end, "keep-alive")) {
+                        keepAlive = true;
+                    } else if (tokenEqualsIgnoreCase(connHeader, start, end, "close")) {
+                        close = true;
+                    } else {
+                        // Upgrade 等语义不允许按 HTTP/1.1 默认推断为可复用
+                        other = true;
+                    }
+                }
+                i++;
             }
             if (close) {
                 return false;
@@ -1888,6 +1902,35 @@ public class NioHttpServer extends AbstractServer {
         }
         // HTTP/1.1 默认 Keep-Alive
         return "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());
+    }
+
+    /**
+     * 判断 {@code s} 的 {@code [start, end)} 区间与给定 token 是否忽略大小写相等。
+     *
+     * <p>逐字符采用与 {@link String#equalsIgnoreCase(String)} 完全一致的大小写
+     * 折叠口径，行为等价于 {@code s.substring(start, end).equalsIgnoreCase(token)}，
+     * 但不产生子串分配。</p>
+     *
+     * @param s     完整字符串
+     * @param start 区间起始（含）
+     * @param end   区间结束（不含）
+     * @param token 目标 token
+     * @return true 忽略大小写相等
+     */
+    private static boolean tokenEqualsIgnoreCase(String s, int start, int end, String token) {
+        if (end - start != token.length()) {
+            return false;
+        }
+        for (int i = 0; i < token.length(); i++) {
+            char c1 = s.charAt(start + i);
+            char c2 = token.charAt(i);
+            if (c1 != c2
+                    && Character.toUpperCase(c1) != Character.toUpperCase(c2)
+                    && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
