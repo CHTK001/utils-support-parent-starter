@@ -332,6 +332,12 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
             </dependency>
+            <!-- okhttp 5.x 的 okhttp 构件是 KMP 空壳（仅 754 字节元数据，无任何类），Maven 消费者必须用 okhttp-jvm 才有真实 okhttp3 类 -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-jvm</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-facebody</artifactId>

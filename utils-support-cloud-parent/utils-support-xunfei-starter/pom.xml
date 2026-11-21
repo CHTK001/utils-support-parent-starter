@@ -21,6 +21,11 @@
             <groupId>com.unfbx</groupId>
             <artifactId>SparkDesk-Java</artifactId>
         </dependency>
+        <!-- okhttp 5.x 的 okhttp 构件为 KMP 空壳；显式引入 okhttp-jvm 提供真实 okhttp3 类（压过 SparkDesk 的传递 okhttp） -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-jvm</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
