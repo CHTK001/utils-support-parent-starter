@@ -2,6 +2,7 @@ package com.chua.common.support.network.frp;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -43,6 +44,26 @@ public class FrpTunnelSession {
      * 关闭监听器列表
      */
     private final List<Consumer<String>> closeListeners = new CopyOnWriteArrayList<>();
+
+    /**
+     * 字节分发锁：保证「监听器注册前的早期字节」与「注册后的实时字节」按到达顺序交付
+     */
+    private final Object bytesLock = new Object();
+
+    /**
+     * 监听器注册前到达的字节缓冲（修复建隧竞态期首包丢失）
+     */
+    private final ArrayDeque<byte[]> pendingBytes = new ArrayDeque<>();
+
+    /**
+     * 缓冲中的字节总量
+     */
+    private int pendingBytesSize = 0;
+
+    /**
+     * 早期字节缓冲上限：超过说明消费侧始终未注册监听，关闭会话以暴露问题而非静默丢弃
+     */
+    private static final int MAX_PENDING_BYTES = 512 * 1024;
 
     /**
      * 通道是否处于打开状态
@@ -116,11 +137,25 @@ public class FrpTunnelSession {
     /**
      * 注册字节数据监听器。
      *
+     * <p>注册前已到达的数据平面字节会按序重放给本监听器，避免建隧竞态期首包丢失
+     * （突发建隧时，对端数据可能先于消费方完成本地桥接与监听器注册到达）。</p>
+     *
      * @param listener 字节数据监听器
      * @return 当前会话，支持链式调用
      */
     public FrpTunnelSession onBytes(Consumer<byte[]> listener) {
-        bytesListeners.add(listener);
+        synchronized (bytesLock) {
+            bytesListeners.add(listener);
+            while (!pendingBytes.isEmpty()) {
+                byte[] buffered = pendingBytes.poll();
+                pendingBytesSize -= buffered.length;
+                try {
+                    listener.accept(buffered);
+                } catch (Exception e) {
+                    log.debug("[frp] 回调执行失败，已忽略: {}", e.getMessage());
+                }
+            }
+        }
         return this;
     }
 
@@ -154,6 +189,10 @@ public class FrpTunnelSession {
      * 关闭通道。
      */
     public void close() {
+        synchronized (bytesLock) {
+            pendingBytes.clear();
+            pendingBytesSize = 0;
+        }
         FrpTunnelStream stream = dataStream;
         if (stream != null) {
             stream.close();
@@ -173,12 +212,30 @@ public class FrpTunnelSession {
         if (!open) {
             return;
         }
-        for (Consumer<byte[]> listener : bytesListeners) {
-            try {
-                listener.accept(data);
-            } catch (Exception e) {
-                log.debug("[frp] 回调执行失败，已忽略: {}", e.getMessage());
+        boolean overflow = false;
+        synchronized (bytesLock) {
+            if (bytesListeners.isEmpty()) {
+                // 监听器尚未注册（建隧竞态窗口）：先缓冲、注册时重放，避免首包静默丢失
+                if (pendingBytesSize + data.length > MAX_PENDING_BYTES) {
+                    overflow = true;
+                } else {
+                    pendingBytes.add(data);
+                    pendingBytesSize += data.length;
+                }
+            } else {
+                for (Consumer<byte[]> listener : bytesListeners) {
+                    try {
+                        listener.accept(data);
+                    } catch (Exception e) {
+                        log.debug("[frp] 回调执行失败，已忽略: {}", e.getMessage());
+                    }
+                }
             }
+        }
+        if (overflow) {
+            log.warn("[frp] 早期字节缓冲超限且监听器未注册，关闭通道: channel={}, limitBytes={}",
+                    channelId, MAX_PENDING_BYTES);
+            close();
         }
     }
 

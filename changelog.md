@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ChannelQueueServerFilter` 响应式通道排队过滤器：可配置**管道数**（并发通道）与**每通道每秒放行数**，均支持 `auto` 按服务器 CPU 核数自动计算（通道数 = max(2, 核数-1)，每通道 QPS = max(100, 核数×100)，系统属性 `server.filter.channel-queue.*` 可覆盖）；每通道独立令牌桶（复用 `RateLimitProvider` SPI，默认 guava）+ 独立有界等待队列，未拿到令牌的请求由共享守护调度器按节拍非阻塞探测放行（不占工作线程），队列满返回 429、排队超时返回 503（均带 `Retry-After` / `X-Channel-Queue` 头）。仅实现 `ReactiveServerFilter`，在响应式链中不被静态包装面遮蔽、全程非阻塞；经 `AbstractServer` 新增的 `addReactiveFilter` / `removeReactiveFilter` 注册，不注册 SPI、不进同步链、不强制注入宿主。
 
 ### Fixed
+- FRP 并发建隧首包竞态：provider 侧 `FrpExpose.bridgeToLocal` 先连本地服务、后注册 `onBytes` 监听，突发建隧时访客首包可能在监听注册前到达 `FrpTunnelSession.dispatchBytes` 被静默丢弃，客户端等回显直到读超时（64 路并发实测 1~5/64 条隧道首包卡死 20s）。现 `FrpTunnelSession` 对监听注册前的早期字节按序缓冲（上限 512KB，超限且仍无监听则关闭通道暴露问题），监听器注册时按序重放；修复后 64 并发×25 轮共 4800 次往返 0 失败，并发相位耗时由 ~21s（被 20s 超时拉长的假象）回落至 ~0.6s。
 - `WebSocketSyncClient` 的 `wss://` 地址此前按明文 `Socket` 连接（TLS 端点上握手必然失败）：现对 `wss` 建立 `SSLSocket` 并完成 TLS 握手后再进行 WebSocket 握手。
 
 ## [4.0.0.53] - 2026-11-14
