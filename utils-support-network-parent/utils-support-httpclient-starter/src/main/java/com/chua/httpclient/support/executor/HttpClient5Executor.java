@@ -89,6 +89,13 @@ public class HttpClient5Executor implements HttpClientExecutor {
             }
         }
 
+        // 上游（如 Cloudflare）可能按客户端 advertised 能力回 Content-Encoding: zstd，
+        // 而 zstd 解码依赖 zstd-jni 原生库，部分部署环境缺对应 dll 会直接失败。
+        // 调用方未显式声明时，默认只协商 gzip / deflate（纯 Java 解码，普遍可用）。
+        if (req.getFirstHeader("Accept-Encoding") == null) {
+            req.setHeader("Accept-Encoding", "gzip, deflate");
+        }
+
         if (request.getBody() != null) {
             if (request.getBody() instanceof byte[] b) {
                 req.setEntity(new ByteArrayEntity(b, ContentType.DEFAULT_BINARY));
