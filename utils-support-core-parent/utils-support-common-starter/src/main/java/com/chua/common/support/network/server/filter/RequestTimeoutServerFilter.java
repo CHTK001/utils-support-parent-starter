@@ -8,7 +8,6 @@ import com.chua.common.support.utils.ThreadUtils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -22,6 +21,18 @@ import java.util.concurrent.TimeoutException;
  * @since 2026/07/18
  */
 public class RequestTimeoutServerFilter implements ServerFilter {
+
+    /**
+     * 共享执行线程池：缓存型（核心 0、最大 Integer.MAX_VALUE、空闲 60s 回收）。
+     *
+     * <p>等价于旧的「每请求 newSingleThreadExecutor」：任务队列是 SynchronousQueue，
+     * 每个请求任务仍独占一个工作线程（突发时按需建线程、不排队），但免去每请求
+     * 创建并销毁线程池的开销；空闲线程 60 秒后自动回收。链路内无跨请求
+     * ThreadLocal 状态（仅无状态的 ThreadLocalRandom 与按调用消费的复用缓冲），
+     * 线程复用安全。</p>
+     */
+    private static final ExecutorService TIMEOUT_EXECUTOR =
+            ThreadUtils.newCachedThreadPool("request-timeout-filter");
 
     /**
      * 超时毫秒
@@ -71,10 +82,9 @@ public class RequestTimeoutServerFilter implements ServerFilter {
     @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
-        ExecutorService executor = ThreadUtils.newSingleThreadExecutor();
         Future<?> future = null;
         try {
-            future = executor.submit(() -> {
+            future = TIMEOUT_EXECUTOR.submit(() -> {
                 try {
                     chain.doFilter(request, response);
                 } catch (Exception e) {
@@ -98,8 +108,7 @@ public class RequestTimeoutServerFilter implements ServerFilter {
                 throw (Exception) cause;
             }
             throw new RuntimeException(cause);
-        } finally {
-            executor.shutdownNow();
         }
+        // 共享线程池不做 shutdownNow：超时任务由 cancel(true) 中断，空闲线程由池按 60s 回收
     }
 }

@@ -86,6 +86,16 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     private boolean listenersResolved;
 
     /**
+     * 同步过滤器放行时的下游完成信号暂存槽（每请求新建链对象，无跨请求串扰）。
+     *
+     * <p>{@link ServerFilterManager.StaticReactiveFilterAdapter} 把同步过滤器的
+     * {@code chain.doFilter(...)} 返回的下游 stage 暂存在这里，代替每过滤器步分配一个
+     * {@code AtomicReference}。volatile 写读保证「同步过滤器把放行调用挪到其它线程执行」
+     * 这类少见写法下的可见性；嵌套同步过滤器按「内层先读、外层后写」的顺序互不踩踏。</p>
+     */
+    volatile CompletionStage<Void> downstreamStage;
+
+    /**
      * 构造响应式过滤器链。
      *
      * @param filters 过滤器列表

@@ -341,7 +341,10 @@ public class SpyTransformer implements ClassFileTransformer {
          * @return Class 实例
          */
         private static Class<?> loadClass(String type, ClassLoader loader) {
-            return Precondition.tryGet(() -> ReflectUtils.forName(type.replace('/', '.'), loader))
+            // 显式类型见证：ReflectUtils.forName 返回 Class<?>，若让编译器自行推断，
+            // R 会被绑定到捕获的 Class<CAP#1>，orElseGet 里返回 Object.class（Class<Object>）
+            // 无法匹配（JDK 25 javac 下的既有编译错误）。见证为 Class<?> 后无捕获，语义不变。
+            return Precondition.<Class<?>>tryGet(() -> ReflectUtils.forName(type.replace('/', '.'), loader))
                     .orElseGet(e -> {
                         // 引用类型不可加载时，回退到最安全的上界
                         return Object.class;

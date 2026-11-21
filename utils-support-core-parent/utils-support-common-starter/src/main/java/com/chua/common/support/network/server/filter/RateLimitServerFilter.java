@@ -52,6 +52,14 @@ public class RateLimitServerFilter implements ServerFilter {
      * 路径prefix
      */
     private final String pathPrefix;
+    /**
+     * X-RateLimit-Limit 头预计算值（qps 为 final，运行期不变）
+     */
+    private final String qpsLimitHeader;
+    /**
+     * 429 响应体预计算值
+     */
+    private final String tooManyRequestsBody;
 
     /**
      * limiter
@@ -98,6 +106,8 @@ public class RateLimitServerFilter implements ServerFilter {
         this.qps = qps;
         this.keyStrategy = keyStrategy;
         this.pathPrefix = pathPrefix;
+        this.qpsLimitHeader = String.valueOf((int) qps);
+        this.tooManyRequestsBody = "{\"error\":\"Too Many Requests\",\"qps\":" + (int) qps + "}";
     }
 
     /**
@@ -172,14 +182,14 @@ public class RateLimitServerFilter implements ServerFilter {
         if (!limiter.tryAcquire(key)) {
             response.setStatus(429);
             response.setHeader("Retry-After", "1");
-            response.setHeader("X-RateLimit-Limit", String.valueOf((int) qps));
+            response.setHeader("X-RateLimit-Limit", qpsLimitHeader);
             response.setHeader("X-RateLimit-Remaining", "0");
-            response.setBody("{\"error\":\"Too Many Requests\",\"qps\":" + (int) qps + "}");
+            response.setBody(tooManyRequestsBody);
             response.end();
             return;
         }
 
-        response.setHeader("X-RateLimit-Limit", String.valueOf((int) qps));
+        response.setHeader("X-RateLimit-Limit", qpsLimitHeader);
         response.setHeader("X-RateLimit-Remaining", String.valueOf(limiter.getRemaining(key)));
 
         chain.doFilter(request, response);

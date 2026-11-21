@@ -249,7 +249,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         Object body = null;
 
         if (args != null) {
-            Parameter[] parameters = meta.method.getParameters();
+            Parameter[] parameters = meta.parameters;
             for (int i = 0; i < args.length && i < parameters.length; i++) {
                 ParamAnnotation pa = meta.paramAnnotations[i];
                 Object arg = args[i];
@@ -570,7 +570,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
             pas[i] = resolveParamAnnotation(params[i]);
         }
 
-        return new MethodMetadata(method, httpMethod, pathTemplate, pas,
+        return new MethodMetadata(method, httpMethod, pathTemplate, params, pas,
                 method.getAnnotationsByType(RemoteHeader.class),
                 method.getAnnotationsByType(RemoteInject.class));
     }
@@ -927,6 +927,10 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
          */
         final String pathTemplate;
         /**
+         * 形参数组（解析期缓存，免每次调用经 Method.getParameters() 重新构建）
+         */
+        final Parameter[] parameters;
+        /**
          * 形参注解解析结果数组
          */
         final ParamAnnotation[] paramAnnotations;
@@ -956,16 +960,18 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
          * @param method           Java Method 引用
          * @param httpMethod       HTTP 方法
          * @param pathTemplate     路径模板
+         * @param parameters       形参数组
          * @param paramAnnotations 形参注解数组
          * @param remoteHeaders    方法级 @RemoteHeader 数组
          * @param remoteInjects    方法级 @RemoteInject 数组
          */
         MethodMetadata(Method method, HttpMethod httpMethod, String pathTemplate,
-                       ParamAnnotation[] paramAnnotations, RemoteHeader[] remoteHeaders,
-                       RemoteInject[] remoteInjects) {
+                       Parameter[] parameters, ParamAnnotation[] paramAnnotations,
+                       RemoteHeader[] remoteHeaders, RemoteInject[] remoteInjects) {
             this.method = method;
             this.httpMethod = httpMethod;
             this.pathTemplate = pathTemplate;
+            this.parameters = parameters;
             this.paramAnnotations = paramAnnotations;
             this.remoteHeaders = remoteHeaders;
             this.remoteInjects = remoteInjects;

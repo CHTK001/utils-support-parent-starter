@@ -37,6 +37,11 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     private static final int STATUS_OK = 200;
 
     /**
+     * 共享的已完成 future：探针短路路径复用，避免每请求新建
+     */
+    private static final CompletionStage<Void> COMPLETED = CompletableFuture.<Void>completedFuture(null);
+
+    /**
      * 健康检查路径集合(精确匹配)
      */
     private final Set<String> healthPaths;
@@ -151,7 +156,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
                                           ReactiveFilterChain chain) {
         if (isEndpointEnabled() && isHealthPath(request)) {
             respondOk(response);
-            return CompletableFuture.completedFuture(null);
+            return COMPLETED;
         }
         return chain.doFilter(request, response);
     }

@@ -12,6 +12,7 @@ import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -66,6 +67,20 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         final Map<String, ServerHandler> anyMethodRoutes;
 
         /**
+         * 含通配符/路径变量的模式路由（按注册顺序预分离）。
+         *
+         * <p>路由解析是每请求热路径：精确匹配未命中时旧实现要对全部路由 key 逐个做
+         * {@code isPattern} 字符扫描（404 请求更是全表扫两遍）。快照构建期把模式路由
+         * 预分离成独立列表后，请求期只扫描真正的模式路由——全精确路由的服务直接跳过扫描。</p>
+         */
+        final List<PatternMethodRoute> patternRoutes;
+
+        /**
+         * 不区分方法的模式路由（按注册顺序预分离），同 {@link #patternRoutes}。
+         */
+        final List<PatternAnyRoute> patternAnyMethodRoutes;
+
+        /**
          * 构造不可变快照。
          *
          * @param routes          按方法区分的路由表（调用方保证不可变）
@@ -74,7 +89,39 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         RouteTable(Map<String, Map<HttpMethod, ServerHandler>> routes, Map<String, ServerHandler> anyMethodRoutes) {
             this.routes = routes;
             this.anyMethodRoutes = anyMethodRoutes;
+            List<PatternMethodRoute> patterns = new ArrayList<>();
+            for (Map.Entry<String, Map<HttpMethod, ServerHandler>> entry : routes.entrySet()) {
+                if (PathMatcher.INSTANCE.isPattern(entry.getKey())) {
+                    patterns.add(new PatternMethodRoute(entry.getKey(), entry.getValue()));
+                }
+            }
+            this.patternRoutes = Collections.unmodifiableList(patterns);
+            List<PatternAnyRoute> anyPatterns = new ArrayList<>();
+            for (Map.Entry<String, ServerHandler> entry : anyMethodRoutes.entrySet()) {
+                if (PathMatcher.INSTANCE.isPattern(entry.getKey())) {
+                    anyPatterns.add(new PatternAnyRoute(entry.getKey(), entry.getValue()));
+                }
+            }
+            this.patternAnyMethodRoutes = Collections.unmodifiableList(anyPatterns);
         }
+    }
+
+    /**
+     * 按方法区分的模式路由条目。
+     *
+     * @param pattern  路由模式
+     * @param handlers 方法 -> 处理器
+     */
+    private record PatternMethodRoute(String pattern, Map<HttpMethod, ServerHandler> handlers) {
+    }
+
+    /**
+     * 不区分方法的模式路由条目。
+     *
+     * @param pattern 路由模式
+     * @param handler 处理器
+     */
+    private record PatternAnyRoute(String pattern, ServerHandler handler) {
     }
 
     /**
@@ -243,12 +290,11 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         if (handler != null) {
             return handler;
         }
-        for (Map.Entry<String, ServerHandler> entry : cur.anyMethodRoutes.entrySet()) {
-            String pattern = entry.getKey();
-            if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
+        for (PatternAnyRoute route : cur.patternAnyMethodRoutes) {
+            if (!pathMatcher.match(route.pattern(), path)) {
                 continue;
             }
-            return entry.getValue();
+            return route.handler();
         }
         return null;
     }
@@ -274,13 +320,12 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         if (anyMethodHandler != null) {
             return anyMethodHandler;
         }
-        for (Map.Entry<String, Map<HttpMethod, ServerHandler>> entry : t.routes.entrySet()) {
-            String pattern = entry.getKey();
-            if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
+        for (PatternMethodRoute route : t.patternRoutes) {
+            String pattern = route.pattern();
+            if (!pathMatcher.match(pattern, path)) {
                 continue;
             }
-            methodMap = entry.getValue();
-            ServerHandler handler = methodMap.get(method);
+            ServerHandler handler = route.handlers().get(method);
             if (handler == null) {
                 handler = t.anyMethodRoutes.get(pattern);
             }
@@ -289,13 +334,13 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
                 return handler;
             }
         }
-        for (Map.Entry<String, ServerHandler> entry : t.anyMethodRoutes.entrySet()) {
-            String pattern = entry.getKey();
-            if (!pathMatcher.isPattern(pattern) || !pathMatcher.match(pattern, path)) {
+        for (PatternAnyRoute route : t.patternAnyMethodRoutes) {
+            String pattern = route.pattern();
+            if (!pathMatcher.match(pattern, path)) {
                 continue;
             }
             setPathAttributes(request, pattern, path);
-            return entry.getValue();
+            return route.handler();
         }
         return null;
     }

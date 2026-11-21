@@ -903,6 +903,56 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /** gathering write 一轮排空的结果:队列不足 2 段,未执行写出(调用方走单缓冲快路径)。 */
+    private static final int DRAIN_GATHER_SKIPPED = -1;
+    /** gathering write 一轮排空的结果:队列已全部写尽。 */
+    private static final int DRAIN_GATHER_DONE = 0;
+    /** gathering write 一轮排空的结果:队首缓冲仍有剩余,需 OP_WRITE 续写。 */
+    private static final int DRAIN_GATHER_PARTIAL = 1;
+    /** gathering write 一轮排空的结果:通道异常,连接已由本方法关闭。 */
+    private static final int DRAIN_GATHER_CLOSED = 2;
+
+    /**
+     * 对待写队列做一次 gathering write(vectored write)。
+     *
+     * <p>大响应在 {@code COMBINE_THRESHOLD} 之上走「头体分离」入队(省一次全量拷贝),
+     * pipeline 下队列里还可能排着多条响应。逐段 {@code channel.write} 每段一次内核态
+     * 往返,Windows 上成本显著;这里把队列内全部缓冲用一次 {@code channel.write(ByteBuffer[])}
+     * 按序写出——部分写出(对端背压)时内核按序推进各缓冲位置,与逐段写的续写语义一致。</p>
+     *
+     * <p>必须在持有 {@code st.writeQueue} 锁时调用;{@code IOException} 向调用方传播,
+     * 由各调用方按原语义收尾(关闭连接或上抛事件循环)。</p>
+     *
+     * @param st  连接状态
+     * @param key 选择键
+     * @return 结果常量:SKIPPED/DONE/PARTIAL/CLOSED 之一
+     * @throws IOException 通道写失败
+     */
+    private int drainGathered(ConnectionState st, SelectionKey key) throws IOException {
+        if (st.writeQueue.size() < 2) {
+            return DRAIN_GATHER_SKIPPED;
+        }
+        ByteBuffer[] gather = st.writeQueue.toArray(new ByteBuffer[0]);
+        long w = st.channel.write(gather);
+        // 探针: 实际 socket write 时刻(一次 gather 写出的总字节数)
+        WriteProbe.written((int) w);
+        if (w < 0) {
+            closeConn(key, st);
+            return DRAIN_GATHER_CLOSED;
+        }
+        st.pendingWriteBytes -= w;
+        // 按序出队已写尽的缓冲并归还合并缓冲池;首个未写尽的留在队首等待续写
+        while (!st.writeQueue.isEmpty()) {
+            ByteBuffer head = st.writeQueue.peek();
+            if (head.hasRemaining()) {
+                return DRAIN_GATHER_PARTIAL;
+            }
+            st.writeQueue.poll();
+            st.recycleCombineBuffer(head);
+        }
+        return DRAIN_GATHER_DONE;
+    }
+
     /**
      * 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写
      * @param st 方法入参 st
@@ -916,6 +966,14 @@ public class NioHttpServer extends AbstractServer {
                     break;
                 }
                 try {
+                    // 多段缓冲(大响应头体分离、pipeline 多响应)合并为一次系统调用
+                    int g = drainGathered(st, key);
+                    if (g == DRAIN_GATHER_CLOSED || g == DRAIN_GATHER_PARTIAL) {
+                        return;
+                    }
+                    if (g == DRAIN_GATHER_DONE) {
+                        continue;
+                    }
                     int w = st.channel.write(bb);
                     // 探针: 实际 socket write 时刻
                     WriteProbe.written(w);
@@ -1061,6 +1119,17 @@ public class NioHttpServer extends AbstractServer {
                 return true;
             }
             try {
+                // 多段缓冲(大响应头体分离、pipeline 多响应)合并为一次系统调用
+                int g = drainGathered(st, key);
+                if (g == DRAIN_GATHER_CLOSED) {
+                    return true;
+                }
+                if (g == DRAIN_GATHER_PARTIAL) {
+                    return false;
+                }
+                if (g == DRAIN_GATHER_DONE) {
+                    continue;
+                }
                 int w = st.channel.write(bb);
                 // 探针: 实际 socket write 时刻
                 WriteProbe.written(w);
@@ -1098,6 +1167,14 @@ public class NioHttpServer extends AbstractServer {
                 ByteBuffer bb = st.writeQueue.peek();
                 if (bb == null) {
                     break;
+                }
+                // 多段缓冲(大响应头体分离、pipeline 多响应)合并为一次系统调用
+                int g = drainGathered(st, key);
+                if (g == DRAIN_GATHER_CLOSED || g == DRAIN_GATHER_PARTIAL) {
+                    return;
+                }
+                if (g == DRAIN_GATHER_DONE) {
+                    continue;
                 }
                 int w = st.channel.write(bb);
                 // 探针: 实际 socket write 时刻

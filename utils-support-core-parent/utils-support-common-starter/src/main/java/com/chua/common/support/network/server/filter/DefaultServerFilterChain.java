@@ -95,15 +95,19 @@ public class DefaultServerFilterChain implements ServerFilterChain {
                 return;
             }
 
-            notifyBefore(filter, request, response);
+            // 监听器每步只解析一次：getListeners 走请求属性表查找，旧实现在
+            // before、主流程、after 各查一次（每过滤器步 2~3 次属性查找）。
             List<FilterChainListener> chainListeners = getListeners(request);
             boolean hasListeners = chainListeners != null && !chainListeners.isEmpty();
             long start = hasListeners ? System.nanoTime() : 0L;
+            if (hasListeners) {
+                notifyBefore(filter, chainListeners, request, response);
+            }
             try {
                 filter.doFilter(request, response, this);
             } finally {
                 if (hasListeners) {
-                    notifyAfter(filter, System.nanoTime() - start, request, response);
+                    notifyAfter(filter, System.nanoTime() - start, chainListeners, request, response);
                 }
             }
         } else if (handler != null && !response.isEnded()) {
@@ -142,14 +146,12 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     /**
      * 通知Before
      * @param filter 过滤，不允许为 null
+     * @param currentListeners 本步已解析好的监听器列表，不允许为 null
      * @param request 请求，不允许为 null
      * @param response 响应，不允许为 null
      */
-    private void notifyBefore(ServerFilter filter, ServerRequest request, ServerResponse response) {
-        List<FilterChainListener> currentListeners = getListeners(request);
-        if (currentListeners == null) {
-            return;
-        }
+    private void notifyBefore(ServerFilter filter, List<FilterChainListener> currentListeners,
+                              ServerRequest request, ServerResponse response) {
         for (FilterChainListener l : currentListeners) {
             try {
                 l.beforeFilter(filter, request, response);
@@ -163,14 +165,12 @@ public class DefaultServerFilterChain implements ServerFilterChain {
      * 通知After
      * @param filter 过滤，不允许为 null
      * @param elapsed 方法入参 elapsed
+     * @param currentListeners 本步已解析好的监听器列表，不允许为 null
      * @param request 请求，不允许为 null
      * @param response 响应，不允许为 null
      */
-    private void notifyAfter(ServerFilter filter, long elapsed, ServerRequest request, ServerResponse response) {
-        List<FilterChainListener> currentListeners = getListeners(request);
-        if (currentListeners == null) {
-            return;
-        }
+    private void notifyAfter(ServerFilter filter, long elapsed, List<FilterChainListener> currentListeners,
+                             ServerRequest request, ServerResponse response) {
         for (FilterChainListener l : currentListeners) {
             try {
                 l.afterFilter(filter, elapsed, request, response);

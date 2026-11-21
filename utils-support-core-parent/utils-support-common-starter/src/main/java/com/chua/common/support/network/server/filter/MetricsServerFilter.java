@@ -284,6 +284,10 @@ public class MetricsServerFilter implements ServerFilter {
     private final AtomicLong maxLatencyNanos = new AtomicLong();
     private volatile ScheduledFuture<?> scheduledFuture;
     /**
+     * 指标调度线程池：init 创建、destroy 关闭，避免调度线程泄漏
+     */
+    private volatile ScheduledExecutorService scheduler;
+    /**
      * 开始时间
      */
     private final long startTime = System.currentTimeMillis();
@@ -322,8 +326,9 @@ public class MetricsServerFilter implements ServerFilter {
      */
     @Override
     public void init(ServerFilterConfig config) throws Exception {
-        ScheduledExecutorService scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("metrics-scheduler");
-        scheduledFuture = scheduler.scheduleAtFixedRate(
+        ScheduledExecutorService created = ThreadUtils.newDaemonSingleThreadScheduledExecutor("metrics-scheduler");
+        scheduler = created;
+        scheduledFuture = created.scheduleAtFixedRate(
                 this::computeAndCallback, 0, periodSeconds, TimeUnit.SECONDS);
     }
 
@@ -332,8 +337,13 @@ public class MetricsServerFilter implements ServerFilter {
      */
     @Override
     public void destroy() {
+        ScheduledExecutorService current = scheduler;
+        scheduler = null;
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
+        }
+        if (current != null) {
+            current.shutdownNow();
         }
         computeAndCallback();
     }

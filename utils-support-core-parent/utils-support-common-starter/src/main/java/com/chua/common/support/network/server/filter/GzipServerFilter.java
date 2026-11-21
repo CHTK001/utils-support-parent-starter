@@ -93,8 +93,7 @@ public class GzipServerFilter implements ServerFilter {
         if (body.length < setting.getGzipMinSize()) {
             return;
         }
-        String acceptEncoding = request.getHeader("Accept-Encoding");
-        if (acceptEncoding == null || !acceptEncoding.toLowerCase().contains("gzip")) {
+        if (!containsGzip(request.getHeader("Accept-Encoding"))) {
             return;
         }
 
@@ -107,5 +106,30 @@ public class GzipServerFilter implements ServerFilter {
         response.setBody(baos.toByteArray());
         response.setHeader("Content-Encoding", "gzip");
         response.setHeader("Vary", "Accept-Encoding");
+    }
+
+    /**
+     * 大小写不敏感地判断 Accept-Encoding 是否声明支持 gzip。
+     *
+     * <p>逐字符比较避免每请求 {@code toLowerCase()} 的整串分配；
+     * 且不受默认 Locale 影响（HTTP 头按 ASCII 大小写不敏感匹配，与区域设置无关）。</p>
+     *
+     * @param acceptEncoding Accept-Encoding 头值，可为 null
+     * @return true 表示包含 gzip 声明
+     */
+    private static boolean containsGzip(String acceptEncoding) {
+        if (acceptEncoding == null) {
+            return false;
+        }
+        int limit = acceptEncoding.length() - 4;
+        for (int i = 0; i <= limit; i++) {
+            if ((acceptEncoding.charAt(i) | 0x20) == 'g'
+                    && (acceptEncoding.charAt(i + 1) | 0x20) == 'z'
+                    && (acceptEncoding.charAt(i + 2) | 0x20) == 'i'
+                    && (acceptEncoding.charAt(i + 3) | 0x20) == 'p') {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -386,6 +386,19 @@ public class ServerFilterManager {
         @Override
         public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                               ReactiveFilterChain chain) {
+            // 快路径：下游 stage 直接暂存在每请求新建的链对象上，免去每过滤器步一次
+            // AtomicReference 分配（内置过滤器 6+ 个，十万级 RPS 下是可测的 GC 负担）。
+            if (chain instanceof DefaultReactiveFilterChain defaultChain) {
+                try {
+                    defaultChain.downstreamStage = null;
+                    delegate.doFilter(request, response, (req, resp) ->
+                            defaultChain.downstreamStage = defaultChain.doFilter(req, resp));
+                    CompletionStage<Void> pending = defaultChain.downstreamStage;
+                    return pending != null ? pending : COMPLETED;
+                } catch (Exception e) {
+                    return failed(e);
+                }
+            }
             try {
                 // 同步过滤器经 chain::doFilter 放行时，下游响应式过滤器返回的未完成
                 // stage 绝不能丢弃：丢弃会让调用方误以为请求已同步完成，在 handler
@@ -398,10 +411,20 @@ public class ServerFilterManager {
                 CompletionStage<Void> pending = downstream.get();
                 return pending != null ? pending : COMPLETED;
             } catch (Exception e) {
-                CompletableFuture<Void> failed = new CompletableFuture<>();
-                failed.completeExceptionally(e);
-                return failed;
+                return failed(e);
             }
+        }
+
+        /**
+         * 构造携带异常的失败完成信号。
+         *
+         * @param e 同步过滤器抛出的异常
+         * @return 失败阶段
+         */
+        private static CompletableFuture<Void> failed(Exception e) {
+            CompletableFuture<Void> failed = new CompletableFuture<>();
+            failed.completeExceptionally(e);
+            return failed;
         }
 
         @Override

@@ -62,6 +62,22 @@ public class RequestRewriteServerFilter implements ServerFilter {
      * 路径变量：属性名 → 正则
      */
     private final Map<String, Pattern> pathVars = new LinkedHashMap<>();
+    /**
+     * setHeader 请求属性键前缀
+     */
+    private static final String SET_HEADER_PREFIX = "_setHeader:";
+    /**
+     * removeHeader 请求属性键前缀
+     */
+    private static final String REMOVE_HEADER_PREFIX = "_removeHeader:";
+    /**
+     * setHeader 属性键缓存：header 名 → 预拼好的请求属性键（init 时重建）
+     */
+    private final Map<String, String> setHeaderKeys = new LinkedHashMap<>();
+    /**
+     * removeHeader 属性键缓存：header 名 → 预拼好的请求属性键（init 时重建）
+     */
+    private final Map<String, String> removeHeaderKeys = new java.util.HashMap<>();
 
     /**
      * 无参构造：SPI 反射装配用。
@@ -110,6 +126,15 @@ public class RequestRewriteServerFilter implements ServerFilter {
                 }
             }
         }
+        // 预生成请求属性键，避免每请求字符串拼接
+        setHeaderKeys.clear();
+        for (String name : setHeaders.keySet()) {
+            setHeaderKeys.put(name, SET_HEADER_PREFIX + name);
+        }
+        removeHeaderKeys.clear();
+        for (String name : removeHeaders) {
+            removeHeaderKeys.put(name, REMOVE_HEADER_PREFIX + name);
+        }
     }
 
     /**
@@ -122,10 +147,10 @@ public class RequestRewriteServerFilter implements ServerFilter {
         String rewritten = rewritePath(path);
         request.setAttribute("_rewrittenPath", rewritten);
         for (Map.Entry<String, String> header : setHeaders.entrySet()) {
-            request.setAttribute("_setHeader:" + header.getKey(), header.getValue());
+            request.setAttribute(setHeaderKeys.get(header.getKey()), header.getValue());
         }
         for (String name : removeHeaders) {
-            request.setAttribute("_removeHeader:" + name, Boolean.TRUE);
+            request.setAttribute(removeHeaderKeys.get(name), Boolean.TRUE);
         }
         for (Map.Entry<String, Pattern> var : pathVars.entrySet()) {
             Matcher matcher = var.getValue().matcher(path);
@@ -146,16 +171,33 @@ public class RequestRewriteServerFilter implements ServerFilter {
     String rewritePath(String path) {
         String result = path;
         if (stripPrefix > 0) {
-            // 去掉开头的 "/" 再切分：否则 "/a/b/c".split() 会多出一个空段，
-            // 让 stripPrefix=1 少去一段（/a/b/c 去 1 段应得 /b/c）
+            // 去掉开头的 "/" 再切段：否则 "/a/b/c" 会多出一个空段，
+            // 让 stripPrefix=1 少去一段（/a/b/c 去 1 段应得 /b/c）。
+            // 索引扫描等价于 body.split("/", -1) 后跳过前 stripPrefix 段与空段。
             String body = result.startsWith("/") ? result.substring(1) : result;
-            String[] segments = body.split("/", -1);
-            StringBuilder sb = new StringBuilder();
-            for (int i = stripPrefix; i < segments.length; i++) {
-                if (segments[i].isEmpty()) {
-                    continue;
+            StringBuilder sb = new StringBuilder(body.length());
+            int len = body.length();
+            int i = 0;
+            int segment = 0;
+            // 先跳过前 stripPrefix 段
+            while (i <= len && segment < stripPrefix) {
+                int end = body.indexOf('/', i);
+                if (end < 0) {
+                    end = len;
                 }
-                sb.append('/').append(segments[i]);
+                segment++;
+                i = end + 1;
+            }
+            // 拼接剩余段，跳过空段
+            while (i <= len) {
+                int end = body.indexOf('/', i);
+                if (end < 0) {
+                    end = len;
+                }
+                if (end > i) {
+                    sb.append('/').append(body, i, end);
+                }
+                i = end + 1;
             }
             result = sb.length() == 0 ? "/" : sb.toString();
         }

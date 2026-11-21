@@ -309,13 +309,18 @@ public abstract class AbstractServer implements ConfigServer {
         }
         long active = metrics.getActiveRequests() + 1;
         metrics.incrementActive();
-        metrics.updatePeakActive(active);
         // 延迟采样：sampleEvery<=1 时全量记录，否则按 1/sampleEvery 概率随机抽取
         // （ThreadLocalRandom 无争用；等价于旧「按请求数取模」的采样率，但省去
         // 每请求一次 LongAdder 全量求和——sum() 要遍历全部分片单元）
         int sampleEvery = latencySampleEvery;
         boolean sampleLatency = sampleEvery <= 1
                 || ThreadLocalRandom.current().nextInt(sampleEvery) == 0;
+        if (sampleLatency) {
+            // 峰值活跃数随延迟采样同频刷新：getActiveRequests() 是 LongAdder 全量求和，
+            // 分片多时是一次跨缓存行的遍历，每请求执行在十万级 RPS 下是可测的纯开销；
+            // 高负载下采样点足够密集，不会漏掉真实的并发高峰（低负载时并发本就低）。
+            metrics.updatePeakActive(active);
+        }
         long start = sampleLatency ? System.nanoTime() : 0L;
         CompletionStage<Void> stage;
         try {

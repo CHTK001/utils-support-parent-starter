@@ -82,6 +82,25 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     private final ServerSetting.SecurityHeadersConfig config;
 
     /**
+     * CSP frame-ancestors 头缓存：config 为 final、取值运行期不变，
+     * 命中时免去每请求的字符串拼接分配。
+     */
+    private volatile CspHeaderCache cspCache;
+
+    /**
+     * CSP 头缓存条目：source 为配置原始值，value 为拼接后的头值。
+     */
+    private static final class CspHeaderCache {
+        private final String source;
+        private final String value;
+
+        CspHeaderCache(String source, String value) {
+            this.source = source;
+            this.value = value;
+        }
+    }
+
+    /**
      * 创建安全响应头过滤器(默认不启用 HSTS)。
      */
     public SecurityHeadersServerFilter() {
@@ -204,7 +223,26 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
         }
         String frameAncestors = config.getFrameAncestors();
         if (StringUtils.isNotBlank(frameAncestors)) {
-            response.setHeader(HEADER_CSP, "frame-ancestors " + frameAncestors.trim());
+            response.setHeader(HEADER_CSP, resolveCspValue(frameAncestors));
         }
+    }
+
+    /**
+     * 解析 CSP frame-ancestors 头值，命中缓存时免去每请求的字符串拼接。
+     *
+     * <p>以配置原始值作缓存键比对；若未来配置支持热更新，
+     * 键不一致会自动失效重算，不会返回过期值。</p>
+     *
+     * @param frameAncestors 配置的 frame-ancestors 原始值
+     * @return 形如 "frame-ancestors xxx" 的头值
+     */
+    private String resolveCspValue(String frameAncestors) {
+        CspHeaderCache cache = cspCache;
+        if (cache != null && cache.source.equals(frameAncestors)) {
+            return cache.value;
+        }
+        String value = "frame-ancestors " + frameAncestors.trim();
+        cspCache = new CspHeaderCache(frameAncestors, value);
+        return value;
     }
 }

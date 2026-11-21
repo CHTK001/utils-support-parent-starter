@@ -117,13 +117,20 @@ public class FirewallServerFilter implements ServerFilter {
      */
     public boolean allows(String clientIp) {
         String ip = clientIp == null ? "" : clientIp;
-        if (whitelistMode) {
-            if (!whitelist.isEmpty() && !whitelist.contains(ip)) {
-                return false;
-            }
-        } else if (blacklist.contains(ip)) {
+        if (deniedByList(ip)) {
             return false;
         }
+        return tryAcquire(ip);
+    }
+
+    /**
+     * 仅做限流判定（名单判定由调用方先行完成），避免名单重复扫描。
+     *
+     * @param clientIp 客户端 IP，可为 null
+     * @return true 表示未触发限流
+     */
+    private boolean tryAcquire(String clientIp) {
+        String ip = clientIp == null ? "" : clientIp;
         if (qps <= 0) {
             return true;
         }
@@ -171,7 +178,7 @@ public class FirewallServerFilter implements ServerFilter {
             response.end();
             return;
         }
-        if (!allows(ip)) {
+        if (!tryAcquire(ip)) {
             response.setStatus(429);
             response.setBody("{\"error\":\"Too Many Requests\",\"ip\":\"" + ip + "\"}");
             response.end();

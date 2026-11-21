@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import com.chua.common.support.utils.StringUtils;
@@ -71,6 +74,25 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     private volatile boolean redirectToIndex = true;
 
     /**
+     * supportPath 缓存：urlPrefix 运行期可能经 init/updateConfig 变更，
+     * 以变更后的前缀为键，前缀不变时直接复用拼接结果。
+     */
+    private volatile PrefixPathCache supportPathCache;
+
+    /**
+     * supportPath 缓存条目：prefix 为 urlPrefix 当前值，path 为其匹配表达式。
+     */
+    private static final class PrefixPathCache {
+        private final String prefix;
+        private final String path;
+
+        PrefixPathCache(String prefix, String path) {
+            this.prefix = prefix;
+            this.path = path;
+        }
+    }
+
+    /**
      * 构造方法，创建 StaticResource服务端过滤 实例。
      */
     public StaticResourceServerFilter() {
@@ -100,8 +122,15 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
 
     @Override
     public String supportPath() {
-        // Endpoint Filter：绑定 URL 前缀，仅匹配该前缀时触发
-        return urlPrefix + "/**";
+        // Endpoint Filter：绑定 URL 前缀，仅匹配该前缀时触发；命中缓存免去每请求拼接
+        String prefix = urlPrefix;
+        PrefixPathCache cache = supportPathCache;
+        if (cache != null && cache.prefix.equals(prefix)) {
+            return cache.path;
+        }
+        String path = prefix + "/**";
+        supportPathCache = new PrefixPathCache(prefix, path);
+        return path;
     }
 
     @Override
@@ -233,64 +262,57 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
+     * 扩展名 → Content-Type 映射（键为小写扩展名，不含点）。
+     */
+    private static final Map<String, String> CONTENT_TYPES;
+
+    /**
+     * 缺省 Content-Type
+     */
+    private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+    static {
+        Map<String, String> types = new HashMap<>(32);
+        types.put("html", "text/html;charset=UTF-8");
+        types.put("htm", "text/html;charset=UTF-8");
+        types.put("js", "application/javascript;charset=UTF-8");
+        types.put("mjs", "application/javascript;charset=UTF-8");
+        types.put("css", "text/css;charset=UTF-8");
+        types.put("json", "application/json;charset=UTF-8");
+        types.put("png", "image/png");
+        types.put("jpg", "image/jpeg");
+        types.put("jpeg", "image/jpeg");
+        types.put("gif", "image/gif");
+        types.put("svg", "image/svg+xml");
+        types.put("webp", "image/webp");
+        types.put("ico", "image/x-icon");
+        types.put("woff", "font/woff");
+        types.put("woff2", "font/woff2");
+        types.put("ttf", "font/ttf");
+        types.put("otf", "font/otf");
+        types.put("map", "application/json");
+        types.put("txt", "text/plain;charset=UTF-8");
+        types.put("xml", "application/xml;charset=UTF-8");
+        CONTENT_TYPES = Collections.unmodifiableMap(types);
+    }
+
+    /**
      * 推断静态资源 Content-Type。
      * @param name 名称，不允许为 null
      * @return 结果字符串
      */
-    private String guessContentType(String name) {
-        String lower = name.toLowerCase();
-        if (lower.endsWith(".html") || lower.endsWith(".htm")) {
-            return "text/html;charset=UTF-8";
+    private static String guessContentType(String name) {
+        int dot = name.lastIndexOf('.');
+        if (dot < 0) {
+            return DEFAULT_CONTENT_TYPE;
         }
-        if (lower.endsWith(".js") || lower.endsWith(".mjs")) {
-            return "application/javascript;charset=UTF-8";
+        // 按最后一个点取扩展名，逐字符小写化（不受 Locale 影响）后查表
+        int length = name.length();
+        char[] buf = new char[length - dot - 1];
+        for (int i = dot + 1; i < length; i++) {
+            buf[i - dot - 1] = Character.toLowerCase(name.charAt(i));
         }
-        if (lower.endsWith(".css")) {
-            return "text/css;charset=UTF-8";
-        }
-        if (lower.endsWith(".json")) {
-            return "application/json;charset=UTF-8";
-        }
-        if (lower.endsWith(".png")) {
-            return "image/png";
-        }
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
-            return "image/jpeg";
-        }
-        if (lower.endsWith(".gif")) {
-            return "image/gif";
-        }
-        if (lower.endsWith(".svg")) {
-            return "image/svg+xml";
-        }
-        if (lower.endsWith(".webp")) {
-            return "image/webp";
-        }
-        if (lower.endsWith(".ico")) {
-            return "image/x-icon";
-        }
-        if (lower.endsWith(".woff")) {
-            return "font/woff";
-        }
-        if (lower.endsWith(".woff2")) {
-            return "font/woff2";
-        }
-        if (lower.endsWith(".ttf")) {
-            return "font/ttf";
-        }
-        if (lower.endsWith(".otf")) {
-            return "font/otf";
-        }
-        if (lower.endsWith(".map")) {
-            return "application/json";
-        }
-        if (lower.endsWith(".txt")) {
-            return "text/plain;charset=UTF-8";
-        }
-        if (lower.endsWith(".xml")) {
-            return "application/xml;charset=UTF-8";
-        }
-        return "application/octet-stream";
+        return CONTENT_TYPES.getOrDefault(new String(buf), DEFAULT_CONTENT_TYPE);
     }
 
     /**
