@@ -436,7 +436,7 @@ public class SourceJavaCompiler {
     private String toClasspathEntry(URL url) {
         String protocol = url.getProtocol();
         if ("file".equals(protocol)) {
-            return decodePath(url.getPath());
+            return normalizeWindowsPath(decodePath(url.getPath()));
         }
         if (!NESTED_JAR_PROTOCOL.equals(protocol)) {
             return null;
@@ -453,6 +453,7 @@ public class SourceJavaCompiler {
         while (outerPath.endsWith("/")) {
             outerPath = outerPath.substring(0, outerPath.length() - 1);
         }
+        outerPath = normalizeWindowsPath(outerPath);
         String inner = spec.substring(marker + 1);
         if (inner.endsWith(NESTED_TAIL)) {
             inner = inner.substring(0, inner.length() - NESTED_TAIL.length());
@@ -550,6 +551,25 @@ public class SourceJavaCompiler {
                 }
             }
         }
+    }
+
+    /**
+     * 规范化 Windows 盘符路径。
+     *
+     * <p>file / nested URL 的 path 在 Windows 上形如 {@code /D:/dir/app.jar}：
+     * 盘符前多一个前导斜杠，{@link Path#of(String)} 与 javac 的 {@code -classpath}
+     * 都无法接受（{@code Illegal char <:> at index 3}），必须剥掉；
+     * Linux/Unix 路径不出现「/盘符:」形态，原样返回。</p>
+     *
+     * @param path 待规范化路径
+     * @return 规范化后的路径
+     */
+    private static String normalizeWindowsPath(String path) {
+        if (path != null && path.length() >= 4 && path.charAt(0) == '/'
+                && Character.isLetter(path.charAt(1)) && path.charAt(2) == ':') {
+            return path.substring(1);
+        }
+        return path;
     }
 
     /**
