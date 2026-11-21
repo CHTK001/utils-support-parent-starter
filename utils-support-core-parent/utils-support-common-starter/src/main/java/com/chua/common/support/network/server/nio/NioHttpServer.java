@@ -744,6 +744,17 @@ public class NioHttpServer extends AbstractServer {
         // 探针: 请求开始解析 (feed() 之前)
         WriteProbe.entered(n);
         int r = st.request.feed(buf);
+        // 修复连接停滞:读缓冲一次 read 可能吞下整个请求(读缓冲 ≥ 请求头+体总长时),
+        // feed 只消费行缓冲容量,剩余 body 字节仍滞留在读缓冲;若就此返回等待内核可读事件,
+        // 而对端已在等响应、内核无新数据,该连接将永久停滞(实测 256KB 读缓冲 + 64KB 请求吞吐归零)。
+        // 与 replayNextRequest 同口径:解析器还要数据(r==0)且读缓冲有残留时,继续从用户态缓冲消费。
+        while (r == 0 && buf.hasRemaining()) {
+            int before = buf.position();
+            r = st.request.feed(buf);
+            if (buf.position() == before) {
+                break; // 防御:本轮无进展则交还事件循环等待新数据
+            }
+        }
         buf.compact(); // 保留未消费数据
         if (r == 1) {
             // 完整请求解析完成:摘除 OP_READ
@@ -867,6 +878,14 @@ public class NioHttpServer extends AbstractServer {
             // readBuf 处于 write 模式（handleRead 的 compact 之后），flip 后可读
             st.readBuf.flip();
             r = st.request.feed(st.readBuf);
+            // 与 handleRead 同口径:残留字节属于当前请求 body 时继续消费,避免连接停滞
+            while (r == 0 && st.readBuf.hasRemaining()) {
+                int before = st.readBuf.position();
+                r = st.request.feed(st.readBuf);
+                if (st.readBuf.position() == before) {
+                    break; // 防御:无进展则交还事件循环等待新数据
+                }
+            }
             st.readBuf.compact();
         }
         return r;
