@@ -76,7 +76,9 @@ public class CorsServerFilter implements ServerFilter {
             return;
         }
 
-        String origin = request.getHeader("Origin");
+        // 传已小写字面量：头查找各实现均大小写不敏感（NIO 键小写存储、JDK Headers 与
+        // Tcp CASE_INSENSITIVE_ORDER），免去 getHeader 内 toLowerCase 的每请求分配
+        String origin = request.getHeader("origin");
         if (StringUtils.isEmpty(origin)) {
             chain.doFilter(request, response);
             return;
@@ -108,7 +110,7 @@ public class CorsServerFilter implements ServerFilter {
             response.setHeader("Access-Control-Expose-Headers", exposeHeaders);
         }
         if (request.getMethod() == com.chua.common.support.network.http.HttpMethod.OPTIONS
-                && request.getHeader("Access-Control-Request-Method") != null) {
+                && request.getHeader("access-control-request-method") != null) {
             response.setStatus(204);
             response.end();
             return;

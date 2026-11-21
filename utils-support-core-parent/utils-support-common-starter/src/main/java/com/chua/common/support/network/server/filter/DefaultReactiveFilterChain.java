@@ -96,6 +96,19 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     volatile CompletionStage<Void> downstreamStage;
 
     /**
+     * 同步过滤器放行用的链视图（每请求仅创建一次）。
+     *
+     * <p>{@link ServerFilterManager.StaticReactiveFilterAdapter} 原本在每个过滤器步都
+     * 新建一个 lambda 捕获本链来承接下游 stage（内置过滤器 7~8 个/请求，JFR 分配采样
+     * 占 ~16%，是剩余最大的应用侧分配源）。本链的
+     * {@link #doFilter(ServerRequest, ServerResponse)} 与
+     * {@link ServerFilterChain#doFilter(ServerRequest, ServerResponse)} 同签名擦除冲突，
+     * 无法直接实现该接口，故以方法引用预建一个每请求复用的放行视图，
+     * 语义与原 lambda 完全一致：把下游完成信号写回 {@link #downstreamStage} 槽位。</p>
+     */
+    final ServerFilterChain syncChain;
+
+    /**
      * 构造响应式过滤器链。
      *
      * @param filters 过滤器列表
@@ -134,6 +147,18 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         this.filters = preDeduped ? filters : dedupe(filters);
         this.handler = handler;
         this.index = 0;
+        this.syncChain = this::passToDownstream;
+    }
+
+    /**
+     * 同步过滤器的放行入口：推进链游标并把下游完成信号写回槽位。
+     *
+     * <p>与适配器原先每过滤器步新建的 lambda 逐语义一致：同步过滤器不放行时本方法
+     * 不会被调用，{@link #downstreamStage} 保持 null，适配器据此返回共享完成信号；
+     * 嵌套同步过滤器仍按「内层先写、外层覆盖」的顺序互不踩踏。</p>
+     */
+    private void passToDownstream(ServerRequest request, ServerResponse response) {
+        this.downstreamStage = this.doFilter(request, response);
     }
 
     /**

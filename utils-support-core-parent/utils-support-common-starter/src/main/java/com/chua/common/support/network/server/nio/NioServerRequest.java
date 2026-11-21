@@ -940,8 +940,36 @@ public class NioServerRequest implements ServerRequest {
     @Override public byte[] getBody() { return body != null ? body : EMPTY_BODY; }
     @Override public String getBodyString() { return new String(getBody(), resolveCharset()); }
     @Override public InputStream getInputStream() { return new ByteArrayInputStream(getBody()); }
+    /** 远端地址缓存：地址与连接一一绑定且连接生命周期内不变，首次解析后复用 */
+    private String remoteAddressCache;
+    /** 远端端口缓存：同 {@link #remoteAddressCache}，Integer 仅作「已解析」标记 */
+    private Integer remotePortCache;
     @Override public String getRemoteAddress() {
-        // 优先使用预存地址(传输无关场景);否则从 channel 动态获取(NIO 场景)
+        String cached = remoteAddressCache;
+        if (cached != null) {
+            return cached;
+        }
+        String resolved = resolveRemoteAddress();
+        remoteAddressCache = resolved;
+        return resolved;
+    }
+    @Override public int getRemotePort() {
+        Integer cached = remotePortCache;
+        if (cached != null) {
+            return cached;
+        }
+        int resolved = resolveRemotePort();
+        remotePortCache = resolved;
+        return resolved;
+    }
+    /**
+     * 解析远端地址：优先使用预存地址(传输无关场景);否则从 channel 动态获取(NIO 场景)。
+     *
+     * <p>request 实例与 channel 一一绑定（仅在同一连接内经 resetForNextRequest 复用），
+     * 解析结果按连接缓存：启用 Ip/Firewall/AccessLog 等过滤器时每请求都会取远端地址，
+     * 不缓存则每次调用都经 {@code channel.getRemoteAddress()} 新分配 InetSocketAddress。</p>
+     */
+    private String resolveRemoteAddress() {
         if (remoteAddress instanceof InetSocketAddress inet) {
             return inet.getHostString();
         }
@@ -955,7 +983,8 @@ public class NioServerRequest implements ServerRequest {
         }
         return "unknown";
     }
-    @Override public int getRemotePort() {
+    /** 解析远端端口，缓存口径与 {@link #resolveRemoteAddress()} 一致 */
+    private int resolveRemotePort() {
         if (remoteAddress instanceof InetSocketAddress inet) {
             return inet.getPort();
         }

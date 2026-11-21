@@ -420,12 +420,12 @@ public class ServerFilterManager {
         public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                               ReactiveFilterChain chain) {
             // 快路径：下游 stage 直接暂存在每请求新建的链对象上，免去每过滤器步一次
-            // AtomicReference 分配（内置过滤器 6+ 个，十万级 RPS 下是可测的 GC 负担）。
+            // AtomicReference 分配（内置过滤器 6+ 个，十万级 RPS 下是可测的 GC 负担）；
+            // 放行视图用链上预建的 syncChain 方法引用，免去每过滤器步一次 lambda 分配。
             if (chain instanceof DefaultReactiveFilterChain defaultChain) {
                 try {
                     defaultChain.downstreamStage = null;
-                    delegate.doFilter(request, response, (req, resp) ->
-                            defaultChain.downstreamStage = defaultChain.doFilter(req, resp));
+                    delegate.doFilter(request, response, defaultChain.syncChain);
                     CompletionStage<Void> pending = defaultChain.downstreamStage;
                     return pending != null ? pending : COMPLETED;
                 } catch (Exception e) {
