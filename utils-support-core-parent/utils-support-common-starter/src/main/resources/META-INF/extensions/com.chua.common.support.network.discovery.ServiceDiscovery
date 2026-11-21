@@ -1,1 +1,3 @@
 com.chua.common.support.network.discovery.peermesh.PeerMeshDiscovery
+com.chua.common.support.network.discovery.RegistryHubServiceDiscovery
+com.chua.common.support.network.discovery.RegistryClientServiceDiscovery
