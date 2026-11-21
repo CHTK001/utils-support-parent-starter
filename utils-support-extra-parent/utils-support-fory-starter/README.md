@@ -33,7 +33,7 @@ Maven 坐标：
 | 维度 | 是 | 不是 |
 | --- | --- | --- |
 | 定位 | Apache Fory 的 **SPI 适配层**：二进制序列化（`ForySerialization` / `ForySerializer`）+ JSON（`ForyJsonProvider`） | 不定义序列化契约；`Serializer` / `Serialization` / `JsonProvider` 接口都在 `utils-support-common-starter` |
-| 引擎 | 基于 `org.apache.fury:fury-core`（Fury 内核）与 `org.apache.fory:fory-json`（Fory 官方 JSON 模块） | 不是自研序列化协议，也不重写 Fury |
+| 引擎 | 基于 `org.apache.fory:fory-core`（Fory 内核）与 `org.apache.fory:fory-json`（Fory 官方 JSON 模块） | 不是自研序列化协议，也不重写 Fory |
 | 形态 | utils SPI 体系下的实现模块：通过 `META-INF/extensions` 与 `META-INF/services` 注册，按名字装配 | 不是 Spring Boot starter：不依赖 Spring、没有自动配置类 |
 | 安全 | 反序列化经 `DeserializationGuard` 类名守卫（命中黑名单的类名在解析阶段即被拒绝） | 不提供白名单策略本体；策略与守卫实现位于 common-starter |
 
@@ -66,13 +66,13 @@ Maven 坐标：
 
 | 成员 | 行为 |
 | --- | --- |
-| `new ForySerializer(Class<T> clazz)` | 按目标类型创建；每个类型对应一个 `ThreadSafeFury`（`ConcurrentHashMap` 缓存，创建时打印 `[ForyPool] Created Fury instance #N for 类名`） |
+| `new ForySerializer(Class<T> clazz)` | 按目标类型创建；每个类型对应一个 `ThreadSafeFory`（`ConcurrentHashMap` 缓存，创建时打印 `[ForyPool] Created Fury instance #N for 类名`） |
 | `serialize(T object)` | `null` → 空字节数组 |
 | `deserialize(byte[] bytes)` | `null` / 空数组 → `null` |
 | `clearPool()`（静态） | 清空全部 Fury 实例缓存，打印 `[ForyPool] All Fury instances cleared`；适用于测试或释放资源 |
 | `getPoolSize()`（静态） | 当前缓存的 Fury 实例数量 |
 
-> `Fury` 本身**非线程安全**：两个类持有的都是 `ThreadSafeFury`（内部为每个线程维护独立编解码器），调用方无需再加锁。
+> `Fory` 本身**非线程安全**：两个类持有的都是 `ThreadSafeFory`（内部为每个线程维护独立编解码器），调用方无需再加锁。
 
 ### 2.2 JSON（`ForyJsonProvider`）
 
@@ -192,7 +192,7 @@ Json.setImplementation(new ForyJsonProvider());   // 之后 Json 门面的节点
 | 引用跟踪 | 开启（`withRefTracking(true)`；`ForySerializer` 中常量 `REF_TRACKING = true`） | 支持循环引用 / 共享引用对象图 |
 | 类注册 | `requireClassRegistration(false)` | 不强制注册类，动态序列化更灵活 |
 | Guava 类型注册 | `registerGuavaTypes(false)`（仅 `ForySerialization`） | — |
-| 类名守卫 | `setClassChecker(... → DeserializationGuard.isAllowed(className))` | 反序列化黑名单拦截 |
+| 类名守卫 | `setTypeChecker(... → DeserializationGuard.isAllowed(className))` | 反序列化黑名单拦截 |
 | JSON 美化 | `prettyFormat` / `toPrettyJson` 回退紧凑输出 | 源码注释：fory-json 无内置缩进 |
 
 ---
@@ -218,7 +218,7 @@ Json.setImplementation(new ForyJsonProvider());   // 之后 Json 门面的节点
 
 索引生成方式：`ForyJsonProvider` 标注 `@AutoSpi("com.chua.common.support.lang.json.JsonProvider")`，由 `utils-support-ast-starter` 的 `AutoSpiAstProcessor` 在编译期生成 `META-INF/extensions` 索引；`ForySerializer` / `ForySerialization` 的同名索引为源码内维护的等价文件。
 
-GraalVM native-image：`META-INF/native-image/com.chua/utils-support-fory-starter/` 内置 `reflect-config.json`（本模块类 + Fury 内部类 + JDK 常用类型）、`proxy-config.json`、`resource-config.json`。
+GraalVM native-image：`META-INF/native-image/com.chua/utils-support-fory-starter/` 内置 `reflect-config.json`（本模块类 + Fory 内部类 + JDK 常用类型）、`proxy-config.json`、`resource-config.json`。
 
 同仓消费方（已验证）：common-starter 的 `RpcSerialization` 将 `fury` / `fory` 映射到 `ForySerialization`；`WalDispatcherProvider`、`ZmqDispatcherProvider`、`DispatcherConfig` 的序列化器名均支持 `fury` / `fory` / `jackson`。
 
@@ -235,8 +235,8 @@ mvn -o -q compile -DskipTests
 | 依赖 | 版本 | 作用 |
 | --- | --- | --- |
 | `com.chua:utils-support-common-starter` | `${project.version}`（4.0.0.51） | 契约接口与工具 |
-| `org.apache.fury:fury-core` | `0.10.3` | Fury 二进制序列化内核 |
-| `org.apache.fory:fory-json` | `1.7.6` | `ForyJsonProvider` 的底层 JSON 引擎 |
+| `org.apache.fory:fory-core` | `1.7.8` | Fory 二进制序列化内核 |
+| `org.apache.fory:fory-json` | `1.7.8` | `ForyJsonProvider` 的底层 JSON 引擎 |
 | `com.chua:utils-support-ast-starter` | `${project.version}`，`provided` | 仅编译期：`@AutoSpi` 注解 + `AutoSpiAstProcessor` 生成 SPI 索引 |
 | `org.projectlombok:lombok` | `${lombok.version}` | 注解处理器 |
 
@@ -247,9 +247,9 @@ mvn -o -q compile -DskipTests
 ## 7. 边界：这些能力不在本模块
 
 - **契约与门面**：`Serializer`、`Serialization`、`JsonProvider`、`Json`、`JsonObject` / `JsonArray` / `JsonNode`、`JsonBeanMapper`、门户注解 `JsonName` / `JsonIgnore` / `JsonFormat` 均定义在 `utils-support-common-starter`；本模块只是其 Fory 实现。
-- **反序列化安全策略本体**：`DeserializationGuard` 及其策略位于 common-starter；本模块只通过 `setClassChecker` 接入。
+- **反序列化安全策略本体**：`DeserializationGuard` 及其策略位于 common-starter；本模块只通过 `setTypeChecker` 接入。
 - **其它 JSON 实现**：jackson / gson / fastjson 等位于各自独立 starter，不在本模块。
 - **其它二进制序列化实现**：protobuf、kryo 等位于各自模块，不在本模块。
 - **pretty 输出**：fory-json 无内置缩进，`prettyFormat` / `toPrettyJson` 返回紧凑 JSON，不产生缩进格式。
-- **线程安全边界**：本模块全部经 `ThreadSafeFury` 使用 Fury；`ForySerializer` 按类型缓存实例，类型无限增长时池会增长，需要时用 `clearPool()` 释放。
-- **跨语言客户端**：跨语言互操作依赖 Fury 自身协议能力，本模块不提供其它语言的客户端代码。
+- **线程安全边界**：本模块全部经 `ThreadSafeFory` 使用 Fory；`ForySerializer` 按类型缓存实例，类型无限增长时池会增长，需要时用 `clearPool()` 释放。
+- **跨语言客户端**：跨语言互操作依赖 Fory 自身协议能力，本模块不提供其它语言的客户端代码。

@@ -88,7 +88,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-classes-kqueue</artifactId>
-            <version>4.2.18.Final</version>
+            <version>4.2.21.Final</version>
         </dependency>
         <!-- 单元测试：用模块自带 KcpClient 验证真实 UDP/KCP 链路 -->
     </dependencies>

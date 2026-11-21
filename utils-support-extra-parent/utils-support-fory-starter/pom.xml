@@ -25,8 +25,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.fury</groupId>
-            <artifactId>fury-core</artifactId>
+            <groupId>org.apache.fory</groupId>
+            <artifactId>fory-core</artifactId>
         </dependency>
 
         <!-- fory-json：Fory 官方 JSON 序列化模块，用于实现 JsonProvider（ForyJsonProvider） -->

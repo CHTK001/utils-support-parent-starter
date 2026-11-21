@@ -131,7 +131,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
         </dependency>
         <!-- OpenCV 图像预处理（resize/cvtColor/normalize 等，替代 DJL NDArray）-->
         <dependency>

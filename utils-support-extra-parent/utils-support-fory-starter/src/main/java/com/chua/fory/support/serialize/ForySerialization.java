@@ -3,20 +3,20 @@ package com.chua.fory.support.serialize;
 import com.chua.common.support.base.serialize.Serialization;
 import com.chua.common.support.serialize.DeserializationGuard;
 import com.chua.common.support.spi.annotations.Spi;
-import org.apache.fury.Fury;
-import org.apache.fury.ThreadSafeFury;
-import org.apache.fury.config.Language;
+import org.apache.fory.Fory;
+import org.apache.fory.ThreadSafeFory;
+import org.apache.fory.config.Language;
 
 /**
  * Apache Fory（Fury）二进制序列化实现。
  *
  * <p>直接使用 Apache Fury 进行编解码，支持对象引用跟踪（循环引用）、跨语言互操作与模式演化。</p>
  *
- * <p>Fury 的 {@code Fury} 对象<strong>不是</strong>线程安全的，因此这里持有的是
- * {@link ThreadSafeFury}（内部为每个线程维护独立编解码器），调用方无需再加锁。</p>
+ * <p>Fory 的 {@code Fory} 对象<strong>不是</strong>线程安全的，因此这里持有的是
+ * {@link ThreadSafeFory}（内部为每个线程维护独立编解码器），调用方无需再加锁。</p>
  *
  * <p>Fury 在 {@code requireClassRegistration(false)} 下会按报文携带的类名还原任意类，
- * 与 JDK 原生序列化同属反序列化攻击面，故通过 {@code setClassChecker} 接入
+ * 与 JDK 原生序列化同属反序列化攻击面，故通过 {@code setTypeChecker} 接入
  * {@link DeserializationGuard}：命中黑名单的类名在解析阶段即被拒绝。</p>
  *
  * @author CH
@@ -28,21 +28,21 @@ public class ForySerialization implements Serialization {
     /**
      * 全局共享线程安全 Fury 实例
      */
-    private static final ThreadSafeFury FURY = newFury();
+    private static final ThreadSafeFory FURY = newFury();
 
     /**
      * 构建线程安全 Fury 实例并挂上反序列化类名守卫。
      *
      * @return 已配置完成的 Fury 门面
      */
-    private static ThreadSafeFury newFury() {
-        ThreadSafeFury fury = Fury.builder()
+    private static ThreadSafeFory newFury() {
+        ThreadSafeFory fury = Fory.builder()
                 .withLanguage(Language.JAVA)
                 .withRefTracking(true)
                 .requireClassRegistration(false)
                 .registerGuavaTypes(false)
-                .buildThreadSafeFury();
-        fury.setClassChecker((classResolver, className) -> DeserializationGuard.isAllowed(className));
+                .buildThreadSafeFory();
+        fury.setTypeChecker((typeResolver, className) -> DeserializationGuard.isAllowed(className));
         return fury;
     }
 

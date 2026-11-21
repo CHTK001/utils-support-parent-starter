@@ -60,11 +60,11 @@
               反而重新制造出 databind 2.21.4 / jsr310 2.18.9 的错配。
               要么给全版本，要么整条删除，不可只删 version。
             -->
-            <!-- Lock okhttp to single version (agentscope pulls both 4.x and 5.x) -->
+            <!-- Lock okhttp to single version (agentscope pulls both 4.x and 5.x)；2026-11-21 随根 pom 升到 5.5.1 -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.12.0</version>
+                <version>${okhttp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

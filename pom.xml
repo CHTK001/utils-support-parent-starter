@@ -32,8 +32,8 @@
         <djl.version>0.36.0</djl.version>
 
         <skipTests>true</skipTests>
-        <calcite.version>1.41.0</calcite.version>
-        <okhttp.version>4.12.0</okhttp.version>
+        <calcite.version>1.42.0</calcite.version>
+        <okhttp.version>5.5.1</okhttp.version>
         
         <aliyun.java.sdk.facebody.version>1.2.16</aliyun.java.sdk.facebody.version>
         <aliyun.java.sdk.ocr.version>1.0.26</aliyun.java.sdk.ocr.version>
@@ -100,14 +100,14 @@
              utils-support-common-starter 作为最底层模块只提供
              RuleAssembler.ExpressionCompiler 这个 SPI 接口，
              不引入任何字节码三方依赖，因此无需在此层声明 asm。 -->
-        <asm.version>9.10.1</asm.version>
+        <asm.version>9.11.1</asm.version>
         <loki4j.version>2.1.0</loki4j.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <tukaani.xz.version>1.12</tukaani.xz.version>
         <zstd-jni.version>1.5.7-21</zstd-jni.version>
         <brotli.dec.version>0.1.2</brotli.dec.version>
-        <json.path.version>2.10.0</json.path.version>
-        <javassist.version>3.30.2-GA</javassist.version>
+        <json.path.version>3.0.0</json.path.version>
+        <javassist.version>3.33.0-GA</javassist.version>
         <!--
           2026-09-28 修正「属性与托管值打架」同型缺陷。此前 tukaani.xz.version=1.11 /
           json.path.version=2.10.0 / sqlite.jdbc.version=3.51.1.0 三个属性已就位，
@@ -116,11 +116,11 @@
           sqlite.jdbc.version 进一步升到 3.53.2.0（原 filestorage-starter 的硬编码值，
           为全仓三者中最高者），取最新而非降级。
         -->
-        <sqlite.jdbc.version>3.53.4.0</sqlite.jdbc.version>
+        <sqlite.jdbc.version>3.54.1.0</sqlite.jdbc.version>
         <!-- Oracle JDBC 驱动：2026-09-28 由 23.8.0.25.04 升到 23.26.0.0.0（原 oracle-starter 硬编码值） -->
         <ojdbc.version>23.26.3.0.0</ojdbc.version>
         <reactor.core.version>3.8.7</reactor.core.version>
-        <jsoup.version>1.17.2</jsoup.version>
+        <jsoup.version>1.24.1</jsoup.version>
         <!--
             Eclipse Collections 集合框架（org.eclipse.collections:eclipse-collections + -api）。
             用途：common-starter 的 collection.wrap 包提供「集合分装对象 + 后端 SPI 切换」，
@@ -143,9 +143,9 @@
         <project.root.dir>${maven.multiModuleProjectDirectory}</project.root.dir>
         <spring.boot.version>4.1.1</spring.boot.version>
         <jakarta.cdi.version>4.1.0</jakarta.cdi.version>
-        <httpclient5.version>5.6.4</httpclient5.version>
+        <httpclient5.version>5.6.5</httpclient5.version>
         <playwright.version>1.63.0</playwright.version>
-        <commons.codec.version>1.22.1</commons.codec.version>
+        <commons.codec.version>1.23.0</commons.codec.version>
         <commons.io.version>2.22.0</commons.io.version>
         <!--
           2026-09-28 移除 jackson.databind.version 属性。
@@ -157,18 +157,19 @@
         -->
         <jackson.jq.version>1.6.5</jackson.jq.version>
         <!--
-          2026-09-28 由 2.19.0 抬到 2.21.4。
-          原因：jackson-databind 无本地 managed 条目，版本来自 Boot 4.1.0 的 BOM（2.21.4）。
-          Jackson 各模块必须同 minor 发布，datatype-jsr310 停在 2.19.0 会与 databind 2.21.4
-          形成 databind 新 / datatype 旧的错配组合。两者现统一在 2.21.4。
+          2026-09-28 由 2.19.0 抬到 2.21.4；2026-11-21 随 Jackson 2.x 全家桶统一钉到 2.23.0
+          （core/databind/annotations/dataformat-* 见 dependencyManagement 内钉版注释）。
+          Jackson 各模块必须同 minor 发布，datatype 与 databind 跨 minor 会形成错配组合。
         -->
-        <jackson.datatype.jsr310.version>2.22.3</jackson.datatype.jsr310.version>
-        <vertx.version>5.2.0</vertx.version>
+        <jackson.datatype.jsr310.version>2.23.0</jackson.datatype.jsr310.version>
+        <vertx.version>5.2.3</vertx.version>
         <commons.fileupload2.version>2.0.0-M1</commons.fileupload2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
-        <jedis.version>6.0.0</jedis.version>
+        <!-- 2026-11-21 由 6.0.0 升到 8.0.2（Maven Central 最新稳定版；8.1.0 尚为 beta）。
+             jedis 6→8 为跨 major 升级（客户端/连接池 API 有变动），托管条目改为引用本属性。 -->
+        <jedis.version>8.0.2</jedis.version>
         <redisson.version>4.8.0</redisson.version>
-        <netty.all.version>4.2.18.Final</netty.all.version>
+        <netty.all.version>4.2.21.Final</netty.all.version>
         <commons.net.version>3.12.0</commons.net.version>
         <dubbo.version>3.3.6</dubbo.version>
         <!--
@@ -178,7 +179,7 @@
           同时 excel-starter 用本属性取到 5.3.0，word-starter 又硬编码 5.4.0，
           同一 reactor 内出现三个版本。现统一到 5.5.1 并让托管条目引用本属性。
         -->
-        <poi.ooxml.version>5.5.1</poi.ooxml.version>
+        <poi.ooxml.version>6.0.0</poi.ooxml.version>
         <sshd.version>2.20.0</sshd.version>
         <intellij.annotations.version>12.0</intellij.annotations.version>
         <io.gitee.dengwenjie.seeta.sdk.platform.version>1.2.2</io.gitee.dengwenjie.seeta.sdk.platform.version>
@@ -213,13 +214,13 @@
     <!--
       2026-10-06 依赖升级保留项说明（本次策略：同 major 全量升级 + 仅低风险跨 major 升级，
       已升的跨 major 项均在对应条目附变更理由注释）。以下高风险跨 major 项经评估保留原版本不升：
+      （2026-11-21 更新：okhttp → 5.5.1、jedis → 8.0.2、json-path → 3.0.0、poi → 6.0.0
+        已按用户决定全量跟进，相应保留项已移除）
         - org.testcontainers → 2：2.x 重构初始化与模块 API
-        - redis.clients:jedis → 8：客户端与连接池 API 大改（现 6.0.0）
         - com.github.oshi:oshi-core → 7、org.neo4j.driver → 6、influxdb 客户端 → 8：驱动 API 不兼容
         - io.minio → 9、io.milvus → 3、org.questdb → 10：SDK 主版本 API 变更
-        - cn.idev.excel:fastexcel → 1.3、com.github.junrar → 8、com.jayway.jsonpath:json-path → 3、
+        - cn.idev.excel:fastexcel → 1.3、com.github.junrar → 8、
           com.maxmind.geoip2 → 5：库 API/坐标变更
-        - com.squareup.okhttp3:okhttp → 5：Kotlin 重写、API 不兼容
         - org.apache.sshd → 3-M6：3.x 未 GA 且 API 大改（现 2.20.0）
         - chronicle-queue → 2026 版本节奏、配置格式变化
         - schemacrawler → 17、org.jline:jline → 4、org.graalvm.js：主版本 API/发布方式变化
@@ -441,20 +442,39 @@
                 <artifactId>ini4j</artifactId>
                 <version>0.5.4</version>
             </dependency>
+            <!-- 2026-11-21 Jackson 2.x 全家桶统一钉 2.23 线（Maven Central 最新稳定）：
+                 此前 dataformat 钉 2.22.3 而 databind 走 Boot 4.1.1 BOM（2.21.5），跨 minor 错配；
+                 现 core/databind/annotations 一并显式托管（覆盖 Boot BOM 导入），保证全仓同 minor。
+                 注意：jackson-annotations 自 2.20 起版本号改为两段式（2.23），其余模块仍为三段式（2.23.0）。 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.23</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.23.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.23.0</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>2.22.3</version>
+                <version>2.23.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-toml</artifactId>
-                <version>2.22.3</version>
+                <version>2.23.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-smile</artifactId>
-                <version>2.22.3</version>
+                <version>2.23.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.junrar</groupId>
@@ -464,7 +484,7 @@
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.33.0-GA</version>
+                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -474,7 +494,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.7.2-jre</version>
+                <version>33.8.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.collections</groupId>
@@ -504,7 +524,14 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.23.2</version>
+                <version>${jsoup.version}</version>
+            </dependency>
+            <!-- 2026-11-21 显式接管 json-path（3.0.0）：此前版本来自 Boot 4.1.1 BOM（2.10.0），
+                 根 pom 的 json.path.version 属性无托管条目配合、形同虚设；现由本条目统一驱动。 -->
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${json.path.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.ollama4j</groupId>
@@ -674,27 +701,27 @@
             <dependency>
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-core</artifactId>
-                <version>1.42.0</version>
+                <version>${calcite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-redis</artifactId>
-                <version>1.42.0</version>
+                <version>${calcite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-mongodb</artifactId>
-                <version>1.42.0</version>
+                <version>${calcite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-elasticsearch</artifactId>
-                <version>1.42.0</version>
+                <version>${calcite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.calcite</groupId>
                 <artifactId>calcite-kafka</artifactId>
-                <version>1.42.0</version>
+                <version>${calcite.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.mysql</groupId>
@@ -817,7 +844,7 @@
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
-                <version>6.0.0</version>
+                <version>${jedis.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.redisson</groupId>
@@ -1110,14 +1137,14 @@
                 <version>5.7.0</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.fury</groupId>
-                <artifactId>fury-core</artifactId>
-                <version>0.10.3</version>
+                <groupId>org.apache.fory</groupId>
+                <artifactId>fory-core</artifactId>
+                <version>1.7.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.fory</groupId>
                 <artifactId>fory-json</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1756,6 +1783,11 @@
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
+                <version>${poi.ooxml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-scratchpad</artifactId>
                 <version>${poi.ooxml.version}</version>
             </dependency>
             <dependency>
