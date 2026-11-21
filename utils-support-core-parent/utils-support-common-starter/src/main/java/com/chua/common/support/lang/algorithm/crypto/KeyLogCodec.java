@@ -224,6 +224,43 @@ public class KeyLogCodec implements Codec {
     }
 
     /**
+     * 从 keylog 帧中提取请求侧临时公钥（enc 段）。
+     *
+     * <p>响应加密复用请求的共享密钥时，需要拿请求帧里的临时公钥重做 ECDH。
+     * 兼容带 {@code k2:} 前缀的完整帧与纯 hex 载荷两种入参。</p>
+     *
+     * @param frame keylog 请求帧（{@code k2:}+hex 或纯 hex）
+     * @return 临时公钥 X.509 十六进制；解析失败返回 null
+     */
+    public static String extractEphemeralPublicKey(String frame) {
+        if (StringUtils.isBlank(frame)) {
+            return null;
+        }
+        String hex = frame.trim();
+        if (hex.startsWith(PREFIX)) {
+            hex = hex.substring(PREFIX.length());
+        }
+        try {
+            byte[] bytes = Hex.decodeHex(hex);
+            if (bytes.length < HEADER_LENGTH + NONCE_LENGTH + TAG_LENGTH) {
+                return null;
+            }
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            buffer.getLong();
+            buffer.getLong();
+            int encLength = buffer.get() & 0xFF;
+            if (encLength == 0 || bytes.length < HEADER_LENGTH + encLength + NONCE_LENGTH + TAG_LENGTH) {
+                return null;
+            }
+            byte[] enc = new byte[encLength];
+            buffer.get(enc);
+            return Hex.encodeHexString(enc);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 设置重放时间窗。
      *
      * @param millis 时间窗毫秒数，0 表示不校验时间与重复
@@ -372,6 +409,62 @@ public class KeyLogCodec implements Codec {
             throw e;
         } catch (Exception e) {
             throw new SecurityException("keylog 解密失败（私钥不匹配或数据被篡改）", e);
+        } finally {
+            wipe(shared, ek);
+        }
+    }
+
+    /**
+     * 用「请求侧临时公钥」加密回包（keylog 双向回包）。
+     *
+     * <p>请求帧由客户端临时私钥封装（shared = ECDH(clientEphemeral, serverLongTermPub)）；
+     * 回包复用同一份共享密钥，但以服务端长期公钥 {@code enc'} 作为 HKDF 盐与 AAD 绑定域：
+     * {@code ek' = HKDF(shared, enc', info, 32)}。客户端凭请求侧留存的一次性私钥即可解密，
+     * 服务端无需保存任何会话状态。回包帧格式与请求帧一致：{@code k2:} + hex(头 + enc' + nonce + 密文)。</p>
+     *
+     * @param requestPublicKeyHex 请求侧临时 X.509 公钥十六进制（k2 帧内的 enc 或 x-codec-keylog-pub 请求头）
+     * @param data                明文
+     * @return {@code k2:} + hex 回包帧
+     */
+    public String encodeReplyHex(String requestPublicKeyHex, String data) {
+        if (data == null) {
+            return null;
+        }
+        if (privateKey == null || publicKey == null) {
+            throw new IllegalStateException("keylog 回包加密需要 pair:<公钥hex>:<私钥hex> 双向密钥");
+        }
+        if (StringUtils.isBlank(requestPublicKeyHex)) {
+            throw new IllegalArgumentException("keylog 回包加密缺少请求侧临时公钥");
+        }
+        byte[] shared = null;
+        byte[] ek = null;
+        try {
+            PublicKey clientEphemeral = KeyFactory.getInstance(X25519)
+                    .generatePublic(new X509EncodedKeySpec(Hex.decodeHex(requestPublicKeyHex.trim())));
+            shared = agreement(privateKey, clientEphemeral);
+            byte[] enc = publicKey.getEncoded();
+            ek = Hkdf.derive(shared, enc, HKDF_INFO, KEY_LENGTH);
+
+            long timestamp = System.currentTimeMillis();
+            long messageId = RANDOM.nextLong();
+            byte[] nonce = new byte[NONCE_LENGTH];
+            RANDOM.nextBytes(nonce);
+            Cipher cipher = Cipher.getInstance(GCM_TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(ek, AES_ALGORITHM),
+                    new GCMParameterSpec(TAG_BITS, nonce));
+            cipher.updateAAD(aad(enc, timestamp, messageId));
+            byte[] cipherText = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
+            ByteBuffer buffer = ByteBuffer.allocate(HEADER_LENGTH + enc.length + NONCE_LENGTH + cipherText.length);
+            buffer.putLong(timestamp);
+            buffer.putLong(messageId);
+            buffer.put((byte) enc.length);
+            buffer.put(enc);
+            buffer.put(nonce);
+            buffer.put(cipherText);
+            return PREFIX + Hex.encodeHexString(buffer.array());
+        } catch (Exception e) {
+            throw new IllegalStateException("keylog 回包加密失败: " + e.getMessage(), e);
         } finally {
             wipe(shared, ek);
         }
