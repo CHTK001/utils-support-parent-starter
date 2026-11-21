@@ -13,6 +13,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.function.NameAware;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +56,14 @@ public class ServiceDefinitionFinder {
      * 注册新定义时由 {@link DefaultServiceProvider} 调用 {@link #clearMissCache()} 清空。
      */
     private final Set<String> missCache = ConcurrentHashMap.newKeySet();
+
+    /**
+     * 动态解析结果缓存：key = 动态解析器。
+     * <p>避免同名重复查找时反复触发动态解析（每次都会扫 classpath）。
+     * dynamicType / dynamicClassLoader 在 {@link #setDynamicResolvers} 之后不再变化，
+     * 同一解析器的结果可安全复用；注册新定义时由 {@link #clearMissCache()} 一并清空。</p>
+     */
+    private final Map<ServiceResolver, List<ServiceDefinition>> dynamicCache = new ConcurrentHashMap<>();
 
     /**
      * 自动装配器
@@ -195,10 +204,7 @@ public class ServiceDefinitionFinder {
 
         if (definitions2.isEmpty() && dynamic && null != dynamicResolvers) {
             for (ServiceResolver resolver : dynamicResolvers) {
-                List<ServiceDefinition> resolved = resolver.resolve(dynamicType, dynamicClassLoader);
-                if (null == resolved) {
-                    continue;
-                }
+                List<ServiceDefinition> resolved = resolveCached(resolver);
                 for (ServiceDefinition sd : resolved) {
                     String sdName = sd.getName();
                     if (sdName == null) {
@@ -238,6 +244,27 @@ public class ServiceDefinitionFinder {
      */
     public void clearMissCache() {
         missCache.clear();
+        dynamicCache.clear();
+    }
+
+    /**
+     * 解析动态解析器结果（带缓存）。
+     * <p>解析结果为 null 时按空列表缓存，调用方无需判空。</p>
+     *
+     * @param resolver 动态解析器
+     * @return 解析结果（不会为 null）
+     */
+    private List<ServiceDefinition> resolveCached(ServiceResolver resolver) {
+        List<ServiceDefinition> cached = dynamicCache.get(resolver);
+        if (null != cached) {
+            return cached;
+        }
+        List<ServiceDefinition> resolved = resolver.resolve(dynamicType, dynamicClassLoader);
+        if (null == resolved) {
+            resolved = Collections.emptyList();
+        }
+        dynamicCache.put(resolver, resolved);
+        return resolved;
     }
 
     /**
@@ -281,10 +308,7 @@ public class ServiceDefinitionFinder {
 
         if (dynamic && null != dynamicResolvers) {
             for (ServiceResolver resolver : dynamicResolvers) {
-                List<ServiceDefinition> resolved = resolver.resolve(dynamicType, dynamicClassLoader);
-                if (null == resolved) {
-                    continue;
-                }
+                List<ServiceDefinition> resolved = resolveCached(resolver);
                 for (ServiceDefinition sd : resolved) {
                     Class<?> implClass = sd.getImplClass();
                     if (null != implClass && type.isAssignableFrom(implClass)) {
@@ -333,10 +357,7 @@ public class ServiceDefinitionFinder {
 
         if (dynamic && null != dynamicResolvers) {
             for (ServiceResolver resolver : dynamicResolvers) {
-                List<ServiceDefinition> resolved = resolver.resolve(dynamicType, dynamicClassLoader);
-                if (null == resolved) {
-                    continue;
-                }
+                List<ServiceDefinition> resolved = resolveCached(resolver);
                 for (ServiceDefinition sd : resolved) {
                     String sdName = sd.getName();
                     if (sdName == null) {

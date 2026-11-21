@@ -190,7 +190,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
                     .getObj(serviceAutowire) : getDefaultImpl();
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name);
-        return (T) Optional.ofNullable(serviceDefinition.getObj(serviceAutowire)).orElse(getDefaultImpl());
+        return (T) Optional.ofNullable(serviceDefinition.getObj(serviceAutowire)).orElseGet(this::getDefaultImpl);
     }
 
     /**
@@ -250,7 +250,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(type, args);
         return null == serviceDefinition
                 ? getDefaultImpl(args)
-                : (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(defaultImpl);
+                : (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElseGet(() -> defaultImpl);
     }
 
     /**
@@ -264,7 +264,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         name = name.toUpperCase();
         ServiceDefinition definition = definitionFinder.getServiceDefinition(name);
         if (ServiceDefinitionFinder.DEFAULT_DEFINITION != definition) {
-            return (T) Optional.ofNullable(definition.newInstance(serviceAutowire, args)).orElse(getDefaultImpl(args));
+            return (T) Optional.ofNullable(definition.newInstance(serviceAutowire, args))
+                    .orElseGet(() -> getDefaultImpl(args));
         }
 
         while (StringUtils.isNotEmpty(name)) {
@@ -273,7 +274,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             definition = definitionFinder.getServiceDefinition(name);
             if (ServiceDefinitionFinder.DEFAULT_DEFINITION != definition) {
                 return (T) Optional.ofNullable(definition.newInstance(serviceAutowire, args))
-                        .orElse(getDefaultImpl(args));
+                        .orElseGet(() -> getDefaultImpl(args));
             }
         }
 
@@ -772,13 +773,14 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     }
 
     /**
-     * 校验
+     * 校验：触发保活缓存的过期清理。
+     * <p>历史实现会逐个 getIfPresent 刷新所有保活条目，导致 expireAfterAccess
+     * 形同虚设、不再使用的会话被永久保留；此处改为仅清理已过期条目，
+     * 让真正不再访问的会话按过期时间正常释放。</p>
      */
     @Override
     public void check() {
-        for (String key : keepAlive.asMap().keySet()) {
-            keepAlive.getIfPresent(key);
-        }
+        keepAlive.cleanUp();
     }
 
     /**

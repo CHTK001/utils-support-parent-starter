@@ -145,6 +145,8 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
 
     /**
      * 触发异常时保存的调用栈信息。
+     * <p>历史上会在实例化失败时自动捕获当前线程栈；因 {@link #ex} 已携带完整异常栈，
+     * 且全量线程栈会随失败定义永久滞留，现已不再自动填充，仅保留读写接口供外部按需设置。</p>
      */
     private StackTraceElement[] stack;
 
@@ -782,7 +784,6 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                             serviceAutowire.autowire(obj);
                         }
                     } catch (Exception e) {
-                        stack = Thread.currentThread().getStackTrace();
                         if (log.isDebugEnabled()) {
                             log.error(" :{} : : {}", implClass.getTypeName(), e.getLocalizedMessage());
                         }

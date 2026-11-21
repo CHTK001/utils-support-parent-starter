@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -62,10 +61,17 @@ public class SamePackageServiceResolver implements ServiceResolver {
      * 同一个 jar 的中央目录/同一个目录树会被同包下多个服务接口反复遍历；
      * 缓存内容是「类名 + class 文件头预判结果」（与具体服务接口无关），可跨接口复用。
      * 相比旧的按类名缓存 {@code Class} 对象（会把包树下所有类永久钉在内存中），
-     * 这里只保留轻量摘要，且容量受 {@link #SCAN_CACHE_MAX} 约束。
+     * 这里只保留轻量摘要，并使用访问序 LRU（{@code LinkedHashMap(accessOrder=true)}）
+     * 按 {@link #SCAN_CACHE_MAX} 淘汰最久未用的条目，总量始终有界。
      * </p>
      */
-    private static final Map<String, List<ClassFileInfo>> SCAN_CACHE = new ConcurrentHashMap<>(64);
+    private static final Map<String, List<ClassFileInfo>> SCAN_CACHE =
+            Collections.synchronizedMap(new LinkedHashMap<>(64, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, List<ClassFileInfo>> eldest) {
+                    return size() > SCAN_CACHE_MAX;
+                }
+            });
 
     /**
      * 扫描缓存条目上限，防止极端场景下无界增长
@@ -75,8 +81,12 @@ public class SamePackageServiceResolver implements ServiceResolver {
     /**
      * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
      * 避免一个线程 关闭 后其他线程访问已关闭的 jar文件 报 压缩 文件 关闭。
+     * <p>改用弱键：URL 字符串不再被本表永久钉住。扫描期间由局部变量持有
+     * key 的强引用，确保临界区内条目不会被 GC 清除（否则后到线程会造出新锁，
+     * 与持锁线程并发打开/关闭同一个 jar）。</p>
      */
-    private static final Map<String, Object> JAR_URL_LOCKS = new ConcurrentHashMap<>(64);
+    private static final Map<String, Object> JAR_URL_LOCKS =
+            Collections.synchronizedMap(new WeakHashMap<>(64));
 
     /**
      * class 文件访问标志：接口
@@ -259,8 +269,11 @@ public class SamePackageServiceResolver implements ServiceResolver {
                                   String packageDirName,
                                   Class<?> service,
                                   ClassLoader classLoader) {
- // 同一 URL 串行打开-扫描-关闭,避免并发 关闭 导致 压缩 文件 关闭
-        Object lock = JAR_URL_LOCKS.computeIfAbsent(url.toString(), k -> new Object());
+        // 同一 URL 串行打开-扫描-关闭,避免并发 关闭 导致 压缩 文件 关闭。
+        // key 先存入局部变量：弱键表中只要 key 强可达，条目就不会在扫描中途被 GC 清除，
+        // 否则后到线程会 computeIfAbsent 出新锁，与持锁线程并发打开/关闭同一 jar。
+        String urlKey = url.toString();
+        Object lock = JAR_URL_LOCKS.computeIfAbsent(urlKey, k -> new Object());
         synchronized (lock) {
             doAnalysisJarUrlInner(result, url, packageDirName, service, classLoader);
         }
@@ -300,9 +313,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
         try {
             List<ClassFileInfo> classFiles = scanJar(jarFile, packageDirName);
-            if (SCAN_CACHE.size() < SCAN_CACHE_MAX) {
-                SCAN_CACHE.put(key, classFiles);
-            }
+            SCAN_CACHE.put(key, classFiles);
             loadClassesInBatch(classFiles, service, classLoader, result);
         } finally {
             try {
@@ -335,7 +346,9 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
             byte[] bytes;
             try (InputStream in = jarFile.getInputStream(jarEntry)) {
-                bytes = in.readAllBytes();
+                // 有界读取：头预判只需 class 文件前部；超过 16KB 的尾部不读。
+                // parseClassFile 越界时按「保守放行」处理，行为与全量读取一致。
+                bytes = in.readNBytes(16 * 1024);
             } catch (IOException e) {
                 if (log.isTraceEnabled()) {
                     log.trace("[SPI] 读取类字节失败：{}", entryName, e);
@@ -387,7 +400,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
                 List<ClassFileInfo> cached = SCAN_CACHE.get(key);
                 if (null != cached) {
                     classFiles = cached;
-                } else if (SCAN_CACHE.size() < SCAN_CACHE_MAX) {
+                } else {
                     SCAN_CACHE.put(key, classFiles);
                 }
 
@@ -434,7 +447,12 @@ public class SamePackageServiceResolver implements ServiceResolver {
                     ? packageName
                     : packageName + "." + relativeStr;
 
-            byte[] bytes = Files.readAllBytes(classFile);
+            // 有界读取：头预判只需 class 文件前部；超过 16KB 的尾部不读，
+            // 越界由 parseClassFile 的「保守放行」兜底，行为与全量读取一致。
+            byte[] bytes;
+            try (InputStream in = Files.newInputStream(classFile)) {
+                bytes = in.readNBytes(16 * 1024);
+            }
             return parseClassFile(className, bytes);
         } catch (Throwable e) {
             if (log.isTraceEnabled()) {

@@ -75,6 +75,11 @@ public class DefaultObjectContext implements ObjectContext {
      */
     private volatile boolean closed = false;
 
+    /**
+     * 容器是否已完成初始化（防止重复 init 造成重复扫描与注册）。
+     */
+    private volatile boolean initialized = false;
+
     // ==================== 构造器 ====================
 
     /**
@@ -151,6 +156,12 @@ public class DefaultObjectContext implements ObjectContext {
          */
 @Override
     public void init(ObjectContextConfig config) {
+        if (initialized) {
+            if (log.isDebugEnabled()) {
+                log.debug("[ObjectContext] 容器已初始化，忽略重复的 init 调用");
+            }
+            return;
+        }
         if (config == null) {
             config = ObjectContextConfig.defaults();
         }
@@ -163,6 +174,7 @@ public class DefaultObjectContext implements ObjectContext {
         }
 
         configureAllBeanDefinitionProviders();
+        initialized = true;
     }
 
     /**
@@ -691,6 +703,12 @@ public class DefaultObjectContext implements ObjectContext {
             this.registry = null;
             this.config = null;
             eventPublisher.clear();
+            // 同步清理接口层静态持有表：CONFIG_HOLDER / REGISTRY_HOLDER 以容器实例为键
+            // 强引用容器，不移除会导致已关闭的容器实例无法回收（见 ObjectContext#close 约定）。
+            REGISTRY_HOLDER.remove(this);
+            CONFIG_HOLDER.remove(this);
+            // 允许关闭后的容器重新初始化（保持历史行为），仅拦截「未关闭时的重复 init」。
+            initialized = false;
         }
     }
 
