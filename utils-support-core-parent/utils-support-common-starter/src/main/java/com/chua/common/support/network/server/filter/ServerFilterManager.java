@@ -366,12 +366,45 @@ public class ServerFilterManager {
         private final ServerFilter delegate;
 
         /**
+         * 底层过滤器是否覆写了 {@code isEnabled()}（如支持热启停的过滤器）。
+         * 未覆写时接口默认恒返回 true，可直接短路，免去热路径双层虚调用。
+         */
+        private final boolean dynamicEnabled;
+
+        /**
+         * 底层过滤器是否覆写了 {@code supportPath()}。
+         * 未覆写时接口默认恒返回 null（Access Filter），可直接短路。
+         */
+        private final boolean dynamicSupportPath;
+
+        /**
          * Static Reactive Filter Adapter
          * @param delegate 参数
          * @return 返回值
         */
         StaticReactiveFilterAdapter(ServerFilter delegate) {
             this.delegate = delegate;
+            this.dynamicEnabled = overridesInterfaceDefault(delegate.getClass(), "isEnabled");
+            this.dynamicSupportPath = overridesInterfaceDefault(delegate.getClass(), "supportPath");
+        }
+
+        /**
+         * 判断过滤器类型是否覆写了 {@link ServerFilter} 的某个 default 方法。
+         *
+         * <p>链路每请求都会调用 {@code isEnabled()}/{@code supportPath()}；
+         * 未覆写时结果恒定（true/null），包装时反射判定一次并缓存该事实，
+         * 即可把逐请求的双层虚调用折叠为常量，热路径不再反射。</p>
+         *
+         * @param type 过滤器实现类型
+         * @param name 方法名
+         * @return true 表示已覆写，需逐次透传
+         */
+        private static boolean overridesInterfaceDefault(Class<?> type, String name) {
+            try {
+                return type.getMethod(name).getDeclaringClass() != ServerFilter.class;
+            } catch (NoSuchMethodException e) {
+                return true; // 防御:取不到方法按动态处理,保持透传语义
+            }
         }
 
         /**
@@ -449,13 +482,15 @@ public class ServerFilterManager {
          */
         @Override
         public String supportPath() {
-            return delegate.supportPath();
+            // 未覆写 supportPath 的过滤器是 Access Filter（恒 null），直接短路。
+            return dynamicSupportPath ? delegate.supportPath() : null;
         }
 
         @Override
         public boolean isEnabled() {
             // 透传底层同步过滤器的启用标志：服务管理「过滤器热启停」改的就是它。
-            return delegate.isEnabled();
+            // 未覆写 isEnabled 的过滤器恒启用，直接短路，免热路径双层虚调用。
+            return dynamicEnabled ? delegate.isEnabled() : true;
         }
 
         @Override

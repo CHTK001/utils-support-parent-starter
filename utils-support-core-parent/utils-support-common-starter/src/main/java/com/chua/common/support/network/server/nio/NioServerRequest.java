@@ -742,6 +742,30 @@ public class NioServerRequest implements ServerRequest {
     };
 
     /**
+     * 头名字典的开放寻址哈希表（容量 128，折叠大小写后 FNV-1a 散列）。
+     *
+     * <p>对 51 个字典项做线性扫描时，短头名（如 host）平均要比较 40+ 次长度
+     * 才能命中，是请求解析热点。哈希化后每头名 1~2 次探测即可定位；冲突仍以
+     * 逐字节忽略大小写校验兜底，正确性与散列质量无关。</p>
+     */
+    private static final int HEADER_NAME_TABLE_SIZE = 128;
+    private static final String[] HEADER_NAME_TABLE = new String[HEADER_NAME_TABLE_SIZE];
+
+    static {
+        for (String name : COMMON_HEADER_NAMES) {
+            int h = 0x811c9dc5;
+            for (int i = 0; i < name.length(); i++) {
+                h = (h ^ (name.charAt(i) & 0xff)) * 0x01000193;
+            }
+            int idx = h & (HEADER_NAME_TABLE_SIZE - 1);
+            while (HEADER_NAME_TABLE[idx] != null) {
+                idx = (idx + 1) & (HEADER_NAME_TABLE_SIZE - 1);
+            }
+            HEADER_NAME_TABLE[idx] = name;
+        }
+    }
+
+    /**
      * 在解析缓冲上按字节比对头名（忽略 ASCII 大小写），命中预驻留字典则零分配返回常量。
      *
      * @param a    解析缓冲底层数组
@@ -750,10 +774,21 @@ public class NioServerRequest implements ServerRequest {
      * @return 字典中的小写常量；未命中返回 null
      */
     private static String canonicalHeaderName(byte[] a, int base, int len) {
-        for (String name : COMMON_HEADER_NAMES) {
-            if (name.length() == len && matchesIgnoreCase(a, base, name)) {
-                return name;
+        int h = 0x811c9dc5;
+        for (int i = 0; i < len; i++) {
+            byte b = a[base + i];
+            if (b >= 'A' && b <= 'Z') {
+                b = (byte) (b + 32);
             }
+            h = (h ^ (b & 0xff)) * 0x01000193;
+        }
+        int idx = h & (HEADER_NAME_TABLE_SIZE - 1);
+        String slot;
+        while ((slot = HEADER_NAME_TABLE[idx]) != null) {
+            if (slot.length() == len && matchesIgnoreCase(a, base, slot)) {
+                return slot;
+            }
+            idx = (idx + 1) & (HEADER_NAME_TABLE_SIZE - 1);
         }
         return null;
     }
