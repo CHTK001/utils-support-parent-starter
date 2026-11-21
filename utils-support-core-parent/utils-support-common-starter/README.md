@@ -954,7 +954,7 @@ ClientResponse resp = HttpClientFactory.of("https://api.example.com/users")
 | FTP | `ftp` / `ftps` | `FtpServer` / `FtpsServer` |
 | SIP | `sip` | `SipServer` |
 | 协议嗅探 | `sniff-tcp` | `ProtocolSniffingTcpServer` |
-| 代理 | `http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` | 对应 `*ProxyServer` |
+| 代理 | `http-proxy`、`jdk-http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` | 对应 `*ProxyServer`；`jdk-http-proxy` 为纯字节透传变体（`JdkHttpProxyServer`） |
 
 ```java
 import com.chua.common.support.network.server.Server;
@@ -1717,7 +1717,7 @@ String text = resolver.resolvePlaceholders("${app.name} 启动于 ${app.port:808
 | --- | --- |
 | `file.FileSystem` | `csv`、`json`、`xml`、`txt`、`zip`、`archive`、`tar` |
 | `network.client.spi.HttpClientExecutor` | `okhttp`、`httpclient5`；`jdk` 内置（不写扩展文件）；`httpclient` 为预留名 |
-| `network.server.Server` | `jdk` / `jdk-http`、`nio` / `nio-http`、`aio` / `aio-http` / `iocp`、`jdk-tcp` / `tcp`、`aio-tcp` / `tcp-aio`、`jdk-udp`、`jdk-telnet`、`jdk-websocket`、`ftp`、`ftps`、`sip`、`sniff-tcp`、`http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` |
+| `network.server.Server` | `jdk` / `jdk-http`、`nio` / `nio-http`、`aio` / `aio-http` / `iocp`、`jdk-tcp` / `tcp`、`aio-tcp` / `tcp-aio`、`jdk-udp`、`jdk-telnet`、`jdk-websocket`、`ftp`、`ftps`、`sip`、`sniff-tcp`、`http-proxy`、`jdk-http-proxy`、`socks5-proxy`、`tcp-proxy`、`aio-http-proxy`、`aio-tcp-proxy` |
 | `network.server.SyncServer` | `http`、`websocket`、`tcp`、`udp` |
 | `network.sync.SyncClient` | `http`、`websocket`、`tcp`、`udp` |
 | `network.server.filter.ServerFilter` | `ip`、`firewall`、`rate-limit`、`routing`、`request-id`、`request-timeout`、`ipc`、`response-rewrite`、`gzip`、`cors`、`ws-proxy`、`url-mapping`、`shell-url-mapping`、`invoker_inject`、`ai_token` |

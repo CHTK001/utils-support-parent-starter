@@ -65,7 +65,7 @@ public class LoggingServerFilter implements ServerFilter {
     */
     @Override
     public int getOrder() {
-        // StaticResourceServerFilter 占 0，同序会让请求日志与静态资源短路的先后不确定
+        // 固定小序值：排在内置高优先级过滤器（负序）之后、路由（极大序）之前
         return 7;
     }
 
