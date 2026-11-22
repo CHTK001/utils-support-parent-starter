@@ -121,11 +121,12 @@ public class JdbcKvEngine implements KvEngine {
     @Override
     public long incr(String key) {
         ensureTable();
-        // 不存在/已过期从 1 起计；存在则原子 +1（非数字旧值按 0 处理）
+        // 不存在/已过期从 1 起计；存在则原子 +1（非数字旧值按 0 处理）。
+        // 用 CASE WHEN 而非 IF()：H2 的 MySQL 模式不接受 IF()，原写法在 H2 环境必然语法失败
         String upsert = "INSERT INTO " + TABLE + " (kv_key, kv_value, expires_at) VALUES (?, '1', NULL) "
                 + "ON DUPLICATE KEY UPDATE "
-                + "kv_value = IF(expires_at IS NOT NULL AND expires_at < ?, '1', "
-                + "CAST(CAST(kv_value AS SIGNED) + 1 AS CHAR)), expires_at = NULL";
+                + "kv_value = CASE WHEN expires_at IS NOT NULL AND expires_at < ? THEN '1' "
+                + "ELSE CAST(CAST(kv_value AS SIGNED) + 1 AS CHAR) END, expires_at = NULL";
         String select = "SELECT kv_value FROM " + TABLE + " WHERE kv_key = ?";
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(upsert)) {
