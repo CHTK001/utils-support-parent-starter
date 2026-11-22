@@ -118,6 +118,23 @@ public interface OsgiLauncher extends BundleStateQuery {
     OsgiBundle installBundle(String url);
 
     /**
+     * 安装指定 URL 的 bundle，并显式指定安装后是否自动启动。
+     * <p>
+     * 用于调用方需要「只安装不启动」的场景（如先落框架、稍后手动启动）。
+     * 默认实现忽略 {@code autoStart}，退化为 {@link #installBundle(String)}，
+     * 是否自动启动由实现自身的开关决定；实现类应覆写本方法以提供精确语义。
+     * </p>
+     *
+     * @param url       bundle 的 jar 包路径或 Maven URL
+     * @param autoStart 安装后是否立即启动
+     * @return 已安装的 osgibundle
+     * @since 4.0.0.52
+     */
+    default OsgiBundle installBundle(String url, boolean autoStart) {
+        return installBundle(url);
+    }
+
+    /**
      * 使用指定来源对已安装的 bundle 执行原生热升级。
      * <p>
      * 优先使用原位置更新（传入 {@code null}），升级失败时抛出异常而非静默回退，

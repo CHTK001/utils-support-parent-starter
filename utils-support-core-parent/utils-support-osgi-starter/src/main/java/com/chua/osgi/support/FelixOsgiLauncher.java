@@ -812,6 +812,22 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      */
     @Override
     public OsgiBundle installBundle(String url) {
+        return installBundle(url, autoStartInstalledBundles);
+    }
+
+    /**
+     * 安装指定 URL 的 bundle，并显式指定安装后是否自动启动。
+     * <p>
+     * {@code autoStart=false} 时 bundle 落框架后保持非活动状态，
+     * 由调用方决定何时启动；不受 {@link #setAutoStartInstalledBundles(boolean)} 开关影响。
+     * </p>
+     *
+     * @param url       bundle 的 jar 路径或远程 URL
+     * @param autoStart 安装后是否立即启动
+     * @return 已安装的 bundle 包装
+     */
+    @Override
+    public OsgiBundle installBundle(String url, boolean autoStart) {
         if (!isActive()) {
             throw new IllegalStateException("OSGI framework is not active");
         }
@@ -820,9 +836,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             Bundle bundle = context.installBundle(url);
             long bundleId = bundle.getBundleId();
             log.info("[osgi] Bundle installed: {} ({}), autoStart={}",
-                    bundle.getSymbolicName(), url, autoStartInstalledBundles);
+                    bundle.getSymbolicName(), url, autoStart);
             boolean started = false;
-            if (autoStartInstalledBundles) {
+            if (autoStart) {
                 try {
                     bundle.start();
                     started = true;
