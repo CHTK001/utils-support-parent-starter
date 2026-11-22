@@ -75,6 +75,11 @@ public class ShardingV5Conversion implements DataSourceConversion {
     private static final java.util.regex.Pattern NUMERIC_SUFFIX_PATTERN = java.util.regex.Pattern.compile("\\d+$");
 
     /**
+     * 系统库（扫描物理表时始终排除）
+     */
+    private static final Set<String> SYSTEM_SCHEMAS = Set.of("information_schema", "mysql", "performance_schema", "sys");
+
+    /**
      * 表配置
     */
     private final List<TableConfig> tableConfigs = Wraps.list();
@@ -139,8 +144,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
         } catch (Exception e) {
             log.warn("算法类 {} 缺少无参构造器，CLASS_BASED 运行时可能失败", implClass.getName());
         }
+        // ClassBasedShardingAlgorithm 的类名属性键是 algorithmClassName（不是 class-name），
+        // 写错会在运行期报 “Sharding algorithm class name can not be null or empty”
         algorithms.put(name, new AlgorithmHolder("CLASS_BASED", Map.of(
-                "class-name", implClass.getName(), "strategy", "STANDARD")));
+                "algorithmClassName", implClass.getName(), "strategy", "STANDARD")));
         return this;
     }
 
@@ -253,11 +260,8 @@ public class ShardingV5Conversion implements DataSourceConversion {
             if (h.props != null) {
                 props.putAll(h.props);
             }
-            if ("MOD".equalsIgnoreCase(h.type) && !props.containsKey("sharding-count")) {
-                props.setProperty("sharding-count", "2");
-            }
             shardingRule.getShardingAlgorithms().put(e.getKey(),
-                    new AlgorithmConfiguration(h.type, props));
+                    toAlgorithmConfiguration(h.type, props));
         }
 
         // 校验算法存在性，缺失时自动注册
@@ -313,8 +317,14 @@ public class ShardingV5Conversion implements DataSourceConversion {
                         .collect(Collectors.toList());
             }
             if (matched.isEmpty()) {
-                log.warn("未匹配到表: {}", tc.prefix);
-                continue;
+                // 首次接入时物理表可能尚未创建：按分片数合成 前缀_0..N-1，
+                // 让分片规则先行落地，物理表随后通过受限 DDL（CREATE TABLE IF NOT EXISTS）幂等补建
+                int synthesized = tc.shardCount > 0 ? tc.shardCount : 1;
+                log.warn("未匹配到表: {}，按分片数合成 {} 个物理表名", tc.prefix, synthesized);
+                matched = new ArrayList<>();
+                for (int i = 0; i < synthesized; i++) {
+                    matched.add(tc.prefix + "_" + i);
+                }
             }
 
             var limited = matched.size() > tc.shardCount
@@ -373,6 +383,37 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     @Override public String type() { return "SHARDINGV5"; }
+
+    /**
+     * 构造算法配置。
+     *
+     * <p>ShardingSphere 5.5.2 的 ShardingRule#checkManualShardingAlgorithm 禁止
+     * 「手动 tables 配置（actualDataNodes）」使用自动分片算法（实现
+     * ShardingAutoTableAlgorithm 的算法），而 MOD / HASH_MOD 恰是自动算法，
+     * 直接注册会在数据源创建时抛 AlgorithmInitializationException。本模块全部
+     * 走手动 actualDataNodes，因此把这两类算法替换为等价的
+     * {@link ManualModShardingAlgorithm}（经 CLASS_BASED 标准算法包装），
+     * 取模路由语义保持一致；分片数沿用 sharding-count 属性。</p>
+     *
+     * @param type 算法类型
+     * @param props 算法参数
+     * @return 算法配置
+     */
+    private AlgorithmConfiguration toAlgorithmConfiguration(String type, Properties props) {
+        boolean hashMod = "HASH_MOD".equalsIgnoreCase(type);
+        if ("MOD".equalsIgnoreCase(type) || hashMod) {
+            if (!props.containsKey("sharding-count")) {
+                props.setProperty("sharding-count", "2");
+            }
+            if (hashMod) {
+                props.setProperty("hash-mode", "true");
+            }
+            props.setProperty("strategy", "STANDARD");
+            props.setProperty("algorithmClassName", ManualModShardingAlgorithm.class.getName());
+            return new AlgorithmConfiguration("CLASS_BASED", props);
+        }
+        return new AlgorithmConfiguration(type, props);
+    }
 
     /**
      * 确保算法已注册；内置算法自动注册并设 分库分表-数量
@@ -453,9 +494,23 @@ public class ShardingV5Conversion implements DataSourceConversion {
         var tables = Wraps.<String>linkedSet();
         try (var conn = ds.getConnection()) {
             var meta = conn.getMetaData();
-            try (var rs = meta.getTables(null, null, "%", new String[]{"TABLE", "VIEW"})) {
+            // 只扫描成员自身库：catalog/schema 传 null 会退化为全实例扫描，
+            // 把 sys/information_schema 等系统库的视图一并扫入；其中 x$xxx 这类
+            // 带 '$' 的表名会在 ShardingSphere 行内表达式求值时被当作 Groovy
+            // 插值属性（x$host_summary -> $host_summary）而抛 MissingPropertyException
+            String catalog = conn.getCatalog();
+            String schema = conn.getSchema();
+            try (var rs = meta.getTables(catalog, schema, "%", new String[]{"TABLE", "VIEW"})) {
                 while (rs.next()) {
-                    tables.add(rs.getString("TABLE_NAME"));
+                    String schemaName = rs.getString("TABLE_SCHEM");
+                    String name = rs.getString("TABLE_NAME");
+                    if (name == null || name.contains("$")) {
+                        continue;
+                    }
+                    if (schemaName != null && SYSTEM_SCHEMAS.contains(schemaName.toLowerCase())) {
+                        continue;
+                    }
+                    tables.add(name);
                 }
             }
         } catch (Exception e) { log.warn("扫描表失败: {}", e.getMessage(), e); }
