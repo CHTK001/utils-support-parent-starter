@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiConsumer;
 
 /**
@@ -79,6 +80,21 @@ public class FrpClient implements Closeable {
      * 隧道开启超时（毫秒），默认 {@link #DEFAULT_TIMEOUT_MS}
      */
     private volatile long tunnelOpenTimeoutMs = DEFAULT_TIMEOUT_MS;
+
+    /**
+     * 隧道开启成功计数（visitor 侧收到 OPENED 的次数）
+     */
+    private final LongAdder tunnelOpenSuccessCount = new LongAdder();
+
+    /**
+     * 隧道开启失败计数（visitor 侧 openTunnel 抛错的次数，含重试前的失败）
+     */
+    private final LongAdder tunnelOpenFailureCount = new LongAdder();
+
+    /**
+     * 隧道开启重试计数（visitor 侧代理在失败后再次尝试的次数）
+     */
+    private final LongAdder tunnelOpenRetryCount = new LongAdder();
 
     /**
      * 信令连接
@@ -387,6 +403,7 @@ public class FrpClient implements Closeable {
         }
         FrpTunnelSession session = new FrpTunnelSession(this, channelId, "");
         openTunnels.put(channelId, session);
+        tunnelOpenSuccessCount.increment();
         connectDataStream(session, FrpProtocol.ROLE_VISITOR);
         future.complete(session);
     }
@@ -654,6 +671,11 @@ public class FrpClient implements Closeable {
      * @return 隧道会话
      */
     public FrpTunnelSession openTunnel(String targetHost, int targetPort) {
+        if (!connected) {
+            tunnelOpenFailureCount.increment();
+            throw new IllegalStateException(
+                    "FRP 客户端未连接，无法开启隧道: " + serverHost + ":" + serverPort + "（请先调用 connect()）");
+        }
         String requestId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         var future = new CompletableFuture<FrpTunnelSession>();
         pendingTunnels.put(requestId, future);
@@ -663,8 +685,52 @@ public class FrpClient implements Closeable {
             return future.get(tunnelOpenTimeoutMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             pendingTunnels.remove(requestId);
+            tunnelOpenFailureCount.increment();
             throw new IllegalStateException("FRP 隧道开启失败: " + targetHost + ":" + targetPort, e);
         }
+    }
+
+    /**
+     * 获取隧道开启成功计数（visitor 侧收到 OPENED 的次数）。
+     *
+     * @return 成功开启的隧道累计数
+     */
+    public long getTunnelOpenSuccessCount() {
+        return tunnelOpenSuccessCount.sum();
+    }
+
+    /**
+     * 获取隧道开启失败计数（visitor 侧 {@link #openTunnel} 抛错的次数，含重试前的失败）。
+     *
+     * @return 隧道开启失败累计数
+     */
+    public long getTunnelOpenFailureCount() {
+        return tunnelOpenFailureCount.sum();
+    }
+
+    /**
+     * 获取隧道开启重试计数（visitor 侧代理 {@link FrpTunnelPort} 失败后自动重试的次数）。
+     *
+     * @return 隧道开启重试累计数
+     */
+    public long getTunnelOpenRetryCount() {
+        return tunnelOpenRetryCount.sum();
+    }
+
+    /**
+     * 获取当前活跃隧道数。
+     *
+     * @return 活跃隧道会话数
+     */
+    public int getActiveTunnelCount() {
+        return openTunnels.size();
+    }
+
+    /**
+     * 供同包代理（{@link FrpTunnelPort}）记录一次隧道开启重试。
+     */
+    void incrementTunnelOpenRetry() {
+        tunnelOpenRetryCount.increment();
     }
 
     /**

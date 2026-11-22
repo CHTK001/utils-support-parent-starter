@@ -72,6 +72,21 @@ public class FrpTunnelPort {
     private volatile boolean running;
 
     /**
+     * 默认建隧重试间隔（毫秒）
+     */
+    private static final long DEFAULT_OPEN_RETRY_INTERVAL_MS = 200L;
+
+    /**
+     * 建隧失败后的额外重试次数（0 = 不重试，保持既有行为）
+     */
+    private int openTunnelRetries = 0;
+
+    /**
+     * 建隧重试间隔（毫秒）
+     */
+    private long openTunnelRetryIntervalMs = DEFAULT_OPEN_RETRY_INTERVAL_MS;
+
+    /**
      * 创建端口映射代理。
      *
      * @param client     底层 FRP 客户端
@@ -98,6 +113,32 @@ public class FrpTunnelPort {
         this.targetPort = targetPort;
         this.localHost = localHost;
         this.localPort = localPort;
+    }
+
+    /**
+     * 设置建隧失败后的额外重试次数。
+     *
+     * <p>用于吸收突发建隧、服务端瞬时繁忙、提供方短暂离线等瞬态窗口：
+     * 重试期间到达的本地连接保持打开（数据停留在内核接收缓冲），全部尝试失败才关闭。
+     * 默认 0（不重试，保持既有行为）。</p>
+     *
+     * @param retries 额外重试次数，&lt;0 时按 0 处理
+     * @return 当前代理实例，支持链式调用
+     */
+    public FrpTunnelPort openTunnelRetries(int retries) {
+        this.openTunnelRetries = Math.max(0, retries);
+        return this;
+    }
+
+    /**
+     * 设置建隧重试间隔（毫秒）。
+     *
+     * @param intervalMs 重试间隔，&lt;=0 时回退默认值 {@value #DEFAULT_OPEN_RETRY_INTERVAL_MS}ms
+     * @return 当前代理实例，支持链式调用
+     */
+    public FrpTunnelPort openTunnelRetryIntervalMs(long intervalMs) {
+        this.openTunnelRetryIntervalMs = intervalMs > 0 ? intervalMs : DEFAULT_OPEN_RETRY_INTERVAL_MS;
+        return this;
     }
 
     /**
@@ -166,11 +207,13 @@ public class FrpTunnelPort {
      * @param socket 本地连接
      */
     private void forward(Socket socket) {
-        FrpTunnelSession session;
         try {
-            session = client.openTunnel(targetHost, targetPort);
-        } catch (RuntimeException e) {
-            log.warn("FRP 隧道开启失败: {}", e.getMessage(), e);
+            socket.setTcpNoDelay(true);
+        } catch (Exception e) {
+            log.debug("[frp] 设置 TCP_NODELAY 失败，已忽略: {}", e.getMessage());
+        }
+        FrpTunnelSession session = openTunnelWithRetry();
+        if (session == null) {
             closeQuietly(socket);
             return;
         }
@@ -178,6 +221,40 @@ public class FrpTunnelPort {
         session.onBytes(data -> writeSocket(socket, data));
         session.onClose(channelId -> closeQuietly(socket));
         readSocket(socket, session);
+    }
+
+    /**
+     * 开启隧道，失败时按 {@link #openTunnelRetries(int)} 配置重试。
+     *
+     * <p>用于吸收突发建隧、服务端瞬时繁忙、提供方短暂离线等瞬态窗口：
+     * 重试期间本地连接保持打开，重试成功后照常转发；全部尝试失败才关闭本地连接。
+     * 注意：若某次尝试实际已在服务端建隧成功、仅因客户端预算超时未收到回执，
+     * 该通道会成为孤儿通道，由服务端在任一端断开时回收。</p>
+     *
+     * @return 隧道会话，全部尝试失败返回 null
+     */
+    private FrpTunnelSession openTunnelWithRetry() {
+        RuntimeException last = null;
+        for (int attempt = 0; attempt <= openTunnelRetries; attempt++) {
+            if (attempt > 0) {
+                client.incrementTunnelOpenRetry();
+                log.warn("FRP 隧道开启失败，第 {}/{} 次重试: target={}:{}, reason={}",
+                        attempt, openTunnelRetries, targetHost, targetPort,
+                        last == null ? "" : last.getMessage());
+                if (!running) {
+                    return null;
+                }
+                ThreadUtils.sleep(openTunnelRetryIntervalMs);
+            }
+            try {
+                return client.openTunnel(targetHost, targetPort);
+            } catch (RuntimeException e) {
+                last = e;
+            }
+        }
+        log.warn("FRP 隧道开启失败（含 {} 次重试），关闭本地连接: target={}:{}, reason={}",
+                openTunnelRetries, targetHost, targetPort, last == null ? "" : last.getMessage());
+        return null;
     }
 
     /**
