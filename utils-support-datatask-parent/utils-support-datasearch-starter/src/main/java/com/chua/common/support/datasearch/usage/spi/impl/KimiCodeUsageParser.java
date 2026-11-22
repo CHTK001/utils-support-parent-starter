@@ -34,16 +34,34 @@ public class KimiCodeUsageParser extends BaseUsageParser {
     private static final String PROVIDER_KIMI_CODE = "kimi-code";
     private static final String DEFAULT_MODEL = "kimi-code";
 
-    private final Path kimiCodeHome;
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public KimiCodeUsageParser() {
+        super();
+    }
 
     /**
-     * 默认构造器。
-    */
-    public KimiCodeUsageParser() {
-        String home = System.getenv("KIMI_CODE_HOME");
-        this.kimiCodeHome = (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".kimi-code");
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public KimiCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
+     * 解析 Kimi Code 主目录：优先 {@code KIMI_CODE_HOME} 环境变量，否则回退解析根目录。
+     *
+     * @param home 解析根目录
+     * @return Kimi Code 主目录
+     */
+    private static Path resolveKimiCodeHome(Path home) {
+        String kimiCodeHome = System.getenv("KIMI_CODE_HOME");
+        if (StringUtils.isNotBlank(kimiCodeHome)) {
+            return Path.of(kimiCodeHome);
+        }
+        return home.resolve(".kimi-code");
     }
 
     @Override
@@ -52,8 +70,9 @@ public class KimiCodeUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listWireFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path kimiCodeHome = resolveKimiCodeHome(home);
+        List<Path> files = listWireFiles(kimiCodeHome);
         if (files.isEmpty()) {
             log.debug("[kimi-code] no wire.jsonl under {}", kimiCodeHome);
             return Flux.empty();
@@ -222,9 +241,10 @@ public class KimiCodeUsageParser extends BaseUsageParser {
     /**
      * 列出WireFiles。
      *
+     * @param kimiCodeHome Kimi Code 主目录
      * @return 结果列表，无数据时为空列表
      */
-    private List<Path> listWireFiles() {
+    private List<Path> listWireFiles(Path kimiCodeHome) {
         Path sessionsDir = kimiCodeHome.resolve("sessions");
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();

@@ -31,19 +31,20 @@ public class ReasonixUsageParser extends BaseUsageParser {
     private static final String PROVIDER_REASONIX = "reasonix";
     private static final String DEFAULT_MODEL = "reasonix-unknown";
 
-    private final Path reasonixHome;
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ReasonixUsageParser() {
+        super();
+    }
 
     /**
-     * 默认构造器。
-    */
-    public ReasonixUsageParser() {
-        String home = System.getenv("REASONIX_STATE_HOME");
-        if (StringUtils.isBlank(home)) {
-            home = System.getenv("TOKENTRACKER_REASONIX_HOME");
-        }
-        this.reasonixHome = (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".reasonix");
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ReasonixUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     @Override
@@ -52,8 +53,15 @@ public class ReasonixUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listTelemetryFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        String envHome = System.getenv("REASONIX_STATE_HOME");
+        if (StringUtils.isBlank(envHome)) {
+            envHome = System.getenv("TOKENTRACKER_REASONIX_HOME");
+        }
+        Path reasonixHome = (StringUtils.isNotBlank(envHome))
+                ? Path.of(envHome)
+                : home.resolve(".reasonix");
+        List<Path> files = listTelemetryFiles(reasonixHome);
         if (files.isEmpty()) {
             log.debug("[reasonix] no telemetry files under {}", reasonixHome);
             return Flux.empty();
@@ -165,9 +173,10 @@ public class ReasonixUsageParser extends BaseUsageParser {
     /**
      * 列出TelemetryFiles。
      *
+     * @param reasonixHome Reasonix 状态根目录
      * @return 结果列表，无数据时为空列表
      */
-    private List<Path> listTelemetryFiles() {
+    private List<Path> listTelemetryFiles(Path reasonixHome) {
         List<Path> files = Wraps.list();
         for (String sub : new String[]{"projects", "sessions"}) {
             Path root = reasonixHome.resolve(sub);

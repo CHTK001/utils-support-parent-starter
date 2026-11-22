@@ -50,8 +50,21 @@ public class VscodeUsageParser extends BaseUsageParser {
      */
     private static final long NANO_AIU_PER_USD = 10_000_000_000L;
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".copilot", "session-store.db");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public VscodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public VscodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String SQL_USAGE_EVENTS =
             "SELECT created_at, model, input_tokens, output_tokens, "
@@ -76,8 +89,8 @@ public class VscodeUsageParser extends BaseUsageParser {
      * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
@@ -87,13 +100,14 @@ public class VscodeUsageParser extends BaseUsageParser {
      * @return 每条计费请求对应的用量记录列表
      */
     @Override
-    protected List<AiUsage> parseAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", DB_PATH);
+    protected List<AiUsage> parseHome(Path home) {
+        Path dbPath = home.resolve(".copilot").resolve("session-store.db");
+        if (!Files.exists(dbPath)) {
+            log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", dbPath);
             return List.of();
         }
         List<AiUsage> result = Wraps.list();
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
              PreparedStatement stmt = conn.prepareStatement(SQL_USAGE_EVENTS);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

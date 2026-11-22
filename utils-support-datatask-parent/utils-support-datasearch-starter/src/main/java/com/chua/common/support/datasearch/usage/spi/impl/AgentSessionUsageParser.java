@@ -42,11 +42,28 @@ import java.util.Optional;
 public abstract class AgentSessionUsageParser extends BaseUsageParser {
 
     /**
+     * 默认构造：解析当前用户主目录。
+     */
+    protected AgentSessionUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    protected AgentSessionUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
      * 会话根目录（{@code <home>/sessions}）。子类负责提供。
      *
+     * @param home 当前解析根目录
      * @return 会话根目录
      */
-    protected abstract Path sessionRoot();
+    protected abstract Path sessionRoot(Path home);
 
     /**
      * 会话转录文件扩展名。
@@ -58,15 +75,16 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 响应式流式入口：惰性扫描会话根并逐行解析用量信封。
+     * 响应式流式入口：惰性扫描单个主目录的会话根并逐行解析用量信封。
      *
+     * @param home 解析根目录
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listTranscripts();
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> files = listTranscripts(home);
         if (files.isEmpty()) {
-            log.debug("[{}] no transcripts under {}", name(), sessionRoot());
+            log.debug("[{}] no transcripts under {}", name(), sessionRoot(home));
             return Flux.empty();
         }
         log.info("[{}] streaming {} session files", name(), files.size());
@@ -92,10 +110,11 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     /**
      * 枚举会话转录文件；支持嵌套子目录与扁平文件两种布局。
      *
+     * @param home 解析根目录
      * @return 转录文件列表
      */
-    private List<Path> listTranscripts() {
-        Path root = sessionRoot();
+    private List<Path> listTranscripts(Path home) {
+        Path root = sessionRoot(home);
         if (!Files.isDirectory(root)) {
             return List.of();
         }

@@ -9,20 +9,26 @@ import reactor.core.publisher.Flux;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
 
 /**
- * UsageParser 基类 — 提供按天聚合公共逻辑。
+ * UsageParser 基类 — 提供多目录解析与按天聚合公共逻辑。
  *
- * <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
- * 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
+ * <p>子类按单个解析根目录实现 {@link #streamHome(Path)} 或 {@link #parseHome(Path)}
+ * 从各自数据源读取原始用量记录；本基类负责把配置的多个根目录逐个串行解析
+ * （{@link #streamAll()} 模板方法），并提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
+ *
+ * <p>解析根目录来源：优先取 SPI 构造参数（逗号分隔的多个目录），
+ * 未提供时回退当前用户主目录 {@code user.home}。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,6 +39,77 @@ public abstract class BaseUsageParser implements UsageParser {
      * 日志记录器
     */
     protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    /**
+     * 默认解析根目录：当前用户主目录（未配置时的兜底，一定存在）。
+     */
+    private static final Path DEFAULT_USER_HOME = Paths.get(System.getProperty("user.home", "."));
+
+    /**
+     * 解析根目录列表（至少一项，去重保序，不可变）。
+     */
+    private final List<Path> userHomes;
+
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    protected BaseUsageParser() {
+        this(null);
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * <p>SPI 场景由服务框架按构造参数精确匹配实例化；逗号分隔多个目录，
+     * 空白项忽略，全部为空时回退当前用户主目录。</p>
+     *
+     * @param userHomes 逗号分隔的用户主目录列表，允许为 null
+     */
+    protected BaseUsageParser(String userHomes) {
+        this.userHomes = parseUserHomes(userHomes);
+    }
+
+    /**
+     * 解析目录列表：逗号分隔、去空白、按出现顺序去重；为空时回退默认用户主目录。
+     *
+     * @param csv 逗号分隔的目录列表，允许为 null/空
+     * @return 不可变目录列表，至少一项
+     */
+    private static List<Path> parseUserHomes(String csv) {
+        List<Path> homes = new ArrayList<>();
+        if (StringUtils.isNotBlank(csv)) {
+            for (String part : csv.split(",")) {
+                if (StringUtils.isNotBlank(part)) {
+                    Path path = Paths.get(part.trim());
+                    if (!homes.contains(path)) {
+                        homes.add(path);
+                    }
+                }
+            }
+        }
+        if (homes.isEmpty()) {
+            homes.add(DEFAULT_USER_HOME);
+        }
+        return List.copyOf(homes);
+    }
+
+    /**
+     * 获取解析根目录列表。
+     *
+     * @return 不可变目录列表，至少一项
+     */
+    protected List<Path> userHomes() {
+        return userHomes;
+    }
+
+    /**
+     * 获取首个解析根目录（单目录场景的便捷访问器）。
+     *
+     * @return 首个解析根目录
+     */
+    protected Path home() {
+        return userHomes.get(0);
+    }
 
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -47,22 +124,59 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final long EPOCH_MILLIS_FLOOR = 1_000_000_000_000L;
 
     /**
-     * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
-     * 直接覆写 streamAll() 的子类不受影响。
+     * 响应式流式入口：把配置的多个解析根目录逐个串行解析。
+     *
+     * <p>串行 {@code Flux.concat} 保证单个目录的流完整订阅完成后再进入下一个目录，
+     * 子类的跨轮次游标/状态在目录之间不会被并发踩踏。</p>
      */
     @Override
     public Flux<AiUsage> streamAll() {
-        return Flux.defer(() -> Flux.fromIterable(parseAll()));
+        return Flux.defer(() -> {
+            List<Path> homes = userHomes;
+            if (homes.size() == 1) {
+                return streamHome(homes.get(0));
+            }
+            List<Flux<AiUsage>> parts = new ArrayList<>(homes.size());
+            for (Path home : homes) {
+                parts.add(streamHome(home));
+            }
+            return Flux.concat(parts);
+        });
     }
 
     /**
-     * 阻塞式全量装载（可选覆写）：供未直接实现 streamAll 的存量子类使用。
+     * 按单个解析根目录流式装载（子类覆写点）。
+     *
+     * <p>默认桥接到 {@link #parseHome(Path)}；需要流式/分页装载的子类覆写本方法。</p>
+     *
+     * @param home 解析根目录
+     * @return 用量记录流
+     */
+    protected Flux<AiUsage> streamHome(Path home) {
+        return Flux.fromIterable(parseHome(home));
+    }
+
+    /**
+     * 按单个解析根目录阻塞式装载（子类覆写点）。
+     *
+     * <p>默认桥接到 {@link #parseAll()}；未迁移的存量子类继续走旧入口。</p>
+     *
+     * @param home 解析根目录
+     * @return 原始 AiUsage 记录列表
+     */
+    protected List<AiUsage> parseHome(Path home) {
+        return parseAll();
+    }
+
+    /**
+     * 阻塞式全量装载（遗留兼容入口）：未迁移的存量子类可覆写；
+     * 已迁移的子类应覆写 {@link #parseHome(Path)} 或 {@link #streamHome(Path)}。
      *
      * @return 原始 AiUsage 记录列表
      */
     protected List<AiUsage> parseAll() {
         throw new UnsupportedOperationException(
-                getClass().getSimpleName() + " 必须实现 parseAll() 或 streamAll()");
+                getClass().getSimpleName() + " 必须实现 parseHome()/streamHome() 或 parseAll()");
     }
 
     /**

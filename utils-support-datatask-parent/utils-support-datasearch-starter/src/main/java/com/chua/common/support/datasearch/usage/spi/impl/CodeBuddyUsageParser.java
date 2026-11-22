@@ -70,23 +70,21 @@ import java.util.regex.Pattern;
 @Spi("codebuddy")
 public class CodeBuddyUsageParser extends BaseUsageParser {
 
-    private static final Path PROJECTS_DIR_INTL = Path.of(
-            System.getProperty("user.home"), ".codebuddy", "projects");
-
-    private static final Path PROJECTS_DIR_CN = Path.of(
-            System.getProperty("user.home"), ".codebuddycn", "projects");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CodeBuddyUsageParser() {
+        super();
+    }
 
     /**
-     * 国际版运行日志根目录，按日期分子目录存放 project 级日志
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
      */
-    private static final Path LOGS_DIR_INTL = Path.of(
-            System.getProperty("user.home"), ".codebuddy", "logs");
-
-    /**
-     * 国内版运行日志根目录
-     */
-    private static final Path LOGS_DIR_CN = Path.of(
-            System.getProperty("user.home"), ".codebuddycn", "logs");
+    public CodeBuddyUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 流结束事件行前缀，其 {@code elapsed} 即整段请求耗时
@@ -121,8 +119,8 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
@@ -131,11 +129,13 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      *
      * @return AiUsage 记录列表，每个完整 assistant 响应一条
      */
-    @Override protected List<AiUsage> parseAll() {
-        Map<String, RequestTiming> timings = loadRequestTimings();
+    @Override protected List<AiUsage> parseHome(Path home) {
+        Path projectsDirIntl = home.resolve(".codebuddy").resolve("projects");
+        Path projectsDirCn = home.resolve(".codebuddycn").resolve("projects");
+        Map<String, RequestTiming> timings = loadRequestTimings(home);
         List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
-        for (Path projectsDir : new Path[] {PROJECTS_DIR_INTL, PROJECTS_DIR_CN}) {
+        for (Path projectsDir : new Path[] {projectsDirIntl, projectsDirCn}) {
             if (!Files.isDirectory(projectsDir)) {
                 log.debug("[codebuddy] projects dir not found: {}", projectsDir);
                 continue;
@@ -164,11 +164,16 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     /**
      * 扫描运行日志，建立请求号到时间线（整段耗时、首字延迟）的映射。
      *
+     * @param home 解析根目录
      * @return 请求号到时间线的映射；日志目录缺失时为空映射
      */
-    private Map<String, RequestTiming> loadRequestTimings() {
+    private Map<String, RequestTiming> loadRequestTimings(Path home) {
         Map<String, RequestTiming> timings = Wraps.map();
-        for (Path logsDir : new Path[] {LOGS_DIR_INTL, LOGS_DIR_CN}) {
+        // 国际版运行日志根目录，按日期分子目录存放 project 级日志
+        Path logsDirIntl = home.resolve(".codebuddy").resolve("logs");
+        // 国内版运行日志根目录
+        Path logsDirCn = home.resolve(".codebuddycn").resolve("logs");
+        for (Path logsDir : new Path[] {logsDirIntl, logsDirCn}) {
             if (!Files.isDirectory(logsDir)) {
                 continue;
             }

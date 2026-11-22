@@ -92,6 +92,7 @@ public final class ChatClientIndicators {
             case POLLINATIONS -> new PollinationsChatClientIndicator(effective);
             case VERCEL -> new VercelAiGatewayChatClientIndicator(effective, spec.vercelOwner);
             case MODELS_DEV -> new ModelsDevChatClientIndicator(spec.modelsDevKey);
+            case AIHOT -> new AiHotChatClientIndicator(effective);
             case NONE -> null;
             // [P3C] 兜底：未知类型按「无可用来源」处理，返回 null
             default -> null;
@@ -290,6 +291,11 @@ public final class ChatClientIndicators {
                 "https://models.dev", Kind.MODELS_DEV,
                 "models.dev", "modelsdev"));
 
+        // AIHOT：大模型排行榜（Markdown 榜单），提供评分 / 上线日期 / 官方 API 美元价
+        specs.add(ProviderSpec.direct("aihot", "AIHOT",
+                "https://aihot.news/leaderboard.md", Kind.AIHOT,
+                "aihot"));
+
         // 腾讯混元官方无公开机器可读价格目录；Vercel AI Gateway 收录了腾讯混元全系
         specs.add(ProviderSpec.vercel("tencent", "腾讯混元",
                 "https://cloud.tencent.com/document/product/1729/97731", "tencent",
@@ -355,6 +361,10 @@ public final class ChatClientIndicators {
          */
         MODELS_DEV,
         /**
+         * AIHOT 大模型排行榜（aihot.news/leaderboard.md）
+         */
+        AIHOT,
+        /**
          * 暂无公开机器可读来源
          */
         NONE
@@ -363,53 +373,39 @@ public final class ChatClientIndicators {
     /**
      * 单个服务商的指标来源规格。
      */
-    public static final class ProviderSpec {
-
-        /**
-         * 主标识
-         */
-        private final String id;
-        /**
-         * 展示名称
-         */
-        private final String displayName;
-        /**
-         * 官方定价页（可为 null）
-         */
-        private final String officialPricingUrl;
-        /**
-         * 来源类型
-         */
-        private final Kind kind;
-        /**
-         * Models.dev 厂商键（仅 MODELS_DEV 有效）
-         */
-        private final String modelsDevKey;
-        /**
-         * Vercel AI Gateway 厂商标识（仅 VERCEL 有效）
-         */
-        private final String vercelOwner;
-        /**
-         * 别名（含主标识）
-         */
-        private final Set<String> aliases;
-        /**
-         * 是否为该来源的主标识（用于枚举受支持服务商）
-         */
-        private final boolean primary;
-
-        private ProviderSpec(String id, String displayName, String officialPricingUrl, Kind kind,
-                             String modelsDevKey, String vercelOwner,
-                             Set<String> aliases, boolean primary) {
-            this.id = id;
-            this.displayName = displayName;
-            this.officialPricingUrl = officialPricingUrl;
-            this.kind = kind;
-            this.modelsDevKey = modelsDevKey;
-            this.vercelOwner = vercelOwner;
-            this.aliases = aliases;
-            this.primary = primary;
-        }
+    public static record ProviderSpec(
+            /**
+             * 主标识
+             */
+            String id,
+            /**
+             * 展示名称
+             */
+            String displayName,
+            /**
+             * 官方定价页（可为 null）
+             */
+            String officialPricingUrl,
+            /**
+             * 来源类型
+             */
+            Kind kind,
+            /**
+             * Models.dev 厂商键（仅 MODELS_DEV 有效）
+             */
+            String modelsDevKey,
+            /**
+             * Vercel AI Gateway 厂商标识（仅 VERCEL 有效）
+             */
+            String vercelOwner,
+            /**
+             * 别名（含主标识）
+             */
+            Set<String> aliases,
+            /**
+             * 是否为该来源的主标识（用于枚举受支持服务商）
+             */
+            boolean primary) {
 
         /**
          * 构建 Models.dev 来源。

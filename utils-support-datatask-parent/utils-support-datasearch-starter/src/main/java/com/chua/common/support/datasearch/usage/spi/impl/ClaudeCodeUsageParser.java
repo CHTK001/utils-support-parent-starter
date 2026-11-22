@@ -57,8 +57,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("claude-code")
 public class ClaudeCodeUsageParser extends BaseUsageParser {
 
-    private static final Path PROJECTS_DIR = Path.of(
-            System.getProperty("user.home"), ".claude", "projects");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ClaudeCodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ClaudeCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 缺失 {@code message.id} 时使用的折叠键前缀
@@ -96,13 +109,14 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path projectsDir = home.resolve(".claude").resolve("projects");
+        if (!Files.isDirectory(projectsDir)) {
             return Flux.empty();
         }
         try {
             List<Path> files;
-            try (var stream = Files.walk(PROJECTS_DIR)) {
+            try (var stream = Files.walk(projectsDir)) {
                 files = stream.filter(Files::isRegularFile)
                         .filter(p -> p.toString().endsWith(".jsonl"))
                         .toList();

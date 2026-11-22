@@ -40,6 +40,22 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("goose")
 public class GooseUsageParser extends BaseUsageParser {
 
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public GooseUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public GooseUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
     private static final String SQL_LEDGER =
             "SELECT l.session_id, l.created_timestamp, l.model, l.input_tokens, l.output_tokens, "
                     + "l.total_tokens, l.cache_read_tokens, l.cache_write_tokens, l.cost, l.cost_source, "
@@ -98,7 +114,7 @@ public class GooseUsageParser extends BaseUsageParser {
      * @return 用量记录流；本机无 Goose 时返回空流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
+    protected Flux<AiUsage> streamHome(Path home) {
         Path dbPath = resolveDbPath();
         if (dbPath == null || !Files.exists(dbPath)) {
             log.debug("[goose] database not found (Goose 未安装于本平台或路径不存在)");

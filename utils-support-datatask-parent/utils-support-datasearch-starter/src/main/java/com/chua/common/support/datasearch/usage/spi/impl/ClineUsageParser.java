@@ -63,8 +63,21 @@ import java.util.Set;
 @Spi("cline")
 public class ClineUsageParser extends BaseUsageParser {
 
-    private static final Path SESSIONS_DIR = Path.of(
-            System.getProperty("user.home"), ".cline", "data", "sessions");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ClineUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ClineUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_CLINE = "cline";
 
@@ -86,8 +99,8 @@ public class ClineUsageParser extends BaseUsageParser {
      * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
@@ -96,13 +109,14 @@ public class ClineUsageParser extends BaseUsageParser {
      *
      * @return AiUsage 记录列表，一条模型请求对应一条
      */
-    @Override protected List<AiUsage> parseAll() {
-        if (!Files.isDirectory(SESSIONS_DIR)) {
-            log.debug("[cline] sessions dir not found: {}", SESSIONS_DIR);
+    @Override protected List<AiUsage> parseHome(Path home) {
+        Path sessionsDir = home.resolve(".cline").resolve("data").resolve("sessions");
+        if (!Files.isDirectory(sessionsDir)) {
+            log.debug("[cline] sessions dir not found: {}", sessionsDir);
             return List.of();
         }
         List<Path> files;
-        try (var stream = Files.walk(SESSIONS_DIR)) {
+        try (var stream = Files.walk(sessionsDir)) {
             files = stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".json"))
                     .toList();

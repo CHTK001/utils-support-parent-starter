@@ -35,8 +35,21 @@ import java.util.Map;
 @Spi("zcode")
 public class ZCodeUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".zcode", "cli", "db", "db.sqlite");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ZCodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ZCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String SQL_MODEL_USAGE =
             "SELECT id, session_id, provider_id, model_id, status, "
@@ -62,13 +75,14 @@ public class ZCodeUsageParser extends BaseUsageParser {
      * 流式解析全部模型请求用量记录。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[zcode] database not found: {} (ZCode CLI has not run yet)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = home.resolve(".zcode").resolve("cli").resolve("db").resolve("db.sqlite");
+        if (!Files.exists(dbPath)) {
+            log.debug("[zcode] database not found: {} (ZCode CLI has not run yet)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("zcode", DB_PATH.toString());
+                .addDataSource("zcode", dbPath.toString());
         return engine.query(SQL_MODEL_USAGE)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[zcode] stream complete"));

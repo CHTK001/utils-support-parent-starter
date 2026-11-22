@@ -33,8 +33,21 @@ import java.util.stream.Stream;
 @Spi("codex++")
 public class CodexPlusPlusUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".codex", "state_5.sqlite");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CodexPlusPlusUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CodexPlusPlusUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 会话行查询：附带转录路径，供进一步拆细 Token 口径与取耗时
@@ -49,16 +62,20 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
     private static final String EVENT_TASK_COMPLETE = "task_complete";
 
     /**
-     * 响应式流式入口：通过 sqlitereactorengine 流出会话记录。
+     * 响应式流式入口：通过 sqlitereactorengine 流出单个主目录的会话记录。
+     *
+     * @param home 解析根目录
+     * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[codex++] 数据库文件不存在: {}", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = home.resolve(".codex").resolve("state_5.sqlite");
+        if (!Files.exists(dbPath)) {
+            log.debug("[codex++] 数据库文件不存在: {}", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("codex", DB_PATH.toString());
+                .addDataSource("codex", dbPath.toString());
         return engine.query(SQL_THREADS)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[codex++] 流式解析完成"));

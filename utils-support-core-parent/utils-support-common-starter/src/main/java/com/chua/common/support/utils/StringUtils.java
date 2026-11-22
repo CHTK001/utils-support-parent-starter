@@ -97,6 +97,12 @@ public class StringUtils {
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*[a-zA-Z]+\\(.*\\)\\s*");
 
     /**
+     * 单字节字符过滤正则（保留制表符与 0x00-0xff 区间字符），
+     * 供 {@link #getSingleCharCount} 复用，避免每次调用重复编译正则。
+     */
+    private static final Pattern SINGLE_BYTE_CHAR_PATTERN = Pattern.compile("[^\t\\x00-\\xff]");
+
+    /**
      * memoised padding up 转为 21 (blocks 0 转为 20 spaces)
      */
     static final String[] PADDING = {"", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ",
@@ -3621,10 +3627,9 @@ public class StringUtils {
         if (cell == null) {
             return 0;
         }
-        String reg = "[^\t\\x00-\\xff]";
-        cell = cell.replaceAll(reg, "");
+        cell = SINGLE_BYTE_CHAR_PATTERN.matcher(cell).replaceAll("");
 
-        return cell.replaceAll("  ", "").length();
+        return cell.replace("  ", "").length();
     }
 
     /**

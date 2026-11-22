@@ -26,8 +26,21 @@ import java.util.Map;
 @Spi("ccswitch")
 public class CcswitchUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".cc-switch", "cc-switch.db");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CcswitchUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CcswitchUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String SQL_REQUEST_LOGS =
             "SELECT request_id, app_type, model, input_tokens, output_tokens, "
@@ -59,13 +72,14 @@ public class CcswitchUsageParser extends BaseUsageParser {
      * 响应式流式入口：通过 SqliteReactorEngine 流出请求日志。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[ccswitch] database not found: {} (CC Switch not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = home.resolve(".cc-switch").resolve("cc-switch.db");
+        if (!Files.exists(dbPath)) {
+            log.debug("[ccswitch] database not found: {} (CC Switch not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("ccswitch", DB_PATH.toString());
+                .addDataSource("ccswitch", dbPath.toString());
         return engine.query(SQL_REQUEST_LOGS)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[ccswitch] stream complete"));

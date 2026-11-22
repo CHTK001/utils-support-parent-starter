@@ -45,8 +45,21 @@ import java.util.Map;
 @Spi("continue")
 public class ContinueUsageParser extends BaseUsageParser {
 
-    private static final Path SESSIONS_DIR = Path.of(
-            System.getProperty("user.home"), ".continue", "sessions");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ContinueUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ContinueUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String INDEX_FILE = "sessions.json";
 
@@ -64,8 +77,8 @@ public class ContinueUsageParser extends BaseUsageParser {
      * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
@@ -75,14 +88,15 @@ public class ContinueUsageParser extends BaseUsageParser {
      * @return 用量记录列表，每个含 usage 数据的会话一条
      */
     @Override
-    protected List<AiUsage> parseAll() {
-        if (!Files.isDirectory(SESSIONS_DIR)) {
-            log.debug("[continue] sessions dir not found: {}", SESSIONS_DIR);
+    protected List<AiUsage> parseHome(Path home) {
+        Path sessionsDir = home.resolve(".continue").resolve("sessions");
+        if (!Files.isDirectory(sessionsDir)) {
+            log.debug("[continue] sessions dir not found: {}", sessionsDir);
             return List.of();
         }
-        Map<String, Long> dateIndex = loadDateIndex();
+        Map<String, Long> dateIndex = loadDateIndex(sessionsDir);
         List<AiUsage> result = Wraps.list();
-        try (var stream = Files.list(SESSIONS_DIR)) {
+        try (var stream = Files.list(sessionsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".json"))
                     .filter(p -> !INDEX_FILE.equals(p.getFileName().toString()))
@@ -97,11 +111,12 @@ public class ContinueUsageParser extends BaseUsageParser {
     /**
      * 从索引文件加载 sessionId 到创建时间（epoch 毫秒）映射。
      *
+     * @param sessionsDir 会话目录
      * @return sessionId 到创建时间的映射；文件缺失时返回空表
      */
-    private Map<String, Long> loadDateIndex() {
+    private Map<String, Long> loadDateIndex(Path sessionsDir) {
         Map<String, Long> index = Wraps.map();
-        Path indexFile = SESSIONS_DIR.resolve(INDEX_FILE);
+        Path indexFile = sessionsDir.resolve(INDEX_FILE);
         if (!Files.exists(indexFile)) {
             return index;
         }

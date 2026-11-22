@@ -74,8 +74,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("openclaw")
 public class OpenClawUsageParser extends BaseUsageParser {
 
-    private static final Path OPENCLAW_DIR = Path.of(
-            System.getProperty("user.home"), ".openclaw");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public OpenClawUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public OpenClawUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_OPENCLAW = "openclaw";
 
@@ -95,10 +108,11 @@ public class OpenClawUsageParser extends BaseUsageParser {
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listTrajectoryFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path openclawDir = home.resolve(".openclaw");
+        List<Path> files = listTrajectoryFiles(openclawDir);
         if (files.isEmpty()) {
-            log.debug("[openclaw] no trajectory files under {}", OPENCLAW_DIR);
+            log.debug("[openclaw] no trajectory files under {}", openclawDir);
             return Flux.empty();
         }
         log.info("[openclaw] streaming from {} trajectory files", files.size());
@@ -109,10 +123,11 @@ public class OpenClawUsageParser extends BaseUsageParser {
     /**
      * 列出全部轨迹文件。
      *
+     * @param openclawDir OpenClaw 根目录
      * @return 轨迹文件列表；目录缺失时为空列表
      */
-    private List<Path> listTrajectoryFiles() {
-        Path agentsDir = OPENCLAW_DIR.resolve("agents");
+    private List<Path> listTrajectoryFiles(Path openclawDir) {
+        Path agentsDir = openclawDir.resolve("agents");
         if (!Files.isDirectory(agentsDir)) {
             return List.of();
         }

@@ -40,10 +40,20 @@ import java.util.stream.Stream;
 public class TraeCnUsageParser extends BaseUsageParser {
 
     /**
-     * 事件缓存根目录
+     * 默认构造：解析当前用户主目录。
      */
-    private static final Path CACHE_ROOT = Path.of(
-            System.getProperty("user.home"), ".trae-cn", "hub_event_cache");
+    public TraeCnUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public TraeCnUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 用量事件名
@@ -76,10 +86,11 @@ public class TraeCnUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listEventFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path cacheRoot = home.resolve(".trae-cn").resolve("hub_event_cache");
+        List<Path> files = listEventFiles(cacheRoot);
         if (files.isEmpty()) {
-            log.debug("[trae-cn] 事件缓存不存在: {}", CACHE_ROOT);
+            log.debug("[trae-cn] 事件缓存不存在: {}", cacheRoot);
             return Flux.empty();
         }
         log.info("[trae-cn] scanning {} event files", files.size());
@@ -96,14 +107,15 @@ public class TraeCnUsageParser extends BaseUsageParser {
     /**
      * 递归枚举事件缓存 JSONL。
      *
+     * @param cacheRoot 事件缓存根目录
      * @return 文件列表
      */
-    private List<Path> listEventFiles() {
+    private List<Path> listEventFiles(Path cacheRoot) {
         List<Path> files = Wraps.list();
-        if (!Files.isDirectory(CACHE_ROOT)) {
+        if (!Files.isDirectory(cacheRoot)) {
             return files;
         }
-        try (Stream<Path> stream = Files.walk(CACHE_ROOT)) {
+        try (Stream<Path> stream = Files.walk(cacheRoot)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);

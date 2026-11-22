@@ -28,14 +28,24 @@ public class CodexCliUsageParser extends AbstractCodexForkRolloutUsageParser {
     private static final String PROVIDER = "codex";
 
     /**
-     * Codex 根目录（%USERPROFILE%/.codex），基类在其下扫描 sessions/ 与 archived_sessions/
+     * 默认构造：解析当前用户主目录。
      */
-    private static final Path CODEX_HOME = Path.of(
-            System.getProperty("user.home"), ".codex");
+    public CodexCliUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CodexCliUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     @Override
-    protected Path sessionsRoot() {
-        return CODEX_HOME;
+    protected Path sessionsRoot(Path home) {
+        return home.resolve(".codex");
     }
 
     @Override

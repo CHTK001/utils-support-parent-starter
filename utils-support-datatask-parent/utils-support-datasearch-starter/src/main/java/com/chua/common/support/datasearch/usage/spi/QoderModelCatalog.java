@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,7 @@ import com.chua.common.support.utils.StringUtils;
  * 模型标识（{@code Qwen3.8-Flash -> qwen3.8-flash}）。</p>
  *
  * <p>映射不到时按原值返回，因此未收录的档位码、其他版本的命名空间都不会被改写。
- * 档位表在首个 JVM 内加载一次；文件缺失或格式变化时退化为恒等映射。</p>
+ * 档位表按显示名文件路径缓存（每个主目录一份）；文件缺失或格式变化时退化为恒等映射。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,10 +37,9 @@ import com.chua.common.support.utils.StringUtils;
 public final class QoderModelCatalog {
 
     /**
-     * Qoder 下发显示名的文件
+     * 按显示名文件路径缓存的档位码 -> 模型标识表（每个主目录一份，加载失败时为空表）。
      */
-    private static final Path TEXTS_FILE = Path.of(
-            System.getProperty("user.home"), ".qoder", ".auth", "dynamic-texts.json");
+    private static final ConcurrentMap<Path, Map<String, String>> MAPPINGS = new ConcurrentHashMap<>();
 
     /**
      * 档位码条目：档位码不含点号，借此把 {@code .description} 等派生键排除在外
@@ -52,60 +54,49 @@ public final class QoderModelCatalog {
             "auto", "lite", "ultimate", "performance", "efficient",
             "experts-auto", "experts-ultimate", "quest-auto", "quest-ultimate");
 
-    /**
-     * 档位码 -> 模型标识（加载失败时为空表）
-     */
-    private static volatile Map<String, String> mapping;
-
     private QoderModelCatalog() {
+    }
+
+    /**
+     * 把 Qoder 档位码还原为模型标识（按当前用户主目录解析）。
+     *
+     * @param code 转录中记录的档位码，允许为 空
+     * @return 模型标识；档位码为空、属计费档位或目录未收录时返回原值
+     */
+    public static String resolve(String code) {
+        return resolve(code, Paths.get(System.getProperty("user.home", ".")));
     }
 
     /**
      * 把 Qoder 档位码还原为模型标识。
      *
      * @param code 转录中记录的档位码，允许为 空
+     * @param home 当前解析根目录（其下 {@code .qoder/.auth/dynamic-texts.json} 为显示名文件）
      * @return 模型标识；档位码为空、属计费档位或目录未收录时返回原值
      */
-    public static String resolve(String code) {
+    public static String resolve(String code, Path home) {
         if (StringUtils.isEmpty(code) || PLAN_TIERS.contains(code)) {
             return code;
         }
-        String model = table().get(code);
+        Path textsFile = home.resolve(".qoder").resolve(".auth").resolve("dynamic-texts.json");
+        String model = MAPPINGS.computeIfAbsent(textsFile, QoderModelCatalog::load).get(code);
         return model == null ? code : model;
-    }
-
-    /**
-     * 已加载的映射表，首次调用时读盘。
-     *
-     * @return 档位码 -> 模型标识
-     */
-    private static Map<String, String> table() {
-        Map<String, String> cached = mapping;
-        if (cached != null) {
-            return cached;
-        }
-        synchronized (QoderModelCatalog.class) {
-            if (mapping != null) {
-                return mapping;
-            }
-            mapping = load();
-            return mapping;
-        }
     }
 
     /**
      * 读取并转换 Qoder 的档位显示名表。
      *
+     * @param textsFile 显示名文件路径
      * @return 档位码 -> 模型标识，读不到时返回空表
      */
-    private static Map<String, String> load() {
+    private static Map<String, String> load(Path textsFile) {
         String json;
         try {
-            if (!Files.isRegularFile(TEXTS_FILE)) {
-                log.debug("[qoder] 档位显示名文件不存在: {}", TEXTS_FILE);
+            if (!Files.isRegularFile(textsFile)) {
+                log.debug("[qoder] 档位显示名文件不存在: {}", textsFile);
                 return Collections.emptyMap();
             }
-            json = Files.readString(TEXTS_FILE, StandardCharsets.UTF_8);
+            json = Files.readString(textsFile, StandardCharsets.UTF_8);
         } catch (IOException | RuntimeException e) {
             log.debug("[qoder] 读取档位显示名失败: {}", e.getMessage());
             return Collections.emptyMap();

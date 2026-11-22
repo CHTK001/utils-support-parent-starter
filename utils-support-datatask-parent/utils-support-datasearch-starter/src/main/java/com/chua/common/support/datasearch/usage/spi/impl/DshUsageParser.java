@@ -57,38 +57,37 @@ public class DshUsageParser extends BaseUsageParser {
      */
     private static final int ZSTD_MAGIC = 0xFD2FB528;
 
-    private final Path dshHome;
-
     /**
-     * 默认构造器：按 {@code DSH_HOME} / {@code TOKENTRACKER_DSH_HOME} / {@code ~/.dsh}
-     * 依次解析数据根目录。
+     * 默认构造器：解析当前用户主目录。
      */
     public DshUsageParser() {
-        this(resolveDshHome());
+        super();
     }
 
     /**
-     * 指定数据根目录的构造器（供测试注入夹具目录）。
+     * 指定解析根目录构造。
      *
-     * @param dshHome DSH 数据根目录
+     * @param userHomes 逗号分隔的用户主目录列表
      */
-    protected DshUsageParser(Path dshHome) {
-        this.dshHome = dshHome;
+    public DshUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     /**
-     * 解析 DSH 数据根目录。
+     * 解析 DSH 数据根目录：优先取 {@code DSH_HOME} / {@code TOKENTRACKER_DSH_HOME}
+     * 环境变量，否则回退解析根目录下的 {@code .dsh}。
      *
+     * @param home 解析根目录
      * @return 数据根目录
      */
-    private static Path resolveDshHome() {
-        String home = System.getenv("DSH_HOME");
-        if (StringUtils.isBlank(home)) {
-            home = System.getenv("TOKENTRACKER_DSH_HOME");
+    private Path resolveDshHome(Path home) {
+        String envHome = System.getenv("DSH_HOME");
+        if (StringUtils.isBlank(envHome)) {
+            envHome = System.getenv("TOKENTRACKER_DSH_HOME");
         }
-        return (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".dsh");
+        return (StringUtils.isNotBlank(envHome))
+                ? Path.of(envHome)
+                : home.resolve(".dsh");
     }
 
     @Override
@@ -97,8 +96,9 @@ public class DshUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listSessionFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dshHome = resolveDshHome(home);
+        List<Path> files = listSessionFiles(dshHome);
         if (files.isEmpty()) {
             log.debug("[dsh] no {} under {}", SESSION_FILE, dshHome);
             return Flux.empty();
@@ -264,7 +264,7 @@ public class DshUsageParser extends BaseUsageParser {
      *
      * @return 会话文件路径列表，按路径排序；无数据时为空列表
      */
-    private List<Path> listSessionFiles() {
+    private List<Path> listSessionFiles(Path dshHome) {
         Path sessionsRoot = dshHome.resolve("sessions");
         if (!Files.isDirectory(sessionsRoot)) {
             return List.of();

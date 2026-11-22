@@ -75,14 +75,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("qoder")
 public class QoderUsageParser extends BaseUsageParser {
 
-    private static final Path PROJECTS_DIR = Path.of(
-            System.getProperty("user.home"), ".qoder", "projects");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public QoderUsageParser() {
+        super();
+    }
 
     /**
-     * CLI 运行日志目录：逐请求的开始/完成事件在这里，转录本身不带耗时
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
      */
-    private static final Path LOG_SESSIONS_DIR = Path.of(
-            System.getProperty("user.home"), ".qoder", "logs", "sessions");
+    public QoderUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 运行日志中的请求开始事件类型
@@ -103,8 +110,9 @@ public class QoderUsageParser extends BaseUsageParser {
      * @return {@code "qoder"}
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() ->
+                        reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
     @Override
@@ -113,25 +121,27 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析 全部 Qoder 会话 transcripts 和 extracts 账单 抵免.
+     * 解析 单个主目录的 Qoder 会话 transcripts 和 extracts 账单 抵免.
      *
+     * @param home 解析根目录
      * @return AiUsage 记录列表，每个 assistant 响应一条
      */
-    @Override protected List<AiUsage> parseAll() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
-            log.debug("[qoder] projects dir not found: {} (Qoder CLI not installed)", PROJECTS_DIR);
+    @Override protected List<AiUsage> parseHome(Path home) {
+        Path projectsDir = home.resolve(".qoder").resolve("projects");
+        if (!Files.isDirectory(projectsDir)) {
+            log.debug("[qoder] projects dir not found: {} (Qoder CLI not installed)", projectsDir);
             return List.of();
         }
-        Map<String, long[]> timings = loadRequestTimings();
+        Map<String, long[]> timings = loadRequestTimings(home);
         List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
-        try (var stream = Files.walk(PROJECTS_DIR)) {
+        try (var stream = Files.walk(projectsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(file -> {
                         fileCount.incrementAndGet();
                         try {
-                            parseJsonlFile(file, result, timings);
+                            parseJsonlFile(file, result, timings, home);
                         } catch (IOException e) {
                             log.debug("[qoder] read failed {}: {}", file.getFileName(), e.getMessage());
                         }
@@ -151,15 +161,17 @@ public class QoderUsageParser extends BaseUsageParser {
      * {@code model.response.completed} 按 {@code request_id} 成对出现，是唯一的耗时来源。
      * 同一 标识 若出现多对事件，取最早的开始与最晚的完成。</p>
      *
+     * @param home 解析根目录
      * @return 请求号到时间线的映射；日志目录缺失时为空映射
      */
-    private Map<String, long[]> loadRequestTimings() {
+    private Map<String, long[]> loadRequestTimings(Path home) {
         Map<String, long[]> timings = Wraps.map();
-        if (!Files.isDirectory(LOG_SESSIONS_DIR)) {
-            log.info("[qoder] 运行日志目录不存在, 耗时字段无法补齐: {}", LOG_SESSIONS_DIR);
+        Path logSessionsDir = home.resolve(".qoder").resolve("logs").resolve("sessions");
+        if (!Files.isDirectory(logSessionsDir)) {
+            log.info("[qoder] 运行日志目录不存在, 耗时字段无法补齐: {}", logSessionsDir);
             return timings;
         }
-        try (var stream = Files.walk(LOG_SESSIONS_DIR)) {
+        try (var stream = Files.walk(logSessionsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(file -> readTimingFile(file, timings));
@@ -219,9 +231,10 @@ public class QoderUsageParser extends BaseUsageParser {
      * @param file    路径 to the session JSONL file
      * @param result  accumulator list for parsed records
      * @param timings 请求号时间线索引
+     * @param home    解析根目录
      * @throws IOException if the file cannot be read
      */
-    private void parseJsonlFile(Path file, List<AiUsage> result, Map<String, long[]> timings) throws IOException {
+    private void parseJsonlFile(Path file, List<AiUsage> result, Map<String, long[]> timings, Path home) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -229,7 +242,7 @@ public class QoderUsageParser extends BaseUsageParser {
                     continue;
                 }
                 try {
-                    parseNode(Json.parse(line), timings).ifPresent(result::add);
+                    parseNode(Json.parse(line), timings, home).ifPresent(result::add);
                 } catch (Exception e) {
                     log.debug("[qoder] parse failed {}: {}", file.getFileName(), e.getMessage());
                 }
@@ -242,9 +255,10 @@ public class QoderUsageParser extends BaseUsageParser {
      *
      * @param node    解析后的 JSON 行
      * @param timings 请求号时间线索引
+     * @param home    解析根目录
      * @return 用量记录；非目标行时 empty
      */
-    private java.util.Optional<AiUsage> parseNode(JsonNode node, Map<String, long[]> timings) {
+    private java.util.Optional<AiUsage> parseNode(JsonNode node, Map<String, long[]> timings, Path home) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return java.util.Optional.empty();
         }
@@ -270,7 +284,7 @@ public class QoderUsageParser extends BaseUsageParser {
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_QODER)
                 .model(QoderModelCatalog.resolve(
-                        firstNonBlank(message.get("model").toStringValue(), "unknown")))
+                        firstNonBlank(message.get("model").toStringValue(), "unknown"), home))
                 .requestId(message.get("id").toStringValue())
                 .startTime(startTime > 0 ? startTime : null)
                 .durationMillis(duration)

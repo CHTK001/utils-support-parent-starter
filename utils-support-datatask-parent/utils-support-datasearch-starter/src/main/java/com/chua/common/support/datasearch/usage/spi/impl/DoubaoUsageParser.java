@@ -32,12 +32,23 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("doubao")
 public class DoubaoUsageParser extends BaseUsageParser {
 
-    private static final String PROVIDER_DOU_BAO = "doubao";
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public DoubaoUsageParser() {
+        super();
+    }
 
     /**
-     * 数据库路径（支持 DOUBAO_USAGE_DB 环境变量覆盖，便于测试注入）。
-    */
-    private static final Path DB_PATH = resolveDbPath();
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public DoubaoUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    private static final String PROVIDER_DOU_BAO = "doubao";
 
     /**
      * 匹配火山方舟 / 豆包 的 provider 标记。
@@ -67,14 +78,15 @@ public class DoubaoUsageParser extends BaseUsageParser {
     /**
      * 解析Db路径。
      *
+     * @param home 解析根目录
      * @return 路径 对象
      */
-    private static Path resolveDbPath() {
+    private Path resolveDbPath(Path home) {
         String override = System.getenv("DOUBAO_USAGE_DB");
         if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
-        return Path.of(System.getProperty("user.home"), ".cc-switch", "cc-switch.db");
+        return home.resolve(".cc-switch").resolve("cc-switch.db");
     }
 
     /**
@@ -95,13 +107,14 @@ public class DoubaoUsageParser extends BaseUsageParser {
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[doubao] cc-switch.db not found: {} (CC Switch not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[doubao] cc-switch.db not found: {} (CC Switch not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("doubao", DB_PATH.toString());
+                .addDataSource("doubao", dbPath.toString());
         return engine.query(SQL)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[doubao] stream complete"));

@@ -44,8 +44,21 @@ import java.util.Map;
 @Spi("qwen")
 public class QwenUsageParser extends BaseUsageParser {
 
-    private static final Path USAGE_FILE = Path.of(
-            System.getProperty("user.home"), ".qwen", "usage_record.jsonl");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public QwenUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public QwenUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 返回 SPI 名称。
@@ -60,13 +73,14 @@ public class QwenUsageParser extends BaseUsageParser {
      * 流式解析全部会话用量记录，按模型展开。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(USAGE_FILE)) {
-            log.debug("[qwen] usage record not found: {} (Qwen Code not installed)", USAGE_FILE);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path usageFile = home.resolve(".qwen").resolve("usage_record.jsonl");
+        if (!Files.exists(usageFile)) {
+            log.debug("[qwen] usage record not found: {} (Qwen Code not installed)", usageFile);
             return Flux.empty();
         }
         return Flux.using(
-                        () -> Files.newBufferedReader(USAGE_FILE),
+                        () -> Files.newBufferedReader(usageFile),
                         reader -> Flux.fromStream(reader.lines())
                                 .map(this::parseLineSafe)
                                 .flatMapIterable(l -> l),

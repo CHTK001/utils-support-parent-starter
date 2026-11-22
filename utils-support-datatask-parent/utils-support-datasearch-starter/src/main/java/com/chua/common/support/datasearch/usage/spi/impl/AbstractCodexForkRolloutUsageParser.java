@@ -51,11 +51,28 @@ import com.chua.common.support.utils.StringUtils;
 public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParser {
 
     /**
+     * 默认构造：解析当前用户主目录。
+     */
+    protected AbstractCodexForkRolloutUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    protected AbstractCodexForkRolloutUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
      * 提供者根目录（如 {@code ~/.codex}），其下含 {@code sessions/} 与 {@code archived_sessions/}。
      *
+     * @param home 当前解析根目录
      * @return 路径 对象
      */
-    protected abstract Path sessionsRoot();
+    protected abstract Path sessionsRoot(Path home);
 
     /**
      * 提供者名称（如 acode / every-code）。
@@ -80,10 +97,10 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listRolloutFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> files = listRolloutFiles(home);
         if (files.isEmpty()) {
-            log.debug("[{}] no rollout jsonl under {}", providerName(), sessionsRoot());
+            log.debug("[{}] no rollout jsonl under {}", providerName(), sessionsRoot(home));
             return Flux.empty();
         }
         log.info("[{}] scanning {} rollout files", providerName(), files.size());
@@ -224,12 +241,13 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     /**
      * 枚举 sessions/archived_sessions 下全部 rollout JSONL。
      *
+     * @param home 解析根目录
      * @return 文件列表
      */
-    private List<Path> listRolloutFiles() {
+    private List<Path> listRolloutFiles(Path home) {
         List<Path> files = Wraps.list();
-        // sessionsRoot() 是提供者根目录（如 ~/.codex），sessions/ 与 archived_sessions/ 均在其下
-        Path root = sessionsRoot();
+        // sessionsRoot(home) 是提供者根目录（如 ~/.codex），sessions/ 与 archived_sessions/ 均在其下
+        Path root = sessionsRoot(home);
         for (String sub : new String[]{"sessions", "archived_sessions"}) {
             Path dir = root.resolve(sub);
             if (sub.startsWith("archived") && !Files.isDirectory(dir)) {

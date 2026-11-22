@@ -39,33 +39,48 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("zed")
 public class ZedUsageParser extends BaseUsageParser {
 
-    private static final String PROVIDER_ZED = "zed";
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ZedUsageParser() {
+        super();
+    }
 
-    private static final Path DB_PATH = resolveDbPath();
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ZedUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    private static final String PROVIDER_ZED = "zed";
 
     /**
      * 解析 threads.db 路径（按平台）。
      *
+     * @param home 解析根目录
      * @return 数据库路径
      */
-    private static Path resolveDbPath() {
+    private Path resolveDbPath(Path home) {
         OsFamily os = OsFamily.current();
         if (os.isWindows()) {
             String localAppData = System.getenv("LOCALAPPDATA");
             if (StringUtils.isNotBlank(localAppData)) {
                 return Path.of(localAppData, "Zed", "threads", "threads.db");
             }
-            return Path.of(System.getProperty("user.home"),
-                    "AppData", "Local", "Zed", "threads", "threads.db");
+            return home.resolve("AppData").resolve("Local")
+                    .resolve("Zed").resolve("threads").resolve("threads.db");
         }
         if (os.isMacOs()) {
-            return Path.of(System.getProperty("user.home"), "Library",
-                    "Application Support", "Zed", "threads", "threads.db");
+            return home.resolve("Library").resolve("Application Support")
+                    .resolve("Zed").resolve("threads").resolve("threads.db");
         }
         String xdg = System.getenv("XDG_DATA_HOME");
         Path dataHome = (StringUtils.isNotBlank(xdg))
                 ? Path.of(xdg)
-                : Path.of(System.getProperty("user.home"), ".local", "share");
+                : home.resolve(".local").resolve("share");
         return dataHome.resolve("zed").resolve("threads").resolve("threads.db");
     }
 
@@ -89,13 +104,14 @@ public class ZedUsageParser extends BaseUsageParser {
      * 响应式流式入口：流出各 thread 的用量；缺 updated_at 列时降级。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[zed] database not found: {} (Zed not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[zed] database not found: {} (Zed not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("zed", DB_PATH.toString());
+                .addDataSource("zed", dbPath.toString());
         return engine.query(SQL_THREADS)
                 .onErrorResume(e -> engine.query(SQL_THREADS_NO_TIME))
                 .mapNotNull(this::toAiUsage)

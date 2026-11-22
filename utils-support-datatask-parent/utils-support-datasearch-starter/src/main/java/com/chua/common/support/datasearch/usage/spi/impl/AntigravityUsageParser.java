@@ -50,7 +50,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("antigravity")
 public class AntigravityUsageParser extends BaseUsageParser {
 
-    private static final Path GEMINI_HOME = resolveGeminiHome();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public AntigravityUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public AntigravityUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_ANTIGRAVITY = "antigravity";
 
@@ -66,14 +80,15 @@ public class AntigravityUsageParser extends BaseUsageParser {
 
     /**
      * resolve Gemini Home
+     * @param home 解析根目录
      * @return 返回值
     */
-    private static Path resolveGeminiHome() {
+    private Path resolveGeminiHome(Path home) {
         String geminiHome = System.getenv("GEMINI_HOME");
         if (StringUtils.isNotBlank(geminiHome)) {
             return Path.of(geminiHome);
         }
-        return Path.of(System.getProperty("user.home"), ".gemini");
+        return home.resolve(".gemini");
     }
 
     /**
@@ -90,10 +105,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
      * 流式解析全部 Antigravity 转录文件。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> transcripts = listTranscripts();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path geminiHome = resolveGeminiHome(home);
+        List<Path> transcripts = listTranscripts(geminiHome);
         if (transcripts.isEmpty()) {
-            log.debug("[antigravity] no transcripts under {} (not installed)", GEMINI_HOME);
+            log.debug("[antigravity] no transcripts under {} (not installed)", geminiHome);
             return Flux.empty();
         }
         log.info("[antigravity] streaming from {} transcripts", transcripts.size());
@@ -110,10 +126,10 @@ public class AntigravityUsageParser extends BaseUsageParser {
      *
      * @return 转录文件列表
      */
-    private List<Path> listTranscripts() {
+    private List<Path> listTranscripts(Path geminiHome) {
         List<Path> files = Wraps.list();
         for (String variant : VARIANT_SUBDIRS) {
-            Path brainDir = GEMINI_HOME.resolve(variant).resolve("brain");
+            Path brainDir = geminiHome.resolve(variant).resolve("brain");
             if (!Files.isDirectory(brainDir)) {
                 continue;
             }

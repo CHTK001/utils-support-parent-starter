@@ -17,22 +17,28 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("every-code")
 public class EveryCodeUsageParser extends AbstractCodexForkRolloutUsageParser {
 
-    private final Path sessionsRoot;
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public EveryCodeUsageParser() {
+        super();
+    }
 
     /**
-     * 默认构造器。
-    */
-    public EveryCodeUsageParser() {
-        String home = System.getenv("CODE_HOME");
-        Path root = (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".code");
-        this.sessionsRoot = root;
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public EveryCodeUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     @Override
-    protected Path sessionsRoot() {
-        return sessionsRoot;
+    protected Path sessionsRoot(Path home) {
+        String override = System.getenv("CODE_HOME");
+        return (StringUtils.isNotBlank(override))
+                ? Path.of(override)
+                : home.resolve(".code");
     }
 
     @Override

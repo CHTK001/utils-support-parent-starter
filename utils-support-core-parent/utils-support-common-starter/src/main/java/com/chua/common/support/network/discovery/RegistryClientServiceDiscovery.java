@@ -7,6 +7,7 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -83,9 +84,35 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
     private final String serverUrl;
 
     /**
-     * 本实例名下的注册（规范化路径 -&gt; serverId），优雅关闭时逐条注销
+     * 本实例名下的注册（规范化路径 -&gt; 完整实例信息）：
+     * 优雅关闭时逐条注销；对账周期内用于向注册中心重申注册、快照应用时保护本地视图
      */
-    private final Map<String, String> owned = new ConcurrentHashMap<>();
+    private final Map<String, Discovery> owned = new ConcurrentHashMap<>();
+
+    /**
+     * 默认对账间隔（毫秒）
+     */
+    private static final long DEFAULT_RECONCILE_INTERVAL_MILLIS = 30_000L;
+
+    /**
+     * 对账间隔下限（毫秒）：过短会对注册中心形成高频快照请求
+     */
+    private static final long MIN_RECONCILE_INTERVAL_MILLIS = 5_000L;
+
+    /**
+     * 对账间隔（毫秒）：周期性重取全量快照 + 重申本实例注册，自愈注册中心重启/事件丢失
+     */
+    private final long reconcileIntervalMillis;
+
+    /**
+     * 对账线程运行标记
+     */
+    private final AtomicBoolean reconciling = new AtomicBoolean(false);
+
+    /**
+     * 对账线程
+     */
+    private volatile Thread reconcileThread;
 
     /**
      * 启动状态
@@ -145,6 +172,7 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
         }
         this.transportProtocol = protocol;
         this.serverUrl = protocol + "://" + host + ":" + port;
+        this.reconcileIntervalMillis = resolveReconcileInterval(discoveryOption);
     }
 
     /**
@@ -174,7 +202,8 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
             // 注册中心暂不可达不阻断启动：拉取线程会持续重连，快照稍后补齐
             log.warn("[registry-client] 快照请求失败（注册中心暂不可达）: {}", e.getMessage());
         }
-        log.info("[registry-client] 已连接注册中心: {}，clientId={}", serverUrl, clientId);
+        startReconcile();
+        log.info("[registry-client] 已连接注册中心: {}，clientId={}，对账间隔={}ms", serverUrl, clientId, reconcileIntervalMillis);
     }
 
     /**
@@ -185,9 +214,11 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
         // 与 DefaultServiceDiscovery 相同的本地语义；需自行计算前缀路径，避免二次加前缀
         String prefixed = addClusterPrefix(path);
         discovery.setUriSpec(prefixed);
+        // upsert：重复注册同一条时先移除旧条目，避免本地列表重复堆积
+        removeFromCache(prefixed, discovery.getServerId());
         addToCache(prefixed, discovery);
         incrementServiceVersion();
-        owned.put(prefixed, discovery.getServerId());
+        owned.put(prefixed, discovery);
         sendToHub(RegistrySyncMessage.of(RegistrySyncMessage.OP_REGISTER, clientId)
                 .setPath(prefixed)
                 .setDiscovery(discovery));
@@ -195,14 +226,14 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
     }
 
     /**
-     * 更新服务：本地 upsert，并按注册语义同步给注册中心（hub 端同为 upsert）。
+     * 更新服务：本地 upsert，并按更新语义同步给注册中心（hub 端 upsert 后广播 UPDATE 事件）。
      */
     @Override
     public ServiceDiscovery updateService(String path, Discovery discovery) {
         super.updateService(path, discovery);
         String prefixed = addClusterPrefix(path);
-        owned.put(prefixed, discovery.getServerId());
-        sendToHub(RegistrySyncMessage.of(RegistrySyncMessage.OP_REGISTER, clientId)
+        owned.put(prefixed, discovery);
+        sendToHub(RegistrySyncMessage.of(RegistrySyncMessage.OP_UPDATE, clientId)
                 .setPath(prefixed)
                 .setDiscovery(discovery));
         return this;
@@ -215,9 +246,8 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
     protected void doUnregister(String path, Discovery discovery) {
         // path 已含集群前缀（AbstractServiceDiscovery.unregisterService 统一处理）
         String serverId = discovery == null ? null : discovery.getServerId();
-        if (serverId != null) {
-            owned.remove(path, serverId);
-        } else {
+        Discovery existing = owned.get(path);
+        if (serverId == null || existing == null || serverId.equals(existing.getServerId())) {
             owned.remove(path);
         }
         sendToHub(RegistrySyncMessage.of(RegistrySyncMessage.OP_UNREGISTER, clientId)
@@ -230,15 +260,16 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
      */
     @Override
     public void close() {
+        stopReconcile();
         SyncClient client = this.syncClient;
         this.syncClient = null;
         if (client != null) {
-            owned.forEach((path, serverId) -> {
+            owned.forEach((path, discovery) -> {
                 try {
                     client.send(RegistrySyncMessage.TOPIC, Json.toJson(
                             RegistrySyncMessage.of(RegistrySyncMessage.OP_UNREGISTER, clientId)
                                     .setPath(path)
-                                    .setDiscovery(Discovery.builder().serverId(serverId).build())));
+                                    .setDiscovery(discovery)));
                 } catch (Exception e) {
                     log.debug("[registry-client] 关闭注销失败: path={}, error={}", path, e.getMessage());
                 }
@@ -252,6 +283,90 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
             log.info("[registry-client] 已断开注册中心: {}，clientId={}", serverUrl, clientId);
         }
         super.close();
+        // 复位启动标记：允许关闭后重新 start()（换通道重连）
+        started.set(false);
+    }
+
+    // ======================== 对账（自愈） ========================
+
+    /**
+     * 解析对账间隔：{@code <=0} 用默认值，并钳制到下限之上。
+     *
+     * @param option 发现选项
+     * @return 对账间隔（毫秒）
+     */
+    private long resolveReconcileInterval(DiscoveryOption option) {
+        long interval = option == null ? DEFAULT_RECONCILE_INTERVAL_MILLIS : option.getReconcileIntervalMillis();
+        if (interval <= 0) {
+            return DEFAULT_RECONCILE_INTERVAL_MILLIS;
+        }
+        return Math.max(interval, MIN_RECONCILE_INTERVAL_MILLIS);
+    }
+
+    /**
+     * 启动对账线程：周期性重取全量快照并重申本实例名下的注册。
+     *
+     * <p>对账让下列故障在一个周期内自愈：注册中心重启（服务表清零）、
+     * 增量事件在传输中丢失、注册/注销上行发送失败、启动时快照请求失败。</p>
+     */
+    private void startReconcile() {
+        if (!reconciling.compareAndSet(false, true)) {
+            return;
+        }
+        Thread thread = ThreadUtils.newThread(() -> {
+            while (reconciling.get()) {
+                ThreadUtils.sleep(reconcileIntervalMillis);
+                if (!reconciling.get()) {
+                    break;
+                }
+                try {
+                    reconcileOnce();
+                } catch (Exception e) {
+                    log.debug("[registry-client] 对账失败: {}", e.getMessage());
+                }
+            }
+        }, "registry-client-reconcile-" + clientId);
+        thread.setDaemon(true);
+        thread.start();
+        this.reconcileThread = thread;
+    }
+
+    /**
+     * 停止对账线程。
+     */
+    private void stopReconcile() {
+        reconciling.set(false);
+        Thread thread = this.reconcileThread;
+        this.reconcileThread = null;
+        if (thread != null) {
+            thread.interrupt();
+        }
+    }
+
+    /**
+     * 执行一次对账：先重取全量快照，再重申本实例名下的全部注册（均为幂等操作）。
+     */
+    private void reconcileOnce() {
+        SyncClient client = this.syncClient;
+        if (client == null) {
+            return;
+        }
+        try {
+            client.send(RegistrySyncMessage.TOPIC, Json.toJson(
+                    RegistrySyncMessage.of(RegistrySyncMessage.OP_SYNC_REQUEST, clientId)));
+        } catch (Exception e) {
+            log.debug("[registry-client] 对账快照请求失败: {}", e.getMessage());
+        }
+        owned.forEach((path, discovery) -> {
+            try {
+                client.send(RegistrySyncMessage.TOPIC, Json.toJson(
+                        RegistrySyncMessage.of(RegistrySyncMessage.OP_REGISTER, clientId)
+                                .setPath(path)
+                                .setDiscovery(discovery)));
+            } catch (Exception e) {
+                log.debug("[registry-client] 对账重申注册失败: path={}, error={}", path, e.getMessage());
+            }
+        });
     }
 
     // ======================== 下行消息处理 ========================
@@ -286,7 +401,7 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
      * @param services 路径 -&gt; 服务实例列表
      */
     private void applySnapshot(Map<String, List<Discovery>> services) {
-        if (services == null || services.isEmpty()) {
+        if (services == null) {
             return;
         }
         Set<String> seen = new HashSet<>();
@@ -302,10 +417,16 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
                 replaceCache(normalized, list);
             }
         });
-        // 快照里没有的路径说明已全部下线，一并移除
-        localCache.keySet().removeIf(path -> !seen.contains(path));
+        // 快照里没有的路径说明已全部下线；本实例名下的注册除外——
+        // 注册上行可能晚于快照到达（或曾在传输中丢失），不能被快照清掉
+        localCache.keySet().removeIf(path -> !seen.contains(path) && !owned.containsKey(path));
+        // 恢复本实例名下的注册，保证本地视图始终包含自己提供的服务
+        owned.forEach((path, discovery) -> {
+            removeFromCache(path, discovery.getServerId());
+            addToCache(path, discovery);
+        });
         incrementServiceVersion();
-        log.debug("[registry-client] 快照已应用: paths={}", seen.size());
+        log.debug("[registry-client] 快照已应用: paths={}, owned={}", seen.size(), owned.size());
     }
 
     /**

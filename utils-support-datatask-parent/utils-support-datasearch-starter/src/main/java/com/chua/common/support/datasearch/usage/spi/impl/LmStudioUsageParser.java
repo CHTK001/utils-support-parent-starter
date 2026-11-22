@@ -54,7 +54,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("lmstudio")
 public class LmStudioUsageParser extends BaseUsageParser {
 
-    private static final Path LMSTUDIO_HOME = resolveLmstudioHome();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public LmStudioUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public LmStudioUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_LMSTUDIO = "lmstudio";
 
@@ -86,14 +100,15 @@ public class LmStudioUsageParser extends BaseUsageParser {
     /**
      * 解析LmstudioHome。
      *
+     * @param home 解析根目录
      * @return 路径 对象
      */
-    private static Path resolveLmstudioHome() {
+    private static Path resolveLmstudioHome(Path home) {
         String override = System.getenv("LMSTUDIO_HOME");
         if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
-        return Path.of(System.getProperty("user.home"), ".lmstudio");
+        return home.resolve(".lmstudio");
     }
 
     /**
@@ -110,8 +125,8 @@ public class LmStudioUsageParser extends BaseUsageParser {
      * 流式解析全部 LM Studio server-log 文件中的 usage 事件。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        Path logDir = LMSTUDIO_HOME.resolve("server-logs");
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path logDir = resolveLmstudioHome(home).resolve("server-logs");
         if (!Files.isDirectory(logDir)) {
             log.debug("[lmstudio] server-logs dir not found: {} (LM Studio not installed)", logDir);
             return Flux.empty();

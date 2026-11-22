@@ -36,8 +36,21 @@ import java.util.regex.Pattern;
 @Spi("joycode")
 public class JoyCodeUsageParser extends BaseUsageParser {
 
-    private static final Path JOYCODE_LOG_DIR = Path.of(
-            System.getProperty("user.home"), "AppData", "Roaming", "JoyCode", "logs");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public JoyCodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public JoyCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final Pattern NON_MSG_TOKENS = Pattern.compile(
             "\\[NonMessageTokens\\].*?total=(\\d+),.*?systemPrompt=(\\d+).*?tools=(\\d+)");
@@ -55,8 +68,8 @@ public class JoyCodeUsageParser extends BaseUsageParser {
      * @return {@code "joycode"}
      */
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
     @Override
@@ -67,16 +80,19 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     /**
      * 解析 全部 joy编码 日志 文件 和 extracts 上下文-大小 estimates.
      *
+     * @param home 解析根目录
      * @return list 的 estimated aiusage records (estimated = true)
      */
-    @Override protected List<AiUsage> parseAll() {
-        if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
-            log.debug("[joycode] log dir not found: {}", JOYCODE_LOG_DIR);
+    @Override protected List<AiUsage> parseHome(Path home) {
+        Path joycodeLogDir = home.resolve("AppData").resolve("Roaming")
+                .resolve("JoyCode").resolve("logs");
+        if (!Files.isDirectory(joycodeLogDir)) {
+            log.debug("[joycode] log dir not found: {}", joycodeLogDir);
             return List.of();
         }
         List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
-        try (var stream = Files.walk(JOYCODE_LOG_DIR)) {
+        try (var stream = Files.walk(joycodeLogDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith("JoyCode.log"))
                     .forEach(file -> {

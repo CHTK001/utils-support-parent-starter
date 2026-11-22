@@ -54,16 +54,31 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("kilo")
 public class KiloUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = resolveDbPath();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public KiloUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public KiloUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_KILO = "kilo";
 
     /**
      * resolvedb路径。
+     *
+     * @param home 解析根目录
      * @return resolvedb路径的结果
      */
-    private static Path resolveDbPath() {
-        Path home = Path.of(System.getProperty("user.home"));
+    private static Path resolveDbPath(Path home) {
         Path share = home.resolve(Path.of(".local", "share", "kilo", "kilo.db"));
         Path legacy = home.resolve(Path.of(".kilo", "kilo.db"));
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
@@ -127,13 +142,14 @@ public class KiloUsageParser extends BaseUsageParser {
      * 故按消息号在本解析器内去重，避免双计。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[kilo] database not found: {} (Kilo CLI not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[kilo] database not found: {} (Kilo CLI not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("kilo", DB_PATH.toString());
+                .addDataSource("kilo", dbPath.toString());
         Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
         List<Flux<AiUsage>> streams = Wraps.list();
         streams.add(engine.query(SQL_V1).mapNotNull(row -> toAiUsage(row, seenMessageIds)).onErrorResume(e -> {

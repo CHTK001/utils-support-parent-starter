@@ -56,7 +56,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("mimo")
 public class MimoUsageParser extends BaseUsageParser {
 
-    private static final List<Path> DB_PATHS = resolveDbPaths();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public MimoUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public MimoUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_MIMO = "mimo";
 
@@ -67,9 +81,10 @@ public class MimoUsageParser extends BaseUsageParser {
      * {@code %APPDATA%\Xiaomi MiMo}；两个都可能装，所以都列上，实际存在哪个
      * 就读哪个。非 Windows 只有 CLI 形态（XDG / ~/.local/share）。</p>
      *
+     * @param home 解析根目录
      * @return 候选数据库路径列表（已按存在性过滤并去重）
      */
-    private static List<Path> resolveDbPaths() {
+    private List<Path> resolveDbPaths(Path home) {
         List<Path> candidates = new ArrayList<>();
         String appData = System.getenv("APPDATA");
         if (StringUtils.isNotBlank(appData)) {
@@ -81,8 +96,8 @@ public class MimoUsageParser extends BaseUsageParser {
         if (StringUtils.isNotBlank(xdgDataHome)) {
             candidates.add(Path.of(xdgDataHome, "mimocode", "mimocode.db"));
         }
-        candidates.add(Path.of(System.getProperty("user.home"), ".local", "share",
-                "mimocode", "mimocode.db"));
+        candidates.add(home.resolve(".local").resolve("share")
+                .resolve("mimocode").resolve("mimocode.db"));
         return candidates.stream().filter(Files::exists).distinct().toList();
     }
 
@@ -117,18 +132,19 @@ public class MimoUsageParser extends BaseUsageParser {
      * 流式解析 MiMo 自身轮次的用量记录（CLI 与桌面软件的所有已存在库合并输出）。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (DB_PATHS.isEmpty()) {
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> dbPaths = resolveDbPaths(home);
+        if (dbPaths.isEmpty()) {
             log.debug("[mimo] database not found under APPDATA/XDG (MiMo Code 或桌面版未安装)");
             return Flux.empty();
         }
-        log.debug("[mimo] scanning {} database(s): {}", DB_PATHS.size(), DB_PATHS);
+        log.debug("[mimo] scanning {} database(s): {}", dbPaths.size(), dbPaths);
         // 每个库一个数据源名（同一引擎内数据源名不能重复），逐个 concat 而非 merge：
         // merge 会交错发射，concat 保证单库内仍按时间有序，便于上游做增量水位判断
         Flux<AiUsage> merged = Flux.empty();
-        for (int i = 0; i < DB_PATHS.size(); i++) {
+        for (int i = 0; i < dbPaths.size(); i++) {
             final String source = "mimo-" + i;
-            final Path db = DB_PATHS.get(i);
+            final Path db = dbPaths.get(i);
             Flux<AiUsage> one;
             try {
                 SqliteReactorEngine engine = new SqliteReactorEngine()
@@ -142,7 +158,7 @@ public class MimoUsageParser extends BaseUsageParser {
             }
             merged = merged.concatWith(one);
         }
-        return merged.doOnComplete(() -> log.info("[mimo] stream complete, {} db(s)", DB_PATHS.size()));
+        return merged.doOnComplete(() -> log.info("[mimo] stream complete, {} db(s)", dbPaths.size()));
     }
 
     /**

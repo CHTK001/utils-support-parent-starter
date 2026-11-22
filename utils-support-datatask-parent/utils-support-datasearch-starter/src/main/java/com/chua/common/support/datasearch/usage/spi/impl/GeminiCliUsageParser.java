@@ -47,8 +47,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("gemini-cli")
 public class GeminiCliUsageParser extends BaseUsageParser {
 
-    private static final Path GEMINI_TMP = Path.of(
-            System.getProperty("user.home"), ".gemini", "tmp");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public GeminiCliUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public GeminiCliUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 返回 SPI 名称。
@@ -63,10 +76,11 @@ public class GeminiCliUsageParser extends BaseUsageParser {
      * 流式解析全部转录文件中的模型响应用量事件。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listTranscripts();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path geminiTmp = home.resolve(".gemini").resolve("tmp");
+        List<Path> files = listTranscripts(geminiTmp);
         if (files.isEmpty()) {
-            log.debug("[gemini-cli] no transcripts under {}", GEMINI_TMP);
+            log.debug("[gemini-cli] no transcripts under {}", geminiTmp);
             return Flux.empty();
         }
         log.info("[gemini-cli] scanning {} transcript files", files.size());
@@ -226,13 +240,14 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     /**
      * 列出Transcripts。
      *
+     * @param geminiTmp Gemini 转录根目录
      * @return 结果列表，无数据时为空列表
      */
-    private List<Path> listTranscripts() {
-        if (!Files.isDirectory(GEMINI_TMP)) {
+    private List<Path> listTranscripts(Path geminiTmp) {
+        if (!Files.isDirectory(geminiTmp)) {
             return List.of();
         }
-        try (var stream = Files.walk(GEMINI_TMP)) {
+        try (var stream = Files.walk(geminiTmp)) {
             return stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .toList();

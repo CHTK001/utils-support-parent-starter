@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
 
@@ -43,17 +45,42 @@ import com.chua.common.support.utils.StringUtils;
 public class OpencodeUsageParser extends BaseUsageParser {
 
     /**
-     * DB 路径
-    */
-    private static final Path DB_PATH = resolveDbPath();
+     * 每个 DB 路径一份「新库 session_message」跨轮次游标。
+     *
+     * <p>游标按 DB 路径分桶：不同主目录的库互不干扰；XDG 与默认路径
+     * 解析到同一个库时键相同，天然共享游标、不会重复计数。</p>
+     */
+    private static final ConcurrentMap<Path, Cursor> SESSION_CURSORS = new ConcurrentHashMap<>();
 
     /**
-     * resolvedb路径。
-     * @return resolvedb路径的结果
+     * 每个 DB 路径一份「旧库 message」跨轮次游标。
      */
-    private static Path resolveDbPath() {
-        Path fallback = Path.of(System.getProperty("user.home"),
-                ".local", "share", "opencode", "opencode.db");
+    private static final ConcurrentMap<Path, Cursor> LEGACY_CURSORS = new ConcurrentHashMap<>();
+
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public OpencodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public OpencodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
+     * 解析 opencode 数据库路径：优先 XDG_DATA_HOME，其次主目录下的默认位置。
+     *
+     * @param home 当前解析根目录
+     * @return 数据库文件路径
+     */
+    private static Path resolveDbPath(Path home) {
+        Path fallback = home.resolve(".local").resolve("share").resolve("opencode").resolve("opencode.db");
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (StringUtils.isNotBlank(xdgDataHome)) {
             return firstExisting(Path.of(xdgDataHome, "opencode", "opencode.db"), fallback);
@@ -77,16 +104,6 @@ public class OpencodeUsageParser extends BaseUsageParser {
      * {@code UsageAggregationTask} 的 requestId 去重挡住。</p>
      */
     private static final long OVERLAP_MILLIS = 24L * 60 * 60 * 1000;
-
-    /**
-     * 新库 {@code session_message} 的游标（跨轮次保留）。
-     */
-    private static final Cursor SESSION_CURSOR = new Cursor();
-
-    /**
-     * 旧库 {@code message} 的游标（跨轮次保留）。
-     */
-    private static final Cursor LEGACY_CURSOR = new Cursor();
 
     /**
      * 新库 {@code session_message} 用量查询（9-03 之后的数据都在这里）。
@@ -157,40 +174,45 @@ public class OpencodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 惰性产出全部用量记录：先扫 {@code session_message}，再扫旧 {@code message}。
+     * 惰性产出单个主目录的全部用量记录：先扫 {@code session_message}，再扫旧 {@code message}。
      *
-     * <p>两条流串行订阅（{@code Flux.concat}），各自持有一个跨轮次保留的游标：
+     * <p>两条流串行订阅（{@code Flux.concat}），各自持有一个按库分桶的跨轮次游标：
      * 下游取消（时间预算用尽）时游标停在上一页末尾，下一轮接着扫，
      * 不会像整批装载那样「超时即全丢、每轮原地重来」。</p>
      *
+     * @param home 解析根目录
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[opencode] 数据库文件不存在: {}", dbPath);
             return Flux.empty();
         }
+        Cursor sessionCursor = SESSION_CURSORS.computeIfAbsent(dbPath, key -> new Cursor());
+        Cursor legacyCursor = LEGACY_CURSORS.computeIfAbsent(dbPath, key -> new Cursor());
         return Flux.defer(() -> {
-            log.info("[opencode] 开始解析（session_message 游标 {}/{}，legacy message 游标 {}/{}）",
-                    SESSION_CURSOR.time(), SESSION_CURSOR.id(),
-                    LEGACY_CURSOR.time(), LEGACY_CURSOR.id());
+            log.info("[opencode] 开始解析 {}（session_message 游标 {}/{}，legacy message 游标 {}/{}）",
+                    dbPath, sessionCursor.time(), sessionCursor.id(),
+                    legacyCursor.time(), legacyCursor.id());
             return Flux.concat(
-                    streamTable(SQL_SESSION_MESSAGES, SESSION_CURSOR),
-                    streamTable(SQL_LEGACY_MESSAGES, LEGACY_CURSOR));
+                    streamTable(dbPath, SQL_SESSION_MESSAGES, sessionCursor),
+                    streamTable(dbPath, SQL_LEGACY_MESSAGES, legacyCursor));
         });
     }
 
     /**
      * 把一张表的分页查询包装为「开连接 → 分页产出 → 关连接」的流。
      *
+     * @param dbPath 数据库文件路径
      * @param sql    分页查询（三个占位符：游标时间、游标 id、页大小）
      * @param cursor 该表的跨轮次游标
      * @return 用量记录流
      */
-    private static Flux<AiUsage> streamTable(String sql, Cursor cursor) {
+    private static Flux<AiUsage> streamTable(Path dbPath, String sql, Cursor cursor) {
         return Flux.using(
-                OpencodeUsageParser::openConnection,
+                () -> openConnection(dbPath),
                 conn -> Flux.fromIterable(() -> new PageIterator(conn, sql, cursor)),
                 OpencodeUsageParser::closeQuietly);
     }
@@ -198,13 +220,14 @@ public class OpencodeUsageParser extends BaseUsageParser {
     /**
      * 打开只读 sqlite 连接。
      *
+     * @param dbPath 数据库文件路径
      * @return 数据库连接
      */
-    private static Connection openConnection() {
+    private static Connection openConnection(Path dbPath) {
         try {
-            return DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+            return DriverManager.getConnection("jdbc:sqlite:" + dbPath);
         } catch (SQLException e) {
-            throw new IllegalStateException("打开 opencode 数据库失败: " + DB_PATH, e);
+            throw new IllegalStateException("打开 opencode 数据库失败: " + dbPath, e);
         }
     }
 

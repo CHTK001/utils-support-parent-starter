@@ -65,8 +65,21 @@ import java.util.stream.Stream;
 @Spi("workbuddy")
 public class WorkBuddyUsageParser extends BaseUsageParser {
 
-    private static final Path PROJECTS_DIR = Path.of(
-            System.getProperty("user.home"), ".workbuddy", "projects");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public WorkBuddyUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public WorkBuddyUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_WORKBUDDY = "workbuddy";
 
@@ -84,10 +97,11 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
      * 响应式流式入口：惰性扫描全部会话转录（含子代理目录）。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listTranscriptFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path projectsDir = home.resolve(".workbuddy").resolve("projects");
+        List<Path> files = listTranscriptFiles(projectsDir);
         if (files.isEmpty()) {
-            log.debug("[workbuddy] no project transcripts under {}", PROJECTS_DIR);
+            log.debug("[workbuddy] no project transcripts under {}", projectsDir);
             return Flux.empty();
         }
         log.info("[workbuddy] streaming from {} transcript files", files.size());
@@ -105,12 +119,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
      *
      * @return 转录文件列表
      */
-    private List<Path> listTranscriptFiles() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
+    private List<Path> listTranscriptFiles(Path projectsDir) {
+        if (!Files.isDirectory(projectsDir)) {
             return List.of();
         }
         List<Path> files = Wraps.list();
-        try (Stream<Path> stream = Files.walk(PROJECTS_DIR)) {
+        try (Stream<Path> stream = Files.walk(projectsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);

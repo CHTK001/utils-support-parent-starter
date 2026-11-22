@@ -60,19 +60,34 @@ public class KimiUsageParser extends BaseUsageParser {
     private static final Pattern DEFAULT_MODEL_LINE =
             Pattern.compile("^\\s*default_model\\s*=\\s*\"([^\"]+)\"", Pattern.MULTILINE);
 
-    private final Path sessionsDir;
-    private final Path configPath;
-
     /**
-     * 构造方法，创建 KimiUsageParser 实例。
+     * 默认构造：解析当前用户主目录。
      */
     public KimiUsageParser() {
-        String home = System.getenv("KIMI_HOME");
-        Path kimiHome = (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".kimi");
-        this.sessionsDir = kimiHome.resolve("sessions");
-        this.configPath = kimiHome.resolve("config.toml");
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public KimiUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
+     * 解析 Kimi 主目录：优先 {@code KIMI_HOME} 环境变量，否则回退解析根目录。
+     *
+     * @param home 解析根目录
+     * @return Kimi 主目录
+     */
+    private static Path resolveKimiHome(Path home) {
+        String kimiHome = System.getenv("KIMI_HOME");
+        if (StringUtils.isNotBlank(kimiHome)) {
+            return Path.of(kimiHome);
+        }
+        return home.resolve(".kimi");
     }
 
     /**
@@ -89,13 +104,16 @@ public class KimiUsageParser extends BaseUsageParser {
      * 响应式流式入口：惰性扫描全部 wire.jsonl，仅提取 StatusUpdate 用量。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listWireFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path kimiHome = resolveKimiHome(home);
+        Path sessionsDir = kimiHome.resolve("sessions");
+        Path configPath = kimiHome.resolve("config.toml");
+        List<Path> files = listWireFiles(sessionsDir);
         if (files.isEmpty()) {
             log.debug("[kimi] no wire.jsonl under {}", sessionsDir);
             return Flux.empty();
         }
-        String model = resolveDefaultModel();
+        String model = resolveDefaultModel(configPath);
         Set<String> seenIds = ConcurrentHashMap.newKeySet();
         log.info("[kimi] scanning {} wire files (model={})", files.size(), model);
         return Flux.fromIterable(files)
@@ -109,9 +127,10 @@ public class KimiUsageParser extends BaseUsageParser {
     /**
      * 枚举 sessions 目录下全部 wire.jsonl。
      *
+     * @param sessionsDir sessions 目录
      * @return wire 文件列表
      */
-    private List<Path> listWireFiles() {
+    private List<Path> listWireFiles(Path sessionsDir) {
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();
         }
@@ -129,9 +148,10 @@ public class KimiUsageParser extends BaseUsageParser {
     /**
      * 从 {@code config.toml} 解析默认模型名。
      *
+     * @param configPath config.toml 路径
      * @return 模型名；缺失时 {@code kimi-for-coding}
      */
-    private String resolveDefaultModel() {
+    private String resolveDefaultModel(Path configPath) {
         try {
             String raw = Files.readString(configPath);
             Matcher m = DEFAULT_MODEL_LINE.matcher(raw);

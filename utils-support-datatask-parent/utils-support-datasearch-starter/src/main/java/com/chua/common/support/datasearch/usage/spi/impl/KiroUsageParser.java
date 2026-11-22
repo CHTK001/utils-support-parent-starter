@@ -31,7 +31,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("kiro")
 public class KiroUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = resolveDbPath();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public KiroUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public KiroUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String SQL_USAGE_EVENTS =
             "SELECT id, session_id, model, input_tokens, output_tokens, "
@@ -45,27 +59,28 @@ public class KiroUsageParser extends BaseUsageParser {
     /**
      * 解析 Kiro SQLite 数据库路径（按操作系统与安装形态）。
      *
+     * @param home 解析根目录
      * @return DB 文件路径
      */
-    private static Path resolveDbPath() {
+    private static Path resolveDbPath(Path home) {
         OsFamily os = OsFamily.current();
         if (os.isWindows()) {
             String appData = System.getenv("APPDATA");
             if (StringUtils.isNotBlank(appData)) {
                 return Path.of(appData, "kiro-cli", "data.db");
             }
-            return Path.of(System.getProperty("user.home"),
-                    "AppData", "Roaming", "kiro-cli", "data.db");
+            return home.resolve("AppData").resolve("Roaming")
+                    .resolve("kiro-cli").resolve("data.db");
         }
         if (os.isMacOs()) {
-            return Path.of(System.getProperty("user.home"),
-                    "Library", "Application Support", "kiro-cli", "data.db");
+            return home.resolve("Library").resolve("Application Support")
+                    .resolve("kiro-cli").resolve("data.db");
         }
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (StringUtils.isNotBlank(xdgDataHome)) {
             return Path.of(xdgDataHome, "kiro-cli", "data.db");
         }
-        return Path.of(System.getProperty("user.home"), ".local", "share", "kiro-cli", "data.db");
+        return home.resolve(".local").resolve("share").resolve("kiro-cli").resolve("data.db");
     }
 
     /**
@@ -82,13 +97,14 @@ public class KiroUsageParser extends BaseUsageParser {
      * 流式解析全部用量事件。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[kiro] database not found: {} (Kiro not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[kiro] database not found: {} (Kiro not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("kiro", DB_PATH.toString());
+                .addDataSource("kiro", dbPath.toString());
         return engine.query(SQL_USAGE_EVENTS)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[kiro] stream complete"));

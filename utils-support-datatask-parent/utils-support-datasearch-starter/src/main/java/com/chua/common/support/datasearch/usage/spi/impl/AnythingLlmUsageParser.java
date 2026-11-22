@@ -37,16 +37,31 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("anythingllm")
 public class AnythingLlmUsageParser extends BaseUsageParser {
 
-    private static final String PROVIDER_ANYTHINGLLM = "anythingllm";
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public AnythingLlmUsageParser() {
+        super();
+    }
 
-    private static final Path DB_PATH = resolveDbPath();
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public AnythingLlmUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    private static final String PROVIDER_ANYTHINGLLM = "anythingllm";
 
     /**
      * 解析 anythingllm.db 路径（按平台）。
      *
+     * @param home 解析根目录
      * @return 数据库路径
      */
-    private static Path resolveDbPath() {
+    private Path resolveDbPath(Path home) {
         String override = System.getenv("ANYTHINGLLM_DB");
         if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
@@ -57,17 +72,17 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
             if (StringUtils.isNotBlank(appData)) {
                 return Path.of(appData, "anythingllm-desktop", "storage", "anythingllm.db");
             }
-            return Path.of(System.getProperty("user.home"),
-                    "AppData", "Roaming", "anythingllm-desktop", "storage", "anythingllm.db");
+            return home.resolve("AppData").resolve("Roaming")
+                    .resolve("anythingllm-desktop").resolve("storage").resolve("anythingllm.db");
         }
         if (os.isMacOs()) {
-            return Path.of(System.getProperty("user.home"), "Library",
-                    "Application Support", "anythingllm-desktop", "storage", "anythingllm.db");
+            return home.resolve("Library").resolve("Application Support")
+                    .resolve("anythingllm-desktop").resolve("storage").resolve("anythingllm.db");
         }
         String xdg = System.getenv("XDG_CONFIG_HOME");
         Path configHome = (StringUtils.isNotBlank(xdg))
                 ? Path.of(xdg)
-                : Path.of(System.getProperty("user.home"), ".config");
+                : home.resolve(".config");
         return configHome.resolve("anythingllm-desktop").resolve("storage").resolve("anythingllm.db");
     }
 
@@ -95,13 +110,14 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
      * 响应式流式入口：流出 workspace_chats 的逐消息用量。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[anythingllm] database not found: {} (AnythingLLM not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[anythingllm] database not found: {} (AnythingLLM not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("anythingllm", DB_PATH.toString());
+                .addDataSource("anythingllm", dbPath.toString());
         return engine.query(SQL_WORKSPACE_CHATS)
                 .mapNotNull(this::toAiUsage)
                 .doOnComplete(() -> log.info("[anythingllm] stream complete"));

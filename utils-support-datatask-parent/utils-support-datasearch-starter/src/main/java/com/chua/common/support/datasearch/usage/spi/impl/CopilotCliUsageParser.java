@@ -55,8 +55,21 @@ import java.util.stream.Stream;
 @Spi("copilot-cli")
 public class CopilotCliUsageParser extends BaseUsageParser {
 
-    private static final Path SESSION_STATE_DIR = Path.of(
-            System.getProperty("user.home"), ".copilot", "session-state");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CopilotCliUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CopilotCliUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_COPILOT_CLI = "copilot-cli";
 
@@ -81,10 +94,11 @@ public class CopilotCliUsageParser extends BaseUsageParser {
      * {@code session.shutdown} 事件的逐模型用量。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listEventFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> files = listEventFiles(home);
         if (files.isEmpty()) {
-            log.debug("[copilot-cli] no session events under {}", SESSION_STATE_DIR);
+            log.debug("[copilot-cli] no session events under {}",
+                    home.resolve(".copilot").resolve("session-state"));
             return Flux.empty();
         }
         log.info("[copilot-cli] scanning {} session event files", files.size());
@@ -99,14 +113,16 @@ public class CopilotCliUsageParser extends BaseUsageParser {
     /**
      * 枚举 {@code ~/.copilot/session-state/&#42;/events.jsonl}。
      *
+     * @param home 解析根目录
      * @return 事件文件列表
      */
-    private List<Path> listEventFiles() {
-        if (!Files.isDirectory(SESSION_STATE_DIR)) {
+    private List<Path> listEventFiles(Path home) {
+        Path sessionStateDir = home.resolve(".copilot").resolve("session-state");
+        if (!Files.isDirectory(sessionStateDir)) {
             return List.of();
         }
         List<Path> files = Wraps.list();
-        try (Stream<Path> stream = Files.list(SESSION_STATE_DIR)) {
+        try (Stream<Path> stream = Files.list(sessionStateDir)) {
             stream.filter(Files::isDirectory)
                     .map(d -> d.resolve("events.jsonl"))
                     .filter(Files::isRegularFile)

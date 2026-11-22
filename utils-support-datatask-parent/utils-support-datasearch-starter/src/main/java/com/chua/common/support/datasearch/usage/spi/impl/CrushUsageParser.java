@@ -37,8 +37,21 @@ import java.util.Map;
 @Spi("crush")
 public class CrushUsageParser extends BaseUsageParser {
 
-    private static final Path PROJECTS_INDEX = Path.of(
-            System.getProperty("user.home"), "AppData", "Local", "crush", "projects.json");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CrushUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CrushUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String SQL_SESSIONS =
             "SELECT id, title, prompt_tokens, completion_tokens, cost, "
@@ -64,8 +77,8 @@ public class CrushUsageParser extends BaseUsageParser {
      * 流式解析全部项目的会话用量。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> databases = listProjectDatabases();
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> databases = listProjectDatabases(home);
         if (databases.isEmpty()) {
             log.debug("[crush] no project databases found");
             return Flux.empty();
@@ -78,15 +91,18 @@ public class CrushUsageParser extends BaseUsageParser {
     /**
      * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
      *
+     * @param home 解析根目录
      * @return crush.db 文件列表；索引缺失或无有效条目时为空
      */
-    private List<Path> listProjectDatabases() {
+    private List<Path> listProjectDatabases(Path home) {
         List<Path> result = Wraps.list();
-        if (!Files.exists(PROJECTS_INDEX)) {
+        Path projectsIndex = home.resolve("AppData").resolve("Local")
+                .resolve("crush").resolve("projects.json");
+        if (!Files.exists(projectsIndex)) {
             return result;
         }
         try {
-            JsonNode root = Json.parse(Files.readString(PROJECTS_INDEX));
+            JsonNode root = Json.parse(Files.readString(projectsIndex));
             JsonNode projects = root.get("projects");
             if (projects.isMissingValue() || !projects.isArray()) {
                 return result;

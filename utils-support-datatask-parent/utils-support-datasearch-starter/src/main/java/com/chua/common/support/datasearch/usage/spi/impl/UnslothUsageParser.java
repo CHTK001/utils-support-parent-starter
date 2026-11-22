@@ -42,19 +42,34 @@ public class UnslothUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_UNSLOTH = "unsloth";
 
-    private static final Path DB_PATH = resolveDbPath();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public UnslothUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public UnslothUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 解析 studio.db 路径。
      *
+     * @param home 解析根目录
      * @return 数据库路径
      */
-    private static Path resolveDbPath() {
+    private Path resolveDbPath(Path home) {
         String studioHome = System.getenv("UNSLOTH_STUDIO_HOME");
         if (StringUtils.isNotBlank(studioHome)) {
             return Path.of(studioHome, "studio.db");
         }
-        return Path.of(System.getProperty("user.home"), ".unsloth", "studio", "studio.db");
+        return home.resolve(".unsloth").resolve("studio").resolve("studio.db");
     }
 
     /**
@@ -121,13 +136,14 @@ public class UnslothUsageParser extends BaseUsageParser {
      * 无 join 投影与 api_usage_events。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[unsloth] database not found: {} (Unsloth Studio not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[unsloth] database not found: {} (Unsloth Studio not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("unsloth", DB_PATH.toString());
+                .addDataSource("unsloth", dbPath.toString());
         return engine.query(SQL_CHAT_MESSAGES)
                 .onErrorResume(e -> engine.query(SQL_CHAT_MESSAGES_NO_THREAD))
                 .onErrorResume(e -> engine.query(SQL_API_USAGE_EVENTS))

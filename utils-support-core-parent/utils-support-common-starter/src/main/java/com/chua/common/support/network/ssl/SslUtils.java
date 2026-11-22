@@ -60,6 +60,27 @@ public final class SslUtils {
     private SslUtils() {
     }
 
+    /**
+     * {@code sun.security.ssl.SSLSessionImpl} 类缓存，供 TLS key log 反射使用。
+     *
+     * <p>类加载失败（非 HotSpot JVM 或模块系统拒绝导出）时为 {@code null}，
+     * 避免每次握手都重复执行 {@code Class.forName}。</p>
+     */
+    private static final Class<?> SSL_SESSION_IMPL_CLASS = loadSslSessionImplClass();
+
+    /**
+     * 加载 {@code sun.security.ssl.SSLSessionImpl}，失败时返回 {@code null}。
+     *
+     * @return 类对象；不可用时返回 {@code null}
+     */
+    private static Class<?> loadSslSessionImplClass() {
+        try {
+            return Class.forName("sun.security.ssl.SSLSessionImpl");
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
     // ==================== 一键 SSL ====================
 
     /**
@@ -367,7 +388,10 @@ public final class SslUtils {
      */
     public static boolean keyLogAvailable() {
         try {
-            Class<?> impl = Class.forName("sun.security.ssl.SSLSessionImpl");
+            Class<?> impl = SSL_SESSION_IMPL_CLASS;
+            if (null == impl) {
+                return false;
+            }
             impl.getDeclaredField("clientRandom");
             impl.getDeclaredField("masterSecret");
             return true;
@@ -391,7 +415,10 @@ public final class SslUtils {
             return null;
         }
         try {
-            Class<?> impl = Class.forName("sun.security.ssl.SSLSessionImpl");
+            Class<?> impl = SSL_SESSION_IMPL_CLASS;
+            if (null == impl) {
+                return null;
+            }
             java.lang.reflect.Field randomField = impl.getDeclaredField("clientRandom");
             randomField.setAccessible(true);
             Object randomCookie = randomField.get(session);

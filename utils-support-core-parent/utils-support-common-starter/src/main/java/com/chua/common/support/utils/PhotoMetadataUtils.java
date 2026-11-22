@@ -1,8 +1,15 @@
 package com.chua.common.support.utils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +31,7 @@ import java.util.zip.Inflater;
  * <h2>能力矩阵</h2>
  * <table border="1">
  *   <tr><th>能力</th><th>方法</th><th>说明</th></tr>
- *   <tr><td>AI 元数据检测</td><td>{@link #analyze(byte[])}</td><td>输出判定、置信度、C2PA/来源类型/生成器/参数块等信号</td></tr>
+ *   <tr><td>AI 检测（元数据 + 像素统计）</td><td>{@link #analyze(byte[])}</td><td>先查 C2PA/来源类型/生成器/参数块；元数据无信号时做像素统计兜底（上采样伪迹、传感器噪声特征），输出判定、置信度与全部信号</td></tr>
  *   <tr><td>是否 AI 生成/编辑</td><td>{@link #isAiGenerated(byte[])}</td><td>判定为「AI 生成」或「AI 参与（编辑/合成）」时返回 true</td></tr>
  *   <tr><td>仅取判定结果</td><td>{@link #aiVerdict(byte[])}</td><td>AI 生成 / AI 参与（编辑/合成）/ 未发现 AI 痕迹 / 无法判断</td></tr>
  *   <tr><td>清除 AI 元数据</td><td>{@link #stripAiMetadata(byte[])}</td><td>免重压缩移除 C2PA/XMP/注释中的 AI 标签，返回新字节数组</td></tr>
@@ -49,8 +56,10 @@ import java.util.zip.Inflater;
  *   <li>JPEG 的 EXIF 段<b>不会被重写</b>（避免破坏 Orientation 指针结构），因此写在
  *       EXIF Software 字段里的生成器名称不会被清除；AI 判定依赖的 XMP/C2PA/注释段会被清除；</li>
  *   <li>扩展 XMP（multi-segment）仅做检测，不做分段重组重写；</li>
- *   <li>本类只处理元数据字节，不解码/重编码像素；像素级旋转请配合 {@link BufferedImageUtils}；</li>
- *   <li>检测结果<b>仅供参考</b>：元数据可被伪造或剥离，无 AI 痕迹不代表一定是实拍。</li>
+ *   <li>清除（strip）只处理元数据字节，不解码/重编码像素；像素级旋转请配合 {@link BufferedImageUtils}；
+ *       检测（analyze）在元数据无信号时会对像素做<b>只读</b>统计采样（降采样后计算残差自相关等），不修改原图；</li>
+ *   <li>检测结果<b>仅供参考</b>：元数据可被伪造或剥离，无 AI 痕迹不代表一定是实拍；
+ *       像素统计兜底为启发式方法，截图、图表、程序绘制的合成图形也可能呈现类似统计特征而出现疑似误报；</li>
  * </ul>
  *
  * <h2>使用示例</h2>
@@ -197,10 +206,14 @@ public final class PhotoMetadataUtils {
     }
 
     /**
-     * 分析照片元数据中的 AI 痕迹。
+     * 分析照片中的 AI 痕迹。
      *
-     * <p>依次检查 C2PA 内容凭证、IPTC {@code DigitalSourceType}、XMP 生成器/来源类型、
-     * EXIF Software/UserComment 以及生成参数块（prompt/steps/sampler/seed 等）。</p>
+     * <p>先检查元数据：C2PA 内容凭证、IPTC {@code DigitalSourceType}、XMP 生成器/来源类型、
+     * EXIF Software/UserComment 以及生成参数块（prompt/steps/sampler/seed 等）。网络图片与
+     * 多数 AI 生成图会剥离这些元数据，因此元数据无信号时，再对像素做只读统计兜底分析：
+     * 扩散模型等生成图像常见上采样/网格伪迹（残差自相关呈周期性峰值、相邻残差正负交替的
+     * 棋盘纹理），且缺失相机传感器噪声特征（跨通道噪声不相关）。兜底证据成立时判为
+     * 「AI 参与（编辑/合成）」（疑似），并在信号中给出具体依据。</p>
      *
      * @param data 图像文件字节（JPEG/PNG/WebP）
      * @return 检测报告，永不为 {@code null}；数据无效或格式不支持时判定为「无法判断」
@@ -209,16 +222,39 @@ public final class PhotoMetadataUtils {
         if (data == null || data.length < 12) {
             return Report.unknown("无有效图像数据");
         }
+        Report report;
         if (isJpeg(data)) {
-            return analyzeJpeg(data);
+            report = analyzeJpeg(data);
+        } else if (isPng(data)) {
+            report = analyzePng(data);
+        } else if (isWebp(data)) {
+            report = analyzeWebp(data);
+        } else {
+            return Report.unknown("不支持的格式（当前支持 JPEG / PNG / WebP）");
         }
-        if (isPng(data)) {
-            return analyzePng(data);
+        String verdict = report.verdict();
+        if (VERDICT_AI_GENERATED.equals(verdict) || VERDICT_AI_EDITED.equals(verdict)) {
+            return report;
         }
-        if (isWebp(data)) {
-            return analyzeWebp(data);
+        PixelAnalysis pixel = analyzePixels(data, report.format());
+        if (pixel == null) {
+            return report;
         }
-        return Report.unknown("不支持的格式（当前支持 JPEG / PNG / WebP）");
+        List<String> signals = new ArrayList<>(report.signals());
+        signals.addAll(pixel.signals());
+        if (pixel.hits() <= 0) {
+            if (VERDICT_NO_AI_SIGNALS.equals(report.verdict())) {
+                signals.add("像素统计：未发现上采样伪迹或传感器噪声异常（启发式，仅供参考）");
+                return new Report(report.format(), report.verdict(), report.confidence(),
+                        report.hasContentCredentials(), report.digitalSourceType(),
+                        report.generator(), report.generatorSource(), report.generationParams(), signals);
+            }
+            return report;
+        }
+        String confidence = pixel.hits() >= 2 ? CONFIDENCE_MEDIUM : CONFIDENCE_LOW;
+        return new Report(report.format(), VERDICT_AI_EDITED, confidence,
+                report.hasContentCredentials(), report.digitalSourceType(),
+                report.generator(), report.generatorSource(), report.generationParams(), signals);
     }
 
     /**
@@ -334,6 +370,483 @@ public final class PhotoMetadataUtils {
                 generationParams, signals);
     }
 
+    // ==== 像素统计兜底分析（纯 JDK，只读采样，不修改原图）====
+
+    /**
+     * 像素统计兜底分析结果：命中证据数与信号描述。{@code hits <= 0} 表示未发现可疑特征。
+     */
+    private record PixelAnalysis(int hits, List<String> signals) {
+    }
+
+    /**
+     * 频谱峰度量：行/列平均功率谱在上采样频点的显著度（峰高相对局部中位数的倍数），
+     * 以及所选轴半谱的平坦度（中位数/均值），用于照片内容闸门。
+     */
+    private record SpectralPeak(double ratio, int period, String axis, double spread) {
+    }
+
+    /**
+     * 像素统计中心裁剪的最大边长（控制解码与计算开销）。
+     * 注意：不做降采样——偶数步长降采样会破坏周期 2/4 的上采样网格伪迹，
+     * 导致最常见的 AI 输出尺寸（如 1024×1024）检测失效。
+     */
+    private static final int PIXEL_SAMPLE_MAX_SIDE = 1024;
+
+    /**
+     * 像素统计采样的最小边长（过小图像统计不可靠，跳过兜底）。
+     */
+    private static final int PIXEL_SAMPLE_MIN_SIDE = 96;
+
+    /**
+     * 谱峰显著度判定阈值：峰高需达到局部中位数的倍数（无损/低压缩格式）。
+     */
+    private static final double SPECTRAL_PEAK_RATIO = 3.0;
+
+    /**
+     * JPEG 的谱峰阈值更高：8×8 块结构与重压缩会在高频残留额外能量。
+     */
+    private static final double SPECTRAL_PEAK_RATIO_JPEG = 4.5;
+
+    /**
+     * 强谱峰阈值：达到该值时单独计为两条证据（置信度中）。
+     */
+    private static final double SPECTRAL_PEAK_STRONG = 8.0;
+
+    /**
+     * 照片内容闸门的纹理占比下限：内部像素中 |拉普拉斯残差|&gt;3 的占比低于该值时，
+     * 视为截图/渐变/大面积平坦内容，其谱峰多来自压缩或抖动伪影，不计为上采样证据。
+     */
+    private static final double PHOTOGRAPHIC_TEX_MIN = 0.20;
+
+    /**
+     * 照片内容闸门的纹理占比上限：占比过高（接近满幅强边缘）多为 CAD 填充图案、
+     * 棋盘格等周期纹理，其谱峰来自图案本身的重复结构，不计为上采样证据。
+     */
+    private static final double PHOTOGRAPHIC_TEX_MAX = 0.80;
+
+    /**
+     * 照片内容闸门的谱平坦度下限：半谱中位数/均值低于该值说明谱能量高度集中于
+     * 个别频点（合成图形的线谱）；上采样伪迹应叠加在连续谱之上，故不采信。
+     */
+    private static final double SPECTRAL_SPREAD_MIN = 0.05;
+
+    /**
+     * 跨通道残差相关高于该值时，视为缺少独立的相机传感器噪声特征。
+     */
+    private static final double CROSS_CHANNEL_CORR_MISSING = 0.85;
+
+    /**
+     * 对图像做像素统计兜底分析（元数据无 AI 信号时使用）。
+     *
+     * <p>上采样（放大）的图像会在像素网格上留下周期 2/4 的网格伪迹：对拉普拉斯残差
+     * 做行/列平均功率谱，在奈奎斯特频点（周期 2）或四分之一频点（周期 4）出现显著峰。
+     * 相机照片还会带有跨通道相关的传感器噪声，生成图像通常缺失；该特征仅作为加重
+     * 证据。为控制误报，只有谱峰证据成立才计入命中；且谱峰证据须先通过照片内容
+     * 闸门（纹理占比处于照片区间、谱为连续谱），排除截图、渐变、周期填充图案等
+     * 非照片内容对谱峰证据的误触发。</p>
+     *
+     * @param data   图像文件字节
+     * @param format 已识别的格式名（JPEG/PNG/WebP），用于按压缩格式调整判定阈值
+     * @return 分析结果；图像无法解码、过小或不适合统计时返回 {@code null}
+     */
+    private static PixelAnalysis analyzePixels(byte[] data, String format) {
+        BufferedImage img = decodeForPixelStatistics(data);
+        if (img == null) {
+            return null;
+        }
+        int w = img.getWidth();
+        int h = img.getHeight();
+        if (w < PIXEL_SAMPLE_MIN_SIDE || h < PIXEL_SAMPLE_MIN_SIDE) {
+            return null;
+        }
+        int[] pixels = img.getRGB(0, 0, w, h, null, 0, w);
+        int n = w * h;
+        double[] luma = new double[n];
+        double[] red = new double[n];
+        double[] green = new double[n];
+        double[] blue = new double[n];
+        for (int i = 0; i < n; i++) {
+            int argb = pixels[i];
+            int r = (argb >>> 16) & 0xFF;
+            int g = (argb >>> 8) & 0xFF;
+            int b = argb & 0xFF;
+            red[i] = r;
+            green[i] = g;
+            blue[i] = b;
+            luma[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+        }
+        pixels = null;
+        double[] lap = laplacian(luma, w, h);
+        double texFraction = textureFraction(lap, w, h);
+        if (texFraction < PHOTOGRAPHIC_TEX_MIN || texFraction > PHOTOGRAPHIC_TEX_MAX) {
+            return new PixelAnalysis(0, List.of());
+        }
+        SpectralPeak peak = measureSpectralPeak(lap, w, h, format);
+        if (peak == null) {
+            return new PixelAnalysis(0, List.of());
+        }
+        List<String> signals = new ArrayList<>();
+        int hits = peak.ratio() >= SPECTRAL_PEAK_STRONG ? 2 : 1;
+        signals.add(String.format(
+                "像素统计：功率谱在周期 %d 频点呈显著峰（%s方向显著度 %.1f 倍于局部中位），符合上采样网格伪迹特征",
+                peak.period(), peak.axis(), peak.ratio()));
+        String noise = crossChannelNoiseSignal(red, green, blue, lap, w, h);
+        if (noise != null) {
+            signals.add(noise);
+            hits++;
+        }
+        return new PixelAnalysis(hits, signals);
+    }
+
+    /**
+     * 纹理占比：内部像素中拉普拉斯残差绝对值大于 3 的比例。照片内容通常有明显
+     * 占比；截图/渐变等大面积平坦内容占比极低，周期填充图案占比接近 1。
+     */
+    private static double textureFraction(double[] lap, int w, int h) {
+        long count = 0;
+        long total = 0;
+        for (int y = 1; y < h - 1; y++) {
+            int row = y * w;
+            for (int x = 1; x < w - 1; x++) {
+                if (Math.abs(lap[row + x]) > 3) {
+                    count++;
+                }
+                total++;
+            }
+        }
+        return total == 0 ? 0 : (double) count / total;
+    }
+
+    /**
+     * 跨通道传感器噪声特征缺失检查。
+     *
+     * <p>相机照片的拉普拉斯残差 = 共享的图像结构 + 各通道相对独立的传感器噪声，
+     * 跨通道残差相关为中等水平；生成图像缺少独立的传感器噪声，残差几乎只剩共享
+     * 结构，跨通道相关异常偏高。仅当图像确实存在纹理/噪声（亮度残差标准差足够大）
+     * 且非近灰度图时才判定，避免对平滑图与单色图误报。</p>
+     */
+    private static String crossChannelNoiseSignal(double[] red, double[] green, double[] blue,
+                                                  double[] lumaLap, int w, int h) {
+        double satSum = 0;
+        for (int i = 0; i < red.length; i++) {
+            double mx = Math.max(red[i], Math.max(green[i], blue[i]));
+            double mn = Math.min(red[i], Math.min(green[i], blue[i]));
+            satSum += mx - mn;
+        }
+        if (satSum / red.length < 4) {
+            return null;
+        }
+        double[] rLap = laplacian(red, w, h);
+        double[] gLap = laplacian(green, w, h);
+        double[] bLap = laplacian(blue, w, h);
+        double corr = (corrSamePosition(rLap, gLap) + corrSamePosition(rLap, bLap) + corrSamePosition(gLap, bLap)) / 3;
+        double sum = 0;
+        double sumSq = 0;
+        int count = 0;
+        for (int y = 1; y < h - 1; y++) {
+            for (int x = 1; x < w - 1; x++) {
+                double v = lumaLap[y * w + x];
+                sum += v;
+                sumSq += v * v;
+                count++;
+            }
+        }
+        double variance = sumSq / count - (sum / count) * (sum / count);
+        double std = variance > 0 ? Math.sqrt(variance) : 0;
+        if (std < 1.5 || corr < CROSS_CHANNEL_CORR_MISSING) {
+            return null;
+        }
+        return String.format("像素统计：跨通道残差相关性异常偏高（平均 ρ=%.2f，亮度残差 σ=%.1f），缺少独立的相机传感器噪声特征", corr, std);
+    }
+
+    /**
+     * 度量拉普拉斯残差行/列平均功率谱在上采样频点的显著峰。
+     *
+     * <p>上采样（放大）会在像素网格上留下周期 2/4 的网格伪迹：残差功率谱在奈奎斯特
+     * 频点（周期 2）或四分之一频点（周期 4）出现显著峰。对每行/列残差加 Hann 窗做
+     * FFT，沿另一维平均得到平均功率谱，用峰高相对局部中位数的倍数衡量显著度，以
+     * 排除图像内容与压缩块结构的干扰。JPEG 的 8×8 块边界也会贡献高频能量，故 JPEG
+     * 采用更高阈值。</p>
+     *
+     * @return 最显著的谱峰；未达到阈值时返回 {@code null}
+     */
+    private static SpectralPeak measureSpectralPeak(double[] residual, int w, int h, String format) {
+        double threshold = "JPEG".equals(format) ? SPECTRAL_PEAK_RATIO_JPEG : SPECTRAL_PEAK_RATIO;
+        double[][] spectra = averagedPowerSpectra(residual, w, h);
+        int[] periods = {2, 4};
+        String[] axes = {"水平", "垂直"};
+        SpectralPeak best = null;
+        for (int axis = 0; axis < 2; axis++) {
+            double[] spectrum = spectra[axis];
+            int n = spectrum.length;
+            // 照片内容闸门：上采样伪迹应叠加在连续谱之上；线谱（合成图形）不采信
+            double spread = spectralSpread(spectrum);
+            // 组合峰可能因包络调制偏离理想谐波 bin 若干 bin（边带效应），在带内取最大峰
+            int band = Math.max(4, n / 64);
+            for (int period : periods) {
+                for (int j = 1; j < period; j++) {
+                    int ideal = (int) Math.round((double) n * j / period);
+                    if (ideal < 4 || ideal > n / 2) {
+                        continue;
+                    }
+                    int lo = Math.max(4, ideal - band);
+                    int hi = Math.min(n / 2, ideal + band);
+                    int peakBin = lo;
+                    for (int b = lo; b <= hi; b++) {
+                        if (spectrum[b] > spectrum[peakBin]) {
+                            peakBin = b;
+                        }
+                    }
+                    double ratio = peakProminence(spectrum, peakBin, 8);
+                    if (ratio >= threshold && spread >= SPECTRAL_SPREAD_MIN
+                            && (best == null || ratio > best.ratio())) {
+                        best = new SpectralPeak(ratio, period, axes[axis], spread);
+                    }
+                }
+            }
+        }
+        return best;
+    }
+
+    /**
+     * 谱平坦度：半谱（bin 4..n/2）中位数与均值之比。照片内容的连续谱该值明显
+     * 大于合成图形/纯周期图案的线谱。
+     */
+    private static double spectralSpread(double[] spectrum) {
+        int n = spectrum.length;
+        int to = n / 2;
+        if (to < 4) {
+            return 0;
+        }
+        double[] half = new double[to - 4 + 1];
+        double sum = 0;
+        for (int i = 4; i <= to; i++) {
+            half[i - 4] = spectrum[i];
+            sum += spectrum[i];
+        }
+        Arrays.sort(half);
+        double median = half.length % 2 == 1
+                ? half[half.length / 2]
+                : (half[half.length / 2 - 1] + half[half.length / 2]) / 2;
+        double mean = sum / half.length;
+        return mean <= 1e-12 ? 0 : median / mean;
+    }
+
+    /**
+     * 行/列方向平均功率谱：对每行（列）残差加 Hann 窗做 FFT，功率沿另一维平均。
+     * FFT 长度取不小于 2 倍边长的 2 的幂，避免循环卷绕影响高频估计。
+     */
+    private static double[][] averagedPowerSpectra(double[] residual, int w, int h) {
+        int n = Math.max(4, Integer.highestOneBit(Math.max(w, h) * 2 - 1) << 1);
+        double[] rowPower = new double[n];
+        double[] colPower = new double[n];
+        double[] re = new double[n];
+        double[] im = new double[n];
+        double[] winX = new double[w];
+        for (int x = 0; x < w; x++) {
+            winX[x] = 0.5 - 0.5 * Math.cos(2 * Math.PI * x / (w - 1));
+        }
+        double[] winY = new double[h];
+        for (int y = 0; y < h; y++) {
+            winY[y] = 0.5 - 0.5 * Math.cos(2 * Math.PI * y / (h - 1));
+        }
+        for (int y = 1; y < h - 1; y++) {
+            Arrays.fill(re, 0);
+            Arrays.fill(im, 0);
+            int row = y * w;
+            for (int x = 0; x < w; x++) {
+                re[x] = residual[row + x] * winX[x];
+            }
+            fft(re, im);
+            for (int b = 0; b < n; b++) {
+                rowPower[b] += re[b] * re[b] + im[b] * im[b];
+            }
+        }
+        for (int x = 1; x < w - 1; x++) {
+            Arrays.fill(re, 0);
+            Arrays.fill(im, 0);
+            for (int y = 0; y < h; y++) {
+                re[y] = residual[y * w + x] * winY[y];
+            }
+            fft(re, im);
+            for (int b = 0; b < n; b++) {
+                colPower[b] += re[b] * re[b] + im[b] * im[b];
+            }
+        }
+        for (int b = 0; b < n; b++) {
+            rowPower[b] /= Math.max(1, h - 2);
+            colPower[b] /= Math.max(1, w - 2);
+        }
+        return new double[][]{rowPower, colPower};
+    }
+
+    /**
+     * 峰显著度：P[bin] 相对窗口内（排除峰两侧 ±2）中位数的倍数。
+     */
+    private static double peakProminence(double[] power, int bin, int half) {
+        int lo = Math.max(1, bin - half);
+        int hi = Math.min(power.length - 1, bin + half);
+        if (hi - lo < 4 || bin < lo || bin > hi) {
+            return 0;
+        }
+        double[] window = new double[hi - lo + 1];
+        int m = 0;
+        for (int i = lo; i <= hi; i++) {
+            if (Math.abs(i - bin) <= 2) {
+                continue;
+            }
+            window[m++] = power[i];
+        }
+        if (m == 0) {
+            return 0;
+        }
+        Arrays.sort(window, 0, m);
+        double median = (m % 2 == 1) ? window[m / 2] : (window[m / 2 - 1] + window[m / 2]) / 2;
+        if (median <= 1e-12) {
+            return 0;
+        }
+        return power[bin] / median;
+    }
+
+    /**
+     * 迭代基-2 FFT（就地计算）。
+     */
+    private static void fft(double[] re, double[] im) {
+        int n = re.length;
+        for (int i = 1, j = 0; i < n; i++) {
+            int bit = n >> 1;
+            for (; (j & bit) != 0; bit >>= 1) {
+                j ^= bit;
+            }
+            j |= bit;
+            if (i < j) {
+                double t = re[i];
+                re[i] = re[j];
+                re[j] = t;
+                t = im[i];
+                im[i] = im[j];
+                im[j] = t;
+            }
+        }
+        for (int len = 2; len <= n; len <<= 1) {
+            double ang = -2 * Math.PI / len;
+            double wr = Math.cos(ang);
+            double wi = Math.sin(ang);
+            for (int i = 0; i < n; i += len) {
+                double cr = 1;
+                double ci = 0;
+                for (int k = 0; k < len / 2; k++) {
+                    int a = i + k;
+                    int b = i + k + len / 2;
+                    double tr = re[b] * cr - im[b] * ci;
+                    double ti = re[b] * ci + im[b] * cr;
+                    re[b] = re[a] - tr;
+                    im[b] = im[a] - ti;
+                    re[a] += tr;
+                    im[a] += ti;
+                    double ncr = cr * wr - ci * wi;
+                    ci = cr * wi + ci * wr;
+                    cr = ncr;
+                }
+            }
+        }
+    }
+
+    /**
+     * 解码图像用于像素统计：读取全分辨率原图，超过 {@link #PIXEL_SAMPLE_MAX_SIDE}
+     * 边长时取中心区域裁剪。<b>不做降采样</b>——偶数步长降采样会使周期 2/4 的
+     * 上采样网格伪迹在采样网格上混叠消失，导致检测失效。
+     */
+    private static BufferedImage decodeForPixelStatistics(byte[] data) {
+        ImageInputStream stream = null;
+        try {
+            stream = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+            if (stream == null) {
+                return null;
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
+            if (!readers.hasNext()) {
+                return null;
+            }
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(stream, true, true);
+                int width = reader.getWidth(0);
+                int height = reader.getHeight(0);
+                if (width <= 0 || height <= 0 || (long) width * height > 80_000_000L) {
+                    return null;
+                }
+                BufferedImage full = reader.read(0, reader.getDefaultReadParam());
+                if (full == null) {
+                    return null;
+                }
+                int cropWidth = Math.min(width, PIXEL_SAMPLE_MAX_SIDE);
+                int cropHeight = Math.min(height, PIXEL_SAMPLE_MAX_SIDE);
+                if (cropWidth == width && cropHeight == height) {
+                    return full;
+                }
+                int x0 = (width - cropWidth) / 2;
+                int y0 = (height - cropHeight) / 2;
+                return full.getSubimage(x0, y0, cropWidth, cropHeight);
+            } finally {
+                reader.dispose();
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (Exception ignore) {
+                    // 忽略关闭异常
+                }
+            }
+        }
+    }
+
+    /**
+     * 计算拉普拉斯残差（4 邻域），边界置 0。
+     */
+    private static double[] laplacian(double[] v, int w, int h) {
+        double[] out = new double[w * h];
+        for (int y = 1; y < h - 1; y++) {
+            int row = y * w;
+            for (int x = 1; x < w - 1; x++) {
+                int i = row + x;
+                out[i] = 4 * v[i] - v[i - 1] - v[i + 1] - v[i - w] - v[i + w];
+            }
+        }
+        return out;
+    }
+
+    /**
+     * 同位置皮尔逊相关系数（用于跨通道残差）。
+     */
+    private static double corrSamePosition(double[] a, double[] b) {
+        int count = a.length;
+        double sa = 0;
+        double sb = 0;
+        double saa = 0;
+        double sbb = 0;
+        double sab = 0;
+        for (int i = 0; i < count; i++) {
+            double x = a[i];
+            double y = b[i];
+            sa += x;
+            sb += y;
+            saa += x * x;
+            sbb += y * y;
+            sab += x * y;
+        }
+        double cov = sab - sa * sb / count;
+        double va = saa - sa * sa / count;
+        double vb = sbb - sb * sb / count;
+        if (va <= 1e-9 || vb <= 1e-9) {
+            return 0;
+        }
+        return cov / Math.sqrt(va * vb);
+    }
+
     // ==== 格式识别 ====
 
     /**
@@ -438,7 +951,7 @@ public final class PhotoMetadataUtils {
         List<String> comments = new ArrayList<>();
         List<String> extraSignals = new ArrayList<>();
 
-        List<JpegSegment> segments = new ArrayList<>();
+        var segments = new ArrayList<JpegSegment>();
         readJpegSegments(data, segments);
         for (JpegSegment segment : segments) {
             if (segment.marker() == 0xE1) {
@@ -469,7 +982,7 @@ public final class PhotoMetadataUtils {
      * EXIF 段保持原样以保留 Orientation 等结构；SOS 之后的熵编码数据原样拷贝。
      */
     private static byte[] stripJpeg(byte[] data, List<String> removed) {
-        List<JpegSegment> segments = new ArrayList<>();
+        var segments = new ArrayList<JpegSegment>();
         int headerEnd = readJpegSegments(data, segments);
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length);
         out.write(0xFF);

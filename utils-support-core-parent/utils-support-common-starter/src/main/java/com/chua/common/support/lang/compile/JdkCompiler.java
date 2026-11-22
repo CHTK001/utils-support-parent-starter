@@ -466,7 +466,7 @@ public class JdkCompiler implements Compiler {
          * @throws IOException 读取资源时发生 IO 错误
          */
         public List<JavaFileObject> find(String packageName) throws IOException {
-            String javaPackageName = packageName.replaceAll("\\.", "/");
+            String javaPackageName = packageName.replace('.', '/');
 
             List<JavaFileObject> result = Wraps.list();
 
@@ -521,8 +521,8 @@ public class JdkCompiler implements Compiler {
                     if (name.startsWith(rootEntryName) && name.indexOf('/', rootEnd) == -1 &&
                             name.endsWith(CLASS_FILE_EXTENSION)) {
                         URI uri = URI.create(jarUri + JAR_URL_SEPARATOR + name);
-                        String binaryName = name.replaceAll("/", ".");
-                        binaryName = binaryName.replaceAll(CLASS_FILE_EXTENSION + "$", "");
+                        String binaryName = name.replace('/', '.');
+                        binaryName = binaryName.substring(0, binaryName.length() - CLASS_FILE_EXTENSION.length());
 
                         result.add(new CustomJavaFileObject(binaryName, uri));
                     }
@@ -548,7 +548,7 @@ public class JdkCompiler implements Compiler {
                     // 只处理 .class 文件
                     if (childFile.getName().endsWith(CLASS_FILE_EXTENSION)) {
                         String binaryName = packageName + "." + childFile.getName();
-                        binaryName = binaryName.replaceAll(CLASS_FILE_EXTENSION + "$", "");
+                        binaryName = binaryName.substring(0, binaryName.length() - CLASS_FILE_EXTENSION.length());
 
                         result.add(new CustomJavaFileObject(binaryName, childFile.toURI()));
                     }

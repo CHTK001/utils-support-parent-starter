@@ -1,7 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.spi.annotations.Spi;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,22 @@ import java.util.Map;
 @Spi("kilo-code")
 public class KiloCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser {
 
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public KiloCodeExtensionUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public KiloCodeExtensionUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
     @Override
     protected List<String> extensionIdPrefixes() {
         return List.of("kilocode");
@@ -37,10 +52,5 @@ public class KiloCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser
     @Override
     public String name() {
         return "kilo-code";
-    }
-
-    @Override
-    public Flux<com.chua.common.support.ai.AiUsage> streamAll() {
-        return fromTaskFiles();
     }
 }

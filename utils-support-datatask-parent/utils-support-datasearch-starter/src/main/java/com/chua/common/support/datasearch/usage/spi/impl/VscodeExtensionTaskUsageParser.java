@@ -55,6 +55,22 @@ import com.chua.common.support.utils.StringUtils;
  */
 public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
 
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public VscodeExtensionTaskUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public VscodeExtensionTaskUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
     private static final String CURRENCY_USD = "USD";
 
     /**
@@ -76,10 +92,11 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
      *
      * <p>子类无需再自行覆写转接 {@link #fromTaskFiles()}。</p>
      *
+     * @param home 解析根目录（本实现只读各 IDE 的 AppData globalStorage 固定目录，不使用该参数）
      * @return 用量记录流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
+    protected Flux<AiUsage> streamHome(Path home) {
         return fromTaskFiles();
     }
 

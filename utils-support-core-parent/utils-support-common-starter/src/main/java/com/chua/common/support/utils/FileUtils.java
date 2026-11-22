@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static com.chua.common.support.constant.CharConstant.*;
 import static com.chua.common.support.constant.CharConstant.SYMBOL_DOT;
@@ -33,6 +34,11 @@ public class FileUtils {
      */
     private FileUtils() {
     }
+
+    /**
+     * 路径分隔符（正/反斜杠，连续多个）预编译模式，供 {@link #normalize} 复用，避免每次调用重复编译正则。
+     */
+    private static final Pattern PATH_SEPARATOR_PATTERN = Pattern.compile("[/\\\\]+");
 
     /**
      * 获取简单扩展名（去掉第一段）
@@ -612,7 +618,7 @@ public class FileUtils {
         }
 
         // 统一分隔符
-        pathToUse = pathToUse.replaceAll("[/\\\\]+", SYMBOL_LEFT_SLASH).trim();
+        pathToUse = PATH_SEPARATOR_PATTERN.matcher(pathToUse).replaceAll(SYMBOL_LEFT_SLASH).trim();
  // 窗口 \\
         if (path.startsWith(SYMBOL_RIGHT_SLASH + SYMBOL_RIGHT_SLASH)) {
             pathToUse = SYMBOL_RIGHT_SLASH + pathToUse;

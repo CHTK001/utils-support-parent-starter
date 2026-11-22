@@ -470,34 +470,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
 
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
-        try {
-            java.lang.reflect.Method writeReplace = column.getClass()
-                    // [P3C 1.10 豁免] 序列化 writeReplace 为 lambda 私有方法，需精确方法句柄，无法用 ReflectUtils 替代
-                    .getDeclaredMethod("writeReplace");
-            // [P3C 1.10 豁免] 序列化 writeReplace 需精确方法句柄（SerializedLambda），无法用 ReflectUtils 替代
-            writeReplace.setAccessible(true);
-            java.lang.invoke.SerializedLambda lambda =
-                    // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法，ReflectUtils 公共 LOOKUP 无法访问
-                    (java.lang.invoke.SerializedLambda) writeReplace.invoke(column);
-            String methodName = lambda.getImplMethodName();
-            String field = methodName.startsWith("is") ? methodName.substring(2)
-                    : methodName.startsWith("get") ? methodName.substring(3) : methodName;
-            var sb = new StringBuilder();
-            for (int i = 0; i < field.length(); i++) {
-                char ch = field.charAt(i);
-                if (Character.isUpperCase(ch)) {
-                    if (i > 0) {
-                        sb.append('_');
-                    }
-                    sb.append(Character.toLowerCase(ch));
-                } else {
-                    sb.append(ch);
-                }
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
-        }
+        return LambdaColumnResolver.toColumnName(column);
     }
 
     // ==================== 终端执行方法 ====================

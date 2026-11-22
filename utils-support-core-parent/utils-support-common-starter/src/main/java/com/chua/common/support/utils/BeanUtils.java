@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.annotation.FieldProperty;
 import com.chua.common.support.constant.DateFormatConstant;
@@ -18,6 +19,8 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,6 +84,14 @@ public final class BeanUtils {
         }
         COPIER = copier;
     }
+
+    /**
+     * 每个类的 {@link FieldProperty} 注解字段列表缓存。
+     *
+     * <p>类加载完成后字段集合与其注解不再变化，按类缓存可消除
+     * {@code objectToMap} 每次调用的重复字段反射；使用软引用实现，不阻止类回收。</p>
+     */
+    private static final Map<Class<?>, List<Field>> FIELD_PROPERTY_FIELDS_CACHE = new ConcurrentReferenceHashMap<>(256);
 
     /**
      * 创建 Bean工具 实例
@@ -211,7 +222,8 @@ public final class BeanUtils {
      * <p>豁免说明：本类需要按字段级别的注解规则逐字段做映射覆盖，
      * 使用 {@code Class.getDeclaredFields()} 直接遍历字段并读取 {@link FieldProperty}
      * 注解属于其核心职责，无法收敛到 {@link com.chua.common.support.reflection.ReflectUtils}
-     * （ReflectUtils 不提供按注解过滤字段的语义），故保留原生字段遍历（规约 1.10 豁免）。</p>
+     * （ReflectUtils 不提供按注解过滤字段的语义）；带注解字段按类缓存于
+     * {@link #FIELD_PROPERTY_FIELDS_CACHE}，仅在缓存未命中时执行原生字段遍历（规约 1.10 豁免）。</p>
      *
      * @param source  源对象，为 null 时返回 null
      * @param context 上下文数据（用于 #{键} 表达式和转换器），可以为 null
@@ -228,9 +240,9 @@ public final class BeanUtils {
         Map<String, Object> result = Wraps.linkedMap(16);
         copyProperties(source, result);
 
-  // 检查 @FieldProperty 注解，进行字段映射覆盖（原生字段遍历，见方法 Javadoc 豁免说明）
+  // 检查 @FieldProperty 注解，进行字段映射覆盖（注解字段来自按类缓存，见方法 Javadoc 豁免说明）
         Class<?> clazz = source.getClass();
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : fieldPropertyFields(clazz)) {
             FieldProperty fp = field.getAnnotation(FieldProperty.class);
             if (ObjectUtils.isNull(fp)) {
                 continue;
@@ -266,6 +278,31 @@ public final class BeanUtils {
             result.put(mappedName, value);
         }
         return result;
+    }
+
+    /**
+     * 取类上带 {@link FieldProperty} 注解的字段列表（按类缓存）。
+     *
+     * <p>字段集合在类加载后不变；缓存未命中时执行一次
+     * {@code getDeclaredFields()} 原生遍历并过滤出带注解字段（规约 1.10 豁免）。</p>
+     *
+     * @param clazz 目标类，不为 null
+     * @return 带注解字段列表（可能为空列表，命中缓存时为共享列表，调用方不得修改）
+     */
+    private static List<Field> fieldPropertyFields(Class<?> clazz) {
+        List<Field> cached = FIELD_PROPERTY_FIELDS_CACHE.get(clazz);
+        if (null != cached) {
+            return cached;
+        }
+        List<Field> result = new ArrayList<>();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (null != field.getAnnotation(FieldProperty.class)) {
+                result.add(field);
+            }
+        }
+        List<Field> unmodifiable = Collections.unmodifiableList(result);
+        FIELD_PROPERTY_FIELDS_CACHE.put(clazz, unmodifiable);
+        return unmodifiable;
     }
 
     /**

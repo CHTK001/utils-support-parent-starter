@@ -12,14 +12,30 @@ import java.nio.file.Path;
 @Spi("craft")
 public class CraftAgentsUsageParser extends AgentSessionUsageParser {
 
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public CraftAgentsUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CraftAgentsUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
     @Override
     public String name() {
         return "craft";
     }
 
     @Override
-    protected Path sessionRoot() {
-        return Path.of(System.getProperty("user.home"), ".craft-agent", "sessions");
+    protected Path sessionRoot(Path home) {
+        return home.resolve(".craft-agent").resolve("sessions");
     }
 
     /**

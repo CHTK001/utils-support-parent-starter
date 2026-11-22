@@ -55,6 +55,11 @@ public class NumberUtils {
      */
     private NumberUtils() {
     }
+
+    /**
+     * 匹配空白符或逗号的预编译模式，供 {@link #isDecimals} 复用，避免每次调用重复编译正则。
+     */
+    private static final Pattern WHITESPACE_OR_COMMA = Pattern.compile("(\\s+|,)");
     /**
      * Long_最小
      */
@@ -730,8 +735,8 @@ public class NumberUtils {
      * @return                   true                     false
      */
     public static boolean isDecimals(String decimals) {
-        decimals = decimals.replaceAll("(\\s+|,)", "");
-        return Pattern.matches(DECIMALS.pattern(), decimals);
+        decimals = WHITESPACE_OR_COMMA.matcher(decimals).replaceAll("");
+        return DECIMALS.matcher(decimals).matches();
     }
     /**
      * 是否 integer 字符串.
@@ -1714,7 +1719,7 @@ public class NumberUtils {
      */
     public static BigDecimal toBigDecimal(String number) {
         if (isThousandSeparator(number)) {
-            number = number.replaceAll(",", "");
+            number = number.replace(",", "");
         }
         return (null == number) ? BigDecimal.ZERO : new BigDecimal(number);
     }

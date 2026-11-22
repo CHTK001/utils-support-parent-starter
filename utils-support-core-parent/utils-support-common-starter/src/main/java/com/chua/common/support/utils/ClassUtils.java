@@ -1399,7 +1399,7 @@ public class ClassUtils {
         }
         String name = target.getName();
         if (name.startsWith(SYMBOL_LEFT_SQUARE_BRACKET)) {
-            String all = name.replaceAll("\\[", "");
+            String all = name.replace("[", "");
             if (BASIC_VIRTUAL.containsRow(all)) {
                 Map<Class<?>, Class<?>> immutableMap = BASIC_VIRTUAL.row(all);
                 return (Class<T>) ClassUtils.forName(name.replace(all,

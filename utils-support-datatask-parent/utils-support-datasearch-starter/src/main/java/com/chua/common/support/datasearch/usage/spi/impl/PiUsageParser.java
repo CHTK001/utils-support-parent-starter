@@ -31,20 +31,20 @@ public class PiUsageParser extends BaseUsageParser {
     private static final String PROVIDER_PI = "pi";
     private static final String DEFAULT_MODEL = "pi-unknown";
 
-    private final Path agentDir;
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public PiUsageParser() {
+        super();
+    }
 
     /**
-     * 默认构造器。
-    */
-    public PiUsageParser() {
-        String explicit = System.getenv("TOKENTRACKER_PI_AGENT_DIR");
-        if (StringUtils.isBlank(explicit)) {
-            explicit = System.getenv("PI_CODING_AGENT_DIR");
-        }
-        Path piHome = (StringUtils.isNotBlank(explicit))
-                ? Path.of(explicit)
-                : Path.of(System.getProperty("user.home"), ".pi");
-        this.agentDir = piHome.resolve("agent");
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public PiUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     @Override
@@ -53,8 +53,16 @@ public class PiUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listSessionFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        String explicit = System.getenv("TOKENTRACKER_PI_AGENT_DIR");
+        if (StringUtils.isBlank(explicit)) {
+            explicit = System.getenv("PI_CODING_AGENT_DIR");
+        }
+        Path piHome = (StringUtils.isNotBlank(explicit))
+                ? Path.of(explicit)
+                : home.resolve(".pi");
+        Path agentDir = piHome.resolve("agent");
+        List<Path> files = listSessionFiles(agentDir);
         if (files.isEmpty()) {
             log.debug("[pi] no session files under {}", agentDir);
             return Flux.empty();
@@ -182,9 +190,10 @@ public class PiUsageParser extends BaseUsageParser {
     /**
      * 列出会话Files。
      *
+     * @param agentDir Pi agent 目录
      * @return 结果列表，无数据时为空列表
      */
-    private List<Path> listSessionFiles() {
+    private List<Path> listSessionFiles(Path agentDir) {
         Path sessionsDir = agentDir.resolve("sessions");
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();

@@ -27,6 +27,22 @@ import com.chua.common.support.utils.StringUtils;
 public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser {
 
     /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public RooCodeExtensionUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public RooCodeExtensionUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
      * history 文件中的 model 标签
      */
     private static final java.util.regex.Pattern MODEL_TAG_PATTERN =

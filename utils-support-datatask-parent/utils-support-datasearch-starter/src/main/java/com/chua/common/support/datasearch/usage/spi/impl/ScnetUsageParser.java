@@ -90,16 +90,20 @@ public class ScnetUsageParser extends BaseUsageParser {
     private static final String UNKNOWN_MODEL = "unknown";
 
     /**
-     * 默认会话目录：{@code ~/.sclaw/agent/sessions}
+     * 默认构造：解析当前用户主目录。
      */
-    private static final Path DEFAULT_SESSION_ROOT = Path.of(
-            System.getProperty("user.home"), ".sclaw", "agent", "sessions");
+    public ScnetUsageParser() {
+        super();
+    }
 
     /**
-     * 默认项目会话目录：{@code ~/.sclaw/agent/projects}
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
      */
-    private static final Path DEFAULT_PROJECT_ROOT = Path.of(
-            System.getProperty("user.home"), ".sclaw", "agent", "projects");
+    public ScnetUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * 返回 SCNet 的 SPI 名称。
@@ -114,28 +118,31 @@ public class ScnetUsageParser extends BaseUsageParser {
     /**
      * 会话目录，子类可覆写以便测试或支持重定向后的数据目录。
      *
+     * @param home 解析根目录
      * @return 会话目录
      */
-    protected Path sessionRoot() {
-        return DEFAULT_SESSION_ROOT;
+    protected Path sessionRoot(Path home) {
+        return home.resolve(".sclaw").resolve("agent").resolve("sessions");
     }
 
     /**
      * 项目会话根目录，子类可覆写以便测试或支持重定向后的数据目录。
      *
+     * @param home 解析根目录
      * @return 项目会话根目录
      */
-    protected Path projectRoot() {
-        return DEFAULT_PROJECT_ROOT;
+    protected Path projectRoot(Path home) {
+        return home.resolve(".sclaw").resolve("agent").resolve("projects");
     }
 
     /**
      * 全部会话根目录：全局会话与项目会话并列，缺一即丢量。
      *
+     * @param home 解析根目录
      * @return 会话根目录列表
      */
-    protected List<Path> sessionRoots() {
-        return List.of(sessionRoot(), projectRoot());
+    protected List<Path> sessionRoots(Path home) {
+        return List.of(sessionRoot(home), projectRoot(home));
     }
 
     /**
@@ -144,10 +151,10 @@ public class ScnetUsageParser extends BaseUsageParser {
      * @return 用量记录流；会话目录缺失时为空流
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listSessionFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        List<Path> files = listSessionFiles(home);
         if (files.isEmpty()) {
-            log.debug("[scnet] no session files under {}", sessionRoots());
+            log.debug("[scnet] no session files under {}", sessionRoots(home));
             return Flux.empty();
         }
         log.info("[scnet] streaming from {} session files", files.size());
@@ -158,11 +165,12 @@ public class ScnetUsageParser extends BaseUsageParser {
     /**
      * 列举会话文件（含会话目录下的子目录，客户端升级后布局可能变化）。
      *
+     * @param home 解析根目录
      * @return 会话文件列表；目录缺失时为空列表
      */
-    protected List<Path> listSessionFiles() {
+    protected List<Path> listSessionFiles(Path home) {
         List<Path> files = Wraps.list();
-        for (Path root : sessionRoots()) {
+        for (Path root : sessionRoots(home)) {
             if (!Files.isDirectory(root)) {
                 continue;
             }

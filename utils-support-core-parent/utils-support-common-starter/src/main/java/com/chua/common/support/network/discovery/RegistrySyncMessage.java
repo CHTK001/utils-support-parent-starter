@@ -18,8 +18,8 @@ import java.util.Map;
  *
  * <p>方向约定：</p>
  * <ul>
- *     <li>client -&gt; hub：{@link #OP_REGISTER} / {@link #OP_UNREGISTER} / {@link #OP_SYNC_REQUEST}，
- *     统一走共享主题 {@link #TOPIC}；</li>
+ *     <li>client -&gt; hub：{@link #OP_REGISTER} / {@link #OP_UPDATE} / {@link #OP_UNREGISTER} /
+ *     {@link #OP_SYNC_REQUEST}，统一走共享主题 {@link #TOPIC}；</li>
  *     <li>hub -&gt; client：{@link #OP_SYNC}（全量快照）与 {@link #OP_EVENT}（增量变更），
  *     走客户端专属主题 {@link #topicOf(String)}——HTTP 传输的拉取队列按主题竞争消费，
  *     每个客户端独占一个下行主题才能保证事件不串流。</li>
@@ -40,9 +40,14 @@ public class RegistrySyncMessage {
     public static final String TOPIC = "registry-sync";
 
     /**
-     * 操作：注册服务（client -&gt; hub，携带 path + discovery）
+     * 操作：注册服务（client -&gt; hub，携带 path + discovery；幂等，内容未变化不重复广播）
      */
     public static final String OP_REGISTER = "register";
+
+    /**
+     * 操作：更新服务（client -&gt; hub，携带 path + discovery；hub 端 upsert 后广播 UPDATE 事件）
+     */
+    public static final String OP_UPDATE = "update";
 
     /**
      * 操作：注销服务（client -&gt; hub，携带 path + discovery.serverId）

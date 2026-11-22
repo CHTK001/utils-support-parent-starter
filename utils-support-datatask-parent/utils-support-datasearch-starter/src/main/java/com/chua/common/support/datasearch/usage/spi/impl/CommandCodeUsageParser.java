@@ -58,10 +58,20 @@ import lombok.extern.slf4j.Slf4j;
 public class CommandCodeUsageParser extends BaseUsageParser {
 
     /**
-     * Session transcripts root: ~/.commandcode/projects
+     * 默认构造：解析当前用户主目录。
      */
-    private static final Path PROJECTS_DIR = Path.of(
-            System.getProperty("user.home"), ".commandcode", "projects");
+    public CommandCodeUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public CommandCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_COMMAND_CODE = "command-code";
     private static final String UNKNOWN_MODEL = "unknown";
@@ -75,13 +85,14 @@ public class CommandCodeUsageParser extends BaseUsageParser {
      * 流式解析全部 session 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path projectsDir = home.resolve(".commandcode").resolve("projects");
+        if (!Files.isDirectory(projectsDir)) {
             return Flux.empty();
         }
         try {
             List<Path> files;
-            try (var stream = Files.walk(PROJECTS_DIR)) {
+            try (var stream = Files.walk(projectsDir)) {
                 files = stream.filter(Files::isRegularFile)
                         .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                         .filter(CommandCodeUsageParser::isTranscript)

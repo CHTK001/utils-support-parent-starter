@@ -34,19 +34,34 @@ public class QoderCnUsageParser extends BaseUsageParser {
     private static final String PROVIDER_QODER_CN = "qoder-cn";
     private static final String CURRENCY_CREDITS = "CREDITS";
 
-    private static final Path PROJECTS_DIR = resolveProjectsDir();
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public QoderCnUsageParser() {
+        super();
+    }
 
     /**
-     * 解析Projects目录。
+     * 指定解析根目录构造。
      *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public QoderCnUsageParser(String userHomes) {
+        super(userHomes);
+    }
+
+    /**
+     * 解析Projects目录：环境变量优先，其次主目录下的默认位置。
+     *
+     * @param home 解析根目录
      * @return 路径 对象
      */
-    private static Path resolveProjectsDir() {
+    private static Path resolveProjectsDir(Path home) {
         String override = System.getenv("QODER_CN_PROJECTS_DIR");
         if (StringUtils.isNotBlank(override)) {
             return Path.of(override);
         }
-        return Path.of(System.getProperty("user.home"), ".qoder-cn", "projects");
+        return home.resolve(".qoder-cn").resolve("projects");
     }
 
     @Override
@@ -55,27 +70,28 @@ public class QoderCnUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+    protected reactor.core.publisher.Flux<AiUsage> streamHome(Path home) {
         return reactor.core.publisher.Flux.defer(() ->
-                        reactor.core.publisher.Flux.fromIterable(parseAll()))
+                        reactor.core.publisher.Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
     @Override
-    protected List<AiUsage> parseAll() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
-            log.debug("[qoder-cn] projects dir not found: {} (Qoder CN CLI not installed)", PROJECTS_DIR);
+    protected List<AiUsage> parseHome(Path home) {
+        Path projectsDir = resolveProjectsDir(home);
+        if (!Files.isDirectory(projectsDir)) {
+            log.debug("[qoder-cn] projects dir not found: {} (Qoder CN CLI not installed)", projectsDir);
             return List.of();
         }
         List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
-        try (var stream = Files.walk(PROJECTS_DIR)) {
+        try (var stream = Files.walk(projectsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(file -> {
                         fileCount.incrementAndGet();
                         try {
-                            parseJsonlFile(file, result);
+                            parseJsonlFile(file, result, home);
                         } catch (IOException e) {
                             log.debug("[qoder-cn] read failed {}: {}", file.getFileName(), e.getMessage());
                         }
@@ -93,9 +109,10 @@ public class QoderCnUsageParser extends BaseUsageParser {
      *
      * @param file 文件，不允许为 null
      * @param result 结果，不允许为 null
+     * @param home 解析根目录
      * @throws IOException 当执行过程不满足前置条件时
      */
-    private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
+    private void parseJsonlFile(Path file, List<AiUsage> result, Path home) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -103,7 +120,7 @@ public class QoderCnUsageParser extends BaseUsageParser {
                     continue;
                 }
                 try {
-                    parseNode(Json.parse(line)).ifPresent(result::add);
+                    parseNode(Json.parse(line), home).ifPresent(result::add);
                 } catch (Exception e) {
                     log.debug("[qoder-cn] parse failed {}: {}", file.getFileName(), e.getMessage());
                 }
@@ -115,9 +132,10 @@ public class QoderCnUsageParser extends BaseUsageParser {
      * 解析节点。
      *
      * @param node 节点，不允许为 null
+     * @param home 解析根目录
      * @return 可选结果，不存在时为 Optional.empty()
      */
-    private Optional<AiUsage> parseNode(JsonNode node) {
+    private Optional<AiUsage> parseNode(JsonNode node, Path home) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return Optional.empty();
         }
@@ -142,7 +160,7 @@ public class QoderCnUsageParser extends BaseUsageParser {
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_QODER_CN)
                 .model(QoderModelCatalog.resolve(
-                        firstNonBlank(message.get("model").toStringValue(), "qoder-agent")))
+                        firstNonBlank(message.get("model").toStringValue(), "qoder-agent"), home))
                 .requestId(message.get("id").toStringValue())
                 .currency(CURRENCY_CREDITS)
                 .startTime(startTime > 0 ? startTime : null)

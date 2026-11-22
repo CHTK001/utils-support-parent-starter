@@ -66,7 +66,21 @@ import com.chua.common.support.utils.StringUtils;
 @Spi("grok")
 public class GrokUsageParser extends BaseUsageParser {
 
-    private static final Path GROC_HOME = resolveHome(); // grocHome
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public GrokUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public GrokUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_GROK = "grok"; // 提供者grok
 
@@ -74,14 +88,16 @@ public class GrokUsageParser extends BaseUsageParser {
 
     /**
      * resolveHome。
+     *
+     * @param home 解析根目录
      * @return resolveHome的结果
      */
-    private static Path resolveHome() {
+    private static Path resolveHome(Path home) {
         String grokHome = System.getenv("GROK_HOME");
         if (StringUtils.isNotBlank(grokHome)) {
             return Path.of(grokHome);
         }
-        return Path.of(System.getProperty("user.home"), ".grok");
+        return home.resolve(".grok");
     }
 
     /**
@@ -101,8 +117,8 @@ public class GrokUsageParser extends BaseUsageParser {
      * 内存占用与单条记录相关而非与总量相关。</p>
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        Path sessionsDir = GROC_HOME.resolve("sessions");
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path sessionsDir = resolveHome(home).resolve("sessions");
         if (!Files.isDirectory(sessionsDir)) {
             log.debug("[grok] sessions dir not found: {} (Grok Build not installed)", sessionsDir);
             return Flux.empty();

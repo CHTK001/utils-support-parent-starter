@@ -199,52 +199,75 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     }
 
     /**
-     * 注册服务到本地服务表，并向所有在线客户端广播 ADD 事件。
+     * 注册服务到本地服务表（upsert、幂等），并向所有在线客户端广播 ADD/UPDATE 事件。
+     *
+     * <p>同一 serverId 重复注册且内容未变化时直接忽略（对账周期重申不产生事件风暴）；
+     * 内容有变化时按 UPDATE 事件广播。</p>
      */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
+        String prefixed = addClusterPrefix(path);
+        Discovery existing = findSameServerId(prefixed, discovery.getServerId());
+        if (existing != null && existing.equals(discovery)) {
+            return this;
+        }
+        // upsert：同 serverId 先移除旧条目，避免重复堆积
+        removeFromCache(prefixed, discovery.getServerId());
         ServiceDiscovery result = super.registerService(path, discovery);
         broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
-                .setPath(addClusterPrefix(path))
+                .setPath(prefixed)
                 .setDiscovery(discovery)
-                .setEvent(EVENT_ADD));
+                .setEvent(existing == null ? EVENT_ADD : EVENT_UPDATE));
         return result;
     }
 
     /**
-     * 注销服务并广播 REMOVE 事件。
+     * 注销服务并广播 REMOVE 事件（条目不存在时静默返回，不广播）。
      */
     @Override
     public ServiceDiscovery unregisterService(String path, Discovery discovery) {
+        String prefixed = addClusterPrefix(path);
+        Discovery existing = findSameServerId(prefixed, discovery.getServerId());
         ServiceDiscovery result = super.unregisterService(path, discovery);
-        broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
-                .setPath(addClusterPrefix(path))
-                .setDiscovery(discovery)
-                .setEvent(EVENT_REMOVE));
+        if (existing != null) {
+            broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
+                    .setPath(prefixed)
+                    .setDiscovery(discovery)
+                    .setEvent(EVENT_REMOVE));
+        }
         return result;
     }
 
     /**
-     * 按 serverId 注销服务并广播 REMOVE 事件。
+     * 按 serverId 注销服务并广播 REMOVE 事件（条目不存在时静默返回，不广播）。
      */
     @Override
     public ServiceDiscovery unregisterService(String path, String serverId) {
+        String prefixed = addClusterPrefix(path);
+        Discovery existing = findSameServerId(prefixed, serverId);
         ServiceDiscovery result = super.unregisterService(path, serverId);
-        broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
-                .setPath(addClusterPrefix(path))
-                .setDiscovery(Discovery.builder().serverId(serverId).build())
-                .setEvent(EVENT_REMOVE));
+        if (existing != null) {
+            broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
+                    .setPath(prefixed)
+                    .setDiscovery(Discovery.builder().serverId(serverId).build())
+                    .setEvent(EVENT_REMOVE));
+        }
         return result;
     }
 
     /**
-     * 更新服务并广播 UPDATE 事件。
+     * 更新服务并广播 UPDATE 事件（内容未变化时静默返回，不广播）。
      */
     @Override
     public ServiceDiscovery updateService(String path, Discovery discovery) {
+        String prefixed = addClusterPrefix(path);
+        Discovery existing = findSameServerId(prefixed, discovery.getServerId());
+        if (existing != null && existing.equals(discovery)) {
+            return this;
+        }
         ServiceDiscovery result = super.updateService(path, discovery);
         broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, HUB_ID)
-                .setPath(addClusterPrefix(path))
+                .setPath(prefixed)
                 .setDiscovery(discovery)
                 .setEvent(EVENT_UPDATE));
         return result;
@@ -284,7 +307,7 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
             return;
         }
         switch (msg.getOp()) {
-            case RegistrySyncMessage.OP_REGISTER -> applyRemoteRegister(clientId, msg);
+            case RegistrySyncMessage.OP_REGISTER, RegistrySyncMessage.OP_UPDATE -> applyRemoteUpsert(clientId, msg);
             case RegistrySyncMessage.OP_UNREGISTER -> applyRemoteUnregister(clientId, msg);
             case RegistrySyncMessage.OP_SYNC_REQUEST -> sendSnapshot(clientId);
             default -> {
@@ -294,30 +317,42 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     }
 
     /**
-     * 应用远程注册（upsert 语义：先按 serverId 移除旧条目再追加），
-     * 记录归属并在全量客户端范围内广播 ADD 事件。
+     * 应用远程注册/更新（upsert 语义：先按 serverId 移除旧条目再追加），记录归属并广播事件。
+     *
+     * <p>幂等抑制：同一 serverId 重复上报且内容未变化（典型场景：客户端对账周期重申注册）
+     * 时仅补记归属，不入库、不升版本、不广播；内容有变化时按新增/更新分别广播
+     * ADD / UPDATE 事件。</p>
      */
-    private void applyRemoteRegister(String clientId, RegistrySyncMessage msg) {
+    private void applyRemoteUpsert(String clientId, RegistrySyncMessage msg) {
         Discovery discovery = msg.getDiscovery();
         String path = msg.getPath();
         if (discovery == null || StringUtils.isEmpty(path)) {
             return;
         }
         String normalizedPath = StringUtils.startWithAppend(path, "/");
+        Discovery existing = findSameServerId(normalizedPath, discovery.getServerId());
+        if (existing != null && existing.equals(discovery)) {
+            // 幂等重申：内容未变化，仅确保归属仍在（掉线回收后重连重申会走到新增分支）
+            ownedByClient.computeIfAbsent(clientId, k -> new ConcurrentHashMap<>())
+                    .put(normalizedPath, discovery.getServerId());
+            return;
+        }
         removeFromCache(normalizedPath, discovery.getServerId());
         addToCache(normalizedPath, discovery);
         ownedByClient.computeIfAbsent(clientId, k -> new ConcurrentHashMap<>())
                 .put(normalizedPath, discovery.getServerId());
         incrementServiceVersion();
+        String event = existing == null ? EVENT_ADD : EVENT_UPDATE;
         broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, clientId)
                 .setPath(normalizedPath)
                 .setDiscovery(discovery)
-                .setEvent(EVENT_ADD));
-        log.info("[registry-hub] 远程注册: clientId={}, path={}, serverId={}", clientId, normalizedPath, discovery.getServerId());
+                .setEvent(event));
+        log.info("[registry-hub] 远程注册: clientId={}, path={}, serverId={}, event={}",
+                clientId, normalizedPath, discovery.getServerId(), event);
     }
 
     /**
-     * 应用远程注销，清除归属并广播 REMOVE 事件。
+     * 应用远程注销，清除归属并广播 REMOVE 事件（条目不存在时仅清理归属，不广播）。
      */
     private void applyRemoteUnregister(String clientId, RegistrySyncMessage msg) {
         Discovery discovery = msg.getDiscovery();
@@ -326,17 +361,45 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
             return;
         }
         String normalizedPath = StringUtils.startWithAppend(path, "/");
-        removeFromCache(normalizedPath, discovery.getServerId());
         Map<String, String> owned = ownedByClient.get(clientId);
         if (owned != null) {
             owned.remove(normalizedPath);
         }
+        Discovery existing = findSameServerId(normalizedPath, discovery.getServerId());
+        if (existing == null) {
+            // 幂等：条目已不存在（可能已被掉线回收或重复注销），不再重复广播
+            return;
+        }
+        removeFromCache(normalizedPath, discovery.getServerId());
         incrementServiceVersion();
         broadcast(RegistrySyncMessage.of(RegistrySyncMessage.OP_EVENT, clientId)
                 .setPath(normalizedPath)
                 .setDiscovery(discovery)
                 .setEvent(EVENT_REMOVE));
         log.info("[registry-hub] 远程注销: clientId={}, path={}, serverId={}", clientId, normalizedPath, discovery.getServerId());
+    }
+
+    /**
+     * 在指定路径的服务列表中查找同一 serverId 的现有条目。
+     *
+     * @param normalizedPath 规范化路径（首斜杠开头）
+     * @param serverId       服务实例标识
+     * @return 匹配的现有条目，不存在返回 null
+     */
+    private Discovery findSameServerId(String normalizedPath, String serverId) {
+        if (serverId == null) {
+            return null;
+        }
+        List<Discovery> list = localCache.get(StringUtils.startWithAppend(normalizedPath, "/"));
+        if (list == null) {
+            return null;
+        }
+        for (Discovery d : list) {
+            if (serverId.equals(d.getServerId())) {
+                return d;
+            }
+        }
+        return null;
     }
 
     /**

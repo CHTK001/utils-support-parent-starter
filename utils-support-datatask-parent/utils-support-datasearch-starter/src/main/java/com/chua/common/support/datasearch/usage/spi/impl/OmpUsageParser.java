@@ -57,17 +57,20 @@ public class OmpUsageParser extends BaseUsageParser {
 
     private static final String UNKNOWN_MODEL = "omp-unknown";
 
-    private final Path sessionsDir;
-
     /**
-     * 构造方法，创建 OmpUsageParser 实例。
+     * 默认构造：解析当前用户主目录。
      */
     public OmpUsageParser() {
-        String home = System.getenv("OMP_HOME");
-        Path ompHome = (StringUtils.isNotBlank(home))
-                ? Path.of(home)
-                : Path.of(System.getProperty("user.home"), ".omp");
-        this.sessionsDir = ompHome.resolve("agent").resolve("sessions");
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public OmpUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     /**
@@ -84,8 +87,13 @@ public class OmpUsageParser extends BaseUsageParser {
      * 响应式流式入口：惰性扫描全部会话 JSONL（含子代理转录）。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listSessionFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        String envHome = System.getenv("OMP_HOME");
+        Path ompHome = (StringUtils.isNotBlank(envHome))
+                ? Path.of(envHome)
+                : home.resolve(".omp");
+        Path sessionsDir = ompHome.resolve("agent").resolve("sessions");
+        List<Path> files = listSessionFiles(sessionsDir);
         if (files.isEmpty()) {
             log.debug("[omp] no session files under {}", sessionsDir);
             return Flux.empty();
@@ -103,9 +111,10 @@ public class OmpUsageParser extends BaseUsageParser {
     /**
      * 枚举 sessions 目录下全部 JSONL 文件。
      *
+     * @param sessionsDir 会话目录
      * @return 会话文件列表
      */
-    private List<Path> listSessionFiles() {
+    private List<Path> listSessionFiles(Path sessionsDir) {
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();
         }

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * JSON5 工具类
@@ -45,6 +46,16 @@ public class Json5 {
      */
     private Json5() {
     }
+
+    /**
+     * 单行注释（双斜线开头）预编译模式，供 {@link #preprocessJson5} 复用，避免每次解析重复编译正则。
+     */
+    private static final Pattern LINE_COMMENT_PATTERN = Pattern.compile("//.*");
+
+    /**
+     * 多行注释（斜线星号包裹）预编译模式，供 {@link #preprocessJson5} 复用，避免每次解析重复编译正则。
+     */
+    private static final Pattern BLOCK_COMMENT_PATTERN = Pattern.compile("/\\*[\\s\\S]*?\\*/");
 
     /**
      * 全局替换当前 JSON 实现（透传 {@link Json#setImplementation(JsonProvider)}）。
@@ -266,10 +277,10 @@ public class Json5 {
         }
 
         // 移除单行注释 (// ...)
-        json5 = json5.replaceAll("//.*", "");
+        json5 = LINE_COMMENT_PATTERN.matcher(json5).replaceAll("");
 
         // 移除多行注释 (/* ... */)
-        json5 = json5.replaceAll("/\\*[\\s\\S]*?\\*/", "");
+        json5 = BLOCK_COMMENT_PATTERN.matcher(json5).replaceAll("");
 
         return json5.trim();
     }

@@ -1569,7 +1569,7 @@ public class CollectionUtils {
             return;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (T t : list) {
             sb.append("         ").append(function.apply(t)).append("\n");
         }

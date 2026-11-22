@@ -52,14 +52,15 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
 
     /**
      * 解析 DB 文件路径。
+     * @param home 解析根目录
      * @return 数据库文件路径；未找到返回 null
      */
-    private static Path resolveDbPath() {
+    private Path resolveDbPath(Path home) {
         String explicit = System.getenv("CLAUDE_SCIENCE_DB_PATH");
         if (StringUtils.isNotBlank(explicit)) {
             return Path.of(explicit);
         }
-        Path root = Path.of(System.getProperty("user.home"), ".claude-science");
+        Path root = home.resolve(".claude-science");
         for (String name : DB_FILENAMES) {
             Path candidate = root.resolve(name);
             if (Files.exists(candidate)) {
@@ -69,13 +70,20 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         return root.resolve(DB_FILENAMES[0]);
     }
 
-    private final Path dbPath;
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public ClaudeScienceUsageParser() {
+        super();
+    }
 
     /**
-     * 默认构造器。
-    */
-    public ClaudeScienceUsageParser() {
-        this.dbPath = resolveDbPath();
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public ClaudeScienceUsageParser(String userHomes) {
+        super(userHomes);
     }
 
     @Override
@@ -84,8 +92,8 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
     }
 
     @Override
-    public Flux<AiUsage> streamAll() {
-        return Flux.defer(() -> Flux.fromIterable(parseAll()))
+    protected Flux<AiUsage> streamHome(Path home) {
+        return Flux.defer(() -> Flux.fromIterable(parseHome(home)))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
@@ -93,7 +101,8 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
      * 全量解析 frames 表。
     */
     @Override
-    protected List<AiUsage> parseAll() {
+    protected List<AiUsage> parseHome(Path home) {
+        Path dbPath = resolveDbPath(home);
         if (!Files.exists(dbPath)) {
             log.debug("[claude-science] 数据库文件不存在: {}", dbPath);
             return List.of();

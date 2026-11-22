@@ -52,18 +52,34 @@ public class HermesUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER = "hermes"; // 提供者
 
-    private static final Path DB_PATH = resolveDbPath(); // db路径
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public HermesUsageParser() {
+        super();
+    }
+
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public HermesUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * resolvedb路径。
+     *
+     * @param home 解析根目录
      * @return resolvedb路径的结果
      */
-    private static Path resolveDbPath() {
+    private static Path resolveDbPath(Path home) {
         String localAppData = System.getenv("LOCALAPPDATA");
         if (StringUtils.isNotBlank(localAppData)) {
             return Path.of(localAppData, "hermes", "state.db");
         }
-        return Path.of(System.getProperty("user.home"), ".hermes", "state.db");
+        return home.resolve(".hermes").resolve("state.db");
     }
 
     private static final String SQL_SESSIONS =
@@ -88,13 +104,14 @@ public class HermesUsageParser extends BaseUsageParser {
      * 流式解析全部会话用量记录。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[hermes] database not found: {} (Hermes not installed)", DB_PATH);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path dbPath = resolveDbPath(home);
+        if (!Files.exists(dbPath)) {
+            log.debug("[hermes] database not found: {} (Hermes not installed)", dbPath);
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("hermes", DB_PATH.toString());
+                .addDataSource("hermes", dbPath.toString());
         return engine.query(SQL_SESSIONS)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[hermes] stream complete"));

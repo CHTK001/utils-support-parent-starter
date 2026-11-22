@@ -38,10 +38,21 @@ public class DroidUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_DROID = "droid";
 
-    private static final Path FACTORY_HOME = Path.of(
-            System.getProperty("user.home"), ".factory");
+    /**
+     * 默认构造：解析当前用户主目录。
+     */
+    public DroidUsageParser() {
+        super();
+    }
 
-    private static final Path SESSIONS_DIR = FACTORY_HOME.resolve("sessions");
+    /**
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public DroidUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     /**
      * Droid model 名归一：去掉 custom: 前缀与 [Proxy] 括注。
@@ -63,10 +74,11 @@ public class DroidUsageParser extends BaseUsageParser {
      * 流式解析全部 Droid 会话文件（settings.json 与 JSONL 事件流）。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        List<Path> files = listSessionFiles();
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path sessionsDir = home.resolve(".factory").resolve("sessions");
+        List<Path> files = listSessionFiles(sessionsDir);
         if (files.isEmpty()) {
-            log.debug("[droid] no session files under {}", SESSIONS_DIR);
+            log.debug("[droid] no session files under {}", sessionsDir);
             return Flux.empty();
         }
         log.info("[droid] streaming {} session files", files.size());
@@ -79,14 +91,15 @@ public class DroidUsageParser extends BaseUsageParser {
      * 枚举 {@code ~/.factory/sessions} 下的会话文件
      * （*.settings.json 与事件 JSONL）。
      *
+     * @param sessionsDir 会话目录
      * @return 会话文件列表
      */
-    private List<Path> listSessionFiles() {
-        if (!Files.isDirectory(SESSIONS_DIR)) {
+    private List<Path> listSessionFiles(Path sessionsDir) {
+        if (!Files.isDirectory(sessionsDir)) {
             return List.of();
         }
         List<Path> files = Wraps.list();
-        try (var stream = Files.walk(SESSIONS_DIR)) {
+        try (var stream = Files.walk(sessionsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> {
                         String n = p.getFileName().toString();
@@ -95,7 +108,7 @@ public class DroidUsageParser extends BaseUsageParser {
                     })
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[droid] walk {} failed: {}", SESSIONS_DIR, e.getMessage(), e);
+            log.warn("[droid] walk {} failed: {}", sessionsDir, e.getMessage(), e);
         }
         return files;
     }

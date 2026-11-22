@@ -69,15 +69,20 @@ import com.chua.common.support.utils.StringUtils;
 public class AtomCodeUsageParser extends BaseUsageParser {
 
     /**
-     * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
-     * 默认为 ~/.atomcode
+     * 默认构造：解析当前用户主目录。
      */
-    private static final Path ATOMCODE_HOME;
+    public AtomCodeUsageParser() {
+        super();
+    }
 
     /**
-     * 会话 transcripts 根: $ATOMCODE_Home/会话
-    */
-    private static final Path SESSIONS_DIR;
+     * 指定解析根目录构造。
+     *
+     * @param userHomes 逗号分隔的用户主目录列表
+     */
+    public AtomCodeUsageParser(String userHomes) {
+        super(userHomes);
+    }
 
     private static final String PROVIDER_ATOMCODE = "atomcode"; // 提供者atomcode
 
@@ -100,19 +105,18 @@ public class AtomCodeUsageParser extends BaseUsageParser {
             Pattern.compile("^\\s*model\\s*=\\s*\"([^\"]+)\"");
 
     /**
-     * config.toml 的兜底模型名（已映射为真实 model 名）。
-     * 空串表示解析过但无结果，避免重复读盘。
+     * 解析 AtomCode Home 目录：优先取 ATOMCODE_HOME 环境变量覆盖，
+     * 否则回退到解析根目录下的 .atomcode。
+     *
+     * @param home 解析根目录
+     * @return AtomCode Home 目录
      */
-    private static volatile String CONFIG_DEFAULT_MODEL;
-
-    static {
+    private Path resolveAtomcodeHome(Path home) {
         String envHome = System.getenv("ATOMCODE_HOME");
         if (StringUtils.isNotBlank(envHome)) {
-            ATOMCODE_HOME = Path.of(envHome);
-        } else {
-            ATOMCODE_HOME = Path.of(System.getProperty("user.home"), ".atomcode");
+            return Path.of(envHome);
         }
-        SESSIONS_DIR = ATOMCODE_HOME.resolve("sessions");
+        return home.resolve(".atomcode");
     }
 
     @Override
@@ -124,22 +128,25 @@ public class AtomCodeUsageParser extends BaseUsageParser {
      * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
      */
     @Override
-    public Flux<AiUsage> streamAll() {
-        if (!Files.isDirectory(SESSIONS_DIR)) {
-            log.debug("[atomcode] sessions directory not found: {}", SESSIONS_DIR);
+    protected Flux<AiUsage> streamHome(Path home) {
+        Path atomcodeHome = resolveAtomcodeHome(home);
+        Path sessionsDir = atomcodeHome.resolve("sessions");
+        if (!Files.isDirectory(sessionsDir)) {
+            log.debug("[atomcode] sessions directory not found: {}", sessionsDir);
             return Flux.empty();
         }
         try {
             List<Path> files;
-            try (var stream = Files.walk(SESSIONS_DIR)) {
+            try (var stream = Files.walk(sessionsDir)) {
                 files = stream.filter(Files::isRegularFile)
                         .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                         .toList();
             }
-            log.debug("[atomcode] found {} JSONL files in {}", files.size(), SESSIONS_DIR);
+            log.debug("[atomcode] found {} JSONL files in {}", files.size(), sessionsDir);
+            String fallbackModel = configDefaultModel(atomcodeHome);
             return Flux.fromIterable(files)
                     .subscribeOn(Schedulers.boundedElastic())
-                    .concatMap(this::streamJsonlFile);
+                    .concatMap(file -> streamJsonlFile(file, fallbackModel));
         } catch (IOException e) {
             return Flux.error(new IllegalStateException("walk failed", e));
         }
@@ -152,9 +159,8 @@ public class AtomCodeUsageParser extends BaseUsageParser {
      * @param file 文件
      * @return 流jsonl文件的结果
      */
-    private Flux<AiUsage> streamJsonlFile(Path file) {
+    private Flux<AiUsage> streamJsonlFile(Path file, String fallbackModel) {
         Map<Integer, TurnStat> turnStats = loadTurnStats(metaFileOf(file));
-        String fallbackModel = configDefaultModel();
         return streamLines(file)
                 .filter(line -> !line.isBlank())
                 .map(line -> parseLineSafe(line, turnStats, fallbackModel))
@@ -250,29 +256,23 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * config.toml 的 default_model 兜底值（懒加载，结果缓存）。
+     * config.toml 的 default_model 兜底值。
+     * @param atomcodeHome AtomCode Home 目录
      * @return 真实模型名；无法解析时返回 null
      */
-    private String configDefaultModel() {
-        String cached = CONFIG_DEFAULT_MODEL;
-        if (cached == null) {
-            synchronized (AtomCodeUsageParser.class) {
-                if (CONFIG_DEFAULT_MODEL == null) {
-                    CONFIG_DEFAULT_MODEL = resolveConfigDefaultModel();
-                }
-                cached = CONFIG_DEFAULT_MODEL;
-            }
-        }
-        return cached.isBlank() ? null : cached;
+    private String configDefaultModel(Path atomcodeHome) {
+        String resolved = resolveConfigDefaultModel(atomcodeHome);
+        return resolved.isBlank() ? null : resolved;
     }
 
     /**
      * 解析 config.toml：先取 default_model 声明，再映射到
      * 对应 [models."xxx"] 小节内的真实 model 名。
+     * @param atomcodeHome AtomCode Home 目录
      * @return 真实模型名；声明缺失或映射不到时返回声明原值，读盘失败返回空串
      */
-    private String resolveConfigDefaultModel() {
-        Path config = ATOMCODE_HOME.resolve("config.toml");
+    private String resolveConfigDefaultModel(Path atomcodeHome) {
+        Path config = atomcodeHome.resolve("config.toml");
         if (!Files.isRegularFile(config)) {
             return "";
         }
