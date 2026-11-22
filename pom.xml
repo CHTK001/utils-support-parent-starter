@@ -171,6 +171,7 @@
         <redisson.version>4.8.0</redisson.version>
         <netty.all.version>4.2.21.Final</netty.all.version>
         <commons.net.version>3.12.0</commons.net.version>
+        <commons.cli.version>1.11.0</commons.cli.version>
         <dubbo.version>3.3.6</dubbo.version>
         <!--
           Apache POI 家族（poi / poi-ooxml）由本属性统一驱动。
@@ -180,11 +181,11 @@
           同一 reactor 内出现三个版本。现统一到 5.5.1 并让托管条目引用本属性。
         -->
         <poi.ooxml.version>6.0.0</poi.ooxml.version>
-        <sshd.version>2.20.0</sshd.version>
+        <sshd.version>2.20.1</sshd.version>
         <intellij.annotations.version>12.0</intellij.annotations.version>
         <io.gitee.dengwenjie.seeta.sdk.platform.version>1.2.2</io.gitee.dengwenjie.seeta.sdk.platform.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <parquet.avro.version>1.18.1</parquet.avro.version>
+        <parquet.avro.version>1.18.2</parquet.avro.version>
         <cuvs.version>24.10.0</cuvs.version>
         <ollama4j.version>1.1.7</ollama4j.version>
         <xk.time.version>3.2.4</xk.time.version>
@@ -223,7 +224,9 @@
           com.maxmind.geoip2 → 5：库 API/坐标变更
         - org.apache.sshd → 3-M6：3.x 未 GA 且 API 大改（现 2.20.0）
         - chronicle-queue → 2026 版本节奏、配置格式变化
-        - schemacrawler → 17、org.jline:jline → 4、org.graalvm.js：主版本 API/发布方式变化
+        - schemacrawler → 18、org.jline:jline → 4、org.graalvm.js：主版本 API/发布方式变化
+        - io.github.classgraph → 6、org.apache.groovy → 6、jakarta.enterprise.cdi-api → 5：
+          主版本 API 变更（2026-11-22 穷尽审计补充登记，维持不升）
         - mica-net-http → 2、aliyun-java-sdk-facebody → 2、volcengine ark → 2：SDK 主版本 API 变更
         - javax JAXB（javax.xml.bind:jaxb-api）→ jakarta 坐标迁移：高风险，涉及下游依赖方
         - org.apache.tomcat.embed → 11：Servlet 容器主版本与下游兼容性（现 10.1.40）
@@ -539,6 +542,13 @@
                 <artifactId>json-path</artifactId>
                 <version>${json.path.version}</version>
             </dependency>
+            <!-- 2026-11-22 补 json-path-assert 托管条目：与 json-path 同号（${json.path.version}=3.0.0）。
+                 此前该坐标缺托管，版本落在 Boot 4.1.1 BOM 的 2.10.0，与 json-path 3.x 形成同族错配。 -->
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path-assert</artifactId>
+                <version>${json.path.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.github.ollama4j</groupId>
                 <artifactId>ollama4j</artifactId>
@@ -765,7 +775,8 @@
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
-                <version>3.3.0</version>
+                <!-- 2026-11-22 依赖升级：3.3.0 → 3.3.1（同线补丁） -->
+                <version>3.3.1</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.playwright</groupId>
@@ -820,7 +831,8 @@
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
-                <version>2.0.65.android8</version>
+                <!-- 2026-11-22 依赖升级：2.0.65.android8 → 2.0.66.android8（同线补丁，保留 android8 分类器） -->
+                <version>2.0.66.android8</version>
             </dependency>
             <dependency>
                 <groupId>net.thisptr</groupId>
@@ -845,7 +857,8 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.7.13</version>
+                <!-- 2026-11-22 依赖升级：42.7.13 → 42.7.14（同线补丁） -->
+                <version>42.7.14</version>
             </dependency>
             <dependency>
                 <groupId>redis.clients</groupId>
@@ -860,7 +873,8 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-sync</artifactId>
-                <version>5.13.0</version>
+                <!-- 2026-11-22 依赖升级：5.13.0 → 5.15.0（同 major minor） -->
+                <version>5.15.0</version>
             </dependency>
             <dependency>
                 <groupId>org.neo4j.driver</groupId>
@@ -998,22 +1012,22 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>7.8.0.202609011348-r</version>
+                <version>7.8.1.202611041320-r</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit.ssh.jsch</artifactId>
-                <version>7.8.0.202609011348-r</version>
+                <version>7.8.1.202611041320-r</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit.http.server</artifactId>
-                <version>7.8.0.202609011348-r</version>
+                <version>7.8.1.202611041320-r</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit.archive</artifactId>
-                <version>7.8.0.202609011348-r</version>
+                <version>7.8.1.202611041320-r</version>
             </dependency>
             <dependency>
                 <groupId>com.jcraft</groupId>
@@ -1073,17 +1087,20 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>7.4.12.Final</version>
+                <!-- 2026-11-22 依赖升级：7.4.12.Final → 7.4.17.Final（同 7.4.x 线补丁） -->
+                <version>7.4.17.Final</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.18.14-jdk5</version>
+                <!-- 2026-11-22 依赖升级：1.18.14-jdk5 → 1.18.17-jdk5（同线补丁，Hibernate 生态传递依赖） -->
+                <version>1.18.17-jdk5</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>9.1.4.Final</version>
+                <!-- 2026-11-22 依赖升级：9.1.4.Final → 9.2.0.Final（同 major minor） -->
+                <version>9.2.0.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.shardingsphere</groupId>
@@ -1210,7 +1227,8 @@
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-crypto</artifactId>
-                <version>5.8.47</version>
+                <!-- 2026-11-22 依赖升级：5.8.47 → 5.8.48（同线补丁，hutool 三坐标须同号） -->
+                <version>5.8.48</version>
             </dependency>
             <dependency>
                 <groupId>cn.idev.excel</groupId>
@@ -1225,7 +1243,8 @@
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
-                <version>3.2.4</version>
+                <!-- 2026-11-22 依赖升级：3.2.4 → 3.3.0（同 major minor） -->
+                <version>3.3.0</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
@@ -1252,11 +1271,10 @@
                 <artifactId>pinyin4j</artifactId>
                 <version>2.5.1</version>
             </dependency>
-            <dependency>
-                <groupId>com.hankcs</groupId>
-                <artifactId>hanlp</artifactId>
-                <version>${hanlp.version}</version>
-            </dependency>
+            <!-- 2026-11-22 移除 com.hankcs:hanlp 托管条目：其 <version>${hanlp.version}</version>
+                 引用的属性从未在任何 pom 中定义（版本无法解析，属潜伏缺陷，versions 插件因此
+                 报出假版本 0.0.3），且本仓无任何模块声明该依赖。如需引入 hanlp，请同时补
+                 <hanlp.version> 属性。 -->
             <dependency>
                 <groupId>com.codeborne</groupId>
                 <artifactId>phantomjsdriver</artifactId>
@@ -1405,7 +1423,10 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-sse</artifactId>
-                <version>5.0.0-alpha.17</version>
+                <!-- 2026-11-22 依赖升级：5.0.0-alpha.17 → ${okhttp.version}(5.5.1)。
+                     此前 sse 仍停在 alpha 预览版，落后于 okhttp 主构件两个 minor；
+                     okhttp-sse 与 okhttp/okhttp-jvm 必须同号发布，故改挂同一属性。 -->
+                <version>${okhttp.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.mail</groupId>
@@ -1445,12 +1466,16 @@
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>20040117.000000</version>
+                <!-- 2026-11-22 修复假版本：20040117.000000（2004 年垃圾时间戳坐标）→ ${commons.cli.version}(1.11.0，
+                     Maven Central 当前 release)。本仓代码未直接消费 commons-cli，仅作托管兜底。 -->
+                <version>${commons.cli.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>20030805.205232</version>
+                <!-- 2026-11-22 修复假版本：20030805.205232（2003 年垃圾时间戳坐标）→ ${commons.net.version}(3.12.0)。
+                     此前版本号数值上大于真实版，versions 插件误判「已最新」，故未出现在过期报告里。 -->
+                <version>${commons.net.version}</version>
             </dependency>
             <dependency>
                 <groupId>dev.kovaliv</groupId>
@@ -1612,7 +1637,8 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.9.6</version>
+                <!-- 2026-11-22 依赖升级：3.9.6 → 3.9.7（同线补丁） -->
+                <version>3.9.7</version>
             </dependency>
             <dependency>
                 <groupId>org.benf</groupId>
@@ -1622,17 +1648,19 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
-                <version>1.86</version>
+                <!-- 2026-11-22 依赖升级：1.86 → 1.87（同 major，bouncycastle 家族三坐标须同号） -->
+                <version>1.87</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15to18</artifactId>
-                <version>1.86</version>
+                <version>1.87</version>
             </dependency>
             <dependency>
                 <groupId>org.commonmark</groupId>
                 <artifactId>commonmark</artifactId>
-                <version>0.30.0</version>
+                <!-- 2026-11-22 依赖升级：0.30.0 → 0.33.0（同 0.x 线） -->
+                <version>0.33.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.websocket</groupId>
@@ -1692,7 +1720,8 @@
             <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
-                <version>1.1.10.11</version>
+                <!-- 2026-11-22 依赖升级：1.1.10.11 → 1.1.10.12（同线补丁） -->
+                <version>1.1.10.12</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
@@ -1732,7 +1761,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
-                <version>1.86</version>
+                <version>1.87</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -1759,7 +1788,8 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>4.3.1</version>
+                <!-- 2026-11-22 依赖升级：4.3.1 → 4.4.0（同 major minor，客户端向后兼容） -->
+                <version>4.4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
@@ -1769,7 +1799,8 @@
             <dependency>
                 <groupId>co.elastic.clients</groupId>
                 <artifactId>elasticsearch-java</artifactId>
-                <version>9.5.4</version>
+                <!-- 2026-11-22 依赖升级：9.5.4 → 9.5.6（同线补丁） -->
+                <version>9.5.6</version>
             </dependency>
             <dependency>
                 <groupId>com.meilisearch.sdk</groupId>
@@ -1799,12 +1830,12 @@
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
-                <version>5.8.47</version>
+                <version>5.8.48</version>
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-core</artifactId>
-                <version>5.8.47</version>
+                <version>5.8.48</version>
             </dependency>
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
@@ -1814,7 +1845,8 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.9.25.1</version>
+                <!-- 2026-11-22 依赖升级：1.9.25.1 → 1.9.27（同 major） -->
+                <version>1.9.27</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
@@ -1942,7 +1974,8 @@
             <dependency>
                 <groupId>com.linecorp.armeria</groupId>
                 <artifactId>armeria</artifactId>
-                <version>1.42.0</version>
+                <!-- 2026-11-22 依赖升级：1.42.0 → 1.43.1（同 major minor） -->
+                <version>1.43.1</version>
             </dependency>
             <dependency>
                 <groupId>io.rsocket</groupId>
@@ -1964,20 +1997,21 @@
                 <artifactId>dubbo</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
+            <!-- 2026-11-22 依赖升级：grpc 三构件 1.84.0 → 1.85.1（同 major，与 Central 最新对齐） -->
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty-shaded</artifactId>
-                <version>1.84.0</version>
+                <version>1.85.1</version>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-protobuf</artifactId>
-                <version>1.84.0</version>
+                <version>1.85.1</version>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
-                <version>1.84.0</version>
+                <version>1.85.1</version>
             </dependency>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
@@ -1997,7 +2031,8 @@
             <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
-                <version>5.37.0</version>
+                <!-- 2026-11-22 依赖升级：5.37.0 → 5.38.0（同 major minor） -->
+                <version>5.38.0</version>
             </dependency>
 
             <dependency>

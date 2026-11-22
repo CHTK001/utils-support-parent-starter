@@ -183,7 +183,7 @@ hibernate=com.chua.hibernate.support.ddl.HibernateDdlManager
 | `com.chua:utils-support-common-starter` | 随父 pom | compile | `DslManager` SPI、`Dialect`、`TableDef` 等契约 |
 | `com.chua:utils-support-datasource-starter` | 随父 pom | **provided** | `DefaultDslManager` 父类与 `DataSourceAware`（由宿主提供） |
 | `org.hibernate.orm:hibernate-core` | `7.4.11.Final` | compile | pom 声明的依赖；**源码未使用任何 Hibernate ORM API** |
-| `net.bytebuddy:byte-buddy` | `1.18.14-jdk5` | compile | Hibernate 生态传递依赖 |
+| `net.bytebuddy:byte-buddy` | `1.18.17-jdk5` | compile | Hibernate 生态传递依赖 |
 | `org.hibernate.validator:hibernate-validator` | `9.1.4.Final` | compile | Bean 校验实现 |
 | `jakarta.validation:jakarta.validation-api` | `3.1.1` | compile | 校验 API |
 

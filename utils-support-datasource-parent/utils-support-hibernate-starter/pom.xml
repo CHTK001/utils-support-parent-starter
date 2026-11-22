@@ -24,17 +24,21 @@
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>7.4.11.Final</version>
+            <!-- 2026-11-22 依赖升级：7.4.11.Final → 7.4.17.Final（同 7.4.x 线补丁，
+                 消除与根 pom 托管值 7.4.17.Final 的漂移） -->
+            <version>7.4.17.Final</version>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.18.14-jdk5</version>
+            <!-- 2026-11-22 依赖升级：1.18.14-jdk5 → 1.18.17-jdk5（与根 pom 托管值对齐） -->
+            <version>1.18.17-jdk5</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>9.1.4.Final</version>
+            <!-- 2026-11-22 依赖升级：9.1.4.Final → 9.2.0.Final（与根 pom 托管值对齐） -->
+            <version>9.2.0.Final</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
