@@ -76,6 +76,11 @@ public class FrpClient implements Closeable {
     private volatile String sessionToken;
 
     /**
+     * 隧道开启超时（毫秒），默认 {@link #DEFAULT_TIMEOUT_MS}
+     */
+    private volatile long tunnelOpenTimeoutMs = DEFAULT_TIMEOUT_MS;
+
+    /**
      * 信令连接
      */
     private volatile Socket signalSocket;
@@ -178,6 +183,20 @@ public class FrpClient implements Closeable {
      */
     public FrpClient token(String token) {
         this.token = token != null ? token : "";
+        return this;
+    }
+
+    /**
+     * 设置隧道开启超时时间（毫秒）。
+     *
+     * <p>高延迟或高负载链路（如跨机房、突发建隧窗口）可适当调大，
+     * 避免服务端瞬时繁忙时 {@link #openTunnel(String, int)} 过早失败。</p>
+     *
+     * @param timeoutMs 超时时间（毫秒），&lt;=0 时回退默认值 {@link #DEFAULT_TIMEOUT_MS}
+     * @return 当前客户端实例，支持链式调用
+     */
+    public FrpClient tunnelOpenTimeoutMs(long timeoutMs) {
+        this.tunnelOpenTimeoutMs = timeoutMs > 0 ? timeoutMs : DEFAULT_TIMEOUT_MS;
         return this;
     }
 
@@ -641,7 +660,7 @@ public class FrpClient implements Closeable {
         sendSignal(FrpProtocol.line(FrpProtocol.PREFIX_OPEN, sessionToken, requestId,
                 targetHost, String.valueOf(targetPort)));
         try {
-            return future.get(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            return future.get(tunnelOpenTimeoutMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             pendingTunnels.remove(requestId);
             throw new IllegalStateException("FRP 隧道开启失败: " + targetHost + ":" + targetPort, e);
