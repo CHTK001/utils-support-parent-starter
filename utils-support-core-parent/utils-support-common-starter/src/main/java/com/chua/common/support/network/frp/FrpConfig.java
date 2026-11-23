@@ -22,9 +22,10 @@ public class FrpConfig {
     public static final String DEFAULT_HOST = "0.0.0.0";
 
     /**
-     * 默认认证令牌
+     * 默认认证令牌（可经系统属性 {@code chua.frp.token} 或环境变量 {@code CHUA_FRP_TOKEN} 覆盖，
+     * 内置值仅作未配置时的兜底）
      */
-    public static final String DEFAULT_TOKEN = "chua-frp-default-token";
+    public static final String DEFAULT_TOKEN = configOr("chua.frp.token", "CHUA_FRP_TOKEN", "chua-frp-default-token");
 
     /**
      * 认证令牌
@@ -40,6 +41,22 @@ public class FrpConfig {
      * 监听端口
      */
     private int port;
+
+    /**
+     * 依次读取系统属性与环境变量，均未配置时返回兜底值。
+     *
+     * @param sysProp  系统属性名
+     * @param envVar   环境变量名
+     * @param fallback 兜底值
+     * @return 配置值或兜底值
+     */
+    private static String configOr(String sysProp, String envVar, String fallback) {
+        String value = System.getProperty(sysProp);
+        if (value == null || value.isBlank()) {
+            value = System.getenv(envVar);
+        }
+        return (value == null || value.isBlank()) ? fallback : value;
+    }
 
     /**
      * 创建一份独立的默认配置。
