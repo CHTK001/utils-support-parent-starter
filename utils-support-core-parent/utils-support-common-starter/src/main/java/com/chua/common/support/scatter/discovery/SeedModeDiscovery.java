@@ -295,7 +295,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                     .serverId(selfNodeId)
                     .scatterId(getGroupId())
                     .protocol(setting.getProtocol())
-                    .host(setting.effectiveHost())
+                    .host(advertiseHost())
                     .port(scatterPort)
                     .timeout((int) setting.getTimeoutMillis())
                     .weight(1.0)

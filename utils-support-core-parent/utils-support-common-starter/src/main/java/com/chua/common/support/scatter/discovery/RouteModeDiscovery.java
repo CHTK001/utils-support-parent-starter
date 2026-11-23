@@ -3,6 +3,7 @@ package com.chua.common.support.scatter.discovery;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.scatter.ScatterContext;
+import com.chua.common.support.scatter.ScatterNetworks;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.ScatterSetting;
@@ -14,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +73,10 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
      * 每轮同步请求 ID 计数器
      */
     private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
+    /**
+     * 端口未配置告警（仅告警一次）
+     */
+    private final AtomicBoolean portWarned = new AtomicBoolean(false);
 
     /**
      * 构造方法，创建 Route模式Discovery 实例。
@@ -123,6 +129,21 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     private List<ScatterNode> resolveSubnetNodes() {
         String subnet = setting.getSubnet();
         if (StringUtils.isBlank(subnet)) {
+            // 自动发现默认：本机非回环 IPv4 所在网段（如 192.168.1.0/24）
+            subnet = ScatterNetworks.localSubnetCidr();
+            if (StringUtils.isBlank(subnet)) {
+                if (portWarned.compareAndSet(false, true)) {
+                    log.warn("自动发现未配置 subnet 且无法推断本机网段，跳过本轮网段扫描");
+                }
+                return List.of();
+            }
+        }
+        int port = setting.discoveryPort();
+        if (port <= 0) {
+            // 自动发现要求各节点使用固定一致端口，port=0（系统分配）时无法定位对端
+            if (portWarned.compareAndSet(false, true)) {
+                log.warn("自动发现要求固定端口（port>0），当前 port=0，跳过网段扫描");
+            }
             return List.of();
         }
         String[] parts = subnet.trim().split("/");
@@ -147,16 +168,29 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
             int limit = Math.min(maxHosts, 254);
             for (int i = 1; i <= limit; i++) {
                 String host = toIp(baseIp + i);
-                if (host.equals(setting.effectiveHost())) {
+                if (isSelf(host)) {
                     continue;
                 }
-                nodes.add(new ScatterNode(host + ":" + setting.getPort(), host, setting.getPort(),
+                nodes.add(new ScatterNode(host + ":" + port, host, port,
                         setting.getProtocol(), getGroupId(), setting.getServicePath()));
             }
             return nodes;
         } catch (Exception e) {
             return List.of();
         }
+    }
+
+    /**
+     * 判断目标地址是否为本机（host 配置值或本机任一非回环 IPv4），避免自我探测。
+     *
+     * @param host 目标地址，不允许为 null
+     * @return 是否本机
+     */
+    private boolean isSelf(String host) {
+        if (host.equals(setting.effectiveHost())) {
+            return true;
+        }
+        return ScatterNetworks.localIPv4s().contains(host);
     }
 
     /**

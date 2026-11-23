@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * FRP 端口映射：将本机端口映射到对端暴露的目标服务。
@@ -56,9 +56,9 @@ public class FrpTunnelPort {
     private final String localHost;
 
     /**
-     * 本地监听 Socket
+     * 本地监听通道（accept 出的 SocketChannel 可接入共享 Selector 管道）
      */
-    private ServerSocket serverSocket;
+    private ServerSocketChannel serverChannel;
 
     /**
      * 接受连接线程
@@ -151,9 +151,12 @@ public class FrpTunnelPort {
         }
         client.connect().map(targetHost, targetPort, localPort);
         try {
-            serverSocket = new ServerSocket();
-            serverSocket.setReuseAddress(true);
-            serverSocket.bind(new InetSocketAddress(localHost, localPort), 50);
+            // 用 ServerSocketChannel：accept 出的 SocketChannel 才有底层通道，
+            // 可切非阻塞接入共享 Selector 管道（ServerSocket.accept() 的 socket 无通道，
+            // 其阻塞流在 Windows 虚拟线程下存在双 Poller 丢写唤醒风险）
+            serverChannel = ServerSocketChannel.open();
+            serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            serverChannel.bind(new InetSocketAddress(localHost, localPort), 50);
             running = true;
             Thread accept = ThreadUtils.newVirtualThread("frp-tunnel-port-" + localPort, this::acceptLoop);
             this.acceptThread = accept;
@@ -173,11 +176,11 @@ public class FrpTunnelPort {
             return;
         }
         running = false;
-        if (serverSocket != null) {
+        if (serverChannel != null) {
             try {
-                serverSocket.close();
+                serverChannel.close();
             } catch (IOException e) {
-                log.debug("[frp] 关闭 ServerSocket 失败，已忽略: {}", e.getMessage());
+                log.debug("[frp] 关闭 ServerSocketChannel 失败，已忽略: {}", e.getMessage());
             }
         }
         client.removeMapping(targetHost, targetPort, localPort);
@@ -190,8 +193,8 @@ public class FrpTunnelPort {
     private void acceptLoop() {
         while (running) {
             try {
-                Socket socket = serverSocket.accept();
-                ThreadUtils.startVirtualThread("frp-tunnel-fwd-" + localPort, () -> forward(socket));
+                SocketChannel channel = serverChannel.accept();
+                ThreadUtils.startVirtualThread("frp-tunnel-fwd-" + localPort, () -> forward(channel));
             } catch (IOException e) {
                 if (running) {
                     log.debug("FRP 端口接受连接异常: {}", e.getMessage());
@@ -203,23 +206,31 @@ public class FrpTunnelPort {
     /**
      * 将本地 TCP 连接转发到隧道服务。
      *
-     * @param socket 本地连接
+     * @param channel 本地连接通道
      */
-    private void forward(Socket socket) {
+    private void forward(SocketChannel channel) {
         try {
-            socket.setTcpNoDelay(true);
+            channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
         } catch (Exception e) {
             log.debug("[frp] 设置 TCP_NODELAY 失败，已忽略: {}", e.getMessage());
         }
+        NioChannelPipe pipe;
+        try {
+            pipe = new NioChannelPipe(channel);
+        } catch (IOException e) {
+            log.debug("[frp] 本地连接接入 NIO 管道失败: {}", e.getMessage());
+            closeQuietly(channel);
+            return;
+        }
         FrpTunnelSession session = openTunnelWithRetry();
         if (session == null) {
-            closeQuietly(socket);
+            pipe.close();
             return;
         }
         log.debug("FRP forward: channel={}, local socket connected", session.getChannelId());
-        session.onBytes((buf, off, len) -> writeSocket(socket, buf, off, len));
-        session.onClose(channelId -> closeQuietly(socket));
-        readSocket(socket, session);
+        session.onBytes((buf, off, len) -> writePipe(pipe, buf, off, len));
+        session.onClose(channelId -> pipe.close());
+        readPipe(pipe, session);
     }
 
     /**
@@ -259,11 +270,11 @@ public class FrpTunnelPort {
     /**
      * 读取本地连接数据并写入隧道。
      *
-     * @param socket  本地连接
+     * @param pipe    本地连接管道
      * @param session 隧道会话
      */
-    private void readSocket(Socket socket, FrpTunnelSession session) {
-        try (InputStream in = socket.getInputStream()) {
+    private void readPipe(NioChannelPipe pipe, FrpTunnelSession session) {
+        try (InputStream in = pipe.getInputStream()) {
             byte[] buffer = new byte[8192];
             int read;
             while ((read = in.read(buffer)) != -1) {
@@ -283,16 +294,14 @@ public class FrpTunnelPort {
     /**
      * 将隧道数据切片写入本地连接（零拷贝：直接写 {@code data[off, off+len)}）。
      *
-     * @param socket 本地连接
-     * @param data   字节数据
-     * @param off    起始偏移
-     * @param len    数据长度
+     * @param pipe 本地连接管道
+     * @param data 字节数据
+     * @param off  起始偏移
+     * @param len  数据长度
      */
-    private void writeSocket(Socket socket, byte[] data, int off, int len) {
+    private void writePipe(NioChannelPipe pipe, byte[] data, int off, int len) {
         try {
-            OutputStream out = socket.getOutputStream();
-            out.write(data, off, len);
-            out.flush();
+            pipe.getOutputStream().write(data, off, len);
         } catch (IOException e) {
             log.debug("[frp] IO 操作失败，已忽略: {}", e.getMessage());
         }
@@ -301,11 +310,11 @@ public class FrpTunnelPort {
     /**
      * 静默关闭连接。
      *
-     * @param socket 连接
+     * @param channel 本地连接通道
      */
-    private void closeQuietly(Socket socket) {
+    private void closeQuietly(SocketChannel channel) {
         try {
-            socket.close();
+            channel.close();
         } catch (IOException e) {
             log.debug("[frp] IO 操作失败，已忽略: {}", e.getMessage());
         }

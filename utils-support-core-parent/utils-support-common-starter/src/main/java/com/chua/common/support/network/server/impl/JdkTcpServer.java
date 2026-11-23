@@ -152,6 +152,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private final Map<String, TcpHandler> handlers = new ConcurrentHashMap<>();
 
     /**
+     * 原始 Socket 处理器表：在流式包装前拿到底层 Socket（含 SocketChannel），
+     * 供需要自行接管非阻塞 NIO 的协议服务器使用（如 FRP 单共享 Selector 管道）。
+     */
+    private final Map<String, RawSocketHandler> socketHandlers = new ConcurrentHashMap<>();
+
+    /**
      * 粘包处理配置：是否启用固定长度帧解析
      */
     private boolean fixedLengthEnabled = false;
@@ -977,6 +983,27 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         String clientKey = socket.getRemoteSocketAddress().toString();
         log.debug("TCP 连接: {}", clientKey);
 
+        // 原始 Socket 处理器：先于流式包装分流，让处理器拿到底层 Socket/SocketChannel
+        //（例如需要切换非阻塞 NIO 的协议服务器）。连接预算与 socket 关闭由本分支的
+        // finally 统一收口，与下方流式路径的语义一致。
+        RawSocketHandler socketHandler = findSocketHandler(clientKey);
+        if (socketHandler != null) {
+            try {
+                socketHandler.handle(socket);
+            } catch (Exception e) {
+                log.debug("TCP 原始连接处理异常: {}", e.getMessage());
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                    // NOTHING
+                }
+                // 连接预算必须与 accept 期的 tryAcquireConnection() 严格配对
+                releaseConnection();
+            }
+            return;
+        }
+
         try (InputStream rawIn = socket.getInputStream();
              OutputStream rawOut = socket.getOutputStream()) {
             InputStream in = rawIn;
@@ -1105,6 +1132,41 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     public JdkTcpServer registerHandler(String name, TcpHandler handler) {
         handlers.put(name, handler);
         return this;
+    }
+
+    /**
+     * 注册原始 Socket 处理器。
+     *
+     * <p>命中的连接不再走 {@link TcpHandler} 流式路径，而是在读取任何字节前
+     * 把原始 {@link Socket} 交给处理器，便于其通过 {@code socket.getChannel()}
+     * 拿到底层 {@link java.nio.channels.SocketChannel} 自行接管非阻塞 IO。</p>
+     *
+     * @param name    处理器名称（"*" 表示匹配所有连接）
+     * @param handler 处理器
+     * @return 当前服务器实例，支持链式调用
+     */
+    public JdkTcpServer registerSocketHandler(String name, RawSocketHandler handler) {
+        socketHandlers.put(name, handler);
+        return this;
+    }
+
+    /**
+     * 查找原始 Socket 处理器（精确键优先，其次通配 "*"）。
+     *
+     * @param clientKey 客户端键
+     * @return 处理器，无匹配返回 null
+     */
+    private RawSocketHandler findSocketHandler(String clientKey) {
+        RawSocketHandler handler = socketHandlers.get(clientKey);
+        if (handler != null) {
+            return handler;
+        }
+        for (Map.Entry<String, RawSocketHandler> entry : socketHandlers.entrySet()) {
+            if ("*".equals(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     /**
@@ -1270,6 +1332,25 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
          * @param out 输出流
          */
         void handle(InputStream in, OutputStream out) throws Exception;
+    }
+
+    /**
+     * 原始 Socket 处理器接口：在流式包装前接管连接。
+     *
+     * <p>与 {@link TcpHandler} 的区别：处理器拿到的是原始 {@link Socket}，
+     * 可通过 {@code socket.getChannel()} 访问底层 {@link java.nio.channels.SocketChannel}
+     * （例如切换非阻塞模式接入自管 Selector）。处理器返回或抛异常后，
+     * 服务器负责关闭 socket 并归还连接预算。</p>
+     */
+    @FunctionalInterface
+    public interface RawSocketHandler {
+        /**
+         * 处理一条原始 TCP 连接。
+         *
+         * @param socket 已接入的 TCP 连接
+         * @throws Exception 处理异常（由服务器兜底记录并关闭连接）
+         */
+        void handle(Socket socket) throws Exception;
     }
 
     /**

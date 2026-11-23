@@ -11,9 +11,11 @@ import com.chua.common.support.utils.StringUtils;
 /**
  * scatter 配置。
  *
- * <p><b>模式</b>（tcp 双模式）：</p>
+ * <p><b>发现方式二选一</b>：</p>
  * <ul>
- *   <li>路由模式：{@code subnet} 非空，网段内 gossip 探测扩散；</li>
+ *   <li>自动发现（默认）：未配置 {@code seeds} 且 {@code autoDiscovery=true}。
+ *       tcp（默认协议）按网段 gossip 扫描，{@code subnet} 为空时默认本机同网段；
+ *       udp 则为多播 + 广播宣告（{@code multicastGroup}）；</li>
  *   <li>seed 引导模式：{@code seeds} 非空，仅与 seed 同步 hash、seed 扩散、最小 nodeId 选举。</li>
  * </ul>
  *
@@ -66,9 +68,19 @@ public class ScatterSetting {
     private List<String> seeds = Wraps.list();
 
     /**
-     * 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式
+     * 路由模式：网段（如 "192.168.1.0/24"），非空即按该网段自动发现
      */
     private String subnet;
+
+    /**
+     * 自动发现开关（与 seeds 二选一，seeds 非空时优先 seed 模式）。
+     * true=自动发现：tcp 默认本机同网段扫描（subnet 可显式指定），udp 为多播+广播宣告
+     */
+    private boolean autoDiscovery = true;
+    /**
+     * UDP 自动发现多播组地址（protocol=udp 时生效）
+     */
+    private String multicastGroup = "239.255.0.1";
 
     /**
      * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk
@@ -117,6 +129,25 @@ public class ScatterSetting {
      * gossip 扩散目标数（路由模式抽样）
      */
     private int gossipTargetCount = 4;
+
+    /**
+     * 是否 seed 引导模式（seeds 非空；与自动发现二选一，seeds 优先）。
+     *
+     * @return 是否成功（true 表示成功）
+     */
+    public boolean isSeedMode() {
+        return seeds != null && !seeds.isEmpty();
+    }
+
+    /**
+     * 自动发现目标端口：显式 port &gt; 0 用之，否则回落 scatter 通信端口。
+     * 自动发现要求各节点使用固定一致端口；port=0（系统分配）时无法定位对端。
+     *
+     * @return 发现目标端口（&lt;=0 表示不可用）
+     */
+    public int discoveryPort() {
+        return port > 0 ? port : scatterPort;
+    }
 
     /**
      * 对外宣告地址：announceHost 非空时优先，否则回落 host。

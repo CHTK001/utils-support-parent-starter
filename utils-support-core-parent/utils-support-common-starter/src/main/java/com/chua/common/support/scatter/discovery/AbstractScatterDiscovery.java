@@ -7,6 +7,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.scatter.ScatterContext;
+import com.chua.common.support.scatter.ScatterNetworks;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterRemoteClient;
 import com.chua.common.support.scatter.ScatterResult;
@@ -108,6 +109,23 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         return setting;
     }
 
+    /**
+     * 对外宣告地址：announceHost 优先；host 为空或 0.0.0.0 时推断本机非回环 IPv4
+     * （自动发现场景下对端需用该地址回连，0.0.0.0 不可路由）。
+     *
+     * @return 宣告地址
+     */
+    protected String advertiseHost() {
+        String host = setting.effectiveHost();
+        if (StringUtils.isBlank(host) || "0.0.0.0".equals(host)) {
+            String local = ScatterNetworks.localIPv4();
+            if (local != null) {
+                return local;
+            }
+        }
+        return host;
+    }
+
     @Override
     public synchronized void start() throws Exception {
         if (started) {
@@ -123,8 +141,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                     t.setDaemon(true);
                     return t;
                 });
+        // 首轮尽快执行（上限 2s），加快新节点入网收敛
         discoveryExecutor.scheduleAtFixedRate(this::discoveryRound,
-                setting.getAutoDiscoveryIntervalMillis(),
+                Math.min(setting.getAutoDiscoveryIntervalMillis(), 2000L),
                 setting.getAutoDiscoveryIntervalMillis(),
                 TimeUnit.MILLISECONDS);
     }
@@ -167,7 +186,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
                 .protocol(setting.getProtocol())
-                .host(setting.effectiveHost())
+                .host(advertiseHost())
                 .port(selfPort)
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(1.0)
@@ -187,7 +206,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
                 .protocol(setting.getProtocol())
-                .host(setting.effectiveHost())
+                .host(advertiseHost())
                 .port(selfPort)
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(computeDynamicWeight())
@@ -265,6 +284,15 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                         setting.setSeeds(seeds);
                         log.info("收到选举通知，新增 seed 引导: {}", seedAddr);
                     }
+                }
+                return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
+                        frame.getPath(), new byte[0]).encode();
+            } else if (frame.getType() == ScatterProtocol.TYPE_DISC) {
+                // 自动发现宣告（UDP 多播/广播）：payload 为宣告方全量服务表，逐条合并同分组条目
+                String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
+                List<Discovery> announced = Json.fromJsonToList(json, Discovery.class);
+                if (announced != null && !announced.isEmpty()) {
+                    mergeRemote(announced);
                 }
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();

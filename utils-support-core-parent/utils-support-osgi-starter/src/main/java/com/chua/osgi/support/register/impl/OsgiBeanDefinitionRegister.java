@@ -14,6 +14,8 @@ import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.spi.annotations.SpiIgnore;
+import com.chua.osgi.support.proxy.OsgiServiceProxy;
+import com.chua.osgi.support.proxy.OsgiServiceProxyFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
@@ -116,6 +118,15 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
     private volatile boolean invalidateOnBundleLifecycle = true;
 
     /**
+     * 是否为桥接 Bean 生成「随 OSGi 切换」的动态代理。
+     *
+     * <p>启用后容器外发的实例是每次调用都解析当前生效服务的代理，
+     * 消费方启动期持有的引用在 bundle 升级/卸载后自动打到新实例；
+     * 关闭则退化为旧的裸实例行为（仅查询时切换）。</p>
+     */
+    private volatile boolean proxyEnabled = true;
+
+    /**
      * 显式追加的验收器。
      * <p>
      * 与 SPI 装载到的验收器一并生效。用于不便走 SPI 的场景：
@@ -179,6 +190,45 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
      */
     public boolean isInvalidateOnBundleLifecycle() {
         return invalidateOnBundleLifecycle;
+    }
+
+    /**
+     * 设置是否为桥接 Bean 生成「随 OSGi 切换」的动态代理。
+     *
+     * @param proxyEnabled 启用代理返回 true
+     */
+    public void setProxyEnabled(boolean proxyEnabled) {
+        this.proxyEnabled = proxyEnabled;
+    }
+
+    /**
+     * 是否为桥接 Bean 生成「随 OSGi 切换」的动态代理。
+     *
+     * @return 启用代理返回 true
+     */
+    public boolean isProxyEnabled() {
+        return proxyEnabled;
+    }
+
+    /**
+     * 解析指定桥接 Bean 当前生效的原始服务实例。
+     *
+     * <p>供切换代理在每次调用时回调：先取当前快照中的定义，
+     * 再解包掉代理层，保证拿到的是 OSGi 注册表里的真实实例而非代理自身，
+     * 避免「代理 → 定义 → 代理」的递归。服务已下线时返回 {@code null}。</p>
+     *
+     * @param beanName 桥接 Bean 名称
+     * @return 当前生效的原始服务实例；已下线返回 {@code null}
+     */
+    public Object resolveRawTarget(String beanName) {
+        if (beanName == null || closed) {
+            return null;
+        }
+        BeanDefinition definition = currentSnapshot().byName().get(beanName);
+        if (definition == null) {
+            return null;
+        }
+        return OsgiServiceProxyFactory.unwrap(definition.getBean());
     }
 
     /**

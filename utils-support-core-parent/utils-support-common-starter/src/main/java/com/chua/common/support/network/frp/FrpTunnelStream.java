@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -31,9 +33,15 @@ public class FrpTunnelStream {
     private final String channelId;
 
     /**
-     * 底层数据连接
+     * 底层数据通道（非阻塞，接入单共享 Selector 管道）
      */
-    private final Socket socket;
+    private final SocketChannel channel;
+
+    /**
+     * NIO 字节管道：读、写就绪由同一分发线程驱动，规避 Windows 虚拟线程
+     * 读/写双 Poller 丢写唤醒导致的永久 park（能力矩阵 §3.3 Round 5）
+     */
+    private final NioChannelPipe pipe;
 
     /**
      * 输出流
@@ -69,11 +77,14 @@ public class FrpTunnelStream {
     FrpTunnelStream(String host, int port, String channelId, String role,
                     String sharedToken, String sessionToken) throws IOException {
         this.channelId = channelId;
-        this.socket = new Socket();
-        socket.setTcpNoDelay(true);
-        socket.connect(new java.net.InetSocketAddress(host, port), 5000);
-        this.out = socket.getOutputStream();
-        this.socketIn = socket.getInputStream();
+        // 阻塞 connect 仅一次性等待连接建立（单事件、非读/写双 Poller 场景），
+        // 建立后立即切非阻塞接入共享 Selector 管道
+        this.channel = SocketChannel.open();
+        channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+        channel.connect(new InetSocketAddress(host, port));
+        this.pipe = new NioChannelPipe(channel);
+        this.out = pipe.getOutputStream();
+        this.socketIn = pipe.getInputStream();
         String signature = HMacUtils.hmacSha256Hex(sessionToken, channelId + role);
         out.write((FrpProtocol.PREFIX_CONNECT + FrpProtocol.SEPARATOR
                 + channelId + FrpProtocol.SEPARATOR + role + FrpProtocol.SEPARATOR + signature + "\n")
@@ -164,11 +175,7 @@ public class FrpTunnelStream {
         }
         closed = true;
         log.debug("FRP 数据流关闭: channel={}", channelId);
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.debug("关闭 FRP 隧道流失败，已忽略: {}", e.getMessage());
-        }
+        pipe.close();
     }
 
     /**

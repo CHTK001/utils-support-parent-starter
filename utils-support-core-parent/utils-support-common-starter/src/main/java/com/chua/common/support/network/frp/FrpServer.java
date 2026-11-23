@@ -18,7 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -154,7 +156,10 @@ public class FrpServer extends AbstractServer implements TcpServer {
     @Override
     protected void doStart() {
         tcpServer = new JdkTcpServer(setting);
-        tcpServer.registerHandler("*", this::handleConnection);
+        // 原始 Socket 接管：数据面连接必须拿到底层 SocketChannel 切非阻塞，
+        // 接入单共享 Selector 管道（NioChannelPipe），根除 Windows 虚拟线程
+        // 读/写双 Poller 丢写唤醒导致的隧道停摆（能力矩阵 §3.3 Round 5）。
+        tcpServer.registerSocketHandler("*", this::handleRawConnection);
         tcpServer.start();
         setting.setPort(tcpServer.getPort());
         log.info("FRP 单端口服务器启动成功: {}:{}", setting.getHost(), setting.getPort());
@@ -479,6 +484,53 @@ public class FrpServer extends AbstractServer implements TcpServer {
             }
         } catch (IOException e) {
             log.debug("FRP 连接处理异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 以原始 Socket 方式处理一条 JdkTcpServer 转交的连接。
+     *
+     * <p>把底层 {@link SocketChannel} 切非阻塞并接入单共享 Selector 管道
+     * {@link NioChannelPipe}：同一连接若被读、写两个 Poller 分别注册
+     * （Windows 虚拟线程阻塞流的双 AFD 实例），写就绪事件可能丢失，
+     * 写方虚拟线程永久 park，导致大数据量转发时整条链路互等冻结。
+     * 统一经管道读写后，每条连接仅有一个 AFD 注册，读写就绪由同一分发线程驱动。</p>
+     *
+     * <p>握手首行同样经管道读取（不触碰 socket 阻塞流，避免阻塞流与非阻塞通道混用），
+     * 之后按前缀分流信令连接与数据面连接。</p>
+     *
+     * @param socket 已接入的 TCP 连接
+     */
+    private void handleRawConnection(Socket socket) {
+        SocketChannel channel = socket.getChannel();
+        if (channel == null) {
+            // 理论不可达：JdkTcpServer 流式路径的连接均来自 SocketChannel.accept()
+            log.warn("FRP 连接缺少底层 SocketChannel，跳过处理");
+            return;
+        }
+        NioChannelPipe pipe;
+        try {
+            pipe = new NioChannelPipe(channel);
+        } catch (IOException e) {
+            log.debug("FRP 连接注册 NIO 管道失败: {}", e.getMessage());
+            return;
+        }
+        try {
+            String firstLine = readHeadLine(pipe.getInputStream());
+            if (StringUtils.isBlank(firstLine)) {
+                return;
+            }
+            if (firstLine.startsWith(FrpProtocol.PREFIX_AUTH + FrpProtocol.SEPARATOR)) {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(pipe.getInputStream(), StandardCharsets.UTF_8));
+                handleSignalConnection(reader, pipe.getOutputStream(), firstLine);
+            } else if (firstLine.startsWith(FrpProtocol.PREFIX_CONNECT + FrpProtocol.SEPARATOR)) {
+                handleDataConnection(pipe.getInputStream(), pipe.getOutputStream(), firstLine);
+            }
+        } catch (IOException e) {
+            log.debug("FRP 连接处理异常: {}", e.getMessage());
+        } finally {
+            pipe.close();
         }
     }
 

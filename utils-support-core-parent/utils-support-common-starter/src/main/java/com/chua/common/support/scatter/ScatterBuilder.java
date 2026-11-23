@@ -7,6 +7,7 @@ import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.scatter.discovery.AbstractScatterDiscovery;
 import com.chua.common.support.scatter.discovery.RouteModeDiscovery;
 import com.chua.common.support.scatter.discovery.SeedModeDiscovery;
+import com.chua.common.support.scatter.discovery.UdpBroadcastDiscovery;
 import com.chua.common.support.scatter.node.ScatterNodeHandler;
 import com.chua.common.support.scatter.node.ScatterTcpNodeServer;
 import com.chua.common.support.scatter.node.ScatterNodeServer;
@@ -139,6 +140,26 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
      */
     public B subnet(String subnet) {
         setting.setSubnet(subnet);
+        return (B) this;
+    }
+
+    /**
+     * 自动发现开关（与 seeds 二选一，seeds 优先）。默认 true：tcp 本机同网段扫描 / udp 多播+广播。
+     * @param autoDiscovery 是否自动发现
+     * @return B 对象
+     */
+    public B autoDiscovery(boolean autoDiscovery) {
+        setting.setAutoDiscovery(autoDiscovery);
+        return (B) this;
+    }
+
+    /**
+     * UDP 自动发现多播组地址（protocol=udp 时生效）。
+     * @param multicastGroup 多播组地址，不允许为 null
+     * @return B 对象
+     */
+    public B multicastGroup(String multicastGroup) {
+        setting.setMulticastGroup(multicastGroup);
         return (B) this;
     }
 
@@ -300,16 +321,22 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 构建发现服务（按模式选择路由/seed）。
+     * 构建发现服务（按发现方式选择：seed 引导 / udp 多播广播自动发现 / tcp 网段自动发现）。
      *
      * @return 发现服务
      */
     public AbstractScatterDiscovery buildDiscovery() {
         AbstractScatterDiscovery discovery;
-        if (setting.getSubnet() != null && !setting.getSubnet().isBlank()) {
-            discovery = new RouteModeDiscovery(setting);
-        } else {
+        if (setting.isSeedMode()) {
+            // seed 引导模式
             discovery = new SeedModeDiscovery(setting);
+        } else if (setting.isAutoDiscovery()
+                && "udp".equalsIgnoreCase(setting.getProtocol())) {
+            // udp 自动发现：多播 + 广播宣告
+            discovery = new UdpBroadcastDiscovery(setting);
+        } else {
+            // tcp 自动发现（subnet 为空时默认本机同网段）；autoDiscovery=false 时退化为独立节点
+            discovery = new RouteModeDiscovery(setting);
         }
         discovery.remoteClient(buildRemoteClient());
         return discovery;

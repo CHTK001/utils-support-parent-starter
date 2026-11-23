@@ -6,7 +6,7 @@ package com.chua.common.support.scatter.protocol;
  * <p>帧格式（二进制紧凑，无冗余分隔符）：</p>
  * <pre>
  * [0]      magic      1B  固定 0x53 ('S')
- * [1]      type       1B  0x01 REQ / 0x02 PUSH / 0x03 RESP / 0x04 ACK / 0x05 ELEC
+ * [1]      type       1B  0x01 REQ / 0x02 PUSH / 0x03 RESP / 0x04 ACK / 0x05 ELEC / 0x06 DISC
  * [2..5]   requestId  4B  int（大端）
  * [6]      pathLen    1B  path 字节长度（0-255）
  * [7..]    path       N B 服务路径（UTF-8）
@@ -45,6 +45,10 @@ public final class ScatterProtocol {
      * 类型：选举通知
      */
     public static final byte TYPE_ELEC = 0x05;
+    /**
+     * 类型：自动发现宣告（UDP 多播/广播，payload 为宣告方全量服务表 JSON 数组）
+     */
+    public static final byte TYPE_DISC = 0x06;
 
     /**
      * 构造方法，创建 ScatterProtocol 实例。

@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 
 /**
  * FRP 暴露服务：将本机的 TCP 服务暴露为显式映射目标，供对端访问。
@@ -131,13 +131,17 @@ public class FrpExpose {
      */
     private void bridgeToLocal(FrpTunnelSession session) {
         try {
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(localHost, localPort), 5000);
+            // 阻塞 connect 仅一次性等待连接建立（单事件、非读/写双 Poller 场景），
+            // 建立后立即切非阻塞接入共享 Selector 管道
+            SocketChannel channel = SocketChannel.open();
+            channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+            channel.connect(new InetSocketAddress(localHost, localPort));
+            NioChannelPipe pipe = new NioChannelPipe(channel);
             log.debug("FRP bridgeToLocal: channel={}, connected to {}:{}", session.getChannelId(),
                     localHost, localPort);
-            session.onBytes((buf, off, len) -> writeSocket(socket, buf, off, len));
-            session.onClose(channelId -> closeQuietly(socket));
-            readSocket(socket, session);
+            session.onBytes((buf, off, len) -> writePipe(pipe, buf, off, len));
+            session.onClose(channelId -> closeQuietly(pipe));
+            readPipe(pipe, session);
         } catch (IOException e) {
             log.error("FRP 隧道连接本地服务失败: {}:{}", localHost, localPort, e);
             session.close();
@@ -147,12 +151,12 @@ public class FrpExpose {
     /**
      * 读取本地服务数据并写入隧道。
      *
-     * @param socket  本地服务连接
+     * @param pipe    本地服务连接管道
      * @param session 隧道会话
      */
-    private void readSocket(Socket socket, FrpTunnelSession session) {
+    private void readPipe(NioChannelPipe pipe, FrpTunnelSession session) {
         ThreadUtils.startVirtualThread("frp-expose-" + targetHost, () -> {
-            try (InputStream in = socket.getInputStream()) {
+            try (InputStream in = pipe.getInputStream()) {
                 byte[] buffer = new byte[8192];
                 int read;
                 while ((read = in.read(buffer)) != -1) {
@@ -173,31 +177,25 @@ public class FrpExpose {
     /**
      * 将隧道数据切片写入本地服务（零拷贝：直接写 {@code data[off, off+len)}）。
      *
-     * @param socket 本地服务连接
-     * @param data   字节数据
-     * @param off    起始偏移
-     * @param len    数据长度
+     * @param pipe 本地服务连接管道
+     * @param data 字节数据
+     * @param off  起始偏移
+     * @param len  数据长度
      */
-    private void writeSocket(Socket socket, byte[] data, int off, int len) {
+    private void writePipe(NioChannelPipe pipe, byte[] data, int off, int len) {
         try {
-            OutputStream out = socket.getOutputStream();
-            out.write(data, off, len);
-            out.flush();
+            pipe.getOutputStream().write(data, off, len);
         } catch (IOException e) {
             log.debug("[frp] 发送数据失败，已忽略: {}", e.getMessage());
         }
     }
 
     /**
-     * 静默关闭连接。
+     * 静默关闭管道。
      *
-     * @param socket 连接
+     * @param pipe 连接管道
      */
-    private void closeQuietly(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.debug("[frp] 发送数据失败，已忽略: {}", e.getMessage());
-        }
+    private void closeQuietly(NioChannelPipe pipe) {
+        pipe.close();
     }
 }
