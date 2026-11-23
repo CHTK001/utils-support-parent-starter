@@ -50,11 +50,6 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     public static final String HUB_ID = "registry-hub";
 
     /**
-     * 默认传输协议
-     */
-    private static final String DEFAULT_PROTOCOL = "http";
-
-    /**
      * 默认监听地址
      */
     private static final String DEFAULT_HOST = "0.0.0.0";
@@ -112,57 +107,19 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     /**
      * 创建内嵌注册中心。
      *
-     * <p>地址格式：{@code [protocol://]host[:port]}，默认协议 {@code http}、默认端口 {@code 9600}。</p>
+     * <p>地址格式：{@code [protocol://]host[:port]}，默认端口 {@code 9600}。未显式指定协议时
+     * 按目标地址自动切换默认传输协议（tcp/udp 双协议）：局域网地址默认 {@code udp}，
+     * 其余默认 {@code tcp}；显式 scheme 优先级最高，规则见 {@link DiscoveryProtocols}。</p>
      *
      * @param discoveryOption 发现选项，address 承载监听地址
      */
     public RegistryHubServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
         String address = discoveryOption == null ? null : discoveryOption.getAddress();
-        String protocol = DEFAULT_PROTOCOL;
-        String host = DEFAULT_HOST;
-        int port = DEFAULT_PORT;
-        if (StringUtils.isNotBlank(address)) {
-            String rest = address.trim();
-            int schemeIdx = rest.indexOf("://");
-            if (schemeIdx > 0) {
-                protocol = rest.substring(0, schemeIdx);
-                rest = rest.substring(schemeIdx + 3);
-            }
-            int slashIdx = rest.indexOf('/');
-            if (slashIdx >= 0) {
-                rest = rest.substring(0, slashIdx);
-            }
-            if (rest.startsWith("[")) {
-                // IPv6 形如 [::1]:9600
-                int end = rest.indexOf(']');
-                if (end > 0) {
-                    host = rest.substring(1, end);
-                    int colon = rest.indexOf(':', end);
-                    if (colon > 0) {
-                        port = Integer.parseInt(rest.substring(colon + 1));
-                    }
-                } else {
-                    host = rest;
-                }
-            } else {
-                int colon = rest.lastIndexOf(':');
-                if (colon > 0) {
-                    host = rest.substring(0, colon);
-                    port = Integer.parseInt(rest.substring(colon + 1));
-                } else {
-                    host = rest;
-                }
-            }
-        }
-        // ws/wss/websocket 是线上协议名，SPI 实现名统一为 websocket
-        if ("ws".equalsIgnoreCase(protocol) || "wss".equalsIgnoreCase(protocol)
-                || "websocket".equalsIgnoreCase(protocol)) {
-            protocol = "websocket";
-        }
-        this.transportProtocol = protocol;
-        this.bindHost = host;
-        this.bindPort = port;
+        DiscoveryProtocols.ParsedAddress parsed = DiscoveryProtocols.parse(address, DEFAULT_HOST, DEFAULT_PORT);
+        this.transportProtocol = parsed.protocol();
+        this.bindHost = parsed.host();
+        this.bindPort = parsed.port();
     }
 
     /**

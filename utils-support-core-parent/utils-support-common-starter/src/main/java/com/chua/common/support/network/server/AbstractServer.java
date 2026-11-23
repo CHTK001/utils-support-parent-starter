@@ -176,6 +176,9 @@ public abstract class AbstractServer implements ConfigServer {
         // 过滤器每次请求实时读取开关；关闭时不短路，直接放行进入后续链路。
         addBuiltinFilter(new HealthCheckServerFilter(setting.getManagement()));
         addBuiltinFilter(new MetricsEndpointServerFilter(metrics, setting.getManagement()));
+        // 基准报告（p50/p99/p999、QPS、RPM、连接数）：默认关闭，配置可能在构造后才回填，
+        // 故传入配置引用、每次请求实时读取开关；关闭时不短路、不记录，直接放行。
+        addBuiltinFilter(new BenchmarkReportServerFilter(metrics, setting.getManagement()));
         if (urlMappingFilter != null) {
             addBuiltinFilter(urlMappingFilter);
         }
