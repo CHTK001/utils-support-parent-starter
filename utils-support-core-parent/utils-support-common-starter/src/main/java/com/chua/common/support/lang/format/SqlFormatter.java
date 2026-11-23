@@ -3,6 +3,8 @@ package com.chua.common.support.lang.format;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -137,6 +139,220 @@ public abstract class SqlFormatter implements Formatter {
                 '=', '<', '>', '+', '-', '*', '/', '(', ')', ',', ';', '.'
         ));
     }
+    // ==================== 预编译正则 ====================
+
+    /**
+     * 连续空白压缩预编译模式，供各格式化器复用，避免每次格式化重复编译正则。
+     */
+    protected static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+
+    /**
+     * 分号前多余空白预编译模式，避免每次格式化重复编译正则。
+     */
+    protected static final Pattern SEMICOLON_SPACE_PATTERN = Pattern.compile("\\s+;");
+
+    /**
+     * 贴词比较操作符预编译模式，用于在 {@code = < >} 前后补空格。
+     */
+    protected static final Pattern OPERATOR_PATTERN = Pattern.compile("([^\\s])([<>=])([^\\s])");
+
+    /**
+     * 关键字正则缓存：键为不含 {@code (?i)} 前缀的正则体（如 {@code WHERE}），
+     * 关键字来自代码内固定词表，缓存有界，同一正则进程内只编译一次。
+     */
+    private static final Map<String, Pattern> KEYWORD_PATTERNS = new ConcurrentHashMap<>();
+
+    /**
+     * 取关键字对应的预编译模式（自动追加 {@code (?i)} 大小写不敏感前缀与
+     * {@code \b} 词边界，避免误伤含关键字子串的标识符——如 {@code note} 中的
+     * {@code NOT}、{@code version} 中的 {@code ON}、{@code task} 中的 {@code AS}）。
+     *
+     * @param keywordRegex 关键字正则体，如 {@code WHERE}、{@code GROUP\s+BY}
+     * @return 预编译模式
+     */
+    protected static Pattern keywordPattern(String keywordRegex) {
+        return KEYWORD_PATTERNS.computeIfAbsent(keywordRegex,
+                k -> Pattern.compile("(?i)\\b" + k + "\\b"));
+    }
+
+    /**
+     * 用预编译关键字模式做大小写不敏感替换，替换值为 {@link #formatKeyword(String)} 规范化结果。
+     *
+     * @param input        原始文本
+     * @param keywordRegex 关键字正则体，如 {@code WHERE}、{@code GROUP\s+BY}
+     * @param keyword      规范关键字，如 {@code GROUP BY}
+     * @return 替换后的文本
+     */
+    protected String replaceKeyword(String input, String keywordRegex, String keyword) {
+        return replaceWithPattern(input, keywordRegex, formatKeyword(keyword));
+    }
+
+    /**
+     * 用预编译关键字模式做大小写不敏感替换，替换串由调用方显式给定。
+     *
+     * <p>与 {@link #replaceKeyword(String, String, String)} 的区别：替换串不经
+     * {@link #formatKeyword(String)} 规范化，用于「前后补空格」「换行缩进」等
+     * 非纯关键字规范化场景。</p>
+     *
+     * @param input        原始文本
+     * @param keywordRegex 关键字正则体（自动追加 {@code (?i)} 前缀）
+     * @param replacement  替换串（可含分组引用 {@code $1} 等）
+     * @return 替换后的文本
+     */
+    protected String replaceWithPattern(String input, String keywordRegex, String replacement) {
+        return replaceOutsideLiterals(input, keywordPattern(keywordRegex), replacement);
+    }
+
+    /**
+     * 词法感知替换：跳过字符串字面量（单引号/双引号/反引号）与注释（行/块）后，
+     * 仅在普通 SQL 片段上执行正则替换。
+     *
+     * <p>避免把 {@code WHERE name = 'where clause'} 中字符串字面量里的关键字
+     * 误当作 SQL 关键字改写（会破坏字面量内容甚至产出非法 SQL）。</p>
+     *
+     * @param input       原始文本
+     * @param pattern     预编译模式
+     * @param replacement 替换串
+     * @return 替换后的文本
+     */
+    private static String replaceOutsideLiterals(String input, Pattern pattern, String replacement) {
+        int length = input.length();
+        StringBuilder out = new StringBuilder(length + 16);
+        int segStart = 0;
+        int i = 0;
+        while (i < length) {
+            char c = input.charAt(i);
+            if (c == '\'' || c == '"' || c == '`') {
+                int end = skipQuoted(input, i, c);
+                appendReplaced(out, input, segStart, i, pattern, replacement);
+                out.append(input, i, end);
+                segStart = end;
+                i = end;
+            } else if (c == '-' && i + 1 < length && input.charAt(i + 1) == '-') {
+                int end = skipLineComment(input, i);
+                appendReplaced(out, input, segStart, i, pattern, replacement);
+                out.append(input, i, end);
+                segStart = end;
+                i = end;
+            } else if (c == '/' && i + 1 < length && input.charAt(i + 1) == '*') {
+                int end = skipBlockComment(input, i);
+                appendReplaced(out, input, segStart, i, pattern, replacement);
+                out.append(input, i, end);
+                segStart = end;
+                i = end;
+            } else {
+                i++;
+            }
+        }
+        appendReplaced(out, input, segStart, length, pattern, replacement);
+        return out.toString();
+    }
+
+    /**
+     * 对 {@code [start, end)} 区间执行替换并追加到结果。
+     */
+    private static void appendReplaced(StringBuilder out, String input, int start, int end,
+                                       Pattern pattern, String replacement) {
+        if (start >= end) {
+            return;
+        }
+        // 注意：不能对整个 input 设 region(start, end) 后 replaceAll——
+        // Matcher.replaceAll 未命中时返回整个 input、命中时 appendTail 追加到全文末尾，
+        // 会把区间之外的文本重复带入结果，多段叠加即指数膨胀。这里只对切片做替换。
+        out.append(pattern.matcher(input.substring(start, end)).replaceAll(replacement));
+    }
+
+    /**
+     * 生成词法掩码：标记输入中处于字符串字面量（单引号/双引号/反引号）与
+     * 注释（行/块）内部的字符位置，供分词/切分类逻辑跳过这些区域，
+     * 避免把字面量或注释中的单词误当 SQL 关键字。
+     *
+     * @param input 原始文本
+     * @return 与输入等长的掩码数组，{@code true} 表示该位置字符位于字面量或注释内
+     */
+    protected static boolean[] maskLiteralsAndComments(String input) {
+        int length = input.length();
+        boolean[] mask = new boolean[length];
+        int i = 0;
+        while (i < length) {
+            char c = input.charAt(i);
+            if (c == '\'' || c == '"' || c == '`') {
+                int end = skipQuoted(input, i, c);
+                maskRange(mask, i, end);
+                i = end;
+            } else if (c == '-' && i + 1 < length && input.charAt(i + 1) == '-') {
+                int end = skipLineComment(input, i);
+                maskRange(mask, i, end);
+                i = end;
+            } else if (c == '/' && i + 1 < length && input.charAt(i + 1) == '*') {
+                int end = skipBlockComment(input, i);
+                maskRange(mask, i, end);
+                i = end;
+            } else {
+                i++;
+            }
+        }
+        return mask;
+    }
+
+    /**
+     * 将 {@code [start, end)} 区间的掩码位置置真。
+     */
+    private static void maskRange(boolean[] mask, int start, int end) {
+        for (int i = start; i < end; i++) {
+            mask[i] = true;
+        }
+    }
+
+    /**
+     * 返回引号区间的结束位置（不含）。支持双写转义（{@code ''}/{@code ""}/反引号）
+     * 与反斜杠转义（MySQL 风格）；未闭合引号保守保护到串尾。
+     */
+    private static int skipQuoted(String input, int start, char quote) {
+        int i = start + 1;
+        int length = input.length();
+        while (i < length) {
+            char c = input.charAt(i);
+            if (c == '\\' && i + 1 < length) {
+                i += 2;
+                continue;
+            }
+            if (c == quote) {
+                if (i + 1 < length && input.charAt(i + 1) == quote) {
+                    i += 2;
+                    continue;
+                }
+                return i + 1;
+            }
+            i++;
+        }
+        return length;
+    }
+
+    /**
+     * 返回行注释的结束位置（不含换行符本身，换行符留给下一段）。
+     */
+    private static int skipLineComment(String input, int start) {
+        int i = start + 2;
+        int length = input.length();
+        while (i < length) {
+            char c = input.charAt(i);
+            if (c == '\n' || c == '\r') {
+                return i;
+            }
+            i++;
+        }
+        return length;
+    }
+
+    /**
+     * 返回块注释的结束位置（含 {@code *}{@code /}）；未闭合则保护到串尾。
+     */
+    private static int skipBlockComment(String input, int start) {
+        int end = input.indexOf("*/", start + 2);
+        return end < 0 ? input.length() : end + 2;
+    }
+
     /**
      * Highlight配置
      */
@@ -222,7 +438,7 @@ public abstract class SqlFormatter implements Formatter {
         // 如果启用压缩空白，将连续的空白字符压缩为单个空格
         // 注意：这里只做初步压缩，不会破坏字符串字面量中的空白
         if (compressWhitespace) {
-            trimmed = trimmed.replaceAll("\\s+", " ");
+            trimmed = WHITESPACE_PATTERN.matcher(trimmed).replaceAll(" ");
         }
 
         // 委托给子类实现具体的格式化逻辑
@@ -471,15 +687,15 @@ public abstract class SqlFormatter implements Formatter {
         if (compressWhitespace) {
             // 使用正则替换连续的空白字符为单个空格
             // 注意：这里的正则不会影响字符串字面量中的空白
-            result = result.replaceAll("\\s+", " ");
+            result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
         }
 
         // 3. 处理分号：确保分号前没有多余空格
-        result = result.replaceAll("\\s+;", ";");
+        result = SEMICOLON_SPACE_PATTERN.matcher(result).replaceAll(";");
 
         // 4. 确保操作符前后有空格（对易读性有帮助）
         // 注意：这里简化为在 =, <, > 等操作符周围添加空格
-        result = result.replaceAll("([^\\s])([<>=])([^\\s])", "$1 $2 $3");
+        result = OPERATOR_PATTERN.matcher(result).replaceAll("$1 $2 $3");
 
         return result;
     }

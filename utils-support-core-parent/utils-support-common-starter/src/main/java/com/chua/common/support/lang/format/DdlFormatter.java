@@ -218,11 +218,11 @@ public class DdlFormatter extends SqlFormatter {
             return sql;
         }
 
-        // 2. 提取关键信息
+        // 2. 提取关键信息（CREATE_TABLE_PATTERN 仅两个捕获组：1=表名，2=括号内列/约束定义）
         // 表名
-        String tableName = matcher.group(2);
+        String tableName = matcher.group(1);
         // 列定义和约束定义
-        String columnsPart = matcher.group(3);
+        String columnsPart = matcher.group(2);
 
         // 3. 解析列定义部分
         //    将列定义和约束定义分开存储
@@ -446,7 +446,7 @@ public class DdlFormatter extends SqlFormatter {
             return "";
         }
         // 简单处理：去除多余空白
-        return def.replaceAll("\\s+", " ");
+        return WHITESPACE_PATTERN.matcher(def).replaceAll(" ");
     }
 
     /**
@@ -476,15 +476,15 @@ public class DdlFormatter extends SqlFormatter {
         String result = def;
         // 使用正则替换，将关键字统一格式化
         // 注意：使用 (?i) 表示不区分大小写匹配
-        result = result.replaceAll("(?i)PRIMARY\\s+KEY", formatKeyword("PRIMARY KEY"));
-        result = result.replaceAll("(?i)FOREIGN\\s+KEY", formatKeyword("FOREIGN KEY"));
-        result = result.replaceAll("(?i)CONSTRAINT", formatKeyword("CONSTRAINT"));
-        result = result.replaceAll("(?i)UNIQUE", formatKeyword("UNIQUE"));
-        result = result.replaceAll("(?i)CHECK", formatKeyword("CHECK"));
-        result = result.replaceAll("(?i)REFERENCES", formatKeyword("REFERENCES"));
+        result = replaceKeyword(result, "PRIMARY\\s+KEY", "PRIMARY KEY");
+        result = replaceKeyword(result, "FOREIGN\\s+KEY", "FOREIGN KEY");
+        result = replaceKeyword(result, "CONSTRAINT", "CONSTRAINT");
+        result = replaceKeyword(result, "UNIQUE", "UNIQUE");
+        result = replaceKeyword(result, "CHECK", "CHECK");
+        result = replaceKeyword(result, "REFERENCES", "REFERENCES");
 
         // 去除多余空白
-        return result.replaceAll("\\s+", " ");
+        return WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
     }
 
     // ==================== ALTER TABLE 格式化 ====================
@@ -573,9 +573,9 @@ public class DdlFormatter extends SqlFormatter {
         }
 
         // 1. 替换关键字为统一格式
-        String result = sql.replaceAll("(?i)DROP\\s+TABLE", formatKeyword("DROP TABLE"));
+        String result = replaceKeyword(sql, "DROP\\s+TABLE", "DROP TABLE");
         // 2. 压缩多余空白
-        result = result.replaceAll("\\s+", " ");
+        result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
 
         return result.trim();
     }
@@ -599,13 +599,16 @@ public class DdlFormatter extends SqlFormatter {
         }
 
         String result = sql;
-        // 替换关键字
-        result = result.replaceAll("(?i)CREATE\\s+(UNIQUE\\s+)?INDEX",
+        // 替换关键字（词法感知，跳过字面量与注释）
+        // 先处理 UNIQUE 变体，避免被下方通用规则整体吞掉 UNIQUE 关键字
+        result = replaceWithPattern(result, "CREATE\\s+UNIQUE\\s+INDEX",
+                formatKeyword("CREATE") + " " + formatKeyword("UNIQUE") + " " + formatKeyword("INDEX"));
+        result = replaceWithPattern(result, "CREATE\\s+INDEX",
                 formatKeyword("CREATE") + " " + formatKeyword("INDEX"));
-        result = result.replaceAll("(?i)ON", " " + formatKeyword("ON") + " ");
+        result = replaceWithPattern(result, "ON", " " + formatKeyword("ON") + " ");
 
         // 压缩多余空白
-        result = result.replaceAll("\\s+", " ");
+        result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
 
         return result.trim();
     }
@@ -624,9 +627,8 @@ public class DdlFormatter extends SqlFormatter {
             return null;
         }
 
-        String result = sql.replaceAll("(?i)TRUNCATE\\s+TABLE",
-                formatKeyword("TRUNCATE TABLE"));
-        result = result.replaceAll("\\s+", " ");
+        String result = replaceKeyword(sql, "TRUNCATE\\s+TABLE", "TRUNCATE TABLE");
+        result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
 
         return result.trim();
     }

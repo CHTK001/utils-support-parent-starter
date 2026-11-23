@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * Lambda 方法引用 → 数据库列名 解析器。
+ * Lambda 方法引用 → 属性名/数据库列名 解析器。
  *
  * <p>通过反射调用 lambda 隐藏类的私有 {@code writeReplace} 方法取得
- * {@link SerializedLambda}，再从实现方法名推导属性名并转为下划线风格列名。
+ * {@link SerializedLambda}，再从实现方法名推导属性名（驼峰）或数据库列名（下划线）。
  * {@code writeReplace} 的 {@link Method} 句柄按 lambda 类缓存——同一调用点的
  * lambda 类在 JVM 侧稳定不变，缓存后可消除每次解析都重复执行的
  * {@code getDeclaredMethod} 与 {@code setAccessible}；缓存为软引用实现，
@@ -49,18 +49,7 @@ public final class LambdaColumnResolver {
      */
     public static String toColumnName(SFunction<?, ?> column) {
         try {
-            Class<?> lambdaClass = column.getClass();
-            Method writeReplace = WRITE_REPLACE_CACHE.get(lambdaClass);
-            if (null == writeReplace) {
-                // [P3C 1.10 豁免] writeReplace 为 lambda 隐藏类的私有方法，需精确方法句柄，无法用 ReflectUtils 替代
-                writeReplace = lambdaClass.getDeclaredMethod("writeReplace");
-                // [P3C 1.10 豁免] writeReplace 需 setAccessible 后方可在隐藏类外调用
-                writeReplace.setAccessible(true);
-                WRITE_REPLACE_CACHE.put(lambdaClass, writeReplace);
-            }
-            // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法，ReflectUtils 公共 LOOKUP 无法访问
-            SerializedLambda lambda = (SerializedLambda) writeReplace.invoke(column);
-            String methodName = lambda.getImplMethodName();
+            String methodName = serialize(column).getImplMethodName();
             String field = methodName.startsWith("is") ? methodName.substring(2)
                     : methodName.startsWith("get") ? methodName.substring(3) : methodName;
             var sb = new StringBuilder();
@@ -79,5 +68,48 @@ public final class LambdaColumnResolver {
         } catch (Exception e) {
             throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
         }
+    }
+
+    /**
+     * 将 Lambda 方法引用解析为属性名（驼峰，首字母小写）。
+     *
+     * <p>实现方法名去掉 {@code get}/{@code is} 前缀并小写首字母，
+     * 例如 {@code User::getDeptId} 解析为 {@code deptId}。</p>
+     *
+     * @param column Lambda 方法引用，不能为 null
+     * @return 属性名（驼峰风格）
+     * @throws IllegalArgumentException 方法引用无法解析时抛出
+     */
+    public static String toPropertyName(SFunction<?, ?> column) {
+        try {
+            String methodName = serialize(column).getImplMethodName();
+            String field = methodName.startsWith("get") ? methodName.substring(3)
+                    : methodName.startsWith("is") ? methodName.substring(2) : methodName;
+            return Character.toLowerCase(field.charAt(0)) + field.substring(1);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("无法解析 Lambda 属性: " + column, e);
+        }
+    }
+
+    /**
+     * 反射调用 lambda 隐藏类的 {@code writeReplace} 取得 {@link SerializedLambda}，
+     * 方法句柄按 lambda 类缓存，避免每次解析重复反射查找。
+     *
+     * @param column Lambda 方法引用
+     * @return 序列化形式的 lambda
+     * @throws Exception 反射失败时抛出（由调用方统一转为 {@link IllegalArgumentException}）
+     */
+    private static SerializedLambda serialize(SFunction<?, ?> column) throws Exception {
+        Class<?> lambdaClass = column.getClass();
+        Method writeReplace = WRITE_REPLACE_CACHE.get(lambdaClass);
+        if (null == writeReplace) {
+            // [P3C 1.10 豁免] writeReplace 为 lambda 隐藏类的私有方法，需精确方法句柄，无法用 ReflectUtils 替代
+            writeReplace = lambdaClass.getDeclaredMethod("writeReplace");
+            // [P3C 1.10 豁免] writeReplace 需 setAccessible 后方可在隐藏类外调用
+            writeReplace.setAccessible(true);
+            WRITE_REPLACE_CACHE.put(lambdaClass, writeReplace);
+        }
+        // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法，ReflectUtils 公共 LOOKUP 无法访问
+        return (SerializedLambda) writeReplace.invoke(column);
     }
 }

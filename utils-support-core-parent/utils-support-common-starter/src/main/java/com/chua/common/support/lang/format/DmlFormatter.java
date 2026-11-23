@@ -3,6 +3,8 @@ package com.chua.common.support.lang.format;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -111,6 +113,12 @@ public class DmlFormatter extends SqlFormatter {
     private static final Set<String> JOIN_KEYWORDS = Wraps.set(Arrays.asList(
             "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "ON", "USING"
     ));
+
+    /**
+     * 单词扫描预编译模式：按非空白连续段切词并保留词首偏移，
+     * 供 {@link #splitByKeywords} 做字面量/注释感知的关键字判定。
+     */
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\S+");
 
     // ==================== 主方法 ====================
 
@@ -278,19 +286,19 @@ public class DmlFormatter extends SqlFormatter {
             return result;
         }
 
-        // 按空格分割为单词
-        String[] words = sql.split("\\s+");
+        // 词法掩码：字符串字面量与注释内的字符不参与关键字判定，
+        // 避免 'take from pool' 或 /* where hide */ 中的单词被误当子句起点拆行。
+        boolean[] masked = maskLiteralsAndComments(sql);
+        Matcher wordMatcher = WORD_PATTERN.matcher(sql);
         var current = new StringBuilder();
 
-        for (String word : words) {
-            if (word == null || word.isEmpty()) {
-                continue;
-            }
-
+        while (wordMatcher.find()) {
+            String word = wordMatcher.group();
             String upper = word.toUpperCase();
 
-            // 检查是否为目标关键字（且不是空字符串）
-            if (keywords.contains(upper) && current.length() > 0) {
+            // 检查是否为目标关键字（词首不在字面量/注释内）
+            boolean keyword = !masked[wordMatcher.start()] && keywords.contains(upper);
+            if (keyword && current.length() > 0) {
                 // 遇到新的关键字，保存当前子句
                 result.add(current.toString().trim());
                 current = new StringBuilder();
@@ -445,12 +453,12 @@ public class DmlFormatter extends SqlFormatter {
 
         // 统一关键字格式
         String result = clause;
-        result = result.replaceAll("(?i)WHERE", formatKeyword("WHERE"));
+        result = replaceKeyword(result, "WHERE", "WHERE");
         // 注意：AND/OR 在WHERE子句中保持在同一行，除非条件特别复杂
-        result = result.replaceAll("(?i)AND", formatKeyword("AND"));
-        result = result.replaceAll("(?i)OR", formatKeyword("OR"));
-        result = result.replaceAll("(?i)NOT", formatKeyword("NOT"));
-        result = result.replaceAll("(?i)NULL", formatKeyword("NULL"));
+        result = replaceKeyword(result, "AND", "AND");
+        result = replaceKeyword(result, "OR", "OR");
+        result = replaceKeyword(result, "NOT", "NOT");
+        result = replaceKeyword(result, "NULL", "NULL");
 
         return result;
     }
@@ -467,7 +475,7 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         String result = clause;
-        result = result.replaceAll("(?i)GROUP\\s+BY", formatKeyword("GROUP BY"));
+        result = replaceKeyword(result, "GROUP\\s+BY", "GROUP BY");
         return result;
     }
 
@@ -483,9 +491,9 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         String result = clause;
-        result = result.replaceAll("(?i)ORDER\\s+BY", formatKeyword("ORDER BY"));
-        result = result.replaceAll("(?i)ASC", formatKeyword("ASC"));
-        result = result.replaceAll("(?i)DESC", formatKeyword("DESC"));
+        result = replaceKeyword(result, "ORDER\\s+BY", "ORDER BY");
+        result = replaceKeyword(result, "ASC", "ASC");
+        result = replaceKeyword(result, "DESC", "DESC");
         return result;
     }
 
@@ -500,7 +508,7 @@ public class DmlFormatter extends SqlFormatter {
             return "";
         }
 
-        return clause.replaceAll("(?i)HAVING", formatKeyword("HAVING"));
+        return replaceKeyword(clause, "HAVING", "HAVING");
     }
 
     /**
@@ -515,8 +523,8 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         String result = clause;
-        result = result.replaceAll("(?i)LIMIT", formatKeyword("LIMIT"));
-        result = result.replaceAll("(?i)OFFSET", formatKeyword("OFFSET"));
+        result = replaceKeyword(result, "LIMIT", "LIMIT");
+        result = replaceKeyword(result, "OFFSET", "OFFSET");
         return result;
     }
 
@@ -534,12 +542,12 @@ public class DmlFormatter extends SqlFormatter {
         String result = clause;
         // 统一JOIN相关关键字
         for (String keyword : JOIN_KEYWORDS) {
-            result = result.replaceAll("(?i)" + keyword, formatKeyword(keyword));
+            result = replaceKeyword(result, keyword, keyword);
         }
         // 统一UNION相关关键字
-        result = result.replaceAll("(?i)UNION", formatKeyword("UNION"));
-        result = result.replaceAll("(?i)INTERSECT", formatKeyword("INTERSECT"));
-        result = result.replaceAll("(?i)EXCEPT", formatKeyword("EXCEPT"));
+        result = replaceKeyword(result, "UNION", "UNION");
+        result = replaceKeyword(result, "INTERSECT", "INTERSECT");
+        result = replaceKeyword(result, "EXCEPT", "EXCEPT");
 
         return result;
     }
@@ -566,8 +574,8 @@ public class DmlFormatter extends SqlFormatter {
 
         String result = sql;
         // 1. 统一关键字
-        result = result.replaceAll("(?i)INSERT\\s+INTO", formatKeyword("INSERT INTO"));
-        result = result.replaceAll("(?i)VALUES", formatKeyword("VALUES"));
+        result = replaceKeyword(result, "INSERT\\s+INTO", "INSERT INTO");
+        result = replaceKeyword(result, "VALUES", "VALUES");
 
         // 2. 查找 VALUES 的位置
         int valuesIdx = result.toUpperCase().indexOf("VALUES");
@@ -598,7 +606,7 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         // 压缩多余空白
-        return result.replaceAll("\\s+", " ");
+        return WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
     }
 
     /**
@@ -621,12 +629,12 @@ public class DmlFormatter extends SqlFormatter {
 
         String result = sql;
         // 1. 统一关键字
-        result = result.replaceAll("(?i)UPDATE", formatKeyword("UPDATE"));
-        result = result.replaceAll("(?i)SET", formatKeyword("SET"));
-        result = result.replaceAll("(?i)WHERE", "\n  " + formatKeyword("WHERE") + " ");
+        result = replaceKeyword(result, "UPDATE", "UPDATE");
+        result = replaceKeyword(result, "SET", "SET");
+        result = replaceWithPattern(result, "WHERE", "\n  " + formatKeyword("WHERE") + " ");
 
         // 2. 压缩多余空白（但保留我们添加的换行）
-        result = result.replaceAll("\\s+", " ");
+        result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
 
         // 3. 清理SET后面的多余空格
         int setIdx = result.toUpperCase().indexOf("SET");
@@ -659,11 +667,11 @@ public class DmlFormatter extends SqlFormatter {
 
         String result = sql;
         // 1. 统一关键字
-        result = result.replaceAll("(?i)DELETE\\s+FROM", formatKeyword("DELETE FROM"));
-        result = result.replaceAll("(?i)WHERE", "\n  " + formatKeyword("WHERE") + " ");
+        result = replaceKeyword(result, "DELETE\\s+FROM", "DELETE FROM");
+        result = replaceWithPattern(result, "WHERE", "\n  " + formatKeyword("WHERE") + " ");
 
         // 2. 压缩多余空白
-        result = result.replaceAll("\\s+", " ");
+        result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
 
         return result;
     }
@@ -683,8 +691,8 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         String result = sql;
-        result = result.replaceAll("(?i)WITH", formatKeyword("WITH"));
-        result = result.replaceAll("(?i)AS", formatKeyword("AS"));
+        result = replaceKeyword(result, "WITH", "WITH");
+        result = replaceKeyword(result, "AS", "AS");
 
         // 简单处理：将CTE按逗号分割
         // 注意：更复杂的处理需要解析CTE的嵌套结构
