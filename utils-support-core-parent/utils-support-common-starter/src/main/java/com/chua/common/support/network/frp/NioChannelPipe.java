@@ -16,11 +16,12 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 单共享 Selector 的 NIO 字节管道：为 FRP 数据面提供「阻塞式 API + 非阻塞内核 IO」的桥接层。
+ * 分片共享 Selector 的 NIO 字节管道：为 FRP 数据面提供「阻塞式 API + 非阻塞内核 IO」的桥接层。
  *
  * <p><b>为什么需要它</b>：Windows 的虚拟线程阻塞流实现（NioSocketImpl）为读、写各注册一个
  * AFD 实例（读 Poller + 写 Poller）。同一连接的两个 AFD 实例之间存在窗口：写方向就绪事件
@@ -29,10 +30,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * 大数据量回环转发在高水位下偶发触发，表现为 FRP 隧道「第一枪」后停摆。</p>
  *
  * <p><b>修复方式</b>：每条连接只保留一个 {@link SocketChannel}（一个 AFD 实例），注册到
- * <b>全局唯一的共享 Selector</b> 上；读、写就绪都由同一个分发线程驱动——读就绪把字节
- * drain 进有界读队列并唤醒读者；写就绪把写队列排进内核并唤醒写者。虚拟线程按就绪事件
- * park/unpark，写路径带背压与超时（超时关流抛 {@link IOException} 自愈），彻底消除
- * 双 Poller 丢唤醒的结构性风险。</p>
+ * <b>共享 Selector 分片组中的一个</b>（单通道单注册）；读、写就绪都由该分片的分发线程
+ * 驱动——读就绪把字节 drain 进有界读队列并唤醒读者；写就绪把写队列排进内核并唤醒写者。
+ * 虚拟线程按就绪事件 park/unpark，写路径带背压与超时（超时关流抛 {@link IOException} 自愈），
+ * 彻底消除双 Poller 丢唤醒的结构性风险。分片仅为吞吐扩容（单条分发线程在回环压测中
+ * ~12k 事件/秒即饱和），不改变「一条连接只注册一个 Selector」的修复前提。</p>
  *
  * <p>对外提供 {@link InputStream} / {@link OutputStream} 阻塞视图，既有流式代码
  * （桥接循环、握手解析）无需改动即可迁移。</p>
@@ -75,21 +77,25 @@ final class NioChannelPipe {
     private static final long WRITE_TIMEOUT_MS = 120_000L;
 
     /**
-     * 共享 Selector 单例（懒加载，全部管道共用一个分发线程）
+     * 分发分片数：单条分发线程驱动全部管道会成为吞吐瓶颈（回环压测 ~12k 事件/秒即饱和），
+     * 上限 8 片，避免小核机器上线程过多
      */
-    private static volatile Selector sharedSelector;
+    private static final int DISPATCHER_SHARDS = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 8));
 
     /**
-     * 分发线程引用：供兴趣位调整时判断是否需要 wakeup（分发线程自身的调整
-     * 在下一次 select() 进入时必然可见，无需自我唤醒）
+     * 分片 Selector 组（懒加载，全部管道轮询分摊到各分片上）
      */
-    private static volatile Thread dispatcherThread;
+    private static volatile Selector[] sharedSelectors;
 
     /**
-     * 分发线程专用读缓冲：同一时刻只有分发线程执行 drain，全局复用一个
-     * 64KB 缓冲，避免每次读事件都分配；读满时整个缓冲入队，用后再取新缓冲
+     * 分片分发线程组（与 {@link #sharedSelectors} 一一对应）
      */
-    private static ByteBuffer dispatcherScratch;
+    private static volatile Thread[] dispatcherThreads;
+
+    /**
+     * 轮询计数器：新管道依次落入各分片，均衡各分发线程负载
+     */
+    private static final AtomicInteger NEXT_SHARD = new AtomicInteger();
 
     /**
      * Selector 懒加载锁
@@ -105,6 +111,12 @@ final class NioChannelPipe {
      * 注册键（构造后不变）
      */
     private final SelectionKey key;
+
+    /**
+     * 本管道所属分片的分发线程：供兴趣位调整时判断是否需要 wakeup
+     * （分发线程自身的调整在下一次 select() 进入时必然可见，无需自我唤醒）
+     */
+    private final Thread dispatcherThread;
 
     /**
      * 状态锁（保护队列、水位、EOF/错误标志，以及兴趣位修改的判定）
@@ -170,8 +182,10 @@ final class NioChannelPipe {
     NioChannelPipe(SocketChannel channel) throws IOException {
         this.channel = channel;
         channel.configureBlocking(false);
-        Selector selector = sharedSelector();
+        int shard = nextShard();
+        Selector selector = sharedSelectors[shard];
         this.key = channel.register(selector, SelectionKey.OP_READ, this);
+        this.dispatcherThread = dispatcherThreads[shard];
         // 新键必须打断当前 select，确保本轮就绪扫描能看到它
         selector.wakeup();
     }
@@ -226,35 +240,43 @@ final class NioChannelPipe {
     }
 
     /**
-     * 获取全局共享 Selector（懒加载）。
+     * 轮询选取新管道落入的分片下标（首次调用时懒加载初始化全部分片）。
      *
-     * @return 共享 Selector
-     * @throws IOException 打开失败
+     * @return 分片下标
+     * @throws IOException Selector 打开失败
      */
-    private static Selector sharedSelector() throws IOException {
-        Selector selector = sharedSelector;
-        if (selector != null && selector.isOpen()) {
-            return selector;
-        }
-        synchronized (SELECTOR_INIT_LOCK) {
-            if (sharedSelector == null || !sharedSelector.isOpen()) {
-                Selector created = Selector.open();
-                Thread dispatcher = new Thread(() -> dispatchLoop(created), "frp-nio-dispatcher");
-                dispatcher.setDaemon(true);
-                dispatcherThread = dispatcher;
-                dispatcher.start();
-                sharedSelector = created;
+    private static int nextShard() throws IOException {
+        if (sharedSelectors == null) {
+            synchronized (SELECTOR_INIT_LOCK) {
+                if (sharedSelectors == null) {
+                    Selector[] selectors = new Selector[DISPATCHER_SHARDS];
+                    Thread[] threads = new Thread[DISPATCHER_SHARDS];
+                    for (int i = 0; i < DISPATCHER_SHARDS; i++) {
+                        Selector shardSelector = Selector.open();
+                        selectors[i] = shardSelector;
+                        Thread dispatcher = new Thread(() -> dispatchLoop(shardSelector), "frp-nio-dispatcher-" + i);
+                        dispatcher.setDaemon(true);
+                        dispatcher.start();
+                        threads[i] = dispatcher;
+                    }
+                    // 先发布线程组再发布 Selector 组：volatile 写顺序保证读到
+                    // 非空 sharedSelectors 的线程必然看到完整的 dispatcherThreads
+                    dispatcherThreads = threads;
+                    sharedSelectors = selectors;
+                }
             }
-            return sharedSelector;
         }
+        return Math.floorMod(NEXT_SHARD.getAndIncrement(), DISPATCHER_SHARDS);
     }
 
     /**
-     * 共享 Selector 分发循环：读就绪 drain、写就绪 flush，单线程驱动全部管道。
+     * 分片 Selector 分发循环：读就绪 drain、写就绪 flush，单线程驱动本分片上的全部管道。
      *
-     * @param selector 共享 Selector
+     * @param selector 本分片共享 Selector
      */
     private static void dispatchLoop(Selector selector) {
+        // 分发线程私有读缓冲：跨读事件复用，drain 读满换新
+        ByteBuffer scratch = ByteBuffer.allocate(DRAIN_BUFFER_SIZE);
         while (selector.isOpen()) {
             try {
                 if (selector.select() == 0) {
@@ -270,7 +292,7 @@ final class NioChannelPipe {
                     }
                     NioChannelPipe pipe = (NioChannelPipe) readyKey.attachment();
                     if ((readyKey.readyOps() & SelectionKey.OP_READ) != 0) {
-                        pipe.drain();
+                        scratch = pipe.drain(scratch);
                     }
                     if (readyKey.isValid() && (readyKey.readyOps() & SelectionKey.OP_WRITE) != 0) {
                         pipe.flush();
@@ -285,19 +307,17 @@ final class NioChannelPipe {
     }
 
     /**
-     * 读就绪：把通道数据 drain 进读队列（单次事件限量，防止饿死其他连接），
+     * 读就绪：把通道数据 drain 进读队列（单次事件限量，防止饿死同分片上的其他连接），
      * 队列超限时摘除读兴趣形成读侧背压。
+     *
+     * @param scratch 分发线程私有读缓冲（跨读事件复用）
+     * @return 后续读事件应继续使用的读缓冲（读满整缓冲入队时换新返回）
      */
-    private void drain() {
+    private ByteBuffer drain(ByteBuffer scratch) {
         int drained = 0;
         boolean hitEof = false;
         IOException error = null;
         while (drained < DRAIN_LIMIT_PER_EVENT) {
-            ByteBuffer scratch = dispatcherScratch;
-            if (scratch == null) {
-                scratch = ByteBuffer.allocate(DRAIN_BUFFER_SIZE);
-                dispatcherScratch = scratch;
-            }
             scratch.clear();
             int n;
             try {
@@ -315,9 +335,10 @@ final class NioChannelPipe {
             }
             ByteBuffer chunk;
             if (n == DRAIN_BUFFER_SIZE) {
-                // 读满整缓冲：scratch 直接入队（免一次拷贝），下轮再取新缓冲
+                // 读满整缓冲：scratch 翻转后直接入队（免一次拷贝），换新缓冲继续
                 chunk = scratch;
-                dispatcherScratch = null;
+                chunk.flip();
+                scratch = ByteBuffer.allocate(DRAIN_BUFFER_SIZE);
             } else {
                 chunk = ByteBuffer.allocate(n);
                 scratch.flip();
@@ -358,6 +379,7 @@ final class NioChannelPipe {
             log.debug("FRP NIO 管道读错误，关闭管道: {}", error.getMessage());
             close();
         }
+        return scratch;
     }
 
     /**
@@ -536,9 +558,9 @@ final class NioChannelPipe {
     }
 
     /**
-     * 当前是否为共享 Selector 分发线程。
+     * 当前是否为本管道所属分片的分发线程。
      */
-    private static boolean inDispatchThread() {
+    private boolean inDispatchThread() {
         return Thread.currentThread() == dispatcherThread;
     }
 
