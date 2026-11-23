@@ -508,8 +508,48 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
                 }
                 String finalBody = body;
                 String finalTopic = topic;
+                if ("register".equals(finalTopic)) {
+                    // 传输层注册握手：把临时会话 ws-N 重键到真实 clientId，
+                    // 之后 send(clientId, ...) / getConnectedClients() / 掉线回收都按真实 clientId 路由
+                    registerConnection(conn, finalBody);
+                    continue;
+                }
                 notifyMessageListener(conn.sessionId, finalTopic, finalBody);
             }
+        }
+    }
+
+    /**
+     * 登记 WebSocket 客户端身份（与 TCP/UDP 传输的 register/registered 握手同口径）。
+     *
+     * <p>accept 时会话先以临时 id（ws-N）入表；客户端连上后发 {@code register:clientId}，
+     * 服务端把会话重键到真实 clientId 并回执 {@code registered:clientId}。重键后：</p>
+     * <ul>
+     *     <li>{@code send(clientId, ...)} 能 O(1) 定位连接；</li>
+     *     <li>{@code getConnectedClients()} 返回真实 clientId，hub 广播按它寻址；</li>
+     *     <li>消息回调与掉线回调携带真实 clientId，hub 的归属表/掉线回收才有效。</li>
+     * </ul>
+     *
+     * @param conn     连接，不允许为 null
+     * @param clientId 客户端标识，空则忽略
+     */
+    private void registerConnection(Connection conn, String clientId) {
+        if (clientId == null || clientId.isEmpty()) {
+            return;
+        }
+        String old = conn.sessionId;
+        if (!clientId.equals(old)) {
+            bySessionId.remove(old);
+            clients.remove(old);
+            subscriptions.values().forEach(set -> set.remove(old));
+            conn.sessionId = clientId;
+            bySessionId.put(clientId, conn);
+        }
+        clients.computeIfAbsent(clientId, k -> Wraps.map()).put("clientId", clientId);
+        try {
+            conn.writeFrame(buildTextFrame("registered:" + clientId));
+        } catch (Exception e) {
+            // 回执失败按连接异常处理：客户端等待超时后按未注册口径继续（重连时重试）
         }
     }
 

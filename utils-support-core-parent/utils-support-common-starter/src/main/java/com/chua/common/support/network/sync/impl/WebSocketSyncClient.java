@@ -72,6 +72,11 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     private volatile boolean connected;
 
     /**
+     * 服务端注册确认（register/registered 握手完成）
+     */
+    private volatile boolean registered;
+
+    /**
      * 订阅的主题映射（topic -> handler）
      */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
@@ -151,9 +156,32 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
             connected = true;
             reconnectCount.set(0);
             startReceiveThread();
+            registerSelf();
             notifyListeners(SyncFlowListener::onStart);
         } catch (Exception e) {
             throw new RuntimeException("WebSocket 连接失败", e);
+        }
+    }
+
+    /**
+     * 向服务端登记客户端标识：服务端以该标识为键提供定向投递（send(clientId, ...)），
+     * 与 TCP/UDP 传输的 register/registered 握手同口径。
+     */
+    private void registerSelf() {
+        registered = false;
+        send("register", clientId);
+        waitRegistered();
+    }
+
+    /**
+     * 等待服务端注册确认，保证 connect() 返回后即可被定向投递。
+     */
+    private void waitRegistered() {
+        // [P3C A20 豁免]
+        long deadline = System.currentTimeMillis() + 3000L;
+        while (!registered && System.currentTimeMillis() < deadline) {
+            // [P3C A20 豁免]
+            ThreadUtils.sleep(10L);
         }
     }
 
@@ -427,6 +455,11 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
                 }
                 String finalBody = body;
                 String finalTopic = topic;
+                if ("registered".equals(finalTopic)) {
+                    // 服务端注册确认：置位后 connect()/重连的等待循环即可返回
+                    registered = true;
+                    return;
+                }
                 SyncMessageHandler handler = subscriptions.get(finalTopic);
                 if (handler != null) {
                     handler.handle(finalTopic, finalBody);
@@ -469,6 +502,8 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
             closeSilently(socket);
             doConnect();
             startReceiveThread();
+            // 新连接对服务端而言是陌生会话，必须重新登记 clientId，否则定向投递找不到连接
+            registerSelf();
             notifyListeners(SyncFlowListener::onStart);
         } catch (Exception e) {
             // ignore
