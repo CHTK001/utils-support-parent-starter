@@ -3,6 +3,7 @@ package com.chua.common.support.lang.reflect;
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.constant.Projects;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,7 +112,7 @@ public final class MethodInvoker {
 
         // 确保方法可访问（处理私有方法）
         if (!method.isAccessible()) {
-            ClassUtils.setAccessible(method);
+            ReflectUtils.setAccessibleAccessible(method);
         }
 
         if (USE_METHOD_HANDLE) {

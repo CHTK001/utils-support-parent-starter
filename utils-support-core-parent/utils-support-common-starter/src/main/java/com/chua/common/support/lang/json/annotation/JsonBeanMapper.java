@@ -249,7 +249,7 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
             }
         }
         try {
-            ClassUtils.setAccessible(field);
+            ReflectUtils.setAccessibleAccessible(field);
             return ClassUtils.getFieldValue(field, bean);
         } catch (Exception e) {
             return null;
@@ -275,7 +275,7 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
             }
         }
         try {
-            ClassUtils.setAccessible(field);
+            ReflectUtils.setAccessible(field);
             ClassUtils.setFieldValue(field, value, bean);
         } catch (Exception e) {
             LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);

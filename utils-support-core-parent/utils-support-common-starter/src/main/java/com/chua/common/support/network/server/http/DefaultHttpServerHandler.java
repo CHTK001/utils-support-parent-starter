@@ -6,7 +6,6 @@ import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
-import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
@@ -78,7 +77,7 @@ public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
         }
 
         // 确保方法可访问
-        ClassUtils.setAccessible(method);
+        ReflectUtils.setAccessibleAccessible(method);
         response.setResult(ReflectUtils.invoke(bean, method.getName(), method.getReturnType(),
                 method.getParameterTypes(), request, response));
     }

@@ -3,6 +3,7 @@ package com.chua.common.support.proxy;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.describe.MethodDescribe;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.Builder;
 import lombok.Data;
@@ -154,7 +155,7 @@ public class ProxyMethod {
             return null;
         }
 
-        ClassUtils.setAccessible(method);
+        ReflectUtils.setAccessibleAccessible(method);
         try {
             return ClassUtils.invokeMethod(method, bean, args);
         } catch (Exception e) {
@@ -206,7 +207,7 @@ public class ProxyMethod {
      * @return 方法执行结果
      */
     public Object execute(Object bean) {
-        ClassUtils.setAccessible(method);
+        ReflectUtils.setAccessibleAccessible(method);
         return ClassUtils.invokeMethod(method, bean, args);
     }
 

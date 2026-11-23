@@ -245,7 +245,7 @@ public class NativeRpcServer implements RpcServer {
         if (method == null) {
             throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
         }
-        ClassUtils.setAccessible(method);
+        ReflectUtils.setAccessibleAccessible(method);
         MethodHandle handle = ReflectUtils.findMethodHandle(service.getClass(), request.getMethod(),
                 Object.class, method.getParameterTypes());
         if (handle == null) {

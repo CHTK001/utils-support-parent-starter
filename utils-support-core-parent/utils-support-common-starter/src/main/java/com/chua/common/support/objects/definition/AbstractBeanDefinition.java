@@ -799,7 +799,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             Method setter = settersOf(instance.getClass()).get(setterName);
             if (setter != null && setter.getParameterTypes()[0] == field.getType()) {
                 try {
-                    ClassUtils.setAccessible(setter);
+                    ReflectUtils.setAccessibleAccessible(setter);
                     setter.invoke(instance, value);
                     return;
                 } catch (Exception e) {
@@ -865,7 +865,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                                 }
                             }
                             try {
-                                ClassUtils.setAccessible(method);
+                                ReflectUtils.setAccessibleAccessible(method);
                                 ReflectUtils.invoke(instance, method.getName(), method.getReturnType(),
                                                     method.getParameterTypes(), args);
                             } catch (Exception e) {

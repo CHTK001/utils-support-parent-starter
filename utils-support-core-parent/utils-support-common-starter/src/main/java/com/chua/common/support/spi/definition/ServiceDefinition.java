@@ -7,6 +7,7 @@ import com.chua.common.support.function.NameAware;
 import com.chua.common.support.spi.autowire.ServiceAutowire;
 import com.chua.common.support.spi.condition.SpiCondition;
 import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -589,7 +590,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         try {
             Constructor<?> declaredConstructor = findConstructorCached(ClassUtils.toType(args));
             if (null != declaredConstructor) {
-                ClassUtils.setAccessible(declaredConstructor);
+                ReflectUtils.setAccessibleAccessible(declaredConstructor);
                 T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));
                 if (null == instance) {
                     // 关键分支：ClassUtils.newInstance 内部捕获异常后返回 null，异常对象本身
@@ -626,7 +627,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                     continue;
                 }
                 try {
-                    ClassUtils.setAccessible(constructor);
+                    ReflectUtils.setAccessibleAccessible(constructor);
                     T instance = (T) serviceAutowire.autowire(newInstance(constructor, args));
                     if (instance != null && !checkSpiCondition(instance)) {
                         return null;
@@ -639,7 +640,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                     recordFailure(ignored, "构造器 " + constructor + " 实例化失败");
                 }
             }
-            ClassUtils.setAccessible(constructor);
+            ReflectUtils.setAccessibleAccessible(constructor);
             try {
                 if (ArrayUtils.isEquals(constructor.getParameterTypes(), args)) {
                     T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(constructor, args));

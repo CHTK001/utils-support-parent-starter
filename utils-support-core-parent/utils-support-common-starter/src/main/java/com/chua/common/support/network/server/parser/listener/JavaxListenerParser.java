@@ -4,7 +4,6 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.annotations.ListenerParser;
 
 import com.chua.common.support.reflection.ReflectUtils;
-import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -61,7 +60,7 @@ public class JavaxListenerParser implements ListenerParser {
                 event = matchJakartaAnnotation(method);
             }
             if (event != null) {
-                ClassUtils.setAccessible(method);
+                ReflectUtils.setAccessibleAccessible(method);
                 result.put(event, method);
             }
         }

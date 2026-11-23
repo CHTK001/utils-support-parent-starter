@@ -2322,7 +2322,11 @@ public class ClassUtils {
      *
      * @param object 目标反射对象，为 null 时返回 false
      * @return 实际执行了 setAccessible(true) 时返回 true，否则返回 false
+     * @deprecated 反射口径已统一到 {@link ReflectUtils}：仅开可访问性用
+     * {@link ReflectUtils#setAccessibleAccessible(Object)}，需写 private final 字段用
+     * {@link ReflectUtils#setAccessible(Object)}。本兼容入口待最后一个调用方迁移后移除。
      */
+    @Deprecated
     public static boolean setAccessible(Object object) {
         // 反射底层统一由 ReflectUtils 提供，本方法仅保留历史 API
         return ReflectUtils.setAccessible(object);
@@ -3277,7 +3281,7 @@ public class ClassUtils {
             log.debug("[ClassUtils] 方法不存在，已忽略: {}", e.getMessage());
         }
         if (null != builder) {
-            ClassUtils.setAccessible(builder);
+            ReflectUtils.setAccessibleAccessible(builder);
             return (T) ClassUtils.invokeBean(ClassUtils.invokeMethod(builder, null), "build");
         }
         throw new RuntimeException(String.format("无法构建目标类型实例: %s", protoMapClass.getName()));

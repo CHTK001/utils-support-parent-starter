@@ -7,7 +7,7 @@ import com.chua.common.support.network.annotations.OnEventOpen;
 import com.chua.common.support.network.annotations.OnEventMessage;
 import com.chua.common.support.network.annotations.OnEventClose;
 import com.chua.common.support.network.annotations.OnEventError;
-import com.chua.common.support.utils.ClassUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class CustomListenerParser implements ListenerParser {
         for (Method method : clazz.getDeclaredMethods()) {
             String event = matchAnnotation(method);
             if (event != null) {
-                ClassUtils.setAccessible(method);
+                ReflectUtils.setAccessibleAccessible(method);
                 result.put(event, method);
             }
         }

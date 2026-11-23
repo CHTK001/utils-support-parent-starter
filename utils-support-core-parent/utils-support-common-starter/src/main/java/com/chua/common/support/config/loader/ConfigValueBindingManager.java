@@ -245,7 +245,7 @@ public class ConfigValueBindingManager implements ConfigListener {
     private void injectMethodValue(ConfigValueBinding binding, String value) {
         try {
             Method method = binding.getMethod();
-            ClassUtils.setAccessible(method);
+            ReflectUtils.setAccessibleAccessible(method);
             Object convertedValue = convertValue(value, binding.getTargetType());
             ReflectUtils.invoke(binding.getBean(), method.getName(), method.getReturnType(),
                                 method.getParameterTypes(), convertedValue);
@@ -419,7 +419,7 @@ public class ConfigValueBindingManager implements ConfigListener {
                 log.warn("未找到回调方法: {}.{}", binding.getBeanName(), callbackName);
                 return;
             }
-            ClassUtils.setAccessible(callback);
+            ReflectUtils.setAccessibleAccessible(callback);
             ReflectUtils.invoke(binding.getBean(), callback.getName(), callback.getReturnType(),
                     callback.getParameterTypes(),
                 binding.getConfigKey(), oldValue, newValue);

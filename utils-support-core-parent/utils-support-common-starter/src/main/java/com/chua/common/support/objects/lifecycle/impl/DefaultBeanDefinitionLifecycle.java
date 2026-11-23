@@ -73,7 +73,7 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.isAnnotationPresent(annotationType) && method.getParameterCount() == 0) {
                 try {
-                    ClassUtils.setAccessible(method);
+                    ReflectUtils.setAccessibleAccessible(method);
                     ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
                 } catch (Exception e) {
                     log.warn("调用生命周期方法失败: {}", method.getName(), e);

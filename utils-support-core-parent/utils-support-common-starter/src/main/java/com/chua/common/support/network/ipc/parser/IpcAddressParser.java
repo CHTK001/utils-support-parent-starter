@@ -2,7 +2,7 @@ package com.chua.common.support.network.ipc.parser;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ipc.annotations.IpcMethod;
-import com.chua.common.support.utils.ClassUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public class IpcAddressParser {
                 if (path.length() > 1 && path.endsWith("/")) {
                     path = path.substring(0, path.length() - 1);
                 }
-                ClassUtils.setAccessible(method);
+                ReflectUtils.setAccessibleAccessible(method);
                 map.put(path, method);
             }
         }

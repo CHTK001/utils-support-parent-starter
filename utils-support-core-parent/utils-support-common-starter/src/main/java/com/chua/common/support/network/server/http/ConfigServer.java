@@ -12,7 +12,6 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -252,7 +251,7 @@ public interface ConfigServer extends Server {
             }
         }
 
-        ClassUtils.setAccessible(method);
+        ReflectUtils.setAccessibleAccessible(method);
         return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
