@@ -1,10 +1,10 @@
 package com.chua.common.support.network.sync.impl;
 
-import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.network.sync.SyncFlowListener;
-import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.network.sync.SyncAddressResolver;
+import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncSetting;
+import com.chua.common.support.network.sync.support.AbstractSyncClient;
+import com.chua.common.support.network.sync.support.SyncFrameCodec;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 基于 JDK DatagramSocket 的 UDP 同步客户端实现。
@@ -32,17 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 @Spi("udp")
-public class UdpSyncClient implements SyncClient {
-
-    /**
-     * 客户端标识
-     */
-    private final String clientId;
-
-    /**
-     * 服务端地址
-     */
-    private final String serverUrl;
+public class UdpSyncClient extends AbstractSyncClient {
 
     /**
      * 底层 DatagramSocket
@@ -53,21 +38,6 @@ public class UdpSyncClient implements SyncClient {
      * 服务端地址
      */
     private InetSocketAddress serverAddress;
-
-    /**
-     * 是否已连接
-     */
-    private volatile boolean connected;
-
-    /**
-     * 订阅的主题映射（topic -> handler）
-     */
-    private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
-
-    /**
-     * 监听器列表
-     */
-    private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * 接收线程
@@ -90,8 +60,7 @@ public class UdpSyncClient implements SyncClient {
      * @param serverUrl 服务端地址
      */
     public UdpSyncClient(String clientId, String serverUrl) {
-        this.clientId = clientId;
-        this.serverUrl = serverUrl;
+        super(clientId, serverUrl);
     }
 
     /**
@@ -110,18 +79,18 @@ public class UdpSyncClient implements SyncClient {
      */
     @Override
     public void connect() {
-        if (connected) {
+        if (isConnected()) {
             return;
         }
         try {
             socket = new DatagramSocket();
             serverAddress = parseAddress(serverUrl);
-            connected = true;
+            setConnected(true);
             sendData("register:" + clientId);
             startReceive();
             notifyListeners(SyncFlowListener::onStart);
         } catch (IOException e) {
-            connected = false;
+            setConnected(false);
             throw new RuntimeException("UDP SyncClient 连接失败: " + serverUrl, e);
         }
     }
@@ -131,10 +100,10 @@ public class UdpSyncClient implements SyncClient {
      */
     @Override
     public void disconnect() {
-        if (!connected) {
+        if (!isConnected()) {
             return;
         }
-        connected = false;
+        setConnected(false);
         if (receiveThread != null) {
             receiveThread.interrupt();
             receiveThread = null;
@@ -147,76 +116,20 @@ public class UdpSyncClient implements SyncClient {
     }
 
     /**
-     * 是否Connected
-     */
-    @Override
-    public boolean isConnected() {
-        return connected;
-    }
-
-    /**
-     * 获取ClientId
-     */
-    @Override
-    public String getClientId() {
-        return clientId;
-    }
-
-    /**
      * 发送
      */
     @Override
     public void send(String topic, Object message) {
         checkConnected();
-        sendData(topic + ":" + message);
+        sendData(SyncFrameCodec.encode(topic, message));
     }
 
     /**
-     * 订阅
+     * 获取协议标识。
      */
     @Override
-    public void subscribe(String topic, SyncMessageHandler handler) {
-        subscriptions.put(topic, handler);
-    }
-
-    /**
-     * 取消订阅
-     */
-    @Override
-    public void unsubscribe(String topic) {
-        subscriptions.remove(topic);
-    }
-
-    /**
-     * 添加Listener
-     */
-    @Override
-    public void addListener(SyncFlowListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * 移除Listener
-     */
-    @Override
-    public void removeListener(SyncFlowListener listener) {
-        listeners.remove(listener);
-    }
-
-    /**
-     * 获取Metadata
-     */
-    @Override
-    public Map<String, Object> getMetadata() {
-        return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "udp");
-    }
-
-    /**
-     * 关闭
-     */
-    @Override
-    public void close() {
-        disconnect();
+    protected String protocol() {
+        return "udp";
     }
 
     /**
@@ -226,13 +139,13 @@ public class UdpSyncClient implements SyncClient {
         receiveThread = ThreadUtils.newThread(() -> {
             // [P3C A20 豁免]
             byte[] buffer = new byte[8192];
-            while (connected && socket != null && !socket.isClosed()) {
+            while (isConnected() && socket != null && !socket.isClosed()) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 try {
                     socket.receive(packet);
                     handlePacket(packet);
                 } catch (IOException e) {
-                    if (connected) {
+                    if (isConnected()) {
                         notifyListeners(l -> l.onError("udp", e));
                     }
                     break;
@@ -251,14 +164,9 @@ public class UdpSyncClient implements SyncClient {
     private void handlePacket(DatagramPacket packet) {
         String message = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8)
                 .trim();
-        int colon = message.indexOf(':');
-        String topic = colon > 0 ? message.substring(0, colon) : message;
-        String payload = colon > 0 ? message.substring(colon + 1) : message;
-        SyncMessageHandler handler = subscriptions.get(topic);
-        if (handler != null) {
-            handler.handle(topic, payload);
-        }
-        notifyListeners(l -> l.onMessage(topic, payload));
+        String topic = SyncFrameCodec.topicOf(message, message);
+        String payload = SyncFrameCodec.payloadOf(message);
+        dispatchMessage(topic, payload);
     }
 
     /**
@@ -274,15 +182,6 @@ public class UdpSyncClient implements SyncClient {
             socket.send(packet);
         } catch (IOException e) {
             throw new RuntimeException("UDP SyncClient 发送失败", e);
-        }
-    }
-
-    /**
-     * 校验连接状态。
-     */
-    private void checkConnected() {
-        if (!connected) {
-            throw new IllegalStateException("客户端未连接");
         }
     }
 
@@ -305,20 +204,5 @@ public class UdpSyncClient implements SyncClient {
         // [P3C A20 豁免]
         int port = colon > 0 ? Integer.parseInt(address.substring(colon + 1)) : 19391;
         return new InetSocketAddress(host, port);
-    }
-
-    /**
-     * 通知监听器。
-     *
-     * @param action 动作
-     */
-    private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
-        for (SyncFlowListener listener : listeners) {
-            try {
-                action.accept(listener);
-            } catch (Exception e) {
-                log.debug("[sync] 监听器回调执行失败，已忽略: {}", e.getMessage());
-            }
-        }
     }
 }

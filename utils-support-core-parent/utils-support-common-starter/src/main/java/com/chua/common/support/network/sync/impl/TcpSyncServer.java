@@ -5,10 +5,11 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
-import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncAddressResolver;
 import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.network.sync.SyncProtocol;
+import com.chua.common.support.network.sync.support.AbstractSyncServer;
+import com.chua.common.support.network.sync.support.SyncClientInfo;
+import com.chua.common.support.network.sync.support.SyncFrameCodec;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +24,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 NIO + Reactor + 虚拟线程的 TCP 同步服务端实现。
@@ -46,7 +44,7 @@ import com.chua.common.support.network.server.AbstractServer;
  */
 @Slf4j
 @Spi("tcp")
-public class TcpSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
+public class TcpSyncServer extends AbstractSyncServer<TcpSyncServer.ClientConnection> {
 
     /**
      * 读取缓冲大小
@@ -63,16 +61,6 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
      */
     private static final ThreadLocal<ByteBuffer> IO_BUFFER =
             ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(READ_BUFFER_SIZE));
-
-    /**
-     * 客户端连接表（clientId -> connection）
-     */
-    private final Map<String, ClientConnection> clients = new ConcurrentHashMap<>();
-
-    /**
-     * 同步监听器
-     */
-    private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * 服务端通道
@@ -328,59 +316,11 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     /**
-     * 发布
+     * 通过连接的写队列发送一帧（写事件就绪时冲刷）。
      */
     @Override
-    public void publish(String topic, Object message) {
-        String payload = topic + ":" + message;
-        for (ClientConnection connection : clients.values()) {
-            connection.write(payload);
-        }
-    }
-
-    /**
-     * 发送
-     */
-    @Override
-    public void send(String clientId, String topic, Object message) {
-        ClientConnection connection = clients.get(clientId);
-        if (connection == null) {
-            return;
-        }
-        connection.write(topic + ":" + message);
-    }
-
-    /**
-     * 获取ConnectedClients
-     */
-    @Override
-    public List<String> getConnectedClients() {
-        return Wraps.list(clients.keySet());
-    }
-
-    /**
-     * 获取ClientMetadata
-     */
-    @Override
-    public Map<String, Object> getClientMetadata(String clientId) {
-        ClientConnection connection = clients.get(clientId);
-        return connection != null ? Collections.unmodifiableMap(connection.metadata) : Collections.emptyMap();
-    }
-
-    /**
-     * 添加Listener
-     */
-    @Override
-    public void addListener(SyncServerListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * 移除Listener
-     */
-    @Override
-    public void removeListener(SyncServerListener listener) {
-        listeners.remove(listener);
+    protected void sendToClient(ClientConnection connection, String frame) {
+        connection.write(frame);
     }
 
     /**
@@ -639,42 +579,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     /**
-     * 通知消息监听器（每消息热路径专用：避免每条消息分配捕获型 lambda）。
-     *
-     * @param clientId 客户端标识
-     * @param topic    主题
-     * @param payload  消息体
-     */
-    private void notifyMessageListener(String clientId, String topic, String payload) {
-        for (SyncServerListener listener : listeners) {
-            try {
-                listener.onMessage(clientId, topic, payload);
-            } catch (Exception e) {
-                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * 通知监听器。
-     *
-     * @param action 动作
-     */
-    private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
-        for (SyncServerListener listener : listeners) {
-            try {
-                action.accept(listener);
-            } catch (Exception e) {
-                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
-            }
-        }
-    }
-
-    /**
      * 客户端连接封装（NIO 非阻塞）。
      *
      */
-    private final class ClientConnection {
+    final class ClientConnection implements SyncClientInfo {
 
         /**
          * 底层通道
@@ -839,14 +747,13 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             if (message.isEmpty()) {
                 return;
             }
-            int colon = message.indexOf(':');
-            String topic = colon > 0 ? message.substring(0, colon) : "";
-            String payload = colon > 0 ? message.substring(colon + 1) : message;
-            if ("register".equals(topic)) {
+            String topic = SyncFrameCodec.topicOf(message, "");
+            String payload = SyncFrameCodec.payloadOf(message);
+            if (SyncFrameCodec.TOPIC_REGISTER.equals(topic)) {
                 clientId = payload;
                 metadata.put("clientId", payload);
                 clients.put(payload, this);
-                write("registered:" + payload);
+                write(SyncFrameCodec.encode(SyncFrameCodec.TOPIC_REGISTERED, payload));
                 notifyListener(l -> l.onClientConnected(payload, metadata));
             } else {
                 notifyMessageListener(clientId, topic, payload);
@@ -926,6 +833,16 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          */
         String getClientId() {
             return clientId;
+        }
+
+        /**
+         * 获取客户端元数据。
+         *
+         * @return 元数据映射
+         */
+        @Override
+        public Map<String, Object> getMetadata() {
+            return metadata;
         }
 
         /**

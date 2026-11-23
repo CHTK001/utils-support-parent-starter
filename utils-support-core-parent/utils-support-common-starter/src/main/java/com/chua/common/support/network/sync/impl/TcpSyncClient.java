@@ -1,12 +1,12 @@
 package com.chua.common.support.network.sync.impl;
 
-import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.utils.ThreadUtils;
-import com.chua.common.support.network.sync.SyncFlowListener;
-import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.network.sync.SyncAddressResolver;
+import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncSetting;
+import com.chua.common.support.network.sync.support.AbstractSyncClient;
+import com.chua.common.support.network.sync.support.SyncFrameCodec;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -16,11 +16,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 基于 NIO SocketChannel + 虚拟线程的 TCP 同步客户端实现。
@@ -35,17 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 @Spi("tcp")
-public class TcpSyncClient implements SyncClient {
-
-    /**
-     * 客户端标识
-     */
-    private final String clientId;
-
-    /**
-     * 服务端地址
-     */
-    private final String serverUrl;
+public class TcpSyncClient extends AbstractSyncClient {
 
     /**
      * 底层通道
@@ -53,24 +39,9 @@ public class TcpSyncClient implements SyncClient {
     private SocketChannel channel;
 
     /**
-     * 是否已连接
-     */
-    private volatile boolean connected;
-
-    /**
      * 是否已注册成功
      */
     private volatile boolean registered;
-
-    /**
-     * 订阅的主题映射（topic -> handler）
-     */
-    private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
-
-    /**
-     * 监听器列表
-     */
-    private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * 接收虚拟线程
@@ -93,8 +64,7 @@ public class TcpSyncClient implements SyncClient {
      * @param serverUrl 服务端地址
      */
     public TcpSyncClient(String clientId, String serverUrl) {
-        this.clientId = clientId;
-        this.serverUrl = serverUrl;
+        super(clientId, serverUrl);
     }
 
     /**
@@ -113,7 +83,7 @@ public class TcpSyncClient implements SyncClient {
      */
     @Override
     public void connect() {
-        if (connected) {
+        if (isConnected()) {
             return;
         }
         try {
@@ -121,13 +91,13 @@ public class TcpSyncClient implements SyncClient {
             channel.configureBlocking(true);
             channel.socket().setTcpNoDelay(true);
             channel.connect(parseAddress(serverUrl));
-            connected = true;
+            setConnected(true);
             startRead();
-            sendLine("register:" + clientId);
+            sendLine(SyncFrameCodec.encode(SyncFrameCodec.TOPIC_REGISTER, clientId));
             waitRegistered();
             notifyListeners(SyncFlowListener::onStart);
         } catch (IOException e) {
-            connected = false;
+            setConnected(false);
             throw new RuntimeException("TCP SyncClient 连接失败: " + serverUrl, e);
         }
     }
@@ -149,10 +119,10 @@ public class TcpSyncClient implements SyncClient {
      */
     @Override
     public void disconnect() {
-        if (!connected) {
+        if (!isConnected()) {
             return;
         }
-        connected = false;
+        setConnected(false);
         if (readThread != null) {
             readThread.interrupt();
             readThread = null;
@@ -169,76 +139,20 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 是否Connected
-     */
-    @Override
-    public boolean isConnected() {
-        return connected;
-    }
-
-    /**
-     * 获取ClientId
-     */
-    @Override
-    public String getClientId() {
-        return clientId;
-    }
-
-    /**
      * 发送
      */
     @Override
     public void send(String topic, Object message) {
         checkConnected();
-        sendLine(topic + ":" + message);
+        sendLine(SyncFrameCodec.encode(topic, message));
     }
 
     /**
-     * 订阅
+     * 获取协议标识。
      */
     @Override
-    public void subscribe(String topic, SyncMessageHandler handler) {
-        subscriptions.put(topic, handler);
-    }
-
-    /**
-     * 取消订阅
-     */
-    @Override
-    public void unsubscribe(String topic) {
-        subscriptions.remove(topic);
-    }
-
-    /**
-     * 添加Listener
-     */
-    @Override
-    public void addListener(SyncFlowListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * 移除Listener
-     */
-    @Override
-    public void removeListener(SyncFlowListener listener) {
-        listeners.remove(listener);
-    }
-
-    /**
-     * 获取Metadata
-     */
-    @Override
-    public Map<String, Object> getMetadata() {
-        return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "tcp");
-    }
-
-    /**
-     * 关闭
-     */
-    @Override
-    public void close() {
-        disconnect();
+    protected String protocol() {
+        return "tcp";
     }
 
     /**
@@ -251,18 +165,18 @@ public class TcpSyncClient implements SyncClient {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                     java.nio.channels.Channels.newInputStream(connChannel), StandardCharsets.UTF_8))) {
                 String line;
-                while (connected && (line = reader.readLine()) != null) {
+                while (isConnected() && (line = reader.readLine()) != null) {
                     handleLine(line);
                 }
             } catch (IOException e) {
-                if (connected) {
+                if (isConnected()) {
                     notifyListeners(l -> l.onError("tcp", e));
                 }
             } finally {
                 // 对端断开（EOF/读异常）：标记断开，供连接池摘除并重连。
                 // 仅当底层通道未被重连替换时才置 false，避免新连接被旧线程误标断开。
                 if (channel == connChannel) {
-                    connected = false;
+                    setConnected(false);
                 }
             }
         });
@@ -275,18 +189,13 @@ public class TcpSyncClient implements SyncClient {
      */
     private void handleLine(String line) {
         String message = line.trim();
-        int colon = message.indexOf(':');
-        String topic = colon > 0 ? message.substring(0, colon) : message;
-        String payload = colon > 0 ? message.substring(colon + 1) : message;
-        if ("registered".equals(topic)) {
+        String topic = SyncFrameCodec.topicOf(message, message);
+        String payload = SyncFrameCodec.payloadOf(message);
+        if (SyncFrameCodec.TOPIC_REGISTERED.equals(topic)) {
             registered = true;
             return;
         }
-        SyncMessageHandler handler = subscriptions.get(topic);
-        if (handler != null) {
-            handler.handle(topic, payload);
-        }
-        notifyListeners(l -> l.onMessage(topic, payload));
+        dispatchMessage(topic, payload);
     }
 
     /**
@@ -302,21 +211,12 @@ public class TcpSyncClient implements SyncClient {
             }
         } catch (IOException e) {
             // 发送失败即连接已断：标记断开，供连接池下一轮重建
-            connected = false;
+            setConnected(false);
             if (readThread != null) {
                 readThread.interrupt();
                 readThread = null;
             }
             throw new RuntimeException("TCP SyncClient 发送失败", e);
-        }
-    }
-
-    /**
-     * 校验连接状态。
-     */
-    private void checkConnected() {
-        if (!connected) {
-            throw new IllegalStateException("客户端未连接");
         }
     }
 
@@ -339,20 +239,5 @@ public class TcpSyncClient implements SyncClient {
         // [P3C A20 豁免]
         int port = colon > 0 ? Integer.parseInt(address.substring(colon + 1)) : 19390;
         return new InetSocketAddress(host, port);
-    }
-
-    /**
-     * 通知监听器。
-     *
-     * @param action 动作
-     */
-    private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
-        for (SyncFlowListener listener : listeners) {
-            try {
-                action.accept(listener);
-            } catch (Exception e) {
-                log.debug("[sync] 监听器回调执行失败，已忽略: {}", e.getMessage());
-            }
-        }
     }
 }
