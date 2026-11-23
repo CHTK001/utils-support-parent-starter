@@ -68,14 +68,30 @@ public final class ScatterSyncHelper {
      */
     public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
                                                        long timeoutMillis) {
-        return fetchWithRetry(context, node, timeoutMillis, MAX_RETRIES);
+        return fetchWithRetry(context, node, timeoutMillis, MAX_RETRIES, null);
+    }
+
+    /**
+     * 拉取目标节点的服务表（带超时 + 重试），REQ 携带本端服务表（入网加速：被拉方在
+     * {@code handle(REQ)} 中先合并拉取方自表再回表，双向 gossip）。
+     *
+     * @param context       请求上下文
+     * @param node          目标节点
+     * @param timeoutMillis 单次超时毫秒
+     * @param announceSelf  随 REQ 携带的本端服务表（null/空表示不携带，兼容旧帧格式）
+     * @return 同步结果（失败时返回 null）
+     */
+    public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
+                                                       long timeoutMillis, List<Discovery> announceSelf) {
+        return fetchWithRetry(context, node, timeoutMillis, MAX_RETRIES, announceSelf);
     }
 
     private static ScatterResult<List<Discovery>> fetchWithRetry(ScatterContext context, ScatterNode node,
-                                                                 long timeoutMillis, int remaining) {
+                                                                 long timeoutMillis, int remaining,
+                                                                 List<Discovery> announceSelf) {
         try {
             ScatterFrame req = new ScatterFrame(ScatterProtocol.TYPE_REQ, nextRequestId(node),
-                    context.getPath(), new byte[0]);
+                    context.getPath(), encodeAnnounce(announceSelf));
             byte[] response;
             if (node.getProtocol() != null && "udp".equalsIgnoreCase(node.getProtocol())) {
                 response = sendUdp(node.getHost(), node.getPort(), req.encode(), timeoutMillis);
@@ -83,7 +99,7 @@ public final class ScatterSyncHelper {
                 response = sendTcp(node.getHost(), node.getPort(), req.encode(), timeoutMillis);
             }
             if (response == null || response.length == 0) {
-                return remaining > 1 ? fetchWithRetry(context, node, timeoutMillis, remaining - 1)
+                return remaining > 1 ? fetchWithRetry(context, node, timeoutMillis, remaining - 1, announceSelf)
                         : ScatterResult.timeout(node.getNodeId(), "空响应: " + node.getEndpoint());
             }
             ScatterFrame resp = ScatterFrame.decode(response);
@@ -92,14 +108,32 @@ public final class ScatterSyncHelper {
                 List<Discovery> data = com.chua.common.support.lang.json.Json.fromJsonToList(json, Discovery.class);
                 return ScatterResult.success(node.getNodeId(), data);
             }
-            return remaining > 1 ? fetchWithRetry(context, node, timeoutMillis, remaining - 1)
+            return remaining > 1 ? fetchWithRetry(context, node, timeoutMillis, remaining - 1, announceSelf)
                     : ScatterResult.failure(node.getNodeId(), "响应类型异常: " + resp.getType());
         } catch (Exception e) {
             if (remaining > 1) {
                 log.debug("scatter 拉取重试 ({}/{}): {}", MAX_RETRIES - remaining + 1, MAX_RETRIES, e.getMessage());
-                return fetchWithRetry(context, node, timeoutMillis, remaining - 1);
+                return fetchWithRetry(context, node, timeoutMillis, remaining - 1, announceSelf);
             }
             return ScatterResult.timeout(node.getNodeId(), "请求失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 编码 REQ 自表载荷（JSON 数组）；空表返回空载荷（兼容旧帧格式）。
+     * @param announce 方法入参 announce
+     * @return 载荷字节
+     */
+    private static byte[] encodeAnnounce(List<Discovery> announce) {
+        if (announce == null || announce.isEmpty()) {
+            return new byte[0];
+        }
+        try {
+            return com.chua.common.support.lang.json.Json.toJson(announce)
+                    .getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.debug("REQ 自表编码失败: {}", e.getMessage());
+            return new byte[0];
         }
     }
 

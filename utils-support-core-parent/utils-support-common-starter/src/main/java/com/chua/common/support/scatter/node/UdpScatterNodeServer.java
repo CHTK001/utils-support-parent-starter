@@ -127,7 +127,7 @@ public class UdpScatterNodeServer extends AbstractServer {
                 workerPool.submit(() -> {
                     try {
                         ScatterFrame frame = ScatterFrame.decode(data);
-                        byte[] response = handler.handle(frame);
+                        byte[] response = handler.handle(frame, sender);
                         socket.send(new DatagramPacket(response, response.length, sender));
                     } catch (Exception e) {
                         log.debug("UDP 帧处理异常: {}", e.getMessage());
