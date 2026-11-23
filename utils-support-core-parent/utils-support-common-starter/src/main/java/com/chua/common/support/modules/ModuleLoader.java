@@ -384,7 +384,7 @@ public class ModuleLoader {
                                 // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），ReflectUtils 不覆盖 JDK 内部适配
                                 Module.class.getDeclaredMethod(
                                 "implAddExports", String.class, Module.class);
-                        implAddExportsMethod.setAccessible(true);
+                        implAddExportsMethod.setAccessible(true); // [反射豁免] 模块系统本体：ReflectUtils 依赖本类，不可反向；仅对 JDK 模块开自身访问
                     } catch (NoSuchMethodException e) {
                         log.trace("未找到 implAddExports 方法", e);
                     } catch (RuntimeException e) {
@@ -413,7 +413,7 @@ public class ModuleLoader {
                                 // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），ReflectUtils 不覆盖 JDK 内部适配
                                 Module.class.getDeclaredMethod(
                                 "implAddOpens", String.class, Module.class);
-                        implAddOpensMethod.setAccessible(true);
+                        implAddOpensMethod.setAccessible(true); // [反射豁免] 模块系统本体：ReflectUtils 依赖本类，不可反向；仅对 JDK 模块开自身访问
                     } catch (NoSuchMethodException e) {
                         log.trace("未找到 implAddOpens 方法", e);
                     } catch (RuntimeException e) {

@@ -1,5 +1,7 @@
 package com.chua.common.support.export.resolver;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.export.meta.ColumnType;
 import com.chua.common.support.export.meta.DocumentMeta;
@@ -94,7 +96,7 @@ public class JavabeanMetaResolver implements MetaResolver {
                 if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
                     continue;
                 }
-                field.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(field);
                 fields.add(field);
             }
             current = current.getSuperclass();

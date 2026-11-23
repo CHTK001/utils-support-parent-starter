@@ -1,5 +1,7 @@
 package com.chua.common.support.export.resolver;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.export.meta.ColumnMeta;
 import com.chua.common.support.export.meta.DocumentMeta;
 import com.chua.common.support.export.spi.MetaResolver;
@@ -177,7 +179,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
     private void applyProperty(ColumnMeta column, Annotation annotation) {
         try {
             Method value = annotation.annotationType().getMethod("value");
-            value.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(value);
             Object names = value.invoke(annotation);
             if (names instanceof String[] texts && texts.length > 0 && texts[0] != null && !texts[0].isBlank()) {
                 column.name(texts[0]);
@@ -203,7 +205,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
     private int invokeInt(Annotation annotation, String method, int fallback) {
         try {
             java.lang.reflect.Method accessor = annotation.annotationType().getMethod(method);
-            accessor.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(accessor);
             Object value = accessor.invoke(annotation);
             return value instanceof Integer number ? number : fallback;
         } catch (Exception e) {
@@ -221,7 +223,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
     private String invokeString(Annotation annotation, String method) {
         try {
             java.lang.reflect.Method accessor = annotation.annotationType().getMethod(method);
-            accessor.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(accessor);
             Object value = accessor.invoke(annotation);
             return value instanceof String text ? text : "";
         } catch (Exception e) {
@@ -239,7 +241,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
     private String invokeClassName(Annotation annotation, String method) {
         try {
             java.lang.reflect.Method accessor = annotation.annotationType().getMethod(method);
-            accessor.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(accessor);
             Object value = accessor.invoke(annotation);
             return value instanceof Class<?> type ? type.getName() : "";
         } catch (Exception e) {
@@ -311,7 +313,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
                 if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
-                field.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(field);
                 fields.add(field);
             }
             current = current.getSuperclass();
@@ -333,7 +335,7 @@ public class ThirdPartyMetaResolver implements MetaResolver {
                 if (Modifier.isStatic(method.getModifiers()) || method.isSynthetic()) {
                     continue;
                 }
-                method.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(method);
                 methods.add(method);
             }
             current = current.getSuperclass();

@@ -6,6 +6,7 @@ import com.chua.common.support.modules.ModuleLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.*;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -397,6 +398,34 @@ public final class ReflectUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 受控逃生口：仅为反射对象（Method / Field / Constructor）开启可访问性。
+     *
+     * <p>与 {@link #setAccessible(Object)} 的区别：本方法<b>只</b>调用
+     * {@code setAccessible(true)}，不做 {@code private final} 字段修饰符处理等其它副作用，
+     * 供仅需访问控制的反射元数据场景使用。</p>
+     *
+     * <p>仅供基础设施代码（导出元数据解析、ORM 引擎、代理工厂等）在无法改用本类
+     * 高级 API（{@link #invoke}、{@link #getField}、{@link #setField}、
+     * {@link #newInstance} 等）时收口使用；业务代码仍禁止直接调用
+     * {@code java.lang.reflect} 的 {@code setAccessible}。</p>
+     *
+     * @param accessibleObject 目标反射对象，为 null 时忽略
+     * @return 实际执行了 setAccessible(true) 时返回 true，否则返回 false
+     */
+    public static boolean setAccessibleAccessible(AccessibleObject accessibleObject) {
+        if (null == accessibleObject || accessibleObject.isAccessible()) {
+            return false;
+        }
+        try {
+            ModuleLoader.exportAllToAll();
+        } catch (Throwable ignored) {
+            // GraalVM native-image / 模块化环境下模块导出不可用时静默忽略
+        }
+        accessibleObject.setAccessible(true);
+        return true;
     }
 
     /**

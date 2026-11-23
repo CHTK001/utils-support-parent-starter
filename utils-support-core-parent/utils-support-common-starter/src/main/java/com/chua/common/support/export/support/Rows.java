@@ -1,5 +1,7 @@
 package com.chua.common.support.export.support;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.export.ExportException;
@@ -248,7 +250,7 @@ public final class Rows {
         while (current != null && current != Object.class) {
             try {
                 Field field = current.getDeclaredField(name);
-                field.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(field);
                 return field;
             } catch (NoSuchFieldException ignored) {
                 current = current.getSuperclass();
@@ -491,7 +493,7 @@ public final class Rows {
         private Object invoke() {
             if (column.getGetter() != null) {
                 try {
-                    column.getGetter().setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(column.getGetter());
                     return column.getGetter().invoke(row);
                 } catch (Exception e) {
                     throw new ExportException("读取属性失败: " + column.getProperty(), e);

@@ -1,5 +1,7 @@
 package com.chua.common.support.export.resolver;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.export.annotation.ExportColumn;
 import com.chua.common.support.export.annotation.ExportSheet;
@@ -129,7 +131,7 @@ public class ExportAnnotationMetaResolver implements MetaResolver {
                 if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
-                field.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(field);
                 fields.add(field);
             }
             current = current.getSuperclass();
@@ -151,7 +153,7 @@ public class ExportAnnotationMetaResolver implements MetaResolver {
                 if (Modifier.isStatic(method.getModifiers()) || method.isSynthetic()) {
                     continue;
                 }
-                method.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(method);
                 methods.add(method);
             }
             current = current.getSuperclass();

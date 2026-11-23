@@ -1,5 +1,7 @@
 package com.chua.common.support.apm.orm;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
 
 import java.lang.reflect.Field;
@@ -402,7 +404,7 @@ public final class OtnlOrmSupport {
             try {
                 Method method = type.getMethod(name);
                 if (method.getParameterCount() == 0 && method.getReturnType() != void.class) {
-                    method.setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(method);
                     return method;
                 }
             } catch (NoSuchMethodException ignored) {
@@ -431,7 +433,7 @@ public final class OtnlOrmSupport {
         while (current != null && current != Object.class && found == null) {
             try {
                 found = current.getDeclaredField(property);
-                found.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(found);
             } catch (NoSuchFieldException ignored) {
                 current = current.getSuperclass();
             }

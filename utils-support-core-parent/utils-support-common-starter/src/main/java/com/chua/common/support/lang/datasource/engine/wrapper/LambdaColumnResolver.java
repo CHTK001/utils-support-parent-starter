@@ -1,6 +1,8 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 
 import java.lang.invoke.SerializedLambda;
@@ -106,7 +108,7 @@ public final class LambdaColumnResolver {
             // [P3C 1.10 豁免] writeReplace 为 lambda 隐藏类的私有方法，需精确方法句柄，无法用 ReflectUtils 替代
             writeReplace = lambdaClass.getDeclaredMethod("writeReplace");
             // [P3C 1.10 豁免] writeReplace 需 setAccessible 后方可在隐藏类外调用
-            writeReplace.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(writeReplace);
             WRITE_REPLACE_CACHE.put(lambdaClass, writeReplace);
         }
         // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法，ReflectUtils 公共 LOOKUP 无法访问
