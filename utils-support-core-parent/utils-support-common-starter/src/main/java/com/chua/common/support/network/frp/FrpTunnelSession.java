@@ -41,6 +41,11 @@ public class FrpTunnelSession {
     private final List<Consumer<byte[]>> bytesListeners = new CopyOnWriteArrayList<>();
 
     /**
+     * 零拷贝字节数据监听器列表：回调直接交付底层读缓冲切片（仅回调期内有效）
+     */
+    private final List<FrpByteConsumer> directBytesListeners = new CopyOnWriteArrayList<>();
+
+    /**
      * 关闭监听器列表
      */
     private final List<Consumer<String>> closeListeners = new CopyOnWriteArrayList<>();

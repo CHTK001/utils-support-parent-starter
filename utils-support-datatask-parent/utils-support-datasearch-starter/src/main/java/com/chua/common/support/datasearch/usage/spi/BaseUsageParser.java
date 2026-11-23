@@ -27,8 +27,9 @@ import com.chua.common.support.utils.StringUtils;
  * 从各自数据源读取原始用量记录；本基类负责把配置的多个根目录逐个串行解析
  * （{@link #streamAll()} 模板方法），并提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
  *
- * <p>解析根目录来源：优先取 SPI 构造参数（逗号分隔的多个目录），
- * 未提供时回退当前用户主目录 {@code user.home}。</p>
+ * <p>解析根目录来源：优先取 SPI 构造参数（逗号/分号/换行分隔的多个目录，
+ * 支持 {@code ~} 与 {@code ~账号} 简写），未提供时回退当前用户主目录 {@code user.home}。
+ * 单个目录解析失败只跳过该目录并告警，不中断其它目录、不丢弃已产出记录。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -70,7 +71,8 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 解析目录列表：逗号分隔、去空白、按出现顺序去重；为空时回退默认用户主目录。
+     * 解析目录列表：按中英文逗号/分号/换行切分、去空白、展开 {@code ~} 简写、
+     * 绝对路径化后按出现顺序去重；为空时回退默认用户主目录。
      *
      * @param csv 逗号分隔的目录列表，允许为 null/空
      * @return 不可变目录列表，至少一项
@@ -78,9 +80,9 @@ public abstract class BaseUsageParser implements UsageParser {
     private static List<Path> parseUserHomes(String csv) {
         List<Path> homes = new ArrayList<>();
         if (StringUtils.isNotBlank(csv)) {
-            for (String part : csv.split(",")) {
+            for (String part : csv.split("[,，;；\\r\\n]+")) {
                 if (StringUtils.isNotBlank(part)) {
-                    Path path = Paths.get(part.trim());
+                    Path path = expandHome(part.trim());
                     if (!homes.contains(path)) {
                         homes.add(path);
                     }
@@ -91,6 +93,34 @@ public abstract class BaseUsageParser implements UsageParser {
             homes.add(DEFAULT_USER_HOME);
         }
         return List.copyOf(homes);
+    }
+
+    /**
+     * 展开单个目录配置项并绝对化。
+     *
+     * <p>支持 {@code ~}（当前用户主目录）与 {@code ~账号}（用户主目录同级下的
+     * 其它账号目录，如 {@code ~alice} → {@code C:\Users\alice}）简写；
+     * 统一绝对路径化并去除冗余分隔符，保证去重与日志口径一致。</p>
+     *
+     * @param part 单个目录配置项
+     * @return 绝对化后的目录
+     */
+    private static Path expandHome(String part) {
+        if (!part.startsWith("~")) {
+            return Paths.get(part).toAbsolutePath().normalize();
+        }
+        String rest = part.substring(1);
+        if (rest.isEmpty()) {
+            return DEFAULT_USER_HOME;
+        }
+        if (rest.charAt(0) == '/' || rest.charAt(0) == '\\') {
+            return DEFAULT_USER_HOME.resolve(rest.substring(1)).normalize();
+        }
+        Path parent = DEFAULT_USER_HOME.getParent();
+        if (parent == null) {
+            return DEFAULT_USER_HOME.resolve(rest).normalize();
+        }
+        return parent.resolve(rest).normalize();
     }
 
     /**
@@ -127,21 +157,41 @@ public abstract class BaseUsageParser implements UsageParser {
      * 响应式流式入口：把配置的多个解析根目录逐个串行解析。
      *
      * <p>串行 {@code Flux.concat} 保证单个目录的流完整订阅完成后再进入下一个目录，
-     * 子类的跨轮次游标/状态在目录之间不会被并发踩踏。</p>
+     * 子类的跨轮次游标/状态在目录之间不会被并发踩踏；每个目录的流经异常隔离，
+     * 单目录失败只跳过该目录并告警。</p>
      */
     @Override
     public Flux<AiUsage> streamAll() {
         return Flux.defer(() -> {
             List<Path> homes = userHomes;
             if (homes.size() == 1) {
-                return streamHome(homes.get(0));
+                return streamHomeSafely(homes.get(0));
             }
             List<Flux<AiUsage>> parts = new ArrayList<>(homes.size());
             for (Path home : homes) {
-                parts.add(streamHome(home));
+                parts.add(streamHomeSafely(home));
             }
             return Flux.concat(parts);
         });
+    }
+
+    /**
+     * 按单个目录解析并做异常隔离：目录级失败（文件损坏、权限不足、格式变更等）
+     * 只跳过该目录并告警，不中断其它目录，也不丢弃该目录已产出的记录。
+     *
+     * @param home 解析根目录
+     * @return 用量记录流；该目录解析失败时为空流
+     */
+    private Flux<AiUsage> streamHomeSafely(Path home) {
+        try {
+            return streamHome(home).onErrorResume(e -> {
+                log.warn("[{}] 解析目录 {} 失败，跳过该目录", getClass().getSimpleName(), home, e);
+                return Flux.empty();
+            });
+        } catch (Exception e) {
+            log.warn("[{}] 解析目录 {} 失败，跳过该目录", getClass().getSimpleName(), home, e);
+            return Flux.empty();
+        }
     }
 
     /**

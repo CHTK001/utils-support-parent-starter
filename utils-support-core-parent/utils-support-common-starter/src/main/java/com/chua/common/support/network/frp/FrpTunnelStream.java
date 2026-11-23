@@ -91,8 +91,20 @@ public class FrpTunnelStream {
      * @throws IOException IO 异常
      */
     void send(byte[] payload) throws IOException {
+        send(payload, 0, payload.length);
+    }
+
+    /**
+     * 发送字节流切片（零拷贝：直接写入底层输出流，不复制负载）。
+     *
+     * @param payload 负载字节
+     * @param off     起始偏移
+     * @param len     长度
+     * @throws IOException IO 异常
+     */
+    void send(byte[] payload, int off, int len) throws IOException {
         synchronized (out) {
-            out.write(payload);
+            out.write(payload, off, len);
             out.flush();
         }
     }

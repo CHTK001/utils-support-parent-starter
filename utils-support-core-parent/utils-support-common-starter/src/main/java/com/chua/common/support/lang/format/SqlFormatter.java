@@ -105,6 +105,12 @@ public abstract class SqlFormatter implements Formatter {
      */
     protected boolean compressWhitespace = true;
 
+    /**
+     * 最大行宽（字符数），格式化后超过该宽度的行会在字面量/注释之外的安全空格处折行。
+     * {@code 0} 表示不折行（默认，保持历史行为）；{@link #MAX_LINE_LENGTH} 为建议值。
+     */
+    protected int maxLineLength = 0;
+
     // ==================== 静态初始化块 ====================
 
     static {
@@ -308,7 +314,7 @@ public abstract class SqlFormatter implements Formatter {
      * 返回引号区间的结束位置（不含）。支持双写转义（{@code ''}/{@code ""}/反引号）
      * 与反斜杠转义（MySQL 风格）；未闭合引号保守保护到串尾。
      */
-    private static int skipQuoted(String input, int start, char quote) {
+    static int skipQuoted(String input, int start, char quote) {
         int i = start + 1;
         int length = input.length();
         while (i < length) {
@@ -332,7 +338,7 @@ public abstract class SqlFormatter implements Formatter {
     /**
      * 返回行注释的结束位置（不含换行符本身，换行符留给下一段）。
      */
-    private static int skipLineComment(String input, int start) {
+    static int skipLineComment(String input, int start) {
         int i = start + 2;
         int length = input.length();
         while (i < length) {
@@ -348,15 +354,21 @@ public abstract class SqlFormatter implements Formatter {
     /**
      * 返回块注释的结束位置（含 {@code *}{@code /}）；未闭合则保护到串尾。
      */
-    private static int skipBlockComment(String input, int start) {
+    static int skipBlockComment(String input, int start) {
         int end = input.indexOf("*/", start + 2);
         return end < 0 ? input.length() : end + 2;
     }
 
     /**
-     * Highlight配置
+     * Highlight配置。默认按终端环境决定是否启用：控制台（TTY）启用 ANSI 着色，
+     * 非终端环境（日志/文件/测试）关闭着色，输出纯文本。经 {@link #withHighlight} 显式设置后以显式值为准。
      */
-    protected HighlightConfig highlightConfig = new HighlightConfig();
+    protected HighlightConfig highlightConfig = defaultHighlightConfig();
+
+    /**
+     * 显式注入的高亮 sink（可插拔渲染出口）；非 null 时优先于 {@link #highlightConfig} 生效。
+     */
+    protected HighlightSink highlightSink;
 
     // ==================== 构造函数 ====================
 
@@ -406,7 +418,39 @@ public abstract class SqlFormatter implements Formatter {
      */
     public SqlFormatter withHighlight(HighlightConfig config) {
         this.highlightConfig = config;
+        this.highlightSink = null;
         return this;
+    }
+
+    /**
+     * 注入自定义高亮 sink（可插拔渲染出口），优先级高于 {@link #withHighlight(HighlightConfig)}。
+     * 传入 {@code null} 恢复为按 HighlightConfig / 终端环境的默认行为。
+     *
+     * @param sink 高亮 sink
+     * @return 当前对象
+     */
+    public SqlFormatter withHighlightSink(HighlightSink sink) {
+        this.highlightSink = sink;
+        return this;
+    }
+
+    /**
+     * 设置最大行宽（字符数）：格式化后超过该宽度的行会在安全空格处折行，
+     * 续行在原行缩进基础上追加一级缩进。{@code maxLineLength <= 0} 表示不折行。
+     *
+     * @param maxLineLength 最大行宽，{@code <=0} 关闭折行
+     * @return 当前对象
+     */
+    public SqlFormatter withMaxLineLength(int maxLineLength) {
+        this.maxLineLength = maxLineLength;
+        return this;
+    }
+
+    /**
+     * 默认高亮配置：非终端环境关闭高亮（纯文本输出），终端环境启用 ANSI。
+     */
+    static HighlightConfig defaultHighlightConfig() {
+        return new HighlightConfig().setEnabled(System.console() != null);
     }
     /**
      * 格式化给定的SQL字符串（实现Formatter接口）。
@@ -443,10 +487,92 @@ public abstract class SqlFormatter implements Formatter {
 
         // 委托给子类实现具体的格式化逻辑
         String formatted = doFormat(trimmed);
-        if (highlightConfig != null && highlightConfig.isEnabled()) {
-            return SqlHighlighter.highlight(formatted, highlightConfig);
+        // 折行在着色之前进行，避免高亮转义序列干扰行宽计算
+        formatted = wrapLines(formatted);
+        return applyHighlight(formatted);
+    }
+
+    /**
+     * 应用高亮：显式 sink 优先，其次显式/默认 HighlightConfig（终端感知）。
+     */
+    private String applyHighlight(String sql) {
+        HighlightSink sink = highlightSink != null ? highlightSink : sinkOf(highlightConfig);
+        return sink == null ? sql : SqlHighlighter.highlightWithSink(sql, sink);
+    }
+
+    /**
+     * 把 HighlightConfig 适配为 sink；未启用或类型为 {@code NONE} 时返回 {@code null}（不着色）。
+     */
+    private static HighlightSink sinkOf(HighlightConfig config) {
+        if (config == null || !config.isEnabled()) {
+            return null;
         }
-        return formatted;
+        switch (config.getType()) {
+            case ANSI:
+                return HighlightSink.ansi(config);
+            case HTML:
+                return HighlightSink.html(config);
+            case NONE:
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * 按 {@link #maxLineLength} 对格式化结果折行。仅在字面量/注释之外的安全空格处断开；
+     * 找不到安全断点（如单个超长字面量）时整行保留，绝不截断字面量。
+     */
+    protected String wrapLines(String formatted) {
+        if (maxLineLength <= 0 || formatted == null || formatted.isEmpty()) {
+            return formatted;
+        }
+        String[] lines = formatted.split("\n", -1);
+        StringBuilder out = new StringBuilder(formatted.length() + 32);
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                out.append('\n');
+            }
+            if (lines[i].length() <= maxLineLength) {
+                out.append(lines[i]);
+            } else {
+                wrapSingleLine(out, lines[i]);
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * 折行单行：在限宽内最后一个未掩码空格处断开，续行在原缩进上追加一级缩进。
+     */
+    private void wrapSingleLine(StringBuilder out, String line) {
+        int lead = 0;
+        while (lead < line.length() && Character.isWhitespace(line.charAt(lead))) {
+            lead++;
+        }
+        String continuationIndent = line.substring(0, lead) + " ".repeat(INDENT_SIZE);
+        boolean[] masked = maskLiteralsAndComments(line);
+        int start = 0;
+        int length = line.length();
+        while (length - start > maxLineLength) {
+            int limit = Math.min(length, start + maxLineLength);
+            int breakAt = -1;
+            for (int i = limit; i > start; i--) {
+                // 断点必须是段内（非段首）的未掩码空格，避免把缩进或字面量拆开
+                if (i - 1 > start && line.charAt(i - 1) == ' ' && !masked[i - 1]) {
+                    breakAt = i;
+                    break;
+                }
+            }
+            // 限宽内无安全断点（如超长字面量）：整段保留，避免破坏字面量
+            if (breakAt <= start) {
+                break;
+            }
+            // 断点处的空格吞掉，不带入下一行
+            out.append(line, start, breakAt - 1);
+            out.append('\n').append(continuationIndent);
+            start = breakAt;
+        }
+        out.append(line, start, length);
     }
 
     // ==================== 抽象方法 ====================

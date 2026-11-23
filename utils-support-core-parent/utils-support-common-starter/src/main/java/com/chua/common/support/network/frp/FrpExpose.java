@@ -136,7 +136,7 @@ public class FrpExpose {
             socket.connect(new InetSocketAddress(localHost, localPort), 5000);
             log.debug("FRP bridgeToLocal: channel={}, connected to {}:{}", session.getChannelId(),
                     localHost, localPort);
-            session.onBytes(data -> writeSocket(socket, data));
+            session.onBytes((buf, off, len) -> writeSocket(socket, buf, off, len));
             session.onClose(channelId -> closeQuietly(socket));
             readSocket(socket, session);
         } catch (IOException e) {

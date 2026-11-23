@@ -218,7 +218,7 @@ public class FrpTunnelPort {
             return;
         }
         log.debug("FRP forward: channel={}, local socket connected", session.getChannelId());
-        session.onBytes(data -> writeSocket(socket, data));
+        session.onBytes((buf, off, len) -> writeSocket(socket, buf, off, len));
         session.onClose(channelId -> closeQuietly(socket));
         readSocket(socket, session);
     }

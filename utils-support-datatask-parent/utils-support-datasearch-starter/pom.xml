@@ -116,6 +116,16 @@
                             <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>run-multihome-usage-test</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.chua.common.support.datasearch.example.BaseUsageParserMultiHomeExample</mainClass>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
                     <plugin>
@@ -204,6 +214,17 @@
                                 </goals>
                                 <configuration>
                                     <mainClass>com.chua.common.support.datasearch.example.ScnetUsageParserExample</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-multihome-usage</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.chua.common.support.datasearch.example.BaseUsageParserMultiHomeExample</mainClass>
                                     <classpathScope>test</classpathScope>
                                 </configuration>
                             </execution>

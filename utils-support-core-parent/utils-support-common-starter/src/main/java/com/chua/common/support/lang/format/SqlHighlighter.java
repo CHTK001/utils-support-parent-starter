@@ -181,12 +181,12 @@ public class SqlHighlighter {
             return sql;
         }
 
-        // 根据高亮类型执行不同的高亮策略
+        // 根据高亮类型路由到对应的渲染 sink
         switch (config.getType()) {
             case ANSI:
-                return highlightAnsi(sql, config);
+                return highlightWithSink(sql, HighlightSink.ansi(config));
             case HTML:
-                return highlightHtml(sql, config);
+                return highlightWithSink(sql, HighlightSink.html(config));
             case NONE:
             default:
                 return sql;
@@ -194,188 +194,90 @@ public class SqlHighlighter {
     }
 
     /**
-     * 使用ANSI颜色高亮（控制台）
-     * @param sql SQL，不允许为 null
-     * @param config 配置，不允许为 null
-     * @return 结果字符串
+     * 用指定 sink 高亮 SQL：分词逻辑固定（关键字/数字/字面量/注释四类），渲染交给 sink。
+     *
+     * <p>与 {@link #highlight(String, HighlightConfig)} 的区别：渲染出口完全由调用方
+     * 决定（控制台 ANSI、网页 HTML、日志纯文本或自定义方案），不与具体输出格式耦合。</p>
+     *
+     * @param sql  SQL 文本，不允许为 null
+     * @param sink 渲染 sink，不允许为 null
+     * @return 高亮后的 SQL 字符串
      */
-    private static String highlightAnsi(String sql, HighlightConfig config) {
-        return highlightInternal(sql, config, false);
-    }
+    public static String highlightWithSink(String sql, HighlightSink sink) {
+        if (StringUtils.isEmpty(sql) || sink == null) {
+            return sql;
+        }
 
-    /**
-     * 使用HTML颜色高亮（网页）
-     * @param sql SQL，不允许为 null
-     * @param config 配置，不允许为 null
-     * @return 结果字符串
-     */
-    private static String highlightHtml(String sql, HighlightConfig config) {
-        return highlightInternal(sql, config, true);
-    }
-
-    /**
-     * 内部高亮实现
-     * @param sql SQL，不允许为 null
-     * @param config 配置，不允许为 null
-     * @param isHtml 是否Html（布尔开关）
-     * @return 结果字符串
-     */
-    private static String highlightInternal(String sql, HighlightConfig config, boolean isHtml) {
-        var result = new StringBuilder();
+        var result = new StringBuilder(sql.length() + 32);
         var currentToken = new StringBuilder();
-
-        // 状态变量
-        boolean inSingleQuote = false;
-        boolean inDoubleQuote = false;
-        boolean inLineComment = false;
-        boolean inBlockComment = false;
-        // 标识符状态（如 "table_name"）
-        boolean inIdentifier = false;
-
-        for (int i = 0; i < sql.length(); i++) {
+        int length = sql.length();
+        int i = 0;
+        while (i < length) {
             char c = sql.charAt(i);
 
-            // ----- 处理注释（必须最先处理） -----
-
-            // 行注释 --
-            if (!inSingleQuote && !inDoubleQuote && !inBlockComment) {
-                if (c == '-' && i + 1 < sql.length() && sql.charAt(i + 1) == '-') {
-                    // 遇到 --，进入行注释模式
-                    if (currentToken.length() > 0) {
-                        result.append(applyHighlight(currentToken.toString(), config, isHtml));
-                        currentToken = new StringBuilder();
-                    }
-                    inLineComment = true;
-                    result.append("--");
-                    // 跳过第二个 '-'
-                    i++;
-                    continue;
-                }
-            }
-
-            // 块注释 /* */
-            if (!inSingleQuote && !inDoubleQuote && !inLineComment) {
-                if (c == '/' && i + 1 < sql.length() && sql.charAt(i + 1) == '*') {
-                    if (currentToken.length() > 0) {
-                        result.append(applyHighlight(currentToken.toString(), config, isHtml));
-                        currentToken = new StringBuilder();
-                    }
-                    inBlockComment = true;
-                    result.append("/*");
-                    // 跳过 '*'
-                    i++;
-                    continue;
-                }
-            }
-
-            // 处理注释内容
-            if (inLineComment) {
-                if (c == '\n') {
-                    inLineComment = false;
-                    result.append(c);
-                    continue;
-                }
-                // 注释内容使用注释颜色
-                if (isHtml) {
-                    result.append(escapeHtml(String.valueOf(c)));
-                } else {
-                    result.append(c);
-                }
+            // 行注释：-- 到行尾（换行符留给下一轮按普通空白输出）
+            if (c == '-' && i + 1 < length && sql.charAt(i + 1) == '-') {
+                flushToken(result, currentToken, sink);
+                int end = SqlFormatter.skipLineComment(sql, i);
+                result.append(sink.styleComment(sql.substring(i, end)));
+                i = end;
                 continue;
             }
 
-            if (inBlockComment) {
-                if (c == '*' && i + 1 < sql.length() && sql.charAt(i + 1) == '/') {
-                    result.append("*/");
-                    // 跳过 '/'
-                    i++;
-                    inBlockComment = false;
-                    continue;
-                }
-                if (isHtml) {
-                    result.append(escapeHtml(String.valueOf(c)));
-                } else {
-                    result.append(c);
-                }
+            // 块注释：/* 到 */（未闭合保护到串尾）
+            if (c == '/' && i + 1 < length && sql.charAt(i + 1) == '*') {
+                flushToken(result, currentToken, sink);
+                int end = SqlFormatter.skipBlockComment(sql, i);
+                result.append(sink.styleComment(sql.substring(i, end)));
+                i = end;
                 continue;
             }
 
-            // ----- 处理字符串 -----
-
-            // 单引号字符串
-            if (c == '\'' && !inDoubleQuote && !inLineComment && !inBlockComment) {
-                if (!inSingleQuote) {
-                    // 进入字符串
-                    if (currentToken.length() > 0) {
-                        result.append(applyHighlight(currentToken.toString(), config, isHtml));
-                        currentToken = new StringBuilder();
-                    }
-                }
-                inSingleQuote = !inSingleQuote;
-                // 字符串内容使用字面量颜色
-                if (isHtml) {
-                    result.append(config.getHtmlColor(HighlightConfig.KeywordCategory.LITERAL))
-                            .append("'")
-                            .append(config.getHtmlEnd());
-                } else {
-                    result.append(config.getAnsiColor(HighlightConfig.KeywordCategory.LITERAL))
-                            .append("'")
-                            .append(config.getAnsiReset());
-                }
+            // 字符串字面量/双引号标识符：整个引号区域（含引号）交给 sink
+            if (c == '\'' || c == '"') {
+                flushToken(result, currentToken, sink);
+                int end = SqlFormatter.skipQuoted(sql, i, c);
+                result.append(sink.styleLiteral(sql.substring(i, end)));
+                i = end;
                 continue;
             }
 
-            // 双引号标识符（某些数据库用来引用表名/列名）
-            if (c == '"' && !inSingleQuote && !inLineComment && !inBlockComment) {
-                if (!inDoubleQuote) {
-                    if (currentToken.length() > 0) {
-                        result.append(applyHighlight(currentToken.toString(), config, isHtml));
-                        currentToken = new StringBuilder();
-                    }
-                }
-                inDoubleQuote = !inDoubleQuote;
-                // 标识符使用普通颜色
-                result.append(c);
-                continue;
-            }
-
-            // 如果在字符串内，直接追加
-            if (inSingleQuote || inDoubleQuote) {
-                // 字符串内容使用字面量颜色
-                if (isHtml) {
-                    result.append(config.getHtmlColor(HighlightConfig.KeywordCategory.LITERAL))
-                            .append(escapeHtml(String.valueOf(c)))
-                            .append(config.getHtmlEnd());
-                } else {
-                    result.append(config.getAnsiColor(HighlightConfig.KeywordCategory.LITERAL))
-                            .append(c)
-                            .append(config.getAnsiReset());
-                }
-                continue;
-            }
-
-            // ----- 处理普通字符 -----
-
-            // 空格或分隔符：结束当前token
+            // 空格或分隔符：结束当前 token
             if (Character.isWhitespace(c) || isDelimiter(c)) {
-                if (currentToken.length() > 0) {
-                    result.append(applyHighlight(currentToken.toString(), config, isHtml));
-                    currentToken = new StringBuilder();
-                }
+                flushToken(result, currentToken, sink);
                 result.append(c);
+                i++;
                 continue;
             }
 
-            // 普通字符：累积到当前token
+            // 普通字符：累积到当前 token
             currentToken.append(c);
+            i++;
         }
 
-        // 处理最后一个token
-        if (!currentToken.isEmpty()) {
-            result.append(applyHighlight(currentToken.toString(), config, isHtml));
-        }
-
+        // 处理最后一个 token
+        flushToken(result, currentToken, sink);
         return result.toString();
+    }
+
+    /**
+     * 冲刷当前累积 token：关键字按类别着色，数字按字面量着色，其余原样输出。
+     */
+    private static void flushToken(StringBuilder result, StringBuilder token, HighlightSink sink) {
+        if (token.length() == 0) {
+            return;
+        }
+        String word = token.toString();
+        token.setLength(0);
+        String upperWord = word.toUpperCase();
+        if (ALL_KEYWORDS.contains(upperWord)) {
+            result.append(sink.styleToken(word,
+                    KEYWORD_CATEGORY_MAP.getOrDefault(upperWord, HighlightConfig.KeywordCategory.CLAUSE)));
+        } else if (isNumeric(word)) {
+            result.append(sink.styleToken(word, HighlightConfig.KeywordCategory.LITERAL));
+        } else {
+            result.append(word);
+        }
     }
 
     /**
@@ -390,52 +292,11 @@ public class SqlHighlighter {
     }
 
     /**
-     * 对单个Token应用高亮
-     * @param token 令牌，不允许为 null
-     * @param config 配置，不允许为 null
-     * @param isHtml 是否Html（布尔开关）
-     * @return 结果字符串
-     */
-    private static String applyHighlight(String token, HighlightConfig config, boolean isHtml) {
-        if (StringUtils.isEmpty(token)) {
-            return token;
-        }
-
-        // 判断是否为数字
-        if (isNumeric(token)) {
-            if (isHtml) {
-                return config.getHtmlColor(HighlightConfig.KeywordCategory.LITERAL) +
-                        token + config.getHtmlEnd();
-            } else {
-                return config.getAnsiColor(HighlightConfig.KeywordCategory.LITERAL) +
-                        token + config.getAnsiReset();
-            }
-        }
-
-        // 判断是否为关键词（不区分大小写）
-        String upperToken = token.toUpperCase();
-        if (ALL_KEYWORDS.contains(upperToken)) {
-            HighlightConfig.KeywordCategory category = KEYWORD_CATEGORY_MAP.getOrDefault(
-                    upperToken, HighlightConfig.KeywordCategory.CLAUSE
-            );
-
-            if (isHtml) {
-                return config.getHtmlColor(category) + token + config.getHtmlEnd();
-            } else {
-                return config.getAnsiColor(category) + token + config.getAnsiReset();
-            }
-        }
-
-        // 非关键词，直接返回
-        return token;
-    }
-
-    /**
      * 判断是否为数字（整数或小数）
      * @param str 字符串，不允许为 null
      * @return 是否成功（true 表示成功）
      */
-    private static boolean isNumeric(String str) {
+    static boolean isNumeric(String str) {
         if (StringUtils.isEmpty(str)) {
             return false;
         }
@@ -447,19 +308,4 @@ public class SqlHighlighter {
         }
     }
 
-    /**
-     * HTML转义
-     * @param text 文本，不允许为 null
-     * @return 结果字符串
-     */
-    private static String escapeHtml(String text) {
-        if (text == null) {
-            return null;
-        }
-        return text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;");
-    }
 }
