@@ -8,7 +8,7 @@ import java.util.Map;
  *
  * <p>utils 层的 {@link DatabaseUsageParser} 只做「数据行 → {@code AiUsage}」的映射与编排，
  * 不感知任何业务表结构；表名、列名与查询 SQL 由本接口的实现自行决定
- * （如 ai 模块的 sys_ai_usage）。这是模块边界铁律（R2）的要求：
+ * （如 AI 调用用量表）。这是模块边界铁律（R2）的要求：
  * utils 层不得内嵌任何业务表的知识。</p>
  *
  * <p>返回的每行 Map 必须以下列逻辑字段名为键（无值的键可省略，

@@ -16,8 +16,8 @@ import java.util.Map;
  * 数据库用量解析器 — 通过 {@link UsageRowProvider} SPI 从关系型数据库读取 AI 用量数据。
  *
  * <p>本类只负责「数据行 → {@link AiUsage}」的映射与编排；表名、列名与查询 SQL
- * 由持有该存储的业务模块通过 {@link UsageRowProvider} 实现提供（如 ai 模块的
- * sys_ai_usage），utils 层不感知任何业务表结构。</p>
+ * 由持有该存储的业务模块通过 {@link UsageRowProvider} 实现提供（如 AI 调用用量表），
+ * utils 层不感知任何业务表结构。</p>
  *
  * <p>本类刻意不放在 {@code usage.spi} 包下：SPI 的同包扫描会把该包及其子包内的所有实现
  * 登记为扩展点，而本类的构造需要注入 Spring 容器中的 {@link UsageRowProvider}，
