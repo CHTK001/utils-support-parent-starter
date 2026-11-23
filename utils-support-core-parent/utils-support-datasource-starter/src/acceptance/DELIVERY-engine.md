@@ -651,7 +651,7 @@ run-oracle.bat stop             :: 停掉该服务
 > 本轮**未改**：当时该文件已被另一并发会话加入了未提交的 elasticsearch 支持
 > （`TYPE_META` / `typeDesc` / `defaultPort` 三处 + 新页面），按路径提交会把对方半成品
 > 一并卷入，故只记录不动手。**注意**：本页的端到端浏览器验收需要
-> `spring-support-datasource-hub-starter` 后端，本轮以「纯逻辑单测 + 模板/类型检查」定案，
+> `spring-support-datapool-starter` 后端，本轮以「纯逻辑单测 + 模板/类型检查」定案，
 > 未做浏览器验收。
 
 ## 9. 新增能力：`Engine.query()` 非 ORM SQL 文本构建器（阶段七）

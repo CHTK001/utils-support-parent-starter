@@ -5,6 +5,7 @@
 ## 目录
 
 - [它是什么 / 不是什么](#它是什么--不是什么)
+- [架构总览](#架构总览)
 - [核心 API 与速查表](#核心-api-与速查表)
 - [快速开始](#快速开始)
 - [配置项](#配置项)
@@ -27,6 +28,69 @@
 | 不是 Redis 客户端本身 | 只封装 Jedis / Lettuce / Redisson，不重复实现协议与连接池 |
 | 不是运维/管理平台 | 管理面（`RedisClientProvider`）**只读**，不提供 DEL / FLUSHDB / CONFIG SET 等写操作 |
 | 不是集群拓扑管理工具 | 构造器均按单节点地址（`redis://host:port`）建连，不支持在模块内声明哨兵/集群拓扑 |
+
+## 架构总览
+
+模块自上而下分四层：**使用方 → 本模块（SPI 实现）→ 三个 Redis 客户端 → Redis 服务端**。使用方只通过构造器 / Builder 接入；对 common / datasource / datalake 层的十余个 SPI 扩展点，本模块以 `@Spi("redis")` 与 `META-INF` 登记的方式提供 redis 实现。
+
+```text
+host application / other starters
+        │  构造器 / Builder 接入（无 Spring 自动装配、无配置文件绑定）
+        ▼
+┌─ utils-support-redis-starter（com.chua.redis.support）────────────────────────
+│
+│  ① 同步 KV / 管理面（Jedis）
+│     client.RedisClient               → KvEngine / KvOperations
+│     config.RedisConfigCenter         → ConfigCenter
+│     spi.RedisClientProvider          → MiddlewareClientProvider（只读管理面）
+│     command.*（6 个命令处理器）       → RedisCommandHandler（GET/SET/DEL/HSET/EXPIRE/INCR）
+│     datasource.RedisDataTable        → DataTable（只读，供 Calcite 查询聚合）
+│
+│  ② 响应式 / 检索 / 时序（Lettuce / Jedis）
+│     engine.RedisReactorEngine        → ReactorEngine
+│     engine.RedisReactiveKvEngine     → 响应式 KV 便捷封装（非 SPI）
+│     engine.RediSearchEngine          → Engine（需 Redis Stack 的 RediSearch FT.*）
+│     engine.RedisSeriesEngine         → SeriesEngine（监控指标 ZSET）
+│     meta.RedisSearchEngineImpl / RedisSearchMeta → SearchEngine（需 FT.*）
+│     sink.RedisSearchSink             → DataSink（SPI 键 "redis-search"）
+│
+│  ③ Redisson 面（锁 / 限流 / 订阅 / 发现 / 去重）
+│     lock.RedissonLockProvider                 → LockProvider
+│     rate.RedisRateLimiterProvider             → RateLimiterProvider
+│     dispatcher.RedissonDispatcherProvider     → DispatcherProvider
+│     deduplicate.RedisDeduplicator             → Deduplicator
+│     discovery.RedisServiceDiscovery           → ServiceDiscovery
+│
+│  ④ 开发 / 测试
+│     server.RedisServer / EmbeddedRedisServer（provided 依赖，生产不打包）
+│
+└──────┬────────────────────────┬────────────────────────┬─────────────────
+       ▼                        ▼                        ▼
+   Jedis 6.0                Lettuce                  Redisson 4.8
+（同步连接池 / 命令）   （Netty 异步协议）   （锁 · 限流 · 订阅 · 发现 · 去重）
+       └────────────────────────┼────────────────────────┘
+                                ▼
+              Redis 单节点（redis://host:port，构造器逐个指定，不在模块内声明哨兵 / 集群拓扑）
+              meta / sink / RediSearchEngine 依赖 Redis Stack 的 RediSearch 模块；
+              开发测试可用 embedded-redis 拉起本地 redis-server
+```
+
+服务发现（`RedisServiceDiscovery`）的数据面与读写路径：
+
+```text
+registerService(path, discovery)
+        │  RMapCache.put（JSON，逐条 TTL 90s）
+        ▼
+Redis  RMapCache：map 名 = normalizePath(path)，field = host:port[#scatterId]
+        ▲  心跳按周期重写续期；进程崩溃后记录 90s 自然过期
+        │  readAllValues() + JSON 解析（get() 直读 Redis 真值，不经本地缓存）
+        ▼
+本地视图 localCache（按 serverId 去重） ── 2s 读缓存 ──► getServiceAll / getService(balance)
+                                                        │
+        balance = weight（选中即权重减半）· random · round-robin · 未知策略回落列表首项
+
+subscribe() 未实现（isSupportSubscribe()=true 但仅打印告警），详见「边界与注意事项」
+```
 
 ## 核心 API 与速查表
 

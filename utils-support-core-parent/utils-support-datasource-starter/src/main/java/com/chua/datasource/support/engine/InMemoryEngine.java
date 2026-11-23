@@ -4,9 +4,11 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.MemorySqlAst.DeletePlan;
@@ -35,6 +37,13 @@ import java.util.regex.Pattern;
  * 通过 SPI 注册为 {@code "memory"}，可作为单元测试或无持久化场景下的默认 Engine。
  * </p>
  *
+ * <p><b>并发语义</b>：表数据（{@code dataStores}）与二级索引（{@code indexes}）
+ * 均为并发安全容器，多个线程可安全并发执行查询；写入（insert / update /
+ * delete / store / 原生 DML）与读取并发时，写入路径会先失效目标表索引再改写数据，
+ * 读取端未命中索引自动回退全表扫描，因此不会读到陈旧索引的悬空引用。
+ * 但单表内部的复合操作（如「先查再改」）不构成原子单元，需要原子性时
+ * 请由调用方自行加锁或在事务上下文中使用。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -54,10 +63,14 @@ public class InMemoryEngine extends AbstractEngine {
 
     /**
      * 存储
-    */
+     *
+     * <p>整体替换目标表数据后，旧索引指向的行集合作废，
+     * 必须先摘除该表索引，避免 {@link #tryIndexLookup} 命中已失效的行引用。</p>
+     */
     @Override
     public <T> Engine store(String name, List<T> data) {
         super.store(name, data);
+        invalidateIndexes(name);
         return this;
     }
 
@@ -71,6 +84,21 @@ public class InMemoryEngine extends AbstractEngine {
             buildIndex(e.getKey(), e.getValue());
         }
         return this;
+    }
+
+    /**
+     * 使指定表及其数据存储的二级索引失效。
+     *
+     * <p>索引按 {@code dataStores} 的实际键构建，而 {@link #getData} 在表名缺失时
+     * 回退到 {@code "default"} 存储，因此两个键都需要摘除，缺一都会留下
+     * 指向旧数据集的悬空索引。摘除后下次等值查询经 {@link #tryIndexLookup}
+     * 未命中索引，自动回退全表扫描，不影响结果正确性。</p>
+     *
+     * @param table 表名
+     */
+    private void invalidateIndexes(String table) {
+        indexes.remove(table);
+        indexes.remove("default");
     }
 
     /**
@@ -235,6 +263,8 @@ public class InMemoryEngine extends AbstractEngine {
         Object[] args = params == null ? new Object[0] : params;
         return interceptUpdate(sql, args, () -> {
             var plan = new MemorySqlParser().parseDml(sql);
+            // 原生 DML 直接改写行集合，等价于表结构变更，索引必须随写失效
+            invalidateIndexes(plan.table());
             return MemorySqlAst.executeDml(plan,
                     java.util.Arrays.asList(args),
                     () -> mutableRowsFor(plan.table()));
@@ -252,6 +282,43 @@ public class InMemoryEngine extends AbstractEngine {
     @Override
     public boolean supportsSql() {
         return true;
+    }
+
+    /**
+     * 基于内存表执行更新：先摘除目标表索引，再委托基类内存更新。
+     *
+     * <p>基类 {@link AbstractEngine#executeUpdate} 走 {@code executeUpdateInMemory}，
+     * 直接改写行对象字段，索引引用同时失效，因此必须随写失效，否则
+     * {@link #tryIndexLookup} 仍按旧值命中行、查询结果与真实数据不一致。</p>
+     */
+    @Override
+    public <T> int executeUpdate(UpdateSql<T> sql) {
+        invalidateIndexes(getTableName(sql.entityClass()));
+        return super.executeUpdate(sql);
+    }
+
+    /**
+     * 基于内存表执行删除：先摘除目标表索引，再委托基类内存删除。
+     *
+     * <p>基类删除会整体替换目标表行集合，索引指向旧集合引用，删除后成为悬空索引，
+     * 必须随写失效，否则等值查询会命中已删除的行对象。</p>
+     */
+    @Override
+    public <T> int executeDelete(DeleteSql<T> sql) {
+        invalidateIndexes(getTableName(sql.entityClass()));
+        return super.executeDelete(sql);
+    }
+
+    /**
+     * 内存通道插入完成后的收尾钩子：新行进入表后，旧索引不包含它们，
+     * 必须随写失效，否则新行的等值查询会漏命（索引未命中自动回退全表扫描）。
+     *
+     * @param entityClass 实体类类型
+     * @param affected    本次插入行数
+     */
+    @Override
+    protected void afterMemoryInsert(Class<?> entityClass, int affected) {
+        invalidateIndexes(getTableName(entityClass));
     }
 
     /**
@@ -409,6 +476,8 @@ public class InMemoryEngine extends AbstractEngine {
         if (data.isEmpty()) {
             return 0;
         }
+        // 逐行改写字段，索引引用随之失效，先摘除目标表索引
+        invalidateIndexes(getTableName(wrapper.getEntityClass()));
         Predicate<T> predicate = buildPredicate(wrapper.getConditions());
         Map<String, Object> setValues = wrapper.getSetValues();
         if (setValues.isEmpty()) {
@@ -439,6 +508,8 @@ public class InMemoryEngine extends AbstractEngine {
         if (data.isEmpty()) {
             return 0;
         }
+        // 删除会整体替换目标表行集合，索引指向旧集合引用，先摘除目标表索引
+        invalidateIndexes(getTableName(wrapper.getEntityClass()));
         Predicate<T> predicate = buildPredicate(wrapper.getConditions());
         int before = data.size();
         List<T> remaining = data.stream().filter(predicate.negate()).toList();

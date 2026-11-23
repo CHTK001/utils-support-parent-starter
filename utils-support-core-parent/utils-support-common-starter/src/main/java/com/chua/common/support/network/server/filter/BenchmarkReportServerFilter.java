@@ -30,7 +30,8 @@ import java.util.concurrent.atomic.LongAdder;
  *
  * <p><b>默认关闭</b>（不挂载、不生效，热路径零开销）。开启方式：</p>
  * <ul>
- *   <li>{@code -Dserver.benchmark.enabled=true} — 启动时自动挂载；</li>
+ *   <li>{@code -Dserver.benchmark.enabled=true} — 启动时自动开启（过滤器始终挂载，关闭状态下
+ *       每请求只做一次开关判断便放行，热路径无 nanoTime/统计开销）；</li>
  *   <li>或 {@code server.addFilter(new BenchmarkReportServerFilter(metrics, setting.getManagement()))} 手动注册；
  *       也可经 {@code ServiceProvider.of(ServerFilter.class)} SPI 发现注册。</li>
  * </ul>
@@ -204,6 +205,11 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
             respondReport(response);
             return;
         }
+        if (!isBenchmarkActive()) {
+            // 关闭期间只做开关判断便放行，热路径零额外开销（与 HealthCheck/Metrics 同口径）
+            chain.doFilter(request, response);
+            return;
+        }
         long start = System.nanoTime();
         try {
             chain.doFilter(request, response);
@@ -226,6 +232,11 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
             respondReport(response);
             return COMPLETED;
         }
+        if (!isBenchmarkActive()) {
+            // 关闭期间只做开关判断便放行，热路径零额外开销（与 doFilter 同步版同口径）
+            CompletionStage<Void> skipped = chain.doFilter(request, response);
+            return skipped != null ? skipped : COMPLETED;
+        }
         long start = System.nanoTime();
         CompletionStage<Void> stage = chain.doFilter(request, response);
         if (stage == null) {
@@ -233,6 +244,16 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
             return COMPLETED;
         }
         return stage.whenComplete((v, t) -> record(start));
+    }
+
+    /**
+     * 判断基准报告是否激活（开关开启即激活；路径安全检查以 {@link #isReportRequest} 为主）。
+     *
+     * @return true 表示应记录请求延迟
+     */
+    private boolean isBenchmarkActive() {
+        ServerSetting.ManagementConfig config = this.config;
+        return config != null && config.isBenchmarkEnabled();
     }
 
     /**

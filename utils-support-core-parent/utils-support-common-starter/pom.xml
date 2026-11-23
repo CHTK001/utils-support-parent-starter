@@ -67,6 +67,14 @@
         </plugins>
     </build>
     <dependencies>
+        <!-- OSGi 插件契约（BundleApplication / BundleContext / OsgiLauncher 等）位于
+             utils-support-osgi-bundle-starter（零依赖契约模块，本模块经 OsgiServiceResolver
+             等引用这些契约，依赖方向 common -> osgi-bundle，不构成环） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-osgi-bundle-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

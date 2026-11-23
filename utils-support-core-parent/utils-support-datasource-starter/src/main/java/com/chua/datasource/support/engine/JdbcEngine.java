@@ -46,6 +46,12 @@ public abstract class JdbcEngine extends AbstractEngine {
             org.slf4j.LoggerFactory.getLogger(JdbcEngine.class);
 
     /**
+     * 默认 SQL 执行器缓存：{@link JdbcSqlExecutor} 无状态（仅持有引擎引用，
+     * 连接在每次执行时获取），可安全共享；懒加载避免重复对象分配。
+     */
+    private volatile SqlExecutor executorCache;
+
+    /**
      * 执行新查询
      *
      * @param where where
@@ -425,11 +431,58 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取默认数据源的 SQL 执行器，非 JDBC 数据源返回 空。
      *
+     * <p>{@link JdbcSqlExecutor} 无状态（仅持有引擎引用，连接在每次执行时获取），
+     * 同一默认数据源上可安全复用同一实例，此处做一次懒加载缓存：
+     * 首次调用后不再重复走数据源查找与对象分配。默认数据源名变更后
+     * 缓存可能指向旧数据源的执行器，但执行器本身无状态，查询/写入
+     * 每次都会通过引擎重新获取默认数据源的 JDBC 连接，语义不受影响。</p>
+     *
      * @return SQL 执行器
      */
     @Override
     public SqlExecutor getExecutor() {
-        return getExecutor(getDefaultDataSourceName());
+        SqlExecutor cached = executorCache;
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (this) {
+            if (executorCache == null) {
+                executorCache = getExecutor(getDefaultDataSourceName());
+            }
+            return executorCache;
+        }
+    }
+
+    /**
+     * 批量执行同一条语句，仅参数不同。
+     *
+     * <p>覆写接口默认的逐条执行实现：JDBC 引擎走 {@link JdbcSqlExecutor#batch}，
+     * 一条连接上一次 {@code addBatch / executeBatch} 提交，避免逐条网络往返与
+     * 逐条事务开销。空参数列表与接口默认实现一致，直接返回空数组，不触发拦截器。</p>
+     *
+     * <p>拦截器包裹沿用 {@link #interceptUpdate} 的语义，以语句为粒度回调一次
+     * {@code beforeUpdate / afterUpdate}：参数反映首组参数，afterUpdate 的
+     * 受影响行数取批量结果最后一个非 SUCCESS_NO_INFO 值（驱动按批汇总时
+     * 常为 {@code SUCCESS_NO_INFO}，取末值可保留真实计数）。</p>
+     *
+     * @param ql          语句模板
+     * @param batchParams 每组参数，null 或空列表返回空数组
+     * @return 每组参数对应的受影响行数
+     * @throws UnsupportedOperationException 引擎不支持原生写入时抛出
+     */
+    @Override
+    public int[] batchSql(String ql, List<Object[]> batchParams) {
+        if (batchParams == null || batchParams.isEmpty()) {
+            return new int[0];
+        }
+        Object[] firstParams = batchParams.get(0) == null ? new Object[0] : batchParams.get(0);
+        int[][] result = new int[1][];
+        interceptUpdate(ql, firstParams, () -> {
+            int[] r = getExecutor().batch(ql, batchParams);
+            result[0] = r;
+            return r.length > 0 ? r[r.length - 1] : 0;
+        });
+        return result[0];
     }
 
     /**

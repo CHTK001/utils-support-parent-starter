@@ -1,9 +1,8 @@
 package com.chua.common.support.osgi;
 
-import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import com.chua.common.support.utils.StringUtils;
 
 /**
  * OSGI 服务描述符，描述服务注册表中的一项服务登记。
@@ -51,7 +50,7 @@ import com.chua.common.support.utils.StringUtils;
     public OsgiServiceDescriptor {
         properties = properties == null
                 ? null
-                : Collections.unmodifiableMap(Wraps.linkedMap(properties));
+                : Collections.unmodifiableMap(new LinkedHashMap<>(properties));
     }
 
     /**
@@ -148,7 +147,7 @@ import com.chua.common.support.utils.StringUtils;
      * @return 稳定服务标识
      */
     public String stableId() {
-        if (StringUtils.isNotBlank(pid)) {
+        if (pid != null && !pid.isBlank()) {
             return typeName + ":" + pid;
         }
         return typeName + ":" + System.identityHashCode(instance);

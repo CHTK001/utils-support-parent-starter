@@ -21,6 +21,7 @@
         <module>utils-support-spring-starter</module>
         <module>utils-support-springboot-starter</module>
         <module>utils-support-osgi-starter</module>
+        <module>utils-support-osgi-bundle-starter</module>
         <module>utils-support-payment-starter</module>
         <module>utils-support-flow-starter</module>
         <module>utils-support-crawler-starter</module>

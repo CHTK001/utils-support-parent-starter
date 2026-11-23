@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-core-parent</artifactId>
+        <version>4.0.0.51</version>
+        <relativePath>../../utils-support-core-parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-osgi-bundle-starter</artifactId>
+    <name>Utils Support Osgi Bundle Starter - Bundle Contracts</name>
+    <description>
+        OSGi 插件侧契约模块：BundleApplication / BundleContext / OsgiLauncher 等框架无关契约。
+        宿主与插件两侧共同依赖本模块（插件以 provided 作用域引入，运行期由宿主经
+        org.osgi.framework.system.packages.extra 导出本模块包名），避免插件直接依赖宿主 starter。
+        本模块保持零依赖：所有类型仅依赖 JDK，禁止引入 Spring / Felix / 其它工具库。
+    </description>
+</project>

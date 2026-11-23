@@ -596,7 +596,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 的写法（后者是给存量老库补列用的）。在 MySQL 上重复执行报 1060（重复列），
      * 由 continueOnError 逐语句忽略；但在 H2 / PostgreSQL 上这条 ALTER 是<b>硬失败</b>
      * （Duplicate column name），会把整份脚本判为失败、每次启动重跑。
-     * 实测 datasource-hub 的 7 条存量补列语句在 H2 上全部报 Duplicate column。</p>
+     * 实测 datapool 的 7 条存量补列语句在 H2 上全部报 Duplicate column。</p>
      *
      * <p>处理方式按目标方言分两种：</p>
      * <ul>
@@ -1029,7 +1029,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      *
      * <p>MySQL 允许 {@code ALTER TABLE t ADD COLUMN a ..., ADD COLUMN b ...} 一次加多列，
      * 但 H2 与 PostgreSQL 只接受一条 ADD COLUMN（本仓脚本里这样的写法有 3 处，
-     * 见 datasource-hub 的两段存量补列与 device 的补列）。</p>
+     * 见 datapool 的两段存量补列与 device 的补列）。</p>
      *
      * <p>拆分时保留表名、其余修饰子句（{@code AFTER} 在目标库已被剥掉）与每列自己的定义。</p>
      *

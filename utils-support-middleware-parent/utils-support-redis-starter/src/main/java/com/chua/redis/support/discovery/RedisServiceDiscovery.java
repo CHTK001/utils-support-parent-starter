@@ -13,6 +13,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -110,11 +111,32 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixedPath = addClusterPrefix(path);
         discovery.setUriSpec(prefixedPath);
-        String mapKey = "discovery:" + StringUtils.startWithAppend(prefixedPath, "/");
+        // 键一律走 normalizePath（前导斜杠归一）：与读路径 loadFromRedis、注销/更新的 mapKey 保持同一形态，
+        // 避免出现「注册落在 discovery:/x、注销/更新却作用在 discovery:x」的分裂键。
+        String mapKey = "discovery:" + normalizePath(prefixedPath);
         String entryKey = entryKey(discovery);
         RMapCache<String, String> map = redissonClient.getMapCache(mapKey);
         map.put(entryKey, Json.toJson(discovery), REGISTER_TTL_SECONDS, TimeUnit.SECONDS);
         readCache.remove(normalizePath(prefixedPath));
+        // 与 zk/nacos 注册同口径：注册同步落本地视图，且按 serverId 去重更新（心跳周期性重写不累积重复条目），
+        // 保证后续 updateService 能按 serverId 命中旧记录并持久化到 Redis，而非只写内存视图。
+        localCache.compute(normalizePath(prefixedPath), (k, list) -> {
+            if (list == null) {
+                list = new CopyOnWriteArrayList<>();
+            }
+            boolean replaced = false;
+            for (int i = 0; i < list.size(); i++) {
+                if (discovery.getServerId() != null && discovery.getServerId().equals(list.get(i).getServerId())) {
+                    list.set(i, discovery);
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                list.add(discovery);
+            }
+            return list;
+        });
         incrementServiceVersion();
         return this;
     }
@@ -202,9 +224,34 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     */
     @Override
     protected void doUnregister(String path, Discovery discovery) {
-        String mapKey = "discovery:" + path;
+        // 与 registerService/loadFromRedis 同一 normalizePath 形态，保证注销能命中注册时写入的键
+        String mapKey = "discovery:" + normalizePath(path);
         RMapCache<String, String> map = redissonClient.getMapCache(mapKey);
-        map.remove(entryKey(discovery));
+        if (discovery == null) {
+            readCache.remove(normalizePath(path));
+            return;
+        }
+        String serverId = discovery.getServerId();
+        if (StringUtils.isBlank(serverId)) {
+            // 无 serverId 时退化为按地址键精确删除（与旧行为一致）
+            map.remove(entryKey(discovery));
+        } else {
+            // 按 serverId 注销该实例的全部地址：实例换址后，调用方持有的旧 Discovery 对象
+            // （地址字段已过期）也必须能删掉当前生效的那条记录，否则死地址会留到 TTL 过期；
+            // unregisterService(path, serverId) 构建的空地址对象同样依赖本分支才能删中。
+            for (Map.Entry<String, String> entry : map.readAllEntrySet()) {
+                Discovery cached = null;
+                try {
+                    cached = Json.fromJson(entry.getValue(), Discovery.class);
+                } catch (Exception e) {
+                    // 无法解析的历史数据识别不了归属，留给 TTL 自清
+                    continue;
+                }
+                if (cached != null && serverId.equals(cached.getServerId())) {
+                    map.remove(entry.getKey());
+                }
+            }
+        }
         readCache.remove(normalizePath(path));
     }
 
@@ -213,7 +260,8 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     */
     @Override
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
-        String mapKey = "discovery:" + path;
+        // 与 registerService/loadFromRedis 同一 normalizePath 形态，保证更新落在注册时写入的同一张 map
+        String mapKey = "discovery:" + normalizePath(path);
         RMapCache<String, String> map = redissonClient.getMapCache(mapKey);
         // 换新地址时清掉旧键，否则旧地址会在过期前一直留在服务表里
         if (oldDiscovery != null) {

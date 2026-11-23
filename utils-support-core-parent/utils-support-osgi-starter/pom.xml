@@ -29,6 +29,13 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- OSGi 契约（OsgiLauncher / BundleContext / OsgiBundle 等）的唯一定义处，
+             本模块的 Felix 实现直接实现这些契约 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-osgi-bundle-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- 源码扩展点热重载（SourceJavaCompiler / SourceGroovyLoader / SourceExtensionScheduler）的真实行为测试。
              不引入 mockito：这些用例依赖的是真实 JDK 编译器与真实 SPI 注册表，

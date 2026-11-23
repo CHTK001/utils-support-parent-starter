@@ -1030,6 +1030,33 @@ try (Scatter scatter = ScatterBuilder.tcp()
 }
 ```
 
+#### 大规模部署：请配置多个 seed 节点
+
+`scatter` 的 seed 不只是启动引导点，更是**常态同步中枢**。`SeedModeDiscovery` 有两种工作模式：
+
+| 模式 | 同步路径 | 收敛速度 |
+|---|---|---|
+| seed 可用（常态） | 每轮发现向 seed 拉取全量视图，并向 seed PUSH 自身；新信息最多两跳（节点→seed→全体）传遍全网 | 与规模基本无关（~O(1) 轮） |
+| seed 全部失联（降级） | `degradeSync`：已发现节点之间互相 gossip（每轮 `gossipTargetCount` 个目标），同时按最小 `nodeId` 选举新 seed（ELEC 广播，当选地址自动补进各节点 `seeds`） | ~O(log N) 轮 × 心跳周期，大规模下明显变慢 |
+
+因此**小规模（几个节点）可以不配 seed**，降级 gossip 就够用；**大规模必须配 seed**，否则同步收敛会随节点数变慢。规模建议：
+
+- **至少配 3~5 个 seed**，写进**所有节点**的 `seeds(...)` 列表：既分摊同步/注册流量（避免单 seed 热点），又保证单台 seed 宕机不触发降级。
+- seed 尽量跨机房/跨分片分布；多 JVM 分片部署时，每个分片选 1~2 个节点当 seed，各节点 `seeds` 列表跨片互填。
+- **错峰上线**：节点同时 `start()` 会同时向 seed 注册/同步，容易把 seed 打满、收敛失真；按每 100~200ms 上 10 个的节奏加入。
+- seed 宕机自愈链路：心跳连续 `failRemoveCount` 次失败剔除该节点 → 全部 seed 失联则降级 gossip + ELEC 选举 → seed 恢复后自动切回快速路径。
+
+调优参数（`ScatterSetting`，括号内为缺省值）：
+
+| 参数 | 缺省 | 说明 |
+|---|---|---|
+| `autoDiscoveryIntervalMillis` | 30000 | 发现/同步轮询间隔，大规模可适当调大 |
+| `heartbeatIntervalMillis` | 30000 | 心跳间隔；调小加快故障检测，但流量增大 |
+| `failRemoveCount` | 3 | 连续失败达到该次数才剔除节点 |
+| `gossipTargetCount` | 4 | 降级 gossip 每轮交换的目标节点数 |
+| `timeoutMillis` | 2000 | 单次同步/心跳超时 |
+| `persistenceEnabled` | true | 成员表本地持久化，重启后免重新发现 |
+
 ### 7.5 下载（`network.download`）
 
 ```java

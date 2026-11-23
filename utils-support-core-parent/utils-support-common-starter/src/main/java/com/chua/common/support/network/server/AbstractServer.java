@@ -179,6 +179,11 @@ public abstract class AbstractServer implements ConfigServer {
         // 基准报告（p50/p99/p999、QPS、RPM、连接数）：默认关闭，配置可能在构造后才回填，
         // 故传入配置引用、每次请求实时读取开关；关闭时不短路、不记录，直接放行。
         addBuiltinFilter(new BenchmarkReportServerFilter(metrics, setting.getManagement()));
+        // -Dserver.benchmark.enabled=true — 启动即开启（与 accesslog/tracing 同模式）。
+        // 过滤器始终挂载：未开启时每请求只做一次开关判断（由过滤器内部按该配置判断），零额外开销。
+        if (Boolean.getBoolean("server.benchmark.enabled")) {
+            setting.getManagement().setBenchmarkEnabled(true);
+        }
         if (urlMappingFilter != null) {
             addBuiltinFilter(urlMappingFilter);
         }
