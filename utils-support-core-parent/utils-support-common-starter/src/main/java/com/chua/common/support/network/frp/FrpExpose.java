@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 
 /**
@@ -131,11 +130,10 @@ public class FrpExpose {
      */
     private void bridgeToLocal(FrpTunnelSession session) {
         try {
-            // 阻塞 connect 仅一次性等待连接建立（单事件、非读/写双 Poller 场景），
-            // 建立后立即切非阻塞接入共享 Selector 管道
-            SocketChannel channel = SocketChannel.open();
-            channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-            channel.connect(new InetSocketAddress(localHost, localPort));
+            // 统一经 NioChannelPipe 建连（带 5s 超时，语义同旧版 Socket.connect(addr, 5000)），
+            // 随后切非阻塞接入共享 Selector 管道
+            SocketChannel channel = NioChannelPipe.connect(new InetSocketAddress(localHost, localPort),
+                    NioChannelPipe.CONNECT_TIMEOUT_MS);
             NioChannelPipe pipe = new NioChannelPipe(channel);
             log.debug("FRP bridgeToLocal: channel={}, connected to {}:{}", session.getChannelId(),
                     localHost, localPort);

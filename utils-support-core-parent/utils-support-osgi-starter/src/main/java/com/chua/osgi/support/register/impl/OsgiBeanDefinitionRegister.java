@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -58,6 +59,10 @@ import java.util.concurrent.atomic.AtomicLong;
  *       由此传导为扩展对象的变化；</li>
  *   <li>快照重建时，旧定义统一置为不可用并释放单例缓存，
  *       避免已下线的服务实例继续被引用。</li>
+ *   <li>桥接定义外发的实例默认是<b>切换代理</b>（{@code plugin.osgi.bridge.proxy-enabled}，
+ *       见 {@link com.chua.osgi.support.proxy.OsgiServiceProxyFactory}）：
+ *       代理在每次方法调用时解析当前生效服务，使消费方已持有的引用
+ *       随 bundle 升级/卸载自动切换，而非仅「下次查询」生效。</li>
  * </ul>
  *
  * <h3>验收</h3>
@@ -213,22 +218,52 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
     /**
      * 解析指定桥接 Bean 当前生效的原始服务实例。
      *
-     * <p>供切换代理在每次调用时回调：先取当前快照中的定义，
-     * 再解包掉代理层，保证拿到的是 OSGi 注册表里的真实实例而非代理自身，
-     * 避免「代理 → 定义 → 代理」的递归。服务已下线时返回 {@code null}。</p>
+     * <p>供切换代理在每次调用时回调。实现直接枚举 {@link OsgiLauncher#getServiceDescriptors()}
+     * 取「裸实例」：服务注册表是实时真值源，且从根上避免
+     * 「快照定义持有代理 → 代理回调本方法 → 再解包快照定义」的递归。</p>
+     *
+     * <p>解析以容器视图为准，被验收拒绝的服务不在视图内、永不外泄：
+     * 本 Bean 仍在当前快照（通过验收）时优先按 Bean 名称精确匹配
+     * （同 pid 服务热升级即在此切到新实例）；本 Bean 已被替换或下线时
+     * （如服务未带 pid，升级后稳定标识随实例变化），回退为同类型中
+     * 仍在快照且 {@code service.ranking} 最高的在册服务——与容器按
+     * 优先级重新选取的口径一致；该类型已无可用服务时返回 {@code null}
+     * （业务调用将得到 {@link IllegalStateException}）。</p>
      *
      * @param beanName 桥接 Bean 名称
-     * @return 当前生效的原始服务实例；已下线返回 {@code null}
+     * @return 当前生效的原始服务实例；已下线且无替代返回 {@code null}
      */
     public Object resolveRawTarget(String beanName) {
         if (beanName == null || closed) {
             return null;
         }
-        BeanDefinition definition = currentSnapshot().byName().get(beanName);
-        if (definition == null) {
+        OsgiLauncher launcher = this.osgiLauncher;
+        if (launcher == null || !launcher.isActive()) {
             return null;
         }
-        return OsgiServiceProxyFactory.unwrap(definition.getBean());
+        Set<String> acceptedNames = currentSnapshot().byName().keySet();
+        List<OsgiServiceDescriptor> descriptors = launcher.getServiceDescriptors();
+        // 主路径：本 Bean 仍在容器视图时优先精确匹配（同 pid 热升级在此切到新实例）
+        if (acceptedNames.contains(beanName)) {
+            for (OsgiServiceDescriptor descriptor : descriptors) {
+                if (beanName.equals(beanNameOf(descriptor))) {
+                    return descriptor.instance();
+                }
+            }
+        }
+        // 回退：本 Bean 已被替换/下线时，改打同类型中仍在视图且 ranking 最高的在册服务；
+        // 被验收拒绝的服务不在视图内，永不外泄
+        int separator = beanName.indexOf(NAME_SEPARATOR);
+        if (separator <= 0) {
+            return null;
+        }
+        String typeName = beanName.substring(0, separator);
+        for (OsgiServiceDescriptor descriptor : descriptors) {
+            if (typeName.equals(descriptor.typeName()) && acceptedNames.contains(beanNameOf(descriptor))) {
+                return descriptor.instance();
+            }
+        }
+        return null;
     }
 
     /**
@@ -614,13 +649,16 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
         // getServiceDescriptors 已按 service.ranking 降序，投影结果天然保持优先级顺序
         for (OsgiServiceDescriptor descriptor : launcher.getServiceDescriptors()) {
             String beanName = beanNameOf(descriptor);
-            BeanDefinition definition = toBeanDefinition(beanName, descriptor);
-            BeanAcceptance.AcceptanceResult result = accept(definition);
+            // 验收走裸实例定义，保证 BeanAcceptance 看到的是真实服务类而非代理类
+            BeanDefinition rawDefinition = toBeanDefinition(beanName, descriptor, false);
+            BeanAcceptance.AcceptanceResult result = accept(rawDefinition);
             if (!result.accepted()) {
                 rejected.put(beanName, result.reason());
                 log.debug("[osgi] 桥接定义未通过验收，已跳过: {}（{}）", beanName, result.reason());
                 continue;
             }
+            BeanDefinition definition = proxyEnabled
+                    ? toBeanDefinition(beanName, descriptor, true) : rawDefinition;
             byName.put(beanName, definition);
             names.add(beanName);
             nameToType.put(beanName, descriptor.typeName());
@@ -695,6 +733,10 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
         }
         for (BeanDefinition definition : currentSnapshot().byName().values()) {
             Object instance = definition.getBean();
+            if (instance instanceof OsgiServiceProxy serviceProxy) {
+                // 注解扫描要看真实服务类：代理类的注解与目标类不同
+                instance = serviceProxy.getOsgiTarget();
+            }
             if (instance == null) {
                 continue;
             }
@@ -744,15 +786,23 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
      *
      * @param beanName    Bean 名称
      * @param descriptor 服务描述符
+     * @param proxy       {@code true} 时把实例包成「随 OSGi 切换」的动态代理
      * @return Bean 定义
      */
-    private BeanDefinition toBeanDefinition(String beanName, OsgiServiceDescriptor descriptor) {
+    private BeanDefinition toBeanDefinition(String beanName, OsgiServiceDescriptor descriptor, boolean proxy) {
+        Object serviceInstance = descriptor.instance();
         Class<?> type = ReflectUtils.forName(descriptor.typeName());
         if (type == null) {
-            type = descriptor.instance() == null ? Object.class : descriptor.instance().getClass();
+            type = serviceInstance == null ? Object.class : serviceInstance.getClass();
+        }
+        if (proxy && serviceInstance != null) {
+            Object proxied = OsgiServiceProxyFactory.create(beanName, serviceInstance, this::resolveRawTarget);
+            if (proxied != null) {
+                serviceInstance = proxied;
+            }
         }
         FrameworkBeanDefinition definition =
-                new FrameworkBeanDefinition(beanName, type, descriptor.instance());
+                new FrameworkBeanDefinition(beanName, type, serviceInstance);
         long ranking = descriptor.ranking();
         // 容器侧 priority 语义为「值越大越优先」，与 OSGI service.ranking 一致，直接贯通
         definition.setPriority(clampPriority(ranking));

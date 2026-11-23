@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedSelectorException;
@@ -76,6 +78,18 @@ final class NioChannelPipe {
      * 共享 Selector 单例（懒加载，全部管道共用一个分发线程）
      */
     private static volatile Selector sharedSelector;
+
+    /**
+     * 分发线程引用：供兴趣位调整时判断是否需要 wakeup（分发线程自身的调整
+     * 在下一次 select() 进入时必然可见，无需自我唤醒）
+     */
+    private static volatile Thread dispatcherThread;
+
+    /**
+     * 分发线程专用读缓冲：同一时刻只有分发线程执行 drain，全局复用一个
+     * 64KB 缓冲，避免每次读事件都分配；读满时整个缓冲入队，用后再取新缓冲
+     */
+    private static ByteBuffer dispatcherScratch;
 
     /**
      * Selector 懒加载锁
@@ -163,6 +177,55 @@ final class NioChannelPipe {
     }
 
     /**
+     * 建连超时（毫秒）：与旧版 {@code Socket.connect(addr, 5000)} 语义保持一致
+     */
+    static final int CONNECT_TIMEOUT_MS = 5_000;
+
+    /**
+     * 建立连接并返回可接入管道的通道：先以非阻塞模式发起连接（带超时上限），
+     * 成功后恢复阻塞模式。全程只使用这一个通道对象，不产生任何额外的
+     * Selector 注册窗口（连接期与数据期共用同一 AFD 实例）。
+     *
+     * @param address   目标地址
+     * @param timeoutMs 连接超时毫秒数
+     * @return 已连接的 SocketChannel（阻塞模式，由调用方接入管道后切非阻塞）
+     * @throws IOException 连接失败、超时或被中断（失败时通道已关闭）
+     */
+    static SocketChannel connect(InetSocketAddress address, long timeoutMs) throws IOException {
+        SocketChannel channel = SocketChannel.open();
+        try {
+            channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+            channel.configureBlocking(false);
+            if (!channel.connect(address)) {
+                long deadline = System.nanoTime() + timeoutMs * 1_000_000L;
+                while (!channel.finishConnect()) {
+                    if (System.nanoTime() - deadline >= 0) {
+                        throw new IOException("连接超时: " + address);
+                    }
+                    Thread.sleep(5);
+                }
+            }
+            channel.configureBlocking(true);
+            return channel;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            try {
+                channel.close();
+            } catch (IOException ignored) {
+                // NOTHING
+            }
+            throw new IOException("连接被中断", e);
+        } catch (IOException | RuntimeException e) {
+            try {
+                channel.close();
+            } catch (IOException ignored) {
+                // NOTHING
+            }
+            throw e;
+        }
+    }
+
+    /**
      * 获取全局共享 Selector（懒加载）。
      *
      * @return 共享 Selector
@@ -178,6 +241,7 @@ final class NioChannelPipe {
                 Selector created = Selector.open();
                 Thread dispatcher = new Thread(() -> dispatchLoop(created), "frp-nio-dispatcher");
                 dispatcher.setDaemon(true);
+                dispatcherThread = dispatcher;
                 dispatcher.start();
                 sharedSelector = created;
             }
@@ -229,10 +293,15 @@ final class NioChannelPipe {
         boolean hitEof = false;
         IOException error = null;
         while (drained < DRAIN_LIMIT_PER_EVENT) {
-            ByteBuffer buffer = ByteBuffer.allocate(DRAIN_BUFFER_SIZE);
+            ByteBuffer scratch = dispatcherScratch;
+            if (scratch == null) {
+                scratch = ByteBuffer.allocate(DRAIN_BUFFER_SIZE);
+                dispatcherScratch = scratch;
+            }
+            scratch.clear();
             int n;
             try {
-                n = channel.read(buffer);
+                n = channel.read(scratch);
             } catch (IOException e) {
                 error = e;
                 break;
@@ -244,10 +313,20 @@ final class NioChannelPipe {
             if (n == 0) {
                 break;
             }
-            buffer.flip();
+            ByteBuffer chunk;
+            if (n == DRAIN_BUFFER_SIZE) {
+                // 读满整缓冲：scratch 直接入队（免一次拷贝），下轮再取新缓冲
+                chunk = scratch;
+                dispatcherScratch = null;
+            } else {
+                chunk = ByteBuffer.allocate(n);
+                scratch.flip();
+                chunk.put(scratch);
+                chunk.flip();
+            }
             lock.lock();
             try {
-                readQueue.add(buffer);
+                readQueue.add(chunk);
                 readQueueBytes += n;
             } finally {
                 lock.unlock();
@@ -265,7 +344,11 @@ final class NioChannelPipe {
             }
             dataArrived.signalAll();
             pauseRead = readQueueBytes >= READ_QUEUE_LIMIT;
-            if (pauseRead && !eof && error == null) {
+            if (eof || error != null) {
+                // EOF/错误已记为粘性标志，无需再收读事件
+                //（EOF 通道对 OP_READ 恒就绪，不清兴趣位会让分发线程空转）
+                setReadInterest(false);
+            } else if (pauseRead) {
                 setReadInterest(false);
             }
         } finally {
@@ -346,8 +429,7 @@ final class NioChannelPipe {
                     if (head.remaining() == 0) {
                         readQueue.poll();
                     }
-                    boolean resumeRead = readQueueBytes < READ_QUEUE_RESUME;
-                    if (resumeRead) {
+                    if (readQueueBytes < READ_QUEUE_RESUME && !eof && !ioError) {
                         setReadInterest(true);
                     }
                     return n;
@@ -366,7 +448,8 @@ final class NioChannelPipe {
     }
 
     /**
-     * 阻塞写：把字节切片入队（零拷贝），挂写兴趣后等待自己的数据全部写尽。
+     * 阻塞写：优先在本线程乐观直写内核（写队列空且发送缓冲有余量时），
+     * 余量入队并挂写兴趣后等待自己的数据全部写尽。
      * 写队列超限时先等待背压排空；超过写超时仍未能写尽则抛 IOException（由调用方关闭管道自愈）。
      *
      * @param data 源数组
@@ -393,10 +476,36 @@ final class NioChannelPipe {
                 }
                 writeProgress.awaitUninterruptibly();
             }
-            writeQueue.add(ByteBuffer.wrap(data, off, len));
-            writeQueueBytes += len;
             target = writtenBytes + len;
-            setWriteInterest(true);
+            ByteBuffer pending = null;
+            if (writeQueue.isEmpty()) {
+                // 乐观直写：队列空（无更早的未写数据）时在本线程直接写内核，
+                // 省去「挂写兴趣 + 唤醒分发线程 + select 返回 + flush + 摘兴趣」
+                // 一次完整调度往返（回环/低水位场景的常见快路径）。直写与分发
+                // 线程的 flush 同在管道锁内串行，字节顺序不受影响；直写不产生
+                // 任何新的 AFD/Poller 注册，单通道单注册的修复前提不变。
+                ByteBuffer direct = ByteBuffer.wrap(data, off, len);
+                try {
+                    int n = channel.write(direct);
+                    writtenBytes += n;
+                    if (direct.hasRemaining()) {
+                        pending = direct;
+                    }
+                } catch (IOException e) {
+                    ioError = true;
+                    writeProgress.signalAll();
+                    close();
+                    throw new IOException("连接写入错误", e);
+                }
+            } else {
+                // 队列非空：必须排在既有数据之后，交由 flush 按序写尽
+                pending = ByteBuffer.wrap(data, off, len);
+            }
+            if (pending != null) {
+                writeQueue.add(pending);
+                writeQueueBytes += pending.remaining();
+                setWriteInterest(true);
+            }
         } finally {
             lock.unlock();
         }
@@ -427,7 +536,15 @@ final class NioChannelPipe {
     }
 
     /**
+     * 当前是否为共享 Selector 分发线程。
+     */
+    private static boolean inDispatchThread() {
+        return Thread.currentThread() == dispatcherThread;
+    }
+
+    /**
      * 在持锁状态下设置/清除读兴趣（调用方必须已持有 {@link #lock}）。
+     * 分发线程自身的调整在下一次 select() 进入时必然可见，无需 wakeup。
      *
      * @param set true=挂读兴趣；false=摘读兴趣
      */
@@ -438,7 +555,9 @@ final class NioChannelPipe {
                 int updated = set ? ops | SelectionKey.OP_READ : ops & ~SelectionKey.OP_READ;
                 if (updated != ops) {
                     key.interestOps(updated);
-                    key.selector().wakeup();
+                    if (!inDispatchThread()) {
+                        key.selector().wakeup();
+                    }
                 }
             } catch (CancelledKeyException ignored) {
                 // 键已随连接关闭注销：兴趣位无意义
@@ -448,6 +567,7 @@ final class NioChannelPipe {
 
     /**
      * 在持锁状态下设置/清除写兴趣（调用方必须已持有 {@link #lock}）。
+     * 分发线程自身的调整在下一次 select() 进入时必然可见，无需 wakeup。
      *
      * @param set true=挂写兴趣；false=摘写兴趣
      */
@@ -458,7 +578,9 @@ final class NioChannelPipe {
                 int updated = set ? ops | SelectionKey.OP_WRITE : ops & ~SelectionKey.OP_WRITE;
                 if (updated != ops) {
                     key.interestOps(updated);
-                    key.selector().wakeup();
+                    if (!inDispatchThread()) {
+                        key.selector().wakeup();
+                    }
                 }
             } catch (CancelledKeyException ignored) {
                 // 键已随连接关闭注销：兴趣位无意义
@@ -509,6 +631,16 @@ final class NioChannelPipe {
             @Override
             public int read(byte[] b, int off, int len) throws IOException {
                 return NioChannelPipe.this.read(b, off, len);
+            }
+
+            @Override
+            public int available() {
+                lock.lock();
+                try {
+                    return readQueueBytes;
+                } finally {
+                    lock.unlock();
+                }
             }
 
             @Override

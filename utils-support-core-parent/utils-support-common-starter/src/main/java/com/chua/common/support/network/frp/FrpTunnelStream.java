@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -77,11 +76,10 @@ public class FrpTunnelStream {
     FrpTunnelStream(String host, int port, String channelId, String role,
                     String sharedToken, String sessionToken) throws IOException {
         this.channelId = channelId;
-        // 阻塞 connect 仅一次性等待连接建立（单事件、非读/写双 Poller 场景），
-        // 建立后立即切非阻塞接入共享 Selector 管道
-        this.channel = SocketChannel.open();
-        channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-        channel.connect(new InetSocketAddress(host, port));
+        // 统一经 NioChannelPipe 建连（带 5s 超时，语义同旧版 Socket.connect(addr, 5000)），
+        // 随后切非阻塞接入共享 Selector 管道
+        this.channel = NioChannelPipe.connect(new InetSocketAddress(host, port),
+                NioChannelPipe.CONNECT_TIMEOUT_MS);
         this.pipe = new NioChannelPipe(channel);
         this.out = pipe.getOutputStream();
         this.socketIn = pipe.getInputStream();
