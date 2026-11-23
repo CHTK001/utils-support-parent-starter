@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -192,6 +193,13 @@ public class NioServerRequest implements ServerRequest {
      * chunked:是否正在读 chunk 头部行
      */
     private boolean chunkHeaderPending = false;
+    /**
+     * chunked:body 已填充字节数。
+     *
+     * <p>{@link #body} 在 chunked 路径作为「容量数组」按几何级数扩容，
+     * 实际内容长度记录在此；终止 chunk 处裁剪回精确长度。</p>
+     */
+    private int bodyLength = 0;
 
     /**
      * 创建 NioServerRequest 实例(NIO 场景,远端地址从 channel 动态获取)
@@ -390,6 +398,46 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
+     * 当前正在接收的定长(非 chunked)请求体剩余字节数;其余状态恒为 0。
+     *
+     * <p>供服务端读循环做读缓冲自适应扩容:Content-Length 已知且显著大于
+     * 默认读缓冲时按剩余量一次性扩容,把大请求体的 socket read 轮次从
+     * 「体量/默认缓冲」次降为个位数。</p>
+     *
+     * @return 定长请求体剩余字节数;chunked 或非 BODY 态返回 0
+     */
+    public int remainingFixedBody() {
+        return (parseState == ParseState.BODY && !chunked) ? bodyRemaining : 0;
+    }
+
+    /**
+     * 读缓冲扩容建议(字节);-1 表示当前不处于「定长 body 待接收」态,无扩容建议。
+     *
+     * <p>定长 BODY 态返回剩余体量——此时请求头已解析完,据此扩容可让后续 body
+     * 字节以大缓冲少轮次消费。注意该值随消费递减,尾部会小于默认缓冲,但只应
+     * 用于「扩容」判断,不应据此缩容(大请求尾部缩容会导致连续大请求场景
+     * 每请求「缩了又扩」的重配开销)。</p>
+     *
+     * @return 建议扩容到的容量;-1 表示无扩容建议
+     */
+    public int growReadBufferHint() {
+        return (parseState == ParseState.BODY && !chunked) ? bodyRemaining : -1;
+    }
+
+    /**
+     * 刚完成请求的 body 长度;仅 {@code COMPLETE} 态有效,其余返回 -1。
+     *
+     * <p>供读缓冲缩容决策:只有当刚完成的请求本身用不到大缓冲
+     * (body 长度 ≤ 默认缓冲)时,才把连接读缓冲缩回默认尺寸;连续大请求之间
+     * 保持大缓冲,避免每请求重配。</p>
+     *
+     * @return 刚完成请求的 body 字节数;非 COMPLETE 态返回 -1
+     */
+    public int completedRequestBodySize() {
+        return parseState == ParseState.COMPLETE ? (body != null ? body.length : 0) : -1;
+    }
+
+    /**
      * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
      * @return 结果数值
      */
@@ -438,6 +486,10 @@ public class NioServerRequest implements ServerRequest {
                     if (nextLineFromBuf() == null) {
                         return 0;
                     }
+                    // 容量数组裁剪回实际内容长度,保持 body.length == 实际字节数语义
+                    if (body != null && bodyLength != body.length) {
+                        body = Arrays.copyOf(body, bodyLength);
+                    }
                     parseState = ParseState.COMPLETE;
                     return 1;
                 }
@@ -471,20 +523,29 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-     * 追加Body
+     * 追加分块请求体:容量按几何级数(2x)增长,避免原「每 chunk 精确扩容」的
+     * O(n²) 全量拷贝(如 256KB 体按 8KB 行缓冲分块需 ~33 次全量复制)。
+     *
+     * <p>{@link #body} 此处是容量数组,实际内容长度记在 {@link #bodyLength};
+     * chunked 完成时裁剪,对外仍保持 {@code body.length == 实际字节数}。
+     * 代价:峰值内存至多 2 倍容量超配 + 完成时一次拷贝归位。</p>
+     *
      * @param src 方法入参 src
      * @param off 方法入参 off
      * @param len 方法入参 len
      * @return 结果值
      */
     private byte[] appendBody(byte[] src, int off, int len) {
-        int newLen = (body != null ? body.length : 0) + len;
-        byte[] out = new byte[newLen];
-        if (body != null) {
-            System.arraycopy(body, 0, out, 0, body.length);
+        int required = bodyLength + len;
+        if (body == null) {
+            body = new byte[Math.max(len, 1024)];
+        } else if (required > body.length) {
+            // 2x 容量不够时按需取 required;总量受 maxRequestSize 约束在 int 范围内
+            body = Arrays.copyOf(body, Math.max(body.length << 1, required));
         }
-        System.arraycopy(src, off, out, newLen - len, len);
-        return out;
+        System.arraycopy(src, off, body, bodyLength, len);
+        bodyLength = required;
+        return body;
     }
 
     /**
@@ -1102,6 +1163,7 @@ public class NioServerRequest implements ServerRequest {
         httpVersion = "HTTP/1.1";
         headers.clear();
         body = null;
+        bodyLength = 0;
         attributes = null;
         paramsCache = null;
         // 重置状态机(保留缓冲中未消费的数据,供 Keep-Alive 下一条请求复用)

@@ -871,6 +871,23 @@ public class ServerSetting {
     private int bufferSize = 8192;
 
     /**
+     * 读缓冲自适应扩容上限（字节）。
+     *
+     * <p>服务端读循环在解析出定长请求体（Content-Length）后，可把该连接的读缓冲
+     * 一次性扩到 {@code min(剩余体量, 本上限)}，把大报文的 socket read 轮次从
+     * 「体量/默认缓冲」次降为个位数。缩回 {@link #bufferSize} 默认尺寸的时机
+     * 是「下一个不需要大缓冲的请求」解析完成时（刚完成的请求 body 很小或为 0），
+     * 连续大请求之间保持大缓冲以避免每请求重配；空闲连接的大缓冲随连接关闭释放。
+     * chunked 请求体总长未知，不参与扩容。</p>
+     *
+     * <p>默认 256KB。并发大上传场景的峰值额外内存 ≈ 在途大请求数 × 本上限，
+     * 调大时需与 maxConnections 一并评估。配置小于 bufferSize 时按 bufferSize
+     * 兜底（即等效不扩容）。</p>
+     */
+    @Builder.Default
+    private int maxReadBufferSize = 256 * 1024;
+
+    /**
      * 是否把读缓冲分配到堆外（DirectBuffer）。
      *
      * <p>默认 {@code false}: 读缓冲分配在 JVM 堆，便于 GC 回收、调试和线上无缝切换。
