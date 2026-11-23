@@ -249,6 +249,48 @@ public class JdbcKvEngine implements KvEngine {
         }
     }
 
+    @Override
+    public Map<String, String> findAllByPrefix(String prefix, String afterKeyExclusive, int maxRows) {
+        ensureTable();
+        // 范围扫描 + LIMIT 下推：kv_key 为主键，ORDER BY 走索引范围扫描，
+        // 供调用方分批流式消费，避免大前缀一次性物化全量数据把堆打爆
+        String upper = prefix + Character.MAX_VALUE;
+        boolean hasAfter = afterKeyExclusive != null && !afterKeyExclusive.isEmpty();
+        String sql = "SELECT kv_key, kv_value, expires_at FROM " + TABLE
+                + " WHERE kv_key >= ? AND kv_key < ?"
+                + (hasAfter ? " AND kv_key > ?" : "")
+                + " ORDER BY kv_key ASC LIMIT ?";
+        Map<String, String> result = new LinkedHashMap<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            int index = 1;
+            ps.setString(index++, prefix);
+            ps.setString(index++, upper);
+            if (hasAfter) {
+                ps.setString(index++, afterKeyExclusive);
+            }
+            ps.setInt(index, Math.max(1, maxRows));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getString(1);
+                    String value = rs.getString(2);
+                    long expiresAt = rs.getLong(3);
+                    boolean hasExpiry = !rs.wasNull();
+                    if (hasExpiry && expiresAt < System.currentTimeMillis()) {
+                        delete(key);
+                        continue;
+                    }
+                    if (key != null && key.startsWith(prefix)) {
+                        result.put(key, value);
+                    }
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new IllegalStateException("JdbcKvEngine findAllByPrefix(分批) 失败: " + prefix, e);
+        }
+    }
+
     /**
      * 懒建表：只在首次使用时执行 DDL。
      */

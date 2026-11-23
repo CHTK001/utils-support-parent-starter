@@ -1,7 +1,10 @@
 package com.chua.common.support.lang.datasource.kv;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 /**
  * 键值对（KV）引擎统一契约，替代 {@link KvOperations} 和 {@link KvTemplate}。
@@ -151,6 +154,39 @@ public interface KvEngine extends KvOperations {
      * @return 匹配前缀的键值对映射；无匹配时返回空 Map
      */
     Map<String, String> findAllByPrefix(String prefix);
+
+    /**
+     * 按前缀分批读取：返回前缀范围内键名字典序大于 {@code afterKeyExclusive}（排他）的
+     * 键值对中，键名最小的 {@code maxRows} 条，按键名字典序升序排列。
+     *
+     * <p>用于大数据量流式扫描：调用方把本批返回的最后一条键名作为下一批的
+     * {@code afterKeyExclusive} 循环拉取，逐批处理、随时终止，
+     * 避免一次性物化全量数据把堆打爆（大库全量 {@link #findAllByPrefix(String)} 有 OOM 风险）。</p>
+     *
+     * <p>默认实现退化为全量读取后内存切片，兼容未做范围扫描优化的后端；
+     * 具备有序范围扫描能力的后端（如 JDBC 主键范围扫描）应覆写本方法，
+     * 把 {@code key &gt; after ORDER BY key LIMIT n} 下推到存储层。</p>
+     *
+     * @param prefix            键前缀，不可为 null
+     * @param afterKeyExclusive 起始键（排他）；null 或空串表示从前缀起点开始
+     * @param maxRows           本批最多返回条数，小于 1 时按 1 处理
+     * @return 键名字典序升序的键值对；无更多数据时返回空 Map
+     */
+    default Map<String, String> findAllByPrefix(String prefix, String afterKeyExclusive, int maxRows) {
+        NavigableMap<String, String> sorted = new TreeMap<>(findAllByPrefix(prefix));
+        if (afterKeyExclusive != null && !afterKeyExclusive.isEmpty()) {
+            sorted = sorted.tailMap(afterKeyExclusive, false);
+        }
+        int rows = Math.max(1, maxRows);
+        Map<String, String> result = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : sorted.entrySet()) {
+            if (result.size() >= rows) {
+                break;
+            }
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
 
     // ==================== 链式操作 ====================
 
