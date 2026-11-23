@@ -36,9 +36,19 @@ import com.chua.common.support.utils.StringUtils;
 class FtpCommandHandler {
 
     /**
+     * FTP 150 响应码：文件状态正常，即将打开数据连接传输（RFC 959）
+     */
+    private static final int CODE_TRANSFER_START = 150;
+
+    /**
      * FTP 200 响应码：命令成功
      */
     private static final int CODE_OK = 200;
+
+    /**
+     * FTP 213 响应码：文件状态（SIZE 返回文件大小，RFC 959/3659）
+     */
+    private static final int CODE_FILE_STATUS = 213;
 
     /**
      * FTP 220 响应码：服务就绪
@@ -74,6 +84,16 @@ class FtpCommandHandler {
      * FTP 350 响应码：请求的文件操作需要进一步命令
      */
     private static final int CODE_FILE_ACTION_PENDING = 350;
+
+    /**
+     * FTP 250 响应码：请求的文件操作已完成
+     */
+    private static final int CODE_FILE_ACTION_COMPLETED = 250;
+
+    /**
+     * FTP 257 响应码：路径名创建/返回成功（MKD/PWD，RFC 959）
+     */
+    private static final int CODE_PATHNAME_CREATED = 257;
 
     /**
      * FTP 421 响应码：服务不可用
@@ -322,7 +342,7 @@ class FtpCommandHandler {
     private boolean handlePwd(FtpSession session) {
         var dir = session.getCurrentDir();
         // FTP 规范要求路径用双引号包裹
-        session.reply(CODE_FILE_ACTION_PENDING, "\"" + dir + "\" is current directory.");
+        session.reply(CODE_PATHNAME_CREATED, "\"" + dir + "\" is current directory.");
         return true;
     }
 
@@ -347,7 +367,7 @@ class FtpCommandHandler {
         var homePath = session.getConfig().getHomeDirectory().toPath().toAbsolutePath().normalize();
         var relative = homePath.relativize(resolved).toString().replace('\\', '/');
         session.setCurrentDir("/" + relative);
-        session.reply(CODE_FILE_ACTION_PENDING, "Directory changed to: " + session.getCurrentDir());
+        session.reply(CODE_FILE_ACTION_COMPLETED, "Directory changed to: " + session.getCurrentDir());
         return true;
     }
 
@@ -360,7 +380,7 @@ class FtpCommandHandler {
     private boolean handleCdup(FtpSession session) {
         var currentDir = session.getCurrentDir();
         if ("/".equals(currentDir)) {
-            session.reply(CODE_FILE_ACTION_PENDING, "Already at root directory.");
+            session.reply(CODE_FILE_ACTION_COMPLETED, "Already at root directory.");
             return true;
         }
         // 获取上级目录
@@ -369,7 +389,7 @@ class FtpCommandHandler {
             parent = "/";
         }
         session.setCurrentDir(parent);
-        session.reply(CODE_FILE_ACTION_PENDING, "Directory changed to: " + session.getCurrentDir());
+        session.reply(CODE_FILE_ACTION_COMPLETED, "Directory changed to: " + session.getCurrentDir());
         return true;
     }
 
@@ -388,7 +408,7 @@ class FtpCommandHandler {
         }
         try {
             Files.createDirectories(resolved);
-            session.reply(CODE_FILE_ACTION_PENDING, "Directory created: " + argument);
+            session.reply(CODE_PATHNAME_CREATED, "Directory created: " + argument);
         } catch (IOException e) {
             session.reply(CODE_FILE_UNAVAILABLE, "Failed to create directory: " + e.getMessage());
         }
@@ -412,7 +432,7 @@ class FtpCommandHandler {
             if (Files.isDirectory(resolved)) {
                 // 删除空目录
                 Files.deleteIfExists(resolved);
-                session.reply(CODE_DATA_CLOSE, "Directory deleted: " + argument);
+                session.reply(CODE_FILE_ACTION_COMPLETED, "Directory deleted: " + argument);
             } else {
                 session.reply(CODE_FILE_UNAVAILABLE, "Not a directory: " + argument);
             }
@@ -443,7 +463,7 @@ class FtpCommandHandler {
         }
         try {
             if (Files.deleteIfExists(resolved)) {
-                session.reply(CODE_DATA_CLOSE, "File deleted: " + argument);
+                session.reply(CODE_FILE_ACTION_COMPLETED, "File deleted: " + argument);
             } else {
                 session.reply(CODE_FILE_UNAVAILABLE, "File not found: " + argument);
             }
@@ -496,7 +516,7 @@ class FtpCommandHandler {
         }
         try {
             Files.move(Path.of(rnfrPath), resolved);
-            session.reply(CODE_FILE_ACTION_PENDING, "Rename successful.");
+            session.reply(CODE_FILE_ACTION_COMPLETED, "Rename successful.");
         } catch (IOException e) {
             session.reply(CODE_FILE_UNAVAILABLE, "Rename failed: " + e.getMessage());
         }
@@ -596,7 +616,7 @@ class FtpCommandHandler {
                 session.reply(CODE_CANNOT_OPEN_DATA, "No data connection established. Use PASV first.");
                 return true;
             }
-            session.reply(CODE_OK, "Opening data connection for STOR " + argument);
+            session.reply(CODE_TRANSFER_START, "Opening data connection for STOR " + argument);
             // 接受数据连接
             var dataSocket = dataChannel.acceptDataConnection();
             // 写入文件
@@ -636,7 +656,7 @@ class FtpCommandHandler {
                 session.reply(CODE_CANNOT_OPEN_DATA, "No data connection established. Use PASV first.");
                 return true;
             }
-            session.reply(CODE_OK, "Opening data connection for RETR " + argument);
+            session.reply(CODE_TRANSFER_START, "Opening data connection for RETR " + argument);
             var dataSocket = dataChannel.acceptDataConnection();
             // 读取文件
             try (var fileIn = Files.newInputStream(resolved);
@@ -671,7 +691,7 @@ class FtpCommandHandler {
                 session.reply(CODE_CANNOT_OPEN_DATA, "No data connection established. Use PASV first.");
                 return true;
             }
-            session.reply(CODE_OK, "Here comes the directory listing.");
+            session.reply(CODE_TRANSFER_START, "Here comes the directory listing.");
             var dataSocket = dataChannel.acceptDataConnection();
             // 生成目录列表
             try (var dataOut = new PrintWriter(new BufferedWriter(
@@ -715,7 +735,7 @@ class FtpCommandHandler {
                 session.reply(CODE_CANNOT_OPEN_DATA, "No data connection established. Use PASV first.");
                 return true;
             }
-            session.reply(CODE_OK, "Here comes the name listing.");
+            session.reply(CODE_TRANSFER_START, "Here comes the name listing.");
             var dataSocket = dataChannel.acceptDataConnection();
             // 生成名称列表
             try (var dataOut = new PrintWriter(new BufferedWriter(
@@ -809,7 +829,7 @@ class FtpCommandHandler {
         }
         try {
             var size = Files.size(resolved);
-            session.reply(CODE_OK, String.valueOf(size));
+            session.reply(CODE_FILE_STATUS, String.valueOf(size));
         } catch (IOException e) {
             session.reply(CODE_FILE_UNAVAILABLE, "Cannot get file size: " + e.getMessage());
         }

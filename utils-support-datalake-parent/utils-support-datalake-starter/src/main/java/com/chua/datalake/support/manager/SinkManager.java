@@ -77,4 +77,15 @@ public class SinkManager {
         }
         return result;
     }
+
+    /**
+     * 查询全部已注册 sink
+     *
+     * @return 全部 sink 列表
+     */
+    public List<DataSink> allSinks() {
+        List<DataSink> result = Wraps.list();
+        result.addAll(sinkMap.values());
+        return result;
+    }
 }

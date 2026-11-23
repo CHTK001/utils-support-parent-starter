@@ -808,6 +808,9 @@ public class FrpServer extends AbstractServer implements TcpServer {
         dataChannel.bind(role, in, out);
         log.debug("FRP 数据平面连接绑定: channel={}, role={}", channelId, role);
         dataChannel.awaitClosed();
+        // 数据面通道死亡（任一桥线程 EOF/异常退出）后主动通知两端客户端拆除会话；
+        // 通道已随 CLOSE 信令先行拆除时此处幂等返回
+        closeChannel(channelId);
     }
 
     /**
@@ -1116,7 +1119,7 @@ public class FrpServer extends AbstractServer implements TcpServer {
          * @param in   输入流
          * @param out  输出流
          */
-        void bind(String role, InputStream in, OutputStream out) {
+        synchronized void bind(String role, InputStream in, OutputStream out) {
             Endpoint endpoint = new Endpoint(in, out);
             if (FrpProtocol.ROLE_VISITOR.equals(role)) {
                 this.visitor = endpoint;

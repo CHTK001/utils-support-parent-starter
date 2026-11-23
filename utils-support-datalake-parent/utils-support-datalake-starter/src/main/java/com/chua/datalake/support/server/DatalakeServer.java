@@ -143,4 +143,20 @@ public class DatalakeServer {
     public PipelineEngine getPipelineEngine() {
         return pipelineEngine;
     }
+
+    /**
+     * 返回 sink 管理器
+     * @return 获取sink管理器的结果
+     */
+    public SinkManager getSinkManager() {
+        return sinkManager;
+    }
+
+    /**
+     * 返回订阅管理器
+     * @return 获取订阅管理器的结果
+     */
+    public SubscriberManager getSubscriberManager() {
+        return subscriberManager;
+    }
 }

@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * FRP 暴露服务：将本机的 TCP 服务暴露为显式映射目标，供对端访问。
@@ -160,7 +159,7 @@ public class FrpExpose {
                     if (!session.isOpen()) {
                         break;
                     }
-                    session.sendBytes(Arrays.copyOf(buffer, read));
+                    session.sendBytes(buffer, 0, read);
                 }
             } catch (IOException e) {
                 log.debug("[FRP] 隧道数据读取失败: {}", e.getMessage());
@@ -171,15 +170,17 @@ public class FrpExpose {
     }
 
     /**
-     * 将隧道数据写入本地服务。
+     * 将隧道数据切片写入本地服务（零拷贝：直接写 {@code data[off, off+len)}）。
      *
      * @param socket 本地服务连接
      * @param data   字节数据
+     * @param off    起始偏移
+     * @param len    数据长度
      */
-    private void writeSocket(Socket socket, byte[] data) {
+    private void writeSocket(Socket socket, byte[] data, int off, int len) {
         try {
             OutputStream out = socket.getOutputStream();
-            out.write(data);
+            out.write(data, off, len);
             out.flush();
         } catch (IOException e) {
             log.debug("[frp] 发送数据失败，已忽略: {}", e.getMessage());

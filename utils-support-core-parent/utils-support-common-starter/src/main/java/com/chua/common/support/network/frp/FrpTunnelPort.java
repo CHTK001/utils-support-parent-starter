@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * FRP 端口映射：将本机端口映射到对端暴露的目标服务。
@@ -271,7 +270,7 @@ public class FrpTunnelPort {
                 if (!session.isOpen()) {
                     break;
                 }
-                session.sendBytes(Arrays.copyOf(buffer, read));
+                session.sendBytes(buffer, 0, read);
             }
         } catch (IOException e) {
             log.debug("[frp] IO 操作失败，已忽略: {}", e.getMessage());
@@ -281,15 +280,17 @@ public class FrpTunnelPort {
     }
 
     /**
-     * 将隧道数据写入本地连接。
+     * 将隧道数据切片写入本地连接（零拷贝：直接写 {@code data[off, off+len)}）。
      *
      * @param socket 本地连接
      * @param data   字节数据
+     * @param off    起始偏移
+     * @param len    数据长度
      */
-    private void writeSocket(Socket socket, byte[] data) {
+    private void writeSocket(Socket socket, byte[] data, int off, int len) {
         try {
             OutputStream out = socket.getOutputStream();
-            out.write(data);
+            out.write(data, off, len);
             out.flush();
         } catch (IOException e) {
             log.debug("[frp] IO 操作失败，已忽略: {}", e.getMessage());

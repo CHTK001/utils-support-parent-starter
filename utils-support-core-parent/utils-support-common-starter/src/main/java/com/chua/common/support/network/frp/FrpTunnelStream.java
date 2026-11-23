@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
@@ -48,6 +49,11 @@ public class FrpTunnelStream {
      * 是否已关闭
      */
     private volatile boolean closed;
+
+    /**
+     * 读循环死亡回调：数据面因 EOF/异常终止时触发，用于会话层联动拆除
+     */
+    private volatile Runnable onDeath;
 
     /**
      * 建立数据平面连接（携带签名握手）。
@@ -110,20 +116,28 @@ public class FrpTunnelStream {
     }
 
     /**
-     * 启动读循环，将收到的字节流回调给消费者。
+     * 启动读循环，将收到的字节流拷贝后回调给消费者（兼容旧接口）。
      *
      * @param consumer 数据消费者
      */
     void startRead(Consumer<byte[]> consumer) {
+        startRead((buf, off, len) -> consumer.accept(Arrays.copyOfRange(buf, off, off + len)));
+    }
+
+    /**
+     * 启动读循环，将收到的字节流以零拷贝切片回调给消费者：
+     * 直接交付底层读缓冲的 {@code (buf, off, len)} 视图，不再逐次分配中间数组。
+     *
+     * @param consumer 数据消费者
+     */
+    void startRead(FrpByteConsumer consumer) {
         ThreadUtils.startVirtualThread("frp-data-stream-" + channelId, () -> {
             try {
                 byte[] buf = new byte[64 * 1024];
                 int n;
                 while (!closed && (n = socketIn.read(buf)) != -1) {
-                    byte[] data = new byte[n];
-                    System.arraycopy(buf, 0, data, 0, n);
                     if (!closed) {
-                        consumer.accept(data);
+                        consumer.accept(buf, 0, n);
                     }
                 }
             } catch (Exception e) {
@@ -132,6 +146,10 @@ public class FrpTunnelStream {
                 }
             } finally {
                 close();
+                Runnable death = this.onDeath;
+                if (death != null) {
+                    death.run();
+                }
             }
         });
     }
@@ -158,5 +176,15 @@ public class FrpTunnelStream {
      */
     boolean isClosed() {
         return closed;
+    }
+
+    /**
+     * 注册读循环死亡回调：数据面连接因 EOF/异常终止时触发（主动关闭后亦兜底触发），
+     * 供会话层联动拆除，避免「数据面已死、会话不知」导致的双向静默等待。
+     *
+     * @param onDeath 死亡回调
+     */
+    void onDeath(Runnable onDeath) {
+        this.onDeath = onDeath;
     }
 }
