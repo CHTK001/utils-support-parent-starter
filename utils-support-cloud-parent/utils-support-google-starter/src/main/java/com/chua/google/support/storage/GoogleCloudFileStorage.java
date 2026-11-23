@@ -20,6 +20,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +38,8 @@ import com.chua.common.support.utils.StringUtils;
  */
 @Spi({"gcs", "google"})
 public class GoogleCloudFileStorage extends AbstractFileStorage {
+
+    private static final Logger log = LoggerFactory.getLogger(GoogleCloudFileStorage.class);
 
     /**
      * 对象存储客户端
@@ -85,8 +90,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
                     return ServiceAccountCredentials
                             .fromStream(new ByteArrayInputStream(secret.getBytes(StandardCharsets.UTF_8)));
                 }
-            } catch (Exception ignored) {
-                // JSON 解析失败，降级到 ADC
+            } catch (Exception ex) {
+                log.debug("Google 服务账号 JSON 解析失败，降级到 ADC: {}", ex.getMessage());
             }
         }
 

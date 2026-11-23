@@ -2,6 +2,7 @@ package com.chua.openai.support;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.http.HttpRequest;
 import com.openai.core.http.HttpRequestAuthenticator;
@@ -97,7 +98,7 @@ public class EacChatClient extends OpenAiChatClient {
             }
             if (method != null) {
                 try {
-                    method.setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(method);
                 } catch (Exception e) {
                     log.debug("EAC: httpRequestAuthenticator setter setAccessible skipped: {}",
                             e.getMessage());

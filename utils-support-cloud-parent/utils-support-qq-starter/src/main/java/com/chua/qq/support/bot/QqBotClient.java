@@ -1085,8 +1085,8 @@ public class QqBotClient implements BotClient {
         if (ws != null) {
             try {
                 ws.sendClose(CLOSE_CODE_NORMAL, reason);
-            } catch (Exception ignored) {
-                // 已由服务端断开，无需处理
+            } catch (Exception ex) {
+                log.debug("QQ WebSocket 关闭异常（连接可能已断开）: {}", ex.getMessage());
             }
         }
         endSession();
@@ -1800,6 +1800,7 @@ public class QqBotClient implements BotClient {
         try {
             return Long.parseLong(timestamp.trim()) * 1000L;
         } catch (NumberFormatException e) {
+            log.debug("QQ 时间戳按秒解析失败: {}", timestamp, e);
             return 0L;
         }
     }

@@ -174,7 +174,7 @@ public final class EntityDocumentConverter {
         }
         try {
             java.lang.reflect.Constructor<T> ctor = recordClass.getDeclaredConstructor(paramTypes);
-            ctor.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(ctor);
             return ctor.newInstance(args);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("record 还原失败: " + recordClass.getName(), e);

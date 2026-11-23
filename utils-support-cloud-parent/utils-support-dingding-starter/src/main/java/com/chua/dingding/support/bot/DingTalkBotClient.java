@@ -703,8 +703,8 @@ public class DingTalkBotClient implements BotClient {
         if (ws != null) {
             try {
                 ws.sendClose(CLOSE_CODE_NORMAL, "stopped");
-            } catch (Exception ignored) {
-                // 连接已断开，无需处理
+            } catch (Exception ex) {
+                log.debug("钉钉 WebSocket 关闭异常（连接可能已断开）: {}", ex.getMessage());
             }
         }
         Thread thread = wsThread;
@@ -2258,7 +2258,8 @@ public class DingTalkBotClient implements BotClient {
         if (value instanceof String && Json.isJson(value)) {
             try {
                 return Json.getJsonObject((String) value);
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                log.debug("钉钉消息负载解析为 JSON 对象失败: {}", ex.getMessage());
                 return null;
             }
         }

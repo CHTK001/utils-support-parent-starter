@@ -442,7 +442,7 @@ public class RocksDbOrmStore {
             if (fd == null) {
                 return null;
             }
-            fd.setAccessible(true);
+            ReflectUtils.setAccessible(fd);
             return fd;
         });
     }

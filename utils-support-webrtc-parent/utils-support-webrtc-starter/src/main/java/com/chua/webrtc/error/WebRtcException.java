@@ -8,6 +8,8 @@ package com.chua.webrtc.error;
  */
 public class WebRtcException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public WebRtcException(String message) {
         super(message);
     }

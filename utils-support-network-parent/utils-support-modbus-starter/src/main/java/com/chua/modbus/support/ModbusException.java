@@ -15,6 +15,8 @@ package com.chua.modbus.support;
  */
 public class ModbusException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 未携带 Modbus 异常码（本地异常）
      */

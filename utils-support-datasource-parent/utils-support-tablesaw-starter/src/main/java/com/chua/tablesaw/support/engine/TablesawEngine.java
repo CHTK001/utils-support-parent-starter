@@ -1735,7 +1735,7 @@ public class TablesawEngine implements Engine {
                     // [P3C 1.10 豁免] writeReplace 为 lambda 隐藏类的私有零参方法，ReflectUtils 的 MethodHandle 路径无法访问，只能精确反射
                     .getDeclaredMethod("writeReplace");
             // [P3C 1.10 豁免] 同上：必须拿到 SerializedLambda 才能还原属性名，无等价工具方法
-            writeReplace.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(writeReplace);
             SerializedLambda lambda =
                     (SerializedLambda) writeReplace.invoke(column); // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法
             if (lambda == null) {

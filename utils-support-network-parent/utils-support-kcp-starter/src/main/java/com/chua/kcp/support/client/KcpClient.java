@@ -437,7 +437,7 @@ public class KcpClient {
         Class<?> clazz = bean.getClass();
         annotatedBeans.put(clazz, bean);
         for (Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(method);
             if (method.isAnnotationPresent(OnOpen.class)) {
                 onOpenMethods.add(new AnnotatedMethod(clazz, method));
             }

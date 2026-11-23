@@ -8,6 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Field;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -51,9 +52,9 @@ public final class AstUtils {
                     // JDK 25 以下版本没有 getContext() 方法，尝试直接反射 context 字段
                     try {
                         Field contextField =
-                                // [P3C 1.10 豁免] javac 内部类私有字段（JDK 版本差异适配），无法收敛到 ReflectUtils
+                                // [P3C 1.10 豁免] javac 内部类私有字段（JDK 版本差异适配），官方未提供公开访问 API
                                 javacEnvClass.getDeclaredField("context");
-                        contextField.setAccessible(true);
+                        ReflectUtils.setAccessibleAccessible(contextField);
                         return (com.sun.tools.javac.util.Context) contextField.get(processingEnv);
                     } catch (NoSuchFieldException nsfe) {
                         // 方式 1 失败，继续尝试方式 2
@@ -71,9 +72,9 @@ public final class AstUtils {
             for (String fieldName : new String[]{"context", "treeContext"}) {
                 try {
                     Field contextField =
-                            // [P3C 1.10 豁免] javac 内部类 JavacTrees 私有字段，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                            // [P3C 1.10 豁免] javac 内部类 JavacTrees 私有字段，官方未提供公开访问 API
                             com.sun.tools.javac.api.JavacTrees.class.getDeclaredField(fieldName);
-                    contextField.setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(contextField);
                     return (com.sun.tools.javac.util.Context) contextField.get(javacTrees);
                 } catch (NoSuchFieldException nsfe) {
                     // 字段名不匹配，继续尝试下一个
@@ -372,9 +373,9 @@ public final class AstUtils {
  // 通过 父 字段向上遍历 AST 树
             try {
                 Field parentField =
-                        // [P3C 1.10 豁免] javac 内部 JCTree.parent 私有字段，官方未提供向上访问 API，本模块无 ReflectUtils 可用
+                        // [P3C 1.10 豁免] javac 内部 JCTree.parent 私有字段，官方未提供向上访问 API
                         JCTree.class.getDeclaredField("parent");
-                parentField.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(parentField);
                 parent = (JCTree) parentField.get(parent);
             } catch (Exception e) {
                 break;

@@ -1,5 +1,6 @@
 package com.chua.openai.support;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.http.HttpRequestAuthenticator;
 import lombok.extern.slf4j.Slf4j;
@@ -137,7 +138,7 @@ public final class OpenAiProviderAuth {
             }
             if (method != null) {
                 try {
-                    method.setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(method);
                 } catch (Exception e) {
                     log.debug("provider-authentication setter 无需或无法 setAccessible: {}", e.getMessage());
                 }

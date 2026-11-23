@@ -20,6 +20,7 @@ import com.chua.common.support.ai.bot.BotClient;
 import com.chua.common.support.ai.bot.*;
 import com.chua.common.support.ai.bot.BotInboundMessage.Type;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.lark.oapi.Client;
 import com.lark.oapi.core.cache.LocalCache;
 import com.lark.oapi.core.request.EventReq;
@@ -363,7 +364,7 @@ public class FeishuBotClient implements BotClient {
             try {
                 java.lang.reflect.Method disconnect = com.lark.oapi.ws.Client.class
                         .getDeclaredMethod("disconnect");
-                disconnect.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(disconnect);
                 disconnect.invoke(ws);
             } catch (Exception e) {
                 log.warn("Feishu ws disconnect failed: {}", e.getMessage(), e);
@@ -371,7 +372,7 @@ public class FeishuBotClient implements BotClient {
             try {
                 java.lang.reflect.Field executorField = com.lark.oapi.ws.Client.class
                         .getDeclaredField("executor");
-                executorField.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(executorField);
                 Object executor = executorField.get(ws);
                 if (executor instanceof java.util.concurrent.ExecutorService pool) {
                     pool.shutdownNow();
@@ -1299,8 +1300,8 @@ public class FeishuBotClient implements BotClient {
         for (BotErrorListener listener : errorListeners) {
             try {
                 listener.onError(e);
-            } catch (Exception ignored) {
-                // 忽略监听器异常
+            } catch (Exception ex) {
+                log.debug("飞书错误监听器通知异常: {}", ex.getMessage());
             }
         }
     }

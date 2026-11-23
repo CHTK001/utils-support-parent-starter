@@ -23,6 +23,8 @@ package com.chua.git.support.exception;
  */
 public class GitClientException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 使用错误消息构造异常。
      *

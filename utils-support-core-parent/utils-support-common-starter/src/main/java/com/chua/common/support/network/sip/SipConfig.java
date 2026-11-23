@@ -31,9 +31,10 @@ public class SipConfig {
     public static final String DEFAULT_HOST = "0.0.0.0";
 
     /**
-     * 默认认证令牌
+     * 默认认证令牌：优先取系统属性 {@code chua.sip.token} 或环境变量 {@code CHUA_SIP_TOKEN}，
+     * 均未配置时才回落到 {@code chua-sip-default-token}。
      */
-    public static final String DEFAULT_TOKEN = "chua-sip-default-token";
+    public static final String DEFAULT_TOKEN = configOr("chua.sip.token", "CHUA_SIP_TOKEN", "chua-sip-default-token");
 
     /**
      * 数据平面中继模式
@@ -145,6 +146,22 @@ public class SipConfig {
      * 数据平面监听端口
      */
     private int dataPort;
+
+    /**
+     * 读取配置值：优先系统属性，其次环境变量，均未配置时返回兜底值。
+     *
+     * @param sysProp  系统属性名
+     * @param envVar   环境变量名
+     * @param fallback 兜底值
+     * @return 配置值或兜底值
+     */
+    private static String configOr(String sysProp, String envVar, String fallback) {
+        String value = System.getProperty(sysProp);
+        if (value == null || value.isBlank()) {
+            value = System.getenv(envVar);
+        }
+        return (value == null || value.isBlank()) ? fallback : value;
+    }
 
     /**
      * 创建一份独立的默认配置。

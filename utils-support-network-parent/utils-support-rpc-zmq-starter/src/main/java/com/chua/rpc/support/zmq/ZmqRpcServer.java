@@ -424,7 +424,7 @@ public class ZmqRpcServer implements RpcServer {
         if (method == null) {
             throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
         }
-        method.setAccessible(true);
+        ReflectUtils.setAccessibleAccessible(method);
         methodCache.putIfAbsent(key, method);
         return method;
     }

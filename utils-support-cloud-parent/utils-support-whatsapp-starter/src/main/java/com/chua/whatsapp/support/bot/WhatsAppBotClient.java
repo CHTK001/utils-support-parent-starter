@@ -874,8 +874,8 @@ public class WhatsAppBotClient implements BotClient {
         for (BotErrorListener listener : errorListeners) {
             try {
                 listener.onError(e);
-            } catch (Exception ignored) {
-                // 忽略监听器自身异常
+            } catch (Exception ex) {
+                log.debug("WhatsApp 错误监听器通知异常: {}", ex.getMessage());
             }
         }
     }

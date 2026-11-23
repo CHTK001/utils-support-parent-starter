@@ -280,7 +280,7 @@ public class RSocketServer extends AbstractServer {
         }
         Class<?> clazz = handler.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(method);
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage annotation = method.getAnnotation(OnMessage.class);
                 String topic = annotation.value();
@@ -398,7 +398,7 @@ public class RSocketServer extends AbstractServer {
             }
             for (Method method : bean.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(annotationType)) {
-                    method.setAccessible(true);
+                    ReflectUtils.setAccessibleAccessible(method);
                     try {
                         ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes());
                     } catch (Exception e) {
@@ -420,7 +420,7 @@ public class RSocketServer extends AbstractServer {
      * @return ServerHandler 实例
      */
     private ServerHandler createMessageHandler(Object bean, Method method) {
-        method.setAccessible(true);
+        ReflectUtils.setAccessibleAccessible(method);
         return (request, response) -> {
             try {
                 Class<?>[] paramTypes = method.getParameterTypes();

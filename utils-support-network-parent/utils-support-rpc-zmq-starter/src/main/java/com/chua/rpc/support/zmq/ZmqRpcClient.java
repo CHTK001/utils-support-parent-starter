@@ -365,7 +365,7 @@ public class ZmqRpcClient implements RpcClient {
         private Object invokeLocal(Object localService, ProxyMethod proxyMethod) {
             try {
                 java.lang.reflect.Method method = proxyMethod.getMethod();
-                method.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(method);
                 Object result = ReflectUtils.invoke(localService, method.getName(), Object.class,
                         method.getParameterTypes(), proxyMethod.getArgs());
  // 语义对齐：服务端通过 rpc服务端 返回 期货 时也做同样解包

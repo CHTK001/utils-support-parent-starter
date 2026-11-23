@@ -800,8 +800,8 @@ public class WechatPersonalBotClient implements BotClient {
         for (BotErrorListener listener : errorListeners) {
             try {
                 listener.onError(e);
-            } catch (Exception ignored) {
-                // 忽略监听器异常
+            } catch (Exception ex) {
+                log.debug("微信错误监听器通知异常: {}", ex.getMessage());
             }
         }
     }

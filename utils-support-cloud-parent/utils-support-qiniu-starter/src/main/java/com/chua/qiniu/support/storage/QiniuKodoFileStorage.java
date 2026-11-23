@@ -97,13 +97,18 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
             String downloadUrl = auth.privateDownloadUrl(
                     endpoint + "/" + key, 3600);
             java.net.URL url = new java.net.URL(downloadUrl);
+            // [P3C 资源泄漏修复] 用 HEAD 连接取 Content-Type 后显式断开，不再遗留未关闭的 URLConnection
+            java.net.HttpURLConnection contentTypeConnection = (java.net.HttpURLConnection) url.openConnection();
+            contentTypeConnection.setRequestMethod("HEAD");
+            String contentType = contentTypeConnection.getContentType();
+            contentTypeConnection.disconnect();
 
             return GetObjectResult.builder()
                     .resultCode(ObjectResult.ResultCode.SUCCESS)
                     .inputStream(url.openStream())
                     .metadata(Metadata.builder()
                             .name(request.getFileName())
-                            .contentType(url.openConnection().getContentType())
+                            .contentType(contentType)
                             .build())
                     .build();
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 import java.util.Collections;
@@ -368,7 +369,7 @@ public final class ModelParams {
                 if (converted == null) {
                     return false;
                 }
-                field.setAccessible(true);
+                ReflectUtils.setAccessible(field);
                 field.set(target, converted);
                 return true;
             } catch (NoSuchFieldException e) {

@@ -1,5 +1,6 @@
 package com.chua.ast.support.internal;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.sun.source.util.Trees;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -122,9 +123,9 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
                 return (Context) getContextMethod.invoke(processingEnv);
             } catch (NoSuchMethodException nsme) {
                 Field contextField =
-                        // [P3C 1.10 豁免] javac 内部 Context 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        // [P3C 1.10 豁免] javac 内部 Context 私有字段，官方未提供公开访问 API
                         javacEnvClass.getDeclaredField("context");
-                contextField.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(contextField);
                 return (Context) contextField.get(processingEnv);
             }
         } catch (Exception e) {
@@ -149,9 +150,9 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
         for (String fieldName : fieldNames) {
             try {
                 Field contextField =
-                        // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，官方未提供公开访问 API
                         JavacTrees.class.getDeclaredField(fieldName);
-                contextField.setAccessible(true);
+                ReflectUtils.setAccessibleAccessible(contextField);
                 return (Context) contextField.get(javacTrees);
             } catch (Exception e) {
                 // 字段名不匹配或访问被拒，继续尝试下一个
@@ -176,9 +177,9 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
 
         try {
             Field contextField = maker.getClass()
-                    // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                    // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，官方未提供公开访问 API
                     .getDeclaredField("context");
-            contextField.setAccessible(true);
+            ReflectUtils.setAccessibleAccessible(contextField);
             return Names.instance((Context) contextField.get(maker));
         } catch (Exception e) {
             messager.printMessage(Diagnostic.Kind.WARNING,

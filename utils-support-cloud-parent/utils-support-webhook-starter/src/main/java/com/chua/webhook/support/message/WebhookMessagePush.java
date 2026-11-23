@@ -223,7 +223,8 @@ public class WebhookMessagePush implements MessagePush {
                 return number.intValue();
             }
             return Integer.parseInt(String.valueOf(errCode));
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            log.debug("Webhook 响应体解析 errcode 失败: {}", ex.getMessage());
             return null;
         }
     }

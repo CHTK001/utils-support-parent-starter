@@ -165,7 +165,7 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
         // 设置拦截器：INTERCEPT 为 ASM 生成类的静态字段，ReflectUtils.setField 仅支持实例字段，
         // 故仅将字段定位收敛到 ReflectUtils.findField，写入仍走静态字段赋值
         java.lang.reflect.Field field = ReflectUtils.findField(proxyClass, "INTERCEPT");
-        field.setAccessible(true);
+        ReflectUtils.setAccessible(field);
         field.set(null, intercept);
 
         return instance;

@@ -8,6 +8,8 @@ package com.chua.winrm.support.client;
  */
 public class WinRMException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 创建 winrm异常 实例
      * @param message 消息
