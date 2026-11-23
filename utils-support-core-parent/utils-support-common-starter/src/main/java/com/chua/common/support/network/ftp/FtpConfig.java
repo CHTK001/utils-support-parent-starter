@@ -3,7 +3,9 @@ package com.chua.common.support.network.ftp;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.ToString;
 
 /**
@@ -136,6 +138,13 @@ public class FtpConfig {
      * 是否允许主动模式
      */
     private boolean allowActiveMode = false;
+
+    /**
+     * 用户凭据表（用户名 -> 密码）。非空时启用严格认证：非匿名用户必须命中表内
+     * 凭据才能登录；为空时保持旧行为（无用户数据库，任意非匿名用户名+密码视为
+     * 登录成功，仅建议开发/测试环境使用）。
+     */
+    private final Map<String, String> users = new LinkedHashMap<>();
 
     /**
      * 创建默认 FTP 配置。
@@ -368,6 +377,17 @@ public class FtpConfig {
         */
         public Builder allowActiveMode(boolean allowActiveMode) {
             config.allowActiveMode = allowActiveMode;
+            return this;
+        }
+
+        /**
+         * 添加用户凭据（用户表非空时启用严格认证）。
+         * @param username 用户名
+         * @param password 密码
+         * @return Builder 对象
+         */
+        public Builder user(String username, String password) {
+            config.users.put(username, password);
             return this;
         }
 
@@ -716,5 +736,13 @@ public class FtpConfig {
     */
     public void setAllowActiveMode(boolean allowActiveMode) {
         this.allowActiveMode = allowActiveMode;
+    }
+
+    /**
+     * get Users
+     * @return 用户凭据表（用户名 -> 密码）
+     */
+    public Map<String, String> getUsers() {
+        return users;
     }
 }

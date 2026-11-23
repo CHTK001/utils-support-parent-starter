@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -94,6 +95,12 @@ public class FtpClient implements AutoCloseable {
     private static final Pattern PASV_PATTERN = Pattern.compile("(\\d+,\\d+,\\d+,\\d+),(\\d+),(\\d+)");
 
     /**
+     * 服务端回复行：3 位数字 + 空格或连字符（{@code 220 ...} / {@code 220-...}）。
+     * 不匹配的行是服务端主动通知（NOTI ON 后的 NOTIFY 行），不属于任何命令回复
+     */
+    private static final Pattern REPLY_LINE_PATTERN = Pattern.compile("^\\d{3}[- ].*");
+
+    /**
      * 拷贝缓冲区大小
      */
     private static final int COPY_BUFFER_SIZE = 8192;
@@ -162,6 +169,11 @@ public class FtpClient implements AutoCloseable {
      * 最近一次服务端回复的完整文本（含多行），供调用侧解析
      */
     private String lastReply = "";
+
+    /**
+     * 服务端主动通知（NOTIFY 行）暂存队列：readReply 遇到非回复行时入队，由 pollNotification 消费
+     */
+    private final ArrayDeque<String> pendingNotifications = new ArrayDeque<>();
 
     /**
      * 创建 ftp客户端 实例。
@@ -447,6 +459,83 @@ public class FtpClient implements AutoCloseable {
             throw new FtpClientException("设置传输类型失败", e);
         }
         return this;
+    }
+
+    /**
+     * 获取远程文件最后修改时间（MDTM 命令，RFC 3659）。
+     *
+     * @param path 远程文件路径
+     * @return UTC 时间文本，格式 {@code yyyyMMddHHmmss}
+     * @throws FtpClientException 文件不存在或命令失败
+     */
+    public String modificationTime(String path) {
+        try {
+            int code = sendCommand("MDTM " + path);
+            require(code == 213, "获取修改时间失败: " + path + " -> " + lastReply);
+            return lastReply.length() > 4 ? lastReply.substring(4).trim() : "";
+        } catch (FtpClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FtpClientException("获取修改时间失败: " + path, e);
+        }
+    }
+
+    /**
+     * 开启服务端变更通知（NOTI ON）：此后服务端把文件变更以
+     * {@code NOTIFY <type> <path> [<from>]} 行推送到控制连接，
+     * 可通过 {@link #pollNotification()} 取出。
+     *
+     * @return 当前实例，支持链式调用
+     * @throws FtpClientException 命令失败（服务器不支持 NOTI 时为 5xx）
+     */
+    public FtpClient notiOn() {
+        try {
+            return executeNoti(true);
+        } catch (FtpClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FtpClientException("设置变更通知失败", e);
+        }
+    }
+
+    /**
+     * 关闭服务端变更通知（NOTI OFF）。
+     *
+     * @return 当前实例，支持链式调用
+     * @throws FtpClientException 命令失败
+     */
+    public FtpClient notiOff() {
+        try {
+            return executeNoti(false);
+        } catch (FtpClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FtpClientException("设置变更通知失败", e);
+        }
+    }
+
+    /**
+     * 执行 NOTI 命令。
+     *
+     * @param on true 开启，false 关闭
+     * @return 当前实例，支持链式调用
+     * @throws IOException 通道 IO 异常
+     */
+    private FtpClient executeNoti(boolean on) throws IOException {
+        int code = sendCommand("NOTI " + (on ? "ON" : "OFF"));
+        require(code == 200, "设置变更通知失败 -> " + lastReply);
+        return this;
+    }
+
+    /**
+     * 取出一条服务端主动通知（NOTIFY 行）。
+     *
+     * <p>通知在 {@code readReply} 过程中被识别并暂存；非阻塞，队列为空返回 null。</p>
+     *
+     * @return 通知行（不含 CRLF），如 {@code NOTIFY FILE_CREATED /data/a.txt}；无则 null
+     */
+    public String pollNotification() {
+        return pendingNotifications.pollFirst();
     }
 
     // ==================== UploadOperation ====================
@@ -1065,6 +1154,11 @@ public class FtpClient implements AutoCloseable {
      */
     private int readReply() throws IOException {
         String line = reader.readLine();
+        // 服务端主动通知（NOTI ON 后的 NOTIFY 行）不属于任何命令回复：暂存，供 pollNotification() 消费
+        while (line != null && !REPLY_LINE_PATTERN.matcher(line).matches()) {
+            pendingNotifications.addLast(line);
+            line = reader.readLine();
+        }
         if (line == null || line.length() < 3) {
             throw new IOException("FTP 响应异常: " + line);
         }

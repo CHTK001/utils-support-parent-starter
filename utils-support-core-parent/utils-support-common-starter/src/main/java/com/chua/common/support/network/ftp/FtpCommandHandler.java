@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,6 +45,16 @@ class FtpCommandHandler {
      * FTP 200 响应码：命令成功
      */
     private static final int CODE_OK = 200;
+
+    /**
+     * FTP 211 响应码：特性列表（FEAT，RFC 3659）
+     */
+    private static final int CODE_FEATURE_LIST = 211;
+
+    /**
+     * FTP 215 响应码：系统类型（SYST，RFC 959）
+     */
+    private static final int CODE_SYSTEM_TYPE = 215;
 
     /**
      * FTP 213 响应码：文件状态（SIZE 返回文件大小，RFC 959/3659）
@@ -151,6 +162,25 @@ class FtpCommandHandler {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd HH:mm", Locale.US);
 
     /**
+     * MDTM 时间格式（RFC 3659：UTC，yyyyMMddHHmmss）
+     */
+    private static final DateTimeFormatter MDTM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    /**
+     * 所属 FTP 服务器（用于发布文件变更事件），由 {@link FtpServer} 构造完成后回填
+     */
+    private FtpServer ftpServer;
+
+    /**
+     * 设置所属 FTP 服务器。
+     *
+     * @param server FTP 服务器实例
+     */
+    void setFtpServer(FtpServer server) {
+        this.ftpServer = server;
+    }
+
+    /**
      * 处理 FTP 命令。
      *
      * @param session FTP 会话
@@ -191,6 +221,8 @@ class FtpCommandHandler {
             case "NLST" -> handleNlst(session, argument);
             case "REST" -> handleRest(session, argument);
             case "SIZE" -> handleSize(session, argument);
+            case "MDTM" -> handleMdtm(session, argument);
+            case "NOTI" -> handleNoti(session, argument);
             case "PBSZ" -> handlePbsz(session);
             case "PROT" -> handleProt(session, argument);
             case "NOOP" -> {
@@ -248,9 +280,19 @@ class FtpCommandHandler {
             session.reply(CODE_LOGIN_SUCCESS, "Already logged in as anonymous.");
             return true;
         }
-        // 非匿名用户：简单密码验证（实际生产环境应使用数据库/LDAP）
+        // 非匿名用户：配置了用户凭据表时严格校验（未知用户/密码错误一律 530）；
+        // 未配置时保持旧行为——任意非匿名登录直接成功，仅建议开发/测试环境使用
         if (session.getUsername() != null && !session.getUsername().isBlank()) {
-            // 所有用户名密码组合都允许登录（简化实现）
+            Map<String, String> users = session.getConfig().getUsers();
+            String expected = users == null ? null : users.get(session.getUsername());
+            if (users != null && !users.isEmpty() && expected == null) {
+                session.reply(CODE_LOGIN_FAILED, "Login incorrect.");
+                return true;
+            }
+            if (expected != null && !expected.equals(password)) {
+                session.reply(CODE_LOGIN_FAILED, "Login incorrect.");
+                return true;
+            }
             session.setAuthenticated(true);
             session.reply(CODE_LOGIN_SUCCESS, "Login successful.");
             log.info("FTP 用户登录: {} from {}", session.getUsername(),
@@ -279,7 +321,7 @@ class FtpCommandHandler {
      * @return 是否继续
      */
     private boolean handleSyst(FtpSession session) {
-        session.reply(CODE_OK, "UNIX Type: L8");
+        session.reply(CODE_SYSTEM_TYPE, "UNIX Type: L8");
         return true;
     }
 
@@ -290,11 +332,12 @@ class FtpCommandHandler {
      * @return 是否继续
      */
     private boolean handleFeat(FtpSession session) {
-        session.replyMultiLine(CODE_OK,
+        session.replyMultiLine(CODE_FEATURE_LIST,
                 "Extensions supported:",
                 " UTF8",
                 " SIZE",
                 " MDTM",
+                " NOTI",
                 " PASV",
                 " PORT",
                 " REST STREAM",
@@ -409,6 +452,7 @@ class FtpCommandHandler {
         try {
             Files.createDirectories(resolved);
             session.reply(CODE_PATHNAME_CREATED, "Directory created: " + argument);
+            fireChange(session, FtpChangeEvent.EventType.DIRECTORY_CREATED, toFtpPath(session, resolved), null);
         } catch (IOException e) {
             session.reply(CODE_FILE_UNAVAILABLE, "Failed to create directory: " + e.getMessage());
         }
@@ -433,6 +477,7 @@ class FtpCommandHandler {
                 // 删除空目录
                 Files.deleteIfExists(resolved);
                 session.reply(CODE_FILE_ACTION_COMPLETED, "Directory deleted: " + argument);
+                fireChange(session, FtpChangeEvent.EventType.DIRECTORY_DELETED, toFtpPath(session, resolved), null);
             } else {
                 session.reply(CODE_FILE_UNAVAILABLE, "Not a directory: " + argument);
             }
@@ -464,6 +509,7 @@ class FtpCommandHandler {
         try {
             if (Files.deleteIfExists(resolved)) {
                 session.reply(CODE_FILE_ACTION_COMPLETED, "File deleted: " + argument);
+                fireChange(session, FtpChangeEvent.EventType.FILE_DELETED, toFtpPath(session, resolved), null);
             } else {
                 session.reply(CODE_FILE_UNAVAILABLE, "File not found: " + argument);
             }
@@ -517,6 +563,8 @@ class FtpCommandHandler {
         try {
             Files.move(Path.of(rnfrPath), resolved);
             session.reply(CODE_FILE_ACTION_COMPLETED, "Rename successful.");
+            fireChange(session, FtpChangeEvent.EventType.MOVED,
+                    toFtpPath(session, resolved), toFtpPath(session, Path.of(rnfrPath)));
         } catch (IOException e) {
             session.reply(CODE_FILE_UNAVAILABLE, "Rename failed: " + e.getMessage());
         }
@@ -619,14 +667,20 @@ class FtpCommandHandler {
             session.reply(CODE_TRANSFER_START, "Opening data connection for STOR " + argument);
             // 接受数据连接
             var dataSocket = dataChannel.acceptDataConnection();
+            // 覆盖已存在文件为「修改」，否则为「新建」（供变更事件区分）
+            var existed = Files.exists(resolved);
             // 写入文件
             try (var dataIn = dataSocket.getInputStream();
                  var fileOut = Files.newOutputStream(resolved)) {
                 transferLarge(dataIn, fileOut);
             }
+            // REST 标记仅在紧随其后的传输中生效，用后即复位（RFC 3659）
+            session.setRestartMarker(0);
             dataChannel.close();
             session.reply(CODE_DATA_CLOSE, "Transfer complete.");
             log.info("FTP 上传完成: {} -> {}", argument, resolved);
+            fireChange(session, existed ? FtpChangeEvent.EventType.FILE_MODIFIED
+                    : FtpChangeEvent.EventType.FILE_CREATED, toFtpPath(session, resolved), null);
         } catch (IOException e) {
             session.reply(CODE_CANNOT_OPEN_DATA, "Transfer failed: " + e.getMessage());
         }
@@ -658,11 +712,15 @@ class FtpCommandHandler {
             }
             session.reply(CODE_TRANSFER_START, "Opening data connection for RETR " + argument);
             var dataSocket = dataChannel.acceptDataConnection();
-            // 读取文件
+            // 读取文件（REST 断点续传：从会话记录的偏移量开始传输，RFC 3659）
+            long restOffset = session.getRestartMarker();
             try (var fileIn = Files.newInputStream(resolved);
                  var dataOut = dataSocket.getOutputStream()) {
+                skipFully(fileIn, restOffset);
                 transferLarge(fileIn, dataOut);
             }
+            // REST 标记仅在紧随其后的传输中生效，用后即复位（RFC 3659）
+            session.setRestartMarker(0);
             dataChannel.close();
             session.reply(CODE_DATA_CLOSE, "Transfer complete.");
             log.info("FTP 下载完成: {} -> {}", resolved, argument);
@@ -670,6 +728,30 @@ class FtpCommandHandler {
             session.reply(CODE_CANNOT_OPEN_DATA, "Transfer failed: " + e.getMessage());
         }
         return true;
+    }
+
+    /**
+     * 跳过指定数量的字节（REST 断点续传）。
+     *
+     * <p>{@link InputStream#skip(long)} 单次调用可能未跳完全部字节，需循环直至跳过
+     * 指定偏移量；偏移量达到或超出文件长度时按文件结束处理。</p>
+     *
+     * @param in    输入流
+     * @param count 要跳过的字节数
+     * @throws IOException 读取失败
+     */
+    private static void skipFully(InputStream in, long count) throws IOException {
+        long remaining = count;
+        while (remaining > 0) {
+            long skipped = in.skip(remaining);
+            if (skipped <= 0) {
+                if (in.read() < 0) {
+                    break;
+                }
+                skipped = 1;
+            }
+            remaining -= skipped;
+        }
     }
 
     /**
@@ -834,6 +916,80 @@ class FtpCommandHandler {
             session.reply(CODE_FILE_UNAVAILABLE, "Cannot get file size: " + e.getMessage());
         }
         return true;
+    }
+
+    /**
+     * 处理 MDTM 命令：获取文件最后修改时间（RFC 3659，UTC，yyyyMMddHHmmss）。
+     *
+     * @param session  FTP 会话
+     * @param argument 文件路径
+     * @return 是否继续
+     */
+    private boolean handleMdtm(FtpSession session, String argument) {
+        var resolved = session.resolvePath(argument);
+        if (resolved == null || !Files.exists(resolved)) {
+            session.reply(CODE_FILE_UNAVAILABLE, "File not found: " + argument);
+            return true;
+        }
+        try {
+            var mtime = LocalDateTime.ofInstant(Files.getLastModifiedTime(resolved).toInstant(), ZoneOffset.UTC);
+            session.reply(CODE_FILE_STATUS, MDTM_FORMAT.format(mtime));
+        } catch (IOException e) {
+            session.reply(CODE_FILE_UNAVAILABLE, "Cannot get modification time: " + e.getMessage());
+        }
+        return true;
+    }
+
+    /**
+     * 处理 NOTI 命令：开关服务端主动变更通知。
+     *
+     * <p>{@code NOTI ON} 后，本会话文件变更会以 {@code NOTIFY <type> <path> [<from>]}
+     * 行从控制连接主动推送（非请求-应答语义，客户端需自行识别）。</p>
+     *
+     * @param session  FTP 会话
+     * @param argument ON / OFF
+     * @return 是否继续
+     */
+    private boolean handleNoti(FtpSession session, String argument) {
+        var flag = argument.trim().toUpperCase(Locale.ROOT);
+        if ("ON".equals(flag)) {
+            session.setNotifyEnabled(true);
+            session.reply(CODE_OK, "Notify enabled.");
+        } else if ("OFF".equals(flag)) {
+            session.setNotifyEnabled(false);
+            session.reply(CODE_OK, "Notify disabled.");
+        } else {
+            session.reply(CODE_PARAM_ERROR, "Usage: NOTI ON|OFF");
+        }
+        return true;
+    }
+
+    /**
+     * 发布文件变更事件（回调监听器并向开启通知的会话推送 NOTIFY 行）。
+     *
+     * @param session      触发变更的会话
+     * @param type         事件类型
+     * @param path         变更后的 FTP 路径
+     * @param previousPath 原路径（仅 MOVED 事件）
+     */
+    private void fireChange(FtpSession session, FtpChangeEvent.EventType type, String path, String previousPath) {
+        if (ftpServer == null) {
+            return;
+        }
+        ftpServer.fireChange(new FtpChangeEvent(type, path, previousPath, session.getUsername()));
+    }
+
+    /**
+     * 将服务器文件系统绝对路径转换为 FTP 路径（以 / 开头、正斜杠分隔，相对于根目录）。
+     *
+     * @param session  FTP 会话
+     * @param resolved 服务器绝对路径
+     * @return FTP 路径
+     */
+    private static String toFtpPath(FtpSession session, Path resolved) {
+        var homePath = session.getConfig().getHomeDirectory().toPath().toAbsolutePath().normalize();
+        var relative = homePath.relativize(resolved.toAbsolutePath().normalize()).toString().replace('\\', '/');
+        return "/" + relative;
     }
 
     /**

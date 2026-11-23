@@ -15,8 +15,10 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -87,6 +89,11 @@ public class FtpServer extends AbstractServer implements TcpServer {
     private final Map<String, FtpSession> sessions = new ConcurrentHashMap<>();
 
     /**
+     * 文件变更监听器列表（并发安全，支持运行期增删）
+     */
+    private final List<FtpChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+
+    /**
      * 虚拟线程执行器（每连接一虚拟线程，承载控制连接生命周期）
      */
 // [P3C C1 豁免] 场景化创建线程，需文档化
@@ -119,6 +126,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
         super(buildServerSetting(config));
         this.ftpConfig = config;
         ensureHomeDirectory();
+        // 命令处理器需要把文件变更事件回发给本服务器（进程内监听器 + NOTIFY 推送）
+        this.commandHandler.setFtpServer(this);
     }
 
     /**
@@ -316,6 +325,74 @@ public class FtpServer extends AbstractServer implements TcpServer {
             }
         }
         log.info("FTP 服务器已停止");
+    }
+
+    /**
+     * 注册文件变更监听器。
+     *
+     * @param listener 监听器
+     * @return 当前实例，支持链式调用
+     */
+    public FtpServer addChangeListener(FtpChangeListener listener) {
+        if (listener != null) {
+            changeListeners.add(listener);
+        }
+        return this;
+    }
+
+    /**
+     * 移除文件变更监听器。
+     *
+     * @param listener 监听器
+     * @return 当前实例，支持链式调用
+     */
+    public FtpServer removeChangeListener(FtpChangeListener listener) {
+        changeListeners.remove(listener);
+        return this;
+    }
+
+    /**
+     * 发布文件变更：回调全部进程内监听器，并向开启通知（NOTI ON）的会话推送 NOTIFY 行。
+     *
+     * <p>监听器异常互相隔离：单个监听器失败仅记录日志，不影响其他订阅方与命令处理；
+     * 推送目标会话的 IO 异常同样吞掉（连接可能正在关闭）。</p>
+     *
+     * @param event 变更事件
+     */
+    void fireChange(FtpChangeEvent event) {
+        for (var listener : changeListeners) {
+            try {
+                listener.onChange(event);
+            } catch (Exception e) {
+                log.warn("FTP 变更监听器执行失败: {}", e.getMessage());
+            }
+        }
+        var line = buildNotifyLine(event);
+        for (var session : sessions.values()) {
+            if (session.isNotifyEnabled() && !session.isClosed()) {
+                try {
+                    session.pushNotice(line);
+                } catch (Exception e) {
+                    log.debug("FTP 通知推送失败，已忽略: {}", e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * 构造 NOTIFY 推送行。
+     *
+     * <p>格式：{@code NOTIFY <type> <path> [<from>]}，MOVED 事件额外携带来源路径。</p>
+     *
+     * @param event 变更事件
+     * @return 通知行
+     */
+    private static String buildNotifyLine(FtpChangeEvent event) {
+        var line = "NOTIFY " + event.getType().name() + " " + event.getPath();
+        if (event.getPreviousPath() != null) {
+            line += " " + event.getPreviousPath();
+        }
+        return line;
     }
 
     /**

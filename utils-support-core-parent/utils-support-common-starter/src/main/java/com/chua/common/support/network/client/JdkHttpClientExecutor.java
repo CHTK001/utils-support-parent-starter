@@ -176,7 +176,9 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                 builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
                 break;
             default:
-                throw new UnsupportedOperationException("不支持的请求方法: " + request.getMethod());
+                // WebDAV 扩展方法（PROPFIND/PROPPATCH/MKCOL/COPY/MOVE/LOCK/UNLOCK 等）按方法名透传
+                builder.method(request.getMethod().name(), bodyPublisher(request));
+                break;
         }
 
         // 根据代理和重定向配置选择合适的客户端实例
@@ -295,7 +297,9 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                     builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
                     break;
                 default:
-                    throw new UnsupportedOperationException("不支持的请求方法: " + request.getMethod());
+                    // WebDAV 扩展方法（PROPFIND/PROPPATCH/MKCOL/COPY/MOVE/LOCK/UNLOCK 等）按方法名透传
+                    builder.method(request.getMethod().name(), bodyPublisher(request));
+                    break;
             }
 
             HttpClient targetClient = resolveHttpClient(request);

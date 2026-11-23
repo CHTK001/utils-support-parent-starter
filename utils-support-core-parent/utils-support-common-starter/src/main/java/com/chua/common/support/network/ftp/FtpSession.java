@@ -118,6 +118,17 @@ class FtpSession {
     private volatile boolean closed;
 
     /**
+     * 是否开启服务端主动通知（{@code NOTI ON} 后为 true）
+     */
+    private volatile boolean notifyEnabled;
+
+    /**
+     * 控制连接写锁：命令应答与服务端主动通知共用同一条 TCP 流，
+     * 必须串行化写出，避免 NOTIFY 行插入到某条应答中间造成协议交错
+     */
+    private final Object writeLock = new Object();
+
+    /**
      * 会话属性表（用于存储临时数据，如 RNFR 路径）
      */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
@@ -224,8 +235,10 @@ class FtpSession {
     void reply(int code, String message) {
         String line = code + " " + message;
         log.debug("FTP SEND [{}]: {}", id, line);
-        controlOut.print(line + "\r\n");
-        controlOut.flush();
+        synchronized (writeLock) {
+            controlOut.print(line + "\r\n");
+            controlOut.flush();
+        }
     }
 
     /**
@@ -235,11 +248,49 @@ class FtpSession {
      * @param lines    多行内容
      */
     void replyMultiLine(int code, String... lines) {
-        for (int i = 0; i < lines.length; i++) {
-            String prefix = (i == lines.length - 1) ? " " : "-";
-            controlOut.print(code + prefix + lines[i] + "\r\n");
+        synchronized (writeLock) {
+            for (int i = 0; i < lines.length; i++) {
+                String prefix = (i == lines.length - 1) ? " " : "-";
+                controlOut.print(code + prefix + lines[i] + "\r\n");
+            }
+            controlOut.flush();
         }
-        controlOut.flush();
+    }
+
+    /**
+     * 向客户端推送一条服务端主动通知（NOTIFY 行）。
+     *
+     * <p>与命令应答共用控制连接，必须在写锁内写出；会话已关闭时静默丢弃。
+     * 读 {@code controlOut} 也在锁内进行，避免与 {@code AUTH TLS} 换流竞态。</p>
+     *
+     * @param line 通知行（不含 CRLF）
+     */
+    void pushNotice(String line) {
+        synchronized (writeLock) {
+            if (closed) {
+                return;
+            }
+            PrintWriter out = this.controlOut;
+            if (out == null) {
+                return;
+            }
+            out.print(line + "\r\n");
+            out.flush();
+        }
+    }
+
+    /**
+     * 是否开启服务端主动通知。
+     */
+    boolean isNotifyEnabled() {
+        return notifyEnabled;
+    }
+
+    /**
+     * 设置服务端主动通知开关（NOTI 命令）。
+     */
+    void setNotifyEnabled(boolean notifyEnabled) {
+        this.notifyEnabled = notifyEnabled;
     }
 
     /**
