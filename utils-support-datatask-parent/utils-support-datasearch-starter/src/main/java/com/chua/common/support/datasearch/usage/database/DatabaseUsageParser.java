@@ -4,50 +4,35 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Value;
-import com.chua.common.support.utils.StringUtils;
 
 /**
- * 数据库用量解析器 — 从关系型数据库读取 AI 用量数据。
+ * 数据库用量解析器 — 通过 {@link UsageRowProvider} SPI 从关系型数据库读取 AI 用量数据。
  *
- * <p>支持通过 Spring Boot 配置自定义查询和字段映射，默认适配 sys_ai_usage 表结构。</p>
+ * <p>本类只负责「数据行 → {@link AiUsage}」的映射与编排；表名、列名与查询 SQL
+ * 由持有该存储的业务模块通过 {@link UsageRowProvider} 实现提供（如 ai 模块的
+ * sys_ai_usage），utils 层不感知任何业务表结构。</p>
  *
  * <p>本类刻意不放在 {@code usage.spi} 包下：SPI 的同包扫描会把该包及其子包内的所有实现
- * 登记为扩展点，而本类的构造需要注入 {@link DataSource}，反射实例化必然失败并从
- * {@code list()} 中静默消失；更重要的是它读取的 {@code sys_ai_usage} 正是本地工具用量同步
- * 的落库目标，一旦进入解析器广播，库里的记录会被当作外部数据源再读回一遍。
+ * 登记为扩展点，而本类的构造需要注入 Spring 容器中的 {@link UsageRowProvider}，
+ * 反射实例化必然失败并从 {@code list()} 中静默消失；更重要的是它读取的通常是本地工具
+ * 用量同步的落库目标，一旦进入解析器广播，库里的记录会被当作外部数据源再读回一遍。
  * 需要它的调用方应从 Spring 容器取得，不要指望 {@code ServiceProvider} 能列出。</p>
  *
- * <p>配置示例：
- * <pre>
- * ai.usage.database:
- *   enabled: true
- *   query-sql: "SELECT provider, model, input_tokens, output_tokens, total_tokens, cost, start_time FROM ai_usage"
- *   field-mapping:
- *     provider: provider
- *     model: model
- *     input-tokens: input_tokens
- *     output-tokens: output_tokens
- *     total-tokens: total_tokens
- *     start-time: start_time
- *     cost: cost
- * </pre>
+ * <p>开关：{@code ai.usage.database.enabled=true} 时生效；容器中不存在
+ * {@link UsageRowProvider} 实现时告警并返回空流。</p>
  *
  * @author CH
  * @since 4.0.0.43
  */
 @Slf4j
 @Component
-@ConditionalOnClass(DataSource.class)
 @ConditionalOnProperty(prefix = "ai.usage.database", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class DatabaseUsageParser extends BaseUsageParser {
 
@@ -57,65 +42,17 @@ public class DatabaseUsageParser extends BaseUsageParser {
     public static final String NAME = "database";
 
     /**
-     * 默认查询 SQL（适配 sys_AI_usage 表结构）
+     * 用量行查询 SPI（由持有用量存储的模块提供实现）
      */
-    // [P3C 1.4 豁免] 编译期常量字符串，全部为代码内字面量，无外部输入
-    private static final String DEFAULT_QUERY_SQL =
-            "SELECT sys_ai_usage_provider, sys_ai_usage_model," +
-            "       sys_ai_usage_prompt_tokens, sys_ai_usage_completion_tokens," +
-            "       sys_ai_usage_total_tokens, sys_ai_usage_total_cost," +
-            "       sys_ai_usage_input_cost, sys_ai_usage_output_cost," +
-            "       sys_ai_usage_call_time" +
-            "  FROM sys_ai_usage" +
-            " WHERE sys_ai_usage_total_tokens IS NOT NULL" +
-            " ORDER BY sys_ai_usage_call_time DESC";
-
-    /**
-     * 默认字段映射
-     */
-    private static final Map<String, String> DEFAULT_FIELD_MAPPING = Wraps.linkedMap();
-    static {
-        DEFAULT_FIELD_MAPPING.put("provider", "sys_ai_usage_provider");
-        DEFAULT_FIELD_MAPPING.put("model", "sys_ai_usage_model");
-        DEFAULT_FIELD_MAPPING.put("input-tokens", "sys_ai_usage_prompt_tokens");
-        DEFAULT_FIELD_MAPPING.put("output-tokens", "sys_ai_usage_completion_tokens");
-        DEFAULT_FIELD_MAPPING.put("total-tokens", "sys_ai_usage_total_tokens");
-        DEFAULT_FIELD_MAPPING.put("start-time", "sys_ai_usage_call_time");
-        DEFAULT_FIELD_MAPPING.put("cost", "sys_ai_usage_total_cost");
-        DEFAULT_FIELD_MAPPING.put("input-cost", "sys_ai_usage_input_cost");
-        DEFAULT_FIELD_MAPPING.put("output-cost", "sys_ai_usage_output_cost");
-    }
-
-    /**
-     * JDBC 模板
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * 查询 SQL
-     */
-    private final String querySql;
-
-    /**
-     * 字段映射
-     */
-    private final Map<String, String> fieldMapping;
+    private final ObjectProvider<UsageRowProvider> rowProvider;
 
     /**
      * 构造函数。
      *
-     * @param dataSource 数据源
-     * @param querySql   自定义查询 SQL
-     * @param fieldMapping 字段映射配置
+     * @param rowProvider 用量行查询 SPI，允许容器中暂无实现
      */
-    public DatabaseUsageParser(
-            DataSource dataSource,
-            @Value("${ai.usage.database.query-sql:}") String querySql,
-            @Value("#{${ai.usage.database.field-mapping:{}}}") Map<String, String> fieldMapping) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.querySql = StringUtils.isNotBlank(querySql) ? querySql : DEFAULT_QUERY_SQL;
-        this.fieldMapping = fieldMapping != null && !fieldMapping.isEmpty() ? fieldMapping : DEFAULT_FIELD_MAPPING;
-        log.info("[DatabaseUsageParser] 初始化完成，使用 SQL: {}", this.querySql);
+    public DatabaseUsageParser(ObjectProvider<UsageRowProvider> rowProvider) {
+        this.rowProvider = rowProvider;
     }
 
     @Override
@@ -125,8 +62,13 @@ public class DatabaseUsageParser extends BaseUsageParser {
 
     @Override
     public Flux<AiUsage> streamAll() {
+        UsageRowProvider provider = rowProvider.getIfAvailable();
+        if (provider == null) {
+            log.warn("[DatabaseUsageParser] 容器中不存在 UsageRowProvider 实现，跳过数据库用量读取");
+            return Flux.empty();
+        }
         try {
-            List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySql);
+            List<Map<String, Object>> rows = provider.queryRows();
             List<AiUsage> result = Wraps.list();
             for (Map<String, Object> row : rows) {
                 try {
@@ -155,23 +97,23 @@ public class DatabaseUsageParser extends BaseUsageParser {
         AiUsage.AiUsageBuilder builder = AiUsage.builder();
 
         // 映射字段
-        String provider = asStr(row.get(getMappedColumn("provider")));
+        String provider = asStr(row.get(UsageRowProvider.PROVIDER));
         builder.provider(provider);
 
-        String model = asStr(row.get(getMappedColumn("model")));
+        String model = asStr(row.get(UsageRowProvider.MODEL));
         builder.model(model);
 
-        Integer inputTokens = asInt(row.get(getMappedColumn("input-tokens")));
+        Integer inputTokens = asInt(row.get(UsageRowProvider.INPUT_TOKENS));
         builder.inputTokens(inputTokens);
 
-        Integer outputTokens = asInt(row.get(getMappedColumn("output-tokens")));
+        Integer outputTokens = asInt(row.get(UsageRowProvider.OUTPUT_TOKENS));
         builder.outputTokens(outputTokens);
 
-        Integer totalTokens = asInt(row.get(getMappedColumn("total-tokens")));
+        Integer totalTokens = asInt(row.get(UsageRowProvider.TOTAL_TOKENS));
         builder.totalTokens(totalTokens);
 
         // 时间字段
-        Object startTime = row.get(getMappedColumn("start-time"));
+        Object startTime = row.get(UsageRowProvider.START_TIME);
         if (startTime instanceof java.sql.Timestamp ts) {
             builder.startTime(ts.getTime());
         } else if (startTime instanceof java.util.Date d) {
@@ -181,17 +123,17 @@ public class DatabaseUsageParser extends BaseUsageParser {
         }
 
         // 费用字段
-        Double cost = asDouble(row.get(getMappedColumn("cost")));
+        Double cost = asDouble(row.get(UsageRowProvider.COST));
         if (cost != null && cost > 0) {
             builder.totalCost(java.math.BigDecimal.valueOf(cost));
         }
 
-        Double inputCost = asDouble(row.get(getMappedColumn("input-cost")));
+        Double inputCost = asDouble(row.get(UsageRowProvider.INPUT_COST));
         if (inputCost != null && inputCost > 0) {
             builder.inputCost(java.math.BigDecimal.valueOf(inputCost));
         }
 
-        Double outputCost = asDouble(row.get(getMappedColumn("output-cost")));
+        Double outputCost = asDouble(row.get(UsageRowProvider.OUTPUT_COST));
         if (outputCost != null && outputCost > 0) {
             builder.outputCost(java.math.BigDecimal.valueOf(outputCost));
         }
@@ -200,14 +142,5 @@ public class DatabaseUsageParser extends BaseUsageParser {
         builder.currency("CNY");
 
         return builder.build();
-    }
-
-    /**
-     * 获取映射后的列名。
-     * @param field 字段
-     * @return 获取mappedcolumn的结果
-     */
-    private String getMappedColumn(String field) {
-        return fieldMapping.getOrDefault(field, field);
     }
 }

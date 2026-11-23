@@ -5,12 +5,12 @@ import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
@@ -20,6 +20,10 @@ import java.net.Socket;
  * 一请求一响应一断。</p>
  *
  * <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
+ *
+ * <p>热路径口径（2026-11-23 优化）：请求/响应头全程字节级扫描，不落地中间 String、
+ * 不做 {@code split} 分配；{@code readHeader} 用线程内可增长缓冲替代逐字节同步的
+ * {@code ByteArrayOutputStream}；响应体泵送缓冲线程内复用；DEBUG 日志按需求值。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -49,6 +53,34 @@ public class HttpProxyServer extends AbstractProxyServer {
      * 连接池容量上限
      */
     private static final int BACKEND_POOL_MAX = 8;
+
+    /**
+     * 单个请求头的大小上限（1MB，DoS 防护，与原实现一致）。
+     */
+    private static final int MAX_HEADER_SIZE = 1 << 20;
+
+    /**
+     * 空请求体共享实例：GET/HEAD 等无 body 请求避免每次分配。
+     */
+    private static final byte[] EMPTY_BODY = new byte[0];
+
+    /**
+     * 头名常量（ASCII 小写字节），供字节级扫描做忽略大小写前缀匹配，避免中间 String。
+     */
+    private static final byte[] H_CONTENT_LENGTH = ascii("content-length:");
+    private static final byte[] H_CONNECTION = ascii("connection:");
+    private static final byte[] H_TRANSFER_ENCODING = ascii("transfer-encoding:");
+
+    /**
+     * 请求头解析用线程内缓冲（初始 1KB，按需倍增，上限 {@link #MAX_HEADER_SIZE}）。
+     * <p>虚拟线程一连接一线程，缓冲随连接生命周期复用。</p>
+     */
+    private static final ThreadLocal<byte[]> HEADER_BUF = ThreadLocal.withInitial(() -> new byte[1024]);
+
+    /**
+     * 响应体泵送缓冲（8KB，线程内复用；一连接一线程，无竞争）。
+     */
+    private static final ThreadLocal<byte[]> PIPE_BUF = ThreadLocal.withInitial(() -> new byte[8192]);
 
     /**
      * 构造方法，创建 HttpProxy服务端 实例。
@@ -174,40 +206,11 @@ public class HttpProxyServer extends AbstractProxyServer {
         }
     }
 
-    /**
-     * 忽略大小写包含判断(避免 toLowerCase 产生中间串)。
-     *
-     * @param text  原文
-     * @param token 目标串
-     * @return 是否包含
-     */
-    private static boolean containsIgnoreCase(String text, String token) {
-        int tl = token.length();
-        for (int i = 0, limit = text.length() - tl; i <= limit; i++) {
-            if (text.regionMatches(true, i, token, 0, tl)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 响应头是否 Connection: close（连接不可复用）。
-     * @param head 头部文本，不允许为 null
-     * @return 是否成功（true 表示成功）
-     */
-    private boolean connectionClose(String head) {
-        for (String line : head.split("\r\n")) {
-            if (line.regionMatches(true, 0, "connection:", 0, "connection:".length())) {
-                return containsIgnoreCase(line, "close");
-            }
-        }
-        return false;
-    }
-
     @Override
     protected void handleConnection(Socket clientSocket) {
-        log.debug("handleConnection: {}", clientSocket.getRemoteSocketAddress());
+        if (log.isDebugEnabled()) {
+            log.debug("handleConnection: {}", clientSocket.getRemoteSocketAddress());
+        }
         try (clientSocket) {
             clientSocket.setSoTimeout(readTimeoutMs);
             // BufferedInputStream 包装:readHeader 逐字节读但走内存缓冲,避免原生 read 系统调用开销
@@ -227,22 +230,31 @@ public class HttpProxyServer extends AbstractProxyServer {
                 if (header == null || header.length == 0) {
                     return;
                 }
-                // 解析请求行（method path HTTP/1.1）
-                String headText = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
-                int lineEnd = headText.indexOf("\r\n");
-                if (lineEnd <= 0) {
+                // 请求行校验（与原 split(" ") 口径一致）：须有 \r\n，且第一个空格后到行尾
+                // 至少还有一个非空格字符（split 会丢弃尾部空串，"GET " 只有一个 token）
+                int crlf = indexOfCrlf(header, header.length);
+                if (crlf <= 0) {
                     return;
                 }
-                String requestLine = headText.substring(0, lineEnd);
-                String[] parts = requestLine.split(" ");
-                if (parts.length < 2) {
+                int sp1 = indexOf(header, crlf, ' ', 0);
+                if (sp1 < 0) {
                     return;
                 }
-                String method = parts[0];
-                String path = parts[1];
+                boolean hasSecondToken = false;
+                for (int i = sp1 + 1; i < crlf; i++) {
+                    if (header[i] != ' ') {
+                        hasSecondToken = true;
+                        break;
+                    }
+                }
+                if (!hasSecondToken) {
+                    return;
+                }
 
-                // 客户端是否要求 keep-alive（HTTP/1.1 默认 keep-alive）
-                boolean clientKeepAlive = !connectionClose(headText);
+                // 客户端是否要求 keep-alive（HTTP/1.1 默认 keep-alive；首条 Connection 头决定）
+                boolean clientKeepAlive = !headerHasToken(header, header.length, H_CONNECTION, "close");
+                // 请求体长度：字节级解析，避免整头 String 化与 split 分配
+                int reqBodyLen = parseContentLength(header, header.length);
 
                 InetSocketAddress backend = targetResolver.resolve(null);
                 if (backend == null || backend.getPort() <= 0) {
@@ -255,12 +267,12 @@ public class HttpProxyServer extends AbstractProxyServer {
                 for (int attempt = 0; attempt < 2; attempt++) {
                     try {
                         backendSocket = borrowBackend(backend);
-OutputStream backOut = backendSocket.getOutputStream();
-                    InputStream backIn = bufferedInput(backendSocket);
+                        OutputStream backOut = backendSocket.getOutputStream();
+                        InputStream backIn = bufferedInput(backendSocket);
 
                         // 转发请求头（保留 method/path/版本，透传其余头）+ body
                         backOut.write(header);
-                        byte[] body = readBody(in, headText);
+                        byte[] body = readBody(in, reqBodyLen);
                         if (body.length > 0) {
                             backOut.write(body);
                         }
@@ -272,16 +284,16 @@ OutputStream backOut = backendSocket.getOutputStream();
                         if (respHeader != null) {
                             out.write(respHeader);
                             out.flush();
-                            // 头只解码一次，后续 isChunked/contentLength/connectionClose 共用
-                            String respText = new String(respHeader, java.nio.charset.StandardCharsets.ISO_8859_1);
-                            if (isChunked(respText)) {
+                            if (headerHasToken(respHeader, respHeader.length, H_TRANSFER_ENCODING, "chunked")) {
                                 pipeChunked(backIn, out);
-                                backendKeepAlive = !connectionClose(respText);
+                                backendKeepAlive = !headerHasToken(respHeader, respHeader.length,
+                                        H_CONNECTION, "close");
                             } else {
-                                int cl = contentLength(respText);
+                                int cl = parseContentLength(respHeader, respHeader.length);
                                 if (cl > 0) {
                                     pipeN(backIn, out, cl);
-                                    backendKeepAlive = !connectionClose(respText);
+                                    backendKeepAlive = !headerHasToken(respHeader, respHeader.length,
+                                            H_CONNECTION, "close");
                                 } else {
                                     // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
                                     pipeRaw(backIn, out);
@@ -316,8 +328,15 @@ OutputStream backOut = backendSocket.getOutputStream();
                         }
                     }
                 }
-                log.debug("http-proxy: {} {} -> {}:{}", method, path,
-                        backend.getHostString(), backend.getPort());
+                if (log.isDebugEnabled()) {
+                    // method/path 仅用于日志，按需解码（热路径零 String 分配）
+                    int sp2 = indexOf(header, crlf, ' ', sp1 + 1);
+                    int pathEnd = (sp2 < 0 ? crlf : sp2);
+                    log.debug("http-proxy: {} {} -> {}: {}",
+                            new String(header, 0, sp1, StandardCharsets.ISO_8859_1),
+                            new String(header, sp1 + 1, pathEnd - sp1 - 1, StandardCharsets.ISO_8859_1),
+                            backend.getHostString(), backend.getPort());
+                }
 
                 // 客户端不要求 keep-alive 或连接已关闭，退出循环
                 if (!clientKeepAlive) {
@@ -331,39 +350,47 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
      * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
+     * <p>原实现逐字节 {@code ByteArrayOutputStream.write}（内部 synchronized），
+     * 一个 100~200 字节的头就是同数量级的监视器获取；这里改为线程内普通数组 +
+     * 按需倍增，热路径无锁、无每请求分配（缓冲随线程复用，返回值为精确长度副本）。</p>
+     *
      * @param in 方法入参 in
-     * @return 结果值
+     * @return 头字节（精确长度）；流起始即 EOF 时返回 null
      * @throws IOException 异常
-    */
+     */
     private byte[] readHeader(InputStream in) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+        byte[] buf = HEADER_BUF.get();
+        int pos = 0;
         int prevPrev = -1;
         int prev = -1;
         int b;
         while ((b = in.read()) != -1) {
-            bos.write(b);
+            if (pos == buf.length) {
+                if (pos >= MAX_HEADER_SIZE) {
+                    throw new IOException("HTTP 头过大");
+                }
+                buf = java.util.Arrays.copyOf(buf, Math.min(buf.length * 2, MAX_HEADER_SIZE));
+                HEADER_BUF.set(buf);
+            }
+            buf[pos++] = (byte) b;
             // HTTP 头结束 = 空行（\r\n\r\n：检测 \n 前是 \r、\r 前是 \n）
             if (b == '\n' && prev == '\r' && prevPrev == '\n') {
                 break;
             }
             prevPrev = prev;
             prev = b;
-            if (bos.size() > 1 << 20) {
-                throw new IOException("HTTP 头过大");
-            }
         }
-        return bos.size() == 0 ? null : bos.toByteArray();
+        return pos == 0 ? null : java.util.Arrays.copyOf(buf, pos);
     }
 
     /**
-     * 读取请求体（按 Content-Length 或 chunked）。
-     * @param headText 头部文本，不允许为 null
+     * 读取请求体（按调用方已解析的 Content-Length）。
      * @param in 方法入参 in
-     * @return 结果值
+     * @param len 请求体长度（&le;0 表示无请求体）
+     * @return 请求体字节；无请求体时返回共享空数组
      * @throws IOException 异常
-    */
-    private byte[] readBody(InputStream in, String headText) throws IOException {
-        int len = contentLength(headText);
+     */
+    private byte[] readBody(InputStream in, int len) throws IOException {
         if (len > 0) {
             byte[] body = new byte[len];
             int read = 0;
@@ -376,47 +403,226 @@ OutputStream backOut = backendSocket.getOutputStream();
             }
             return body;
         }
-        return new byte[0];
+        return EMPTY_BODY;
     }
 
     /**
-     * 是否Chunked。
+     * 在 [from, end) 内查找字符 c 首次出现位置。
      *
-     * @param header 请求头，不允许为 null
-     * @return 是否成功（true 表示成功）
+     * @param h    头字节
+     * @param end  搜索终点（不含）
+     * @param c    目标字符（ASCII）
+     * @param from 搜索起点
+     * @return 首次出现下标；未找到返回 -1
      */
-    private boolean isChunked(String text) {
-        return containsIgnoreCase(text, "transfer-encoding: chunked");
-    }
-
-    /**
-     * 内容长度。
-     *
-     * @param headText 头部文本，不允许为 null
-     * @return 结果数值
-     */
-    private int contentLength(String headText) {
-        for (String line : headText.split("\r\n")) {
-            if (line.regionMatches(true, 0, "content-length:", 0, "content-length:".length())) {
-                try {
-                    return Integer.parseInt(line.substring("content-length:".length()).trim());
-                } catch (NumberFormatException ignored) {
-                    return 0;
-                }
+    private static int indexOf(byte[] h, int end, char c, int from) {
+        byte target = (byte) c;
+        for (int i = from; i < end; i++) {
+            if (h[i] == target) {
+                return i;
             }
+        }
+        return -1;
+    }
+
+    /**
+     * 查找首个 \r\n 序列下标。
+     *
+     * @param h   头字节
+     * @param len 有效长度
+     * @return \r 的下标；未找到返回 -1
+     */
+    private static int indexOfCrlf(byte[] h, int len) {
+        for (int i = 0; i + 1 < len; i++) {
+            if (h[i] == '\r' && h[i + 1] == '\n') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 首个以 {@code name} 开头的头行是否含 token（忽略大小写）。
+     *
+     * <p>口径与原 {@code connectionClose} 一致：由<b>第一条</b>同名头决定结果。
+     * {@code transfer-encoding} 亦按行匹配（原 containsIgnoreCase 对
+     * "gzip, chunked" 这类多编码值会漏判，此处按值内 token 判定更准确）。</p>
+     *
+     * @param h     头字节
+     * @param len   有效长度
+     * @param name  头名（含冒号，ASCII 小写）
+     * @param token 目标 token（ASCII）
+     * @return 是否包含
+     */
+    private static boolean headerHasToken(byte[] h, int len, byte[] name, String token) {
+        int start = 0;
+        while (start < len) {
+            int e = start;
+            while (e < len && h[e] != '\n') {
+                e++;
+            }
+            int eNoCr = (e > start && h[e - 1] == '\r') ? e - 1 : e;
+            if (startsWithIgnoreCase(h, start, eNoCr, name)) {
+                return regionContainsIgnoreCase(h, start, eNoCr, token);
+            }
+            start = e + 1;
+        }
+        return false;
+    }
+
+    /**
+     * 解析首个 Content-Length 头的值；缺失/非法/溢出/负数一律返回 0。
+     * <p>与原实现口径一致：原 {@code Integer.parseInt} 抛异常归 0、负值在调用方
+     * {@code >0} 判定下与 0 等价；这里直接收敛为 0。</p>
+     *
+     * @param h   头字节
+     * @param len 有效长度
+     * @return 内容长度（非负）；无有效值时为 0
+     */
+    private static int parseContentLength(byte[] h, int len) {
+        int start = 0;
+        while (start < len) {
+            int e = start;
+            while (e < len && h[e] != '\n') {
+                e++;
+            }
+            int eNoCr = (e > start && h[e - 1] == '\r') ? e - 1 : e;
+            if (startsWithIgnoreCase(h, start, eNoCr, H_CONTENT_LENGTH)) {
+                return parseHeaderNumber(h, start + H_CONTENT_LENGTH.length, eNoCr);
+            }
+            start = e + 1;
         }
         return 0;
     }
 
     /**
-     * 原样泵送响应体（chunked 或定长）。
+     * 解析头值里的十进制数（跳过前后空白；非法/溢出返回 0）。
+     *
+     * @param h    头字节
+     * @param from 值起点（头名之后）
+     * @param end  行尾（不含 CRLF）
+     * @return 数值；非法时 0
+     */
+    private static int parseHeaderNumber(byte[] h, int from, int end) {
+        int i = from;
+        while (i < end && (h[i] == ' ' || h[i] == '\t')) {
+            i++;
+        }
+        boolean negative = false;
+        if (i < end && (h[i] == '-' || h[i] == '+')) {
+            negative = h[i] == '-';
+            i++;
+        }
+        long value = 0;
+        boolean anyDigit = false;
+        while (i < end && h[i] >= '0' && h[i] <= '9') {
+            value = value * 10 + (h[i] - '0');
+            if (value > Integer.MAX_VALUE) {
+                return 0;
+            }
+            anyDigit = true;
+            i++;
+        }
+        if (!anyDigit) {
+            return 0;
+        }
+        while (i < end && (h[i] == ' ' || h[i] == '\t')) {
+            i++;
+        }
+        // 尾部仍有非空白字符 → 非法（原 parseInt 会抛 NumberFormatException → 0）
+        if (i != end) {
+            return 0;
+        }
+        // 负数在调用方「>0 才有 body」的语义下与 0 等价
+        return negative ? 0 : (int) value;
+    }
+
+    /**
+     * 行前缀匹配（ASCII 忽略大小写，仅字母做大小写翻转）。
+     *
+     * @param h     头字节
+     * @param start 行起点
+     * @param end   行终点（不含）
+     * @param name  头名常量（ASCII 小写）
+     * @return 是否匹配
+     */
+    private static boolean startsWithIgnoreCase(byte[] h, int start, int end, byte[] name) {
+        if (end - start < name.length) {
+            return false;
+        }
+        for (int i = 0; i < name.length; i++) {
+            int bb = h[start + i] & 0xFF;
+            int cc = name[i] & 0xFF;
+            if (bb != cc && !(isAsciiAlpha(cc) && bb == (cc ^ 0x20))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 区间内 token 包含判断（ASCII 忽略大小写）。
+     *
+     * @param h     头字节
+     * @param from 起点
+     * @param end   终点（不含）
+     * @param token 目标 token（ASCII）
+     * @return 是否包含
+     */
+    private static boolean regionContainsIgnoreCase(byte[] h, int from, int end, String token) {
+        int tl = token.length();
+        if (tl == 0) {
+            return true;
+        }
+        for (int i = from, limit = end - tl; i <= limit; i++) {
+            int j = 0;
+            while (j < tl) {
+                int bb = h[i + j] & 0xFF;
+                int cc = token.charAt(j) & 0xFF;
+                if (bb != cc && !(isAsciiAlpha(cc) && bb == (cc ^ 0x20))) {
+                    break;
+                }
+                j++;
+            }
+            if (j == tl) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否 ASCII 字母。
+     *
+     * @param c 字符（0~255）
+     * @return 是否字母
+     */
+    private static boolean isAsciiAlpha(int c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+
+    /**
+     * 头名常量转 ASCII 字节数组。
+     *
+     * @param s ASCII 字符串
+     * @return 字节数组
+     */
+    private static byte[] ascii(String s) {
+        byte[] b = new byte[s.length()];
+        for (int i = 0; i < s.length(); i++) {
+            b[i] = (byte) s.charAt(i);
+        }
+        return b;
+    }
+
+    /**
+     * 原样泵送响应体（close-delimited，读到 EOF）。
      * @param in 方法入参 in
      * @param out 方法入参 out
-     * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void pipeRaw(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[8192];
+        byte[] buffer = PIPE_BUF.get();
         int n;
         while ((n = in.read(buffer)) != -1) {
             out.write(buffer, 0, n);
@@ -427,13 +633,12 @@ OutputStream backOut = backendSocket.getOutputStream();
     /**
      * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
      * @param in 方法入参 in
-     * @param length 长度，不允许为 null
+     * @param length 长度
      * @param out 方法入参 out
-     * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
-        byte[] buffer = new byte[8192];
+        byte[] buffer = PIPE_BUF.get();
         int remaining = length;
         while (remaining > 0) {
             int n = in.read(buffer, 0, Math.min(buffer.length, remaining));
@@ -450,11 +655,10 @@ OutputStream backOut = backendSocket.getOutputStream();
      * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
      * @param in 方法入参 in
      * @param out 方法入参 out
-     * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void pipeChunked(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[8192];
+        byte[] buffer = PIPE_BUF.get();
         while (true) {
             // 读 chunk 大小行（hex + CRLF）
             int size = 0;
@@ -508,14 +712,14 @@ OutputStream backOut = backendSocket.getOutputStream();
      * @throws IOException 当执行过程不满足前置条件时
      */
     private void writeSimple(OutputStream out, int code, String msg) throws IOException {
-        byte[] body = (msg == null ? "" : msg).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] body = (msg == null ? "" : msg).getBytes(StandardCharsets.UTF_8);
         StringBuilder head = new StringBuilder(96);
         head.append("HTTP/1.1 ").append(code).append(' ')
                 .append(code == 502 ? "Bad Gateway" : "Error").append("\r\n")
                 .append("Content-Type: text/plain\r\n")
                 .append("Content-Length: ").append(body.length).append("\r\n")
                 .append("Connection: close\r\n\r\n");
-        out.write(head.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        out.write(head.toString().getBytes(StandardCharsets.UTF_8));
         out.write(body);
         out.flush();
     }

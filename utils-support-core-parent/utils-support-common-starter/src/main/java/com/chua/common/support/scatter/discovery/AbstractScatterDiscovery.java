@@ -322,6 +322,30 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      */
     private Discovery buildSelfDiscovery(double weight) {
         int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
+        Map<String, String> metadata = buildSelfMetadata();
+        return Discovery.builder()
+                .id(setting.getNodeId())
+                .serverId(setting.getNodeId())
+                .scatterId(getGroupId())
+                .protocol(setting.getProtocol())
+                .host(advertiseHost())
+                .port(selfPort)
+                .timeout((int) setting.getTimeoutMillis())
+                .weight(weight)
+                .uriSpec(setting.getServicePath())
+                .metadata(metadata.isEmpty() ? null : metadata)
+                .build();
+    }
+
+    /**
+     * 构建本节点元数据（metadata 保留修复）：
+     * 先继承本地已有 self 条目的动态元数据（transient 的 {@code seedDown} 与
+     * 非网关节点的 {@code seed} 标记除外），网关模式补写 {@code seed=true}，
+     * 最后叠加 {@link ScatterSetting#getMetadata()} 用户显式配置（配置优先）。
+     *
+     * @return 合并后的元数据（可能为空 map）
+     */
+    protected Map<String, String> buildSelfMetadata() {
         Map<String, String> metadata = Wraps.linkedMap();
         Discovery existing = findByServerId(setting.getServicePath(), setting.getNodeId());
         if (existing != null && existing.getMetadata() != null) {
@@ -340,18 +364,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         if (setting.getMetadata() != null) {
             metadata.putAll(setting.getMetadata());
         }
-        return Discovery.builder()
-                .id(setting.getNodeId())
-                .serverId(setting.getNodeId())
-                .scatterId(getGroupId())
-                .protocol(setting.getProtocol())
-                .host(advertiseHost())
-                .port(selfPort)
-                .timeout((int) setting.getTimeoutMillis())
-                .weight(weight)
-                .uriSpec(setting.getServicePath())
-                .metadata(metadata.isEmpty() ? null : metadata)
-                .build();
+        return metadata;
     }
 
     /**

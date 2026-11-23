@@ -304,7 +304,8 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                     .timeout((int) setting.getTimeoutMillis())
                     .weight(1.0)
                     .uriSpec(setting.getServicePath())
-                    .metadata(java.util.Map.of(METADATA_SEED, "true"))
+                    // 复用基类元数据管线：保留用户/继承元数据并补写 seed=true（避免裸条目覆盖丢失）
+                    .metadata(buildSelfMetadata())
                     .build();
             updateService(setting.getServicePath(), selfSeed);
             log.info("未配置 seed，本节点 {} 自动成为网关，scatter 端口={}", selfNodeId, scatterPort);
@@ -323,7 +324,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                     .timeout((int) setting.getTimeoutMillis())
                     .weight(1.0)
                     .uriSpec(setting.getServicePath())
-                    .metadata(java.util.Map.of(METADATA_SEED, "true"))
+                    .metadata(java.util.Map.of(METADATA_KEY_SEED, "true"))
                     .build();
             updateService(setting.getServicePath(), node);
         }
