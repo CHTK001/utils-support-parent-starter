@@ -1014,14 +1014,41 @@ server.start();
 ### 7.4 发现与对等网格（`network.discovery`、`scatter`）
 
 - `ServiceDiscovery` SPI：`peermesh` 实现，自带节点表与故障剔除。
-- `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输，seed 引导 + 自动发现。
+- `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输。**发现方式二选一：自动发现 / seed 引导**。
+
+#### 发现方式二选一（`ScatterSetting`）
+
+| 发现方式 | 触发条件 | 行为 |
+|---|---|---|
+| **自动发现**（默认） | 未配置 `seeds` 且 `autoDiscovery=true` | `tcp`（默认协议）：按网段 gossip 扫描，`subnet` 为空时**默认本机同网段**（自动推断本机非回环 IPv4 所在网段）；`udp`：**多播 + 广播**宣告（`multicastGroup`，默认 `239.255.0.1`） |
+| **seed 引导** | `seeds` 非空（优先于自动发现） | 仅与 seed 同步 hash、seed 扩散、最小 `nodeId` 选举；seed 全失联时自动降级 gossip + 选举 |
 
 ```java
 import com.chua.common.support.scatter.Scatter;
 import com.chua.common.support.scatter.ScatterBuilder;
 
+// ① 自动发现（默认）：tcp，本机同网段 gossip 扫描，零配置
 try (Scatter scatter = ScatterBuilder.tcp()
         .nodeId("node-1")
+        .groupId("order")
+        .port(19001)                     // 自动发现要求固定端口
+        .build()) {
+    scatter.start();
+}
+
+// ② 自动发现：udp，多播 + 广播宣告
+try (Scatter scatter = ScatterBuilder.udp()
+        .nodeId("node-2")
+        .groupId("order")
+        .port(19001)
+        .multicastGroup("239.255.0.1")   // 缺省即此值
+        .build()) {
+    scatter.start();
+}
+
+// ③ seed 引导模式
+try (Scatter scatter = ScatterBuilder.tcp()
+        .nodeId("node-3")
         .groupId("order")
         .port(19001)
         .seeds("192.168.1.10:19001")
@@ -1029,6 +1056,8 @@ try (Scatter scatter = ScatterBuilder.tcp()
     scatter.start();
 }
 ```
+
+> 注意：自动发现要求各节点使用**固定且一致**的 `port`（`port=0` 系统分配时无法定位对端，会告警并跳过发现）；自动发现/seed 均可显式传 `subnet("192.168.1.0/24")` 覆盖默认网段。
 
 #### 大规模部署：请配置多个 seed 节点
 
@@ -1050,6 +1079,9 @@ try (Scatter scatter = ScatterBuilder.tcp()
 
 | 参数 | 缺省 | 说明 |
 |---|---|---|
+| `autoDiscovery` | true | 自动发现开关（与 `seeds` 二选一，`seeds` 优先）；false 且无 seeds 时退化为独立节点 |
+| `subnet` | 空（自动推断） | tcp 自动发现网段（如 `192.168.1.0/24`），为空时默认本机非回环 IPv4 所在网段 |
+| `multicastGroup` | 239.255.0.1 | udp 自动发现多播组地址（协议为 udp 时生效） |
 | `autoDiscoveryIntervalMillis` | 30000 | 发现/同步轮询间隔，大规模可适当调大 |
 | `heartbeatIntervalMillis` | 30000 | 心跳间隔；调小加快故障检测，但流量增大 |
 | `failRemoveCount` | 3 | 连续失败达到该次数才剔除节点 |

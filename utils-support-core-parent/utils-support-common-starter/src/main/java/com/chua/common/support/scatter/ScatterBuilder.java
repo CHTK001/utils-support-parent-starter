@@ -295,7 +295,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         serverSetting.setReadTimeout((int) Math.min(setting.getTimeoutMillis(), 3000L));
         if ("udp".equalsIgnoreCase(setting.getProtocol())) {
             return new ScatterNodeServerWrapper(
-                    new UdpScatterNodeServer(serverSetting, handler), setting);
+                    new UdpScatterNodeServer(serverSetting, handler, setting.getMulticastGroup()), setting);
         }
         return new ScatterNodeServerWrapper(
                 new ScatterTcpNodeServer(serverSetting, handler), setting);

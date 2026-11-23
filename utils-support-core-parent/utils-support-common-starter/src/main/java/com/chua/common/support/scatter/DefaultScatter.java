@@ -55,7 +55,8 @@ public class DefaultScatter implements Scatter {
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",
                 setting.getNodeId(), setting.getProtocol(),
                 setting.effectiveHost(), setting.getScatterPort(),
-                setting.getSubnet() != null && !setting.getSubnet().isBlank() ? "route" : "seed");
+                setting.isSeedMode() ? "seed"
+                        : ("udp".equalsIgnoreCase(setting.getProtocol()) ? "auto-udp" : "auto-tcp"));
     }
 
     @Override

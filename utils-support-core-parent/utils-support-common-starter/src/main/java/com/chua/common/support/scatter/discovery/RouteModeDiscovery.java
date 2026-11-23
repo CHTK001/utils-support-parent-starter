@@ -22,10 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
 
 /**
- * 路由模式发现：subnet 网段内 gossip 探测扩散。
+ * 路由模式发现：subnet 网段内 gossip 探测扩散（tcp 自动发现默认实现）。
  *
  * <p>策略：首启全量探测一次（解决已开启节点没数据），后续随机抽样扩散
- * （每次取 gossipTargetCount 台已知节点 + 网段随机抽样），周期全量兜底保证最终一致。</p>
+ * （每次取 gossipTargetCount 台已知节点 + 网段随机抽样），周期全量兜底保证最终一致。
+ * {@code subnet} 为空时默认取本机非回环 IPv4 所在网段（同网段自动发现）。</p>
  *
  * @author CH
  * @since 4.0.0.42
