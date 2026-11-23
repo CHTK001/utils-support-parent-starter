@@ -15,7 +15,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -98,9 +97,10 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
     private final ServerMetrics metrics;
 
     /**
-     * 管理端点配置引用（实时读取开关、路径与周期，与 MetricsEndpointServerFilter 同模式）
+     * 管理端点配置引用（实时读取开关、路径与周期；构造时可为 null，{@link #init} 时
+     * 从过滤器配置回填，与 CorsServerFilter 同模式）
      */
-    private final ServerSetting.ManagementConfig config;
+    private volatile ServerSetting.ManagementConfig config;
 
     /**
      * 当前滑窗分片（原子引用：请求线程只读引用并自增，滚动由 {@link #rollIfNeeded(long)} 负责）
@@ -154,13 +154,21 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
     }
 
     /**
-     * 初始化：读取周期间隔并启动守护线程（仅当间隔大于 0）。
+     * 初始化：回填配置（构造时传 null 的场景）并启动周期输出守护线程。
      *
      * @param config 过滤器初始化配置
      */
     @Override
     public void init(ServerFilterConfig config) throws Exception {
+        if (this.config == null && config != null) {
+            ServerSetting.ManagementConfig management = config.getServerSetting() != null
+                    ? config.getServerSetting().getManagement() : null;
+            this.config = management != null ? management : new ServerSetting.ManagementConfig();
+        }
         int intervalSec = DEFAULT_INTERVAL_SEC;
+        if (this.config != null && this.config.getBenchmarkIntervalSec() > 0) {
+            intervalSec = this.config.getBenchmarkIntervalSec();
+        }
         if (config != null) {
             String param = config.getInitParameter("benchmarkIntervalSec");
             if (param != null && !param.isBlank()) {
@@ -234,10 +242,8 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
      * @return true 表示本过滤器应短路响应该请求
      */
     private boolean isReportRequest(ServerRequest request) {
-        if (request == null || config == null) {
-            return config != null;
-        }
-        if (!config.isBenchmarkEnabled()) {
+        ServerSetting.ManagementConfig config = this.config;
+        if (config == null || request == null || !config.isBenchmarkEnabled()) {
             return false;
         }
         String path = config.getBenchmarkPath();

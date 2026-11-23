@@ -1254,6 +1254,32 @@ public class ServerSetting {
         @Builder.Default
         private java.util.Set<String> healthPaths =
                 java.util.Set.of("/healthz", "/ping", "/readyz");
+
+        /**
+         * 是否启用基准报告端点（GET {@code /benchmark-report} 返回 p50/p99/p999、QPS、RPM、连接数等 JSON 报告，
+         * 同时由守护线程按 {@link #benchmarkIntervalSec} 周期输出 {@code BENCHMARK {...}} 日志）。
+         * 关闭（默认）时过滤器每次请求只做一次开关判断便放行，热路径零额外开销。
+         *
+         * @since 4.0.0.55
+         */
+        @Builder.Default
+        private boolean benchmarkEnabled = false;
+
+        /**
+         * 基准报告端点路径（精确匹配），默认 {@code /benchmark-report}
+         *
+         * @since 4.0.0.55
+         */
+        @Builder.Default
+        private String benchmarkPath = "/benchmark-report";
+
+        /**
+         * 基准报告周期输出间隔（秒），{@code <=0} 关闭周期输出（仅保留 Pull 端点）；默认 10 秒
+         *
+         * @since 4.0.0.55
+         */
+        @Builder.Default
+        private int benchmarkIntervalSec = 10;
     }
 
     /**
