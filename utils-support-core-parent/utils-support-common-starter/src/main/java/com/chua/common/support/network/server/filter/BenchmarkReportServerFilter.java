@@ -365,7 +365,7 @@ public class BenchmarkReportServerFilter implements ServerFilter, ReactiveServer
         appendField(sb, "p90_ms", format(quantileMillis(snap.buckets, requests, 0.90d), 3));
         appendField(sb, "p99_ms", format(quantileMillis(snap.buckets, requests, 0.99d), 3));
         appendField(sb, "p999_ms", format(quantileMillis(snap.buckets, requests, 0.999d), 3));
-        appendField(sb, "max_ms", metrics != null ? format(metrics.getMaxLatencyMillis(), 3) : 0);
+        appendField(sb, "max_ms", metrics != null ? format(metrics.getMaxLatencyMillis(), 3) : "0");
         appendField(sb, "active_connections", metrics != null ? metrics.getActiveConnections() : 0);
         appendField(sb, "peak_connections", metrics != null ? metrics.getPeakConnections() : 0);
         appendField(sb, "total_connections", metrics != null ? metrics.getTotalConnections() : 0);
