@@ -1089,7 +1089,185 @@ DownloadResult r = Downloader.create()
 | 代理 | `proxy(Proxy)` |
 | 实现 | `DownloadService` SPI：`default`、`aria2`（需 aria2c） |
 
-### 7.6 其它网络能力
+### 7.6 文件传输：FTP / FTPS（`network.ftp`）
+
+纯 JDK 实现的 FTP 服务端与客户端（无 commons-net 等第三方依赖），支持 FTPS（显式 TLS）、主动/被动模式、匿名与账号双模式、完整目录操作与文件变更通知。
+
+服务端：
+
+```java
+import com.chua.common.support.network.ftp.FtpConfig;
+import com.chua.common.support.network.ftp.FtpServer;
+
+FtpServer server = new FtpServer(FtpConfig.builder()
+        .controlPort(2121)
+        .homeDirectory("./ftp-home")        // 根目录，越界路径一律拒绝
+        .anonymousEnabled(true)             // 匿名账号（只读，可开 anonymousWriteEnabled）
+        .user("alice", "secret")            // 业务账号
+        .passivePortRange(30000, 30100)     // 被动模式数据端口段
+        .maxConnections(64)
+        .sslEnabled(true)                   // FTPS：控制通道显式 TLS（AUTH TLS）
+        .certPath("./cert/server.pem")      // 证书与私钥；selfSignedAuto(true) 可自动生成自签证书
+        .keyPath("./cert/server.key")
+        .build());
+server.addChangeListener(event -> log.info("FTP 变更: {}", event));   // 文件上传/下载/删除/改名回调
+server.start();
+```
+
+客户端（操作链；`FtpClient.create(host, username, password)` 可快速创建）：
+
+```java
+import com.chua.common.support.network.ftp.FtpClient;
+
+try (FtpClient client = FtpClient.builder()
+        .host("127.0.0.1").port(2121)
+        .username("alice").password("secret")
+        .passive(true).binary(true)         // 被动模式 + 二进制传输
+        .build()) {
+    client.connect();
+
+    client.upload().local("./data/report.pdf").remote("/report.pdf").exec();
+    client.download().remote("/report.pdf").local("./report-copy.pdf").exec();
+
+    client.mkdir().path("/archive").exec();
+    client.rename().from("/report.pdf").to("/archive/report-2026.pdf").exec();
+    client.ls().path("/archive").exec().forEach(System.out::println);
+    client.exists("/archive/report-2026.pdf");      // true
+    client.size("/archive/report-2026.pdf");        // 字节数
+    client.pwd();                                   // 当前目录
+
+    client.notiOn();                                // 打开变更通知（SITE NOTI）
+    String event = client.pollNotification();       // 轮询服务端文件变更事件
+}
+```
+
+### 7.7 WebDAV（`network.webdav`）
+
+`WebDavClient` 覆盖 WebDAV 核心方法集（`PROPFIND` / `GET` / `PUT` / `MKCOL` / `COPY` / `MOVE` / `DELETE` / `LOCK` / `UNLOCK`），并支持自定义方法与请求头；`WebDavServer` 提供对应服务端。
+
+```java
+import com.chua.common.support.network.webdav.WebDavClient;
+import java.nio.charset.StandardCharsets;
+
+try (WebDavClient client = WebDavClient.builder()
+        .baseUrl("https://dav.example.com/remote.php/dav/files/alice")
+        .credentials("alice", "secret")
+        .build()) {
+
+    client.upload("/docs/hello.txt", "你好，WebDAV".getBytes(StandardCharsets.UTF_8));
+    byte[] data = client.download("/docs/hello.txt");
+
+    client.list("/docs").forEach(r -> System.out.println(
+            r.getName() + " dir=" + r.isDirectory() + " size=" + r.getContentLength()));
+    client.propfind("/docs/hello.txt");             // 单资源属性（大小/类型/修改时间/ETag）
+
+    client.copy("/docs/hello.txt", "/backup/hello.txt");
+    client.move("/docs/hello.txt", "/docs/hi.txt");
+    client.delete("/backup/hello.txt");
+
+    String token = client.lock("/docs/hi.txt");     // 加锁，返回 Lock-Token
+    client.unlock("/docs/hi.txt", token);
+
+    client.request("PROPFIND", "/docs").depth("1").exec();   // 自定义方法/请求头
+}
+```
+
+### 7.8 Syslog（`network.syslog`）
+
+Syslog 日志收集：服务端接收 rsyslog / syslog-ng / 网络设备 / 业务应用发来的日志，客户端向 Syslog 服务器发送日志。传输支持 UDP（RFC 5426）与 TCP（RFC 6587，逐行分帧），报文支持 RFC 5424 / RFC 3164 双格式编解码。
+
+服务端：
+
+```java
+import com.chua.common.support.network.syslog.SyslogConfig;
+import com.chua.common.support.network.syslog.SyslogServer;
+import com.chua.common.support.network.syslog.SyslogTransport;
+
+SyslogServer server = new SyslogServer(SyslogConfig.builder()
+        .bindHost("0.0.0.0")
+        .port(5514)                                 // 标准端口 514，内网自用可改 5514 等
+        .transport(SyslogTransport.UDP)             // UDP 或 TCP
+        .maxMessageLength(8192)
+        .build());
+server.addListener(msg -> System.out.println(
+        msg.getFacility() + "/" + msg.getSeverity() + " " + msg.getMessage()));
+server.start();
+```
+
+客户端：
+
+```java
+import com.chua.common.support.network.syslog.SyslogClient;
+import com.chua.common.support.network.syslog.SyslogFormat;
+import com.chua.common.support.network.syslog.SyslogTransport;
+
+try (SyslogClient client = SyslogClient.builder()
+        .host("127.0.0.1").port(5514)
+        .transport(SyslogTransport.UDP)
+        .format(SyslogFormat.RFC5424)               // RFC5424（默认）或 RFC3164
+        .appName("order-service")
+        .build()) {
+    client.info("订单创建成功");
+    client.warning("库存低于阈值");
+    client.error("支付回调失败");
+}
+```
+
+- `PRI = facility × 8 + severity`：`SyslogFacility` 0-23（`KERNEL` / `USER` / `MAIL` / `DAEMON` / `LOCAL0`~`LOCAL7` 等），`SyslogSeverity` 0-7（`EMERG`→`DEBUG`，数值越小越严重）。
+- 服务端解析自动识别 RFC 5424（含结构化数据 SD）与 RFC 3164；无法识别的报文按 `user.info` 兜底保留原文，不丢日志。
+- UDP 无连接、开销最低（极端情况可能丢包）；TCP 逐行分帧不丢包。`SyslogClient` 实现 `AutoCloseable`：UDP 复用套接字，TCP 惰性建连、断线后自动重连。
+
+### 7.9 TCP 长度帧客户端（`network.tcp`）
+
+`TcpClient` 是基于「4 字节长度头 + 消息体」帧格式的同步请求-响应客户端，与 `TcpServer` 对读，RPC 层构建其上；帧内协议编解码由调用方负责。
+
+```java
+import com.chua.common.support.network.tcp.JdkTcpClient;
+import com.chua.common.support.network.tcp.TcpClient;
+
+try (TcpClient client = new JdkTcpClient()) {
+    // new JdkTcpClient(poolSize, connectTimeout, readTimeout) 可调连接池与超时
+    byte[] response = client.call("127.0.0.1", 9000, payload);
+}
+```
+
+- `JdkTcpClient.encrypt(type, key)`：传输加密，与 `ServerSetting.encrypt` 同一套 `StreamCodec` 线格式（`aes-gcm` / `keylog`）。
+- `ProtocolSniffingTcpServer`：服务端按首包嗅探协议并分发到对应处理器。
+- 注意：4 字节长度头是本框架私有帧协议；对接 rsyslog 等标准文本协议请用 7.8 的 `SyslogClient`。
+
+### 7.10 网络代理（`network.server.proxy`）
+
+内建 HTTP、SOCKS5、TCP 透传三类代理服务端，均继承 `AbstractServer`，支持 `ServerSetting` 通用配置与过滤器。
+
+```java
+import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.proxy.HttpProxyServer;
+import com.chua.common.support.network.server.proxy.Socks5ProxyServer;
+import com.chua.common.support.network.server.proxy.TcpProxyServer;
+import java.net.InetSocketAddress;
+
+ServerSetting httpSetting = ServerSetting.defaults();
+httpSetting.setPort(18080);
+HttpProxyServer httpProxy = new HttpProxyServer(httpSetting);       // HTTP 正向代理（含 CONNECT 隧道）
+httpProxy.start();
+
+ServerSetting socksSetting = ServerSetting.defaults();
+socksSetting.setPort(1080);
+Socks5ProxyServer socks5 = new Socks5ProxyServer(socksSetting);     // SOCKS5 代理
+// new Socks5ProxyServer(socksSetting, "user", "pass")              // 带用户名密码认证
+socks5.start();
+
+ServerSetting tcpSetting = ServerSetting.defaults();
+tcpSetting.setPort(19000);
+TcpProxyServer tcpProxy = new TcpProxyServer(tcpSetting,            // TCP 透传代理
+        new InetSocketAddress("10.0.0.5", 8080));                   // 本机 19000 → 后端 8080
+tcpProxy.start();
+```
+
+- 动态后端：构造时传 `ProxyTargetResolver`（如 `DiscoveryProxyTargetResolver`）按连接解析目标地址，替代固定后端。
+- 高吞吐场景可用 AIO 实现：`AioHttpProxyServer` / `AioTcpProxyServer`。
+
+### 7.11 其它网络能力
 
 | 子包 | 能力 |
 | --- | --- |
@@ -1097,7 +1275,7 @@ DownloadResult r = Downloader.create()
 | `network.dns` | `DnsProvider`、`DnsConfig`、`DnsRecord`（阿里/腾讯/Cloudflare 等由 starter 实现） |
 | `network.ip` | `IpLocation`、`IpPosition`、`GeoCity`、`GeoSetting`（IP 归属地） |
 | `network.ssl` | `JdkCertificateProvider`、`TlsKeyLogDecoder`（TLS 解密调试） |
-| `network.ftp` | `FtpConfig`、FTP/FTPS 服务端与客户端 |
+| `network.syslog` | Syslog 服务端/客户端：UDP/TCP 传输、RFC 5424 / RFC 3164 双格式（见 7.8） |
 | `network.sip` | `SipServer`、SIP 压缩器 |
 | `network.rpc` | `RpcClient` / `RpcServer`（`native`）、`RpcInvoker` |
 | `network.invoker` | HTTP / IPC / RPC 统一调用器 |

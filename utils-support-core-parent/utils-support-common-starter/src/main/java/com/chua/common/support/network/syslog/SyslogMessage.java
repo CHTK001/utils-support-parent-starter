@@ -84,14 +84,16 @@ public class SyslogMessage {
             Pattern.DOTALL);
 
     /**
-     * 设施（0-23），见 {@link SyslogFacility}。
+     * 设施（0-23），见 {@link SyslogFacility}；缺省为 USER(1)。
      */
-    private final int facility;
+    @Builder.Default
+    private final int facility = SyslogFacility.USER.getValue();
 
     /**
-     * 严重级别（0-7），见 {@link SyslogSeverity}。
+     * 严重级别（0-7），见 {@link SyslogSeverity}；缺省为 INFO(6)。
      */
-    private final int severity;
+    @Builder.Default
+    private final int severity = SyslogSeverity.INFO.getValue();
 
     /**
      * 产生时间。
@@ -106,10 +108,9 @@ public class SyslogMessage {
     private final String hostname = defaultHostname();
 
     /**
-     * 应用名（RFC 5424 APP-NAME / RFC 3164 TAG）。
+     * 应用名（RFC 5424 APP-NAME / RFC 3164 TAG）；缺省为 null（未设置），由发送端（如 {@link SyslogClient}）按其默认应用名补齐。
      */
-    @Builder.Default
-    private final String appName = DEFAULT_APP_NAME;
+    private final String appName;
 
     /**
      * 进程 ID（RFC 5424 PROCID，RFC 3164 不使用）。

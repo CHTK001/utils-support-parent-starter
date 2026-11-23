@@ -370,10 +370,17 @@ public class SyslogServer extends AbstractServer {
     /**
      * 获取协议类型：UDP 传输为 UDP，TCP 传输为 TCP。
      *
+     * <p>父类构造器会先回调本方法（装配 {@code ServerFilterManager}），此时 {@code config}
+     * 尚未赋值，按缺省传输 UDP 处理；构造完成后返回真实传输协议。</p>
+     *
      * @return 协议类型
      */
     @Override
     public ProtocolType getProtocolType() {
-        return config.getTransport() == SyslogTransport.UDP ? ProtocolType.UDP : ProtocolType.TCP;
+        SyslogConfig syslogConfig = this.config;
+        if (syslogConfig == null) {
+            return ProtocolType.UDP;
+        }
+        return syslogConfig.getTransport() == SyslogTransport.TCP ? ProtocolType.TCP : ProtocolType.UDP;
     }
 }
