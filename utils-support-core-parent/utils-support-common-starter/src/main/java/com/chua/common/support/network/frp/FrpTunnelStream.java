@@ -140,6 +140,7 @@ public class FrpTunnelStream {
                         consumer.accept(buf, 0, n);
                     }
                 }
+                log.debug("FRP 数据流读循环退出(EOF): channel={}, intentionallyClosed={}", channelId, closed);
             } catch (Exception e) {
                 if (!closed) {
                     log.debug("FRP 数据流读取异常: {}", e.getMessage());
@@ -162,6 +163,7 @@ public class FrpTunnelStream {
             return;
         }
         closed = true;
+        log.debug("FRP 数据流关闭: channel={}", channelId);
         try {
             socket.close();
         } catch (IOException e) {

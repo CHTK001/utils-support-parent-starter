@@ -170,8 +170,15 @@ public class RegistryClientServiceDiscovery extends DefaultServiceDiscovery {
                 }
             }
         }
-        this.transportProtocol = protocol;
-        this.serverUrl = protocol + "://" + host + ":" + port;
+        if ("ws".equalsIgnoreCase(protocol) || "wss".equalsIgnoreCase(protocol)
+                || "websocket".equalsIgnoreCase(protocol)) {
+            // SPI 实现名统一为 websocket；线上地址用 ws:// 或 wss://（WebSocketSyncClient 只认这两个 scheme）
+            this.transportProtocol = "websocket";
+            this.serverUrl = ("wss".equalsIgnoreCase(protocol) ? "wss://" : "ws://") + host + ":" + port;
+        } else {
+            this.transportProtocol = protocol;
+            this.serverUrl = protocol + "://" + host + ":" + port;
+        }
         this.reconcileIntervalMillis = resolveReconcileInterval(discoveryOption);
     }
 

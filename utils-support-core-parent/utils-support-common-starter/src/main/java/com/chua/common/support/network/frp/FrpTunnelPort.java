@@ -272,6 +272,7 @@ public class FrpTunnelPort {
                 }
                 session.sendBytes(buffer, 0, read);
             }
+            log.debug("[frp] 本地连接读循环退出(EOF): channel={}", session.getChannelId());
         } catch (IOException e) {
             log.debug("[frp] IO 操作失败，已忽略: {}", e.getMessage());
         } finally {

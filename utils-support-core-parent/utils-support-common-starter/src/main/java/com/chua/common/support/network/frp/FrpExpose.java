@@ -161,6 +161,7 @@ public class FrpExpose {
                     }
                     session.sendBytes(buffer, 0, read);
                 }
+                log.debug("FRP 本地服务读循环退出(EOF): channel={}", session.getChannelId());
             } catch (IOException e) {
                 log.debug("[FRP] 隧道数据读取失败: {}", e.getMessage());
             } finally {

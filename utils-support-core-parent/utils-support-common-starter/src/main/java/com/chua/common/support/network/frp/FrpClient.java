@@ -540,6 +540,7 @@ public class FrpClient implements Closeable {
         String[] parts = line.split("\\|", 3);
         String channelId = parts.length > 2 ? parts[2].trim() : "";
         FrpTunnelSession session = openTunnels.remove(channelId);
+        log.debug("FRP CLOSE 处理: channel={}, sessionFound={}", channelId, session != null);
         if (session != null) {
             session.dispatchClose();
         }

@@ -808,6 +808,7 @@ public class FrpServer extends AbstractServer implements TcpServer {
         dataChannel.bind(role, in, out);
         log.debug("FRP 数据平面连接绑定: channel={}, role={}", channelId, role);
         dataChannel.awaitClosed();
+        log.debug("[frp] 数据面桥接结束，通知两端关闭通道: channel={}", channelId);
         // 数据面通道死亡（任一桥线程 EOF/异常退出）后主动通知两端客户端拆除会话；
         // 通道已随 CLOSE 信令先行拆除时此处幂等返回
         closeChannel(channelId);
@@ -874,6 +875,7 @@ public class FrpServer extends AbstractServer implements TcpServer {
      * @param channelId 通道标识
      */
     private void closeChannel(String channelId) {
+        log.debug("[frp] 关闭隧道通道并通知两端: channel={}", channelId);
         TunnelChannel channel = tunnelChannels.remove(channelId);
         DataChannel dataChannel = dataChannels.remove(channelId);
         if (dataChannel != null) {
@@ -1152,6 +1154,8 @@ public class FrpServer extends AbstractServer implements TcpServer {
                             target.out.flush();
                         }
                     }
+                    log.debug("[frp] 桥接读循环退出(EOF): channel={}, role={}, intentionallyClosed={}",
+                            channelId, role, closed);
                 } catch (IOException e) {
                     log.debug("[frp] 关闭流失败，已忽略: {}", e.getMessage());
                 } finally {
@@ -1168,6 +1172,7 @@ public class FrpServer extends AbstractServer implements TcpServer {
                 return;
             }
             closed = true;
+            log.debug("[frp] 数据通道关闭: channel={}", channelId);
             if (visitor != null) {
                 visitor.close();
             }

@@ -267,6 +267,7 @@ public class FrpTunnelSession {
      * 关闭通道。
      */
     public void close() {
+        log.debug("[frp] 会话主动关闭: channel={}", channelId);
         synchronized (bytesLock) {
             pendingBytes.clear();
             pendingBytesSize = 0;
@@ -358,6 +359,7 @@ public class FrpTunnelSession {
             return;
         }
         open = false;
+        log.debug("[frp] 会话关闭分发: channel={}", channelId);
         FrpTunnelStream stream = dataStream;
         if (stream != null) {
             stream.close();

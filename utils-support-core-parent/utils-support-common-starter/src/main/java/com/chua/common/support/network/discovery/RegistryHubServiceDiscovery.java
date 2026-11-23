@@ -155,6 +155,11 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
                 }
             }
         }
+        // ws/wss/websocket 是线上协议名，SPI 实现名统一为 websocket
+        if ("ws".equalsIgnoreCase(protocol) || "wss".equalsIgnoreCase(protocol)
+                || "websocket".equalsIgnoreCase(protocol)) {
+            protocol = "websocket";
+        }
         this.transportProtocol = protocol;
         this.bindHost = host;
         this.bindPort = port;
