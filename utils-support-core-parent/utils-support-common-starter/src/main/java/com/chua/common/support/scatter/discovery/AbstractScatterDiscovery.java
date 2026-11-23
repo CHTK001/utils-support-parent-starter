@@ -5,14 +5,18 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
+import com.chua.common.support.network.discovery.Event;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.network.discovery.ServiceDiscoveryListener;
 import com.chua.common.support.scatter.ScatterContext;
+import com.chua.common.support.scatter.ScatterMemberInfo;
 import com.chua.common.support.scatter.ScatterNetworks;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterRemoteClient;
 import com.chua.common.support.scatter.ScatterResult;
 import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.ScatterStats;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.node.ScatterNodeHandler;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
@@ -26,12 +30,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import com.chua.common.support.utils.StringUtils;
 
@@ -68,6 +75,101 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * 请求 ID 生成器（线程安全单调递增）
      */
     private final AtomicInteger requestIdSeq = new AtomicInteger(0);
+
+    // ==================== 成员变更事件与观测统计 ====================
+
+    /**
+     * 成员变更监听器（CopyOnWriteArrayList：回调遍历免锁，注册/注销低频）
+     */
+    private final List<ServiceDiscoveryListener> listeners = new CopyOnWriteArrayList<>();
+
+    /**
+     * 最近一次上报的事件签名（serverId -&gt; host|port|protocol），用于过滤仅权重变化的噪声 UPDATE
+     */
+    private final Map<String, String> lastEventSignatures = new ConcurrentHashMap<>();
+
+    /**
+     * 成员最近活跃时间（serverId -&gt; 毫秒时间戳，本节点视角）
+     */
+    private final Map<String, Long> lastSeenAtMillis = new ConcurrentHashMap<>();
+
+    /**
+     * 累计发现轮数
+     */
+    protected final AtomicLong discoveryRounds = new AtomicLong();
+    /**
+     * 发现轮异常次数
+     */
+    protected final AtomicLong roundFailures = new AtomicLong();
+    /**
+     * 同步（拉取合并）成功次数
+     */
+    protected final AtomicLong syncSuccesses = new AtomicLong();
+    /**
+     * 同步（拉取合并）失败次数
+     */
+    protected final AtomicLong syncFailures = new AtomicLong();
+    /**
+     * 心跳探活发送次数
+     */
+    protected final AtomicLong heartbeatsSent = new AtomicLong();
+    /**
+     * 心跳探活失败次数（含达阈值剔除前的失败）
+     */
+    protected final AtomicLong heartbeatFailures = new AtomicLong();
+    /**
+     * 成员新增次数（含自身注册与远端合并入表）
+     */
+    protected final AtomicLong nodesAdded = new AtomicLong();
+    /**
+     * 成员地址/协议变化更新次数（仅权重变化不计入）
+     */
+    protected final AtomicLong nodesUpdated = new AtomicLong();
+    /**
+     * 成员剔除次数（心跳超限 / 优雅离网 / 注销）
+     */
+    protected final AtomicLong nodesRemoved = new AtomicLong();
+    /**
+     * 收到的 REQ 帧数
+     */
+    protected final AtomicLong reqFramesReceived = new AtomicLong();
+    /**
+     * 收到的 PUSH 帧数
+     */
+    protected final AtomicLong pushFramesReceived = new AtomicLong();
+    /**
+     * 收到的 ELEC 选举帧数
+     */
+    protected final AtomicLong elecFramesReceived = new AtomicLong();
+    /**
+     * 收到的 DISC 自动发现宣告帧数
+     */
+    protected final AtomicLong discFramesReceived = new AtomicLong();
+    /**
+     * 收到的 LEAVE 优雅离网帧数
+     */
+    protected final AtomicLong leaveFramesReceived = new AtomicLong();
+    /**
+     * 收到的未知类型帧数
+     */
+    protected final AtomicLong unknownFrames = new AtomicLong();
+    /**
+     * 最后一轮发现完成时间戳（毫秒；0 表示尚未完成任何一轮）
+     */
+    protected final AtomicLong lastRoundAtMillis = new AtomicLong();
+    /**
+     * 本节点发现服务启动时间戳（毫秒；0 表示未启动）
+     */
+    protected final AtomicLong startedAtMillis = new AtomicLong();
+
+    /**
+     * seed 网关标记元数据键（与 SeedModeDiscovery 的 METADATA_SEED 保持一致）
+     */
+    static final String METADATA_KEY_SEED = "seed";
+    /**
+     * seed 降级瞬态标记元数据键（降级期间由 SeedModeDiscovery 按轮重写）
+     */
+    static final String METADATA_KEY_SEED_DOWN = "seedDown";
 
     /**
      * 构造方法，创建 AbstractScatterDiscovery 实例。
@@ -132,6 +234,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
             return;
         }
         started = true;
+        startedAtMillis.set(System.currentTimeMillis());
         loadPersistedNodes();
         registerSelf();
 // [P3C C1 豁免] 场景化创建线程，需文档化
@@ -153,11 +256,14 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      */
     private void discoveryRound() {
         try {
+            discoveryRounds.incrementAndGet();
             updateSelfWeight();
             doDiscoveryRound();
             healthCheck();
             persistNodes();
+            lastRoundAtMillis.set(System.currentTimeMillis());
         } catch (Exception e) {
+            roundFailures.incrementAndGet();
             log.debug("发现轮异常: {}", e.getMessage());
         }
     }
@@ -178,30 +284,68 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * 注册自身到本地 hash 表。
      */
     public void registerSelf() {
-        // scatterPort > 0 说明 nodeServer 已启动（由 DefaultScatter 在 start() 中填充）
-        // 使用 scatter 通信端口注册，确保对端可通过该端口连接到本节点的 scatter 服务
-        int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
-        Discovery self = Discovery.builder()
-                .id(setting.getNodeId())
-                .serverId(setting.getNodeId())
-                .scatterId(getGroupId())
-                .protocol(setting.getProtocol())
-                .host(advertiseHost())
-                .port(selfPort)
-                .timeout((int) setting.getTimeoutMillis())
-                .weight(1.0)
-                .uriSpec(setting.getServicePath())
-                .build();
-        updateService(setting.getServicePath(), self);
+        upsertSelf(1.0);
     }
 
     /**
      * 更新自身动态权重（同步即心跳）。
      */
     protected void updateSelfWeight() {
-        // 使用 scatter 通信端口（与 registerSelf 保持一致），确保对端通过该端口可连接
+        upsertSelf(computeDynamicWeight());
+    }
+
+    /**
+     * 注册/更新自身条目并触发成员事件（仅权重变化不重复上报 UPDATE）。
+     *
+     * @param weight 动态权重
+     */
+    private void upsertSelf(double weight) {
+        // scatterPort > 0 说明 nodeServer 已启动（由 DefaultScatter 在 start() 中填充）
+        // 使用 scatter 通信端口注册，确保对端可通过该端口连接到本节点的 scatter 服务
+        Discovery self = buildSelfDiscovery(weight);
+        Discovery old = findByServerId(setting.getServicePath(), setting.getNodeId());
+        updateService(setting.getServicePath(), self);
+        lastSeenAtMillis.put(setting.getNodeId(), System.currentTimeMillis());
+        if (old == null) {
+            nodesAdded.incrementAndGet();
+            fireEvent(self, Event.ADD);
+        } else if (memberChanged(old, self)) {
+            nodesUpdated.incrementAndGet();
+            fireEvent(self, Event.UPDATE);
+        }
+    }
+
+    /**
+     * 构建本节点服务条目，并合并元数据（metadata 保留修复）：
+     * 先继承本地已有 self 条目的动态元数据（如 seed 引导/网关模式的 {@code seed=true}，
+     * 避免每轮重建条目时被裸条目覆盖剥掉），transient 的 {@code seedDown} 标记不保留
+     * （由 SeedModeDiscovery.markSeedDown 在降级期间按轮重新写入，seed 恢复后自动清除）；
+     * 再叠加 {@link ScatterSetting#getMetadata()} 用户显式配置（配置优先）。
+     *
+     * @param weight 动态权重
+     * @return 本节点服务条目
+     */
+    private Discovery buildSelfDiscovery(double weight) {
         int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
-        Discovery self = Discovery.builder()
+        Map<String, String> metadata = Wraps.linkedMap();
+        Discovery existing = findByServerId(setting.getServicePath(), setting.getNodeId());
+        if (existing != null && existing.getMetadata() != null) {
+            for (Map.Entry<String, String> en : existing.getMetadata().entrySet()) {
+                // "seed" 不随继承保留：worker 节点若继承 seed 引导条目的标记会被全网排除出负载均衡，
+                // 仅网关模式（isGatewayNode）按需补写；"seedDown" 为降级瞬态标记，由 markSeedDown 按轮重写
+                if (!METADATA_KEY_SEED.equals(en.getKey())
+                        && !METADATA_KEY_SEED_DOWN.equals(en.getKey())) {
+                    metadata.put(en.getKey(), en.getValue());
+                }
+            }
+        }
+        if (isGatewayNode()) {
+            metadata.put(METADATA_KEY_SEED, "true");
+        }
+        if (setting.getMetadata() != null) {
+            metadata.putAll(setting.getMetadata());
+        }
+        return Discovery.builder()
                 .id(setting.getNodeId())
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
@@ -209,10 +353,10 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 .host(advertiseHost())
                 .port(selfPort)
                 .timeout((int) setting.getTimeoutMillis())
-                .weight(computeDynamicWeight())
+                .weight(weight)
                 .uriSpec(setting.getServicePath())
+                .metadata(metadata.isEmpty() ? null : metadata)
                 .build();
-        updateService(setting.getServicePath(), self);
     }
 
     /**
@@ -252,18 +396,21 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。
+     * 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并 /
+     * ELEC 选举 / DISC 宣告 / LEAVE 优雅离网；未知类型计数忽略并返回 ACK。
      */
     @Override
     public byte[] handle(ScatterFrame frame) {
         try {
             if (frame.getType() == ScatterProtocol.TYPE_REQ) {
+                reqFramesReceived.incrementAndGet();
                 Set<Discovery> services = getServiceAll(frame.getPath());
                 // 返回完整服务表（JSON 数组），对端逐条按 serverId 合并
                 byte[] payload = Json.toJson(Wraps.list(services)).getBytes(StandardCharsets.UTF_8);
                 return new ScatterFrame(ScatterProtocol.TYPE_RESP, frame.getRequestId(),
                         frame.getPath(), payload).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_PUSH) {
+                pushFramesReceived.incrementAndGet();
                 String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
                 Discovery remote = Json.fromJson(json, Discovery.class);
                 if (remote != null && getGroupId().equals(remote.getScatterId())) {
@@ -272,6 +419,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_ELEC) {
+                elecFramesReceived.incrementAndGet();
                 // 选举通知：对端节点成为新引导，本地把它纳入 seed 列表（后续 seed 掉线时用它同步）
                 String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
                 Discovery elected = Json.fromJson(json, Discovery.class);
@@ -288,6 +436,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_DISC) {
+                discFramesReceived.incrementAndGet();
                 // 自动发现宣告（UDP 多播/广播）：payload 为宣告方全量服务表，逐条合并同分组条目
                 String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
                 List<Discovery> announced = Json.fromJsonToList(json, Discovery.class);
@@ -296,6 +445,26 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 }
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
+            } else if (frame.getType() == ScatterProtocol.TYPE_LEAVE) {
+                // 优雅离网通知：立即从本地表剔除该节点并触发 REMOVE 事件（无需等待心跳超限）
+                leaveFramesReceived.incrementAndGet();
+                String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
+                Discovery leaving = Json.fromJson(json, Discovery.class);
+                if (leaving != null && leaving.getServerId() != null
+                        && getGroupId().equals(leaving.getScatterId())) {
+                    Discovery removed = findByServerId(frame.getPath(), leaving.getServerId());
+                    removeFromCache(frame.getPath(), leaving.getServerId());
+                    heartbeatFailCounts.remove(leaving.getServerId());
+                    lastSeenAtMillis.remove(leaving.getServerId());
+                    nodesRemoved.incrementAndGet();
+                    fireEvent(removed != null ? removed : leaving, Event.REMOVE);
+                    log.debug("节点优雅离网: {}", leaving.getServerId());
+                }
+                return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
+                        frame.getPath(), new byte[0]).encode();
+            } else {
+                unknownFrames.incrementAndGet();
+                log.debug("收到未知类型帧: type={}", frame.getType());
             }
             return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                     frame.getPath(), new byte[0]).encode();
@@ -334,6 +503,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * @param d 方法入参 d
      */
     protected void probeHeartbeat(Discovery d) {
+        heartbeatsSent.incrementAndGet();
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
                 d.getProtocol(), getGroupId(), setting.getServicePath());
         long hbTimeout = setting.getHeartbeatTimeoutMillis() > 0
@@ -356,7 +526,16 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     protected void mergeRemote(java.util.List<Discovery> remote) {
         for (Discovery r : remote) {
             if (r != null && r.getServerId() != null && getGroupId().equals(r.getScatterId())) {
+                Discovery old = findByServerId(setting.getServicePath(), r.getServerId());
                 updateService(setting.getServicePath(), r);
+                lastSeenAtMillis.put(r.getServerId(), System.currentTimeMillis());
+                if (old == null) {
+                    nodesAdded.incrementAndGet();
+                    fireEvent(r, Event.ADD);
+                } else if (memberChanged(old, r)) {
+                    nodesUpdated.incrementAndGet();
+                    fireEvent(r, Event.UPDATE);
+                }
             }
         }
     }
@@ -366,10 +545,17 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * @param node 节点，不允许为 null
      */
     protected void onHeartbeatFail(ScatterNode node) {
+        heartbeatFailures.incrementAndGet();
         int count = heartbeatFailCounts.merge(node.getNodeId(), 1, Integer::sum);
         if (count >= setting.getFailRemoveCount()) {
+            Discovery removed = findByServerId(setting.getServicePath(), node.getNodeId());
             removeFromCache(setting.getServicePath(), node.getNodeId());
             heartbeatFailCounts.remove(node.getNodeId());
+            lastSeenAtMillis.remove(node.getNodeId());
+            nodesRemoved.incrementAndGet();
+            if (removed != null) {
+                fireEvent(removed, Event.REMOVE);
+            }
             log.info("节点连续 {} 次心跳失败，已剔除: {}", setting.getFailRemoveCount(), node.getNodeId());
         }
     }
@@ -511,4 +697,209 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 discoveryExecutor.shutdownNow();
                 Thread.currentThread().interrupt();
             }
-        }    }}
+        }
+    }
+
+    // ==================== 成员变更订阅 ====================
+
+    /**
+     * scatter 基于本地 hash 表 + 同步/心跳驱动，天然支持成员变更事件订阅。
+     */
+    @Override
+    public boolean isSupportSubscribe() {
+        return true;
+    }
+
+    @Override
+    public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void unsubscribe(String serviceName, ServiceDiscoveryListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * 触发成员变更事件（逐个回调，单个监听器异常不影响其他监听器与本节点流程）。
+     *
+     * @param discovery 成员条目
+     * @param event     事件类型
+     */
+    private void fireEvent(Discovery discovery, Event event) {
+        if (listeners.isEmpty() || discovery == null) {
+            return;
+        }
+        String path = setting.getServicePath();
+        for (ServiceDiscoveryListener listener : listeners) {
+            try {
+                listener.listen(path, discovery, event);
+            } catch (Exception e) {
+                log.debug("成员变更监听器回调异常: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 成员身份是否发生变化（host/port/protocol；仅 weight 变化不算，避免每轮权重刷新刷屏）。
+     *
+     * @param old 旧条目
+     * @param now 新条目
+     * @return 是否变化
+     */
+    private boolean memberChanged(Discovery old, Discovery now) {
+        return !Objects.equals(old.getHost(), now.getHost())
+                || old.getPort() != now.getPort()
+                || !Objects.equals(old.getProtocol(), now.getProtocol());
+    }
+
+    /**
+     * 按 serverId 查找本地服务表条目（get() 已按 serverId 去重保留最新）。
+     *
+     * @param path     服务路径
+     * @param serverId 成员唯一标识
+     * @return 命中条目，未找到返回 null
+     */
+    private Discovery findByServerId(String path, String serverId) {
+        for (Discovery d : getServiceAll(path)) {
+            if (d != null && serverId.equals(d.getServerId())) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 本节点是否为网关/seed 自身（seed 模式且未配置 seed 地址）。
+     * 网关自身条目需保留 {@code seed=true} 元数据；worker 节点必须剥离，
+     * 否则会被全网排除出负载均衡。仅 {@link SeedModeDiscovery} 覆写。
+     */
+    protected boolean isGatewayNode() {
+        return false;
+    }
+
+    // ==================== 注销事件 ====================
+
+    @Override
+    public ServiceDiscovery unregisterService(String path, Discovery discovery) {
+        return unregisterService(path, discovery == null ? null : discovery.getServerId());
+    }
+
+    @Override
+    public ServiceDiscovery unregisterService(String path, String serverId) {
+        if (serverId == null) {
+            return this;
+        }
+        Discovery removed = findByServerId(path, serverId);
+        super.unregisterService(path, serverId);
+        if (removed != null) {
+            nodesRemoved.incrementAndGet();
+            lastSeenAtMillis.remove(serverId);
+            fireEvent(removed, Event.REMOVE);
+        }
+        return this;
+    }
+
+    // ==================== 运行观测与优雅离网 ====================
+
+    /**
+     * 汇总运行观测快照：成员表 + 发现/同步/心跳/帧处理计数器（自节点视角）。
+     */
+    @Override
+    public ScatterStats stats() {
+        List<ScatterMemberInfo> members = Wraps.list();
+        for (Discovery d : getServiceAll(setting.getServicePath())) {
+            if (d == null || d.getServerId() == null) {
+                continue;
+            }
+            members.add(ScatterMemberInfo.builder()
+                    .serverId(d.getServerId())
+                    .host(d.getHost())
+                    .port(d.getPort())
+                    .protocol(d.getProtocol())
+                    .weight(d.getWeight())
+                    .seed(isSeedNode(d))
+                    .self(setting.getNodeId().equals(d.getServerId()))
+                    .heartbeatFailures(heartbeatFailCounts.getOrDefault(d.getServerId(), 0))
+                    .lastSeenAtMillis(lastSeenAtMillis.getOrDefault(d.getServerId(), 0L))
+                    .build());
+        }
+        return ScatterStats.builder()
+                .nodeId(setting.getNodeId())
+                .groupId(getGroupId())
+                .protocol(setting.getProtocol())
+                .mode(resolveMode())
+                .memberCount(members.size())
+                .members(members)
+                .discoveryRounds(discoveryRounds.get())
+                .roundFailures(roundFailures.get())
+                .syncSuccesses(syncSuccesses.get())
+                .syncFailures(syncFailures.get())
+                .heartbeatsSent(heartbeatsSent.get())
+                .heartbeatFailures(heartbeatFailures.get())
+                .nodesAdded(nodesAdded.get())
+                .nodesUpdated(nodesUpdated.get())
+                .nodesRemoved(nodesRemoved.get())
+                .reqFramesReceived(reqFramesReceived.get())
+                .pushFramesReceived(pushFramesReceived.get())
+                .elecFramesReceived(elecFramesReceived.get())
+                .discFramesReceived(discFramesReceived.get())
+                .leaveFramesReceived(leaveFramesReceived.get())
+                .unknownFrames(unknownFrames.get())
+                .lastRoundAtMillis(lastRoundAtMillis.get())
+                .build();
+    }
+
+    /**
+     * 解析发现模式标识：seed / auto-udp / auto-tcp。
+     */
+    private String resolveMode() {
+        if (this instanceof SeedModeDiscovery) {
+            return "seed";
+        }
+        if (this instanceof UdpBroadcastDiscovery) {
+            return "auto-udp";
+        }
+        return "auto-tcp";
+    }
+
+    /**
+     * 优雅离网：向表内其他可路由节点广播 LEAVE 帧（尽力而为），
+     * 对端收到后立即剔除本节点并触发 REMOVE 事件，无需等待心跳超限；
+     * 最后从本地表移除自身并触发 REMOVE 事件。
+     */
+    @Override
+    public void leave() {
+        Discovery self = findByServerId(setting.getServicePath(), setting.getNodeId());
+        if (self == null) {
+            self = buildSelfDiscovery(computeDynamicWeight());
+        }
+        try {
+            byte[] payload = Json.toJson(self).getBytes(StandardCharsets.UTF_8);
+            ScatterFrame frame = new ScatterFrame(ScatterProtocol.TYPE_LEAVE, genRequestId(),
+                    setting.getServicePath(), payload);
+            List<ScatterNode> targets = Wraps.list();
+            for (Discovery d : getServiceAll(setting.getServicePath())) {
+                if (d == null || d.getServerId() == null
+                        || setting.getNodeId().equals(d.getServerId())) {
+                    continue;
+                }
+                if (isUnroutable(d.getHost())) {
+                    continue;
+                }
+                targets.add(new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
+                        d.getProtocol(), getGroupId(), setting.getServicePath()));
+            }
+            ScatterSyncHelper.broadcast(targets, frame, setting.getTimeoutMillis());
+            log.debug("LEAVE 优雅离网通知已发送至 {} 个节点", targets.size());
+        } catch (Exception e) {
+            log.debug("发送 LEAVE 通知失败: {}", e.getMessage());
+        } finally {
+            removeFromCache(setting.getServicePath(), setting.getNodeId());
+            nodesRemoved.incrementAndGet();
+            fireEvent(self, Event.REMOVE);
+        }
+    }
+}

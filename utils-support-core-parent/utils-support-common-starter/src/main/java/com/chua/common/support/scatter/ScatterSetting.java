@@ -41,7 +41,9 @@ public class ScatterSetting {
      */
     private String host = "0.0.0.0";
     /**
-     * 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中
+     * 监听端口（0 = 系统分配）。scatter 节点服务端直接绑定该端口，
+     * 实际绑定结果（含系统分配的临时端口）由 NodeServer 启动后回填到 {@code scatterPort}。
+     * 注意：自动发现要求各节点使用固定一致端口（port &gt; 0）。
      */
     private int port;
     /**
@@ -129,6 +131,18 @@ public class ScatterSetting {
      * gossip 扩散目标数（路由模式抽样）
      */
     private int gossipTargetCount = 4;
+
+    /**
+     * 节点自定义元数据（随自身服务条目同步/扩散；如 role、version、机房/分片标签等）。
+     * 注意：seed 引导/网关模式会自动为自身条目附加 {@code seed=true} 标记，无需在此配置。
+     */
+    private java.util.Map<String, String> metadata;
+
+    /**
+     * 启动预热等待毫秒：start() 完成注册后等待首轮发现收敛的时间。
+     * &lt;0（默认）保持历史行为 min(autoDiscoveryIntervalMillis, 500ms)；0 表示不等待。
+     */
+    private long warmupMillis = -1L;
 
     /**
      * 是否 seed 引导模式（seeds 非空；与自动发现二选一，seeds 优先）。
