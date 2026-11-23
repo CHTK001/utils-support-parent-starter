@@ -2,6 +2,7 @@
 package harness;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.datasource.support.annotation.TableName;
 import com.chua.datasource.support.engine.DefaultReactorEngine;
 import com.chua.datasource.support.engine.InMemoryEngine;
 import com.chua.datasource.support.engine.ReactorEngine;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class EngineThroughput {
 
     /** 验收用实体：表名显式钉死，避免依赖驼峰转换规则。 */
+    @TableName("t_idx")
     public static class AccUser {
         private Long id;
         private String name;
@@ -184,41 +186,70 @@ public final class EngineThroughput {
         });
     }
 
-    /** 内存引擎：索引随写失效（行为级验证：写后索引查询与真实数据一致）。 */
+    /** 内存引擎：索引随写失效（Lambda 链式才是 tryIndexLookup 真索引路径）。 */
     private static void throughputMemory() throws Exception {
         InMemoryEngine e = (InMemoryEngine) Engine.create("memory");
-        emit("== 场景 B：InMemoryEngine 索引随写失效 ==");
-        e.index();
+        emit("== 场景 B：InMemoryEngine 索引随写失效（Lambda 链式路径） ==");
         e.store("t_idx", List.of(new AccUser(1L, "alice", 30), new AccUser(2L, "bob", 25)));
-        check("B1.store 后索引查询命中新数据", () -> {
-            List<Map<String, Object>> rows = e.querySql("SELECT * FROM t_idx WHERE id = 1");
-            if (rows == null || rows.isEmpty() || !String.valueOf(rows.get(0).values().iterator().next()).equals("1")) {
-                throw new HarnessFailure("rows=" + (rows == null ? -1 : rows.size()));
+        e.index();
+        check("B1.store+index 后 Lambda 等值查询命中", () -> {
+            AccUser u = e.query(AccUser.class).eq(AccUser::getId, 1L).one();
+            if (u == null || !"alice".equals(u.getName()) || u.getAge() != 30) {
+                throw new HarnessFailure("u=" + u);
             }
-            return "rows=" + rows.size();
+            return "id=" + u.getId() + " name=" + u.getName();
         });
-        check("B2.executeSql 更新后索引查询命中新值 age=99", () -> {
-            e.executeSql("UPDATE t_idx SET age = 99 WHERE name = 'alice'");
-            Object age = e.queryValue("SELECT age FROM t_idx WHERE name = 'alice'");
-            if (!String.valueOf(age).equals("99")) {
-                throw new HarnessFailure("age=" + age);
+        // 内存通道 insert → afterMemoryInsert 失效，新 id 若仍走旧索引会漏命中
+        e.insert(AccUser.class, new AccUser(3L, "carol", 40));
+        check("B2.insert 内存通道后 Lambda 按新 id 命中", () -> {
+            AccUser u = e.query(AccUser.class).eq(AccUser::getId, 3L).one();
+            if (u == null || !"carol".equals(u.getName())) {
+                throw new HarnessFailure("u=" + u);
             }
-            return "age=" + age;
+            return "id=3 hit";
         });
-        check("B3.executeSql 更新后按旧值查询不再命中", () -> {
-            Object age = e.queryValue("SELECT age FROM t_idx WHERE name = 'alice' AND age = 30");
-            if (age != null) {
-                throw new HarnessFailure("旧值仍命中: age=" + age);
+        // 链式 update → evaluateUpdate 失效，按新值 age=99 查询必须命中
+        int affected = e.update(AccUser.class).set(AccUser::getAge, 99)
+                .eq(AccUser::getName, "alice").update();
+        check("B3.Lambda update 受影响=1 且按 age=99 命中", () -> {
+            if (affected != 1) {
+                throw new HarnessFailure("affected=" + affected);
             }
-            return "old value gone";
+            AccUser u = e.query(AccUser.class).eq(AccUser::getAge, 99).one();
+            if (u == null || !"alice".equals(u.getName())) {
+                throw new HarnessFailure("u=" + u);
+            }
+            return "alice age=99";
         });
-        check("B4.executeDelete 后索引查询不再命中", () -> {
-            e.executeSql("DELETE FROM t_idx WHERE name = 'bob'");
-            List<Map<String, Object>> rows = e.querySql("SELECT * FROM t_idx WHERE name = 'bob'");
-            if (rows != null && !rows.isEmpty()) {
-                throw new HarnessFailure("deleted row still hit: " + rows.size());
+        // 原生 SQL DML → executeSql 先失效对应表索引（line 267）
+        e.executeSql("UPDATE t_idx SET age = 55 WHERE name = 'carol'");
+        check("B4.executeSql UPDATE 后 Lambda 按新值 age=55 命中", () -> {
+            AccUser u = e.query(AccUser.class).eq(AccUser::getAge, 55).one();
+            if (u == null || !"carol".equals(u.getName())) {
+                throw new HarnessFailure("u=" + u);
+            }
+            return "carol age=55";
+        });
+        // 链式 delete → evaluateDelete 失效，旧索引指向被替换集合会产生悬空命中
+        int removed = e.delete(AccUser.class).eq(AccUser::getName, "bob").remove();
+        check("B5.Lambda delete 受影响=1 且按已删值查询为空", () -> {
+            if (removed != 1) {
+                throw new HarnessFailure("removed=" + removed);
+            }
+            List<AccUser> list = e.query(AccUser.class).eq(AccUser::getName, "bob").list();
+            if (list != null && !list.isEmpty()) {
+                throw new HarnessFailure("bob still hit=" + list.size());
             }
             return "bob gone";
+        });
+        // 原生 SQL DELETE 同样先失效（executeSql line 267）
+        e.executeSql("DELETE FROM t_idx WHERE name = 'alice'");
+        check("B6.executeSql DELETE 后 Lambda 按已删值查询为空", () -> {
+            List<AccUser> list = e.query(AccUser.class).eq(AccUser::getName, "alice").list();
+            if (list != null && !list.isEmpty()) {
+                throw new HarnessFailure("alice still hit=" + list.size());
+            }
+            return "alice gone";
         });
     }
 
@@ -364,13 +395,30 @@ public final class EngineThroughput {
         check("D3.并发写入无重复 id", () -> {
             java.util.Set<Integer> ids = new java.util.HashSet<>();
             for (Map<String, Object> row : e.querySql("SELECT id FROM t_cc")) {
-                int id = ((Number) row.get("id")).intValue();
+                // H2 列标签默认大写，键名大小写不敏感取列，避免 harness 依赖数据库大小写
+                int id = ((Number) rowValue(row, "id")).intValue();
                 if (!ids.add(id)) {
                     throw new HarnessFailure("duplicate id=" + id);
                 }
             }
             return "distinct=" + ids.size();
         });
+    }
+
+    static Object rowValue(Map<String, Object> row, String key) {
+        if (row == null) {
+            return null;
+        }
+        Object v = row.get(key);
+        if (v != null) {
+            return v;
+        }
+        for (Map.Entry<String, Object> en : row.entrySet()) {
+            if (key.equalsIgnoreCase(en.getKey())) {
+                return en.getValue();
+            }
+        }
+        return null;
     }
 
     static void check(String name, Probe probe) {

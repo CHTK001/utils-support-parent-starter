@@ -512,7 +512,9 @@ public class InMemoryEngine extends AbstractEngine {
         invalidateIndexes(getTableName(wrapper.getEntityClass()));
         Predicate<T> predicate = buildPredicate(wrapper.getConditions());
         int before = data.size();
-        List<T> remaining = data.stream().filter(predicate.negate()).toList();
+        // 必须包成可变列表：toList() 产出不可变列表，替换进 dataStores 后，
+        // 任何结构性写操作（executeSql DELETE 的 removeIf、内存通道 insert 的 add）都会抛 UOE。
+        List<T> remaining = Wraps.list(data.stream().filter(predicate.negate()).toList());
         int removed = before - remaining.size();
         if (removed > 0) {
             for (Map.Entry<String, List<?>> entry : dataStores.entrySet()) {

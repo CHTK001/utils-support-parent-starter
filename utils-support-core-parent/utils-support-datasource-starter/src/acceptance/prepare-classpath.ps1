@@ -13,7 +13,10 @@ $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $WorkDir
 
 Write-Host '[1/2] resolving classpath from pom.xml'
-& mvn -q -f (Join-Path $WorkDir 'pom.xml') dependency:build-classpath "-Dmdep.outputFile=$(Join-Path $WorkDir 'cp.txt')"
+# Known gotcha (same as parent/monitor builds): transitive ngrok-java-native uses
+# ${os.detected.classifier} in its coordinates; without -D... the literal placeholder
+# is resolved against central and hangs offline. Offline + explicit classifier.
+& mvn -o -q -f (Join-Path $WorkDir 'pom.xml') dependency:build-classpath "-Dos.detected.classifier=windows-x86_64" "-Dmdep.outputFile=$(Join-Path $WorkDir 'cp.txt')"
 if ($LASTEXITCODE -ne 0) { throw "mvn dependency:build-classpath failed: $LASTEXITCODE" }
 
 $cpFile = Join-Path $WorkDir 'cp.txt'
