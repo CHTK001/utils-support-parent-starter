@@ -48,9 +48,16 @@ public class DefaultScatter implements Scatter {
         discovery.registerSelf();
         discovery.start();
         // 等待第一轮 discoveryRound 完成，确保本节点信息已写入本地 hash 表，
-        // 其他节点连接时能立即查到本节点的服务条目
-        // [P3C A20 豁免]
-        Thread.sleep(Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L));
+        // 其他节点连接时能立即查到本节点的服务条目。
+        // 预热时长可配（warmupMillis）：默认 -1 保持历史行为 min(interval, 500ms)，0 表示不等待
+        long warmupMillis = setting.getWarmupMillis();
+        if (warmupMillis < 0) {
+            warmupMillis = Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L);
+        }
+        if (warmupMillis > 0) {
+            // [P3C A20 豁免]
+            Thread.sleep(warmupMillis);
+        }
 
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",
                 setting.getNodeId(), setting.getProtocol(),
@@ -61,6 +68,15 @@ public class DefaultScatter implements Scatter {
 
     @Override
     public void stop() throws Exception {
+        // 优雅离网：先向对端广播 LEAVE（在关闭 nodeServer 前，尽力而为），
+        // 使对端立即剔除本节点，无需等待心跳超限
+        if (discovery != null) {
+            try {
+                discovery.leave();
+            } catch (Exception e) {
+                log.debug("LEAVE 优雅离网通知失败（忽略，继续停机）: {}", e.getMessage());
+            }
+        }
         if (nodeServer != null) {
             nodeServer.stop();
         }

@@ -8,7 +8,8 @@ import java.nio.charset.StandardCharsets;
  * scatter 帧编解码（最小编码，见 {@link ScatterProtocol}）。
  *
  * <p>帧布局：magic(1) type(1) requestId(4) pathLen(1) path(N) payloadLen(4) payload(M)。
- * 支持 REQ/PUSH/RESP/ACK/ELEC/DISC 六种类型；payload 为业务序列化数据（JSON 字节）。</p>
+ * 支持 REQ/PUSH/RESP/ACK/ELEC/DISC/LEAVE 七种类型（见 {@link ScatterProtocol} 类型常量）；
+ * payload 为业务序列化数据（JSON 字节）。</p>
  *
  * @author CH
  * @since 4.0.0.42

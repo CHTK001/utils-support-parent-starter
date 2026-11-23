@@ -117,8 +117,11 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
                 setting.getServicePath(), setting.getTimeoutMillis());
         var result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
+            syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());
             log.debug("gossip 合并: {}:{}", node.getHost(), node.getPort());
+        } else {
+            syncFailures.incrementAndGet();
         }
     }
 

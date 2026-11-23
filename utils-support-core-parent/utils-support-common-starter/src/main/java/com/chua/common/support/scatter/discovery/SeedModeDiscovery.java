@@ -40,15 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /**
-     * seed 元数据键
-     */
-    private static final String METADATA_SEED = "seed";
-    /**
-     * seed 掉线标记
-     */
-    private static final String METADATA_SEED_DOWN = "seedDown";
-
-    /**
      * 已扩散过的新节点（去重）
      */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -89,6 +80,14 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         super(setting);
     }
 
+    /**
+     * 未配置 seed 地址时本节点即网关（自身条目保留 seed=true 标记）。
+     */
+    @Override
+    protected boolean isGatewayNode() {
+        return resolveSeeds().isEmpty();
+    }
+
     @Override
     protected void doDiscoveryRound() {
         List<ScatterNode> seeds = resolveSeeds();
@@ -126,9 +125,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                 setting.getServicePath(), setting.getTimeoutMillis());
         ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, seed, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
+            syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());
             return true;
         }
+        syncFailures.incrementAndGet();
         return false;
     }
 
@@ -166,9 +167,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                 continue;
             }
             // 仅标记 seed 引导条目（metadata.seed=true）
-            if (d.getMetadata() != null && "true".equals(d.getMetadata().get(METADATA_SEED))) {
+            if (d.getMetadata() != null && "true".equals(d.getMetadata().get(METADATA_KEY_SEED))) {
                 java.util.Map<String, String> meta = Wraps.map(d.getMetadata());
-                meta.put(METADATA_SEED_DOWN, "true");
+                meta.put(METADATA_KEY_SEED_DOWN, "true");
                 Discovery copy = Discovery.builder()
                         .id(d.getId()).serverId(d.getServerId()).scatterId(d.getScatterId())
                         .protocol(d.getProtocol()).host(d.getHost()).port(d.getPort())
@@ -269,7 +270,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                 setting.getServicePath(), setting.getTimeoutMillis());
         ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
+            syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());
+        } else {
+            syncFailures.incrementAndGet();
         }
     }
 

@@ -84,11 +84,6 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     private final List<ServiceDiscoveryListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 最近一次上报的事件签名（serverId -&gt; host|port|protocol），用于过滤仅权重变化的噪声 UPDATE
-     */
-    private final Map<String, String> lastEventSignatures = new ConcurrentHashMap<>();
-
-    /**
      * 成员最近活跃时间（serverId -&gt; 毫秒时间戳，本节点视角）
      */
     private final Map<String, Long> lastSeenAtMillis = new ConcurrentHashMap<>();
@@ -414,7 +409,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
                 Discovery remote = Json.fromJson(json, Discovery.class);
                 if (remote != null && getGroupId().equals(remote.getScatterId())) {
-                    updateService(frame.getPath(), remote);
+                    // 统一走 mergeRemote：与 REQ/DISC 合并路径一致（事件触发 + 活跃时间维护）
+                    mergeRemote(List.of(remote));
                 }
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
