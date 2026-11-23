@@ -1316,6 +1316,54 @@ tcpProxy.start();
 | `network.voice` | 语音通道 |
 | `network.bench` | `HttpBench` HTTP 压测 |
 
+本模块未包含、但常与网络能力搭配使用的兄弟模块：
+
+| 能力 | 所在模块 | 入口 |
+| --- | --- | --- |
+| SMB 文件共享 | `utils-support-network-parent/utils-support-smb-starter` | `SmbClient` / `SmbServer` / `SmbFileStorage` |
+| SSH / SFTP / 隧道 | `utils-support-network-parent/utils-support-ssh-starter` | `SshClient` / `SftpClient` / `SshServer` / `SshTunnel` |
+| 操作系统系统日志采集 | `utils-support-filesystem-parent/utils-support-syslog-starter` | `SystemLogProvider`（journald / Windows Event Log / macOS unified log；区别于 7.8 的网络 Syslog 协议） |
+
+### 7.12 域名解析与 DDNS（`network.dns`）
+
+`DnsProvider` 是 DNS **记录管理**契约（SPI，按服务商路由：`cloudflare` / `dnspod` / `aliyun` 等），用于解析记录的增、删、查——典型场景是 **DDNS**（出口 IP 变化后自动更新 A 记录）与 **ACME DNS-01 验证**（给 `_acme-challenge` 挂 TXT 记录）。它不负责「域名 → IP」的递归解析，也不是 DNS 服务端。
+
+```java
+import com.chua.common.support.network.dns.DnsConfig;
+import com.chua.common.support.network.dns.DnsProvider;
+import com.chua.common.support.network.dns.DnsRecord;
+import java.util.List;
+
+DnsProvider dns = DnsProvider.create("cloudflare")
+        .config(DnsConfig.builder()
+                .token("xxx")
+                .zoneName("example.com")
+                .build());
+
+// DDNS：把最新出口 IP 写入 A 记录
+dns.addRecord(DnsRecord.builder()
+        .type("A")
+        .name("home.example.com")
+        .content("203.0.113.7")
+        .ttl(120)
+        .build());
+
+// 查询与删除
+List<DnsRecord> records = dns.listRecords("home.example.com", "A");
+dns.removeRecord(DnsRecord.builder().type("A").name("home.example.com").build());
+```
+
+Java 侧做「域名解析」的常见方式（按需选择）：
+
+| 方式 | 适用 | 说明 |
+| --- | --- | --- |
+| `InetAddress.getByName(...)` | 一般业务 | JDK 内置，走操作系统解析器（hosts → 系统 DNS），结果有 JVM 内缓存（`networkaddress.cache.ttl`，默认 30s），不能指定 DNS 服务器 |
+| JNDI DNS（`com.sun.jndi.dns.DnsContextFactory`） | 指定服务器查询 | JDK 自带，可对任意 DNS 服务器发 A / MX / TXT 等查询 |
+| dnsjava | 功能最全 | 可指定服务器、支持全部记录类型、动态更新（RFC 2136）、区域传送；在其上也可搭权威 DNS 服务端 |
+| Netty `netty-codec-dns` | 高性能 / 异步 | 协议编解码 + `DnsNameResolver`，可做 DNS 代理、DNS over TLS / HTTPS |
+
+> 需要内嵌 DNS 服务端时选 dnsjava 或 Netty；完整递归解析建议直接部署 CoreDNS / BIND / PowerDNS。本模块的 `network.dns` 只管「记录管理（DDNS）」。
+
 ---
 
 ## 8. 任务与流程
