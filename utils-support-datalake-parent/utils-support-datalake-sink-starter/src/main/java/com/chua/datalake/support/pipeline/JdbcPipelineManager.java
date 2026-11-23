@@ -48,11 +48,15 @@ public class JdbcPipelineManager extends DefaultPipelineManager {
     private static final String TABLE = "sys_datalake_pipeline";
 
     /**
-     * 建表语句：id 为主键，dsl 存原始 JSON（CLOB 在 MySQL/H2 下均等价于 TEXT 系）
+     * 建表语句：id 为主键，dsl 存原始 JSON。
+     *
+     * <p>列类型必须用 TEXT：MySQL 没有 CLOB 类型（2026-11-23 194 实证：
+     * {@code dsl CLOB} 触发 SQLSyntaxErrorException，建表失败降级纯内存模式）；
+     * TEXT 在 MySQL 与 H2 下均可用。</p>
      */
     private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS " + TABLE + " ("
             + "id VARCHAR(128) PRIMARY KEY, "
-            + "dsl CLOB, "
+            + "dsl TEXT, "
             + "gmt_create DATETIME, "
             + "gmt_modified DATETIME)";
 
