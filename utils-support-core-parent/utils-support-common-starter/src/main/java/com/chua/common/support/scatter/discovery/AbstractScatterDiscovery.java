@@ -862,11 +862,14 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 解析发现模式标识：seed / auto-udp / auto-tcp。
+     * 解析发现模式标识：seed / dns / auto-udp / auto-tcp。
      */
     private String resolveMode() {
         if (this instanceof SeedModeDiscovery) {
             return "seed";
+        }
+        if (this instanceof DnsScatterDiscovery) {
+            return "dns";
         }
         if (this instanceof UdpBroadcastDiscovery) {
             return "auto-udp";

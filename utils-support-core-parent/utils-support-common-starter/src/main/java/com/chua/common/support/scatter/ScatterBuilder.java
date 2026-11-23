@@ -1,10 +1,13 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.scatter;
 
+import com.chua.common.support.network.dns.DnsProvider;
+import com.chua.common.support.network.dns.DnsServerProvider;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.tcp.TcpClient;
 import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.scatter.discovery.AbstractScatterDiscovery;
+import com.chua.common.support.scatter.discovery.DnsScatterDiscovery;
 import com.chua.common.support.scatter.discovery.RouteModeDiscovery;
 import com.chua.common.support.scatter.discovery.SeedModeDiscovery;
 import com.chua.common.support.scatter.discovery.UdpBroadcastDiscovery;
@@ -280,6 +283,66 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
+     * DNS 服务发现：设置 zone 域名（如 "scatter.local"），非空即启用 DNS 发现。
+     * @param zone zone 域名，不允许为 null
+     * @return B 对象
+     */
+    public B dnsZone(String zone) {
+        setting.setDnsZone(zone);
+        return (B) this;
+    }
+
+    /**
+     * DNS 服务发现：解析器定向查询的 DNS 服务器地址（host 或 host:port）。
+     * @param address DNS 服务器地址，不允许为 null
+     * @return B 对象
+     */
+    public B dnsServerAddress(String address) {
+        setting.setDnsServerAddress(address);
+        return (B) this;
+    }
+
+    /**
+     * DNS 服务发现：解析器 SPI 名（jndi/dnsjava/netty-dns/doh 等），默认 jndi。
+     * @param resolverName 解析器名，不允许为 null
+     * @return B 对象
+     */
+    public B dnsResolverName(String resolverName) {
+        setting.setDnsResolverName(resolverName);
+        return (B) this;
+    }
+
+    /**
+     * DNS 服务发现：发布自身记录的 TTL（秒）。
+     * @param ttl TTL 秒数
+     * @return B 对象
+     */
+    public B dnsTtl(int ttl) {
+        setting.setDnsTtl(ttl);
+        return (B) this;
+    }
+
+    /**
+     * DNS 服务发现：注入本地内嵌 DNS 服务端（记录直写内存表，优先于云 DNS）。
+     * @param dnsServer 内嵌 DNS 服务端，不允许为 null
+     * @return B 对象
+     */
+    public B dnsServer(DnsServerProvider dnsServer) {
+        setting.setDnsServerProvider(dnsServer);
+        return (B) this;
+    }
+
+    /**
+     * DNS 服务发现：注入云 DNS 记录管理器（启动时登记一次自身记录）。
+     * @param dnsProvider 云 DNS 提供者，不允许为 null
+     * @return B 对象
+     */
+    public B dnsPublisher(DnsProvider dnsProvider) {
+        setting.setDnsProvider(dnsProvider);
+        return (B) this;
+    }
+
+    /**
      * 构建节点服务端。
      *
      * @param handler 帧处理器（discovery）
@@ -321,7 +384,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 构建发现服务（按发现方式选择：seed 引导 / udp 多播广播自动发现 / tcp 网段自动发现）。
+     * 构建发现服务（按发现方式选择：seed 引导 / DNS 服务发现 / udp 多播广播自动发现 / tcp 网段自动发现）。
      *
      * @return 发现服务
      */
@@ -330,6 +393,11 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         if (setting.isSeedMode()) {
             // seed 引导模式
             discovery = new SeedModeDiscovery(setting);
+        } else if (setting.isDnsMode()) {
+            // DNS 服务发现：SRV/TXT/A 记录承载节点表（跨网段/跨机房场景）
+            discovery = new DnsScatterDiscovery(setting)
+                    .dnsServer(setting.getDnsServerProvider())
+                    .dnsPublisher(setting.getDnsProvider());
         } else if (setting.isAutoDiscovery()
                 && "udp".equalsIgnoreCase(setting.getProtocol())) {
             // udp 自动发现：多播 + 广播宣告

@@ -1014,16 +1014,19 @@ server.start();
 ### 7.4 发现与对等网格（`network.discovery`、`scatter`）
 
 - `ServiceDiscovery` SPI：`peermesh` 实现，自带节点表与故障剔除。
-- `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输。**发现方式二选一：自动发现 / seed 引导**。
+- `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输。**发现方式三选一：自动发现 / seed 引导 / DNS 服务发现**。
 
-#### 发现方式二选一（`ScatterSetting`）
+#### 发现方式三选一（`ScatterSetting`）
 
 | 发现方式 | 触发条件 | 行为 |
 |---|---|---|
 | **自动发现**（默认） | 未配置 `seeds` 且 `autoDiscovery=true` | `tcp`（默认协议）：按网段 gossip 扫描，`subnet` 为空时**默认本机同网段**（自动推断本机非回环 IPv4 所在网段）；`udp`：**多播 + 广播**宣告（`multicastGroup`，默认 `239.255.0.1`） |
 | **seed 引导** | `seeds` 非空（优先于自动发现） | 仅与 seed 同步 hash、seed 扩散、最小 `nodeId` 选举；seed 全失联时自动降级 gossip + 选举 |
+| **DNS 服务发现** | `dnsZone` 非空（优先于自动发现，次于 seed） | 节点表承载在 DNS SRV/TXT/A 记录：发布走内嵌 `DnsServerProvider`（每轮刷新）或云 `DnsProvider`（启动登记一次），解析走 `DnsResolverProvider`；适合跨网段/跨机房、多播与网段扫描不可达的场景 |
 
 ```java
+import com.chua.common.support.network.dns.DnsConfig;
+import com.chua.common.support.network.dns.DnsServerProvider;
 import com.chua.common.support.scatter.Scatter;
 import com.chua.common.support.scatter.ScatterBuilder;
 
@@ -1052,6 +1055,23 @@ try (Scatter scatter = ScatterBuilder.tcp()
         .groupId("order")
         .port(19001)
         .seeds("192.168.1.10:19001")
+        .build()) {
+    scatter.start();
+}
+
+// ④ DNS 服务发现：内嵌 DNS 服务端承载节点表（云 DNS 场景改用 .dnsPublisher(provider)）
+DnsServerProvider dns = DnsServerProvider.create("simple")
+        .port(5353)
+        .config(DnsConfig.builder().zoneName("scatter.local").build());
+dns.start();
+
+try (Scatter scatter = ScatterBuilder.udp()
+        .nodeId("node-4")
+        .groupId("order")
+        .port(19001)
+        .dnsZone("scatter.local")        // 非空即启用 DNS 发现（SRV 名 _scatter-order._tcp.scatter.local）
+        .dnsServerAddress("127.0.0.1:5353")
+        .dnsServer(dns)                  // 记录直写内嵌服务端；每轮发现自动刷新自身记录
         .build()) {
     scatter.start();
 }
@@ -1088,6 +1108,10 @@ try (Scatter scatter = ScatterBuilder.tcp()
 | `gossipTargetCount` | 4 | 降级 gossip 每轮交换的目标节点数 |
 | `timeoutMillis` | 2000 | 单次同步/心跳超时 |
 | `persistenceEnabled` | true | 成员表本地持久化，重启后免重新发现 |
+| `dnsZone` | 空 | DNS 服务发现 zone（如 `scatter.local`），非空启用 DNS 发现；SRV 名 `_scatter-<groupId>._tcp.<zone>` |
+| `dnsServerAddress` | 空 | 解析器定向查询的 DNS 服务器（`host` 或 `host:port`），空走系统解析链路 |
+| `dnsResolverName` | jndi | 解析器 SPI 名（内置 `jndi`，可扩展 dnsjava/netty-dns/doh） |
+| `dnsTtl` | 30 | 发布自身 SRV/A/TXT 记录的 TTL（秒） |
 
 ### 7.5 下载（`network.download`）
 
@@ -1304,7 +1328,8 @@ tcpProxy.start();
 | 子包 | 能力 |
 | --- | --- |
 | `network.sse` | `SseClient` / `JdkSseClient`、`SseConnection`、`SseEvent`、`SseListener`，SSE 长连接与事件解析；支持自动重连：指数退避（3s 起步、上限 30s）、服务端 `retry:` 字段优先（上限 60s）、`Last-Event-ID` 断点续传、仅 `5xx`/`429` 触发重连、`SseListener.onReconnect(attempt, delayMillis)` 回调 |
-| `network.dns` | `DnsProvider`、`DnsConfig`、`DnsRecord`（阿里/腾讯/Cloudflare 等由 starter 实现） |
+| `network.dns` | DNS 三件套：`DnsProvider`（记录管理/DDNS，阿里/腾讯/Cloudflare 等由 starter 实现）+ `DnsResolverProvider`（解析客户端，内置 `jndi`）+ `DnsServerProvider`（内嵌服务端，内置 `simple`），见 7.12 |
+| `network.ntp` | `NtpServer` / `NtpClient`：SNTP 时间同步（RFC 2030），见 7.13 |
 | `network.ip` | `IpLocation`、`IpPosition`、`GeoCity`、`GeoSetting`（IP 归属地） |
 | `network.ssl` | `JdkCertificateProvider`、`TlsKeyLogDecoder`（TLS 解密调试） |
 | `network.syslog` | Syslog 服务端/客户端：UDP/TCP 传输、RFC 5424 / RFC 3164 双格式（见 7.8） |
@@ -1324,9 +1349,13 @@ tcpProxy.start();
 | SSH / SFTP / 隧道 | `utils-support-network-parent/utils-support-ssh-starter` | `SshClient` / `SftpClient` / `SshServer` / `SshTunnel` |
 | 操作系统系统日志采集 | `utils-support-filesystem-parent/utils-support-syslog-starter` | `SystemLogProvider`（journald / Windows Event Log / macOS unified log；区别于 7.8 的网络 Syslog 协议） |
 
-### 7.12 域名解析与 DDNS（`network.dns`）
+### 7.12 DNS：记录管理、解析客户端与内嵌服务端（`network.dns`）
 
-`DnsProvider` 是 DNS **记录管理**契约（SPI，按服务商路由：`cloudflare` / `dnspod` / `aliyun` 等），用于解析记录的增、删、查——典型场景是 **DDNS**（出口 IP 变化后自动更新 A 记录）与 **ACME DNS-01 验证**（给 `_acme-challenge` 挂 TXT 记录）。它不负责「域名 → IP」的递归解析，也不是 DNS 服务端。
+`network.dns` 提供 DNS 三件套，记录模型统一为 `DnsRecord`：
+
+- **`DnsProvider`**：记录管理（SPI，按服务商路由：`cloudflare` / `dnspod` / `aliyun` 等），解析记录的增、删、查——典型场景是 **DDNS**（出口 IP 变化后自动更新 A 记录）与 **ACME DNS-01 验证**（给 `_acme-challenge` 挂 TXT 记录）；
+- **`DnsResolverProvider`**：解析客户端（SPI），把域名解析为记录集；
+- **`DnsServerProvider`**：内嵌 DNS 服务端（SPI），内存 zone 应答查询。
 
 ```java
 import com.chua.common.support.network.dns.DnsConfig;
@@ -1353,6 +1382,44 @@ List<DnsRecord> records = dns.listRecords("home.example.com", "A");
 dns.removeRecord(DnsRecord.builder().type("A").name("home.example.com").build());
 ```
 
+#### 解析客户端：`DnsResolverProvider`（SPI）
+
+面向「查询」场景：把域名解析为记录集（A/AAAA/TXT/CNAME/MX/SRV/NS/SOA/PTR），与 `DnsProvider`（记录管理）互补。内置 `jndi` 实现（JDK 自带 `com.sun.jndi.dns.DnsContextFactory`，零第三方依赖）；可按需扩展 `dnsjava` / `netty-dns` / `doh`（DNS over HTTPS）等实现。
+
+```java
+import com.chua.common.support.network.dns.DnsResolverProvider;
+
+DnsResolverProvider resolver = DnsResolverProvider.create("jndi")
+        .config(DnsConfig.builder()
+                .baseUrl("dns://223.5.5.5")   // 可选，缺省走系统解析链路
+                .timeoutMs(3000)
+                .build());
+
+List<DnsRecord> a = resolver.resolveA("example.com");               // A 记录
+List<DnsRecord> srv = resolver.resolveSrv("_scatter._tcp.example.com");
+String ip = resolver.resolveFirst("example.com", "AAAA");           // 首条内容，无记录为 null
+```
+
+#### 内嵌 DNS 服务端：`DnsServerProvider`（SPI）
+
+在 JVM 内启动一个 DNS 服务器（默认 UDP 53，`port(0)` 系统分配），内存 zone 应答 A/AAAA/TXT/CNAME/MX/NS/SOA/SRV 查询；内置 `simple` 轻量实现，零第三方依赖。记录按 `name + type + content` 去重（RRset 语义）：同名同型不同 content 共存、重复发布幂等——7.4 的 scatter 多节点共用同一 SRV 名即依赖此行为；`removeRecord(record)` 按 content 精确删单条，`removeRecord(name, type)` 删该名下该类型全部。典型用途：测试环境模拟 DNS、配合 7.4 的 scatter DNS 服务发现、本地解析实验。完整递归解析仍建议部署 CoreDNS / BIND / PowerDNS。
+
+```java
+import com.chua.common.support.network.dns.DnsServerProvider;
+
+try (DnsServerProvider server = DnsServerProvider.create("simple")
+        .port(5353)                                          // 标准 DNS 为 53，测试可用高端口
+        .config(DnsConfig.builder().zoneName("test.local").build())) {
+    server.addRecord(DnsRecord.builder().name("app.test.local").type("A")
+            .content("127.0.0.1").ttl(30).build());
+    server.addRecord(DnsRecord.builder().name("_api._tcp.test.local").type("SRV")
+            .content("0 1 8080 app.test.local").ttl(30).build());
+    server.start();
+    System.out.println("dns server port=" + server.getPort());
+    // 配合解析器定向查询：resolver.config(DnsConfig.builder().baseUrl("dns://127.0.0.1:5353").build())
+}
+```
+
 Java 侧做「域名解析」的常见方式（按需选择）：
 
 | 方式 | 适用 | 说明 |
@@ -1362,7 +1429,39 @@ Java 侧做「域名解析」的常见方式（按需选择）：
 | dnsjava | 功能最全 | 可指定服务器、支持全部记录类型、动态更新（RFC 2136）、区域传送；在其上也可搭权威 DNS 服务端 |
 | Netty `netty-codec-dns` | 高性能 / 异步 | 协议编解码 + `DnsNameResolver`，可做 DNS 代理、DNS over TLS / HTTPS |
 
-> 需要内嵌 DNS 服务端时选 dnsjava 或 Netty；完整递归解析建议直接部署 CoreDNS / BIND / PowerDNS。本模块的 `network.dns` 只管「记录管理（DDNS）」。
+> 完整递归解析建议直接部署 CoreDNS / BIND / PowerDNS；本模块 `network.dns` 覆盖「记录管理（DDNS）+ 解析客户端 + 内嵌权威服务端（轻量）」三件套。
+
+---
+
+### 7.13 时间同步：NTP（`network.ntp`）
+
+SNTP 服务端与客户端（RFC 2030，48 字节报文，手写编解码，零第三方依赖）。标准 NTP 端口为 UDP 123（绑定需相应权限），测试/受限环境可配置高端口。
+
+```java
+import com.chua.common.support.network.ntp.NtpClient;
+import com.chua.common.support.network.ntp.NtpConfig;
+import com.chua.common.support.network.ntp.NtpServer;
+
+// 服务端：标准端口 123；测试用高端口 5123，port(0) 系统分配（启动后 getBoundPort() 取实际值）
+NtpServer server = new NtpServer(NtpConfig.builder()
+        .port(5123)
+        .stratum(2)            // 层级：1=主时钟（GPS/原子钟），2 起为次级同步源
+        .referenceId("LOCL")   // 层级 1 时的参考时钟 ASCII 助记符
+        .build());
+server.start();
+
+// 客户端：一次查询同时得到时钟偏移与往返时延
+try (NtpClient client = new NtpClient(NtpConfig.builder().timeoutMillis(3000).build())) {
+    NtpClient.NtpResult r = client.query("127.0.0.1", 5123);
+    System.out.println("offset=" + r.getOffsetMillis() + "ms"    // 本机时钟相对服务端偏移
+            + ", rtt=" + r.getDelayMillis() + "ms"               // 网络往返时延
+            + ", stratum=" + r.getStratum());
+} finally {
+    server.close();
+}
+```
+
+偏移/时延按 RFC 2030 四时刻计算：`offset = ((t1-t0)+(t2-t3))/2`，`delay = (t3-t0)-(t2-t1)`。服务端只做应答（originate=请求 transmit，receive/transmit 用服务端时钟），不主动向上游同步。
 
 ---
 
@@ -2011,6 +2110,8 @@ String text = resolver.resolvePlaceholders("${app.name} 启动于 ${app.port:808
 | `network.server.resolver.HandlerMethodArgumentResolver` | `default` |
 | `network.annotations.ListenerParser` | `javax`、`custom`、`objectcontext` |
 | `network.discovery.ServiceDiscovery` | `peermesh` |
+| `network.dns.DnsResolverProvider` | `jndi` |
+| `network.dns.DnsServerProvider` | `simple` |
 | `network.download.DownloadService` | `default`、`aria2` |
 | `network.download.extractor.Extractor` | `zip`、`tar`、`tar.gz`、`tgz`、`gz` |
 | `network.rpc.RpcClient` / `RpcServer` | `native` |

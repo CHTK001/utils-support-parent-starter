@@ -2,6 +2,8 @@
 package com.chua.common.support.scatter;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.network.dns.DnsProvider;
+import com.chua.common.support.network.dns.DnsServerProvider;
 import com.chua.common.support.network.tcp.TcpClient;
 import com.chua.common.support.network.tcp.TcpServer;
 import lombok.Data;
@@ -145,12 +147,48 @@ public class ScatterSetting {
     private long warmupMillis = -1L;
 
     /**
+     * DNS 服务发现模式：zone 域名（如 "scatter.local"），非空即启用 DNS 发现
+     * （SRV/TXT/A 记录承载节点表，优先级高于 udp/tcp 自动发现）。
+     */
+    private String dnsZone;
+    /**
+     * DNS 服务器地址（host 或 host:port，如 "127.0.0.1:5353"），供解析器定向查询；
+     * 空则走系统默认解析链路。
+     */
+    private String dnsServerAddress;
+    /**
+     * DNS 解析器 SPI 名（如 "jndi"；可扩展 dnsjava/netty-dns/doh），默认 jndi
+     */
+    private String dnsResolverName = "jndi";
+    /**
+     * DNS 发现模式下发布自身记录的 TTL（秒）
+     */
+    private int dnsTtl = 30;
+    /**
+     * 本地内嵌 DNS 服务端（DNS 发现记录发布通道一：直写内存表，优先于 dnsProvider）
+     */
+    private transient DnsServerProvider dnsServerProvider;
+    /**
+     * 云 DNS 提供者（DNS 发现记录发布通道二：记录管理 API，启动时登记一次）
+     */
+    private transient DnsProvider dnsProvider;
+
+    /**
      * 是否 seed 引导模式（seeds 非空；与自动发现二选一，seeds 优先）。
      *
      * @return 是否成功（true 表示成功）
      */
     public boolean isSeedMode() {
         return seeds != null && !seeds.isEmpty();
+    }
+
+    /**
+     * 是否 DNS 服务发现模式（dnsZone 非空；优先级高于 udp/tcp 自动发现）。
+     *
+     * @return 是否 DNS 模式（true 表示成功）
+     */
+    public boolean isDnsMode() {
+        return StringUtils.isNotBlank(dnsZone);
     }
 
     /**
