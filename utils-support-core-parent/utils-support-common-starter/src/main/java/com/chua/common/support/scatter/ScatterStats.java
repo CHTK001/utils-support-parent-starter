@@ -39,7 +39,7 @@ public class ScatterStats implements Serializable {
      */
     private String protocol;
     /**
-     * 发现模式：seed / auto-tcp / auto-udp / standalone
+     * 发现模式：seed / auto-tcp / auto-udp
      */
     private String mode;
     /**
