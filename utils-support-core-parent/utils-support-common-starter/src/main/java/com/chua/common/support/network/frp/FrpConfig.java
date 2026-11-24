@@ -79,10 +79,14 @@ public class FrpConfig {
     /**
      * 获取令牌。
      *
-     * @return 结果字符串
+     * <p>未显式配置（null 或空白）时兜底返回 {@link #DEFAULT_TOKEN}：FRP 认证双方都
+     * 需要非空令牌计算 HMAC 签名，服务端拿到 null 令牌会在签名处 NPE 并把认证连接
+     * 静默关闭（客户端缺省即 {@link #DEFAULT_TOKEN}，两侧口径保持一致）。</p>
+     *
+     * @return 令牌（永不为 null 或空白）
      */
     public String getToken() {
-        return token;
+        return (token == null || token.isBlank()) ? DEFAULT_TOKEN : token;
     }
 
     /**
