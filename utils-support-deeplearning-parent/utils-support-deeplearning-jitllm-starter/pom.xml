@@ -9,19 +9,32 @@
         <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>utils-support-deeplearning-gpu-llama3-starter</artifactId>
-    <name>Utils Support Deep Learning GPU Llama3 Starter</name>
-    <description>GPU 加速的 Llama 3 推理引擎模块：利用 CUDA/GPU 进行 LLM 文本生成、对话</description>
+    <artifactId>utils-support-deeplearning-jitllm-starter</artifactId>
+    <name>Utils Support Deep Learning JitLLM Starter</name>
+    <description>jitLLM GPU 大模型推理集成：基于 beehive-lab jitllm（TornadoVM GPU 加速）加载 GGUF 模型，提供本地 LLM 对话、流式输出与用量统计（SPI provider="jitllm"）</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
         </dependency>
+        <!-- jitllm：GGUF 模型在 JVM 内的 GPU 推理引擎， shaded fat jar；
+             jdk22plus 变体适配本项目 Java 25，运行需 TornadoVM 原生库与 GPU/后端环境 -->
+        <dependency>
+            <groupId>io.github.beehive-lab</groupId>
+            <artifactId>jitllm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!-- deeplearning 契约：AbstractLocalChatClient / ModelRegistry / ITranslator（原 gpu-llama3 能力迁入） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- llama.cpp 绑定：GGUF 进程内推理（原 gpu-llama3 能力迁入），需 CUDA/GPU 环境 -->
         <dependency>
             <groupId>de.kherud</groupId>
             <artifactId>llama</artifactId>

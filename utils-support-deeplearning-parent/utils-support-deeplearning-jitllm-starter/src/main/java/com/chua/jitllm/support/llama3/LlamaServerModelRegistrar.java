@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.gpu.llama3;
+package com.chua.jitllm.support.llama3;
 
 import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
@@ -35,7 +35,7 @@ public class LlamaServerModelRegistrar implements ModelRegistrar {
         // 推荐采样参数（GGUF 元数据）：temperature 0.1 / top_k 50 / repetition_penalty 1.1
         String lfm3MirrorUrl = "https://hf-mirror.com/LiquidAI/LFM3-1.7B-GGUF/resolve/main/LFM3-1.7B-Q4_K_M.gguf";
         String lfm3SourceUrl = "https://huggingface.co/LiquidAI/LFM3-1.7B-GGUF/resolve/main/LFM3-1.7B-Q4_K_M.gguf";
-        reg("lfm3-1.7b", "com.chua.deeplearning.support.gpu.llama3.translator.LlamaServerChatTranslator",
+        reg("lfm3-1.7b", "com.chua.jitllm.support.llama3.translator.LlamaServerChatTranslator",
                 String.class, String.class, Object.class,
                 "../llama3/LFM3-1.7B-Q4_K_M.gguf",
                 lfm3MirrorUrl, java.util.List.of(lfm3MirrorUrl, lfm3SourceUrl), false,

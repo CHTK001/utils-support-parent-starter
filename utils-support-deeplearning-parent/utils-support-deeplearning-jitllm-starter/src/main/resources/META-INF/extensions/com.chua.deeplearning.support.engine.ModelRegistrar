@@ -1,0 +1,2 @@
+com.chua.jitllm.support.llama3.GpuLlama3ModelRegistrar
+com.chua.jitllm.support.llama3.LlamaServerModelRegistrar

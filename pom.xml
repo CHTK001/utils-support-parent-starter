@@ -193,6 +193,8 @@
         <parquet.avro.version>1.18.2</parquet.avro.version>
         <cuvs.version>24.10.0</cuvs.version>
         <ollama4j.version>1.1.7</ollama4j.version>
+        <!-- jitllm：beehive-lab GPU LLM 推理引擎（TornadoVM 加速），jdk22plus 变体适配本项目 Java 25 -->
+        <jitllm.version>3.0.0-jdk22plus</jitllm.version>
         <xk.time.version>3.2.4</xk.time.version>
     </properties>
     <dependencies>
@@ -558,6 +560,12 @@
                 <groupId>io.github.ollama4j</groupId>
                 <artifactId>ollama4j</artifactId>
                 <version>${ollama4j.version}</version>
+            </dependency>
+            <!-- jitllm：beehive-lab GPU LLM 推理引擎（GGUF，TornadoVM GPU 加速）， shaded fat jar -->
+            <dependency>
+                <groupId>io.github.beehive-lab</groupId>
+                <artifactId>jitllm</artifactId>
+                <version>${jitllm.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nanohttpd</groupId>

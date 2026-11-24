@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.gpu.llama3.translator;
+package com.chua.jitllm.support.llama3.translator;
 
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.deeplearning.support.engine.DetectionConfigurable;
@@ -25,7 +25,7 @@ import java.util.Map;
  * <p>与 {@link Llama3ChatTranslator}（de.kherud JNI 进程内加载 GGUF）不同，本翻译器
  * 不在 JVM 内加载模型，而是调用外部 {@code llama-server}（llama.cpp ≥ v0.8.0/b11960）
  * 的 OpenAI 兼容接口 {@code POST /v1/chat/completions}。chat template 由 llama-server
- * 按 GGUF 元数据自动应用，本类只负责请求转发、多轮消息透传（{@link ConversationTranslator}）、采样参数注入与 {@code discussion}/{@code StandardError} 思考段剥离。</p>
+ * 按 GGUF 元数据自动应用，本类只负责请求转发、多轮消息透传（{@link ConversationTranslator}）、采样参数注入与 {@code &lt;think&gt;}/{@code &lt;/think&gt;} 思考段剥离。</p>
  *
  * <p>适用于 llama.cpp 内置绑定版本过旧、无法进程内加载新架构模型（如 LFM3）的场景。</p>
  *
@@ -72,11 +72,11 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
     /**
      * LFM3 等 qwen3 风格模型的思考开标记
      */
-    private static final String THINK_OPEN = "思考";
+    private static final String THINK_OPEN = String.valueOf((char) 60) + "think" + (char) 62;
     /**
      * 思考闭标记
      */
-    private static final String THINK_CLOSE = " StandardError";
+    private static final String THINK_CLOSE = String.valueOf((char) 60) + "/think" + (char) 62;
     /**
      * JSON
      */
@@ -315,7 +315,7 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
     /**
      * 剥离 qwen3 风格思考段。
      *
-     * <p>成对 {@code 思考}...{@code StandardError} 直接删除；仅剩未闭合开标记时保留其后内容
+     * <p>成对 {@code &lt;think&gt;}...{@code &lt;/think&gt;} 直接删除；仅剩未闭合开标记时保留其后内容
      * （其后为空则回退保留其前内容）。</p>
      *
      * @param text 原始输出
@@ -325,7 +325,8 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
         if (text == null || text.isEmpty()) {
             return "";
         }
-        String out = text.replaceAll("(?s)思考.*? StandardError", "");
+        String out = text.replaceAll("(?s)" + java.util.regex.Pattern.quote(THINK_OPEN)
+                + ".*?" + java.util.regex.Pattern.quote(THINK_CLOSE), "");
         int open = out.indexOf(THINK_OPEN);
         if (open >= 0) {
             String before = out.substring(0, open);

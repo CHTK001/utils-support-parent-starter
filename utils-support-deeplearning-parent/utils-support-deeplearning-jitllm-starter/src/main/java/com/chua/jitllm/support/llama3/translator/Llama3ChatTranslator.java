@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.gpu.llama3.translator;
+package com.chua.jitllm.support.llama3.translator;
 
 import com.chua.deeplearning.support.engine.DetectionConfigurable;
 import com.chua.deeplearning.support.engine.DeviceSelector;
@@ -219,7 +219,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
                     .setTemperature(temp)
                     .setTopK(topk)
                     .setNPredict(npredict);
-            return generateWithLimit(inferParams);
+            return generateWithLimit(inferParams, npredict);
         } catch (Exception e) {
             log.warn("[Llama3-GPU:{}] 推理失败: {}", modelId, e.getMessage(), e);
             return "";
@@ -260,14 +260,15 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /**
      * 逐 令牌 生成，遇结束符或达到上限提前终止。
      * @param parameters 参数
+     * @param maxTokens 本次生成 token 上限（已解析默认值，避免拆箱空指针）
      * @return generatewith限制的结果
      */
-    private String generateWithLimit(InferenceParameters parameters) {
+    private String generateWithLimit(InferenceParameters parameters, int maxTokens) {
         var sb = new StringBuilder();
         LlamaIterator it = model.generate(parameters).iterator();
         int tokens = 0;
         try {
-                while (it.hasNext() && tokens < nPredict) {
+                while (it.hasNext() && tokens < maxTokens) {
                 LlamaOutput out = it.next();
                 if (out == null || out.text == null) {
                     break;
