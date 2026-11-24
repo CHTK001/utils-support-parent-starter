@@ -3,25 +3,44 @@ package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.agent.Agent;
+import com.chua.common.support.ai.agent.AgentBudget;
+import com.chua.common.support.ai.agent.AgentBudgetTracker;
 import com.chua.common.support.ai.agent.AgentCompressionConfig;
+import com.chua.common.support.ai.agent.AgentCancellationToken;
 import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentEvent;
+import com.chua.common.support.ai.agent.AgentEvalContext;
+import com.chua.common.support.ai.agent.AgentEvalHook;
+import com.chua.common.support.ai.agent.AgentEvalRecord;
 import com.chua.common.support.ai.agent.AgentHookEvent;
 import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
+import com.chua.common.support.ai.agent.AgentOrchestrator;
+import com.chua.common.support.ai.agent.AgentPlan;
+import com.chua.common.support.ai.agent.AgentPlanConfirmation;
 import com.chua.common.support.ai.agent.AgentPlanHook;
 import com.chua.common.support.ai.agent.AgentQuestion;
 import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
+import com.chua.common.support.ai.agent.AgentRiskAdjudicator;
+import com.chua.common.support.ai.agent.AgentRiskDecision;
+import com.chua.common.support.ai.agent.AgentRiskRequest;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
-import com.chua.common.support.ai.agent.AgentTrace;
+import com.chua.common.support.ai.agent.AgentSuspendState;
+import com.chua.common.support.ai.agent.AgentSuspendStore;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 import com.chua.common.support.ai.agent.AgentTool;
+import com.chua.common.support.ai.agent.AgentToolSafetyPolicy;
+import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
+import com.chua.common.support.ai.agent.DecisionsAgentRiskAdjudicator;
 import com.chua.common.support.ai.agent.ImageDefinition;
+import com.chua.common.support.ai.agent.SimpleAgentBudgetTracker;
+import com.chua.common.support.ai.agent.SimpleAgentOrchestrator;
+import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.mcp.McpManager;
@@ -246,7 +265,208 @@ public class AgentScopeAgent implements Agent {
      */
     private final List<String> registeredModelIds = Wraps.list();
 
+    /**
+     * 暂停状态存储；null 时回落到进程级默认存储（带 TTL 与条目上限）
+     */
+    private volatile AgentSuspendStore suspendStore;
+
+    /**
+     * 本次运行的资源预算；null 表示不设限
+     */
+    private volatile AgentBudget budget;
+
+    /**
+     * 外部取消令牌；null 视为永不取消
+     */
+    private volatile AgentCancellationToken cancellationToken;
+
+    /**
+     * 工具并行安全策略；null 时回落到只读默认策略
+     */
+    private volatile AgentToolSafetyPolicy toolSafetyPolicy;
+
+    /**
+     * 工具调用风险裁决器；null 时若有决策客户端则兜底为决策模型裁决
+     */
+    private volatile AgentRiskAdjudicator riskAdjudicator;
+
+    /**
+     * 计划确认器；null 表示不送审直接执行
+     */
+    private volatile AgentPlanConfirmation planConfirmation;
+
+    /**
+     * 评测 / 回放钩子；null 表示不做运行边界埋点
+     */
+    private volatile AgentEvalHook evalHook;
+
+    /**
+     * 多 Agent 编排器；null 时回落到默认编排器
+     */
+    private volatile AgentOrchestrator orchestrator;
+
     // ==================== Agent 接口覆写 ====================
+
+    // ---------- 生产化扩展：挂起存储 / 预算 / 取消 / 并行安全 / 风险裁决 / 计划确认 / 评测 / 编排 ----------
+
+    /**
+     * 设置暂停状态存储。
+     *
+     * <p>人工确认 / 结构化提问挂起时，把待恢复上下文写入该存储并携带 TTL；
+     * 恢复轮按 replyId 取回。未设置时 {@link #suspendStore()} 回落进程级默认存储。</p>
+     */
+    @Override
+    public Agent suspendStore(AgentSuspendStore suspendStore) {
+        this.suspendStore = suspendStore;
+        return this;
+    }
+
+    /**
+     * 获取暂停状态存储；未设置时回落进程级默认存储。
+     */
+    @Override
+    public AgentSuspendStore suspendStore() {
+        return this.suspendStore != null ? this.suspendStore : AgentSuspendStore.globalDefault();
+    }
+
+    /**
+     * 设置本次运行的资源预算；null 表示不设限。
+     *
+     * <p>预算在运行期由 {@link SimpleAgentBudgetTracker} 记账，任一维度超限即熔断收尾。</p>
+     */
+    @Override
+    public Agent budget(AgentBudget budget) {
+        this.budget = budget;
+        return this;
+    }
+
+    /**
+     * 获取本次运行的资源预算；未设置时返回 null（不熔断）。
+     */
+    @Override
+    public AgentBudget budget() {
+        return this.budget;
+    }
+
+    /**
+     * 设置外部取消令牌；null 视为永不取消。
+     *
+     * <p>在每轮模型调用前与流式事件边界检查，被取消后按取消语义收尾（不按异常告警）。</p>
+     */
+    @Override
+    public Agent cancellationToken(AgentCancellationToken cancellationToken) {
+        this.cancellationToken = cancellationToken;
+        return this;
+    }
+
+    /**
+     * 获取取消令牌；未设置时返回永不取消的空令牌。
+     */
+    @Override
+    public AgentCancellationToken cancellationToken() {
+        return this.cancellationToken != null ? this.cancellationToken : AgentCancellationToken.none();
+    }
+
+    /**
+     * 设置工具并行安全策略；null 表示移除（退回只读默认策略）。
+     */
+    @Override
+    public Agent toolSafetyPolicy(AgentToolSafetyPolicy toolSafetyPolicy) {
+        this.toolSafetyPolicy = toolSafetyPolicy;
+        return this;
+    }
+
+    /**
+     * 获取工具并行安全策略；未设置时回落「仅低风险只读可并行」默认策略。
+     */
+    @Override
+    public AgentToolSafetyPolicy toolSafetyPolicy() {
+        return this.toolSafetyPolicy != null
+                ? this.toolSafetyPolicy : AgentToolSafetyPolicy.readOnlyDefault();
+    }
+
+    /**
+     * 设置工具调用风险裁决器；null 表示不启用主动裁决。
+     *
+     * <p>工具执行前裁决放行 / 拒绝 / 转人工；未显式设置时，
+     * 若配置了决策客户端则兜底为 {@link DecisionsAgentRiskAdjudicator}。</p>
+     */
+    @Override
+    public Agent riskAdjudicator(AgentRiskAdjudicator riskAdjudicator) {
+        this.riskAdjudicator = riskAdjudicator;
+        return this;
+    }
+
+    /**
+     * 获取风险裁决器；未显式设置时若有决策客户端则兜底为决策模型裁决，否则返回 null。
+     */
+    @Override
+    public AgentRiskAdjudicator riskAdjudicator() {
+        if (this.riskAdjudicator != null) {
+            return this.riskAdjudicator;
+        }
+        return this.decisionsClient != null ? new DecisionsAgentRiskAdjudicator(this.decisionsClient) : null;
+    }
+
+    /**
+     * 设置计划确认器；null 表示不启用（计划直接执行）。
+     */
+    @Override
+    public Agent planConfirmation(AgentPlanConfirmation planConfirmation) {
+        this.planConfirmation = planConfirmation;
+        return this;
+    }
+
+    /**
+     * 获取计划确认器；未设置时返回 null（不送审）。
+     */
+    @Override
+    public AgentPlanConfirmation planConfirmation() {
+        return this.planConfirmation;
+    }
+
+    /**
+     * 设置评测 / 回放钩子；null 表示不启用。
+     *
+     * <p>在 {@link #run(String)} 与 {@link #runStream(String)} 边界埋点；
+     * 钩子异常只记日志，不影响主流程。</p>
+     */
+    @Override
+    public Agent evalHook(AgentEvalHook evalHook) {
+        this.evalHook = evalHook;
+        return this;
+    }
+
+    /**
+     * 获取评测 / 回放钩子；未设置时返回 null。
+     */
+    @Override
+    public AgentEvalHook evalHook() {
+        return this.evalHook;
+    }
+
+    /**
+     * 设置多 Agent 编排器；null 表示移除（退回默认编排器）。
+     */
+    @Override
+    public Agent orchestrator(AgentOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+        return this;
+    }
+
+    /**
+     * 获取多 Agent 编排器；未设置时回落默认编排器。
+     *
+     * <p>{@link #orchestrate(AgentOrchestrationRequest)} 与
+     * {@link #orchestrateStream(AgentOrchestrationRequest)} 保持接口默认实现，
+     * 经本 getter 取编排器执行。</p>
+     */
+    @Override
+    public AgentOrchestrator orchestrator() {
+        return this.orchestrator != null ? this.orchestrator : SimpleAgentOrchestrator.INSTANCE;
+    }
+
+    // ---------- 基础配置覆写 ----------
 
     /**
      * Mode
@@ -900,6 +1120,33 @@ public class AgentScopeAgent implements Agent {
         // 新的一轮：清掉上一轮的中断信号与重复计数
         loopGuard.reset();
 
+        // 预算记账：未配置预算时用不限记账器（照常累计便于观测，永不熔断）。
+        // 口径说明：同步路径拿不到流式用量事件，Token / 费用无法逐轮记账（如实不虚报），
+        // 这里只做「每轮尝试前」的熔断与取消检查；工具次数在工具风险闸门统一记账
+        // （同步 / 流式同一口径、单点计数），Token 在流式 ModelCallEnd 事件边界记账。
+        final AgentBudgetTracker tracker = budget() != null
+                ? new SimpleAgentBudgetTracker(budget()) : AgentBudgetTracker.unlimited();
+        // 评测埋点上下文：一次同步运行的最小现场
+        final AgentEvalContext evalContext = AgentEvalContext.of(plan.agentId, input)
+                .withMode("sync", defaultSessionId);
+        fireEvalStart(evalContext);
+        // 计划确认：不通过则不进入模型循环，直接带原因收尾
+        AgentResponse confirmed = confirmPlanForSync(plan);
+        if (confirmed != null) {
+            fireEvalEnd(evalContext, confirmed, tracker);
+            cleanupModelRegistrations();
+            return confirmed;
+        }
+        // 外部取消：进入重试循环前先检查一次
+        if (cancellationToken().isCancelled()) {
+            log.info("[AgentScope] 运行开始前已被外部取消: agentId={}, reason={}",
+                    plan.agentId, cancellationToken().reason());
+            AgentResponse cancelled = cancelledResponse(plan.agentId, 0);
+            fireEvalEnd(evalContext, cancelled, tracker);
+            cleanupModelRegistrations();
+            return cancelled;
+        }
+
         AgentResponse result = null;
         HarnessAgent harnessAgent = null;
 
@@ -911,12 +1158,24 @@ public class AgentScopeAgent implements Agent {
                 result = interruptedResponse(plan.agentId, attempt);
                 break;
             }
+            if (cancellationToken().isCancelled()) {
+                log.info("[AgentScope] 本轮已被外部取消，停止重试并收尾: agentId={}, reason={}",
+                        plan.agentId, cancellationToken().reason());
+                result = cancelledResponse(plan.agentId, attempt);
+                break;
+            }
+            if (tracker.isExceeded()) {
+                log.warn("[AgentScope] 预算熔断，停止重试并收尾: agentId={}, reason={}",
+                        plan.agentId, tracker.violationReason());
+                result = budgetExceededResponse(plan.agentId, attempt, tracker.violationReason());
+                break;
+            }
             attempt++;
             try {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
                         plan.primaryModelId, plan.declarations, plan.effectivePlan,
                         plan.effectivePlanMaxTask, plan.effectiveDebugHook,
-                        plan.effectivePlanHook, plan.effectiveMaxIters, null);
+                        plan.effectivePlanHook, plan.effectiveMaxIters, null, tracker);
                 // 暴露给 interrupt()：外部中断靠关闭它来打断阻塞中的 call()
                 runningHarness = harnessAgent;
 
@@ -974,7 +1233,178 @@ public class AgentScopeAgent implements Agent {
         }
 
         cleanupModelRegistrations();
+        // 评测收尾：按 metadata 是否带 error 判定成败（中断 / 取消不算失败，按实际 metadata 口径）
+        fireEvalEnd(evalContext, result, tracker);
         return result;
+    }
+
+    /**
+     * 取消收尾响应：外部取消不是错误，不打 {@code error}，标出 {@code aborted} 与取消原因
+     *
+     * @param agentId 本轮 Agent 标识
+     * @param attempt 已执行到第几次尝试
+     * @return 收尾响应（output 为空，metadata 标明 aborted 与取消原因）
+     */
+    private AgentResponse cancelledResponse(String agentId, int attempt) {
+        AgentResponse resp = AgentResponse.builder()
+                .output("")
+                .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
+                .build();
+        resp.getMetadata().put("aborted", Boolean.TRUE);
+        resp.getMetadata().put("reason", "cancelled");
+        String reason = cancellationToken().reason();
+        if (reason != null && !reason.isBlank()) {
+            resp.getMetadata().put("cancelReason", reason);
+        }
+        resp.getMetadata().put("attempts", attempt);
+        resp.getMetadata().put("agentId", agentId);
+        return resp;
+    }
+
+    /**
+     * 预算熔断收尾响应：metadata 标明 {@code budgetExceeded} 与熔断原因
+     *
+     * @param agentId 本轮 Agent 标识
+     * @param attempt 已执行到第几次尝试
+     * @param reason  熔断原因（超限维度 + 限额 + 实际值）
+     * @return 收尾响应（output 为空，metadata 标明熔断）
+     */
+    private AgentResponse budgetExceededResponse(String agentId, int attempt, String reason) {
+        AgentResponse resp = AgentResponse.builder()
+                .output("")
+                .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
+                .build();
+        resp.getMetadata().put("aborted", Boolean.TRUE);
+        resp.getMetadata().put("budgetExceeded", Boolean.TRUE);
+        resp.getMetadata().put("reason", reason != null ? reason : "budget exceeded");
+        resp.getMetadata().put("attempts", attempt);
+        resp.getMetadata().put("agentId", agentId);
+        return resp;
+    }
+
+    /**
+     * 计划送审（同步 / 流式共用的前置门）。
+     *
+     * <p>{@code planConfirmation} 未设置时直接放行（返回 null）。本层在进入模型循环前
+     * 只持有「本次要做什么」（用户请求原文），尚无逐步计划文本，故送审计划以请求原文为
+     * 摘要、步骤清单留空——审批方据此决定放行 / 修订 / 拒绝。确认器异常按「拒绝」兜底，
+     * 绝不带着未裁决的计划继续执行。</p>
+     *
+     * @param plan 运行计划
+     * @return 放行时返回 null；否则返回审批结论（REJECT / REVISE 由调用方收尾）
+     */
+    private AgentPlanConfirmation.Outcome reviewPlan(RunPlan plan) {
+        AgentPlanConfirmation confirmation = planConfirmation();
+        if (confirmation == null) {
+            return null;
+        }
+        String request = plan.userMsg != null ? plan.userMsg.getTextContent() : "";
+        AgentPlan agentPlan = AgentPlan.of(request, Wraps.list());
+        try {
+            return confirmation.confirm(agentPlan);
+        } catch (Exception e) {
+            // 确认器异常按「拒绝」兜底：绝不带着未裁决的计划继续执行
+            log.warn("[AgentScope] 计划确认器异常，按拒绝收尾: agentId={}", plan.agentId, e);
+            return AgentPlanConfirmation.Outcome.reject(
+                    "计划确认器异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 同步运行前的计划送审收尾。
+     *
+     * <p>送审结论为拒绝 / 修订时不进入模型循环，直接返回带原因的终止响应
+     * （{@code aborted=TRUE} + {@code reason=plan_rejected|plan_revise} + 反馈文本）。</p>
+     *
+     * @param plan 运行计划
+     * @return 放行时返回 null；拒绝 / 修订时返回带原因的终止响应
+     */
+    private AgentResponse confirmPlanForSync(RunPlan plan) {
+        AgentPlanConfirmation.Outcome outcome = reviewPlan(plan);
+        if (outcome == null || outcome.decision() == AgentPlanConfirmation.Decision.PROCEED) {
+            return null;
+        }
+        AgentResponse resp = AgentResponse.builder()
+                .output("")
+                .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
+                .build();
+        resp.getMetadata().put("aborted", Boolean.TRUE);
+        boolean rejected = outcome.decision() == AgentPlanConfirmation.Decision.REJECT;
+        resp.getMetadata().put("reason", rejected ? "plan_rejected" : "plan_revise");
+        if (outcome.feedback() != null && !outcome.feedback().isBlank()) {
+            resp.getMetadata().put(rejected ? "rejectReason" : "planFeedback", outcome.feedback());
+        }
+        resp.getMetadata().put("agentId", plan.agentId);
+        log.info("[AgentScope] 计划未获放行，终止本次运行: agentId={}, decision={}",
+                plan.agentId, outcome.decision());
+        return resp;
+    }
+
+    /**
+     * 触发评测钩子的运行开始埋点（钩子异常只记日志，不影响主流程）。
+     *
+     * @param context 运行上下文
+     */
+    private void fireEvalStart(AgentEvalContext context) {
+        AgentEvalHook hook = evalHook();
+        if (hook == null) {
+            return;
+        }
+        try {
+            hook.onRunStart(context);
+        } catch (Exception e) {
+            log.warn("[AgentScope] 评测钩子 onRunStart 异常（已忽略）: agentId={}",
+                    context.agentId(), e);
+        }
+    }
+
+    /**
+     * 触发评测钩子的运行结束埋点（同步链路入口，从响应提取成败）。
+     *
+     * @param context 运行上下文
+     * @param result  运行结果
+     * @param tracker 预算记账器（用于回填已记账用量；无记账数据时为 0）
+     */
+    private void fireEvalEnd(AgentEvalContext context, AgentResponse result,
+                             AgentBudgetTracker tracker) {
+        Map<String, Object> metadata = result != null ? result.getMetadata() : null;
+        boolean success = metadata == null || !metadata.containsKey("error");
+        String error = success ? null
+                : String.valueOf(metadata != null ? metadata.get("error") : "unknown");
+        fireEvalEnd(context, result != null ? result.getOutput() : null, success, error, tracker);
+    }
+
+    /**
+     * 触发评测钩子的运行结束埋点（核心入口，钩子异常只记日志，不影响主流程）。
+     *
+     * <p>耗时从 {@code context.startMillis()} 起算；用量只回填已记账部分
+     * （同步路径无用量事件时为 0，不虚报）。</p>
+     *
+     * @param context 运行上下文
+     * @param output  输出文本（失败 / 无输出时可为 null）
+     * @param success 是否成功结束
+     * @param error   失败原因（成功时为 null）
+     * @param tracker 预算记账器
+     */
+    private void fireEvalEnd(AgentEvalContext context, String output, boolean success,
+                             String error, AgentBudgetTracker tracker) {
+        AgentEvalHook hook = evalHook();
+        if (hook == null) {
+            return;
+        }
+        try {
+            AiUsage usage = AiUsage.builder()
+                    .inputTokens((int) tracker.usedInputTokens())
+                    .outputTokens((int) tracker.usedOutputTokens())
+                    .totalTokens((int) tracker.usedTotalTokens())
+                    .build();
+            AgentEvalRecord record = new AgentEvalRecord(context, output, success, error,
+                    System.currentTimeMillis() - context.startMillis(), usage);
+            hook.onRunEnd(record);
+        } catch (Exception e) {
+            log.warn("[AgentScope] 评测钩子 onRunEnd 异常（已忽略）: agentId={}",
+                    context.agentId(), e);
+        }
     }
 
     /**
@@ -1008,69 +1438,79 @@ public class AgentScopeAgent implements Agent {
             log.error("[AgentScope] runStream准备失败: {}", e.getMessage(), e);
             return Flux.error(e);
         }
+        // 计划确认：仅初始轮送审；恢复轮（resumeStream / answerQuestion）不重复送审。
+        // REJECT / REVISE 都终止本轮：REJECT 带拒绝理由，REVISE 带修订反馈。
+        AgentPlanConfirmation.Outcome outcome = reviewPlan(plan);
+        if (outcome != null && outcome.decision() != AgentPlanConfirmation.Decision.PROCEED) {
+            boolean rejected = outcome.decision() == AgentPlanConfirmation.Decision.REJECT;
+            String feedback = outcome.feedback();
+            String detail = feedback != null && !feedback.isBlank() ? "：" + feedback : "";
+            log.info("[AgentScope] 计划未获放行，流式运行终止: agentId={}, decision={}",
+                    plan.agentId, outcome.decision());
+            return Flux.just(errorEvent(plan.agentId,
+                    (rejected ? "计划未获批准，终止执行" : "计划需修订后重新提交") + detail));
+        }
         return drive(plan, true);
     }
 
     /**
-     * 待批完整工具块缓存：replyId → (toolCallId → 完整 ToolUseBlock)。
+     * 已写入的待批缓存键登记表：供 {@link #clearPendingBlocks()} 全量清理使用。
      *
-     * <p>必须为 {@code static}：初始轮（runStream）与人工确认恢复轮（resumeStream）由
+     * <p>键在写入时登记、取走时移除，常态下只持有存活批次的键；
+     * 被用户中途放弃（TTL 过期、决策未送达）的键会残留到下次清理，
+     * 量级与旧「写入顺序队列」相当。</p>
+     */
+    private static final java.util.Set<String> PENDING_KEYS =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
+     * 写入一批待批工具块。
+     *
+     * <p>存储走 {@link AgentSuspendStore}：默认回落进程级共享存储
+     * （默认 TTL 30 分钟、条目上限 256，超限逐出最旧批次），过期与逐出由存储实现负责；
+     * 上层注入 Redis / 数据库实现后即可跨实例、跨进程恢复。</p>
+     *
+     * <p>必须跨实例可见：初始轮（runStream）与人工确认恢复轮（resumeStream）由
      * 不同的 AgentScopeAgent 实例承载（facade 每请求新建），实例字段无法跨请求保留。
      * Harness 应用 ConfirmResult 时会用回传的 ToolUseBlock <b>整体替换</b>已存储的待批块，
      * 若只回传 id（name/input 缺失），会导致：① AgentTraceMiddleware 以 null name 写入
      * ConcurrentHashMap 触发 NPE；② 工具入参丢失。故在 RequireUserConfirmEvent 缓存完整块，
-     * resume 时原样回传（harness 仅 withState 翻转允许状态，其余字段保留）。
-     */
-    private static final Map<String, Map<String, ToolUseBlock>> PENDING_BLOCKS =
-            new java.util.concurrent.ConcurrentHashMap<>();
-
-    /**
-     * 待批缓存条目数上限。
-     *
-     * <p>确认决策只回传一次，正常路径下每批都会被逐出；但用户中途放弃、或决策未送达时
-     * 条目会一直留着，长驻服务下逐轮累积成确定性内存泄漏。故再加一道硬上限，
-     * 超限逐出最旧的一批——宁可让极少数过期批次回传不全，也不要让堆无限涨。</p>
-     */
-    private static final int PENDING_BLOCKS_LIMIT = 256;
-
-    /**
-     * 待批批次的写入顺序，逐出时从头取最旧的一批。
-     */
-    private static final java.util.concurrent.ConcurrentLinkedQueue<String> PENDING_BLOCKS_ORDER =
-            new java.util.concurrent.ConcurrentLinkedQueue<>();
-
-    /**
-     * 写入一批待批工具块，超限则逐出最旧的批次。
+     * resume 时原样回传（harness 仅 withState 翻转允许状态，其余字段保留）。</p>
      *
      * @param replyId 回复标识，为空不缓存
+     * @param agentId 发起挂起的 Agent 标识，可为 null
      * @param blocks  完整工具块表
      */
-    private static void cachePendingBlocks(String replyId, Map<String, ToolUseBlock> blocks) {
+    private void cachePendingBlocks(String replyId, String agentId, Map<String, ToolUseBlock> blocks) {
         if (replyId == null || blocks == null || blocks.isEmpty()) {
             return;
         }
-        PENDING_BLOCKS.put(replyId, blocks);
-        PENDING_BLOCKS_ORDER.add(replyId);
-        while (PENDING_BLOCKS.size() > PENDING_BLOCKS_LIMIT) {
-            String oldest = PENDING_BLOCKS_ORDER.poll();
-            if (oldest == null) {
-                return;
-            }
-            PENDING_BLOCKS.remove(oldest);
-        }
+        // TTL 传 0：交由存储套用默认 TTL 与条目上限（与旧 PENDING_BLOCKS_LIMIT 口径一致）
+        suspendStore().put(AgentSuspendState.of(replyId, agentId, blocks, 0L));
+        PENDING_KEYS.add(replyId);
     }
 
     /**
      * 取走一批待批工具块并立即逐出。
      *
-     * <p>逐出是必须的：确认决策只回传一次，缓存若只 put 不 remove，每次人工确认都会把
+     * <p>逐出是必须的：确认决策只回传一次，缓存若只写不清，每次人工确认都会把
      * 完整工具入参永久留在堆里。取不到时返回 null，让调用方按「无缓存」处理。
      *
      * @param replyId 回复标识，可为空
      * @return 完整工具块表；无对应缓存时为 null
      */
-    static Map<String, ToolUseBlock> takePendingBlocks(String replyId) {
-        return replyId == null ? null : PENDING_BLOCKS.remove(replyId);
+    Map<String, ToolUseBlock> takePendingBlocks(String replyId) {
+        if (replyId == null) {
+            return null;
+        }
+        AgentSuspendState state = suspendStore().remove(replyId);
+        PENDING_KEYS.remove(replyId);
+        if (state == null || !(state.payload() instanceof Map)) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, ToolUseBlock> blocks = (Map<String, ToolUseBlock>) state.payload();
+        return blocks;
     }
 
     /**
@@ -1080,7 +1520,11 @@ public class AgentScopeAgent implements Agent {
      * @param blocks  完整工具块表
      */
     static void cachePendingBlocksForTest(String replyId, Map<String, ToolUseBlock> blocks) {
-        cachePendingBlocks(replyId, blocks);
+        if (replyId == null || blocks == null || blocks.isEmpty()) {
+            return;
+        }
+        AgentSuspendStore.globalDefault().put(AgentSuspendState.of(replyId, null, blocks, 0L));
+        PENDING_KEYS.add(replyId);
     }
 
     /**
@@ -1089,15 +1533,18 @@ public class AgentScopeAgent implements Agent {
      * @return 条目数
      */
     static int pendingBlocksSize() {
-        return PENDING_BLOCKS.size();
+        return AgentSuspendStore.globalDefault().size();
     }
 
     /**
      * 仅供单测：清空待批缓存。
      */
     static void clearPendingBlocks() {
-        PENDING_BLOCKS.clear();
-        PENDING_BLOCKS_ORDER.clear();
+        AgentSuspendStore store = AgentSuspendStore.globalDefault();
+        for (String key : PENDING_KEYS) {
+            store.remove(key);
+        }
+        PENDING_KEYS.clear();
     }
 
     @Override
@@ -1368,6 +1815,25 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 构造流式错误终止事件（取消 / 预算熔断 / 计划未放行等收尾统一出口）。
+     *
+     * <p>错误文案放 {@code toolOutput}（与 resumeStream 的错误事件同口径），
+     * 并带 agentId 便于订阅方归属到当前运行。</p>
+     *
+     * @param agentId Agent 标识
+     * @param message 错误文案
+     * @return ERROR 事件
+     */
+    private AgentStreamEvent errorEvent(String agentId, String message) {
+        return AgentStreamEvent.builder()
+                .type(AgentStreamEvent.Type.ERROR)
+                .agentId(agentId)
+                .toolOutput(message)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
      * 驱动一次 Harness 流式运行（runStream / resumeStream 共用）。
      *
      * @param plan       运行计划
@@ -1379,12 +1845,41 @@ public class AgentScopeAgent implements Agent {
         return Flux.defer(() -> {
             // 新的一轮：清掉上一轮的中断信号与重复计数
             loopGuard.reset();
+            // 预算记账器：未配置预算时用不限记账器（照常累计便于观测，永不熔断）
+            final AgentBudgetTracker tracker = budget() != null
+                    ? new SimpleAgentBudgetTracker(budget()) : AgentBudgetTracker.unlimited();
+            // 评测埋点：一次流式运行的最小现场（resumeStream / answerQuestion 恢复轮同样计一次）
+            final AgentEvalContext evalContext = AgentEvalContext.of(plan.agentId,
+                    plan.userMsg != null ? plan.userMsg.getTextContent() : null)
+                    .withMode("stream", defaultSessionId);
+            // 终态标记：ERROR 事件（取消 / 熔断）与上游异常都会置位，doFinally 据此判成败
+            final java.util.concurrent.atomic.AtomicBoolean streamFailed =
+                    new java.util.concurrent.atomic.AtomicBoolean(false);
+            final java.util.concurrent.atomic.AtomicReference<String> failReason =
+                    new java.util.concurrent.atomic.AtomicReference<>();
+            fireEvalStart(evalContext);
+            // 订阅即查：已取消 / 已超限时不再发起模型调用
+            String preBlock = null;
+            if (cancellationToken().isCancelled()) {
+                String reason = cancellationToken().reason();
+                preBlock = "已被外部取消" + (reason != null && !reason.isBlank() ? ": " + reason : "");
+            } else if (tracker.isExceeded()) {
+                preBlock = "预算熔断: " + tracker.violationReason();
+            }
+            if (preBlock != null) {
+                streamFailed.set(true);
+                failReason.compareAndSet(null, preBlock);
+                runningHarness = null;
+                cleanupModelRegistrations();
+                fireEvalEnd(evalContext, null, false, preBlock, tracker);
+                return Flux.just(errorEvent(plan.agentId, preBlock));
+            }
             final HarnessAgent harnessAgent;
             try {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
                         plan.primaryModelId, plan.declarations, plan.effectivePlan,
                         plan.effectivePlanMaxTask, plan.effectiveDebugHook,
-                        plan.effectivePlanHook, plan.effectiveMaxIters, plan.feedback);
+                        plan.effectivePlanHook, plan.effectiveMaxIters, plan.feedback, tracker);
             } catch (Exception e) {
                 return Flux.error(e);
             }
@@ -1431,6 +1926,21 @@ public class AgentScopeAgent implements Agent {
                      * 每轮 usage 全丢，且不留任何痕迹。
                      */
                     .concatMap(event -> {
+                        // 事件边界检查：外部取消 / 预算熔断 → 发 ERROR 事件终止（takeUntil 见即停）
+                        if (cancellationToken().isCancelled()) {
+                            streamFailed.set(true);
+                            String reason = cancellationToken().reason();
+                            String message = "已被外部取消"
+                                    + (reason != null && !reason.isBlank() ? ": " + reason : "");
+                            failReason.compareAndSet(null, message);
+                            return Flux.just(errorEvent(plan.agentId, message));
+                        }
+                        if (tracker.isExceeded()) {
+                            streamFailed.set(true);
+                            String message = "预算熔断: " + tracker.violationReason();
+                            failReason.compareAndSet(null, message);
+                            return Flux.just(errorEvent(plan.agentId, message));
+                        }
                         final List<AgentStreamEvent> emitted = Wraps.list();
                         try {
                             String aid = plan.agentId;
@@ -1517,6 +2027,9 @@ public class AgentScopeAgent implements Agent {
                                     inputTokens[0] += nonNegative(usage.getInputTokens());
                                     outputTokens[0] += nonNegative(usage.getOutputTokens());
                                     cachedTokens[0] += nonNegative(usage.getCachedTokens());
+                                    // 预算记账：模型 Token 用量（事件边界记账）
+                                    tracker.recordTokens(nonNegative(usage.getInputTokens()),
+                                            nonNegative(usage.getOutputTokens()));
                                     // usage 是点事件而非区间：它是「本轮花了多少」的数字，
                                     // 不是一段时间，塞进区间会让甘特图多出一根 0ms 横条
                                     emitted.add(AgentStreamEvent.trace(AgentTrace.of(
@@ -1568,7 +2081,7 @@ public class AgentScopeAgent implements Agent {
                                                 .build());
                                     }
                                     if (e.getReplyId() != null && !blockById.isEmpty()) {
-                                        cachePendingBlocks(e.getReplyId(), blockById);
+                                        cachePendingBlocks(e.getReplyId(), plan.agentId, blockById);
                                     }
                                 }
                                 // 下发人工确认请求：前端渲染批准/拒绝卡片，决策回传后恢复
@@ -1598,7 +2111,7 @@ public class AgentScopeAgent implements Agent {
                                     }
                                 }
                                 if (!questions.isEmpty() && e.getReplyId() != null) {
-                                    cachePendingBlocks(e.getReplyId(), blockById);
+                                    cachePendingBlocks(e.getReplyId(), plan.agentId, blockById);
                                     emitted.add(AgentStreamEvent.questionRequest(
                                             aid, e.getReplyId(), questions));
                                 }
@@ -1641,6 +2154,8 @@ public class AgentScopeAgent implements Agent {
                         }
                         return Flux.fromIterable(emitted);
                     })
+                    // 取消 / 预算熔断以 ERROR 事件收尾：见到即停（concatMap 本身不产 ERROR，安全）
+                    .takeUntil(event -> event.getType() == AgentStreamEvent.Type.ERROR)
                     .concatWith(Flux.defer(() -> {
                         long duration = System.currentTimeMillis() - startTime;
                         // 记忆写在 COMPLETE 之前：宿主收到 COMPLETE 即为本轮结束，
@@ -1664,6 +2179,11 @@ public class AgentScopeAgent implements Agent {
                                 .timestamp(System.currentTimeMillis())
                                 .build());
                     }))
+                    .doOnError(e -> {
+                        streamFailed.set(true);
+                        failReason.compareAndSet(null,
+                                e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+                    })
                     .doFinally(signal -> {
                         runningHarness = null;
                         try {
@@ -1672,6 +2192,12 @@ public class AgentScopeAgent implements Agent {
                             log.debug("[AgentScope] 流式HarnessAgent关闭异常: agentId={}", plan.agentId, ignored);
                         }
                         cleanupModelRegistrations();
+                        // 评测收尾（恰好一次）：正常 COMPLETE=成功；ERROR 事件（取消 / 熔断）
+                        // 与上游异常=失败；订阅方中途 dispose 也在此按失败收尾。
+                        boolean success = !streamFailed.get()
+                                && signal == reactor.core.publisher.SignalType.ON_COMPLETE;
+                        fireEvalEnd(evalContext, outputText.toString(), success,
+                                success ? null : failReason.get(), tracker);
                     });
         });
     }
@@ -2102,7 +2628,7 @@ public class AgentScopeAgent implements Agent {
                                       boolean effectivePlan, int effectivePlanMaxTask,
                                       AgentDebugHook effectiveDebugHook,
                                       AgentPlanHook effectivePlanHook, int effectiveMaxIters,
-                                      String feedback) {
+                                      String feedback, AgentBudgetTracker tracker) {
         HarnessAgent.Builder builder = HarnessAgent.builder()
                 .name(agentId)
                 .description(definition != null ? definition.getName() : "Agent")
@@ -2178,7 +2704,7 @@ public class AgentScopeAgent implements Agent {
             }
         }
         io.agentscope.core.tool.Toolkit toolkit = buildToolkit(skills, skillDescriptions, localTools,
-                mcpTools, globalMcpManager, disabledTools);
+                mcpTools, globalMcpManager, disabledTools, riskAdjudicator(), agentId, tracker);
         if (toolkit != null) {
             builder.toolkit(toolkit);
         }
@@ -2355,9 +2881,10 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit。
+     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit（无风险闸门重载）。
      *
-     * <p>{@code disabled} 中的名称不会注册（先注册者优先：Skill → 进程内工具 → MCP）。</p>
+     * <p>保留原 6 参签名：未接风险裁决 / 预算记账的场景（含既有测试）委托全参重载，
+     * 裁决器与记账器均为 null，行为与既往一致。</p>
      *
      * @param skills           技能处理器
      * @param skillDescriptions 技能描述
@@ -2374,6 +2901,39 @@ public class AgentScopeAgent implements Agent {
             List<McpToolDescriptor> mcpTools,
             McpManager mcpManager,
             java.util.Collection<String> disabled) {
+        return buildToolkit(skills, skillDescriptions, localTools, mcpTools, mcpManager,
+                disabled, null, null, null);
+    }
+
+    /**
+     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit。
+     *
+     * <p>{@code disabled} 中的名称不会注册（先注册者优先：Skill → 进程内工具 → MCP）。
+     * 传入 {@code riskAdjudicator} 时，所有桥接工具执行前先过风险闸门
+     * （见 {@link #gateToolCall}）：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型；
+     * {@code tracker} 非空时在闸门入口记工具调用次数。</p>
+     *
+     * @param skills           技能处理器
+     * @param skillDescriptions 技能描述
+     * @param localTools       进程内工具
+     * @param mcpTools         MCP 工具描述符
+     * @param mcpManager       MCP 管理器
+     * @param disabled         需要关闭的工具名
+     * @param riskAdjudicator  风险裁决器，null 表示不做风险裁决
+     * @param agentId          Agent 标识（风险请求与审计日志用），可为 null
+     * @param tracker          预算记账器，null 表示不记账
+     * @return Toolkit；没有任何工具时返回 null
+     */
+    static io.agentscope.core.tool.Toolkit buildToolkit(
+            Map<String, com.chua.common.support.ai.skill.SkillHandler> skills,
+            Map<String, String> skillDescriptions,
+            Map<String, AgentTool> localTools,
+            List<McpToolDescriptor> mcpTools,
+            McpManager mcpManager,
+            java.util.Collection<String> disabled,
+            AgentRiskAdjudicator riskAdjudicator,
+            String agentId,
+            AgentBudgetTracker tracker) {
         java.util.Set<String> disabledNames = disabled == null
                 ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
         // ask_user 未被禁用时始终可用：即使业务工具为空，agent 也应能向用户提问
@@ -2395,7 +2955,8 @@ public class AgentScopeAgent implements Agent {
                 }
                 String desc = skillDescriptions == null ? null : skillDescriptions.get(skillName);
                 toolkit.registerAgentTool(new SkillAgentTool(skillName,
-                        desc != null ? desc : "Skill: " + skillName, entry.getValue()));
+                        desc != null ? desc : "Skill: " + skillName, entry.getValue(),
+                        riskAdjudicator, agentId, tracker));
             }
         }
         if (localTools != null) {
@@ -2403,7 +2964,8 @@ public class AgentScopeAgent implements Agent {
                 if (disabledNames.contains(tool.getName()) || !registered.add(tool.getName())) {
                     continue;
                 }
-                toolkit.registerAgentTool(new FunctionAgentTool(tool));
+                toolkit.registerAgentTool(new FunctionAgentTool(tool,
+                        riskAdjudicator, agentId, tracker));
             }
         }
         if (mcpTools != null) {
@@ -2413,7 +2975,8 @@ public class AgentScopeAgent implements Agent {
                         || !registered.add(descriptor.getName())) {
                     continue;
                 }
-                toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager));
+                toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager,
+                        riskAdjudicator, agentId, tracker));
             }
         }
         if (askUserEnabled && registered.add(ASK_USER_TOOL)) {
@@ -2421,6 +2984,86 @@ public class AgentScopeAgent implements Agent {
             toolkit.registerSchema(askUserSchema());
         }
         return toolkit;
+    }
+
+    /**
+     * 工具执行统一闸门：预算记账 + 风险裁决（同步 / 流式共用）。
+     *
+     * <p>记账口径：工具调用次数在闸门入口记一次——同步路径没有流式事件，由闸门统一
+     * 计数；流式路径不再重复记（避免同一笔调用计两次）。</p>
+     *
+     * <p>裁决口径：入参序列化为资源文本后按 {@link ToolRiskPolicy#classify} 预分级，
+     * 交给裁决器裁决；裁决器异常按拒绝兜底（fail-close，拿不到结论绝不执行）；
+     * 危险操作即使裁决放行也拦截（fail-safe，危险操作必须走人工强确认链路）；
+     * {@code CONFIRM_REQUIRED} 在本层不挂起等待人工确认，直接跳过执行并把原因回给模型。</p>
+     *
+     * @param riskAdjudicator 风险裁决器，null 表示不做风险裁决（仍记账）
+     * @param agentId         Agent 标识，可为 null
+     * @param toolName        工具名
+     * @param input           工具入参
+     * @param tracker         预算记账器，null 表示不记账
+     * @return null 表示放行；否则返回应直接回给模型的错误结果块
+     */
+    private static ToolResultBlock gateToolCall(AgentRiskAdjudicator riskAdjudicator,
+                                                String agentId, String toolName,
+                                                Map<String, Object> input,
+                                                AgentBudgetTracker tracker) {
+        // 预算记账：工具调用次数（闸门入口单点计数，同步 / 流式同一口径）
+        if (tracker != null) {
+            tracker.recordToolCall();
+        }
+        if (riskAdjudicator == null) {
+            return null;
+        }
+        String resourcesText;
+        try {
+            resourcesText = ANSWER_MAPPER.writeValueAsString(input);
+        } catch (Exception e) {
+            // 序列化失败退化为 toString：闸门不能因展示层问题放行或崩溃
+            resourcesText = String.valueOf(input);
+        }
+        String riskLevel = ToolRiskPolicy.classify(toolName, resourcesText);
+        AgentRiskRequest request = AgentRiskRequest.of(agentId, toolName, resourcesText, riskLevel);
+        AgentRiskDecision decision;
+        try {
+            decision = riskAdjudicator.adjudicate(request);
+        } catch (Exception e) {
+            // 裁决器异常按拒绝兜底（fail-close）
+            log.warn("[AgentScope] 工具风险裁决异常，按拒绝处理: agentId={}, tool={}",
+                    agentId, toolName, e);
+            decision = AgentRiskDecision.deny("风险裁决器异常: "
+                    + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+        }
+        if (decision == null || decision.verdict() == null) {
+            decision = AgentRiskDecision.deny("风险裁决器未给出结论");
+        }
+        String effectiveLevel = decision.riskLevel() != null && !decision.riskLevel().isBlank()
+                ? decision.riskLevel() : riskLevel;
+        String reason = decision.reason() != null && !decision.reason().isBlank()
+                ? decision.reason() : null;
+        switch (decision.verdict()) {
+            case ALLOW:
+                if (ToolRiskPolicy.isDangerous(effectiveLevel)) {
+                    // 危险操作即使裁决放行也拦截（fail-safe：必须走人工强确认链路）
+                    log.warn("[AgentScope] 危险操作被风险闸门拦截: agentId={}, tool={}, risk={}",
+                            agentId, toolName, effectiveLevel);
+                    return ToolResultBlock.error("危险操作已拦截（风险等级 " + effectiveLevel
+                            + "），需人工确认后重试");
+                }
+                return null;
+            case DENY:
+                log.info("[AgentScope] 工具调用被风险裁决拒绝: agentId={}, tool={}, reason={}",
+                        agentId, toolName, reason);
+                return ToolResultBlock.error("工具调用被风险裁决拒绝: "
+                        + (reason != null ? reason : "不允许执行该操作"));
+            case CONFIRM_REQUIRED:
+            default:
+                // 本层不挂起等待人工确认：fail-safe 跳过执行，把原因回给模型改道
+                log.info("[AgentScope] 工具调用需人工确认，本次跳过执行: agentId={}, tool={}, risk={}, reason={}",
+                        agentId, toolName, effectiveLevel, reason);
+                return ToolResultBlock.error("工具调用需人工确认，本次已跳过执行（风险等级 "
+                        + effectiveLevel + (reason != null ? "：" + reason : "") + "）");
+        }
     }
 
     /**
@@ -2435,9 +3078,25 @@ public class AgentScopeAgent implements Agent {
          * 通用工具定义
          */
         private final AgentTool tool;
+        /**
+         * 风险裁决器（null 表示不做风险裁决）
+         */
+        private final AgentRiskAdjudicator riskAdjudicator;
+        /**
+         * Agent 标识（风险请求与审计日志用）
+         */
+        private final String agentId;
+        /**
+         * 预算记账器（null 表示不记账）
+         */
+        private final AgentBudgetTracker tracker;
 
-        FunctionAgentTool(AgentTool tool) {
+        FunctionAgentTool(AgentTool tool, AgentRiskAdjudicator riskAdjudicator,
+                          String agentId, AgentBudgetTracker tracker) {
             this.tool = tool;
+            this.riskAdjudicator = riskAdjudicator;
+            this.agentId = agentId;
+            this.tracker = tracker;
         }
 
         @Override
@@ -2464,6 +3123,12 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Map.of();
+                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
+                ToolResultBlock blocked =
+                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
+                if (blocked != null) {
+                    return reactor.core.publisher.Mono.just(blocked);
+                }
                 Object result = tool.getExecutor().execute(input);
                 String text = result == null ? "" : String.valueOf(result);
                 return reactor.core.publisher.Mono.just(
@@ -2486,18 +3151,37 @@ public class AgentScopeAgent implements Agent {
         private final String name; // 名称
         private final String description; // description
           private final com.chua.common.support.ai.skill.SkillHandler handler; // 处理器
+        /**
+         * 风险裁决器（null 表示不做风险裁决）
+         */
+        private final AgentRiskAdjudicator riskAdjudicator;
+        /**
+         * Agent 标识（风险请求与审计日志用）
+         */
+        private final String agentId;
+        /**
+         * 预算记账器（null 表示不记账）
+         */
+        private final AgentBudgetTracker tracker;
 
         /**
          * Skill Agent Tool
          * @param description 字符串
          * @param handler 参数
          * @param name 字符串
+         * @param riskAdjudicator 风险裁决器，可为 null
+         * @param agentId Agent 标识，可为 null
+         * @param tracker 预算记账器，可为 null
          * @return 返回值
         */
-        SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
+        SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler,
+                       AgentRiskAdjudicator riskAdjudicator, String agentId, AgentBudgetTracker tracker) {
             this.name = name;
             this.description = description;
               this.handler = handler;
+            this.riskAdjudicator = riskAdjudicator;
+            this.agentId = agentId;
+            this.tracker = tracker;
         }
 
         @Override
@@ -2521,6 +3205,12 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Map.of();
+                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
+                ToolResultBlock blocked =
+                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
+                if (blocked != null) {
+                    return reactor.core.publisher.Mono.just(blocked);
+                }
                 com.chua.common.support.ai.skill.SkillResult result = handler.handle(input);
                 String text = result.isSuccess()
                         ? String.valueOf(result.getContent())
@@ -2553,16 +3243,35 @@ public class AgentScopeAgent implements Agent {
          * MCP 管理器
          */
         private final McpManager manager;
+        /**
+         * 风险裁决器（null 表示不做风险裁决）
+         */
+        private final AgentRiskAdjudicator riskAdjudicator;
+        /**
+         * Agent 标识（风险请求与审计日志用）
+         */
+        private final String agentId;
+        /**
+         * 预算记账器（null 表示不记账）
+         */
+        private final AgentBudgetTracker tracker;
 
         /**
          * Mcp Agent Tool
          * @param descriptor 参数
          * @param manager 参数
+         * @param riskAdjudicator 风险裁决器，可为 null
+         * @param agentId Agent 标识，可为 null
+         * @param tracker 预算记账器，可为 null
          * @return 返回值
         */
-        McpAgentTool(McpToolDescriptor descriptor, McpManager manager) {
+        McpAgentTool(McpToolDescriptor descriptor, McpManager manager,
+                     AgentRiskAdjudicator riskAdjudicator, String agentId, AgentBudgetTracker tracker) {
             this.descriptor = descriptor;
             this.manager = manager;
+            this.riskAdjudicator = riskAdjudicator;
+            this.agentId = agentId;
+            this.tracker = tracker;
         }
 
         @Override
@@ -2592,6 +3301,12 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Wraps.map();
+                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
+                ToolResultBlock blocked =
+                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
+                if (blocked != null) {
+                    return reactor.core.publisher.Mono.just(blocked);
+                }
                 McpToolResult result = manager.callTool(
                         descriptor.getServerName(),
                         new McpToolCall(descriptor.getName(), input));
