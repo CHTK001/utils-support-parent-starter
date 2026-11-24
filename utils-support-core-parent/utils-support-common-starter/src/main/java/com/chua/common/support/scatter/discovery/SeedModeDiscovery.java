@@ -123,7 +123,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     private boolean syncWithSeed(ScatterNode seed) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, seed, setting.getTimeoutMillis());
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, seed, setting.getTimeoutMillis(), announceTable());
         if (result != null && result.isSuccess() && result.getData() != null) {
             syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());
@@ -268,7 +268,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     private void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis(), announceTable());
         if (result != null && result.isSuccess() && result.getData() != null) {
             syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());

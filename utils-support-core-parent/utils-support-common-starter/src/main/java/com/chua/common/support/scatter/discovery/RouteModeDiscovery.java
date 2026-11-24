@@ -24,8 +24,9 @@ import com.chua.common.support.utils.StringUtils;
 /**
  * 路由模式发现：subnet 网段内 gossip 探测扩散（tcp 自动发现默认实现）。
  *
- * <p>策略：首启全量探测一次（解决已开启节点没数据），后续随机抽样扩散
- * （每次取 gossipTargetCount 台已知节点 + 网段随机抽样），周期全量兜底保证最终一致。
+ * <p>策略：入网后前 3 轮强制全量探测（新节点尽快被全网感知），后续随机抽样扩散
+ * （每次取 gossipTargetCount 台已知节点 + 网段随机抽样），每 3 轮全量兜底保证最终一致。
+ * REQ 拉取携带本端服务表（被拉方先合并再回表），新节点全扫到谁，谁立即知道新节点。
  * {@code subnet} 为空时默认取本机非回环 IPv4 所在网段（同网段自动发现）。</p>
  *
  * @author CH
@@ -35,9 +36,13 @@ import com.chua.common.support.utils.StringUtils;
 public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
     /**
-     * 全量兜底周期（轮）
+     * 全量兜底周期（轮）：配合 REQ 自表（双向 gossip），每 3 轮全扫一次保证最终一致
      */
-    private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
+    private static final int FULL_PROBE_INTERVAL_ROUNDS = 3;
+    /**
+     * 入网加速：启动后前 N 轮强制全扫（新节点尽快被全网感知）
+     */
+    private static final int JOIN_BURST_FULL_ROUNDS = 3;
     /**
      * 并发同步线程池（固定大小，避免节点数过多时线程爆炸）
      */
@@ -94,7 +99,8 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         if (targets.isEmpty()) {
             return;
         }
-        boolean fullProbe = probeRound == 0 || probeRound % FULL_PROBE_INTERVAL_ROUNDS == 0;
+        boolean fullProbe = probeRound < JOIN_BURST_FULL_ROUNDS
+                || probeRound % FULL_PROBE_INTERVAL_ROUNDS == 0;
         if (!fullProbe && targets.size() > setting.getGossipTargetCount()) {
             Collections.shuffle(targets);
             targets = targets.subList(0, setting.getGossipTargetCount());
@@ -115,7 +121,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     protected void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(String.valueOf(roundRequestIdSeq.incrementAndGet()),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        var result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
+        var result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis(), announceTable());
         if (result != null && result.isSuccess() && result.getData() != null) {
             syncSuccesses.incrementAndGet();
             mergeRemote(result.getData());
