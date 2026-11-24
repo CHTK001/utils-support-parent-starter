@@ -8,7 +8,9 @@ import com.chua.common.support.file.resource.ResourceFlow;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -467,6 +469,94 @@ public final class FlywayScripts {
             statements.add(current.toString());
         }
         return statements;
+    }
+
+    /**
+     * 流式按分号拆分脚本，逐条回调，不在内存中保留全部语句。
+     *
+     * <p>切分语义与 {@link #splitStatements(String)} 完全一致（跳过字符串外的
+     * {@code --} 行注释、单引号字符串内的分号不作分隔符、字符串内 {@code \'} /
+     * {@code \\} 反斜杠转义、末尾非空白内容补为最后一条、空语句照常回调），
+     * 差别仅在于逐块读取、逐条消费：任意时刻内存中只保留当前语句，因此
+     * 数百 MB 的备份脚本也不会撑爆堆（全量读入 + 全量切分会产生数倍于脚本
+     * 体积的瞬时内存，Xmx 1G 的进程实测直接 OutOfMemoryError）。</p>
+     *
+     * <p>适用于预检语句计数、试运行逐条执行等大脚本场景；调用方负责关闭
+     * 传入的 {@link Reader}（建议 try-with-resources）。回调内抛出的运行时
+     * 异常会中止读取并向调用方传播。</p>
+     *
+     * @param reader   脚本字符流（UTF-8 文本）
+     * @param consumer 语句回调（每遇到一条语句调用一次，含空语句）
+     * @throws IOException 读取失败
+     */
+    public static void forEachStatement(Reader reader, Consumer<String> consumer) throws IOException {
+        var current = new StringBuilder(8192);
+        boolean inString = false;
+        boolean inComment = false;     // 正处于 -- 行注释中（注释内容连同换行一并丢弃）
+        boolean prevDash = false;      // 上一字符为字符串外的 '-'，尚待与后续字符定性（可能组成 --）
+        boolean pendingEscape = false; // 上一字符为字符串内的 '\'，下一字符是被转义字符，直接消费
+        char[] buf = new char[1 << 16];
+        int n;
+        while ((n = reader.read(buf)) != -1) {
+            for (int i = 0; i < n; i++) {
+                char c = buf[i];
+                if (pendingEscape) {
+                    // 字符串内的反斜杠转义：\' 不结束字符串，\\ 也不结束
+                    pendingEscape = false;
+                    current.append(c);
+                    continue;
+                }
+                if (inComment) {
+                    // 行注释：直到换行为止；换行符本身也丢弃（与 splitStatements 一致）
+                    if (c == '\n') {
+                        inComment = false;
+                    }
+                    continue;
+                }
+                if (prevDash) {
+                    prevDash = false;
+                    if (c == '-' && !inString) {
+                        // 字符串外的 -- 行注释开始
+                        inComment = true;
+                        continue;
+                    }
+                    // 前一个 '-' 只是普通字符，先落笔，再按常规处理当前字符
+                    current.append('-');
+                }
+                if (c == '\\' && inString) {
+                    if (i + 1 < n) {
+                        current.append(c).append(buf[i + 1]);
+                        i++;
+                    } else {
+                        // 块尾孤立 '\'：被转义字符在下一块
+                        current.append(c);
+                        pendingEscape = true;
+                    }
+                    continue;
+                }
+                if (c == '-' && !inString) {
+                    // 先记下，若下一字符也是 '-' 则组成注释，否则作为普通字符落笔
+                    prevDash = true;
+                    continue;
+                }
+                if (c == '\'') {
+                    inString = !inString;
+                    current.append(c);
+                } else if (c == ';' && !inString) {
+                    consumer.accept(current.toString());
+                    current.setLength(0);
+                } else {
+                    current.append(c);
+                }
+            }
+        }
+        if (prevDash) {
+            // EOF 前的孤立 '-' 按普通字符补齐
+            current.append('-');
+        }
+        if (!current.toString().isBlank()) {
+            consumer.accept(current.toString());
+        }
     }
 
     /**

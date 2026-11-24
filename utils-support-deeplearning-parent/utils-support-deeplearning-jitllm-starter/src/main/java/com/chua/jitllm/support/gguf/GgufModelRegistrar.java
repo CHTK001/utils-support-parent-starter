@@ -10,13 +10,13 @@ import java.util.List;
 /**
  * GGUF 通用模型集中注册器。
  *
- * <p>通过 SPI 被主框架加载；收录常用 / 最新 / 多类型的 GGUF 对话模型（Qwen3、
- * DeepSeek-R1 蒸馏、Phi-4、Gemma-3、GLM-4、Llama 3.x、Mistral 等），并逐条附带
+ * <p>通过 SPI 被主框架加载；收录常用 / 最新 / 多类型的 GGUF 对话模型（Qwen2.5、Qwen3、
+ * DeepSeek-R1 蒸馏、Phi-4、Gemma-3、GLM-4、Yi-1.5、Llama 3.x、Mistral 等），并逐条附带
  * {@link HardwareConfig}（设备 auto + 最低内存/显存需求 + 推荐标记），供
  * {@code ModelHardwareFilter} 按本机硬件自动过滤跑不动的模型，避免选中后 OOM/崩溃。</p>
  *
- * <p>Translator 选择口径：Llama / Mistral 等经典架构走进程内
- * {@code Llama3ChatTranslator}；Qwen3、DeepSeek-R1-Distill、Phi-4、Gemma-3、GLM-4
+ * <p>Translator 选择口径：Llama / Mistral / Yi 等经典 Llama 架构走进程内
+ * {@code Llama3ChatTranslator}；Qwen2.5、Qwen3、DeepSeek-R1-Distill、Phi-4、Gemma-3、GLM-4
  * 等新架构由外部 llama-server（sidecar，llama.cpp ≥ v0.8.0/b11960）经
  * {@code LlamaServerChatTranslator} 提供 OpenAI 兼容服务（de.kherud b10126
  * 进程内无法加载新架构模板）。</p>
@@ -71,6 +71,10 @@ public class GgufModelRegistrar implements ModelRegistrar {
         reg("llama-3.3-70b-it", T_LLAMA3, "unsloth/Llama-3.3-70B-Instruct-GGUF",
                 "Llama-3.3-70B-Instruct-Q4_K_M.gguf", 46080, false,
                 "Llama 3.3 70B Instruct（Q4_K_M，约 42.5GB，需大显存/大内存）");
+        // llama-3.1-8b-it: 8B 主流通用，Q4_K_M 约 4.9GB
+        reg("llama-3.1-8b-instruct", T_LLAMA3, "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+                "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf", 6144, false,
+                "Llama 3.1 8B Instruct（Q4_K_M，约 4.9GB，128K 上下文）");
 
         // ===== Mistral（Llama 系架构，进程内加载） =====
         reg("mistral-7b-instruct", T_LLAMA3, "bartowski/Mistral-7B-Instruct-v0.3-GGUF",
@@ -78,6 +82,10 @@ public class GgufModelRegistrar implements ModelRegistrar {
                 "Mistral 7B Instruct v0.3（Q4_K_M，约 4.4GB）");
 
         // ===== Qwen3（新架构，llama-server sidecar） =====
+        // qwen3-0.6b: 端侧超轻量，该仓库仅提供 Q8_0 量化，约 0.7GB
+        reg("qwen3-0.6b", T_LLAMA_SERVER, "Qwen/Qwen3-0.6B-GGUF",
+                "Qwen3-0.6B-Q8_0.gguf", 1024, true,
+                "Qwen3 0.6B（Q8_0，约 0.7GB，端侧轻量，思考/对话双模式）");
         // qwen3-1.7b: 该仓库仅提供 Q8_0 量化，约 1.9GB
         reg("qwen3-1.7b", T_LLAMA_SERVER, "Qwen/Qwen3-1.7B-GGUF",
                 "Qwen3-1.7B-Q8_0.gguf", 2560, true,
@@ -96,7 +104,24 @@ public class GgufModelRegistrar implements ModelRegistrar {
                 "Qwen3-30B-A3B-Q4_K_M.gguf", 21504, false,
                 "Qwen3 30B-A3B（MoE，激活 3B；Q4_K_M，约 18.6GB）");
 
+        // ===== Qwen2.5（新架构，llama-server sidecar） =====
+        reg("qwen2.5-0.5b-instruct", T_LLAMA_SERVER, "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+                "qwen2.5-0.5b-instruct-q4_k_m.gguf", 640, true,
+                "Qwen2.5 0.5B Instruct（Q4_K_M，约 0.4GB，端侧轻量，中文友好）");
+        reg("qwen2.5-1.5b-instruct", T_LLAMA_SERVER, "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+                "qwen2.5-1.5b-instruct-q4_k_m.gguf", 1536, true,
+                "Qwen2.5 1.5B Instruct（Q4_K_M，约 1.0GB，中文友好）");
+        reg("qwen2.5-3b-instruct", T_LLAMA_SERVER, "Qwen/Qwen2.5-3B-Instruct-GGUF",
+                "qwen2.5-3b-instruct-q4_k_m.gguf", 3072, true,
+                "Qwen2.5 3B Instruct（Q4_K_M，约 2.0GB，中文友好）");
+        reg("qwen2.5-coder-7b-instruct", T_LLAMA_SERVER, "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF",
+                "qwen2.5-coder-7b-instruct-q4_k_m.gguf", 6144, false,
+                "Qwen2.5 Coder 7B Instruct（Q4_K_M，约 4.7GB，代码补全/生成）");
+
         // ===== DeepSeek-R1 蒸馏（Qwen 底座，新架构，sidecar） =====
+        reg("dsr1-qwen-1.5b", T_LLAMA_SERVER, "unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF",
+                "DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf", 1536, true,
+                "DeepSeek-R1 蒸馏 Qwen 1.5B（Q4_K_M，约 1.1GB，推理链输出）");
         reg("dsr1-qwen-7b", T_LLAMA_SERVER, "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF",
                 "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf", 6144, false,
                 "DeepSeek-R1 蒸馏 Qwen 7B（Q4_K_M，约 4.7GB，推理链输出）");
@@ -110,6 +135,9 @@ public class GgufModelRegistrar implements ModelRegistrar {
                 "Phi-4 14B（Q4_K_M，约 9.0GB）");
 
         // ===== Gemma 3（Google，新架构，sidecar） =====
+        reg("gemma-3-1b-it", T_LLAMA_SERVER, "lmstudio-community/gemma-3-1b-it-GGUF",
+                "gemma-3-1b-it-Q4_K_M.gguf", 1024, true,
+                "Gemma 3 1B IT（Q4_K_M，约 0.8GB，端侧轻量，多模态底座）");
         reg("gemma-3-4b", T_LLAMA_SERVER, "lmstudio-community/gemma-3-4b-it-GGUF",
                 "gemma-3-4b-it-Q4_K_M.gguf", 4096, true,
                 "Gemma 3 4B IT（Q4_K_M，约 2.5GB，多模态底座）");
@@ -121,6 +149,11 @@ public class GgufModelRegistrar implements ModelRegistrar {
         reg("glm-4-9b", T_LLAMA_SERVER, "legraphista/glm-4-9b-chat-GGUF",
                 "glm-4-9b-chat.Q4_K.gguf", 7168, false,
                 "GLM-4 9B Chat（Q4_K，约 5.5GB）");
+
+        // ===== Yi-1.5（零一万物，Llama 系架构，进程内加载） =====
+        reg("yi-1.5-9b-chat", T_LLAMA3, "bartowski/Yi-1.5-9B-Chat-GGUF",
+                "Yi-1.5-9B-Chat-Q4_K_M.gguf", 7168, false,
+                "Yi-1.5 9B Chat（Q4_K_M，约 5.5GB，中文友好）");
     }
 
     /**

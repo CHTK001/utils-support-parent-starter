@@ -100,6 +100,21 @@ public final class ToolRiskPolicy {
     }
 
     /**
+     * 是否 shell/命令执行类动作。
+     *
+     * <p>shell 类工具破坏面最大，审批裁决（{@code AgentApprovalGate}）对它有
+     * 独立的收紧口径（非管理员尽力拒绝、缺用户上下文不放行）；判断逻辑统一在
+     * 本类，避免各裁决器各自维护一份关键字清单。</p>
+     *
+     * @param action 工具/权限动作名，可为 null
+     * @return true 表示 shell 类动作
+     */
+    public static boolean isShellAction(String action) {
+        String a = action == null ? "" : action.toLowerCase(Locale.ROOT);
+        return containsAny(a, SHELL_ACTIONS);
+    }
+
+    /**
      * 对一次工具调用做风险分级。
      *
      * @param action        工具/权限动作名（如 shell、edit、webfetch、mcp__x__y）

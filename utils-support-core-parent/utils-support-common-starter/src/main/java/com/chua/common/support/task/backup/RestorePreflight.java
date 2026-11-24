@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.FlywayScripts;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,8 +120,8 @@ public final class RestorePreflight {
                     config.getJdbcUrl(), config.getUsername(), config.getPassword())) {
                 checks.add(new CheckItem("目标库连接", true, config.getJdbcUrl()));
                 beginSnapshot(conn, checks);
-                int executed = 0;
-                int skipped = 0;
+                int[] executed = {0};
+                int[] skipped = {0};
                 List<String> tablesBefore = List.of();
                 try {
                     if (!config.isSkipEmptyCheck()) {
@@ -133,39 +134,44 @@ public final class RestorePreflight {
                     }
                     tablesBefore = collectUserTables(conn);
                     for (Path script : scripts) {
-                        String content = Files.readString(script, StandardCharsets.UTF_8);
-                        for (String raw : FlywayScripts.splitStatements(content)) {
-                            String sql = raw.trim();
-                            if (sql.isEmpty()) {
-                                continue;
-                            }
-                            if (config.isDropBeforeCreate()) {
-                                String table = extractCreateTableName(sql);
-                                if (table != null) {
-                                    try (Statement statement = conn.createStatement()) {
-                                        statement.execute("DROP TABLE IF EXISTS " + table);
+                        try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
+                            FlywayScripts.forEachStatement(reader, raw -> {
+                                String sql = raw.trim();
+                                if (sql.isEmpty()) {
+                                    return;
+                                }
+                                try {
+                                    if (config.isDropBeforeCreate()) {
+                                        String table = extractCreateTableName(sql);
+                                        if (table != null) {
+                                            try (Statement statement = conn.createStatement()) {
+                                                statement.execute("DROP TABLE IF EXISTS " + table);
+                                            }
+                                        }
                                     }
+                                    try (Statement statement = conn.createStatement()) {
+                                        statement.execute(sql);
+                                        executed[0]++;
+                                        String created = extractCreateTableName(sql);
+                                        if (created != null && !createdTables.contains(created)) {
+                                            createdTables.add(created);
+                                        }
+                                    } catch (SQLException e) {
+                                        if (!config.isContinueOnError()) {
+                                            throw new RuntimeException(e.getMessage(), e);
+                                        }
+                                        skipped[0]++;
+                                        log.warn("[backup] 试运行语句失败(继续): {} - {}",
+                                                FlywayScripts.truncate(sql, 80), e.getMessage());
+                                    }
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e.getMessage(), e);
                                 }
-                            }
-                            try (Statement statement = conn.createStatement()) {
-                                statement.execute(sql);
-                                executed++;
-                                String created = extractCreateTableName(sql);
-                                if (created != null && !createdTables.contains(created)) {
-                                    createdTables.add(created);
-                                }
-                            } catch (SQLException e) {
-                                if (!config.isContinueOnError()) {
-                                    throw e;
-                                }
-                                skipped++;
-                                log.warn("[backup] 试运行语句失败(继续): {} - {}",
-                                        FlywayScripts.truncate(sql, 80), e.getMessage());
-                            }
+                            });
                         }
                     }
                     checks.add(new CheckItem("语句试执行", true,
-                            "可执行 " + executed + " 条" + (skipped > 0 ? "，跳过 " + skipped + " 条" : "")));
+                            "可执行 " + executed[0] + " 条" + (skipped[0] > 0 ? "，跳过 " + skipped[0] + " 条" : "")));
                 } finally {
                     rollbackQuietly(conn);
                     dropCreatedTablesQuietly(conn, tablesBefore, createdTables, checks);
@@ -257,20 +263,21 @@ public final class RestorePreflight {
     }
 
     /**
-     * 统计全部脚本可解析的非空语句数。
+     * 统计全部脚本可解析的非空语句数（流式读取，不把脚本全量载入内存）。
      */
     private static int countStatements(List<Path> scripts, List<CheckItem> checks) throws IOException {
-        int statements = 0;
+        int[] statements = {0};
         for (Path script : scripts) {
-            String content = Files.readString(script, StandardCharsets.UTF_8);
-            for (String raw : FlywayScripts.splitStatements(content)) {
-                if (!raw.trim().isEmpty()) {
-                    statements++;
-                }
+            try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
+                FlywayScripts.forEachStatement(reader, raw -> {
+                    if (!raw.trim().isEmpty()) {
+                        statements[0]++;
+                    }
+                });
             }
         }
-        checks.add(new CheckItem("语句解析", true, statements + " 条语句"));
-        return statements;
+        checks.add(new CheckItem("语句解析", true, statements[0] + " 条语句"));
+        return statements[0];
     }
 
     /**

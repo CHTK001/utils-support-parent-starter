@@ -100,6 +100,16 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     private static final String GPU_LLAMA3_TRANSLATOR_PREFIX = "com.chua.jitllm.support.llama3.";
 
     /**
+     * 提供者 名称：jitllm（本地 GGUF 文本嵌入，与 {@code JitllmEmbeddingClient} 的引擎名一致）
+     */
+    private static final String PROVIDER_JITLLM = "jitllm";
+
+    /**
+     * jitllm 嵌入 Translator 类名前缀（嵌入模型独立于 gpu-llama3 对话模型目录）
+     */
+    private static final String JITLLM_EMBEDDING_TRANSLATOR_PREFIX = "com.chua.jitllm.support.embedding.";
+
+    /**
      * 类路径 前缀
      */
     private static final String CLASSPATH_PREFIX = "classpath:";
@@ -597,9 +607,13 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * @return 提供者名称
      */
     private static String resolveProvider(ModelRegistry.Entry entry) {
-        if (entry != null && entry.translatorClassName() != null
-                && entry.translatorClassName().startsWith(GPU_LLAMA3_TRANSLATOR_PREFIX)) {
-            return PROVIDER_GPU_LLAMA3;
+        if (entry != null && entry.translatorClassName() != null) {
+            if (entry.translatorClassName().startsWith(GPU_LLAMA3_TRANSLATOR_PREFIX)) {
+                return PROVIDER_GPU_LLAMA3;
+            }
+            if (entry.translatorClassName().startsWith(JITLLM_EMBEDDING_TRANSLATOR_PREFIX)) {
+                return PROVIDER_JITLLM;
+            }
         }
         return resolveProviderByPath(entry == null ? null : entry.relativePath());
     }
