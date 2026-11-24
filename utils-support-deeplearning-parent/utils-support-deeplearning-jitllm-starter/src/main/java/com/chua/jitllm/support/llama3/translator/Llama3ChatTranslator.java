@@ -12,6 +12,7 @@ import de.kherud.llama.ModelParameters;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -47,6 +48,10 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
      * Llama 3 对话 结束标记
     */
     private static final String END_TOKEN = "<|end_of_text|>";
+    /**
+     * Llama 3 Instruct 回合结束标记（chat 模板下助手回合的收尾 token）
+     */
+    private static final String EOT_ID_TOKEN = "<|eot_id|>";
     /**
      * 默认上下文大小
     */
@@ -92,6 +97,10 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
      * 运行时配置的 device 选择（空/blank = auto）
     */
     private volatile String device;
+    /**
+     * 框架反射注入的模型文件路径（{@code setModelPath(String)}），优先于按 modelId 解析
+     */
+    private volatile String modelPath;
 
     /**
      * 默认构造器，使用 llama-3-8b-it 模型。
@@ -176,13 +185,22 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
         }
     }
 
+    /**
+     * 框架反射注入模型路径（{@code setModelPath(String)}），与 {@code LlamaServerChatTranslator} 同约定。
+     *
+     * @param modelPath 注册表中解析出的模型文件路径
+     */
+    public void setModelPath(String modelPath) {
+        this.modelPath = modelPath;
+    }
+
     @Override
     public String translate(String input) {
         if (!initialized) {
             synchronized (this) {
                 if (!initialized) {
                     try {
-                        Path modelPath = ModelRegistry.resolveModelPath(modelId);
+                        Path resolvedPath = resolveInjectableModelPath();
                         int resolvedGpuLayers = resolveGpuLayers();
                         int resolvedCtxSize = resolveCtxSize();
                         int resolvedThreads = resolveThreads();
@@ -191,10 +209,10 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
 
                         log.info("[Llama3-GPU:{}] 开始加载 GGUF 模型（device={} gpuLayers={} ctxSize={} threads={}）: {}",
                                 modelId, resolvedDevice, resolvedGpuLayers, resolvedCtxSize, resolvedThreads,
-                                        modelPath);
+                                        resolvedPath);
 
                         ModelParameters parameters = new ModelParameters()
-                                .setModel(modelPath.toString())
+                                .setModel(resolvedPath.toString())
                                 .setCtxSize(resolvedCtxSize)
                                 .setThreads(resolvedThreads);
                         if (useGpu) {
@@ -215,7 +233,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
             float temp = temperature != null ? temperature : DEFAULT_TEMPERATURE;
             int topk = topK != null ? topK : DEFAULT_TOP_K;
             int npredict = nPredict != null ? nPredict : DEFAULT_N_PREDICT;
-            InferenceParameters inferParams = new InferenceParameters(input)
+            InferenceParameters inferParams = new InferenceParameters(toLlama3Prompt(input))
                     .setTemperature(temp)
                     .setTopK(topk)
                     .setNPredict(npredict);
@@ -224,6 +242,20 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
             log.warn("[Llama3-GPU:{}] 推理失败: {}", modelId, e.getMessage(), e);
             return "";
         }
+    }
+
+    /**
+     * 解析模型文件路径：优先框架注入的 {@code modelPath}（走
+     * {@link ModelRegistry#resolveConfiguredPath} 归一化），否则按 modelId 解析。
+     *
+     * @return 模型文件路径
+     */
+    private Path resolveInjectableModelPath() {
+        if (modelPath != null && !modelPath.isBlank()) {
+            Path injected = ModelRegistry.resolveConfiguredPath(modelPath);
+            return injected != null ? injected : Paths.get(modelPath);
+        }
+        return ModelRegistry.resolveModelPath(modelId);
     }
 
     /**

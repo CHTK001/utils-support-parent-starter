@@ -241,9 +241,9 @@ final class CdpPage implements BrowserPage {
         this.screencastListener = frameListener;
         var params = new LinkedHashMap<String, Object>();
         params.put("format", "jpeg");
-        int quality = screencastOption("chua.browser.screencast.quality", 85);
+        int quality = screencastOption("chua.browser.screencast.quality", 90);
         if (quality <= 0 || quality > 100) {
-            quality = 85;
+            quality = 90;
         }
         params.put("quality", quality);
         // 默认不限制帧尺寸：帧按页面视口原始分辨率（如 1280x900）输出，查看器按
