@@ -797,9 +797,10 @@ public final class OpencodeServerProcess {
     /**
      * 登记一个 provider 的 API 密钥。
      *
-     * <p>密钥不落工作区项目文件——工作区通常是受版本控制的仓库，明文密钥写入即泄漏。
-     * 这里做两件事：写进隔离数据目录的 {@code auth.json}（1.x 写法与 CLI 用），
-     * 并记为子进程环境变量（2.x 写法从 provider 的 {@code env} 声明里读）。</p>
+     * <p>这里做两件事：写进隔离数据目录的 {@code auth.json}（CLI run 模式用），
+     * 并记为子进程环境变量（2.x 从 provider 的 {@code env} 声明里读）。1.x 的
+     * serve 模式两者都不消费，密钥由 {@link OpencodeProjectConfig} 写进项目配置的
+     * 1.x 段 {@code options.apiKey}（工作区为运行期隔离目录，非受版本控制仓库）。</p>
      *
      * <p>环境变量只能在启动子进程时注入，因此凭据发生变化且 server 已在运行时，
      * 直接销毁当前进程，交给下一次 {@link #ensureStarted(boolean)} 用新环境变量重启；
@@ -829,6 +830,20 @@ public final class OpencodeServerProcess {
             log.info("[opencode] provider 凭据已变更，重启 server 以注入环境变量 {}",
                     OpencodeProjectConfig.providerEnvName(providerId.trim()));
             destroyCurrent();
+        }
+    }
+
+    /**
+     * 当前已登记的 provider 凭据快照。
+     *
+     * <p>供配置生成器把密钥写进 1.x 段 {@code options.apiKey}（1.x serve 模式不
+     * 消费 auth.json，也不读环境变量，只能随项目配置下发）。</p>
+     *
+     * @return provider 标识 -&gt; API 密钥（只读副本）
+     */
+    public Map<String, String> providerCredentials() {
+        synchronized (providerCredentials) {
+            return new LinkedHashMap<>(providerCredentials);
         }
     }
 

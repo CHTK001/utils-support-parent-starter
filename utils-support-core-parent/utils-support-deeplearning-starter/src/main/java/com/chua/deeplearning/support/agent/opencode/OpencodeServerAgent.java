@@ -84,7 +84,9 @@ import com.chua.common.support.utils.StringUtils;
  * <ol>
  *   <li>按 server 实际版本选择契约（{@link OpencodeApiProfile}，探测 {@code GET /api/info}，
  *       1.19.x 回退 {@code /global/health}）：1.x 用会话级事件流
- *       {@code GET /api/session/{id}/event?after=<seq>}，2.x 用全局
+ *       {@code GET /api/session/{id}/event?after=<seq>}，并并行订阅全局
+ *       {@code GET /api/event} 承接非 durable 事件（1.18.x 的
+ *       {@code permission.v2.asked} 只发布在全局流上）；2.x 只用全局
  *       {@code GET /api/event} 并按 {@code data.sessionID} 过滤本会话</li>
  *   <li>建立/复用会话（{@code POST /api/session}，携带 {@code location.directory}）</li>
  *   <li>按用户配置切换模型（{@code POST /api/session/{id}/model}）与 agent
@@ -103,7 +105,8 @@ import com.chua.common.support.utils.StringUtils;
  * {@code outcome} 与 {@code time.busy/idle} 补判，避免漏掉断线窗口里的终态事件。</p>
  *
  * <h3>人工审批</h3>
- * <p>{@code permission.asked}（1.19.x 的 {@code permission.v2.asked}）映射为
+ * <p>{@code permission.asked}（1.18.x/1.19.x 线上事件名为 {@code permission.v2.asked}，
+ * 经 {@code canonicalType} 归一化；1.18.x 该事件只发布在全局流上）映射为
  * {@code CONFIRMATION_REQUEST}（{@code replyId} 为权限请求 ID），本轮 Flux 正常结束；
  * {@link #resumeStream} 通过 {@code POST /api/session/{id}/permission/{requestID}/reply}
  * 回传决策：1.19.x 用 {@code {"reply":"once|reject"}}，2.x 用
@@ -376,18 +379,6 @@ public class OpencodeServerAgent implements Agent {
     private static final String DEFAULT_MANAGED_AGENT = "chua";
 
     /**
-     * 托管 agent 默认启用的内置工具。
-     *
-     * <p>opencode 1.19.x 不会把内置工具集继承给配置里自定义的 agent；不显式列出时，
-     * write/read/bash 等调用一律返回 {@code provider.executed=false}（提示
-     * "Unable to write ..."），表现为「模型能聊天但永远改不了文件」。这里显式启用，
-     * 再由 {@code disabledTools} 覆盖关闭项。</p>
-     */
-    private static final List<String> MANAGED_TOOL_NAMES = List.of(
-            "bash", "edit", "write", "read", "glob", "grep", "list", "patch",
-            "webfetch", "task", "todowrite", "todoread");
-
-    /**
      * 单轮默认超时秒数
      */
     private static final long DEFAULT_TURN_TIMEOUT_SECONDS = 1800L;
@@ -396,6 +387,19 @@ public class OpencodeServerAgent implements Agent {
      * 系统属性：单轮超时秒数
      */
     private static final String PROP_TURN_TIMEOUT = "opencode.agent.timeout-seconds";
+
+    /**
+     * 陈旧事件时间戳门禁的宽限毫秒。
+     *
+     * <p>仅用于拦截「无 {@code durable.seq} 可判」的重放事件；opencode 与本服务同机部署，
+     * 时钟偏差可忽略，取小值以免放过上一轮刚结束的尾部事件。</p>
+     */
+    private static final long STALE_EVENT_SLACK_MILLIS = 5000L;
+
+    /**
+     * 拉取历史事件的单次最大翻页数（服务端默认每页 50 条），纯防失控上限
+     */
+    private static final int MAX_HISTORY_PAGES = 2000;
 
     /**
      * 跨实例共享的事件游标：opencode 会话 ID -> 已消费的最大 durable.seq
@@ -1930,6 +1934,10 @@ public class OpencodeServerAgent implements Agent {
     /**
      * 读取事件流起始游标。
      *
+     * <p>每轮都向服务端取新鲜的最大 {@code durable.seq}，不直接信任跨轮缓存：进程重启后
+     * 缓存会丢失，多实例部署时缓存也可能落后。只有取失败才回退缓存游标（仍无则 0），
+     * 此时由 {@code Turn} 的陈旧事件门禁兜底拦截重放。</p>
+     *
      * @param context 会话上下文
      * @return 起始游标
      */
@@ -1938,30 +1946,48 @@ public class OpencodeServerAgent implements Agent {
             // 2.x 没有 /history 接口，全局事件流也不接受 after 游标
             return 0L;
         }
-        Long cached = SESSION_CURSORS.get(context.sessionId());
-        if (cached != null) {
-            return cached;
+        try {
+            long latest = fetchLatestSeq(context);
+            SESSION_CURSORS.put(context.sessionId(), latest);
+            return latest;
+        } catch (Exception e) {
+            Long cached = SESSION_CURSORS.get(context.sessionId());
+            log.warn("[opencode-server] 读取会话 {} 最新事件游标失败，回退缓存游标 {}: {}",
+                    context.sessionId(), cached, e.getMessage());
+            return cached != null ? cached : 0L;
         }
-        long latest = fetchLatestSeq(context);
-        SESSION_CURSORS.put(context.sessionId(), latest);
-        return latest;
     }
 
     /**
      * 从历史事件中取最大 {@code durable.seq}。
+     *
+     * <p>history 按 {@code durable.seq} 升序分页返回（默认每页 50 条，顶层 {@code hasMore}
+     * 表示还有下一页，实测仅 {@code after} 参数生效）。只取首页会把长会话的真实最大序号
+     * 截在页尾，导致下一轮从中间重放旧事件，因此必须用 {@code after} 翻到最后一页。</p>
      *
      * @param context 会话上下文
      * @return 最大序号；空历史或会话不存在返回 0
      */
     private long fetchLatestSeq(SessionContext context) {
         try {
-            JsonNode history = context.client().getJson(
-                    SESSION_PATH + "/" + context.sessionId() + "/history");
-            long max = 0L;
-            JsonNode data = history.path("data");
-            if (data.isArray()) {
-                for (JsonNode item : data) {
-                    max = Math.max(max, item.path("durable").path("seq").asLong(-1L));
+            long after = SESSION_CURSORS.getOrDefault(context.sessionId(), 0L);
+            long max = after;
+            for (int page = 0; page < MAX_HISTORY_PAGES; page++) {
+                JsonNode history = context.client().getJson(SESSION_PATH + "/"
+                        + context.sessionId() + "/history?after=" + after);
+                JsonNode data = history.path("data");
+                if (!data.isArray() || data.size() == 0) {
+                    break;
+                }
+                long pageMax = maxSeqOf(data);
+                if (pageMax <= after) {
+                    // 服务端未按 after 过滤（参数不被识别），原地翻页会死循环，到此为止
+                    break;
+                }
+                max = Math.max(max, pageMax);
+                after = pageMax;
+                if (!history.path("hasMore").asBoolean(false)) {
+                    break;
                 }
             }
             return max;
@@ -1971,6 +1997,20 @@ public class OpencodeServerAgent implements Agent {
             }
             throw e;
         }
+    }
+
+    /**
+     * 取一批历史事件中的最大 {@code durable.seq}。
+     *
+     * @param events 历史事件数组
+     * @return 最大序号；均无序号时为 0
+     */
+    private static long maxSeqOf(JsonNode events) {
+        long max = 0L;
+        for (JsonNode item : events) {
+            max = Math.max(max, item.path("durable").path("seq").asLong(-1L));
+        }
+        return max;
     }
 
     /**
@@ -2021,13 +2061,17 @@ public class OpencodeServerAgent implements Agent {
         OpencodeProjectConfig config = OpencodeProjectConfig.in(workspacePath);
         specs.values().forEach(config::agent);
         providers.values().forEach(config::provider);
+        // 1.x serve 模式不消费 auth.json，密钥必须随 opencode.json 的 1.x 段下发。
+        server.providerCredentials().forEach(config::providerApiKey);
         if (globalModel != null) {
             config.model(globalModel);
         }
-        if (shellEnabled != null) {
-            config.permission("bash", shellEnabled ? OpencodeProjectConfig.PERMISSION_ALLOW
-                    : OpencodeProjectConfig.PERMISSION_DENY);
-        }
+        // shell 属高风险操作（ToolRiskPolicy 对 shell 恒判 high）：opencode 侧必须 ask，
+        // permission.asked 事件回流后经确认卡走人工审批；写 allow 会绕过审批闭环。
+        // 未显式配置时同样按 ask 处理（宁问勿放）；显式关闭（非管理员）才落 deny。
+        config.permission("bash", shellEnabled == null || shellEnabled
+                ? OpencodeProjectConfig.PERMISSION_ASK
+                : OpencodeProjectConfig.PERMISSION_DENY);
         if (managePlan) {
             planPermissions().forEach(config::permission);
         }
@@ -2057,10 +2101,10 @@ public class OpencodeServerAgent implements Agent {
      * <p>opencode 只认识内置目录里的官方供应商；站点自建的 OpenAI 兼容端点
      * （如 {@code moss}）必须显式声明端点与 {@code models}，否则
      * {@code provider/model} 解析不到，报 {@code UnknownError: Unexpected server error}。
-     * 密钥不写进项目文件，而是交给
-     * {@link OpencodeServerProcess#providerCredential(String, String)}：
-     * 1.x 合并进隔离数据目录的 {@code auth.json}，2.x 注入
-     * {@code providers.<id>.env} 声明的环境变量。</p>
+     * 密钥交给 {@link OpencodeServerProcess#providerCredential(String, String)}：
+     * 2.x 注入 {@code providers.<id>.env} 声明的环境变量；1.x 的 serve 模式不消费
+     * auth.json，密钥随 {@code opencode.json} 的 1.x 段 {@code options.apiKey} 下发
+     * （CLI run 模式两种来源都兼容）。</p>
      *
      * @return provider 标识 -> 定义
      */
@@ -2229,23 +2273,22 @@ public class OpencodeServerAgent implements Agent {
     }
 
     /**
-     * 写入 agent 的工具开关覆盖。
+     * 写入 agent 的工具开关覆盖（只写关闭项）。
      *
-     * <p>自定义 agent 不会被 opencode 自动赋予内置工具，必须显式列出；未列出的工具
-     * 调用会直接失败。默认启用 {@link #MANAGED_TOOL_NAMES}，{@link #disabledTools}
-     * 中的关闭项优先。</p>
+     * <p>opencode 1.18.x 在配置解码期会把 {@code agent.tools} 里每个 {@code true} 项
+     * 派生成 agent 级 {@code permission.&lt;tool&gt;=allow}（write/edit/patch 折叠为 edit），
+     * 且 agent 级 permission 在合并时最后生效——若这里写全量 {@code true}，顶层
+     * {@code permission.bash=ask} 等审批规则会被 agent 级 {@code bash=allow} 压过，
+     * 审批闸门失效。工具可用性由 opencode 工具注册表与 permission 规则（deny 过滤）
+     * 共同决定，无需全量枚举；因此这里只落 {@code disabledTools} 的关闭项
+     * （false → agent 级 deny），不产生任何 allow。1.18.31 实测：自定义 agent 不写
+     * tools 块时内置工具照常可用。若日后升级 1.19.x，需重新评估工具启用方式
+     * （改为 agent 级 permission，而非 tools 枚举）。</p>
      *
-     * @return 工具名 -> 是否启用
+     * @return 工具名 -> 是否启用（仅含关闭项）；空表示无覆盖
      */
     private Map<String, Boolean> toolsOverride() {
-        Map<String, Boolean> tools = new LinkedHashMap<>();
-        for (String name : MANAGED_TOOL_NAMES) {
-            tools.put(name, Boolean.TRUE);
-        }
-        if (!disabledTools.isEmpty()) {
-            tools.putAll(disabledTools);
-        }
-        return tools;
+        return new LinkedHashMap<>(disabledTools);
     }
 
     /**
@@ -2650,6 +2693,15 @@ public class OpencodeServerAgent implements Agent {
         private volatile OpencodeEventStream stream;
 
         /**
+         * 1.x 的全局事件流（{@code GET /api/event}）。
+         *
+         * <p>1.18.x 的会话级流只承载 {@code session.next.*} 等 durable 事件，
+         * {@code permission.v2.asked}/{@code question.v2.asked} 这类非 durable 事件
+         * 只发布在全局流上——审批闸门依赖它，必须与会话流并行订阅。</p>
+         */
+        private volatile OpencodeEventStream nonDurableStream;
+
+        /**
          * 各正文片段的已下发长度（用于 {@code text.ended} 补齐未走增量的余量）
          */
         private final Map<String, Integer> textLengths = new ConcurrentHashMap<>();
@@ -2698,6 +2750,21 @@ public class OpencodeServerAgent implements Agent {
          * 本轮开始前的会话累计用量（2.x 的 {@code usage.updated} 是会话累计值，需减基线）
          */
         private SessionUsage usageAtStart;
+
+        /**
+         * 本轮起始游标：订阅时会话已持久化的最大 {@code durable.seq}。
+         *
+         * <p>会话级流按该游标续播，早于它的都是上一轮（或更早）的重放事件；{@link #onEvent}
+         * 入口据此丢弃陈旧事件，避免旧轮的 {@code text.ended}/{@code execution.succeeded}
+         * 把本轮提前收尾。</p>
+         */
+        private volatile long turnStartCursor;
+
+        /**
+         * 本轮订阅时刻（毫秒）：对没有 {@code durable.seq} 可判的重放事件，
+         * 用 {@code data.timestamp} 早于该时刻（减宽限）兜底拦截
+         */
+        private volatile long turnStartMillis;
 
         /**
          * 工具调用区间：开始毫秒 + 区间标识（开始/结束两条 trace 共享 spanId）。
@@ -2763,20 +2830,35 @@ public class OpencodeServerAgent implements Agent {
          * 拖慢每一轮；而 1.19.x 的事件带 {@code durable.seq} 游标、2.x 的全局流则靠
          * {@code onReconnect} 补做终态判断，因此这里发起订阅后立即返回，由调用方紧接着
          * 发送 prompt。</p>
+         *
+         * <p>订阅前先记录本轮起始游标与起始时刻：游标偏小（进程重启后缓存丢失、历史分页
+         * 截断、取失败回退 0 等）会让会话流从旧事件开始重放，{@link #onEvent} 据此把
+         * 本轮边界之前的事件一律丢弃。</p>
          */
         private void subscribe() {
+            turnStartMillis = System.currentTimeMillis();
             if (context.v2()) {
                 // 2.x 只有全局流：按 data.sessionID 过滤本会话，避免别的会话把本轮带跑
+                turnStartCursor = 0L;
                 captureUsageBaseline();
                 stream = new OpencodeEventStream(context.client(), context.sessionId(), 0L,
                         GLOBAL_EVENT_PATH, false, this::belongsToSession,
                         this::onEvent, this::onStreamError, this::onReconnect);
             } else {
                 long after = resolveCursor(context);
+                turnStartCursor = after;
                 stream = new OpencodeEventStream(context.client(), context.sessionId(), after,
                         this::onEvent, this::onStreamError);
+                // 1.18.x：permission/question 等非 durable 事件只在全局流上发布，
+                // 会话级流只有 session.next.*；不开第二条流审批闸门收不到询问。
+                nonDurableStream = new OpencodeEventStream(context.client(), context.sessionId(), 0L,
+                        GLOBAL_EVENT_PATH, false, this::isSessionNonDurableEvent,
+                        this::onEvent, this::onStreamError, null);
             }
             stream.start();
+            if (nonDurableStream != null) {
+                nonDurableStream.start();
+            }
         }
 
         /**
@@ -2823,6 +2905,23 @@ public class OpencodeServerAgent implements Agent {
                 sessionID = node.path("durable").path("aggregateID").asText("");
             }
             return context.sessionId().equals(sessionID);
+        }
+
+        /**
+         * 1.x 全局流过滤：只放行本会话的非 durable 事件。
+         *
+         * <p>durable 事件（带 {@code durable.seq}）由会话级流按游标续播负责，全局流
+         * 若再放行会造成同一事件被消费两次；非 durable 事件（如
+         * {@code permission.v2.asked}）没有该字段，是全局流独有的增量。</p>
+         *
+         * @param node 事件 JSON
+         * @return 是否放行
+         */
+        private boolean isSessionNonDurableEvent(JsonNode node) {
+            if (node.path("durable").path("seq").asLong(-1L) >= 0L) {
+                return false;
+            }
+            return belongsToSession(node);
         }
 
         /**
@@ -2879,6 +2978,10 @@ public class OpencodeServerAgent implements Agent {
             OpencodeEventStream current = stream;
             if (current != null) {
                 current.close();
+            }
+            OpencodeEventStream extra = nonDurableStream;
+            if (extra != null) {
+                extra.close();
             }
         }
 
@@ -2984,6 +3087,12 @@ public class OpencodeServerAgent implements Agent {
          * @param node 事件 JSON
          */
         private void onEvent(JsonNode node) {
+            if (isStaleEvent(node)) {
+                log.debug("[opencode-server] 丢弃会话 {} 的陈旧重放事件: seq={}, type={}",
+                        context.sessionId(), node.path("durable").path("seq").asLong(-1L),
+                        node.path("type").asText(""));
+                return;
+            }
             if (checkRunLimits()) {
                 return;
             }
@@ -3034,6 +3143,33 @@ public class OpencodeServerAgent implements Agent {
                 }
                 default -> log.trace("[opencode-server] 未处理事件: {}", type);
             }
+        }
+
+        /**
+         * 是否为本轮开始之前的陈旧重放事件。
+         *
+         * <p>会话级流以 {@code after=游标} 续播，若游标因故偏小（进程重启后缓存丢失、历史
+         * 分页截断、取失败回退 0 等），上一轮的持久事件会被整体重放；其中
+         * {@code text.ended}/{@code execution.succeeded} 一旦被当作本轮事件消费，本轮会在
+         * 真实执行结束前被提前收尾。这里在事件入口统一设卡：带 {@code durable.seq} 的事件
+         * 凡不晚于本轮起始游标即丢弃；无序号的事件用 {@code data.timestamp} 兜底（早于本轮
+         * 订阅时刻减宽限即丢弃）；两者都没有的视为活体事件放行。</p>
+         *
+         * @param node 事件 JSON
+         * @return 是否应丢弃
+         */
+        private boolean isStaleEvent(JsonNode node) {
+            long seq = node.path("durable").path("seq").asLong(-1L);
+            if (seq >= 0L) {
+                return seq <= turnStartCursor;
+            }
+            long timestamp = node.path("data").path("timestamp").asLong(-1L);
+            if (timestamp > 0L && timestamp < 1_000_000_000_000L) {
+                // 秒级时间戳兜底归一为毫秒，避免单位误判把本轮事件全部误杀
+                timestamp *= 1000L;
+            }
+            return timestamp > 0L && turnStartMillis > 0L
+                    && timestamp < turnStartMillis - STALE_EVENT_SLACK_MILLIS;
         }
 
         /**

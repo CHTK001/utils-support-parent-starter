@@ -61,8 +61,8 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 游标（keyset）分页的实验开关，默认关闭。
      * <p>关闭时全部分页行为与历史版本完全一致（COUNT + LIMIT/OFFSET）；开启后
-     * 仅在「JDBC 物理分页 + 有确定 ORDER BY + 无 GROUP BY/JOIN + 调用方提供游标」
-     * 四个条件同时满足时改走 keyset 组装，其余场景仍回退 LIMIT/OFFSET。</p>
+     * 仅在「确定 ORDER BY + 无 GROUP BY/JOIN + 方言支持标准 LIMIT + 调用方提供游标」
+     * 四个条件同时满足时改走 keyset 组装，其余场景仍回退 LIMIT/OFFSET 且不产出游标。</p>
      */
     private volatile boolean cursorPagingEnabled;
 
@@ -76,6 +76,25 @@ public abstract class JdbcEngine extends AbstractEngine {
      * <p>这是 JDBC 引擎独有配置，不进入 {@link com.chua.common.support.lang.datasource.engine.Engine}
      * 公共契约，非 JDBC 引擎不具备该能力。显式设置为 true/false 后不再读取系统属性
      * {@link #CURSOR_PAGING_PROPERTY}。</p>
+     *
+     * <p>两种开启方式（实例级优先，其次系统属性，缺省均关闭）：</p>
+     * <pre>{@code
+     * // 方式一：实例级显式开启（优先级最高，设置后不再读系统属性）
+     * JdbcEngine engine = ...;
+     * engine.setCursorPagingEnabled(true);
+     *
+     * // 方式二：JVM 启动参数，对本进程内所有 JDBC 引擎实例生效
+     * //   -Dengine.jdbc.cursor-paging=true
+     * }</pre>
+     *
+     * <p>开启后的典型顺序翻页（游标分页只能前进，页码恒传 1）：</p>
+     * <pre>{@code
+     * Page<Row> page = engine.query(Row.class).orderByAsc("id").page(1, 100);
+     * while (page.hasNext()) {
+     *     List<Object> cursor = page.getNextCursor();
+     *     page = engine.query(Row.class).orderByAsc("id").cursor(cursor).page(1, 100);
+     * }
+     * }</pre>
      *
      * @param enabled true 表示允许在满足前置条件时分页走游标模式
      * @return 当前引擎实例

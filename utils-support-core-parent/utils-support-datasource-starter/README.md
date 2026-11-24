@@ -37,6 +37,7 @@
 |---|---|---|
 | 引擎创建 | `Engine.create("memory")` / `Engine.create("file")`（SPI）；响应式 `ReactorEngine.create("jdbc" \| "memory" \| "file")` | 通过 `ServiceProvider` 按扩展键实例化；`Dialect.getExtension("mysql")` 获取方言 |
 | 链式查询 | `engine.query(T.class).eq(...).like(...).orderByDesc(...)` → `list()` / `one()` / `page(pn, ps)` / `count()` | `EngineQueryWrapper` 返回自身类型，条件全链式；分页在 JDBC 引擎走 COUNT + 分页 SQL 下推 |
+| 游标分页 | `page.getNextCursor()` → `query(T.class).orderByAsc(...).cursor(values).page(1, ps)` | 实验特性，默认关闭；开启方式见[快速开始 §5](#5-大数据量分页keyset游标模式实验特性默认关闭) |
 | 链式更新/删除 | `engine.update(T.class).set(T::getName, "新值").eq(T::getId, 1).update()`；`engine.delete(T.class).eq(...).remove()` | 返回受影响行数；内存/文件引擎直接作用于行引用 |
 | 数据源管理 | `addDataSource(name, EngineDataSource)` / `store(name, List)` / `getDataSource(n)` / `getDataSource()` / `removeDataSource(name)` / `dataSourceNames()` / `setDefaultDataSourceName(name)` | 首个注册的数据源自动成为默认；`removeDataSource` 摘除并关闭，默认数据源被摘除时同时置空默认名 |
 | 原生 SQL | 内存引擎：`querySql(sql, params)` / `querySql(sql, Class, params)`（`MemorySqlParser` 求值）/ `executeSql(sql, params)`；JDBC 引擎：`getExecutor()` → `JdbcSqlExecutor` 的 `query` / `queryPage` / `execute` / `batch` | `InMemoryEngine.supportsSql()` 恒为 true |
@@ -109,12 +110,42 @@ List<User> users = engine.query(User.class)
 
 `JdbcEngine` 为抽象基类，具体注册引擎由各数据库 starter 提供；子类需要数据源里携带 `javax.sql.DataSource` 与 `Dialect`（`EngineDataSource`），之后 `query/update/delete` 的完整 SQL（SELECT 列、JOIN、WHERE、GROUP BY、HAVING、ORDER BY、分页）会下推给数据库执行，`page()` 走 `executeCount` + 物理分页。
 
+### 5. 大数据量分页：keyset（游标）模式（实验特性，默认关闭）
+
+深翻页时 `LIMIT ... OFFSET N` 的成本随 N 增长（数据库要跳过前 N 行）。开启游标分页后，前进位置改由 `WHERE (排序键 > 上一页末行键值)` 承载，`OFFSET` 恒为 0，成本与页码解耦。
+
+```java
+// 方式一：实例级显式开启（优先级最高）
+((JdbcEngine) engine).setCursorPagingEnabled(true);
+// 方式二：JVM 启动参数，对本进程所有 JDBC 引擎生效
+//   -Dengine.jdbc.cursor-paging=true
+
+// 顺序翻页（游标模式只能前进，页码恒传 1）
+Page<Row> page = engine.query(Row.class).orderByAsc("id").page(1, 100);
+while (page.hasNext()) {
+    page = engine.query(Row.class).orderByAsc("id")
+            .cursor(page.getNextCursor())     // 上一页末行的排序键值
+            .page(1, 100);
+}
+```
+
+| 项 | 口径 |
+|---|---|
+| 启用条件 | 开关开启 + 调用方给了非空游标 + 有确定 `ORDER BY` + 无 `GROUP BY`/`JOIN` + 方言支持标准 `LIMIT`（五条同时满足） |
+| 不满足时 | **静默**回退 `LIMIT/OFFSET`，不抛异常、不改返回结构，且**不产出游标** |
+| 能力探测 | `engine.supportsCursorPaging()` / `((JdbcEngine) engine).isCursorPagingEnabled()` |
+| 默认值 | 关闭。历史调用方行为字节级不变 |
+| 已知约束 | 只能顺序前进不能跳页；排序键必须唯一稳定（同值行会跨页重复/遗漏）；总数仍需 `COUNT` 单独取 |
+
+> 为什么默认关闭：keyset 改变的是**分页语义**而非单纯提速，对既有调用方属不兼容变更，故做成实验开关。
+
 ---
 
 ## 配置项
 
-本模块**零 Spring 配置**：引擎与方言完全由 SPI 自动装配，引入依赖即可使用。唯一的配置输入是**类路径资源**，而非 application 配置：
+本模块**零 Spring 配置**：引擎与方言完全由 SPI 自动装配，引入依赖即可使用。配置输入有两类：**JVM 系统属性**与**类路径资源**，没有 application 配置文件。
 
+- **JVM 系统属性**（JDBC 引擎专属）：`-Dengine.jdbc.cursor-paging=true`（常量 `JdbcEngine.CURSOR_PAGING_PROPERTY`）开启 keyset 游标分页实验能力，缺省 `false`；实例级 `setCursorPagingEnabled(boolean)` 优先于该属性。
 - **方言资源文件**：`META-INF/dialect-env/{protocol}.env`，例如 `MysqlDialect` → `mysql.env`、`PostgresqlDialect` → `postgresql.env`。模块内置 24 个文件：mysql、postgresql（env9/10）、oracle（11g/12c）、sqlserver（2008/2012）、sqlite（2）、h2（h2v1）、mariadb（103）、hive（2）、derby（1014）、duckdb（06）、clickhouse（20）。
 - **资源加载规则**（`AbstractDialect.loadDefaultEnv`）：按类路径 `getResources` 合并同名资源——类路径靠前的 jar 逐键优先，后续 jar 只补缺失键，全部按 UTF-8 读取。
 - **代码级覆盖**：`withProperties(Properties)` 传入的外部 properties 优先级高于内置 `.env`；`config(key, defaultValue)` 三级读取为「外部注入 → 内置 .env → 默认值」。

@@ -291,6 +291,48 @@ public class JdbcKvEngine implements KvEngine {
         }
     }
 
+    @Override
+    public Map<String, String> findAllByPrefixDesc(String prefix, String beforeKeyExclusive, int maxRows) {
+        ensureTable();
+        // 范围扫描 + LIMIT 下推（降序）：kv_key 为主键，ORDER BY DESC 走索引范围扫描，
+        // 供调用方从最大键开始分批流式消费（如「取最新 N 条」），避免大前缀一次性物化全量数据
+        String upper = prefix + Character.MAX_VALUE;
+        boolean hasBefore = beforeKeyExclusive != null && !beforeKeyExclusive.isEmpty();
+        String sql = "SELECT kv_key, kv_value, expires_at FROM " + TABLE
+                + " WHERE kv_key >= ? AND kv_key < ?"
+                + (hasBefore ? " AND kv_key < ?" : "")
+                + " ORDER BY kv_key DESC LIMIT ?";
+        Map<String, String> result = new LinkedHashMap<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            int index = 1;
+            ps.setString(index++, prefix);
+            ps.setString(index++, upper);
+            if (hasBefore) {
+                ps.setString(index++, beforeKeyExclusive);
+            }
+            ps.setInt(index, Math.max(1, maxRows));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getString(1);
+                    String value = rs.getString(2);
+                    long expiresAt = rs.getLong(3);
+                    boolean hasExpiry = !rs.wasNull();
+                    if (hasExpiry && expiresAt < System.currentTimeMillis()) {
+                        delete(key);
+                        continue;
+                    }
+                    if (key != null && key.startsWith(prefix)) {
+                        result.put(key, value);
+                    }
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new IllegalStateException("JdbcKvEngine findAllByPrefixDesc(分批) 失败: " + prefix, e);
+        }
+    }
+
     /**
      * 懒建表：只在首次使用时执行 DDL。
      */

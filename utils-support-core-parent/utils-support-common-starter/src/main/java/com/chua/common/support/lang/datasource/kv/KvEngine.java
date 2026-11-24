@@ -188,6 +188,41 @@ public interface KvEngine extends KvOperations {
         return result;
     }
 
+    /**
+     * 按前缀分批倒序读取：返回前缀范围内键名字典序小于 {@code beforeKeyExclusive}（排他）的
+     * 键值对中，键名最大的 {@code maxRows} 条，按键名字典序降序排列。
+     *
+     * <p>与 {@link #findAllByPrefix(String, String, int)} 的升序游标互补：调用方把本批
+     * 返回的最后一条键名（本批中最小的键名）作为下一批的 {@code beforeKeyExclusive}
+     * 循环拉取，即可从最大键开始向更小键方向流式扫描、随时终止——
+     * 适用于「取最新 N 条」这类只关心近期数据的场景。</p>
+     *
+     * <p>默认实现退化为全量读取后内存倒序切片，兼容未做范围扫描优化的后端
+     * （大前缀下有 OOM 风险且每批重复全量扫描，仅建议低频调用）；
+     * 具备有序范围扫描能力的后端应覆写本方法，
+     * 把 {@code key &lt; before ORDER BY key DESC LIMIT n} 下推到存储层。</p>
+     *
+     * @param prefix             键前缀，不可为 null
+     * @param beforeKeyExclusive 起始键（排他，向更小键方向扫描）；null 或空串表示从前缀最大键开始
+     * @param maxRows            本批最多返回条数，小于 1 时按 1 处理
+     * @return 键名字典序降序的键值对；无更多数据时返回空 Map
+     */
+    default Map<String, String> findAllByPrefixDesc(String prefix, String beforeKeyExclusive, int maxRows) {
+        NavigableMap<String, String> sorted = new TreeMap<>(findAllByPrefix(prefix));
+        if (beforeKeyExclusive != null && !beforeKeyExclusive.isEmpty()) {
+            sorted = sorted.headMap(beforeKeyExclusive, false);
+        }
+        int rows = Math.max(1, maxRows);
+        Map<String, String> result = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : sorted.descendingMap().entrySet()) {
+            if (result.size() >= rows) {
+                break;
+            }
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
     // ==================== 链式操作 ====================
 
     /**

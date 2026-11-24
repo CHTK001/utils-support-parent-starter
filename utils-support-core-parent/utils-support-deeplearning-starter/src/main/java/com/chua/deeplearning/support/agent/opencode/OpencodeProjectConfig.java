@@ -167,6 +167,17 @@ public final class OpencodeProjectConfig {
     private final Map<String, ProviderSpec> providers = new LinkedHashMap<>();
 
     /**
+     * provider 凭据，键为 provider 标识。
+     *
+     * <p>1.x（≤1.18）的 serve 模式不会把 auth.json 里的密钥套到自定义 provider 上
+     * （1.18.31 实测：run 模式正常、serve 模式对上游 403「缺少 API Key」），因此
+     * 1.x 段的 {@code options.apiKey} 必须直接内嵌密钥；2.x 段仍走 env 注入，不受
+     * 影响。工作区为运行期隔离目录（非受版本控制仓库），密钥落盘范围与隔离数据
+     * 目录的 {@code auth.json} 一致。</p>
+     */
+    private final Map<String, String> providerApiKeys = new LinkedHashMap<>();
+
+    /**
      * 默认模型（provider/model）
      */
     private String defaultModel;
@@ -255,8 +266,9 @@ public final class OpencodeProjectConfig {
      * {@code provider/model} 构造模型客户端，最终表现为
      * {@code UnknownError: Unexpected server error}。</p>
      *
-     * <p>凭据（apiKey）不写进本项目文件：工作区通常是受版本控制的仓库，写入即泄漏。
-     * 密钥由 {@code OpencodeServerProcess} 合并进隔离数据目录的 {@code auth.json}。</p>
+     * <p>凭据（apiKey）由 {@code OpencodeServerProcess} 合并进隔离数据目录的
+     * {@code auth.json}（CLI run 模式用），并经 {@link #providerApiKey(String, String)}
+     * 写入 1.x 段 {@code options.apiKey}（1.x serve 模式不消费 auth.json，见该方法）。</p>
      *
      * @param spec provider 定义
      * @return 当前生成器
@@ -266,6 +278,25 @@ public final class OpencodeProjectConfig {
             return this;
         }
         providers.put(spec.id().trim(), spec);
+        return this;
+    }
+
+    /**
+     * 登记 provider 的 API 密钥（写入 1.x 段 {@code options.apiKey}）。
+     *
+     * <p>1.x 的 serve 模式不消费 auth.json（见 {@code providerApiKeys} 字段说明），
+     * 密钥必须随项目配置下发；2.x 忽略 1.x 段，仍从 {@code providers.<id>.env}
+     * 声明的环境变量取密钥，因此两条轨都要保留。</p>
+     *
+     * @param providerId provider 标识（{@code provider/model} 中斜杠前的部分）
+     * @param apiKey     API 密钥；空白忽略
+     * @return 当前生成器
+     */
+    public OpencodeProjectConfig providerApiKey(String providerId, String apiKey) {
+        if (StringUtils.isBlank(providerId) || StringUtils.isBlank(apiKey)) {
+            return this;
+        }
+        providerApiKeys.put(providerId.trim(), apiKey.trim());
         return this;
     }
 
@@ -515,9 +546,12 @@ public final class OpencodeProjectConfig {
      * {@code providers} 是 2.x 写法（1.19 起的 server 只认它）。实测两份并存不会
      * 互相覆盖：2.x server 解析 provider 时用的就是 {@code providers} 段。</p>
      *
-     * <p>密钥一律不写进项目文件（工作区通常是受版本控制的仓库）。2.x 在 provider 上
-     * 声明 {@code env} 环境变量名，由 {@link OpencodeServerProcess#providerCredential}
-     * 在启动子进程时注入；1.x 由隔离数据目录的 {@code auth.json} 提供。</p>
+     * <p>密钥下发分两轨：2.x 在 provider 上声明 {@code env} 环境变量名，由
+     * {@link OpencodeServerProcess#providerCredential} 在启动子进程时注入；1.x 的
+     * serve 模式不消费 auth.json（1.18.31 实测：run 模式正常、serve 模式对上游
+     * 403「缺少 API Key」），因此 1.x 段的 {@code options.apiKey} 直接内嵌密钥。
+     * 工作区为运行期隔离目录（非受版本控制仓库），密钥落盘范围与隔离数据目录的
+     * {@code auth.json} 一致。</p>
      *
      * <p>1.x 段必须写 {@code npm}：1.x 用它选择 AI SDK 实现包，缺省时 provider 的
      * API 会被解析成 {@code native}，会话起跑即抛
@@ -541,6 +575,10 @@ public final class OpencodeProjectConfig {
             node.put("npm", PACKAGE_OPENAI_COMPATIBLE);
             if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
                 childObject(node, "options").put("baseURL", spec.baseUrl());
+            }
+            String apiKey = providerApiKeys.get(spec.id());
+            if (StringUtils.isNotBlank(apiKey)) {
+                childObject(node, "options").put("apiKey", apiKey);
             }
             JsonNode existing = container.get(spec.id());
             ObjectNode v2Node = existing instanceof ObjectNode object ? object : container.putObject(spec.id());
