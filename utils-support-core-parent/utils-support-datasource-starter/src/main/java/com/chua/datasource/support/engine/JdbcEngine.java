@@ -191,7 +191,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         // 有 JOIN 时内存链路无法完成跨表关联，即使实体有内存存储数据也强制走 JDBC 执行
         if (sql.hasJoins()) {
             String fullSql = buildSelectSql(sql, true);
-            return executeNativeQuery(fullSql, mergedParams(sql), sql.entityClass());
+            return executeNativeQuery(fullSql, mergedParams(sql, true), sql.entityClass());
         }
         // 内存存储中存在数据时走内存链路（executeNewQuery 内存分支 + 内存排序/分页后处理）
         List<T> memoryData = getData(sql.entityClass());
@@ -199,18 +199,27 @@ public abstract class JdbcEngine extends AbstractEngine {
             return super.executeQueryFull(sql);
         }
         String fullSql = buildSelectSql(sql, true);
-        return executeNativeQuery(fullSql, mergedParams(sql), sql.entityClass());
+        return executeNativeQuery(fullSql, mergedParams(sql, true), sql.entityClass());
     }
 
     /**
-     * 合并 WHERE 参数与 HAVING 参数为按占位符顺序排列的绑定数组。
+     * 合并 WHERE、游标、HAVING 参数为按占位符顺序排列的绑定数组。
      *
-     * @param sql 查询 SQL 信息
-     * @param <T> 实体类型
-     * @return 参数数组（WHERE 参数在前，HAVING 参数在后）
+     * <p>顺序必须与 {@code buildSelectSql} 的渲染顺序一致：
+     * 先 WHERE 已有参数，再 keyset 游标谓词参数，最后 HAVING 参数
+     * （COUNT 查询不渲染游标谓词，此时传 {@code includeCursor=false}）。</p>
+     *
+     * @param sql           查询 SQL 信息
+     * @param includeCursor 是否允许追加游标参数（与 {@code buildSelectSql} 是否渲染游标谓词同口径）
+     * @param <T>           实体类型
+     * @return 参数数组
      */
-    private static <T> Object[] mergedParams(QuerySql<T> sql) {
+    private <T> Object[] mergedParams(QuerySql<T> sql, boolean includeCursor) {
         List<Object> all = Wraps.list(sql.params());
+        // 与 buildSelectSql 同口径：只有真正渲染了游标谓词才追加游标参数
+        if (includeCursor && keysetApplicable(sql)) {
+            all.addAll(cursorParams(sql));
+        }
         if (sql.hasHaving()) {
             all.addAll(sql.havingParams());
         }
@@ -278,6 +287,9 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     private <T> String buildSelectSql(QuerySql<T> sql, boolean includeOrderAndPaging, String projectionOverride) {
         String tableName = resolveTableName(sql.entityClass());
+        // keyset（游标）谓词：仅「SELECT 场景 + 开关开启 + 调用方给了游标 + 有 ORDER BY +
+        // 无 GROUP BY/JOIN + 方言支持 LIMIT」时才生效，其余情况一律回退 LIMIT/OFFSET
+        String cursorPredicate = (includeOrderAndPaging && keysetApplicable(sql)) ? buildCursorPredicate(sql) : null;
         StringBuilder sb = new StringBuilder("SELECT ");
         if (projectionOverride != null) {
             sb.append(projectionOverride);
@@ -300,7 +312,14 @@ public abstract class JdbcEngine extends AbstractEngine {
                         .append(join.renderTable()).append(" ON ").append(join.onCondition());
             }
         }
-        if (sql.hasWhere()) {
+        if (cursorPredicate != null) {
+            // 游标谓词必须与调用方条件同时成立；已有 WHERE 时加括号保证 AND 优先级
+            sb.append(" WHERE ");
+            if (sql.hasWhere()) {
+                sb.append('(').append(sql.whereClause()).append(") AND ");
+            }
+            sb.append(cursorPredicate);
+        } else if (sql.hasWhere()) {
             sb.append(" WHERE ").append(sql.whereClause());
         }
         if (sql.hasGroupBy()) {
@@ -314,10 +333,88 @@ public abstract class JdbcEngine extends AbstractEngine {
             coreSql = coreSql + " ORDER BY " + String.join(", ", sql.orderBys());
         }
         if (includeOrderAndPaging && sql.limit() > 0) {
-            coreSql = wrapPagination(coreSql, sql.limit(), sql.offset());
+            // 游标分页语义是「从键值之后取 limit 行」，偏移恒为 0，忽略页码推导出的深偏移
+            coreSql = wrapPagination(coreSql, sql.limit(), cursorPredicate != null ? 0 : sql.offset());
         }
         return coreSql;
     }
+
+    /**
+     * 判断本次查询能否使用 keyset（游标）分页。
+     *
+     * <p>五个前置条件缺一不可：实验开关开启、调用方提供游标键值、有 ORDER BY、
+     * 无 GROUP BY/JOIN（分组/关联下「上一页末行键」不代表结果集顺序位置）、
+     * 方言支持标准 LIMIT 语法。任一不满足就回退 LIMIT/OFFSET，保证与历史行为一致。</p>
+     *
+     * @param sql 查询 SQL 信息
+     * @param <T> 实体类型
+     * @return true 表示可用游标谓词替代 OFFSET
+     */
+    private <T> boolean keysetApplicable(QuerySql<T> sql) {
+        if (!isCursorPagingEnabled() || !sql.hasCursor()) {
+            return false;
+        }
+        if (sql.hasGroupBy() || sql.hasJoins()) {
+            return false;
+        }
+        Dialect d = dialect();
+        return d == null || d.supportsLimit();
+    }
+
+    /**
+     * 由 ORDER BY 键与游标键值构造 keyset 谓词。
+     *
+     * <p>多列排序按字典序展开为「前 N-1 列相等 AND 第 N 列严格大于/小于」的 OR 链，
+     * 例：{@code (a > ?) OR (a = ? AND b < ?)}（a 升序、b 降序）。
+     * 参数占位符顺序与 {@link #cursorParams(QuerySql)} 严格一致。</p>
+     *
+     * @param sql 查询 SQL 信息（{@link #keysetApplicable} 已返回 true）
+     * @param <T> 实体类型
+     * @return keyset 谓词（{@code ?} 占位符，不含 WHERE 关键字）
+     */
+    private static <T> String buildCursorPredicate(QuerySql<T> sql) {
+        List<String> orderBys = sql.orderBys();
+        List<Object> values = sql.cursorValues();
+        StringBuilder predicate = new StringBuilder();
+        for (int i = 0; i < orderBys.size() && i < values.size(); i++) {
+            String[] parts = orderBys.get(i).trim().split("\\s+");
+            String column = parts[0];
+            boolean desc = parts.length > 1 && "DESC".equalsIgnoreCase(parts[1]);
+            if (i > 0) {
+                predicate.append(" OR ");
+            }
+            predicate.append('(');
+            for (int j = 0; j < i; j++) {
+                predicate.append(orderBys.get(j).trim().split("\\s+")[0]).append(" = ? AND ");
+            }
+            predicate.append(column).append(desc ? " < ?" : " > ?").append(')');
+        }
+        return predicate.toString();
+    }
+
+    /**
+     * 按占位符顺序排列的游标绑定参数（与 {@link #buildCursorPredicate} 一一对应）。
+     *
+     * @param sql 查询 SQL 信息
+     * @param <T> 实体类型
+     * @return 游标参数列表，无游标时为空列表
+     */
+    private static <T> List<Object> cursorParams(QuerySql<T> sql) {
+        List<Object> params = Wraps.list();
+        if (sql.cursorValues() == null) {
+            return params;
+        }
+        List<String> orderBys = sql.orderBys();
+        for (int i = 0; i < orderBys.size() && i < sql.cursorValues().size(); i++) {
+            // 每个 OR 分组内：前 i 个键做等值比较，第 i 个键做严格比较，共 i+1 个占位符
+            for (int j = 0; j < i; j++) {
+                params.add(sql.cursorValues().get(j));
+            }
+            params.add(sql.cursorValues().get(i));
+        }
+        return params;
+    }
+
 
     /**
      * 为 SQL 追加分页子句。
@@ -395,6 +492,41 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
+     * 计算下一页游标（keyset）键值。
+     * <p>取本页末行的 ORDER BY 键值；仅当本页已满（说明可能还有下一页）且全部键值
+     * 非空时返回，否则返回 null 让调用方停在末页。键值顺序与 ORDER BY 严格一致，
+     * 可直接回传给 {@code LambdaQueryWrapper#cursor(List)}。</p>
+     *
+     * @param wrapper  查询包装器
+     * @param records  当前页数据
+     * @param pageSize 每页条数
+     * @param <T>      实体类型
+     * @return 下一页游标键值，null 表示无下一页
+     */
+    @Override
+    protected <T> List<Object> computeNextCursor(LambdaQueryWrapper<T> wrapper, List<T> records, int pageSize) {
+        if (records == null || pageSize <= 0 || records.size() < pageSize) {
+            return null;
+        }
+        QuerySql<T> sql = wrapper.buildSql();
+        List<String> orderBys = sql.orderBys();
+        if (orderBys == null || orderBys.isEmpty()) {
+            return null;
+        }
+        T last = records.get(records.size() - 1);
+        List<Object> cursor = Wraps.list();
+        for (int i = 0; i < orderBys.size(); i++) {
+            Object value = orderValue(last, orderBys.get(i));
+            // 空键值无法用 > / < 表达（SQL NULL 比较恒为 UNKNOWN），整页放弃游标
+            if (value == null) {
+                return null;
+            }
+            cursor.add(value);
+        }
+        return cursor;
+    }
+
+    /**
      * 执行 COUNT 查询统计总行数，用于物理分页的 total。
      * <p>将不含 ORDER BY/分页的查询包装为
      * {@code SELECT COUNT(*) FROM (...查询...) t_count} 执行，
@@ -420,7 +552,8 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
         try (Connection conn = getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(countSql)) {
-            Object[] params = mergedParams(sql);
+            // COUNT 不计游标过滤：total 必须是「全部条件命中行数」，否则游标翻页会把总数越算越小
+            Object[] params = mergedParams(sql, false);
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
             }

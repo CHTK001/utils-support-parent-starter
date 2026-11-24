@@ -17,6 +17,7 @@ import java.util.List;
  *   <li>{@code total} — 总记录数</li>
  *   <li>{@code records} — 当前页的数据列表</li>
  *   <li>{@link #getPages()} — 总页数（根据 total 和 pageSize 自动计算）</li>
+ *   <li>{@code nextCursor} — 游标（keyset）分页的下一页键值，null 表示按页码翻页</li>
  * </ul>
  * </p>
  * <p>
@@ -37,18 +38,34 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
-public record Page<T>(int pageNum, int pageSize, long total, List<T> records) {
+public record Page<T>(int pageNum, int pageSize, long total, List<T> records, List<Object> nextCursor) {
 
     /**
-     * 构造分页结果。
+     * 构造分页结果（按页码翻页，不含游标）。
      *
      * @param pageNum  当前页码
      * @param pageSize 每页记录数
      * @param total    总记录数
      * @param records  当前页数据列表（null 视为空列表）
      */
+    public Page(int pageNum, int pageSize, long total, List<T> records) {
+        this(pageNum, pageSize, total, records, null);
+    }
+
+    /**
+     * 构造分页结果。
+     *
+     * @param pageNum    当前页码
+     * @param pageSize   每页记录数
+     * @param total      总记录数
+     * @param records    当前页数据列表（null 视为空列表）
+     * @param nextCursor 下一页游标键值（null 表示按页码翻页或已到末页）
+     */
     public Page {
         records = records != null ? records : Collections.emptyList();
+        // 游标键值是绑定值，做防御性拷贝避免调用方后续修改影响翻页
+        nextCursor = (nextCursor == null || nextCursor.isEmpty())
+                ? null : List.copyOf(nextCursor);
     }
 
     /**
@@ -99,5 +116,31 @@ public record Page<T>(int pageNum, int pageSize, long total, List<T> records) {
      */
     public boolean isEmpty() {
         return records.isEmpty();
+    }
+
+    /**
+     * 获取下一页游标键值（keyset 分页）。
+     *
+     * <p>仅当引擎开启游标分页、且本次分页满足「物理分页 + 有 ORDER BY + 无
+     * GROUP BY/JOIN」时才有值；值为当前页末行的排序键，顺序与 ORDER BY 一致，
+     * 下次调用 {@code LambdaQueryWrapper#cursor(List)} 传入即可取下一页。</p>
+     *
+     * @return 游标键值，null 表示按页码翻页或已到末页
+     */
+    public List<Object> getNextCursor() {
+        return nextCursor;
+    }
+
+    /**
+     * 判断是否还有下一页。
+     * <p>有游标时以游标为准（末页无游标）；无游标时按总记录数推算。</p>
+     *
+     * @return true 表示存在下一页
+     */
+    public boolean hasNext() {
+        if (nextCursor != null) {
+            return true;
+        }
+        return pageSize > 0 && (long) pageNum * pageSize < total;
     }
 }

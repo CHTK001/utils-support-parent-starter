@@ -16,6 +16,7 @@ import com.chua.common.support.utils.StringUtils;
  *   <li>GROUP BY — {@link #groupBy(SFunction)}，分组过滤 {@link #having}</li>
  *   <li>ORDER BY — 继承自 {@link AbstractLambdaWrapper}</li>
  *   <li>分页下推 — {@link #limit(int)} / {@link #offset(int)}</li>
+ *   <li>游标分页 — {@link #cursor(List)}，键集（keyset）方式规避深偏移</li>
  *   <li>SQL 构建 — {@link #buildSql()} 生成结构化的查询 SQL 信息</li>
  * </ul>
  * </p>
@@ -51,6 +52,11 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * 偏移行数，0 表示不偏移
      */
     private int offset;
+    /**
+     * 游标（keyset）分页的上一页末行键值，顺序与 ORDER BY 列表严格一致；
+     * null 表示按页码/偏移分页（历史行为）
+     */
+    private List<Object> cursorValues;
     /**
      * JOIN 关联子句列表
      */
@@ -430,6 +436,43 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     }
 
     /**
+     * 设置游标（keyset）分页的上一页末行键值。
+     *
+     * <p>键值顺序必须与 {@link #orderByAsc}/{@link #orderByDesc} 声明的排序列
+     * 一一对应：只给单列排序时传单元素列表，两列排序时传两元素列表。引擎在满足
+     * 「物理分页 + 有 ORDER BY + 无 GROUP BY/JOIN + 该引擎开启了游标实验开关」
+     * 时改用 {@code WHERE (键 > 游标值)} 形式的键集条件，替代 {@code OFFSET}；
+     * 任一条件不满足则忽略游标，退回 LIMIT/OFFSET 分页。</p>
+     *
+     * @param cursorValues 上一页末行的排序键值，null 或空表示按页码分页
+     * @return this
+     */
+    public LambdaQueryWrapper<T> cursor(List<Object> cursorValues) {
+        this.cursorValues = (cursorValues == null || cursorValues.isEmpty())
+                ? null : List.copyOf(cursorValues);
+        return this;
+    }
+
+    /**
+     * 获取游标（keyset）分页键值。
+     *
+     * @return 游标键值列表，null 表示按页码/偏移分页
+     */
+    public List<Object> getCursorValues() {
+        return cursorValues;
+    }
+
+    /**
+     * 清除游标键值，恢复为按页码/偏移分页。
+     *
+     * @return this
+     */
+    public LambdaQueryWrapper<T> clearCursor() {
+        this.cursorValues = null;
+        return this;
+    }
+
+    /**
      * 获取偏移行数。
      *
      * @return 偏移行数
@@ -455,7 +498,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
         buildWhere(where, params);
         return new QuerySql(entityClass, selectColumns, where.toString(), params,
                 groupByColumn, getOrderBys(), limit, offset,
-                List.copyOf(joins), havingClause, List.copyOf(havingParams));
+                List.copyOf(joins), havingClause, List.copyOf(havingParams), cursorValues);
     }
 
     // ==================== 内部实现 ====================

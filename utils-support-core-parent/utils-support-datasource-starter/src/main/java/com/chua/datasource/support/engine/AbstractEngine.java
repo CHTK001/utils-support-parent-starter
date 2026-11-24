@@ -609,6 +609,24 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
+     * 计算当前页的下一页游标（keyset 分页键值）。
+     *
+     * <p>默认返回 null（不做游标分页，{@link Page#getNextCursor()} 恒为 null，
+     * 调用方按页码翻页）。具备游标能力的引擎覆盖本方法：仅在本页确实按游标/物理
+     * 分页取数、本页已满（说明可能还有下一页）、且排序键值可安全构造时返回末行键值；
+     * 其余情况返回 null。</p>
+     *
+     * @param wrapper  查询包装器（分页参数已由调用方还原）
+     * @param records  当前页数据
+     * @param pageSize 每页条数
+     * @param <T>      实体类型
+     * @return 下一页游标键值，null 表示无游标
+     */
+    protected <T> List<Object> computeNextCursor(LambdaQueryWrapper<T> wrapper, List<T> records, int pageSize) {
+        return null;
+    }
+
+    /**
      * 统计查询条件命中的总行数（供 {@code LambdaQueryWrapper#count()} 终端方法调用）。
      * <p>SQL 引擎优先下推 {@code SELECT COUNT(*)} 物理计数；
      * 内存引擎回退为执行查询后对结果计数。</p>

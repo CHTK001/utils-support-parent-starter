@@ -361,7 +361,10 @@ public class CdpBrowserEngine implements BrowserEngine {
      * 复位复用页面：清 Cookie、站点存储与上一会话的新文档脚本，回到 about:blank。
      *
      * <p>只清登录态，不销毁上下文与标签页——复用省下的就是这几步的同步往返。
-     * HTTP 缓存按顶层站点分区，不跨供应商。</p>
+     * HTTP 缓存按顶层站点分区，不跨供应商。Cloudflare 的挑战放行 Cookie
+     * （{@code cf_clearance} / {@code __cf_bm} 等）跨会话保留：Turnstile 通过一次
+     * 交互挑战后，同一上游的后续登录可免再次挑战；应用自身的会话 Cookie 仍全部清掉，
+     * 不会出现「已登录自动跳转」绕过令牌交换。</p>
      *
      * @param origin 需要清存储的源（如 {@code https://www.volcengine.com}）；为空只清 Cookie
      */
@@ -381,10 +384,19 @@ public class CdpBrowserEngine implements BrowserEngine {
         Duration timeout = Duration.ofSeconds(5);
         String contextId = reusableContextId;
         if (StringUtils.isNotBlank(contextId)) {
+            List<Map<String, Object>> keep = cloudflareCookies(contextId, timeout);
             try {
                 connection.call("Storage.clearCookies", Map.of("browserContextId", contextId), null, timeout);
             } catch (RuntimeException e) {
                 log.debug("[cdp] 清理复用页面 Cookie 失败: {}", e.getMessage());
+            }
+            if (!keep.isEmpty()) {
+                try {
+                    connection.call("Storage.setCookies",
+                            Map.of("cookies", keep, "browserContextId", contextId), null, timeout);
+                } catch (RuntimeException e) {
+                    log.debug("[cdp] 回写 Cloudflare Cookie 失败: {}", e.getMessage());
+                }
             }
         }
         if (StringUtils.isNotBlank(origin)) {
@@ -404,6 +416,58 @@ public class CdpBrowserEngine implements BrowserEngine {
      */
     public BrowserPage reusablePage() {
         return reusablePage;
+    }
+
+    /**
+     * 快照当前上下文里 Cloudflare 的挑战放行 Cookie（{@code cf_} / {@code __cf} 前缀）。
+     *
+     * <p>返回的条目可直接交给 {@code Storage.setCookies} 回写；应用自身的会话
+     * Cookie 不在保留范围。</p>
+     *
+     * @param contextId 浏览器上下文
+     * @param timeout   命令超时
+     * @return 需要跨会话保留的 Cookie 参数列表
+     */
+    private List<Map<String, Object>> cloudflareCookies(String contextId, Duration timeout) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            Map<String, Object> got = connection.call("Storage.getCookies",
+                    Map.of("browserContextId", contextId), null, timeout);
+            Object cookies = got == null ? null : got.get("cookies");
+            if (cookies instanceof List<?> list) {
+                for (Object item : list) {
+                    if (!(item instanceof Map<?, ?> cookie)) {
+                        continue;
+                    }
+                    String name = asString(cookie.get("name"));
+                    if (StringUtils.isBlank(name)
+                            || (!name.startsWith("cf_") && !name.startsWith("__cf"))) {
+                        continue;
+                    }
+                    Map<String, Object> param = new LinkedHashMap<>();
+                    param.put("name", name);
+                    param.put("value", asString(cookie.get("value")));
+                    param.put("domain", asString(cookie.get("domain")));
+                    param.put("path", asString(cookie.get("path")));
+                    if (cookie.get("expires") instanceof Number expires) {
+                        param.put("expires", expires);
+                    }
+                    if (cookie.get("httpOnly") instanceof Boolean httpOnly) {
+                        param.put("httpOnly", httpOnly);
+                    }
+                    if (cookie.get("secure") instanceof Boolean secure) {
+                        param.put("secure", secure);
+                    }
+                    if (cookie.get("sameSite") != null) {
+                        param.put("sameSite", asString(cookie.get("sameSite")));
+                    }
+                    result.add(param);
+                }
+            }
+        } catch (RuntimeException e) {
+            log.debug("[cdp] 读取 Cloudflare Cookie 失败: {}", e.getMessage());
+        }
+        return result;
     }
 
     /**

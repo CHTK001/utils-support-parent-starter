@@ -50,8 +50,8 @@ public record QuerySql<T>(
      * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
      * {@code selectColumns} / {@code orderBys} / {@code joins} 分别由
      * {@link #hasSelect()}、{@link #hasOrderBy()}、{@link #hasJoins()} 显式判空，
-     * 允许为 null；{@code params} 与 {@code havingParams} 是 SQL 绑定值，
-     * 既可能整体为 null，也可能含 null 绑定值。因此五个列表均保留 null 语义
+     * 允许为 null；{@code params} / {@code havingParams} / {@code cursorValues} 是 SQL
+     * 绑定值，既可能整体为 null，也可能含 null 绑定值。因此六个列表均保留 null 语义
      * 并采用可空安全写法。</p>
      *
      * @param entityClass   实体类类型，不允许为 null
@@ -109,6 +109,30 @@ public record QuerySql<T>(
                     List<Object> params, String groupByColumn, List<String> orderBys, int limit, int offset) {
         this(entityClass, selectColumns, whereClause, params, groupByColumn, orderBys,
                 limit, offset, List.of(), null, List.of(), null);
+    }
+
+    /**
+     * 兼容构造器：不含游标键值的查询（历史 11 组件签名）。
+     * <p>保留该签名使既有调用方无需感知游标能力；{@code cursorValues} 置 null，
+     * 即按页码/偏移分页，与历史行为完全一致。</p>
+     *
+     * @param entityClass  实体类类型
+     * @param selectColumns SELECT 投影列列表
+     * @param whereClause   WHERE 条件片段
+     * @param params        WHERE 参数列表
+     * @param groupByColumn GROUP BY 列
+     * @param orderBys      ORDER BY 列表
+     * @param limit         返回行数上限
+     * @param offset        偏移行数
+     * @param joins         JOIN 关联子句列表
+     * @param havingClause  HAVING 条件片段
+     * @param havingParams  HAVING 参数列表
+     */
+    public QuerySql(Class<T> entityClass, List<String> selectColumns, String whereClause,
+                    List<Object> params, String groupByColumn, List<String> orderBys, int limit, int offset,
+                    List<JoinClause> joins, String havingClause, List<Object> havingParams) {
+        this(entityClass, selectColumns, whereClause, params, groupByColumn, orderBys,
+                limit, offset, joins, havingClause, havingParams, null);
     }
 
     /**
@@ -211,5 +235,19 @@ public record QuerySql<T>(
             return false;
         }
         return !havingClause.isEmpty();
+    }
+
+    /**
+     * 判断是否携带游标（keyset）分页键值。
+     * <p>只有在同时满足「有 ORDER BY」时游标才有排序基准，故此处连带要求
+     * {@link #hasOrderBy()}，避免调用方只给键值不给排序时拼出无基准的谓词。</p>
+     *
+     * @return true 表示按游标键值分页
+     */
+    public boolean hasCursor() {
+        if (cursorValues == null) {
+            return false;
+        }
+        return !cursorValues.isEmpty() && hasOrderBy();
     }
 }

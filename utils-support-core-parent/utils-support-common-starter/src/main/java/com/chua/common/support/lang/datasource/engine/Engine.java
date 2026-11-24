@@ -529,6 +529,21 @@ public interface Engine extends AutoCloseable {
     }
 
     /**
+     * 判断当前引擎是否支持游标（keyset）分页。
+     *
+     * <p>游标分页用「上一页末行排序键」构造 {@code WHERE} 谓词替代 {@code OFFSET}
+     * 深偏移，适合大数据量顺序翻页。默认返回 false；能物理下推 LIMIT 的 SQL 引擎
+     * （如 {@code JdbcEngine}）在开启实验开关后返回 true。调用方可用
+     * {@code Page#getNextCursor()} 取得游标并回传给
+     * {@code LambdaQueryWrapper#cursor(List)}。</p>
+     *
+     * @return true 表示具备游标分页能力（且已开启）
+     */
+    default boolean supportsCursorPaging() {
+        return false;
+    }
+
+    /**
      * 获取引擎拦截器扩展列表。
      * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
      * 结果按 order 降序排列，无注册实现时返回空列表。</p>

@@ -241,16 +241,17 @@ final class CdpPage implements BrowserPage {
         this.screencastListener = frameListener;
         var params = new LinkedHashMap<String, Object>();
         params.put("format", "jpeg");
-        int quality = screencastOption("chua.browser.screencast.quality", 55);
+        int quality = screencastOption("chua.browser.screencast.quality", 85);
         if (quality <= 0 || quality > 100) {
-            quality = 55;
+            quality = 85;
         }
         params.put("quality", quality);
-        // 限幅降采样：帧越小，JPEG 编码 / base64 / 网络传输越快，实时画面端到端延迟越低。
-        // 960x675 按登录页 1280x900 等比降档：像素量只有原来的 70%，表单文字与滑块仍可辨认；
-        // 需要更清晰或原始分辨率时把对应属性调高 / 设为 0（不限制）。
-        int maxWidth = screencastOption("chua.browser.screencast.max-width", 960);
-        int maxHeight = screencastOption("chua.browser.screencast.max-height", 675);
+        // 默认不限制帧尺寸：帧按页面视口原始分辨率（如 1280x900）输出，查看器按
+        // 「视口 / 帧宽高」换算坐标，帧与视口 1:1 时表单文字与滑块最清晰，且不改变
+        // 查看器上的可点击位置。带宽敏感场景可把对应属性调小做降采样（如 960x675），
+        // 设为 0 表示不限制。
+        int maxWidth = screencastOption("chua.browser.screencast.max-width", 0);
+        int maxHeight = screencastOption("chua.browser.screencast.max-height", 0);
         if (maxWidth > 0) {
             params.put("maxWidth", maxWidth);
         }
