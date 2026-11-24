@@ -1102,6 +1102,28 @@ public interface Agent extends AutoCloseable {
     }
 
     /**
+     * 设置内容护栏
+     *
+     * <p>在用户输入 / 工具返回 / 模型输出三个边界检查文本：拦截提示注入、
+     * 脱敏隐私与凭据。未设置时不做内容检查。</p>
+     *
+     * @param contentGuard 内容护栏，null 表示不启用
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent contentGuard(AgentContentGuard contentGuard) {
+        return this;
+    }
+
+    /**
+     * 获取内容护栏
+     *
+     * @return 内容护栏，未设置时返回 null
+     */
+    default AgentContentGuard contentGuard() {
+        return null;
+    }
+
+    /**
      * 设置风险裁决器
      *
      * <p>工具执行前回答「这个调用能不能放行」：低风险自动放行，中高风险可走
