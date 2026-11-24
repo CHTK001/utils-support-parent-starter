@@ -133,7 +133,11 @@ public record Page<T>(int pageNum, int pageSize, long total, List<T> records, Li
 
     /**
      * 判断是否还有下一页。
-     * <p>有游标时以游标为准（末页无游标）；无游标时按总记录数推算。</p>
+     * <p>有游标时以游标为准（末页无游标）；无游标时按「本页是否满页 + 总记录数」推算。</p>
+     * <p>游标翻页的调用方通常固定传 {@code page(1, pageSize)} 再喂回游标，此时
+     * {@code pageNum} 恒为 1，只用 {@code pageNum * pageSize < total} 会把末页误判成
+     * 还有下一页。因此要求本页记录数达到 {@code pageSize}（末页不满页即终止），
+     * 该条件在 OFFSET 翻页下同样成立（未满页意味着已到末尾）。</p>
      *
      * @return true 表示存在下一页
      */
@@ -141,6 +145,9 @@ public record Page<T>(int pageNum, int pageSize, long total, List<T> records, Li
         if (nextCursor != null) {
             return true;
         }
-        return pageSize > 0 && (long) pageNum * pageSize < total;
+        if (pageSize <= 0 || records.size() < pageSize) {
+            return false;
+        }
+        return (long) pageNum * pageSize < total;
     }
 }

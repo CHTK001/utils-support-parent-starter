@@ -25,8 +25,6 @@ import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentRiskAdjudicator;
-import com.chua.common.support.ai.agent.AgentRiskDecision;
-import com.chua.common.support.ai.agent.AgentRiskRequest;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentSuspendState;
 import com.chua.common.support.ai.agent.AgentSuspendStore;
@@ -40,7 +38,6 @@ import com.chua.common.support.ai.agent.DecisionsAgentRiskAdjudicator;
 import com.chua.common.support.ai.agent.ImageDefinition;
 import com.chua.common.support.ai.agent.SimpleAgentBudgetTracker;
 import com.chua.common.support.ai.agent.SimpleAgentOrchestrator;
-import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.mcp.McpManager;
@@ -2704,10 +2701,17 @@ public class AgentScopeAgent implements Agent {
             }
         }
         io.agentscope.core.tool.Toolkit toolkit = buildToolkit(skills, skillDescriptions, localTools,
-                mcpTools, globalMcpManager, disabledTools, riskAdjudicator(), agentId, tracker);
+                mcpTools, globalMcpManager, disabledTools);
         if (toolkit != null) {
             builder.toolkit(toolkit);
         }
+
+        // 工具风险闸门中间件：acting 阶段对整批工具调用统一记账 + 裁决，
+        // 覆盖 harness 内建 shell / 文件工具（它们不经过 Toolkit.callTool，
+        // 包装工具级的闸门拦不到）。MiddlewareChain 从注册列表尾向头折叠、
+        // 先注册者在外层，必须先于调试中间件注册才能赶在执行链之前裁决。
+        builder.middleware(new AgentToolGateMiddleware(riskAdjudicator(), agentId, tracker,
+                java.util.Set.of(ASK_USER_TOOL)));
 
         // 始终注册调试中间件：输出 thinking/输出/轮次/工具全量轨迹日志（hooks 可为 null）
         {
@@ -2881,10 +2885,11 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit（无风险闸门重载）。
+     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit。
      *
-     * <p>保留原 6 参签名：未接风险裁决 / 预算记账的场景（含既有测试）委托全参重载，
-     * 裁决器与记账器均为 null，行为与既往一致。</p>
+     * <p>{@code disabled} 中的名称不会注册（先注册者优先：Skill → 进程内工具 → MCP）。
+     * 工具级风险裁决与预算记账统一上移到 {@link AgentToolGateMiddleware}（acting 阶段
+     * 对整批调用裁决，覆盖 harness 内建工具），桥接工具本身不再内嵌闸门。</p>
      *
      * @param skills           技能处理器
      * @param skillDescriptions 技能描述
@@ -2901,39 +2906,6 @@ public class AgentScopeAgent implements Agent {
             List<McpToolDescriptor> mcpTools,
             McpManager mcpManager,
             java.util.Collection<String> disabled) {
-        return buildToolkit(skills, skillDescriptions, localTools, mcpTools, mcpManager,
-                disabled, null, null, null);
-    }
-
-    /**
-     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit。
-     *
-     * <p>{@code disabled} 中的名称不会注册（先注册者优先：Skill → 进程内工具 → MCP）。
-     * 传入 {@code riskAdjudicator} 时，所有桥接工具执行前先过风险闸门
-     * （见 {@link #gateToolCall}）：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型；
-     * {@code tracker} 非空时在闸门入口记工具调用次数。</p>
-     *
-     * @param skills           技能处理器
-     * @param skillDescriptions 技能描述
-     * @param localTools       进程内工具
-     * @param mcpTools         MCP 工具描述符
-     * @param mcpManager       MCP 管理器
-     * @param disabled         需要关闭的工具名
-     * @param riskAdjudicator  风险裁决器，null 表示不做风险裁决
-     * @param agentId          Agent 标识（风险请求与审计日志用），可为 null
-     * @param tracker          预算记账器，null 表示不记账
-     * @return Toolkit；没有任何工具时返回 null
-     */
-    static io.agentscope.core.tool.Toolkit buildToolkit(
-            Map<String, com.chua.common.support.ai.skill.SkillHandler> skills,
-            Map<String, String> skillDescriptions,
-            Map<String, AgentTool> localTools,
-            List<McpToolDescriptor> mcpTools,
-            McpManager mcpManager,
-            java.util.Collection<String> disabled,
-            AgentRiskAdjudicator riskAdjudicator,
-            String agentId,
-            AgentBudgetTracker tracker) {
         java.util.Set<String> disabledNames = disabled == null
                 ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
         // ask_user 未被禁用时始终可用：即使业务工具为空，agent 也应能向用户提问
@@ -2955,8 +2927,7 @@ public class AgentScopeAgent implements Agent {
                 }
                 String desc = skillDescriptions == null ? null : skillDescriptions.get(skillName);
                 toolkit.registerAgentTool(new SkillAgentTool(skillName,
-                        desc != null ? desc : "Skill: " + skillName, entry.getValue(),
-                        riskAdjudicator, agentId, tracker));
+                        desc != null ? desc : "Skill: " + skillName, entry.getValue()));
             }
         }
         if (localTools != null) {
@@ -2964,8 +2935,7 @@ public class AgentScopeAgent implements Agent {
                 if (disabledNames.contains(tool.getName()) || !registered.add(tool.getName())) {
                     continue;
                 }
-                toolkit.registerAgentTool(new FunctionAgentTool(tool,
-                        riskAdjudicator, agentId, tracker));
+                toolkit.registerAgentTool(new FunctionAgentTool(tool));
             }
         }
         if (mcpTools != null) {
@@ -2975,8 +2945,7 @@ public class AgentScopeAgent implements Agent {
                         || !registered.add(descriptor.getName())) {
                     continue;
                 }
-                toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager,
-                        riskAdjudicator, agentId, tracker));
+                toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager));
             }
         }
         if (askUserEnabled && registered.add(ASK_USER_TOOL)) {
