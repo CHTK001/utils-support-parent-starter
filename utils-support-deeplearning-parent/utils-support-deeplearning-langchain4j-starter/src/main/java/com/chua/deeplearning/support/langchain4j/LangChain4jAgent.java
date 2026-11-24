@@ -17,6 +17,27 @@ import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.AgentTrace;
+import com.chua.common.support.ai.agent.AgentBudget;
+import com.chua.common.support.ai.agent.AgentBudgetTracker;
+import com.chua.common.support.ai.agent.AgentCancelledException;
+import com.chua.common.support.ai.agent.AgentCancellationToken;
+import com.chua.common.support.ai.agent.AgentEvalContext;
+import com.chua.common.support.ai.agent.AgentEvalHook;
+import com.chua.common.support.ai.agent.AgentEvalRecord;
+import com.chua.common.support.ai.agent.AgentOrchestrator;
+import com.chua.common.support.ai.agent.AgentParallelToolExecutor;
+import com.chua.common.support.ai.agent.AgentPlan;
+import com.chua.common.support.ai.agent.AgentPlanConfirmation;
+import com.chua.common.support.ai.agent.AgentRiskAdjudicator;
+import com.chua.common.support.ai.agent.AgentRiskDecision;
+import com.chua.common.support.ai.agent.AgentRiskRequest;
+import com.chua.common.support.ai.agent.AgentSuspendState;
+import com.chua.common.support.ai.agent.AgentSuspendStore;
+import com.chua.common.support.ai.agent.AgentToolSafetyPolicy;
+import com.chua.common.support.ai.agent.DecisionsAgentRiskAdjudicator;
+import com.chua.common.support.ai.agent.InMemoryAgentSuspendStore;
+import com.chua.common.support.ai.agent.SimpleAgentBudgetTracker;
+import com.chua.common.support.ai.agent.SimpleAgentOrchestrator;
 import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
@@ -72,9 +93,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -228,23 +248,63 @@ public class LangChain4jAgent implements Agent {
     private volatile Boolean shellEnabled;
 
     /**
-     * 待人工确认的暂停态缓存：replyId → 快照。
+     * 暂停状态存储（外置化）：人工确认 / 提问挂起时把 {@link PendingPause} 包裹为
+     * {@link AgentSuspendState} 写入该存储并携带 TTL，恢复时按 replyId 取回。
      *
-     * <p>必须为 {@code static}：初始轮（runStream）与人工确认恢复轮（resumeStream）由
-     * 不同的 LangChain4jAgent 实例承载（门面每请求新建），实例字段无法跨请求保留。</p>
+     * <p>跨请求保留不再依赖 {@code static} 缓存：未显式注入时 {@link #suspendStore()}
+     * 回落到进程级共享的 {@link InMemoryAgentSuspendStore#globalDefault()}（带 TTL 与
+     * 条目上限），需要跨实例共享时可注入 Redis / 数据库实现。</p>
      */
-    private static final Map<String, PendingPause> PENDING_PAUSES = new ConcurrentHashMap<>();
+    private volatile AgentSuspendStore suspendStore;
 
     /**
-     * 待确认缓存的写入顺序队列，逐出时从头取最旧的一批
+     * 预算限制：本次运行的 Token / 工具调用 / 费用 / 时长上限，null 表示不设限
      */
-    private static final ConcurrentLinkedQueue<String> PENDING_PAUSE_ORDER = new ConcurrentLinkedQueue<>();
+    private volatile AgentBudget budget;
 
     /**
-     * 待确认缓存条目数上限：用户中途放弃/决策未送达时条目会一直残留，
-     * 加硬上限防止长驻服务下的确定性内存泄漏
+     * 取消令牌：外部对一次运行的生命周期控制，null 按 {@link AgentCancellationToken#none()} 处理
      */
-    private static final int PENDING_PAUSE_LIMIT = 256;
+    private volatile AgentCancellationToken cancellationToken;
+
+    /**
+     * 工具并行安全策略：判定哪些工具调用可并行执行，null 按 {@link AgentToolSafetyPolicy#readOnlyDefault()} 处理
+     */
+    private volatile AgentToolSafetyPolicy toolSafetyPolicy;
+
+    /**
+     * 风险裁决器（显式注入）；null 时若配置了 {@link #decisionsClient} 则用决策模型兜底裁决
+     */
+    private volatile AgentRiskAdjudicator riskAdjudicator;
+
+    /**
+     * 决策模型兜底裁决器缓存（懒创建，避免每次裁决都重建）
+     */
+    private volatile AgentRiskAdjudicator decisionsRiskAdjudicator;
+
+    /**
+     * 计划确认器：计划产出后先送审再执行，null 表示不送审
+     */
+    private volatile AgentPlanConfirmation planConfirmation;
+
+    /**
+     * 评测 / 回放钩子：run / runStream 边界回调，null 表示不启用
+     */
+    private volatile AgentEvalHook evalHook;
+
+    /**
+     * 多 Agent 编排器：null 按 {@link SimpleAgentOrchestrator#INSTANCE} 处理
+     */
+    private volatile AgentOrchestrator orchestrator;
+
+    /**
+     * 共享并行工具执行器：安全组工具并发执行用。
+     *
+     * <p>{@code static final}：执行器线程安全、可跨运行共享，避免每次运行重建线程池；
+     * 并行度取 CPU 核数（至少 2）。</p>
+     */
+    private static final AgentParallelToolExecutor PARALLEL_TOOL_EXECUTOR =
+            AgentParallelToolExecutor.of(Math.max(2, Runtime.getRuntime().availableProcessors()));
 
     /**
      * 记忆体配置
@@ -866,6 +926,205 @@ public class LangChain4jAgent implements Agent {
         return this;
     }
 
+    // ==================== 生产化扩展：挂起存储 / 预算 / 取消 / 并行策略 / 风险裁决 / 计划确认 / 评测 / 编排 ====================
+
+    /**
+     * 设置暂停状态存储
+     *
+     * @param suspendStore 暂停状态存储，null 表示移除（退回进程级默认存储）
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent suspendStore(AgentSuspendStore suspendStore) {
+        this.suspendStore = suspendStore;
+        return this;
+    }
+
+    /**
+     * 获取暂停状态存储
+     *
+     * @return 暂停状态存储；未注入时回落进程级共享的内存默认实现（带 TTL 与条目上限）
+     */
+    @Override
+    public AgentSuspendStore suspendStore() {
+        AgentSuspendStore store = this.suspendStore;
+        return store != null ? store : AgentSuspendStore.globalDefault();
+    }
+
+    /**
+     * 设置预算限制
+     *
+     * @param budget 预算限制，null 表示不设限
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent budget(AgentBudget budget) {
+        this.budget = budget;
+        return this;
+    }
+
+    /**
+     * 获取预算限制
+     *
+     * @return 预算限制，未设置时为 null
+     */
+    @Override
+    public AgentBudget budget() {
+        return this.budget;
+    }
+
+    /**
+     * 设置取消令牌
+     *
+     * @param cancellationToken 取消令牌，null 等价于永不取消
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent cancellationToken(AgentCancellationToken cancellationToken) {
+        this.cancellationToken = cancellationToken;
+        return this;
+    }
+
+    /**
+     * 获取取消令牌
+     *
+     * @return 取消令牌，未设置时返回永不取消的空实现
+     */
+    @Override
+    public AgentCancellationToken cancellationToken() {
+        AgentCancellationToken token = this.cancellationToken;
+        return token != null ? token : AgentCancellationToken.none();
+    }
+
+    /**
+     * 设置工具安全策略
+     *
+     * @param toolSafetyPolicy 工具安全策略，null 表示退回只读安全默认策略
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent toolSafetyPolicy(AgentToolSafetyPolicy toolSafetyPolicy) {
+        this.toolSafetyPolicy = toolSafetyPolicy;
+        return this;
+    }
+
+    /**
+     * 获取工具安全策略
+     *
+     * @return 工具安全策略，未设置时返回只读安全默认策略
+     */
+    @Override
+    public AgentToolSafetyPolicy toolSafetyPolicy() {
+        AgentToolSafetyPolicy policy = this.toolSafetyPolicy;
+        return policy != null ? policy : AgentToolSafetyPolicy.readOnlyDefault();
+    }
+
+    /**
+     * 设置风险裁决器
+     *
+     * @param riskAdjudicator 风险裁决器，null 表示清除显式配置
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent riskAdjudicator(AgentRiskAdjudicator riskAdjudicator) {
+        this.riskAdjudicator = riskAdjudicator;
+        return this;
+    }
+
+    /**
+     * 获取风险裁决器
+     *
+     * <p>优先返回显式注入的裁决器；未注入且配置了 {@link DecisionsClient} 时，
+     * 懒创建并复用 {@link DecisionsAgentRiskAdjudicator} 作为兜底（低风险放行、
+     * 中风险交决策模型、高/危险级转人工确认）。</p>
+     *
+     * @return 风险裁决器；两者皆未配置时返回 null（不做风险裁决）
+     */
+    @Override
+    public AgentRiskAdjudicator riskAdjudicator() {
+        AgentRiskAdjudicator explicit = this.riskAdjudicator;
+        if (explicit != null) {
+            return explicit;
+        }
+        DecisionsClient client = this.decisionsClient;
+        if (client == null) {
+            return null;
+        }
+        AgentRiskAdjudicator fallback = this.decisionsRiskAdjudicator;
+        if (fallback == null) {
+            fallback = new DecisionsAgentRiskAdjudicator(client);
+            this.decisionsRiskAdjudicator = fallback;
+        }
+        return fallback;
+    }
+
+    /**
+     * 设置计划确认器
+     *
+     * @param planConfirmation 计划确认器，null 表示不送审
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent planConfirmation(AgentPlanConfirmation planConfirmation) {
+        this.planConfirmation = planConfirmation;
+        return this;
+    }
+
+    /**
+     * 获取计划确认器
+     *
+     * @return 计划确认器，未设置时为 null
+     */
+    @Override
+    public AgentPlanConfirmation planConfirmation() {
+        return this.planConfirmation;
+    }
+
+    /**
+     * 设置评测 / 回放钩子
+     *
+     * @param evalHook 评测钩子，null 表示不启用
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent evalHook(AgentEvalHook evalHook) {
+        this.evalHook = evalHook;
+        return this;
+    }
+
+    /**
+     * 获取评测 / 回放钩子
+     *
+     * @return 评测钩子，未设置时为 null
+     */
+    @Override
+    public AgentEvalHook evalHook() {
+        return this.evalHook;
+    }
+
+    /**
+     * 设置多 Agent 编排器
+     *
+     * @param orchestrator 编排器，null 表示退回默认实现
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent orchestrator(AgentOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+        return this;
+    }
+
+    /**
+     * 获取多 Agent 编排器
+     *
+     * @return 编排器，未设置时返回默认的 {@link SimpleAgentOrchestrator#INSTANCE}
+     */
+    @Override
+    public AgentOrchestrator orchestrator() {
+        AgentOrchestrator orchestrator = this.orchestrator;
+        return orchestrator != null ? orchestrator : SimpleAgentOrchestrator.INSTANCE;
+    }
+
     /**
      * 设置是否打印架构配置
      *
@@ -1062,10 +1321,19 @@ public class LangChain4jAgent implements Agent {
      */
     @Override
     public AgentResponse run(String input) {
+        AgentEvalContext evalContext = newEvalContext(input, "sync");
+        fireEvalStart(evalContext);
         try {
-            return doRun(input);
+            AgentResponse response = doRun(input);
+            fireEvalEnd(evalContext, response, null);
+            return response;
+        } catch (AgentCancelledException e) {
+            log.info("[LangChain4j] 运行被取消: {}", e.getMessage());
+            fireEvalEnd(evalContext, null, e);
+            return cancelledResponse(1);
         } catch (Exception e) {
             log.error("[LangChain4j] 运行失败: {}", e.getMessage(), e);
+            fireEvalEnd(evalContext, null, e);
             return errorResponse(e.getMessage());
         }
     }
@@ -1077,6 +1345,7 @@ public class LangChain4jAgent implements Agent {
      * @return Agent 响应
      */
     private AgentResponse doRun(String input) {
+        AgentBudgetTracker budgetTracker = createBudgetTracker();
         RunPlan plan = prepareRun(input);
         if (printConfigEnabled) {
             printArchitectureDiagram(plan);
@@ -1090,6 +1359,12 @@ public class LangChain4jAgent implements Agent {
         AgentRetryConfig retry = plan.retryConfig;
         int attempt = 0;
         while (true) {
+            if (cancellationToken().isCancelled()) {
+                return cancelledResponse(attempt);
+            }
+            if (isBudgetExceeded(budgetTracker)) {
+                return budgetExceededResponse(budgetTracker, attempt);
+            }
             if (loopGuard.isInterrupted()) {
                 return interruptedResponse(attempt);
             }
@@ -1112,7 +1387,19 @@ public class LangChain4jAgent implements Agent {
                         return resp;
                     }
                 }
-                LoopResult result = executeReAct(plan, input, planText, acc);
+                // 计划送审：配置了计划确认器时，正式执行前先审批
+                AgentPlanConfirmation.Outcome planOutcome = reviewPlan(plan, input, planText);
+                if (planOutcome != null
+                        && planOutcome.decision() != AgentPlanConfirmation.Decision.PROCEED) {
+                    return planDecisionResponse(planOutcome, acc, attempt);
+                }
+                LoopResult result = executeReAct(plan, input, planText, acc, budgetTracker);
+                if (cancellationToken().isCancelled()) {
+                    return cancelledResponse(attempt);
+                }
+                if (result.aborted && isBudgetExceeded(budgetTracker)) {
+                    return budgetExceededResponse(budgetTracker, attempt);
+                }
                 recordSessionTurn(input, result.output);
                 autoSaveMemory(input, result.output);
                 AgentResponse resp = AgentResponse.builder()
@@ -1129,6 +1416,11 @@ public class LangChain4jAgent implements Agent {
                 }
                 return resp;
             } catch (Exception e) {
+                if (e instanceof AgentCancelledException || cancellationToken().isCancelled()) {
+                    // 取消按取消语义收尾，不按错误告警
+                    log.info("[LangChain4j] 运行被取消 attempt={} reason={}", attempt, cancelReasonText());
+                    return cancelledResponse(attempt);
+                }
                 if (loopGuard.isInterrupted()) {
                     log.info("[LangChain4j] 中断令执行提前结束 attempt={}", attempt);
                     return interruptedResponse(attempt);
@@ -1166,11 +1458,21 @@ public class LangChain4jAgent implements Agent {
         if (!(chatModel instanceof StreamingChatModel)) {
             return runStreamFallback(input);
         }
+        AgentEvalContext evalContext = newEvalContext(input, "stream");
+        fireEvalStart(evalContext);
         return Flux.create(sink -> {
             try {
                 streamRun(input, sink);
+                fireEvalEnd(evalContext, null, null);
+            } catch (AgentCancelledException e) {
+                log.info("[LangChain4j] 流式运行被取消: {}", e.getMessage());
+                fireEvalEnd(evalContext, null, e);
+                if (!sink.isCancelled()) {
+                    sink.next(errorEvent("运行已被取消: " + cancelReasonText()));
+                }
             } catch (Exception e) {
                 log.error("[LangChain4j] runStream 失败: {}", e.getMessage(), e);
+                fireEvalEnd(evalContext, null, e);
                 if (!sink.isCancelled()) {
                     sink.next(errorEvent(e.getMessage()));
                 }
@@ -1217,6 +1519,7 @@ public class LangChain4jAgent implements Agent {
      * @param sink  事件接收器
      */
     private void streamRun(String input, FluxSink<AgentStreamEvent> sink) {
+        AgentBudgetTracker budgetTracker = createBudgetTracker();
         RunPlan plan = prepareRun(input);
         if (printConfigEnabled) {
             printArchitectureDiagram(plan);
@@ -1252,12 +1555,38 @@ public class LangChain4jAgent implements Agent {
             }
         }
 
+        // 计划送审：配置了计划确认器时，正式执行前先审批
+        AgentPlanConfirmation.Outcome planOutcome = reviewPlan(plan, input, planText);
+        if (planOutcome != null
+                && planOutcome.decision() != AgentPlanConfirmation.Decision.PROCEED) {
+            String decisionText = planDecisionText(planOutcome);
+            sink.next(AgentStreamEvent.reasoningDelta(agentId, decisionText));
+            sink.next(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.COMPLETE)
+                    .agentId(agentId)
+                    .usage(planAcc.build())
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                    AgentTrace.KIND_AGENT_END, agentId, null, planOutcome.decision().name())));
+            return;
+        }
+
         AgentRetryConfig retry = plan.retryConfig;
         int attempt = 0;
         while (true) {
-            if (sink.isCancelled() || loopGuard.isInterrupted()) {
+            if (sink.isCancelled() || cancellationToken().isCancelled()) {
+                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                        AgentTrace.KIND_EDGE, agentId, null, "cancelled")));
+                return;
+            }
+            if (loopGuard.isInterrupted()) {
                 sink.next(AgentStreamEvent.trace(AgentTrace.of(
                         AgentTrace.KIND_EDGE, agentId, null, "interrupted")));
+                return;
+            }
+            if (isBudgetExceeded(budgetTracker)) {
+                sink.next(errorEvent(budgetExceededText(budgetTracker)));
                 return;
             }
             attempt++;
@@ -1265,7 +1594,7 @@ public class LangChain4jAgent implements Agent {
             try {
                 UsageAcc acc = new UsageAcc();
                 acc.add(planAcc);
-                LoopResult result = streamReAct(plan, input, planText, acc, sink, emitted);
+                LoopResult result = streamReAct(plan, input, planText, acc, sink, emitted, budgetTracker);
                 if (result.pausedReplyId != null) {
                     // 人工确认暂停：本轮正常收尾，不记录会话轮次，等待 resumeStream 恢复
                     sink.next(AgentStreamEvent.trace(AgentTrace.of(
@@ -1288,6 +1617,12 @@ public class LangChain4jAgent implements Agent {
                         AgentTrace.KIND_AGENT_END, agentId, null, null)));
                 return;
             } catch (Exception e) {
+                if (e instanceof AgentCancelledException || cancellationToken().isCancelled()) {
+                    // 取消按取消语义收尾，不按错误重试
+                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                            AgentTrace.KIND_EDGE, agentId, null, "cancelled")));
+                    return;
+                }
                 if (loopGuard.isInterrupted() || sink.isCancelled()) {
                     sink.next(AgentStreamEvent.trace(AgentTrace.of(
                             AgentTrace.KIND_EDGE, agentId, null, "interrupted")));
@@ -1390,6 +1725,7 @@ public class LangChain4jAgent implements Agent {
             return;
         }
         loopGuard.reset();
+        AgentBudgetTracker budgetTracker = createBudgetTracker();
         sink.next(AgentStreamEvent.trace(AgentTrace.of(
                 AgentTrace.KIND_AGENT_START, plan.agentId, null, "resume:" + pause.replyId)));
 
@@ -1406,7 +1742,17 @@ public class LangChain4jAgent implements Agent {
         for (ToolExecutionRequest request : pause.pendingRequests) {
             ConfirmationDecision decision = decisionMap.get(request.id());
             String resultText;
-            if (decision != null && decision.isConfirmed()) {
+            if (cancellationToken().isCancelled()) {
+                // 恢复轮被取消：待确认工具一律不执行，按取消语义回填
+                resultText = "运行已被取消，跳过执行该工具调用";
+                sink.next(AgentStreamEvent.builder()
+                        .type(AgentStreamEvent.Type.TOOL_RESULT)
+                        .agentId(plan.agentId)
+                        .toolName(request.name())
+                        .toolOutput(resultText)
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+            } else if (decision != null && decision.isConfirmed()) {
                 long toolStartAt = System.currentTimeMillis();
                 sink.next(AgentStreamEvent.builder()
                         .type(AgentStreamEvent.Type.TOOL_START)
@@ -1416,6 +1762,9 @@ public class LangChain4jAgent implements Agent {
                         .timestamp(toolStartAt)
                         .build());
                 resultText = executeTool(request, plan.executors);
+                if (budgetTracker != null) {
+                    budgetTracker.recordToolCall();
+                }
                 sink.next(AgentStreamEvent.builder()
                         .type(AgentStreamEvent.Type.TOOL_RESULT)
                         .agentId(plan.agentId)
@@ -1450,7 +1799,8 @@ public class LangChain4jAgent implements Agent {
         UsageAcc acc = new UsageAcc();
         boolean[] emitted = {false};
         try {
-            LoopResult result = streamReActLoop(plan, history, pause.originalInput, acc, sink, emitted);
+            LoopResult result = streamReActLoop(plan, history, pause.originalInput, acc, sink, emitted,
+                    budgetTracker);
             if (result.pausedReplyId != null) {
                 // 恢复轮再次遇到高风险工具：再次暂停，等待下一次 resumeStream
                 sink.next(AgentStreamEvent.trace(AgentTrace.of(
@@ -1510,20 +1860,30 @@ public class LangChain4jAgent implements Agent {
     /**
      * 同步 ReAct 循环
      *
-     * @param plan     运行计划
-     * @param input    用户输入
-     * @param planText 规划文本（可空）
-     * @param acc      用量累加器
+     * @param plan          运行计划
+     * @param input         用户输入
+     * @param planText      规划文本（可空）
+     * @param acc           用量累加器
+     * @param budgetTracker 预算记账器（可空，空表示不限额）
      * @return 循环结果
      */
-    private LoopResult executeReAct(RunPlan plan, String input, String planText, UsageAcc acc) {
+    private LoopResult executeReAct(RunPlan plan, String input, String planText, UsageAcc acc,
+                                    AgentBudgetTracker budgetTracker) {
         List<ChatMessage> history = buildHistory(plan, input, planText);
         String finalOutput = "";
         String abortReason = null;
         int iter = 0;
         while (iter < plan.maxIters) {
+            if (cancellationToken().isCancelled()) {
+                abortReason = "cancelled";
+                break;
+            }
             if (loopGuard.isInterrupted()) {
                 abortReason = "interrupted";
+                break;
+            }
+            if (isBudgetExceeded(budgetTracker)) {
+                abortReason = budgetExceededText(budgetTracker);
                 break;
             }
             fireDebug(plan.debugHook, "PRE_REASONING", plan.agentId,
@@ -1533,6 +1893,7 @@ public class LangChain4jAgent implements Agent {
                     .toolSpecifications(plan.toolSpecs)
                     .build());
             acc.add(response.tokenUsage());
+            recordBudgetUsage(budgetTracker, response.tokenUsage());
             AiMessage aiMessage = response.aiMessage();
             if (aiMessage == null) {
                 break;
@@ -1550,8 +1911,12 @@ public class LangChain4jAgent implements Agent {
                     "执行工具 " + aiMessage.toolExecutionRequests().size() + " 个", iter + 1);
             List<ToolExecutionResultMessage> results = new ArrayList<>();
             for (ToolExecutionRequest request : aiMessage.toolExecutionRequests()) {
-                if (loopGuard.isInterrupted()) {
-                    abortReason = "interrupted";
+                if (cancellationToken().isCancelled() || loopGuard.isInterrupted()) {
+                    abortReason = cancellationToken().isCancelled() ? "cancelled" : "interrupted";
+                    break;
+                }
+                if (isBudgetExceeded(budgetTracker)) {
+                    abortReason = budgetExceededText(budgetTracker);
                     break;
                 }
                 // 连续相同（工具名 + 入参）调用：模型在原地打转，不再执行
@@ -1559,7 +1924,8 @@ public class LangChain4jAgent implements Agent {
                     abortReason = loopGuard.describe();
                     break;
                 }
-                String resultText = executeTool(request, plan.executors);
+                // 风险门禁：拒绝 / 需确认（含危险级硬底线）一律不执行，结论作为工具结果回给模型
+                String resultText = executeToolWithGate(plan, request, budgetTracker);
                 results.add(ToolExecutionResultMessage.from(request, resultText));
             }
             fireDebug(plan.debugHook, "POST_ACTING", plan.agentId,
@@ -1576,19 +1942,21 @@ public class LangChain4jAgent implements Agent {
     /**
      * 流式 ReAct 循环（初始轮）
      *
-     * @param plan     运行计划
-     * @param input    用户输入
-     * @param planText 规划文本（可空）
-     * @param acc      用量累加器
-     * @param sink     事件接收器
-     * @param emitted  是否已推送正文/思考增量（长度 1 的标记数组）
+     * @param plan          运行计划
+     * @param input         用户输入
+     * @param planText      规划文本（可空）
+     * @param acc           用量累加器
+     * @param sink          事件接收器
+     * @param emitted       是否已推送正文/思考增量（长度 1 的标记数组）
+     * @param budgetTracker 预算记账器（可空，空表示不限额）
      * @return 循环结果
      * @throws Exception 模型调用失败
      */
     private LoopResult streamReAct(RunPlan plan, String input, String planText,
                                    UsageAcc acc, FluxSink<AgentStreamEvent> sink,
-                                   boolean[] emitted) throws Exception {
-        return streamReActLoop(plan, buildHistory(plan, input, planText), input, acc, sink, emitted);
+                                   boolean[] emitted, AgentBudgetTracker budgetTracker) throws Exception {
+        return streamReActLoop(plan, buildHistory(plan, input, planText), input, acc, sink, emitted,
+                budgetTracker);
     }
 
     /**
@@ -1605,23 +1973,28 @@ public class LangChain4jAgent implements Agent {
      * @param acc           用量累加器
      * @param sink          事件接收器
      * @param emitted       是否已推送正文/思考增量（长度 1 的标记数组）
+     * @param budgetTracker 预算记账器（可空，空表示不限额）
      * @return 循环结果
      * @throws Exception 模型调用失败
      */
     private LoopResult streamReActLoop(RunPlan plan, List<ChatMessage> history, String originalInput,
                                        UsageAcc acc, FluxSink<AgentStreamEvent> sink,
-                                       boolean[] emitted) throws Exception {
+                                       boolean[] emitted, AgentBudgetTracker budgetTracker) throws Exception {
         StreamingChatModel streamingModel = (StreamingChatModel) chatModel;
         String finalOutput = "";
         String abortReason = null;
         int iter = 0;
         while (iter < plan.maxIters) {
-            if (sink.isCancelled()) {
+            if (sink.isCancelled() || cancellationToken().isCancelled()) {
                 abortReason = "cancelled";
                 break;
             }
             if (loopGuard.isInterrupted()) {
                 abortReason = "interrupted";
+                break;
+            }
+            if (isBudgetExceeded(budgetTracker)) {
+                abortReason = budgetExceededText(budgetTracker);
                 break;
             }
             fireDebug(plan.debugHook, "PRE_REASONING", plan.agentId,
@@ -1637,6 +2010,7 @@ public class LangChain4jAgent implements Agent {
                     .build();
             ChatResponse response = streamOnce(streamingModel, request, plan.agentId, sink, emitted);
             acc.add(response.tokenUsage());
+            recordBudgetUsage(budgetTracker, response.tokenUsage());
 
             sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
                     "model", plan.agentId, spanId, null, null, modelStartAt)));
@@ -1657,53 +2031,82 @@ public class LangChain4jAgent implements Agent {
                     "执行工具 " + aiMessage.toolExecutionRequests().size() + " 个", iter + 1);
             List<ToolExecutionResultMessage> results = new ArrayList<>();
             List<ToolExecutionRequest> batchRequests = aiMessage.toolExecutionRequests();
-            for (int requestIndex = 0; requestIndex < batchRequests.size(); requestIndex++) {
-                ToolExecutionRequest toolRequest = batchRequests.get(requestIndex);
-                if (sink.isCancelled() || loopGuard.isInterrupted()) {
-                    abortReason = sink.isCancelled() ? "cancelled" : "interrupted";
-                    break;
+            String batchAbort = null;
+            if (isParallelBatch(plan, batchRequests)) {
+                // 本批全部放行且安全策略允许并行：并行执行，结果按提交顺序回填
+                batchAbort = runParallelBatch(plan, batchRequests, results, iter, sink, budgetTracker);
+            } else {
+                for (int requestIndex = 0; requestIndex < batchRequests.size(); requestIndex++) {
+                    ToolExecutionRequest toolRequest = batchRequests.get(requestIndex);
+                    if (sink.isCancelled() || cancellationToken().isCancelled()) {
+                        batchAbort = "cancelled";
+                        break;
+                    }
+                    if (loopGuard.isInterrupted()) {
+                        batchAbort = "interrupted";
+                        break;
+                    }
+                    if (isBudgetExceeded(budgetTracker)) {
+                        batchAbort = budgetExceededText(budgetTracker);
+                        break;
+                    }
+                    if (loopGuard.recordToolCall(toolRequest.name(), toolRequest.arguments())) {
+                        batchAbort = loopGuard.describe();
+                        break;
+                    }
+                    // 风险门禁：拒绝 → 回填拒绝文案；需确认（含危险级硬底线）→ 挂起等待人工确认
+                    AgentRiskDecision decision = adjudicateTool(plan, toolRequest);
+                    if (decision != null && decision.verdict() == AgentRiskDecision.Verdict.DENY) {
+                        String denyText = "风险裁决拒绝执行该工具调用: "
+                                + (decision.reason() != null ? decision.reason() : "未说明原因");
+                        log.info("[LangChain4j] 风险裁决拒绝执行工具 {}: {}", toolRequest.name(), denyText);
+                        emitToolResultEvent(sink, plan.agentId, toolRequest, denyText, iter);
+                        results.add(ToolExecutionResultMessage.from(toolRequest, denyText));
+                        continue;
+                    }
+                    if (decision != null
+                            && decision.verdict() == AgentRiskDecision.Verdict.CONFIRM_REQUIRED) {
+                        return pauseForConfirmation(plan, history, results, batchRequests,
+                                requestIndex, originalInput, sink);
+                    }
+                    long toolStartAt = System.currentTimeMillis();
+                    String toolSpanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
+                    sink.next(AgentStreamEvent.builder()
+                            .type(AgentStreamEvent.Type.TOOL_START)
+                            .agentId(plan.agentId)
+                            .toolName(toolRequest.name())
+                            .toolInput(toolRequest.arguments())
+                            .timestamp(toolStartAt)
+                            .build());
+                    sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                            .kind(AgentTrace.KIND_TOOL_CALL)
+                            .agentId(plan.agentId)
+                            .spanId(toolSpanId)
+                            .toolName(toolRequest.name())
+                            .text("调用工具: " + toolRequest.name())
+                            .timestamp(toolStartAt)
+                            .build()));
+                    String resultText = executeTool(toolRequest, plan.executors);
+                    if (budgetTracker != null) {
+                        budgetTracker.recordToolCall();
+                    }
+                    sink.next(AgentStreamEvent.builder()
+                            .type(AgentStreamEvent.Type.TOOL_RESULT)
+                            .agentId(plan.agentId)
+                            .toolName(toolRequest.name())
+                            .toolOutput(resultText)
+                            .timestamp(System.currentTimeMillis())
+                            .build());
+                    // 结束行带开始时刻与工具名：回放按工具名聚合时这一行才不会被跳过，
+                    // 也才能算出单次工具耗时（原先只发点事件，工具行永远没有用时）。
+                    sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                            AgentTrace.KIND_TOOL_RESULT, plan.agentId, toolSpanId,
+                            toolRequest.name(), resultText, toolStartAt)));
+                    results.add(ToolExecutionResultMessage.from(toolRequest, resultText));
                 }
-                if (loopGuard.recordToolCall(toolRequest.name(), toolRequest.arguments())) {
-                    abortReason = loopGuard.describe();
-                    break;
-                }
-                // 中高风险工具：暂停等待人工确认（同步 run 无事件通道，保持自动执行）
-                String riskLevel = ToolRiskPolicy.classify(toolRequest.name(), toolRequest.arguments());
-                if (pendingToolRecoveryEnabled && ToolRiskPolicy.requiresConfirmation(riskLevel)) {
-                    return pauseForConfirmation(plan, history, results, batchRequests,
-                            requestIndex, originalInput, sink);
-                }
-                long toolStartAt = System.currentTimeMillis();
-                String toolSpanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
-                sink.next(AgentStreamEvent.builder()
-                        .type(AgentStreamEvent.Type.TOOL_START)
-                        .agentId(plan.agentId)
-                        .toolName(toolRequest.name())
-                        .toolInput(toolRequest.arguments())
-                        .timestamp(toolStartAt)
-                        .build());
-                sink.next(AgentStreamEvent.trace(AgentTrace.builder()
-                        .kind(AgentTrace.KIND_TOOL_CALL)
-                        .agentId(plan.agentId)
-                        .spanId(toolSpanId)
-                        .toolName(toolRequest.name())
-                        .text("调用工具: " + toolRequest.name())
-                        .timestamp(toolStartAt)
-                        .build()));
-                String resultText = executeTool(toolRequest, plan.executors);
-                sink.next(AgentStreamEvent.builder()
-                        .type(AgentStreamEvent.Type.TOOL_RESULT)
-                        .agentId(plan.agentId)
-                        .toolName(toolRequest.name())
-                        .toolOutput(resultText)
-                        .timestamp(System.currentTimeMillis())
-                        .build());
-                // 结束行带开始时刻与工具名：回放按工具名聚合时这一行才不会被跳过，
-                // 也才能算出单次工具耗时（原先只发点事件，工具行永远没有用时）。
-                sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
-                        AgentTrace.KIND_TOOL_RESULT, plan.agentId, toolSpanId,
-                        toolRequest.name(), resultText, toolStartAt)));
-                results.add(ToolExecutionResultMessage.from(toolRequest, resultText));
+            }
+            if (batchAbort != null) {
+                abortReason = batchAbort;
             }
             fireDebug(plan.debugHook, "POST_ACTING", plan.agentId,
                     "工具执行完成 " + results.size() + " 个", iter + 1);
@@ -2728,6 +3131,461 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 带风险门禁的工具执行（同步链路）。
+     *
+     * <p>拒绝与需确认的工具调用一律不真实执行：拒绝把理由作为工具结果回给模型改道；
+     * 需确认（含危险级硬底线）在同步链路没有确认事件通道，fail-safe 跳过执行，
+     * 把「需人工确认」作为工具结果回给模型。</p>
+     *
+     * @param plan          运行计划
+     * @param request       工具执行请求
+     * @param budgetTracker 预算记账器（可空）
+     * @return 工具结果文本（拒绝 / 跳过时为说明文案）
+     */
+    private String executeToolWithGate(RunPlan plan, ToolExecutionRequest request,
+                                       AgentBudgetTracker budgetTracker) {
+        AgentRiskDecision decision = adjudicateTool(plan, request);
+        if (decision != null && decision.verdict() == AgentRiskDecision.Verdict.DENY) {
+            log.info("[LangChain4j] 风险裁决拒绝执行工具 {}: {}",
+                    request.name(), decision.reason() != null ? decision.reason() : "未说明原因");
+            return "风险裁决拒绝执行该工具调用: "
+                    + (decision.reason() != null ? decision.reason() : "未说明原因");
+        }
+        if (decision != null && decision.verdict() == AgentRiskDecision.Verdict.CONFIRM_REQUIRED) {
+            log.info("[LangChain4j] 工具 {} 需人工确认，同步链路跳过执行: {}",
+                    request.name(), decision.reason() != null ? decision.reason() : "风险控制");
+            return "该工具调用需人工确认（" + (decision.reason() != null ? decision.reason() : "风险控制")
+                    + "），同步执行链路已跳过；如需执行请改用流式链路并完成人工确认。";
+        }
+        String resultText = executeTool(request, plan.executors);
+        if (budgetTracker != null) {
+            budgetTracker.recordToolCall();
+        }
+        return resultText;
+    }
+
+    /**
+     * 风险裁决：显式裁决器优先；裁决器异常按需确认处理（fail-safe）；
+     * 危险级是硬底线——即使裁决器放行也强制需人工确认。
+     *
+     * @param plan    运行计划
+     * @param request 工具执行请求
+     * @return 裁决结论；无裁决器且非危险级时为 null（放行）
+     */
+    private AgentRiskDecision adjudicateTool(RunPlan plan, ToolExecutionRequest request) {
+        String riskLevel = ToolRiskPolicy.classify(request.name(), request.arguments());
+        AgentRiskAdjudicator adjudicator = riskAdjudicator();
+        AgentRiskDecision decision = null;
+        if (adjudicator != null) {
+            try {
+                decision = adjudicator.adjudicate(AgentRiskRequest.of(
+                        plan.agentId, request.name(), request.arguments(), riskLevel));
+            } catch (Exception e) {
+                log.warn("[LangChain4j] 风险裁决器执行失败，按需确认处理: {}", e.getMessage());
+                decision = AgentRiskDecision.confirmRequired("风险裁决器异常: " + e.getMessage());
+            }
+        }
+        if (decision != null && decision.verdict() != AgentRiskDecision.Verdict.ALLOW) {
+            return decision;
+        }
+        if (ToolRiskPolicy.isDangerous(riskLevel)) {
+            return AgentRiskDecision.confirmRequired("危险操作（风险等级: " + riskLevel + "），必须人工确认");
+        }
+        return decision;
+    }
+
+    /**
+     * 判断本批工具是否可并行执行：批内多于一个工具、全部裁决放行且安全策略允许并行。
+     *
+     * <p>只要有一个工具被拒绝或需确认，整批走串行路径，保证风险处置语义一致。</p>
+     *
+     * @param plan  运行计划
+     * @param batch 本批工具请求
+     * @return true 表示可并行
+     */
+    private boolean isParallelBatch(RunPlan plan, List<ToolExecutionRequest> batch) {
+        if (batch == null || batch.size() < 2) {
+            return false;
+        }
+        AgentToolSafetyPolicy policy = toolSafetyPolicy();
+        for (ToolExecutionRequest request : batch) {
+            AgentRiskDecision decision = adjudicateTool(plan, request);
+            if (decision != null && decision.verdict() != AgentRiskDecision.Verdict.ALLOW) {
+                return false;
+            }
+            if (!policy.isParallelSafe(request.name(), request.arguments())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 并行执行一批已放行且并行安全的工具，结果按提交顺序回填。
+     *
+     * <p>先按序下发 TOOL_START，再交 {@link #PARALLEL_TOOL_EXECUTOR} 并行执行，
+     * 最后按提交顺序回填 TOOL_RESULT 与轨迹结束行，保证事件流有序可回放。</p>
+     *
+     * @param plan          运行计划
+     * @param batch         本批工具请求（全部放行且并行安全）
+     * @param results       结果回填列表
+     * @param iter          当前迭代轮次（轨迹 span 用）
+     * @param sink          事件接收器
+     * @param budgetTracker 预算记账器（可空）
+     * @return 中止原因；正常完成为 null
+     */
+    private String runParallelBatch(RunPlan plan, List<ToolExecutionRequest> batch,
+                                    List<ToolExecutionResultMessage> results, int iter,
+                                    FluxSink<AgentStreamEvent> sink, AgentBudgetTracker budgetTracker) {
+        List<String> spanIds = new ArrayList<>(batch.size());
+        List<Long> startTimes = new ArrayList<>(batch.size());
+        for (ToolExecutionRequest request : batch) {
+            long startAt = System.currentTimeMillis();
+            String spanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
+            spanIds.add(spanId);
+            startTimes.add(startAt);
+            sink.next(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.TOOL_START)
+                    .agentId(plan.agentId)
+                    .toolName(request.name())
+                    .toolInput(request.arguments())
+                    .timestamp(startAt)
+                    .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                    .kind(AgentTrace.KIND_TOOL_CALL)
+                    .agentId(plan.agentId)
+                    .spanId(spanId)
+                    .toolName(request.name())
+                    .text("调用工具: " + request.name())
+                    .timestamp(startAt)
+                    .build()));
+        }
+        List<Callable<String>> tasks = new ArrayList<>(batch.size());
+        for (ToolExecutionRequest request : batch) {
+            tasks.add(() -> executeTool(request, plan.executors));
+        }
+        List<String> outputs;
+        try {
+            outputs = PARALLEL_TOOL_EXECUTOR.execute(tasks);
+        } catch (Exception e) {
+            // 并行执行异常：回退串行执行，保证行为与串行链路一致
+            log.warn("[LangChain4j] 并行工具执行异常，回退串行: {}", e.getMessage());
+            outputs = new ArrayList<>(batch.size());
+            for (ToolExecutionRequest request : batch) {
+                outputs.add(executeTool(request, plan.executors));
+            }
+        }
+        for (int i = 0; i < batch.size(); i++) {
+            ToolExecutionRequest request = batch.get(i);
+            String resultText = i < outputs.size() && outputs.get(i) != null
+                    ? outputs.get(i) : "Error: tool '" + request.name() + "' produced no result";
+            sink.next(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.TOOL_RESULT)
+                    .agentId(plan.agentId)
+                    .toolName(request.name())
+                    .toolOutput(resultText)
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                    AgentTrace.KIND_TOOL_RESULT, plan.agentId, spanIds.get(i),
+                    request.name(), resultText, startTimes.get(i))));
+            results.add(ToolExecutionResultMessage.from(request, resultText));
+            if (budgetTracker != null) {
+                budgetTracker.recordToolCall();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 推送一个未真实执行的工具结果事件（如风险拒绝），保持前端事件流完整可回放
+     *
+     * @param sink       事件接收器
+     * @param agentId    Agent 标识
+     * @param request    工具执行请求
+     * @param resultText 结果文案
+     * @param iter       当前迭代轮次
+     */
+    private void emitToolResultEvent(FluxSink<AgentStreamEvent> sink, String agentId,
+                                     ToolExecutionRequest request, String resultText, int iter) {
+        long now = System.currentTimeMillis();
+        String spanId = AgentTrace.newSpanId(agentId, "tool", iter);
+        sink.next(AgentStreamEvent.builder()
+                .type(AgentStreamEvent.Type.TOOL_START)
+                .agentId(agentId)
+                .toolName(request.name())
+                .toolInput(request.arguments())
+                .timestamp(now)
+                .build());
+        sink.next(AgentStreamEvent.trace(AgentTrace.builder()
+                .kind(AgentTrace.KIND_TOOL_CALL)
+                .agentId(agentId)
+                .spanId(spanId)
+                .toolName(request.name())
+                .text("调用工具: " + request.name())
+                .timestamp(now)
+                .build()));
+        sink.next(AgentStreamEvent.builder()
+                .type(AgentStreamEvent.Type.TOOL_RESULT)
+                .agentId(agentId)
+                .toolName(request.name())
+                .toolOutput(resultText)
+                .timestamp(now)
+                .build());
+        sink.next(AgentStreamEvent.trace(AgentTrace.spanEnd(
+                AgentTrace.KIND_TOOL_RESULT, agentId, spanId, request.name(), resultText, now)));
+    }
+
+    /**
+     * 记录一次模型调用的令牌用量到预算记账器
+     *
+     * @param tracker 记账器（可空）
+     * @param usage   本次调用用量（可空）
+     */
+    private void recordBudgetUsage(AgentBudgetTracker tracker, TokenUsage usage) {
+        if (tracker == null || usage == null) {
+            return;
+        }
+        int input = usage.inputTokenCount() != null ? usage.inputTokenCount() : 0;
+        int output = usage.outputTokenCount() != null ? usage.outputTokenCount() : 0;
+        if (input > 0 || output > 0) {
+            tracker.recordTokens(input, output);
+        }
+    }
+
+    /**
+     * 构造评测上下文（会话取 sessionKey，模式区分 sync / stream）
+     *
+     * @param input 输入文本
+     * @param mode  执行模式
+     * @return 评测上下文
+     */
+    private AgentEvalContext newEvalContext(String input, String mode) {
+        return AgentEvalContext.of(agentId(), input).withMode(mode, sessionKey());
+    }
+
+    /**
+     * 触发评测开始钩子；钩子异常只记日志，绝不影响主流程
+     *
+     * @param context 运行上下文
+     */
+    private void fireEvalStart(AgentEvalContext context) {
+        AgentEvalHook hook = evalHook();
+        if (hook == null) {
+            return;
+        }
+        try {
+            hook.onRunStart(context);
+        } catch (Exception e) {
+            log.warn("[LangChain4j] 评测 onRunStart 钩子异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 触发评测结束钩子；钩子异常只记日志，绝不影响主流程
+     *
+     * @param context  运行上下文
+     * @param response 运行结果（失败时可为 null）
+     * @param error    失败异常（成功时为 null）
+     */
+    private void fireEvalEnd(AgentEvalContext context, AgentResponse response, Exception error) {
+        AgentEvalHook hook = evalHook();
+        if (hook == null) {
+            return;
+        }
+        long duration = Math.max(0L, System.currentTimeMillis() - context.startMillis());
+        try {
+            if (error != null) {
+                hook.onRunEnd(AgentEvalRecord.failure(context,
+                        error.getMessage() != null ? error.getMessage() : error.getClass().getSimpleName(),
+                        duration));
+                return;
+            }
+            hook.onRunEnd(AgentEvalRecord.success(context,
+                    response != null ? response.getOutput() : null,
+                    duration,
+                    response != null ? response.getUsage() : null));
+        } catch (Exception e) {
+            log.warn("[LangChain4j] 评测 onRunEnd 钩子异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 按预算配置创建记账器；未配置或无界预算返回 null（不记账）
+     *
+     * @return 记账器；不限额时为 null
+     */
+    private AgentBudgetTracker createBudgetTracker() {
+        AgentBudget budget = budget();
+        return budget != null && budget.isBounded() ? new SimpleAgentBudgetTracker(budget) : null;
+    }
+
+    /**
+     * 预算是否已超限
+     *
+     * @param tracker 记账器（可空）
+     * @return true 表示已超限
+     */
+    private boolean isBudgetExceeded(AgentBudgetTracker tracker) {
+        return tracker != null && tracker.isExceeded();
+    }
+
+    /**
+     * 预算超限文案
+     *
+     * @param tracker 记账器
+     * @return 文案
+     */
+    private String budgetExceededText(AgentBudgetTracker tracker) {
+        return "预算已超限，运行中止: "
+                + (tracker != null && tracker.violationReason() != null
+                ? tracker.violationReason() : "未知预算项");
+    }
+
+    /**
+     * 构造预算超限错误响应
+     *
+     * @param tracker  记账器
+     * @param attempts 已尝试次数
+     * @return 响应
+     */
+    private AgentResponse budgetExceededResponse(AgentBudgetTracker tracker, int attempts) {
+        AgentResponse resp = errorResponse(budgetExceededText(tracker), attempts);
+        resp.getMetadata().put("budgetExceeded", Boolean.TRUE);
+        return resp;
+    }
+
+    /**
+     * 取消原因文案
+     *
+     * @return 文案
+     */
+    private String cancelReasonText() {
+        String reason = cancellationToken().reason();
+        return reason != null ? reason : "用户取消";
+    }
+
+    /**
+     * 构造取消收尾响应（按取消语义，不带错误标记）
+     *
+     * @param attempts 已尝试次数
+     * @return 响应
+     */
+    private AgentResponse cancelledResponse(int attempts) {
+        AgentResponse resp = AgentResponse.builder()
+                .output("")
+                .mode(modeName())
+                .build();
+        resp.getMetadata().put("cancelled", Boolean.TRUE);
+        resp.getMetadata().put("reason", cancelReasonText());
+        resp.getMetadata().put("attempts", attempts);
+        return resp;
+    }
+
+    /**
+     * 计划送审：配置了计划确认器且本轮生成了计划时，正式执行前送审
+     *
+     * @param plan     运行计划
+     * @param input    用户输入
+     * @param planText 规划文本（可空）
+     * @return 审批结论；无需送审（未配置确认器 / 无计划文本）时为 null
+     */
+    private AgentPlanConfirmation.Outcome reviewPlan(RunPlan plan, String input, String planText) {
+        AgentPlanConfirmation confirmation = planConfirmation();
+        if (confirmation == null || StringUtils.isBlank(planText)) {
+            return null;
+        }
+        AgentPlan agentPlan = AgentPlan.of(abbreviateText(planText.trim(), 512),
+                parsePlanSteps(planText));
+        try {
+            return confirmation.confirm(agentPlan);
+        } catch (Exception e) {
+            // 确认器异常按拒绝处理：宁可终止也不绕过人工审批
+            log.warn("[LangChain4j] 计划确认器异常，按拒绝处理: {}", e.getMessage());
+            return AgentPlanConfirmation.Outcome.reject("计划确认器异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从计划文本解析步骤列表（编号 / 短横线行），解析不出时整段作为单一步骤
+     *
+     * @param planText 规划文本
+     * @return 步骤列表
+     */
+    private List<String> parsePlanSteps(String planText) {
+        List<String> steps = new ArrayList<>();
+        for (String line : planText.split("\n")) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            if (trimmed.matches("^\\d+[.、)．]\\s*\\S.*")
+                    || trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+                steps.add(trimmed);
+            }
+        }
+        if (steps.isEmpty()) {
+            steps.add(abbreviateText(planText.trim(), 512));
+        }
+        return steps;
+    }
+
+    /**
+     * 截断文本（超出上限时以省略号收尾）
+     *
+     * @param text 原文本（可空）
+     * @param max  最大长度
+     * @return 截断后的文本
+     */
+    private String abbreviateText(String text, int max) {
+        if (text == null || text.length() <= max) {
+            return text;
+        }
+        return text.substring(0, Math.max(0, max - 3)) + "...";
+    }
+
+    /**
+     * 计划审批结论文案（终止时回给调用方 / 模型上下文）
+     *
+     * @param outcome 审批结论
+     * @return 文案；放行为 null
+     */
+    private String planDecisionText(AgentPlanConfirmation.Outcome outcome) {
+        if (outcome == null) {
+            return null;
+        }
+        if (outcome.decision() == AgentPlanConfirmation.Decision.REJECT) {
+            return "计划被拒绝，本次执行终止: "
+                    + (outcome.feedback() != null ? outcome.feedback() : "未说明原因");
+        }
+        if (outcome.decision() == AgentPlanConfirmation.Decision.REVISE) {
+            return "计划需修订，本次执行终止: "
+                    + (outcome.feedback() != null ? outcome.feedback() : "未提供修改意见");
+        }
+        return null;
+    }
+
+    /**
+     * 构造计划被拒 / 待修订的终止响应
+     *
+     * @param outcome  审批结论
+     * @param acc      用量累加器
+     * @param attempts 已尝试次数
+     * @return 响应
+     */
+    private AgentResponse planDecisionResponse(AgentPlanConfirmation.Outcome outcome,
+                                               UsageAcc acc, int attempts) {
+        AgentResponse resp = AgentResponse.builder()
+                .output(planDecisionText(outcome))
+                .mode(modeName())
+                .usage(acc.build())
+                .build();
+        resp.getMetadata().put("attempts", attempts);
+        resp.getMetadata().put("planDecision", outcome != null ? outcome.decision().name() : null);
+        return resp;
+    }
+
+    /**
      * 构造错误响应
      *
      * @param message 错误信息
@@ -2801,45 +3659,48 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 写入一条待确认暂停态，超上限则按 FIFO 逐出最旧的一批。
+     * 写入一条待确认暂停态（委托 {@link #suspendStore()}，带 TTL 与容量逐出）。
      *
-     * <p>确认决策只回传一次，正常路径下每批都会被取走逐出；但用户中途放弃、
-     * 或决策未送达时条目会一直残留，长驻服务下逐轮累积成确定性内存泄漏，
-     * 故加硬上限——宁可让极少数过期批次恢复失败，也不让堆无限涨。</p>
+     * <p>原静态有界缓存已外置为 {@link AgentSuspendState} + {@link AgentSuspendStore}：
+     * 未显式注入存储时回落到进程级 {@link InMemoryAgentSuspendStore#globalDefault()}，
+     * 条目带 TTL，用户中途放弃或决策未送达时自动过期清除，不再无限残留。</p>
      *
      * @param replyId 回复标识，为空不缓存
      * @param pause   暂停态
      */
-    private static void cachePendingPause(String replyId, PendingPause pause) {
+    private void cachePendingPause(String replyId, PendingPause pause) {
         if (replyId == null || pause == null) {
             return;
         }
-        PENDING_PAUSES.put(replyId, pause);
-        PENDING_PAUSE_ORDER.add(replyId);
-        while (PENDING_PAUSES.size() > PENDING_PAUSE_LIMIT) {
-            String oldest = PENDING_PAUSE_ORDER.poll();
-            if (oldest == null) {
-                return;
-            }
-            PENDING_PAUSES.remove(oldest);
+        try {
+            suspendStore().put(AgentSuspendState.of(replyId, pause.agentId, pause,
+                    InMemoryAgentSuspendStore.DEFAULT_TTL_MILLIS));
+        } catch (Exception e) {
+            log.warn("[LangChain4j] 写入挂起状态失败 replyId={}: {}", replyId, e.getMessage());
         }
     }
 
     /**
-     * 取走并逐出一条待确认暂停态
+     * 取走并逐出一条待确认暂停态（委托 {@link #suspendStore()}，一次性消费语义）
      *
      * @param replyId 回复标识，可为空
-     * @return 暂停态；无对应缓存时为 null
+     * @return 暂停态；无对应缓存、已过期或载荷类型不符时为 null
      */
-    private static PendingPause takePendingPause(String replyId) {
+    private PendingPause takePendingPause(String replyId) {
         if (replyId == null) {
             return null;
         }
-        PendingPause pause = PENDING_PAUSES.remove(replyId);
-        if (pause != null) {
-            PENDING_PAUSE_ORDER.remove(replyId);
+        try {
+            AgentSuspendState state = suspendStore().remove(replyId);
+            if (state == null || state.isExpired()) {
+                return null;
+            }
+            Object payload = state.payload();
+            return payload instanceof PendingPause ? (PendingPause) payload : null;
+        } catch (Exception e) {
+            log.warn("[LangChain4j] 读取挂起状态失败 replyId={}: {}", replyId, e.getMessage());
+            return null;
         }
-        return pause;
     }
 
     /**
