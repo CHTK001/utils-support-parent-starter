@@ -239,9 +239,9 @@ public final class ImplHttpBench {
                         }
                         total.increment();
                     } catch (Exception e) {
-                        long c = errors.increment();
-                        if (c <= VERBOSE_ERRS) {
-                            System.out.println("label probe err#" + c + " ex=" + e);
+                        errors.increment();
+                        if (errors.sum() <= VERBOSE_ERRS) {
+                            System.out.println("label probe err#" + errors.sum() + " ex=" + e);
                             System.out.flush();
                         }
                     }
