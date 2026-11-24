@@ -174,6 +174,23 @@ public class ScatterSetting {
     private transient DnsProvider dnsProvider;
 
     /**
+     * 帧鉴权共享密钥（HMAC-SHA256）：非空时所有收发帧追加签名尾部，
+     * 收到无签名/验签失败的帧一律丢弃（fail-closed）。空/空白（默认）不启用鉴权，
+     * 与未升级节点保持兼容。集群内所有节点必须配置相同密钥。
+     */
+    private String authToken;
+    /**
+     * 成员表上限（含自身与 seed 条目）：合并远端成员时达到上限即拒绝新成员并入表（防灌表）。
+     * 0（默认）= 不限制。
+     */
+    private int maxMembers = 0;
+    /**
+     * DISC 自动发现宣告帧限流：每秒最大处理数，超出部分丢弃并计数（防广播风暴）。
+     * 0（默认）= 不限流。
+     */
+    private int discRateLimitPerSecond = 0;
+
+    /**
      * 是否 seed 引导模式（seeds 非空；与自动发现二选一，seeds 优先）。
      *
      * @return 是否成功（true 表示成功）

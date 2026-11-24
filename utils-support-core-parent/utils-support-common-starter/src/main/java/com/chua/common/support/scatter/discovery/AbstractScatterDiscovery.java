@@ -20,10 +20,12 @@ import com.chua.common.support.scatter.ScatterStats;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.node.ScatterNodeHandler;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
+import com.chua.common.support.scatter.protocol.ScatterFrameAuth;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -156,6 +158,26 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * 本节点发现服务启动时间戳（毫秒；0 表示未启动）
      */
     protected final AtomicLong startedAtMillis = new AtomicLong();
+    /**
+     * 鉴权失败被丢弃的帧数（配置 authToken 后，无签名/验签失败的帧）
+     */
+    protected final AtomicLong authFailFrames = new AtomicLong();
+    /**
+     * 因成员数上限（maxMembers）被拒绝的新成员数
+     */
+    protected final AtomicLong rejectedMembers = new AtomicLong();
+    /**
+     * 因 DISC 限流（discRateLimitPerSecond）被丢弃的宣告帧数
+     */
+    protected final AtomicLong discRateLimited = new AtomicLong();
+    /**
+     * DISC 限流当前窗口（秒级时间戳）
+     */
+    private final AtomicLong discWindowStart = new AtomicLong(0);
+    /**
+     * DISC 限流当前窗口内已放行的帧数
+     */
+    private final AtomicLong discWindowCount = new AtomicLong(0);
 
     /**
      * seed 网关标记元数据键（与 SeedModeDiscovery 的 METADATA_SEED 保持一致）
@@ -165,6 +187,11 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * seed 降级瞬态标记元数据键（降级期间由 SeedModeDiscovery 按轮重写）
      */
     static final String METADATA_KEY_SEED_DOWN = "seedDown";
+
+    /**
+     * 单帧宣告载荷上限（留余量，避免超过 64KB UDP 上限）
+     */
+    protected static final int MAX_ANNOUNCE_BYTES = 60_000;
 
     /**
      * 构造方法，创建 AbstractScatterDiscovery 实例。
@@ -230,6 +257,12 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
         started = true;
         startedAtMillis.set(System.currentTimeMillis());
+        // 帧鉴权开启时，同步设置本进程客户端侧（ScatterSyncHelper）共享密钥；
+        // 同 JVM 多节点按约定共用同一集群密钥（与 customClient 的进程级注入同口径）
+        String authToken = setting.getAuthToken();
+        if (authToken != null && !authToken.isBlank()) {
+            ScatterSyncHelper.setAuthToken(authToken);
+        }
         loadPersistedNodes();
         registerSelf();
 // [P3C C1 豁免] 场景化创建线程，需文档化
@@ -409,9 +442,22 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      */
     @Override
     public byte[] handle(ScatterFrame frame) {
+        return handle(frame, null);
+    }
+
+    /**
+     * 帧处理（带收包源地址）：REQ 拉取（可携带拉取方自表，先合并再返回完整服务表——
+     * 新节点全扫到谁，谁立即知道新节点）/ PUSH 合并 / ELEC 选举 / DISC 宣告（合并出
+     * 新增成员后回调 {@link #onNewMemberDiscovered}，UDP 实现借此单播回表加速收敛）/
+     * LEAVE 优雅离网；未知类型计数忽略并返回 ACK。
+     */
+    @Override
+    public byte[] handle(ScatterFrame frame, InetSocketAddress sender) {
         try {
             if (frame.getType() == ScatterProtocol.TYPE_REQ) {
                 reqFramesReceived.incrementAndGet();
+                // REQ 携带拉取方本地服务表：入网加速（双向 gossip）
+                mergeAnnounced(frame.getPayload());
                 Set<Discovery> services = getServiceAll(frame.getPath());
                 // 返回完整服务表（JSON 数组），对端逐条按 serverId 合并
                 byte[] payload = Json.toJson(Wraps.list(services)).getBytes(StandardCharsets.UTF_8);
@@ -445,12 +491,18 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_DISC) {
+                if (!tryAcquireDiscPermit()) {
+                    discRateLimited.incrementAndGet();
+                    log.debug("DISC 宣告触发限流，丢弃: {}", sender);
+                    return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
+                            frame.getPath(), new byte[0]).encode();
+                }
                 discFramesReceived.incrementAndGet();
-                // 自动发现宣告（UDP 多播/广播）：payload 为宣告方全量服务表，逐条合并同分组条目
-                String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
-                List<Discovery> announced = Json.fromJsonToList(json, Discovery.class);
-                if (announced != null && !announced.isEmpty()) {
-                    mergeRemote(announced);
+                // 自动发现宣告（UDP 多播/广播）：payload 为宣告方全量服务表，逐条合并同分组条目；
+                // 合并出新增成员时回调钩子（UDP 实现借此向新成员单播回本地图）
+                List<Discovery> added = mergeAnnounced(frame.getPayload());
+                if (!added.isEmpty()) {
+                    onNewMemberDiscovered(sender, added);
                 }
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
@@ -482,6 +534,53 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
             return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                     frame.getPath(), new byte[0]).encode();
         }
+    }
+
+    /**
+     * 帧签名：配置 authToken 时对帧字节追加 HMAC 尾部（服务端响应与 UDP 直发宣告共用）。
+     */
+    @Override
+    public byte[] signFrame(byte[] frameBytes) {
+        String token = setting.getAuthToken();
+        return (token == null || token.isBlank())
+                ? frameBytes : ScatterFrameAuth.sign(frameBytes, token);
+    }
+
+    /**
+     * 帧验签：配置 authToken 时校验并剥离签名尾部，失败返回 null（调用方丢弃该帧）；
+     * 未配置时原样返回（兼容无签名帧）。
+     */
+    @Override
+    public byte[] verifyFrame(byte[] wireBytes) {
+        String token = setting.getAuthToken();
+        if (token == null || token.isBlank()) {
+            return wireBytes;
+        }
+        byte[] verified = ScatterFrameAuth.verifyAndStrip(wireBytes, token);
+        if (verified == null) {
+            authFailFrames.incrementAndGet();
+            log.debug("scatter 帧鉴权失败，丢弃来源不明的帧");
+        }
+        return verified;
+    }
+
+    /**
+     * DISC 宣告限流令牌：固定窗口（1 秒）计数，{@code discRateLimitPerSecond <= 0} 时不限流。
+     * 窗口翻转存在多线程竞争，计数为近似值（防风暴场景足够）。
+     *
+     * @return true=放行；false=超限应丢弃
+     */
+    private boolean tryAcquireDiscPermit() {
+        int limit = setting.getDiscRateLimitPerSecond();
+        if (limit <= 0) {
+            return true;
+        }
+        long window = System.currentTimeMillis() / 1000L;
+        long current = discWindowStart.get();
+        if (window != current && discWindowStart.compareAndSet(current, window)) {
+            discWindowCount.set(0);
+        }
+        return discWindowCount.incrementAndGet() <= limit;
     }
 
     /**
@@ -519,7 +618,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 ? setting.getHeartbeatTimeoutMillis() : setting.getTimeoutMillis();
         ScatterContext ctx = new ScatterContext(String.valueOf(genRequestId()),
                 setting.getServicePath(), hbTimeout);
-        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, hbTimeout);
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, hbTimeout, announceTable());
         if (result != null && result.isSuccess() && result.getData() != null) {
             heartbeatFailCounts.remove(node.getNodeId());
             mergeRemote(result.getData());
@@ -530,16 +629,31 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 合并对端服务表：逐条按 serverId 幂等合并（同分组）。
+     * 配置 {@code maxMembers > 0} 时，成员数达到上限后拒绝新成员入表（防灌表）；
+     * 已存在成员的更新与自身条目不受上限影响。
+     *
      * @param remote 方法入参 remote
+     * @return 本次新增（本地原不存在）的条目列表
      */
-    protected void mergeRemote(java.util.List<Discovery> remote) {
+    protected List<Discovery> mergeRemote(java.util.List<Discovery> remote) {
+        List<Discovery> added = Wraps.list();
+        int maxMembers = setting.getMaxMembers();
+        // 本地成员数快照：批内新增同步递增，避免逐条全表扫描
+        int localSize = maxMembers > 0 ? getServiceAll(setting.getServicePath()).size() : 0;
         for (Discovery r : remote) {
             if (r != null && r.getServerId() != null && getGroupId().equals(r.getScatterId())) {
                 Discovery old = findByServerId(setting.getServicePath(), r.getServerId());
+                if (old == null && maxMembers > 0 && localSize >= maxMembers) {
+                    rejectedMembers.incrementAndGet();
+                    log.debug("成员数达上限 {}，拒绝新成员: {}", maxMembers, r.getServerId());
+                    continue;
+                }
                 updateService(setting.getServicePath(), r);
                 lastSeenAtMillis.put(r.getServerId(), System.currentTimeMillis());
                 if (old == null) {
                     nodesAdded.incrementAndGet();
+                    localSize++;
+                    added.add(r);
                     fireEvent(r, Event.ADD);
                 } else if (memberChanged(old, r)) {
                     nodesUpdated.incrementAndGet();
@@ -547,6 +661,65 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 }
             }
         }
+        return added;
+    }
+
+    /**
+     * 合并宣告/自表载荷（JSON 数组，DISC 与 REQ 自表共用），返回其中新增的条目。
+     * @param payload 方法入参 payload
+     * @return 新增条目列表（载荷为空/非法或无新增时为空列表）
+     */
+    private List<Discovery> mergeAnnounced(byte[] payload) {
+        if (payload == null || payload.length == 0) {
+            return List.of();
+        }
+        try {
+            List<Discovery> announced = Json.fromJsonToList(
+                    new String(payload, StandardCharsets.UTF_8), Discovery.class);
+            if (announced == null || announced.isEmpty()) {
+                return List.of();
+            }
+            return mergeRemote(announced);
+        } catch (Exception e) {
+            log.debug("宣告/自表载荷解析失败: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * DISC 宣告合并出新增成员后的回调。sender 为 UDP 收包源地址（注意：宣告方常使用
+     * 一次性临时端口，回表应发往新增条目自身声明的 host:port，而非 sender 的端口）；
+     * TCP 等无源地址语义的场景为 null。默认无操作。
+     *
+     * @param sender 收包源地址（可能为 null）
+     * @param added  本次合并新增的成员条目（非空）
+     */
+    protected void onNewMemberDiscovered(InetSocketAddress sender, List<Discovery> added) {
+    }
+
+    /**
+     * 本地服务表快照（REQ 自表与 DISC 宣告共用）：超过单帧上限时仅携带自身条目，
+     * 保证 UDP 数据报不超限。
+     *
+     * @return 本地服务表（通常含自身条目；极端情况下可能为空列表）
+     */
+    protected List<Discovery> announceTable() {
+        Set<Discovery> services = getServiceAll(setting.getServicePath());
+        byte[] json = Json.toJson(Wraps.list(services)).getBytes(StandardCharsets.UTF_8);
+        if (json.length <= MAX_ANNOUNCE_BYTES) {
+            return Wraps.list(services);
+        }
+        Discovery self = findByServerId(setting.getServicePath(), setting.getNodeId());
+        return self == null ? List.of() : List.of(self);
+    }
+
+    /**
+     * 宣告载荷字节（本地服务表 JSON；超限时仅含自身条目）。
+     *
+     * @return JSON 字节
+     */
+    protected byte[] announcePayloadBytes() {
+        return Json.toJson(announceTable()).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -857,6 +1030,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 .discFramesReceived(discFramesReceived.get())
                 .leaveFramesReceived(leaveFramesReceived.get())
                 .unknownFrames(unknownFrames.get())
+                .authFailFrames(authFailFrames.get())
+                .rejectedMembers(rejectedMembers.get())
+                .discRateLimited(discRateLimited.get())
                 .lastRoundAtMillis(lastRoundAtMillis.get())
                 .build();
     }

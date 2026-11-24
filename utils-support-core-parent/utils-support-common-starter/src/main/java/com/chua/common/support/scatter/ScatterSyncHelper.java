@@ -5,6 +5,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.tcp.JdkTcpClient;
 import com.chua.common.support.network.tcp.TcpClient;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
+import com.chua.common.support.scatter.protocol.ScatterFrameAuth;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +36,10 @@ public final class ScatterSyncHelper {
      * 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建
      */
     private static volatile TcpClient customClient;
+    /**
+     * 帧鉴权共享密钥（进程级，客户端收发共用；AbstractScatterDiscovery 启动时注入）
+     */
+    private static volatile String authToken;
 
     /**
      * 构造方法，创建 ScatterSyncHelper 实例。
@@ -51,10 +56,46 @@ public final class ScatterSyncHelper {
     }
 
     /**
+     * 设置帧鉴权共享密钥（进程级，本 JVM 所有 scatter 客户端收发共用；
+     * 与 {@link #setCustomClient} 的进程级注入同口径）。集群内节点须配置相同密钥。
+     *
+     * @param token 共享密钥；空/空白表示不启用帧鉴权
+     */
+    public static void setAuthToken(String token) {
+        authToken = token;
+    }
+
+    /**
+     * 对出站帧字节追加鉴权签名尾部（帧鉴权开启时），供本工具与 discovery 直发路径统一使用。
+     *
+     * @param frameBytes 原始帧字节（ScatterFrame#encode 的输出），不允许为 null
+     * @return 签名后的线格式字节（未开启鉴权时与入参相同）
+     */
+    public static byte[] sign(byte[] frameBytes) {
+        String token = authToken;
+        return (token == null || token.isBlank()) ? frameBytes : ScatterFrameAuth.sign(frameBytes, token);
+    }
+
+    /**
+     * 校验入站线格式字节并剥离签名尾部（帧鉴权开启时）；未开启时原样返回。
+     *
+     * @param wireBytes 线格式字节（可能带签名尾部），不允许为 null
+     * @return 可解码的原始帧字节；验签失败返回 null
+     */
+    public static byte[] verify(byte[] wireBytes) {
+        String token = authToken;
+        if (token == null || token.isBlank()) {
+            return wireBytes;
+        }
+        return ScatterFrameAuth.verifyAndStrip(wireBytes, token);
+    }
+
+    /**
      * 测试后清理静态状态，防止跨测试干扰。
      */
     public static void resetForTest() {
         customClient = null;
+        authToken = null;
         REQUEST_ID_SEQ.clear();
     }
 
@@ -92,17 +133,22 @@ public final class ScatterSyncHelper {
         try {
             ScatterFrame req = new ScatterFrame(ScatterProtocol.TYPE_REQ, nextRequestId(node),
                     context.getPath(), encodeAnnounce(announceSelf));
+            byte[] signed = sign(req.encode());
             byte[] response;
             if (node.getProtocol() != null && "udp".equalsIgnoreCase(node.getProtocol())) {
-                response = sendUdp(node.getHost(), node.getPort(), req.encode(), timeoutMillis);
+                response = sendUdp(node.getHost(), node.getPort(), signed, timeoutMillis);
             } else {
-                response = sendTcp(node.getHost(), node.getPort(), req.encode(), timeoutMillis);
+                response = sendTcp(node.getHost(), node.getPort(), signed, timeoutMillis);
             }
             if (response == null || response.length == 0) {
                 return remaining > 1 ? fetchWithRetry(context, node, timeoutMillis, remaining - 1, announceSelf)
                         : ScatterResult.timeout(node.getNodeId(), "空响应: " + node.getEndpoint());
             }
-            ScatterFrame resp = ScatterFrame.decode(response);
+            byte[] verified = verify(response);
+            if (verified == null) {
+                return ScatterResult.failure(node.getNodeId(), "响应验签失败: " + node.getEndpoint());
+            }
+            ScatterFrame resp = ScatterFrame.decode(verified);
             if (resp.getType() == ScatterProtocol.TYPE_RESP && resp.getPayload().length > 0) {
                 String json = new String(resp.getPayload(), StandardCharsets.UTF_8);
                 List<Discovery> data = com.chua.common.support.lang.json.Json.fromJsonToList(json, Discovery.class);
@@ -147,14 +193,20 @@ public final class ScatterSyncHelper {
      */
     public static boolean push(ScatterNode node, ScatterFrame frame, long timeoutMillis) {
         try {
+            byte[] signed = sign(frame.encode());
             byte[] response;
             if (node.getProtocol() != null && "udp".equalsIgnoreCase(node.getProtocol())) {
-                response = sendUdp(node.getHost(), node.getPort(), frame.encode(), timeoutMillis);
+                response = sendUdp(node.getHost(), node.getPort(), signed, timeoutMillis);
             } else {
-                response = sendTcp(node.getHost(), node.getPort(), frame.encode(), timeoutMillis);
+                response = sendTcp(node.getHost(), node.getPort(), signed, timeoutMillis);
             }
             if (response != null && response.length > 0) {
-                ScatterFrame resp = ScatterFrame.decode(response);
+                byte[] verified = verify(response);
+                if (verified == null) {
+                    log.debug("scatter 推送响应验签失败: {}", node.getNodeId());
+                    return false;
+                }
+                ScatterFrame resp = ScatterFrame.decode(verified);
                 return resp.getType() == ScatterProtocol.TYPE_ACK;
             }
             return false;
@@ -175,12 +227,13 @@ public final class ScatterSyncHelper {
         if (nodes == null || nodes.isEmpty()) {
             return;
         }
+        byte[] signed = sign(frame.encode());
         for (ScatterNode node : nodes) {
             try {
                 if (node.getProtocol() != null && "udp".equalsIgnoreCase(node.getProtocol())) {
-                    sendUdp(node.getHost(), node.getPort(), frame.encode(), timeoutMillis);
+                    sendUdp(node.getHost(), node.getPort(), signed, timeoutMillis);
                 } else {
-                    sendTcp(node.getHost(), node.getPort(), frame.encode(), timeoutMillis);
+                    sendTcp(node.getHost(), node.getPort(), signed, timeoutMillis);
                 }
             } catch (Exception e) {
                 log.debug("scatter 广播失败: {} - {}", node.getNodeId(), e.getMessage());

@@ -1,10 +1,9 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.scatter.discovery;
 
-import com.chua.common.support.collection.wrap.Wraps;
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import com.chua.common.support.utils.StringUtils;
@@ -13,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -32,10 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class UdpBroadcastDiscovery extends AbstractScatterDiscovery {
 
-    /**
-     * 单个数据报安全载荷上限（留余量，避免超过 64KB UDP 上限）
-     */
-    private static final int MAX_DATAGRAM_BYTES = 60_000;
     /**
      * 广播地址
      */
@@ -64,10 +57,10 @@ public class UdpBroadcastDiscovery extends AbstractScatterDiscovery {
             }
             return;
         }
-        byte[] payload = buildAnnouncePayload();
+        byte[] payload = announcePayloadBytes();
         ScatterFrame disc = new ScatterFrame(ScatterProtocol.TYPE_DISC,
                 genRequestId(), setting.getServicePath(), payload);
-        byte[] data = disc.encode();
+        byte[] data = ScatterSyncHelper.sign(disc.encode());
         announce(BROADCAST_ADDR, port, data, "广播");
         String group = setting.getMulticastGroup();
         if (StringUtils.isNotBlank(group)) {
@@ -76,23 +69,55 @@ public class UdpBroadcastDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 构建宣告载荷：本地全量服务表；超过数据报上限时仅携带自身条目。
+     * DISC 宣告合并出新增成员后，向新成员单播回本地图（消除「等宣告方下一周期」的收敛上界）。
+     * 回表目标取新增条目自身声明的 host:port（宣告方发送 DISC 用的是一次性临时端口，
+     * 回源端口不可达）；优先选与收包源 IP 一致的条目（即宣告方本人）。
      *
-     * @return JSON 字节
+     * @param sender 收包源地址（可能为 null）
+     * @param added  本次合并新增的成员条目（非空）
      */
-    private byte[] buildAnnouncePayload() {
-        Set<Discovery> services = getServiceAll(setting.getServicePath());
-        byte[] payload = Json.toJson(Wraps.list(services)).getBytes(StandardCharsets.UTF_8);
-        if (payload.length <= MAX_DATAGRAM_BYTES) {
-            return payload;
+    @Override
+    protected void onNewMemberDiscovered(InetSocketAddress sender, List<Discovery> added) {
+        if (added == null || added.isEmpty()) {
+            return;
         }
-        List<Discovery> selfOnly = Wraps.list();
-        for (Discovery d : services) {
-            if (setting.getNodeId().equals(d.getServerId())) {
-                selfOnly.add(d);
+        Discovery target = null;
+        if (sender != null && sender.getAddress() != null) {
+            String senderIp = sender.getAddress().getHostAddress();
+            for (Discovery d : added) {
+                if (d != null && senderIp.equals(d.getHost())) {
+                    target = d;
+                    break;
+                }
             }
         }
-        return Json.toJson(selfOnly).getBytes(StandardCharsets.UTF_8);
+        if (target == null) {
+            target = added.get(0);
+        }
+        if (target == null || target.getHost() == null || target.getPort() <= 0
+                || setting.getNodeId().equals(target.getServerId())) {
+            return;
+        }
+        sendAnnounceTo(target.getHost(), target.getPort());
+    }
+
+    /**
+     * 向目标地址单播发送一次 DISC 宣告（携带本地全量服务表，fire-and-forget）。
+     *
+     * @param host 目标地址，不允许为 null
+     * @param port 目标端口，不允许为 null
+     */
+    private void sendAnnounceTo(String host, int port) {
+        byte[] data = ScatterSyncHelper.sign(new ScatterFrame(ScatterProtocol.TYPE_DISC,
+                genRequestId(), setting.getServicePath(), announcePayloadBytes()).encode());
+        try (DatagramSocket socket = new DatagramSocket()) {
+            socket.setBroadcast(true);
+            socket.send(new DatagramPacket(data, data.length,
+                    new InetSocketAddress(host, port)));
+            log.debug("UDP 自动发现单播回表: {}:{}", host, port);
+        } catch (Exception e) {
+            log.debug("UDP 自动发现单播回表失败: {}:{} - {}", host, port, e.getMessage());
+        }
     }
 
     /**

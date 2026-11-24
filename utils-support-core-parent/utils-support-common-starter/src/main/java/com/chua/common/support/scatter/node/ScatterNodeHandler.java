@@ -33,4 +33,26 @@ public interface ScatterNodeHandler {
     default byte[] handle(ScatterFrame frame, InetSocketAddress sender) throws Exception {
         return handle(frame);
     }
+
+    /**
+     * 对即将发送的帧字节追加鉴权签名尾部（帧鉴权开启时）。服务端响应与客户端直发
+     * （UDP 广播/单播宣告）统一经本方法签名；未开启鉴权时默认原样返回。
+     *
+     * @param frameBytes 原始帧字节（ScatterFrame#encode 的输出），不允许为 null
+     * @return 签名后的线格式字节（未开启鉴权时与入参相同）
+     */
+    default byte[] signFrame(byte[] frameBytes) {
+        return frameBytes;
+    }
+
+    /**
+     * 校验并剥离收到的线格式字节的鉴权签名尾部（帧鉴权开启时），返回可解码的原始帧字节。
+     * 未开启鉴权时默认原样返回；开启后验签失败返回 null（调用方应丢弃该帧）。
+     *
+     * @param wireBytes 线格式字节（可能带签名尾部），不允许为 null
+     * @return 可解码的原始帧字节；验签失败返回 null（未开启鉴权时与入参相同）
+     */
+    default byte[] verifyFrame(byte[] wireBytes) {
+        return wireBytes;
+    }
 }

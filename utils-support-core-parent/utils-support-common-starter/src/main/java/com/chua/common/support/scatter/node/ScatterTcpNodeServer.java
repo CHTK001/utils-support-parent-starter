@@ -60,14 +60,16 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
                 response = new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             }
+            // 帧鉴权：响应帧追加签名尾部（未开启鉴权时原样返回）
+            byte[] signed = handler.signFrame(response);
             // 写 4 字节长度头 + 响应帧（与 JdkTcpClient.exchange 长度帧协议对称）
             byte[] len = new byte[4];
-            len[0] = (byte) (response.length >>> 24);
-            len[1] = (byte) (response.length >>> 16);
-            len[2] = (byte) (response.length >>> 8);
-            len[3] = (byte) response.length;
+            len[0] = (byte) (signed.length >>> 24);
+            len[1] = (byte) (signed.length >>> 16);
+            len[2] = (byte) (signed.length >>> 8);
+            len[3] = (byte) signed.length;
             out.write(len);
-            out.write(response);
+            out.write(signed);
             out.flush();
         } catch (IOException e) {
             log.debug("scatter 连接处理异常: {}", e.getMessage());
@@ -101,7 +103,9 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
         }
         byte[] body = new byte[bodyLen];
         readFully(in, body);
-        return ScatterFrame.decode(body);
+        // 帧鉴权：验签并剥离签名尾部，失败返回 null（连接静默关闭，fail-closed）
+        byte[] verified = handler.verifyFrame(body);
+        return verified == null ? null : ScatterFrame.decode(verified);
     }
 
     /**

@@ -113,6 +113,18 @@ public class ScatterStats implements Serializable {
      */
     private long unknownFrames;
     /**
+     * 鉴权失败被丢弃的帧数（配置 authToken 后，无签名/验签失败的帧）
+     */
+    private long authFailFrames;
+    /**
+     * 因成员数上限（maxMembers）被拒绝的新成员数
+     */
+    private long rejectedMembers;
+    /**
+     * 因 DISC 限流（discRateLimitPerSecond）被丢弃的宣告帧数
+     */
+    private long discRateLimited;
+    /**
      * 最后一轮发现完成时间戳（毫秒；0 表示尚未完成任何一轮）
      */
     private long lastRoundAtMillis;

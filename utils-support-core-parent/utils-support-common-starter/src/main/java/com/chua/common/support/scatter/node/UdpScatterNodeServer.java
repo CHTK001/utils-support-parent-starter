@@ -126,9 +126,14 @@ public class UdpScatterNodeServer extends AbstractServer {
                 final InetSocketAddress sender = new InetSocketAddress(packet.getAddress(), packet.getPort());
                 workerPool.submit(() -> {
                     try {
-                        ScatterFrame frame = ScatterFrame.decode(data);
-                        byte[] response = handler.handle(frame, sender);
-                        socket.send(new DatagramPacket(response, response.length, sender));
+                        // 帧鉴权：验签并剥离签名尾部，失败丢弃（fail-closed）
+                        byte[] verified = handler.verifyFrame(data);
+                        if (verified == null) {
+                            return;
+                        }
+                        ScatterFrame frame = ScatterFrame.decode(verified);
+                        byte[] signed = handler.signFrame(handler.handle(frame, sender));
+                        socket.send(new DatagramPacket(signed, signed.length, sender));
                     } catch (Exception e) {
                         log.debug("UDP 帧处理异常: {}", e.getMessage());
                     }
