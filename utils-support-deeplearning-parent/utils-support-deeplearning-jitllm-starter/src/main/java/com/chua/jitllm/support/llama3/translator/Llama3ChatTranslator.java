@@ -245,6 +245,38 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
+     * 组装 Llama 3 Instruct 单轮对话模板：模型按 chat 口径续写助手回合，
+     * 而不是把原始输入当普通文本补全（裸文本会立即吐出结束 token，答案为空）。
+     *
+     * @param input 用户输入
+     * @return 带模板的完整提示词
+     */
+    private String toLlama3Prompt(String input) {
+        return "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n"
+                + input
+                + "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n";
+    }
+
+    /**
+     * 返回文本中最早出现的结束标记位置（兼容 {@code <|end_of_text|>} 与
+     * {@code <|eot_id|>}），都不存在时返回 -1。
+     *
+     * @param text 待检查文本
+     * @return 结束标记下标，无则 -1
+     */
+    private static int endIndexOf(String text) {
+        int a = text.indexOf(END_TOKEN);
+        int b = text.indexOf(EOT_ID_TOKEN);
+        if (a < 0) {
+            return b;
+        }
+        if (b < 0) {
+            return a;
+        }
+        return Math.min(a, b);
+    }
+
+    /**
      * 解析模型文件路径：优先框架注入的 {@code modelPath}（走
      * {@link ModelRegistry#resolveConfiguredPath} 归一化），否则按 modelId 解析。
      *
@@ -306,7 +338,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
                     break;
                 }
                 String text = out.text;
-                int idx = text.indexOf(END_TOKEN);
+                int idx = endIndexOf(text);
                 if (idx >= 0) {
                     sb.append(text, 0, idx);
                     break;

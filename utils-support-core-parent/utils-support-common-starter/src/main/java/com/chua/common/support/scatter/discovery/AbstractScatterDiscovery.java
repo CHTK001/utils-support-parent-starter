@@ -515,6 +515,22 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                         && getGroupId().equals(leaving.getScatterId())) {
                     Discovery removed = findByServerId(frame.getPath(), leaving.getServerId());
                     removeFromCache(frame.getPath(), leaving.getServerId());
+                    // 同节点业务条目（serverId = nodeId + ":<protocol>"，如 nodeId:http）一并剔除：
+                    // LEAVE payload 携带的是控制面 tcp 条目（serverId = nodeId），
+                    // 仅按 serverId 精确剔除会在对端服务池残留业务幽灵条目，
+                    // 导致负载均衡继续向已离网节点转发业务流量
+                    List<Discovery> businessEntries = Wraps.list();
+                    for (Discovery d : getServiceAll(frame.getPath())) {
+                        if (d != null && d.getServerId() != null
+                                && d.getServerId().startsWith(leaving.getServerId() + ":")) {
+                            businessEntries.add(d);
+                        }
+                    }
+                    for (Discovery d : businessEntries) {
+                        removeFromCache(frame.getPath(), d.getServerId());
+                        heartbeatFailCounts.remove(d.getServerId());
+                        lastSeenAtMillis.remove(d.getServerId());
+                    }
                     heartbeatFailCounts.remove(leaving.getServerId());
                     lastSeenAtMillis.remove(leaving.getServerId());
                     nodesRemoved.incrementAndGet();
