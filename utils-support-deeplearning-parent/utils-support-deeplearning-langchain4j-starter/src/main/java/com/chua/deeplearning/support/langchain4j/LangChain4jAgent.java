@@ -10,18 +10,23 @@ import com.chua.common.support.ai.agent.AgentHookEvent;
 import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
+import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 import com.chua.common.support.ai.agent.AgentTool;
 import com.chua.common.support.ai.agent.AgentTrace;
+import com.chua.common.support.ai.agent.ConfirmationDecision;
+import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
 import com.chua.common.support.ai.agent.goal.GoalStatus;
 import com.chua.common.support.ai.agent.goal.GoalTracker;
 import com.chua.common.support.ai.agent.goal.SessionGoal;
+import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
@@ -66,7 +71,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -80,9 +88,15 @@ import com.chua.common.support.utils.StringUtils;
  *   <li>支持：MCP 工具、Skill 工具、多轮会话历史、记忆体、上下文压缩、规划、
  *       重试、目标循环、工具结果截断、真实流式输出（模型实现
  *       {@link StreamingChatModel} 时）</li>
- *   <li>不支持：内置 shell 工具（{@link #shellTool(boolean)} 开启时显式抛异常）、
- *       人工确认恢复与结构化提问恢复（{@link Agent#resumeStream} /
- *       {@link Agent#answerQuestion} 走接口默认的 ERROR 事件）</li>
+ *   <li>不支持：内置 shell 工具（本实现的工具装配不含 shell/命令执行类工具，
+ *       {@link #shellTool(boolean)} 开关仅保留以兼容契约，不再抛异常）</li>
+ *   <li>人工确认恢复：流式执行（{@link #runStream}）中对中高风险工具暂停并下发
+ *       {@link AgentStreamEvent.Type#CONFIRMATION_REQUEST}，调用方经
+ *       {@link #resumeStream(String, List, String)} 回传决策后恢复执行；
+ *       同步 {@link #run(String)} 无事件通道，保持自动执行。
+ *       结构化提问恢复 {@link #answerQuestion(String, List)} 机制可用，
+ *       但本实现不产生 {@link AgentStreamEvent.Type#QUESTION_REQUEST}
+ *       （无提问类工具），误用时按 ERROR 事件返回</li>
  * </ul>
  *
  * @author CH
@@ -191,6 +205,46 @@ public class LangChain4jAgent implements Agent {
      * 按名称关闭的工具，下发模型前统一裁剪
      */
     private final Set<String> disabledTools = new LinkedHashSet<>();
+
+    /**
+     * 决策客户端（会话配置的决策模型）。
+     *
+     * <p>本实现当前没有消费决策模型的内置工具，仅保存引用以兼容
+     * {@link Agent#decisionsClient(DecisionsClient)} 契约。</p>
+     */
+    private DecisionsClient decisionsClient;
+
+    /**
+     * 是否允许人工确认恢复：false 时 {@link #resumeStream} 直接返回 ERROR 事件
+     */
+    private boolean pendingToolRecoveryEnabled = true;
+
+    /**
+     * shell 工具开关：null 表示沿用默认开启语义。
+     *
+     * <p>本实现不装配 shell/命令执行类工具，该开关仅保留以兼容
+     * {@link Agent#shellTool(boolean)} 契约。</p>
+     */
+    private volatile Boolean shellEnabled;
+
+    /**
+     * 待人工确认的暂停态缓存：replyId → 快照。
+     *
+     * <p>必须为 {@code static}：初始轮（runStream）与人工确认恢复轮（resumeStream）由
+     * 不同的 LangChain4jAgent 实例承载（门面每请求新建），实例字段无法跨请求保留。</p>
+     */
+    private static final Map<String, PendingPause> PENDING_PAUSES = new ConcurrentHashMap<>();
+
+    /**
+     * 待确认缓存的写入顺序队列，逐出时从头取最旧的一批
+     */
+    private static final ConcurrentLinkedQueue<String> PENDING_PAUSE_ORDER = new ConcurrentLinkedQueue<>();
+
+    /**
+     * 待确认缓存条目数上限：用户中途放弃/决策未送达时条目会一直残留，
+     * 加硬上限防止长驻服务下的确定性内存泄漏
+     */
+    private static final int PENDING_PAUSE_LIMIT = 256;
 
     /**
      * 记忆体配置
@@ -756,21 +810,59 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 设置决策客户端（会话配置的决策模型）
+     *
+     * <p>本实现当前没有消费决策模型的内置工具，仅保存引用以兼容
+     * {@link Agent#decisionsClient(DecisionsClient)} 契约；后续若引入决策类工具，
+     * 可通过 {@link #getDecisionsClient()} 取用。</p>
+     *
+     * @param decisionsClient 决策客户端
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent decisionsClient(DecisionsClient decisionsClient) {
+        this.decisionsClient = decisionsClient;
+        return this;
+    }
+
+    /**
+     * 获取决策客户端
+     *
+     * @return 决策客户端，未配置时为 null
+     */
+    public DecisionsClient getDecisionsClient() {
+        return decisionsClient;
+    }
+
+    /**
+     * 是否允许人工确认恢复
+     *
+     * <p>关闭（false）后 {@link #resumeStream} 直接返回 ERROR 事件，
+     * 恢复通道整体停用。</p>
+     *
+     * @param enabled false 表示关闭恢复通道
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent pendingToolRecovery(boolean enabled) {
+        this.pendingToolRecoveryEnabled = enabled;
+        return this;
+    }
+
+    /**
      * 是否允许 shell 工具
      *
-     * <p>langchain4j 实现没有任何内置 shell 工具：不存在可执行的命令通道。
-     * 因此关闭（false）天然满足；开启（true）无法兑现，必须显式失败，
-     * 不能静默接受一个永远不生效的开关。
+     * <p>本实现没有内置 shell/命令执行类工具（工具装配只含 MCP、本地与 Skill 工具），
+     * 不存在可兑现的 shell 通道；本开关仅保留以兼容 {@link Agent#shellTool(boolean)} 契约，
+     * 不再抛出异常。这里只保存取值（{@code null} 表示未显式设置，按默认开启语义处理），
+     * 供后续如引入 shell 类工具时在装配阶段判断是否跳过。</p>
      *
-     * @param enabled false 表示禁用 shell 工具
+     * @param enabled 是否允许 shell 工具
      * @return 当前 Agent 实例
      */
     @Override
     public Agent shellTool(boolean enabled) {
-        if (enabled) {
-            throw new UnsupportedOperationException(
-                    "langchain4j Agent 没有内置 shell 工具，无法开启 shellTool");
-        }
+        this.shellEnabled = enabled;
         return this;
     }
 
@@ -1174,11 +1266,17 @@ public class LangChain4jAgent implements Agent {
                 UsageAcc acc = new UsageAcc();
                 acc.add(planAcc);
                 LoopResult result = streamReAct(plan, input, planText, acc, sink, emitted);
-                recordSessionTurn(input, result.output);
-                autoSaveMemory(input, result.output);
-                if (result.aborted) {
+                if (result.pausedReplyId != null) {
+                    // 人工确认暂停：本轮正常收尾，不记录会话轮次，等待 resumeStream 恢复
                     sink.next(AgentStreamEvent.trace(AgentTrace.of(
-                            AgentTrace.KIND_EDGE, agentId, null, result.abortReason)));
+                            AgentTrace.KIND_EDGE, agentId, null, "await_confirmation")));
+                } else {
+                    recordSessionTurn(input, result.output);
+                    autoSaveMemory(input, result.output);
+                    if (result.aborted) {
+                        sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                AgentTrace.KIND_EDGE, agentId, null, result.abortReason)));
+                    }
                 }
                 sink.next(AgentStreamEvent.builder()
                         .type(AgentStreamEvent.Type.COMPLETE)
@@ -1210,6 +1308,203 @@ public class LangChain4jAgent implements Agent {
                 }
             }
         }
+    }
+
+    /**
+     * 恢复执行：回传用户对人工确认的决策
+     *
+     * @param replyId   待确认请求回复 ID（CONFIRMATION_REQUEST 原样带回）
+     * @param decisions 各待确认工具的决策
+     * @return 恢复后的流式事件 Flux
+     */
+    @Override
+    public Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions) {
+        return resumeStream(replyId, decisions, null);
+    }
+
+    /**
+     * 携带用户修改意见恢复人工确认
+     *
+     * <p>从暂停态缓存取出对应轮次：批准的请求真实执行，拒绝（或未决策）的请求把
+     * 拒绝文案作为工具结果回填给模型；{@code feedback} 非空时作为用户补充消息注入
+     * 上下文，模型据此调整后续动作。恢复轮复用流式 ReAct 循环，从暂停点继续。</p>
+     *
+     * @param replyId   待确认请求回复 ID（CONFIRMATION_REQUEST 原样带回）
+     * @param decisions 各待确认工具的决策
+     * @param feedback  用户修改意见（可空）
+     * @return 恢复后的流式事件 Flux
+     */
+    @Override
+    public Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions,
+                                               String feedback) {
+        if (!pendingToolRecoveryEnabled) {
+            // 恢复通道被显式关闭：逐出缓存并返回错误事件，绝不静默丢弃决策
+            takePendingPause(replyId);
+            return Flux.just(errorEvent(
+                    "已通过 pendingToolRecovery(false) 关闭待执行工具恢复，请重新发起运行"));
+        }
+        if (chatModel == null) {
+            return Flux.just(errorEvent("ChatModel 未配置，请先调用 chatModel(...)"));
+        }
+        if (!(chatModel instanceof StreamingChatModel)) {
+            return Flux.just(errorEvent("人工确认恢复需要流式模型（StreamingChatModel）"));
+        }
+        PendingPause pause = takePendingPause(replyId);
+        if (pause == null || pause.question) {
+            if (pause != null) {
+                // 类型不匹配（确认轮次被误用提问恢复）：放回缓存避免状态丢失
+                cachePendingPause(replyId, pause);
+            }
+            return Flux.just(errorEvent("未找到待确认的暂停轮次: " + replyId));
+        }
+        return Flux.create(sink -> {
+            try {
+                resumeRun(pause, decisions, feedback, sink);
+            } catch (Exception e) {
+                log.error("[LangChain4j] resumeStream 失败: {}", e.getMessage(), e);
+                if (!sink.isCancelled()) {
+                    sink.next(errorEvent(e.getMessage()));
+                }
+            } finally {
+                sink.complete();
+            }
+        }, FluxSink.OverflowStrategy.BUFFER);
+    }
+
+    /**
+     * 恢复轮执行主体
+     *
+     * @param pause     暂停态快照
+     * @param decisions 用户决策
+     * @param feedback  用户修改意见（可空）
+     * @param sink      事件接收器
+     */
+    private void resumeRun(PendingPause pause, List<ConfirmationDecision> decisions,
+                           String feedback, FluxSink<AgentStreamEvent> sink) {
+        RunPlan plan;
+        try {
+            // 复用 prepareRun 完成工具装配/系统提示词/规划配置；消息序列沿用暂停态缓存
+            plan = prepareRun(null);
+        } catch (Exception e) {
+            sink.next(errorEvent(e.getMessage()));
+            return;
+        }
+        loopGuard.reset();
+        sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                AgentTrace.KIND_AGENT_START, plan.agentId, null, "resume:" + pause.replyId)));
+
+        Map<String, ConfirmationDecision> decisionMap = new LinkedHashMap<>();
+        if (decisions != null) {
+            for (ConfirmationDecision decision : decisions) {
+                if (decision != null && decision.getToolCallId() != null) {
+                    decisionMap.put(decision.getToolCallId(), decision);
+                }
+            }
+        }
+        List<ChatMessage> history = new ArrayList<>(pause.history);
+        List<ToolExecutionResultMessage> results = new ArrayList<>();
+        for (ToolExecutionRequest request : pause.pendingRequests) {
+            ConfirmationDecision decision = decisionMap.get(request.id());
+            String resultText;
+            if (decision != null && decision.isConfirmed()) {
+                long toolStartAt = System.currentTimeMillis();
+                sink.next(AgentStreamEvent.builder()
+                        .type(AgentStreamEvent.Type.TOOL_START)
+                        .agentId(plan.agentId)
+                        .toolName(request.name())
+                        .toolInput(request.arguments())
+                        .timestamp(toolStartAt)
+                        .build());
+                resultText = executeTool(request, plan.executors);
+                sink.next(AgentStreamEvent.builder()
+                        .type(AgentStreamEvent.Type.TOOL_RESULT)
+                        .agentId(plan.agentId)
+                        .toolName(request.name())
+                        .toolOutput(resultText)
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                        AgentTrace.KIND_TOOL_RESULT, plan.agentId, request.name(), resultText)));
+            } else {
+                // 未批准（拒绝或未决策）一律不执行，回填拒绝文案作为工具结果
+                resultText = decision != null
+                        ? "用户拒绝执行该工具调用"
+                        : "用户未对该工具调用作出决策，按拒绝处理";
+                sink.next(AgentStreamEvent.builder()
+                        .type(AgentStreamEvent.Type.TOOL_RESULT)
+                        .agentId(plan.agentId)
+                        .toolName(request.name())
+                        .toolOutput(resultText)
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+            }
+            results.add(ToolExecutionResultMessage.from(request, resultText));
+        }
+        history.addAll(results);
+        if (StringUtils.isNotBlank(feedback)) {
+            // 用户修改意见注入模型上下文与会话历史，模型据此调整后续动作
+            history.add(UserMessage.from(feedback));
+            appendSessionFeedback(feedback);
+        }
+
+        UsageAcc acc = new UsageAcc();
+        boolean[] emitted = {false};
+        try {
+            LoopResult result = streamReActLoop(plan, history, pause.originalInput, acc, sink, emitted);
+            if (result.pausedReplyId != null) {
+                // 恢复轮再次遇到高风险工具：再次暂停，等待下一次 resumeStream
+                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                        AgentTrace.KIND_EDGE, plan.agentId, null, "await_confirmation")));
+            } else {
+                recordSessionTurn(pause.originalInput, result.output);
+                autoSaveMemory(pause.originalInput, result.output);
+                if (result.aborted) {
+                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                            AgentTrace.KIND_EDGE, plan.agentId, null, result.abortReason)));
+                }
+            }
+            sink.next(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.COMPLETE)
+                    .agentId(plan.agentId)
+                    .usage(acc.build())
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+            sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                    AgentTrace.KIND_AGENT_END, plan.agentId, null, null)));
+        } catch (Exception e) {
+            log.error("[LangChain4j] resumeStream 执行失败: {}", e.getMessage(), e);
+            if (!sink.isCancelled()) {
+                sink.next(errorEvent(e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * 回传结构化提问的答案并恢复执行
+     *
+     * <p>本实现没有提问类工具（不会产生 {@code QUESTION_REQUEST}），正常流程不存在
+     * 待回答的提问；这里保留与 {@link #resumeStream} 一致的守卫与缓存查询口径，
+     * 误用时返回明确的 ERROR 事件而不是静默忽略。</p>
+     *
+     * @param replyId 提问请求 ID（QUESTION_REQUEST 原样带回）
+     * @param answers 用户答案，顺序与提问顺序一致
+     * @return 恢复后的流式事件 Flux
+     */
+    @Override
+    public Flux<AgentStreamEvent> answerQuestion(String replyId, List<AgentQuestionAnswer> answers) {
+        if (!pendingToolRecoveryEnabled) {
+            // 恢复通道被显式关闭：逐出缓存并返回错误事件
+            takePendingPause(replyId);
+            return Flux.just(errorEvent(
+                    "已通过 pendingToolRecovery(false) 关闭待执行工具恢复，请重新发起运行"));
+        }
+        PendingPause pause = takePendingPause(replyId);
+        if (pause != null) {
+            // 命中的是确认类挂起（本实现不产生提问挂起）：放回缓存避免状态丢失
+            cachePendingPause(replyId, pause);
+            return Flux.just(errorEvent("该回复 ID 对应的是待确认工具调用，请使用 resumeStream 恢复"));
+        }
+        return Flux.just(errorEvent("未找到待回答的提问: " + replyId));
     }
 
     /**
@@ -1279,7 +1574,7 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 流式 ReAct 循环
+     * 流式 ReAct 循环（初始轮）
      *
      * @param plan     运行计划
      * @param input    用户输入
@@ -1293,7 +1588,29 @@ public class LangChain4jAgent implements Agent {
     private LoopResult streamReAct(RunPlan plan, String input, String planText,
                                    UsageAcc acc, FluxSink<AgentStreamEvent> sink,
                                    boolean[] emitted) throws Exception {
-        List<ChatMessage> history = buildHistory(plan, input, planText);
+        return streamReActLoop(plan, buildHistory(plan, input, planText), input, acc, sink, emitted);
+    }
+
+    /**
+     * 流式 ReAct 循环主体（初始轮与人工确认恢复轮共用）
+     *
+     * <p>区别只在起始消息序列：初始轮由 {@link #buildHistory} 现建；
+     * 恢复轮沿用暂停时缓存的消息序列（已含带工具请求的 AiMessage 与已执行工具的结果）。
+     * 循环内遇到中高风险工具时暂停并下发 {@code CONFIRMATION_REQUEST}，正常结束本轮，
+     * 由调用方经 {@link #resumeStream} 恢复。</p>
+     *
+     * @param plan          运行计划
+     * @param history       起始消息序列
+     * @param originalInput 触发本轮的原始用户输入（暂停缓存与恢复轮记录用）
+     * @param acc           用量累加器
+     * @param sink          事件接收器
+     * @param emitted       是否已推送正文/思考增量（长度 1 的标记数组）
+     * @return 循环结果
+     * @throws Exception 模型调用失败
+     */
+    private LoopResult streamReActLoop(RunPlan plan, List<ChatMessage> history, String originalInput,
+                                       UsageAcc acc, FluxSink<AgentStreamEvent> sink,
+                                       boolean[] emitted) throws Exception {
         StreamingChatModel streamingModel = (StreamingChatModel) chatModel;
         String finalOutput = "";
         String abortReason = null;
@@ -1339,7 +1656,9 @@ public class LangChain4jAgent implements Agent {
             fireDebug(plan.debugHook, "PRE_ACTING", plan.agentId,
                     "执行工具 " + aiMessage.toolExecutionRequests().size() + " 个", iter + 1);
             List<ToolExecutionResultMessage> results = new ArrayList<>();
-            for (ToolExecutionRequest toolRequest : aiMessage.toolExecutionRequests()) {
+            List<ToolExecutionRequest> batchRequests = aiMessage.toolExecutionRequests();
+            for (int requestIndex = 0; requestIndex < batchRequests.size(); requestIndex++) {
+                ToolExecutionRequest toolRequest = batchRequests.get(requestIndex);
                 if (sink.isCancelled() || loopGuard.isInterrupted()) {
                     abortReason = sink.isCancelled() ? "cancelled" : "interrupted";
                     break;
@@ -1347,6 +1666,12 @@ public class LangChain4jAgent implements Agent {
                 if (loopGuard.recordToolCall(toolRequest.name(), toolRequest.arguments())) {
                     abortReason = loopGuard.describe();
                     break;
+                }
+                // 中高风险工具：暂停等待人工确认（同步 run 无事件通道，保持自动执行）
+                String riskLevel = ToolRiskPolicy.classify(toolRequest.name(), toolRequest.arguments());
+                if (pendingToolRecoveryEnabled && ToolRiskPolicy.requiresConfirmation(riskLevel)) {
+                    return pauseForConfirmation(plan, history, results, batchRequests,
+                            requestIndex, originalInput, sink);
                 }
                 long toolStartAt = System.currentTimeMillis();
                 String toolSpanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
@@ -1389,6 +1714,44 @@ public class LangChain4jAgent implements Agent {
             iter++;
         }
         return new LoopResult(finalOutput, abortReason != null, abortReason);
+    }
+
+    /**
+     * 中高风险工具暂停：缓存待执行请求与循环状态，下发确认请求事件后正常结束本轮
+     *
+     * @param plan          运行计划
+     * @param history       当前消息序列（已含带工具请求的 AiMessage）
+     * @param executed      本批已执行工具的结果
+     * @param batch         本批全部工具请求
+     * @param fromIndex     首个未执行请求的下标
+     * @param originalInput 触发本轮的原始用户输入
+     * @param sink          事件接收器
+     * @return 暂停态循环结果（pausedReplyId 非空）
+     */
+    private LoopResult pauseForConfirmation(RunPlan plan, List<ChatMessage> history,
+                                            List<ToolExecutionResultMessage> executed,
+                                            List<ToolExecutionRequest> batch,
+                                            int fromIndex, String originalInput,
+                                            FluxSink<AgentStreamEvent> sink) {
+        List<ToolExecutionRequest> pending = new ArrayList<>(batch.subList(fromIndex, batch.size()));
+        List<ChatMessage> snapshot = new ArrayList<>(history);
+        snapshot.addAll(executed);
+        String replyId = UUID.randomUUID().toString();
+        cachePendingPause(replyId, new PendingPause(replyId, plan.agentId, originalInput,
+                pending, snapshot, false));
+        List<ConfirmationItem> items = new ArrayList<>();
+        for (ToolExecutionRequest request : pending) {
+            items.add(ConfirmationItem.builder()
+                    .toolCallId(request.id())
+                    .toolName(request.name())
+                    .title(request.name())
+                    .description(StringUtils.isNotBlank(request.arguments())
+                            ? request.arguments() : request.name())
+                    .riskLevel(ToolRiskPolicy.classify(request.name(), request.arguments()))
+                    .build());
+        }
+        sink.next(AgentStreamEvent.confirmationRequest(plan.agentId, replyId, items));
+        return new LoopResult("", false, null, replyId);
     }
 
     /**
@@ -1876,6 +2239,20 @@ public class LangChain4jAgent implements Agent {
         synchronized (sessionHistory) {
             sessionHistory.add(UserMessage.from(input));
             sessionHistory.add(AiMessage.from(output));
+            while (sessionHistory.size() > SESSION_HISTORY_LIMIT) {
+                sessionHistory.remove(0);
+            }
+        }
+    }
+
+    /**
+     * 追加用户反馈（人工确认时的修改意见）到会话历史
+     *
+     * @param feedback 用户修改意见
+     */
+    private void appendSessionFeedback(String feedback) {
+        synchronized (sessionHistory) {
+            sessionHistory.add(UserMessage.from(feedback));
             while (sessionHistory.size() > SESSION_HISTORY_LIMIT) {
                 sessionHistory.remove(0);
             }
@@ -2424,6 +2801,98 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 写入一条待确认暂停态，超上限则按 FIFO 逐出最旧的一批。
+     *
+     * <p>确认决策只回传一次，正常路径下每批都会被取走逐出；但用户中途放弃、
+     * 或决策未送达时条目会一直残留，长驻服务下逐轮累积成确定性内存泄漏，
+     * 故加硬上限——宁可让极少数过期批次恢复失败，也不让堆无限涨。</p>
+     *
+     * @param replyId 回复标识，为空不缓存
+     * @param pause   暂停态
+     */
+    private static void cachePendingPause(String replyId, PendingPause pause) {
+        if (replyId == null || pause == null) {
+            return;
+        }
+        PENDING_PAUSES.put(replyId, pause);
+        PENDING_PAUSE_ORDER.add(replyId);
+        while (PENDING_PAUSES.size() > PENDING_PAUSE_LIMIT) {
+            String oldest = PENDING_PAUSE_ORDER.poll();
+            if (oldest == null) {
+                return;
+            }
+            PENDING_PAUSES.remove(oldest);
+        }
+    }
+
+    /**
+     * 取走并逐出一条待确认暂停态
+     *
+     * @param replyId 回复标识，可为空
+     * @return 暂停态；无对应缓存时为 null
+     */
+    private static PendingPause takePendingPause(String replyId) {
+        if (replyId == null) {
+            return null;
+        }
+        PendingPause pause = PENDING_PAUSES.remove(replyId);
+        if (pause != null) {
+            PENDING_PAUSE_ORDER.remove(replyId);
+        }
+        return pause;
+    }
+
+    /**
+     * 人工确认/提问暂停态快照
+     *
+     * @author CH
+     * @since 4.0.0
+     */
+    private static final class PendingPause {
+
+        /**
+         * 暂停批次标识（恢复时原样带回）
+         */
+        private final String replyId;
+
+        /**
+         * Agent 标识
+         */
+        private final String agentId;
+
+        /**
+         * 触发本轮的原始用户输入
+         */
+        private final String originalInput;
+
+        /**
+         * 尚未执行的工具请求（确认类挂起）；提问类挂起为空
+         */
+        private final List<ToolExecutionRequest> pendingRequests;
+
+        /**
+         * 暂停时的消息序列（已含带工具请求的 AiMessage 与已执行工具的结果）
+         */
+        private final List<ChatMessage> history;
+
+        /**
+         * 是否提问类挂起（本实现不产生提问，恒为 false）
+         */
+        private final boolean question;
+
+        private PendingPause(String replyId, String agentId, String originalInput,
+                             List<ToolExecutionRequest> pendingRequests,
+                             List<ChatMessage> history, boolean question) {
+            this.replyId = replyId;
+            this.agentId = agentId;
+            this.originalInput = originalInput;
+            this.pendingRequests = pendingRequests;
+            this.history = history;
+            this.question = question;
+        }
+    }
+
+    /**
      * 运行计划：一次运行所需的全部装配结果
      *
      * @author CH
@@ -2515,11 +2984,23 @@ public class LangChain4jAgent implements Agent {
     /**
      * ReAct 循环结果
      *
-     * @param output      最终输出
-     * @param aborted     是否被中断/护栏中止
-     * @param abortReason 中止原因
+     * @param output        最终输出
+     * @param aborted       是否被中断/护栏中止
+     * @param abortReason   中止原因
+     * @param pausedReplyId 非空表示本轮因等待人工确认而正常暂停，值为确认回复 ID
      */
-    private record LoopResult(String output, boolean aborted, String abortReason) {
+    private record LoopResult(String output, boolean aborted, String abortReason, String pausedReplyId) {
+
+        /**
+         * 常规结果（未暂停）
+         *
+         * @param output      最终输出
+         * @param aborted     是否被中断/护栏中止
+         * @param abortReason 中止原因
+         */
+        private LoopResult(String output, boolean aborted, String abortReason) {
+            this(output, aborted, abortReason, null);
+        }
     }
 
     /**

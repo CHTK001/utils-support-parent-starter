@@ -251,6 +251,33 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
+     * 设置游标（keyset）分页键值。
+     * <p>必须重写为返回具体包装器类型：父类返回 {@link LambdaQueryWrapper}，
+     * 若链式写成 {@code query(x).orderByAsc(...).cursor(c).page(1, 10)}，
+     * 静态类型会退化成父类，{@code page()} 将落到「由引擎实现覆盖」的
+     * 空实现并抛 {@link UnsupportedOperationException}。</p>
+     *
+     * @param cursorValues 上一页末行的排序键值，null/空表示按页码翻页
+     * @return this
+     */
+    @Override
+    public EngineQueryWrapper<T> cursor(List<Object> cursorValues) {
+        super.cursor(cursorValues);
+        return this;
+    }
+
+    /**
+     * 清除游标（恢复按页码翻页）。
+     *
+     * @return this
+     */
+    @Override
+    public EngineQueryWrapper<T> clearCursor() {
+        super.clearCursor();
+        return this;
+    }
+
+    /**
      * Lambda 投影列
     */
     @Override

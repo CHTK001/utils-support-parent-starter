@@ -461,7 +461,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "https://github.com/yakhyo/uniface/releases/download/weights/face_mesh_Nx3x192x192.onnx",
             List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/face_mesh.onnx"), false,
             null);
-        // 人脸2D关键点(PIPNet)：WFLW 98 点，热图+偏移+邻居融合，输出 [x,y]*98 原图坐标；模型内嵌 jar
+        // 人脸2D关键点(PIPNet)：WFLW 98 点，热图+偏移+邻居融合，输出 [x,y]*98 原图坐标；权重按需下载（GitHub 主源 + HF 镜像）
         reg("uniface-pipnet-landmark", "com.chua.deeplearning.support.onnx.uniface.UniFacePipnetLandmarkTranslator",
             Image.class, float[].class, FeatureExtractor.class, "face/landmark/uniface/pipnet/pipnet_r18_wflw_98.onnx",
             "https://github.com/yakhyo/pipnet-onnx/releases/download/weights/pipnet_r18_wflw_98.onnx",
@@ -479,19 +479,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "https://github.com/yakhyo/head-pose-estimation/releases/download/weights/mobilenetv2.onnx",
             List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/headpose_mobilenetv2.onnx"), false,
             null);
-        // 人脸解析(BiSeNet)：19 类面部区域逐像素分割，输出类别掩码灰度图；模型内嵌 jar
+        // 人脸解析(BiSeNet)：19 类面部区域逐像素分割，输出类别掩码灰度图；权重按需下载（GitHub 主源 + HF 镜像）
         reg("uniface-face-parsing", "com.chua.deeplearning.support.onnx.uniface.UniFaceBisenetParsingTranslator",
             Image.class, Image.class, ImageSegmenter.class, "face/parsing/uniface/parsing_resnet18.onnx",
             "https://github.com/yakhyo/face-parsing/releases/download/weights/resnet18.onnx",
             List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/parsing_resnet18.onnx"), false,
             null);
-        // 人像抠图(PP-Matting)：输出 alpha matte 灰度图（动态输入尺寸）；模型内嵌 jar
+        // 人像抠图(PP-Matting)：输出 alpha matte 灰度图（动态输入尺寸）；权重按需下载（GitHub 主源 + HF 镜像）
         reg("uniface-ppmatting", "com.chua.deeplearning.support.onnx.uniface.UniFacePpMattingTranslator", Image.class,
             Image.class, Object.class, "face/matting/uniface/ppmatting_v2.onnx",
             "https://github.com/yakhyo/ppmatting/releases/download/weights/ppmatting_v2.onnx",
             List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/ppmatting_v2.onnx"), false,
             null);
-        // 面部状态属性(FaceAttribNet)：[左眼睁开,右眼睁开,眼镜,口罩,墨镜] 5 维概率；模型内嵌 jar
+        // 面部状态属性(FaceAttribNet)：[左眼睁开,右眼睁开,眼镜,口罩,墨镜] 5 维概率；权重按需下载（GitHub 主源 + HF 镜像）
         reg("uniface-face-attrib", "com.chua.deeplearning.support.onnx.uniface.UniFaceAttribNetTranslator", Image.class,
             float[].class, Object.class, "face/attribute/uniface/face_attrib_net.onnx",
             "https://github.com/yakhyo/uniface/releases/download/weights/face_attrib_net.onnx",
@@ -509,7 +509,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "https://github.com/yakhyo/face-anti-spoofing/releases/download/weights/MiniFASNetV1SE.onnx",
             List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/minifasnet_v1se.onnx"), false,
             null);
-        // 人口学属性(FairFace)：种族(7)/性别(2)/年龄段(9)，value="race|gender|age"；模型内嵌 jar
+        // 人口学属性(FairFace)：种族(7)/性别(2)/年龄段(9)，value="race|gender|age"；权重按需下载（GitHub 主源 + HF 镜像）
         reg("uniface-fairface", "com.chua.deeplearning.support.onnx.uniface.UniFaceFairfaceTranslator", Image.class,
             Object.class, Object.class, "face/demographics/uniface/fairface.onnx",
             "https://github.com/yakhyo/fairface-onnx/releases/download/weights/fairface.onnx",

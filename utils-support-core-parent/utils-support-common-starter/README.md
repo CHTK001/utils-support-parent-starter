@@ -1144,7 +1144,7 @@ b.close();
 
 #### 与 Spring 集成
 
-utils 层只提供 SPI 契约与纯 Java 实现；Spring Boot 侧做成**独立 starter**（谁用谁依赖，不并入 `spring-support-common-starter` 默认依赖，避免给所有宿主引入节点服务端线程与定时发现开销），并按「依赖即用」做条件装配：未配置 scatter 时零副作用。启用后以下均为 starter 的**一等配置项**（缺省自动回落，均可显式覆盖）：
+utils 层只提供 SPI 契约与纯 Java 实现；Spring Boot 侧做成**独立 starter**（谁用谁依赖，不并入 `spring-support-common-starter` 默认依赖，避免给所有宿主引入节点服务端线程与定时发现开销），并按「依赖即用」做条件装配：未配置 scatter 时零副作用。**宿主接入口径**：由应用型宿主的**根 pom** 统一引入——如 api 侧在 `spring-support-api-parent` 的 `<dependencies>` 声明一次、全部子模块继承；scatter 节点只在真正启动的 Spring Boot 应用进程里装配，引在无人启动的 library starter 上没有意义。启用后以下均为 starter 的**一等配置项**（缺省自动回落，均可显式覆盖）：
 
 | starter 配置项 | 缺省回落 | 说明 |
 |---|---|---|
@@ -1159,7 +1159,51 @@ utils 层只提供 SPI 契约与纯 Java 实现；Spring Boot 侧做成**独立 
 
 **自我负载均衡（`self-balance`，默认 `true`）**：开启后 starter 向 Servlet 链注入一个 Filter，拦截进入本服务的请求，按 `service-path` 从 scatter 池 `getService(servicePath, balance)` 选取实例：选中**其它**实例则转发过去（转发请求带标记头，Filter 对带标记的请求直接放行，防死循环）；选中自己、池内仅本节点或转发异常时**兜底本地处理**——本节点本身就在 scatter 池里，天然有兜底。WebSocket 升级、文件流等不宜转发的请求直接放行本地。
 
+**转发实现是进程内反向代理，不是 Servlet forward**：`RequestDispatcher#forward` 只能转发到**同一容器内**的资源，跨实例转发必须走 HTTP 反向代理。Filter **选实例**用 scatter 自身方法（`getService(servicePath, balance)`），**送请求**用本层 `HttpClient`（`com.chua.common.support.network.client.HttpClient`，经 `HttpClientFactory.of(url)` 构建；执行器走 SPI：okhttp > httpclient5 > httpclient4 > jdk 兜底）向 `http://{host}:{业务端口}{context-path}{uri}` 发起同方法请求：请求头透传（剥离 `Host`、`Connection`、`Content-Length`、`Transfer-Encoding` 等逐跳头，附加 `X-Forwarded-For` / `X-Forwarded-Proto` 与防循环标记头），请求体按字节透传；响应码、响应头（同样剥逐跳头）与响应体回写客户端。大文件上传、SSE、WebSocket 升级与异步 Servlet 请求（`request.isAsyncStarted()`）不做代理，直接放行本地。
+
+> **为什么转发腿是 HTTP，而不复用 scatter 的 TCP 通道**：scatter 节点间「监听 + 互访」全部走本层 `Server` 体系——服务端 `ScatterTcpNodeServer extends AbstractProxyServer`（TCP 短连接帧服务；UDP 宣告走 `UdpScatterNodeServer`），客户端走 `JdkTcpClient`，帧协议为自定义二进制 `ScatterFrame`（REQ/PUSH/RESP/ACK/ELEC/DISC/LEAVE，单帧 16MB 上限、一请求一响应一断）。这是**控制面**：只承载成员表同步、心跳、选举与离网通知，没有业务请求通道。而 self-balance 转发的是**业务 HTTP 请求**，目标是对方实例的 Servlet 端点：若塞进 scatter 帧，需要新造帧类型并序列化 method/headers/body，受 16MB 单帧与无流式语义限制，且对端 scatter 服务端拿到帧后仍要回环调用自己的业务端口（本质还是 HTTP），或另造一套路由/参数绑定——多一跳、多一套协议，无收益。utils 自带的 `HttpReverseProxyServerFilter` 即同一组合：`ServerFilter` 在入口接请求，底层用 HTTP 客户端向下游转发。
+
 **contextPath 与双端口口径**：注册条目必须携带业务前缀，否则消费方拼出的地址调不通。承载点用 `Discovery` 的 `metadata`（`ScatterSetting#setMetadata(...)` 会自动叠加进注册条目）；URL 拼接由 starter 侧封装在 `Discovery#createUrl` 结果上自动前置 contextPath，调用方无感——不要把 Spring 概念下沉进 utils。另注意 scatter 节点端口（组网/gossip）与业务 HTTP 端口（`server.port`）是两个端口：业务服务发现注册/查询业务端点（`server.port` + context-path），不要拿组网地址当业务调用地址。
+
+**接入示例**：
+
+utils 侧（纯 Java：控制面 = 本层 `Server` 体系，TCP/UDP + `ScatterFrame`；`AbstractProxyServer` 骨架 + `JdkTcpClient`）：
+
+```java
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.scatter.Scatter;
+import com.chua.common.support.scatter.ScatterBuilder;
+
+Scatter scatter = ScatterBuilder.tcp()
+        .nodeId("order@192.168.1.10:29810")   // 缺省自动回落 {name}@{ip}:{port}
+        .servicePath("/order")                 // 服务分组（同类服务同一路径）
+        .groupId("default")                    // 组网范围（哪些节点互见）
+        .port(29810)                           // 组网端口（≠业务端口 server.port）
+        .seeds("192.168.1.1:29810", "192.168.1.2:29810")
+        .build();
+scatter.start();
+
+// 查询某服务分组的全部实例（self-balance 的「选实例」就是这一步）
+List<Discovery> members = scatter.discovery().getServiceAll("/order");
+```
+
+Spring Boot 侧（`spring-support-scatter-starter`，以下均为一等配置项、可缺省回落）：
+
+```yaml
+spring:
+  application:
+    name: order-service
+
+scatter:
+  self-balance: true       # 默认 true：Filter 拦截本服务请求，按 service-path 转发
+  # 以下均可缺省，显式覆盖示例：
+  # service-path: /order      # 服务分组（缺省 /{spring.application.name}）
+  # group: default            # 组网范围
+  # context-path: /api        # 业务地址前缀（缺省取 server.servlet.context-path）
+  # protocol: tcp             # tcp / udp
+  # port: 29810               # 组网端口
+  # seeds: 192.168.1.1:29810,192.168.1.2:29810
+```
 
 #### 大规模部署：请配置多个 seed 节点
 

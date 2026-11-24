@@ -26,6 +26,7 @@ import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.memory.MemoryManager;
@@ -428,6 +429,11 @@ public class OpencodeServerAgent implements Agent {
     private volatile Boolean shellEnabled;
 
     /**
+     * 决策客户端（会话配置的决策模型）；未配置决策模型时为 {@code null}
+     */
+    private volatile DecisionsClient decisionsClient;
+
+    /**
      * 是否请求启用 Plan 能力
      */
     private volatile boolean planEnabled;
@@ -618,6 +624,30 @@ public class OpencodeServerAgent implements Agent {
         return this;
     }
 
+    /**
+     * 决策客户端（会话配置的决策模型）
+     */
+    @Override
+    public OpencodeServerAgent decisionsClient(DecisionsClient decisionsClient) {
+        this.decisionsClient = decisionsClient;
+        return this;
+    }
+
+    /**
+     * 取决策客户端；未配置决策模型时为 {@code null}
+     */
+    public DecisionsClient decisionsClient() {
+        return decisionsClient;
+    }
+
+    /**
+     * 设置运行模式。
+     *
+     * <p>opencode 是进程外服务，原生没有顺序/并行多 agent 编排原语，
+     * 因此 {@link AgentMode#PIPELINE} 与 {@link AgentMode#FAN_OUT} 无法在本实现内模拟，
+     * 传入即抛 {@link UnsupportedOperationException}（契约允许的引擎限制，非缺陷）；
+     * 需要编排时请改用 goal 循环或由调用方自行编排多个 agent。</p>
+     */
     @Override
     public OpencodeServerAgent mode(AgentMode mode) {
         AgentMode value = mode == null ? AgentMode.SINGLE : mode;

@@ -27,9 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UniFaceGazeTranslator implements Translator<Image, float[]> {
 
     /**
-     * 模型输入边长。
+     * 模型输入边长（ONNX 固定为 448x448，经 OnnxShapeProbe 实测确认）。
      */
-    private static final int INPUT_SIZE = 224;
+    private static final int INPUT_SIZE = 448;
 
     /**
      * 角度 bins 数。

@@ -11,6 +11,8 @@ import com.chua.common.support.ai.agent.AgentHookEvent;
 import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
+import com.chua.common.support.ai.agent.AgentQuestion;
+import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
@@ -40,9 +42,11 @@ import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.*;
 import io.agentscope.core.middleware.MiddlewareBase;
+import io.agentscope.core.message.ContentBlock;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
+import io.agentscope.core.message.ToolResultBlock;
 import io.agentscope.core.message.ToolUseBlock;
 import io.agentscope.core.model.ChatUsage;
 import io.agentscope.core.model.GenerateOptions;
@@ -1153,6 +1157,147 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 回传结构化提问的答案并恢复执行。
+     *
+     * <p>机制：{@code ask_user} 以 schema-only 外部工具注册，模型调用它时框架挂起当前轮、
+     * 发出 {@link RequireExternalExecutionEvent} 并结束本轮流；本方法把用户答案包装成与
+     * 挂起块按 id 配对的 {@link ToolResultBlock}，携带
+     * {@link Msg#METADATA_EXTERNAL_EXECUTION_REQUEST_REPLY_ID} 元数据开启新一轮
+     * {@code streamEvents}，框架配对成功后从暂停点继续执行。</p>
+     *
+     * <p>与 {@link #resumeStream} 同构：复用 {@code prepareRun(null)} 与静态待批块缓存
+     * （门面每个请求新建实例，实例字段跨不过 runStream → answerQuestion）。</p>
+     */
+    @Override
+    public Flux<AgentStreamEvent> answerQuestion(String replyId, List<AgentQuestionAnswer> answers) {
+        if (!this.pendingToolRecoveryEnabled) {
+            // 恢复通道被显式关闭：逐出缓存块并返回错误事件，绝不静默丢弃答案
+            takePendingBlocks(replyId);
+            return Flux.just(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.ERROR)
+                    .toolOutput("已通过 pendingToolRecovery(false) 关闭待执行工具恢复，"
+                            + "请重新发起运行")
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+        }
+        final RunPlan plan;
+        try {
+            // 复用 prepareRun 完成模型注册 / 系统提示词 / 规划配置；触发消息稍后替换为答案结果消息
+            plan = prepareRun(null);
+        } catch (Exception e) {
+            log.error("[AgentScope] answerQuestion准备失败: {}", e.getMessage(), e);
+            return Flux.error(e);
+        }
+        Map<String, ToolUseBlock> cached = takePendingBlocks(replyId);
+        List<ContentBlock> results = new java.util.ArrayList<>();
+        if (answers != null) {
+            for (AgentQuestionAnswer answer : answers) {
+                if (answer == null) {
+                    continue;
+                }
+                ToolUseBlock pending = cached != null && answer.getQuestionId() != null
+                        ? cached.get(answer.getQuestionId()) : null;
+                // 原样回传挂起块的 id/name，框架按 id 与待执行块配对；缓存缺失时退化为裸 id
+                String id = pending != null ? pending.getId() : answer.getQuestionId();
+                String name = pending != null ? pending.getName() : ASK_USER_TOOL;
+                results.add(ToolResultBlock.of(id, name,
+                        TextBlock.builder().text(toAnswerJson(answer)).build()));
+            }
+        }
+        Map<String, Object> meta = Wraps.map();
+        meta.put(Msg.METADATA_EXTERNAL_EXECUTION_REQUEST_REPLY_ID, replyId);
+        plan.userMsg = Msg.builder().role(MsgRole.USER).content(results).metadata(meta).build();
+        // 答案走工具结果通道回传，不再经 feedback 注入上下文
+        plan.feedback = null;
+        return drive(plan, false);
+    }
+
+    /**
+     * 答案序列化器：仅用于把用户答案打包成回传给模型的 JSON 文本。
+     */
+    private static final com.fasterxml.jackson.databind.ObjectMapper ANSWER_MAPPER =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /**
+     * 把单个问题的用户答案序列化为回传给模型的 JSON 文本。
+     */
+    private static String toAnswerJson(AgentQuestionAnswer answer) {
+        Map<String, Object> payload = Wraps.map();
+        payload.put("questionId", answer.getQuestionId());
+        payload.put("answers", answer.getAnswers());
+        try {
+            return ANSWER_MAPPER.writeValueAsString(payload);
+        } catch (Exception e) {
+            // 序列化失败退化为可读文本，保证答案仍能送达模型
+            return String.valueOf(answer.getAnswers());
+        }
+    }
+
+    /**
+     * 结构化提问工具名：以 schema-only 外部工具注册，模型调用即挂起当前轮等待用户回答。
+     */
+    private static final String ASK_USER_TOOL = "ask_user";
+
+    /**
+     * ask_user 工具的参数 schema：问题正文 + 可选项 + 是否多选。
+     */
+    private static io.agentscope.core.model.ToolSchema askUserSchema() {
+        Map<String, Object> question = Wraps.map();
+        question.put("type", "string");
+        question.put("description", "要问用户的问题正文");
+        Map<String, Object> items = Wraps.map();
+        items.put("type", "string");
+        Map<String, Object> options = Wraps.map();
+        options.put("type", "array");
+        options.put("items", items);
+        options.put("description", "可选项列表；为空表示纯自由输入");
+        Map<String, Object> multiple = Wraps.map();
+        multiple.put("type", "boolean");
+        multiple.put("description", "是否允许多选");
+        Map<String, Object> properties = Wraps.map();
+        properties.put("question", question);
+        properties.put("options", options);
+        properties.put("multiple", multiple);
+        Map<String, Object> parameters = Wraps.map();
+        parameters.put("type", "object");
+        parameters.put("properties", properties);
+        parameters.put("required", java.util.Arrays.asList("question"));
+        return io.agentscope.core.model.ToolSchema.builder()
+                .name(ASK_USER_TOOL)
+                .description("向用户提出结构化问题并等待回答。需要用户补充信息、在选项间做选择或确认偏好时调用；"
+                        + "调用后当前轮暂停，用户答案会在下一轮以本工具的执行结果形式返回。")
+                .parameters(parameters)
+                .build();
+    }
+
+    /**
+     * 把 ask_user 挂起块的入参解析为 {@link AgentQuestion}。
+     */
+    private static AgentQuestion toAgentQuestion(ToolUseBlock call) {
+        Map<String, Object> input = call.getInput();
+        String question = input != null && input.get("question") != null
+                ? String.valueOf(input.get("question")) : "请补充信息";
+        List<String> options = new java.util.ArrayList<>();
+        Object rawOptions = input != null ? input.get("options") : null;
+        if (rawOptions instanceof List) {
+            for (Object item : (List<?>) rawOptions) {
+                if (item != null) {
+                    options.add(String.valueOf(item));
+                }
+            }
+        }
+        Object rawMultiple = input != null ? input.get("multiple") : null;
+        boolean multiple = rawMultiple != null && Boolean.parseBoolean(String.valueOf(rawMultiple));
+        return AgentQuestion.builder()
+                .id(call.getId())
+                .question(question)
+                .options(options.isEmpty() ? null : options)
+                .multiple(multiple)
+                .custom(true)
+                .build();
+    }
+
+    /**
      * 生成区间配对键。
      *
      * <p>必须由「类别 + 唯一标识」拼成。只用类别是不够的：一次运行里会有多次同名
@@ -1434,10 +1579,33 @@ public class AgentScopeAgent implements Agent {
                                         "等待【用户确认】(未确认会卡住), 工具数="
                                                 + (pending != null ? pending.size() : 0))));
                             } else if (event instanceof RequireExternalExecutionEvent e) {
+                                // ask_user 等 schema-only 外部工具挂起当前轮：转成结构化提问下发，
+                                // 并缓存完整工具块供 answerQuestion 轮按 id 配对回传
+                                List<AgentQuestion> questions = Wraps.list();
+                                Map<String, ToolUseBlock> blockById = Wraps.linkedMap();
+                                List<ToolUseBlock> externalCalls = e.getToolCalls();
+                                if (externalCalls != null) {
+                                    for (ToolUseBlock tb : externalCalls) {
+                                        if (tb == null) {
+                                            continue;
+                                        }
+                                        if (ASK_USER_TOOL.equals(tb.getName())) {
+                                            if (tb.getId() != null) {
+                                                blockById.put(tb.getId(), tb);
+                                            }
+                                            questions.add(toAgentQuestion(tb));
+                                        }
+                                    }
+                                }
+                                if (!questions.isEmpty() && e.getReplyId() != null) {
+                                    cachePendingBlocks(e.getReplyId(), blockById);
+                                    emitted.add(AgentStreamEvent.questionRequest(
+                                            aid, e.getReplyId(), questions));
+                                }
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "等待【外部执行】(未执行会卡住), 工具数="
-                                                + (e.getToolCalls() != null ? e.getToolCalls().size() : 0))));
+                                                + (externalCalls != null ? externalCalls.size() : 0))));
                             } else if (event instanceof AllToolsDeniedEvent e) {
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
@@ -2206,14 +2374,17 @@ public class AgentScopeAgent implements Agent {
             List<McpToolDescriptor> mcpTools,
             McpManager mcpManager,
             java.util.Collection<String> disabled) {
+        java.util.Set<String> disabledNames = disabled == null
+                ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
+        // ask_user 未被禁用时始终可用：即使业务工具为空，agent 也应能向用户提问
+        boolean askUserEnabled = !disabledNames.contains(ASK_USER_TOOL);
         boolean empty = (skills == null || skills.isEmpty())
                 && (localTools == null || localTools.isEmpty())
-                && (mcpTools == null || mcpTools.isEmpty());
+                && (mcpTools == null || mcpTools.isEmpty())
+                && !askUserEnabled;
         if (empty) {
             return null;
         }
-        java.util.Set<String> disabledNames = disabled == null
-                ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
         io.agentscope.core.tool.Toolkit toolkit = new io.agentscope.core.tool.Toolkit();
         java.util.Set<String> registered = new java.util.LinkedHashSet<>();
         if (skills != null) {
@@ -2244,6 +2415,10 @@ public class AgentScopeAgent implements Agent {
                 }
                 toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager));
             }
+        }
+        if (askUserEnabled && registered.add(ASK_USER_TOOL)) {
+            // schema-only 外部工具：模型调用即挂起等待用户回答，答案经 answerQuestion 回传
+            toolkit.registerSchema(askUserSchema());
         }
         return toolkit;
     }
