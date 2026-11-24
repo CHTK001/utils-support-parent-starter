@@ -4,7 +4,7 @@ import com.chua.common.support.lang.datasource.flyway.FlywayScripts;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -134,8 +134,8 @@ public final class RestorePreflight {
                     }
                     tablesBefore = collectUserTables(conn);
                     for (Path script : scripts) {
-                        try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
-                            FlywayScripts.forEachStatement(reader, raw -> {
+                        try (InputStream in = Files.newInputStream(script)) {
+                            FlywayScripts.forEachStatement(in, raw -> {
                                 String sql = raw.trim();
                                 if (sql.isEmpty()) {
                                     return;
@@ -266,18 +266,15 @@ public final class RestorePreflight {
      * 统计全部脚本可解析的非空语句数（流式读取，不把脚本全量载入内存）。
      */
     private static int countStatements(List<Path> scripts, List<CheckItem> checks) throws IOException {
-        int[] statements = {0};
+        int statements = 0;
         for (Path script : scripts) {
-            try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
-                FlywayScripts.forEachStatement(reader, raw -> {
-                    if (!raw.trim().isEmpty()) {
-                        statements[0]++;
-                    }
-                });
+            try (InputStream in = Files.newInputStream(script)) {
+                // 计数专用轻量路径：不物化每条语句的字符串，305MB 级脚本计数不再产生上 GB 瞬时对象
+                statements += FlywayScripts.countStatements(in);
             }
         }
-        checks.add(new CheckItem("语句解析", true, statements[0] + " 条语句"));
-        return statements[0];
+        checks.add(new CheckItem("语句解析", true, statements + " 条语句"));
+        return statements;
     }
 
     /**

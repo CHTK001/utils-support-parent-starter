@@ -5,10 +5,15 @@ import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
 import com.chua.common.support.file.resource.ResourceFlow;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.nio.file.Files;
@@ -439,34 +444,14 @@ public final class FlywayScripts {
         if (StringUtils.isEmpty(sql)) {
             return statements;
         }
-        var current = new StringBuilder();
-        boolean inString = false;
-        for (int i = 0; i < sql.length(); i++) {
-            char c = sql.charAt(i);
-            if (c == '-' && i + 1 < sql.length() && sql.charAt(i + 1) == '-' && !inString) {
-                while (i < sql.length() && sql.charAt(i) != '\n') {
-                    i++;
-                }
-                continue;
-            }
-            if (c == '\\' && inString && i + 1 < sql.length()) {
-                // 字符串内的反斜杠转义：\' 不结束字符串，\\ 也不结束
-                current.append(c).append(sql.charAt(i + 1));
-                i++;
-                continue;
-            }
-            if (c == '\'') {
-                inString = !inString;
-                current.append(c);
-            } else if (c == ';' && !inString) {
-                statements.add(current.toString());
-                current.setLength(0);
-            } else {
-                current.append(c);
-            }
-        }
-        if (!current.toString().isBlank()) {
-            statements.add(current.toString());
+        // 字节级核心与流式扫描共用同一套语句边界状态机；UTF-8 多字节序列的字节均
+        // >= 0x80，不会与 ; ' - \ \n 等 ASCII 分隔符混淆，字节域判定与字符域等价。
+        byte[] bytes = sql.getBytes(StandardCharsets.UTF_8);
+        try {
+            scanStatements(new ByteArrayInputStream(bytes), statements::add);
+        } catch (IOException e) {
+            // ByteArrayInputStream 的读取不会抛出 IOException；仅为满足受检异常契约
+            throw new UncheckedIOException(e);
         }
         return statements;
     }
@@ -481,82 +466,270 @@ public final class FlywayScripts {
      * 数百 MB 的备份脚本也不会撑爆堆（全量读入 + 全量切分会产生数倍于脚本
      * 体积的瞬时内存，Xmx 1G 的进程实测直接 OutOfMemoryError）。</p>
      *
+     * <p>字节级扫描直接消费原始字节，不再逐字符解码：UTF-8 的多字节序列字节
+     * 均 >= 0x80，永远不会与 {@code ; ' - \ \n} 等 ASCII 分隔符混淆，因此
+     * 语句边界判定在字节域与字符域完全等价，同时免去解码器逐字节状态转换
+     * 的开销（305MB 备份脚本实测为预检热路径的主要成本）。</p>
+     *
      * <p>适用于预检语句计数、试运行逐条执行等大脚本场景；调用方负责关闭
-     * 传入的 {@link Reader}（建议 try-with-resources）。回调内抛出的运行时
-     * 异常会中止读取并向调用方传播。</p>
+     * 传入的 {@link InputStream}（建议 try-with-resources）。回调内抛出的
+     * 运行时异常会中止读取并向调用方传播。</p>
+     *
+     * @param in       脚本字节流（UTF-8 编码）
+     * @param consumer 语句回调（每遇到一条语句调用一次，含空语句）
+     * @throws IOException 读取失败
+     */
+    public static void forEachStatement(InputStream in, Consumer<String> consumer) throws IOException {
+        scanStatements(in, consumer);
+    }
+
+    /**
+     * 流式统计非空语句数（计数专用轻量路径）。
+     *
+     * <p>与 {@link #forEachStatement(InputStream, Consumer)} 共用同一套语句边界状态机，
+     * 语义等价于「对每条语句做 {@code !raw.trim().isEmpty()} 过滤后计数」；
+     * 差别在于<b>不物化语句字符串</b>——只跟踪当前语句是否出现过非空白字节，
+     * 数十万条语句的大脚本计数时不再产生海量瞬时 {@link String}，
+     * 显著降低分配速率与 GC 压力（恢复预检对 305MB 备份脚本计数时，原实现
+     * 每条语句分配 builder + toString + trim 三份副本，实测为预检热路径）。</p>
+     *
+     * @param in 脚本字节流（UTF-8 编码）
+     * @return 非空语句数
+     * @throws IOException 读取失败
+     */
+    public static int countStatements(InputStream in) throws IOException {
+        return scanStatements(in, null);
+    }
+
+    /**
+     * 流式按分号拆分脚本（字符流兼容入口）。
      *
      * @param reader   脚本字符流（UTF-8 文本）
      * @param consumer 语句回调（每遇到一条语句调用一次，含空语句）
      * @throws IOException 读取失败
+     * @deprecated 字符流入口仅为旧调用方保留：内部在线编码为 UTF-8 字节流后走同一
+     * 字节级核心，不产生第二套拆分逻辑。新代码请直接使用
+     * {@link #forEachStatement(InputStream, Consumer)}，免一层编码转换。
      */
+    @Deprecated
     public static void forEachStatement(Reader reader, Consumer<String> consumer) throws IOException {
-        var current = new StringBuilder(8192);
+        scanStatements(utf8Stream(reader), consumer);
+    }
+
+    /**
+     * 流式统计非空语句数（字符流兼容入口）。
+     *
+     * @param reader 脚本字符流（UTF-8 文本）
+     * @return 非空语句数
+     * @throws IOException 读取失败
+     * @deprecated 字符流入口仅为旧调用方保留：内部在线编码为 UTF-8 字节流后走同一
+     * 字节级核心，不产生第二套拆分逻辑。新代码请直接使用
+     * {@link #countStatements(InputStream)}。
+     */
+    @Deprecated
+    public static int countStatements(Reader reader) throws IOException {
+        return scanStatements(utf8Stream(reader), null);
+    }
+
+    /**
+     * 语句边界扫描核心（字节级）：consumer 为 null 时走纯计数路径（不构建缓冲）。
+     *
+     * <p>全部语句入口（{@link #splitStatements(String)}、
+     * {@link #forEachStatement(InputStream, Consumer)}、
+     * {@link #countStatements(InputStream)} 与两个字符流兼容桥）都收敛到本方法，
+     * 保证只有这一套语句边界状态机。</p>
+     *
+     * @param in       脚本字节流（UTF-8 编码）
+     * @param consumer 语句回调；null 表示仅计数
+     * @return 非空语句数（物化路径也返回计数值，便于统一）
+     * @throws IOException 读取失败
+     */
+    private static int scanStatements(InputStream in, Consumer<String> consumer) throws IOException {
+        return scanStatements(in, consumer, 1 << 16);
+    }
+
+    /**
+     * 语句边界扫描核心（字节级，缓冲区大小可调）。
+     *
+     * <p>缓冲区大小参数化是为了等价性验证：用 1/2/3 字节小缓冲锤打
+     * {@code --} 注释与反斜杠转义跨块边界的分支，确保与整块读取结果一致。</p>
+     *
+     * @param in         脚本字节流（UTF-8 编码）
+     * @param consumer   语句回调；null 表示仅计数
+     * @param bufferSize 读取缓冲区字节数（>= 1）
+     * @return 非空语句数（物化路径也返回计数值，便于统一）
+     * @throws IOException 读取失败
+     */
+    private static int scanStatements(InputStream in, Consumer<String> consumer, int bufferSize) throws IOException {
+        boolean materialize = consumer != null;
+        var current = materialize ? new ByteArrayOutputStream(8192) : null;
+        boolean hasContent = false;    // 当前语句是否含非空白字节（等价于 !raw.trim().isEmpty()）
         boolean inString = false;
         boolean inComment = false;     // 正处于 -- 行注释中（注释内容连同换行一并丢弃）
-        boolean prevDash = false;      // 上一字符为字符串外的 '-'，尚待与后续字符定性（可能组成 --）
-        boolean pendingEscape = false; // 上一字符为字符串内的 '\'，下一字符是被转义字符，直接消费
-        char[] buf = new char[1 << 16];
+        boolean prevDash = false;      // 上一字节为字符串外的 '-'，尚待与后续字节定性（可能组成 --）
+        boolean pendingEscape = false; // 上一字节为字符串内的 '\'，下一字节是被转义字节，直接消费
+        byte[] buf = new byte[bufferSize];
+        int count = 0;
         int n;
-        while ((n = reader.read(buf)) != -1) {
+        while ((n = in.read(buf)) != -1) {
             for (int i = 0; i < n; i++) {
-                char c = buf[i];
+                int b = buf[i] & 0xFF; // Java 字节有符号，UTF-8 多字节序列为负值，统一转无符号比较
                 if (pendingEscape) {
                     // 字符串内的反斜杠转义：\' 不结束字符串，\\ 也不结束
                     pendingEscape = false;
-                    current.append(c);
+                    if (materialize) {
+                        current.write(b);
+                    }
+                    if (b > ' ') {
+                        hasContent = true;
+                    }
                     continue;
                 }
                 if (inComment) {
-                    // 行注释：直到换行为止；换行符本身也丢弃（与 splitStatements 一致）
-                    if (c == '\n') {
+                    // 行注释：直到换行为止；换行符本身也丢弃（与字符版一致）
+                    if (b == '\n') {
                         inComment = false;
                     }
                     continue;
                 }
                 if (prevDash) {
                     prevDash = false;
-                    if (c == '-' && !inString) {
+                    if (b == '-' && !inString) {
                         // 字符串外的 -- 行注释开始
                         inComment = true;
                         continue;
                     }
-                    // 前一个 '-' 只是普通字符，先落笔，再按常规处理当前字符
-                    current.append('-');
+                    // 前一个 '-' 只是普通字符，先落笔，再按常规处理当前字节
+                    if (materialize) {
+                        current.write('-');
+                    }
+                    hasContent = true;
                 }
-                if (c == '\\' && inString) {
+                if (b == '\\' && inString) {
                     if (i + 1 < n) {
-                        current.append(c).append(buf[i + 1]);
+                        if (materialize) {
+                            current.write(b);
+                            current.write(buf[i + 1] & 0xFF);
+                        }
+                        hasContent = true;
                         i++;
                     } else {
-                        // 块尾孤立 '\'：被转义字符在下一块
-                        current.append(c);
+                        // 块尾孤立 '\'：被转义字节在下一块
+                        if (materialize) {
+                            current.write(b);
+                        }
+                        hasContent = true;
                         pendingEscape = true;
                     }
                     continue;
                 }
-                if (c == '-' && !inString) {
-                    // 先记下，若下一字符也是 '-' 则组成注释，否则作为普通字符落笔
+                if (b == '-' && !inString) {
+                    // 先记下，若下一字节也是 '-' 则组成注释，否则作为普通字符落笔
                     prevDash = true;
                     continue;
                 }
-                if (c == '\'') {
+                if (b == '\'') {
                     inString = !inString;
-                    current.append(c);
-                } else if (c == ';' && !inString) {
-                    consumer.accept(current.toString());
-                    current.setLength(0);
+                    if (materialize) {
+                        current.write(b);
+                    }
+                    hasContent = true;
+                } else if (b == ';' && !inString) {
+                    if (materialize) {
+                        consumer.accept(current.toString(StandardCharsets.UTF_8));
+                        current.reset();
+                    } else if (hasContent) {
+                        count++;
+                    }
+                    hasContent = false;
                 } else {
-                    current.append(c);
+                    if (materialize) {
+                        current.write(b);
+                    }
+                    if (b > ' ') {
+                        hasContent = true;
+                    }
                 }
             }
         }
         if (prevDash) {
             // EOF 前的孤立 '-' 按普通字符补齐
-            current.append('-');
+            if (materialize) {
+                current.write('-');
+            }
+            hasContent = true;
         }
-        if (!current.toString().isBlank()) {
-            consumer.accept(current.toString());
+        if (materialize) {
+            // 与字符版一致：末尾非空白内容补为最后一条
+            String tail = current.toString(StandardCharsets.UTF_8);
+            if (!tail.isBlank()) {
+                consumer.accept(tail);
+            }
+        } else if (hasContent) {
+            count++;
         }
+        return count;
+    }
+
+    /**
+     * 把字符流在线编码为 UTF-8 字节流（旧字符流入口的兼容桥）。
+     *
+     * <p>仅作适配用，不追求吞吐：读一小块字符、编码成字节后按需供给字节级扫描核心。</p>
+     *
+     * @param reader 字符流
+     * @return UTF-8 字节流
+     */
+    private static InputStream utf8Stream(Reader reader) {
+        return new InputStream() {
+            private final CharBuffer chars = CharBuffer.allocate(1 << 13);
+            private ByteBuffer bytes = ByteBuffer.allocate(0);
+            private boolean eof = false;
+
+            private void fill() throws IOException {
+                if (eof) {
+                    return;
+                }
+                chars.clear();
+                int n = reader.read(chars);
+                if (n == -1) {
+                    eof = true;
+                    return;
+                }
+                chars.flip();
+                bytes = StandardCharsets.UTF_8.encode(chars);
+            }
+
+            @Override
+            public int read() throws IOException {
+                if (!bytes.hasRemaining()) {
+                    fill();
+                    if (!bytes.hasRemaining()) {
+                        return -1;
+                    }
+                }
+                return bytes.get() & 0xFF;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (len == 0) {
+                    return 0;
+                }
+                int total = 0;
+                while (total < len) {
+                    if (!bytes.hasRemaining()) {
+                        fill();
+                        if (!bytes.hasRemaining()) {
+                            break;
+                        }
+                    }
+                    int toCopy = Math.min(len - total, bytes.remaining());
+                    bytes.get(b, off + total, toCopy);
+                    total += toCopy;
+                }
+                return total == 0 ? -1 : total;
+            }
+        };
     }
 
     /**
