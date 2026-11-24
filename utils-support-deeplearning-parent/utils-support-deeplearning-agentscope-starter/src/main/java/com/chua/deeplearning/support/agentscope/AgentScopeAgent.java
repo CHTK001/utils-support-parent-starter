@@ -2956,86 +2956,6 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 工具执行统一闸门：预算记账 + 风险裁决（同步 / 流式共用）。
-     *
-     * <p>记账口径：工具调用次数在闸门入口记一次——同步路径没有流式事件，由闸门统一
-     * 计数；流式路径不再重复记（避免同一笔调用计两次）。</p>
-     *
-     * <p>裁决口径：入参序列化为资源文本后按 {@link ToolRiskPolicy#classify} 预分级，
-     * 交给裁决器裁决；裁决器异常按拒绝兜底（fail-close，拿不到结论绝不执行）；
-     * 危险操作即使裁决放行也拦截（fail-safe，危险操作必须走人工强确认链路）；
-     * {@code CONFIRM_REQUIRED} 在本层不挂起等待人工确认，直接跳过执行并把原因回给模型。</p>
-     *
-     * @param riskAdjudicator 风险裁决器，null 表示不做风险裁决（仍记账）
-     * @param agentId         Agent 标识，可为 null
-     * @param toolName        工具名
-     * @param input           工具入参
-     * @param tracker         预算记账器，null 表示不记账
-     * @return null 表示放行；否则返回应直接回给模型的错误结果块
-     */
-    private static ToolResultBlock gateToolCall(AgentRiskAdjudicator riskAdjudicator,
-                                                String agentId, String toolName,
-                                                Map<String, Object> input,
-                                                AgentBudgetTracker tracker) {
-        // 预算记账：工具调用次数（闸门入口单点计数，同步 / 流式同一口径）
-        if (tracker != null) {
-            tracker.recordToolCall();
-        }
-        if (riskAdjudicator == null) {
-            return null;
-        }
-        String resourcesText;
-        try {
-            resourcesText = ANSWER_MAPPER.writeValueAsString(input);
-        } catch (Exception e) {
-            // 序列化失败退化为 toString：闸门不能因展示层问题放行或崩溃
-            resourcesText = String.valueOf(input);
-        }
-        String riskLevel = ToolRiskPolicy.classify(toolName, resourcesText);
-        AgentRiskRequest request = AgentRiskRequest.of(agentId, toolName, resourcesText, riskLevel);
-        AgentRiskDecision decision;
-        try {
-            decision = riskAdjudicator.adjudicate(request);
-        } catch (Exception e) {
-            // 裁决器异常按拒绝兜底（fail-close）
-            log.warn("[AgentScope] 工具风险裁决异常，按拒绝处理: agentId={}, tool={}",
-                    agentId, toolName, e);
-            decision = AgentRiskDecision.deny("风险裁决器异常: "
-                    + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
-        }
-        if (decision == null || decision.verdict() == null) {
-            decision = AgentRiskDecision.deny("风险裁决器未给出结论");
-        }
-        String effectiveLevel = decision.riskLevel() != null && !decision.riskLevel().isBlank()
-                ? decision.riskLevel() : riskLevel;
-        String reason = decision.reason() != null && !decision.reason().isBlank()
-                ? decision.reason() : null;
-        switch (decision.verdict()) {
-            case ALLOW:
-                if (ToolRiskPolicy.isDangerous(effectiveLevel)) {
-                    // 危险操作即使裁决放行也拦截（fail-safe：必须走人工强确认链路）
-                    log.warn("[AgentScope] 危险操作被风险闸门拦截: agentId={}, tool={}, risk={}",
-                            agentId, toolName, effectiveLevel);
-                    return ToolResultBlock.error("危险操作已拦截（风险等级 " + effectiveLevel
-                            + "），需人工确认后重试");
-                }
-                return null;
-            case DENY:
-                log.info("[AgentScope] 工具调用被风险裁决拒绝: agentId={}, tool={}, reason={}",
-                        agentId, toolName, reason);
-                return ToolResultBlock.error("工具调用被风险裁决拒绝: "
-                        + (reason != null ? reason : "不允许执行该操作"));
-            case CONFIRM_REQUIRED:
-            default:
-                // 本层不挂起等待人工确认：fail-safe 跳过执行，把原因回给模型改道
-                log.info("[AgentScope] 工具调用需人工确认，本次跳过执行: agentId={}, tool={}, risk={}, reason={}",
-                        agentId, toolName, effectiveLevel, reason);
-                return ToolResultBlock.error("工具调用需人工确认，本次已跳过执行（风险等级 "
-                        + effectiveLevel + (reason != null ? "：" + reason : "") + "）");
-        }
-    }
-
-    /**
      * 将进程内工具执行器桥接为 Agentscope AgentTool。
      *
      * @author CH
@@ -3047,25 +2967,9 @@ public class AgentScopeAgent implements Agent {
          * 通用工具定义
          */
         private final AgentTool tool;
-        /**
-         * 风险裁决器（null 表示不做风险裁决）
-         */
-        private final AgentRiskAdjudicator riskAdjudicator;
-        /**
-         * Agent 标识（风险请求与审计日志用）
-         */
-        private final String agentId;
-        /**
-         * 预算记账器（null 表示不记账）
-         */
-        private final AgentBudgetTracker tracker;
 
-        FunctionAgentTool(AgentTool tool, AgentRiskAdjudicator riskAdjudicator,
-                          String agentId, AgentBudgetTracker tracker) {
+        FunctionAgentTool(AgentTool tool) {
             this.tool = tool;
-            this.riskAdjudicator = riskAdjudicator;
-            this.agentId = agentId;
-            this.tracker = tracker;
         }
 
         @Override
@@ -3092,12 +2996,6 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Map.of();
-                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
-                ToolResultBlock blocked =
-                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
-                if (blocked != null) {
-                    return reactor.core.publisher.Mono.just(blocked);
-                }
                 Object result = tool.getExecutor().execute(input);
                 String text = result == null ? "" : String.valueOf(result);
                 return reactor.core.publisher.Mono.just(
@@ -3120,37 +3018,18 @@ public class AgentScopeAgent implements Agent {
         private final String name; // 名称
         private final String description; // description
           private final com.chua.common.support.ai.skill.SkillHandler handler; // 处理器
-        /**
-         * 风险裁决器（null 表示不做风险裁决）
-         */
-        private final AgentRiskAdjudicator riskAdjudicator;
-        /**
-         * Agent 标识（风险请求与审计日志用）
-         */
-        private final String agentId;
-        /**
-         * 预算记账器（null 表示不记账）
-         */
-        private final AgentBudgetTracker tracker;
 
         /**
          * Skill Agent Tool
          * @param description 字符串
          * @param handler 参数
          * @param name 字符串
-         * @param riskAdjudicator 风险裁决器，可为 null
-         * @param agentId Agent 标识，可为 null
-         * @param tracker 预算记账器，可为 null
          * @return 返回值
         */
-        SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler,
-                       AgentRiskAdjudicator riskAdjudicator, String agentId, AgentBudgetTracker tracker) {
+        SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
             this.name = name;
             this.description = description;
               this.handler = handler;
-            this.riskAdjudicator = riskAdjudicator;
-            this.agentId = agentId;
-            this.tracker = tracker;
         }
 
         @Override
@@ -3174,12 +3053,6 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Map.of();
-                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
-                ToolResultBlock blocked =
-                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
-                if (blocked != null) {
-                    return reactor.core.publisher.Mono.just(blocked);
-                }
                 com.chua.common.support.ai.skill.SkillResult result = handler.handle(input);
                 String text = result.isSuccess()
                         ? String.valueOf(result.getContent())
@@ -3212,35 +3085,16 @@ public class AgentScopeAgent implements Agent {
          * MCP 管理器
          */
         private final McpManager manager;
-        /**
-         * 风险裁决器（null 表示不做风险裁决）
-         */
-        private final AgentRiskAdjudicator riskAdjudicator;
-        /**
-         * Agent 标识（风险请求与审计日志用）
-         */
-        private final String agentId;
-        /**
-         * 预算记账器（null 表示不记账）
-         */
-        private final AgentBudgetTracker tracker;
 
         /**
          * Mcp Agent Tool
          * @param descriptor 参数
          * @param manager 参数
-         * @param riskAdjudicator 风险裁决器，可为 null
-         * @param agentId Agent 标识，可为 null
-         * @param tracker 预算记账器，可为 null
          * @return 返回值
         */
-        McpAgentTool(McpToolDescriptor descriptor, McpManager manager,
-                     AgentRiskAdjudicator riskAdjudicator, String agentId, AgentBudgetTracker tracker) {
+        McpAgentTool(McpToolDescriptor descriptor, McpManager manager) {
             this.descriptor = descriptor;
             this.manager = manager;
-            this.riskAdjudicator = riskAdjudicator;
-            this.agentId = agentId;
-            this.tracker = tracker;
         }
 
         @Override
@@ -3270,12 +3124,6 @@ public class AgentScopeAgent implements Agent {
             try {
                 Map<String, Object> input = param.getInput() != null
                         ? Wraps.map(param.getInput()) : Wraps.map();
-                // 风险闸门：拒绝 / 需确认 / 危险操作一律不执行，把原因回给模型
-                ToolResultBlock blocked =
-                        gateToolCall(riskAdjudicator, agentId, getName(), input, tracker);
-                if (blocked != null) {
-                    return reactor.core.publisher.Mono.just(blocked);
-                }
                 McpToolResult result = manager.callTool(
                         descriptor.getServerName(),
                         new McpToolCall(descriptor.getName(), input));

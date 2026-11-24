@@ -117,6 +117,49 @@ public final class AgentLoopGuard {
     }
 
     /**
+     * 护栏状态快照：同一轮 turn 挂起（等待人工确认等）前采集，
+     * 恢复执行时经 {@link #restore(Snapshot)} 回放，使重复判定与中断信号跨挂起延续。
+     *
+     * @param interrupted        中断信号
+     * @param consecutiveRepeats 当前连续相同调用次数（含第一次）
+     * @param lastFingerprint    上一次调用的指纹（工具名 + 规范化入参）
+     * @param lastToolName       上一次调用的工具名
+     */
+    public record Snapshot(boolean interrupted, int consecutiveRepeats,
+                           String lastFingerprint, String lastToolName) {
+    }
+
+    /**
+     * 采集当前护栏状态快照（挂起前调用）
+     *
+     * @return 状态快照
+     */
+    public Snapshot snapshot() {
+        return new Snapshot(interrupted.get(), consecutiveRepeats.get(),
+                lastFingerprint, lastToolName);
+    }
+
+    /**
+     * 恢复护栏状态快照：重复判定与中断信号从挂起点延续，而不是清零重来——
+     * 否则模型在挂起前后用同一工具同一入参各调一次，中间隔了一次人工确认，
+     * 重复计数被清零，死循环判定被绕过。
+     *
+     * <p>传入 {@code null} 等价 {@link #reset()}（无挂起状态的全新一轮）。</p>
+     *
+     * @param snapshot 挂起前采集的快照，可为 null
+     */
+    public void restore(Snapshot snapshot) {
+        if (snapshot == null) {
+            reset();
+            return;
+        }
+        interrupted.set(snapshot.interrupted());
+        consecutiveRepeats.set(Math.max(0, snapshot.consecutiveRepeats()));
+        lastFingerprint = snapshot.lastFingerprint();
+        lastToolName = snapshot.lastToolName();
+    }
+
+    /**
      * 当前连续相同调用次数
      *
      * @return 连续相同调用次数（含第一次），无调用时为 0

@@ -1724,8 +1724,13 @@ public class LangChain4jAgent implements Agent {
             sink.next(errorEvent(e.getMessage()));
             return;
         }
-        loopGuard.reset();
+        // 从挂起点延续护栏与预算状态：重复判定不清零（挂起前后同参调用仍累计），
+        // 预算累计与熔断闩锁跨挂起延续——挂起前已超限的，恢复轮立即收尾不再烧钱
+        loopGuard.restore(pause.loopGuardSnapshot);
         AgentBudgetTracker budgetTracker = createBudgetTracker();
+        if (budgetTracker != null && pause.budgetSnapshot != null) {
+            replayBudget(budgetTracker, pause.budgetSnapshot);
+        }
         sink.next(AgentStreamEvent.trace(AgentTrace.of(
                 AgentTrace.KIND_AGENT_START, plan.agentId, null, "resume:" + pause.replyId)));
 
@@ -2067,7 +2072,7 @@ public class LangChain4jAgent implements Agent {
                     if (decision != null
                             && decision.verdict() == AgentRiskDecision.Verdict.CONFIRM_REQUIRED) {
                         return pauseForConfirmation(plan, history, results, batchRequests,
-                                requestIndex, originalInput, sink);
+                                requestIndex, originalInput, sink, budgetTracker);
                     }
                     long toolStartAt = System.currentTimeMillis();
                     String toolSpanId = AgentTrace.newSpanId(plan.agentId, "tool", iter);
@@ -2122,6 +2127,10 @@ public class LangChain4jAgent implements Agent {
     /**
      * 中高风险工具暂停：缓存待执行请求与循环状态，下发确认请求事件后正常结束本轮
      *
+     * <p>挂起时同步采集护栏与预算快照：恢复轮从挂起点延续重复判定与预算累计
+     * （含熔断闩锁），避免「挂起前后各调一次相同工具」绕过死循环判定、
+     * 或「预算在挂起前已熔断，恢复轮从零重算」继续烧钱。</p>
+     *
      * @param plan          运行计划
      * @param history       当前消息序列（已含带工具请求的 AiMessage）
      * @param executed      本批已执行工具的结果
@@ -2129,19 +2138,24 @@ public class LangChain4jAgent implements Agent {
      * @param fromIndex     首个未执行请求的下标
      * @param originalInput 触发本轮的原始用户输入
      * @param sink          事件接收器
+     * @param budgetTracker 预算记账器（可空，空表示不限额）
      * @return 暂停态循环结果（pausedReplyId 非空）
      */
     private LoopResult pauseForConfirmation(RunPlan plan, List<ChatMessage> history,
                                             List<ToolExecutionResultMessage> executed,
                                             List<ToolExecutionRequest> batch,
                                             int fromIndex, String originalInput,
-                                            FluxSink<AgentStreamEvent> sink) {
+                                            FluxSink<AgentStreamEvent> sink,
+                                            AgentBudgetTracker budgetTracker) {
         List<ToolExecutionRequest> pending = new ArrayList<>(batch.subList(fromIndex, batch.size()));
         List<ChatMessage> snapshot = new ArrayList<>(history);
         snapshot.addAll(executed);
         String replyId = UUID.randomUUID().toString();
+        PendingPause.BudgetSnapshot budgetSnap = budgetTracker != null
+                ? new PendingPause.BudgetSnapshot(budgetTracker.usedInputTokens(), budgetTracker.usedOutputTokens(),
+                budgetTracker.usedToolCalls(), budgetTracker.usedCostMicros()) : null;
         cachePendingPause(replyId, new PendingPause(replyId, plan.agentId, originalInput,
-                pending, snapshot, false));
+                pending, snapshot, false, loopGuard.snapshot(), budgetSnap));
         List<ConfirmationItem> items = new ArrayList<>();
         for (ToolExecutionRequest request : pending) {
             items.add(ConfirmationItem.builder()
@@ -3421,6 +3435,27 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 把挂起前的预算消耗回放到新记账器：经记账 API 重放（而非直接改内部状态），
+     * 熔断闩锁按与正常运行完全相同的判定规则触发——挂起前已超限的维度在重放时即置位。
+     *
+     * <p>时间预算无法精确延续（记账器起始时间从恢复点重新计），属已知限制：
+     * 时长上限按恢复轮自身耗时独立判定。</p>
+     *
+     * @param tracker 目标记账器
+     * @param snap    挂起前的预算消耗快照
+     */
+    private static void replayBudget(AgentBudgetTracker tracker, PendingPause.BudgetSnapshot snap) {
+        tracker.recordTokens(snap.inputTokens(), snap.outputTokens());
+        long calls = Math.max(0, snap.toolCalls());
+        for (long i = 0; i < calls; i++) {
+            tracker.recordToolCall();
+        }
+        if (snap.costMicros() > 0) {
+            tracker.recordCost(snap.costMicros());
+        }
+    }
+
+    /**
      * 预算是否已超限
      *
      * @param tracker 记账器（可空）
@@ -3741,15 +3776,41 @@ public class LangChain4jAgent implements Agent {
          */
         private final boolean question;
 
+        /**
+         * 暂停时的护栏状态快照：恢复时回放，重复判定与中断信号跨挂起延续
+         */
+        private final AgentLoopGuard.Snapshot loopGuardSnapshot;
+
+        /**
+         * 暂停时的预算消耗快照：恢复时回放记账，熔断闩锁跨挂起延续；未记账为 null
+         */
+        private final BudgetSnapshot budgetSnapshot;
+
         private PendingPause(String replyId, String agentId, String originalInput,
                              List<ToolExecutionRequest> pendingRequests,
-                             List<ChatMessage> history, boolean question) {
+                             List<ChatMessage> history, boolean question,
+                             AgentLoopGuard.Snapshot loopGuardSnapshot,
+                             BudgetSnapshot budgetSnapshot) {
             this.replyId = replyId;
             this.agentId = agentId;
             this.originalInput = originalInput;
             this.pendingRequests = pendingRequests;
             this.history = history;
             this.question = question;
+            this.loopGuardSnapshot = loopGuardSnapshot;
+            this.budgetSnapshot = budgetSnapshot;
+        }
+
+        /**
+         * 预算消耗快照（跨挂起延续记账）
+         *
+         * @param inputTokens  已用输入 Token
+         * @param outputTokens 已用输出 Token
+         * @param toolCalls    已用工具调用次数
+         * @param costMicros   已用费用（微单位）
+         */
+        private record BudgetSnapshot(long inputTokens, long outputTokens,
+                                      long toolCalls, long costMicros) {
         }
     }
 
