@@ -14,8 +14,17 @@ import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
+import com.chua.common.support.ai.agent.AgentBudget;
+import com.chua.common.support.ai.agent.AgentBudgetTracker;
+import com.chua.common.support.ai.agent.AgentCancellationToken;
+import com.chua.common.support.ai.agent.AgentEvalContext;
+import com.chua.common.support.ai.agent.AgentEvalHook;
+import com.chua.common.support.ai.agent.AgentEvalRecord;
+import com.chua.common.support.ai.agent.AgentOrchestrator;
 import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.AgentTool;
+import com.chua.common.support.ai.agent.SimpleAgentBudgetTracker;
+import com.chua.common.support.ai.agent.SimpleAgentOrchestrator;
 import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
 import com.chua.common.support.ai.agent.goal.GoalLoop;
 import com.chua.common.support.ai.agent.goal.GoalStatus;
@@ -564,9 +573,75 @@ public class OpencodeServerAgent implements Agent {
     private final AtomicBoolean modelProviderWarned = new AtomicBoolean(false);
 
     /**
+     * 多 Agent 编排器；null 表示使用默认的 {@link SimpleAgentOrchestrator}
+     */
+    private volatile AgentOrchestrator orchestrator;
+
+    /**
+     * 评测 / 回放钩子；null 表示不启用
+     */
+    private volatile AgentEvalHook evalHook;
+
+    /**
+     * 执行预算规格；null 表示不设限
+     */
+    private volatile AgentBudget budget;
+
+    /**
+     * 协作式取消令牌；null 表示使用空令牌
+     */
+    private volatile AgentCancellationToken cancellationToken;
+
+    /**
      * 无参构造（SPI {@code create("opencode-server")} 入口）。
      */
     public OpencodeServerAgent() {
+    }
+
+    @Override
+    public Agent orchestrator(AgentOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+        return this;
+    }
+
+    @Override
+    public AgentOrchestrator orchestrator() {
+        AgentOrchestrator current = orchestrator;
+        return current == null ? SimpleAgentOrchestrator.INSTANCE : current;
+    }
+
+    @Override
+    public Agent evalHook(AgentEvalHook evalHook) {
+        this.evalHook = evalHook;
+        return this;
+    }
+
+    @Override
+    public AgentEvalHook evalHook() {
+        return evalHook;
+    }
+
+    @Override
+    public Agent budget(AgentBudget budget) {
+        this.budget = budget;
+        return this;
+    }
+
+    @Override
+    public AgentBudget budget() {
+        return budget;
+    }
+
+    @Override
+    public Agent cancellationToken(AgentCancellationToken cancellationToken) {
+        this.cancellationToken = cancellationToken;
+        return this;
+    }
+
+    @Override
+    public AgentCancellationToken cancellationToken() {
+        AgentCancellationToken current = cancellationToken;
+        return current == null ? AgentCancellationToken.none() : current;
     }
 
     /**
@@ -1125,7 +1200,8 @@ public class OpencodeServerAgent implements Agent {
                 }
                 SessionContext session = context;
                 List<List<String>> ordered = orderAnswers(replyId, answers);
-                return streamTurn(session, () -> replyQuestion(session, replyId, ordered))
+                return streamTurn(session, () -> replyQuestion(session, replyId, ordered),
+                        newBudgetTracker())
                         .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
             } catch (Throwable t) {
                 return Flux.just(errorEvent(messageOf(t)));
@@ -1204,7 +1280,7 @@ public class OpencodeServerAgent implements Agent {
         AtomicReference<AiUsage> usage = new AtomicReference<>();
         AtomicReference<String> error = new AtomicReference<>();
         try {
-            runStream(input).doOnNext(event -> {
+            runStream(input, "sync").doOnNext(event -> {
                 if (event == null || event.getType() == null) {
                     return;
                 }
@@ -1237,7 +1313,38 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public Flux<AgentStreamEvent> runStream(String input) {
-        return Flux.defer(() -> {
+        return runStream(input, "stream");
+    }
+
+    /**
+     * 流式运行的真实实现，附带评测模式标签。
+     *
+     * <p>评测钩子只在 {@code run} / {@code runStream} 入口埋点：开始时回调
+     * {@code onRunStart}，事件流终态（完成 / 出错 / 取消）回调 {@code onRunEnd}；
+     * 钩子异常只记日志，绝不影响主流程。预算记账器也在此创建，随事件流传递给本轮
+     * {@link Turn}，在 SSE 事件边界做熔断与协作式取消检查。</p>
+     *
+     * @param input    输入文本
+     * @param evalMode 评测记录中的模式标签（sync / stream）
+     * @return 事件流
+     */
+    private Flux<AgentStreamEvent> runStream(String input, String evalMode) {
+        AgentEvalHook hook = evalHook;
+        AgentEvalContext evalContext = hook == null ? null
+                : AgentEvalContext.of(agentId(), input).withMode(evalMode, sessionId);
+        if (hook != null && evalContext != null) {
+            try {
+                hook.onRunStart(evalContext);
+            } catch (Exception e) {
+                log.warn("[opencode-server] 评测钩子 onRunStart 回调失败: {}", e.getMessage());
+            }
+        }
+        AgentBudgetTracker tracker = newBudgetTracker();
+        StringBuilder evalOutput = new StringBuilder();
+        AtomicReference<AiUsage> evalUsage = new AtomicReference<>();
+        AtomicReference<String> evalError = new AtomicReference<>();
+        AtomicBoolean evalComplete = new AtomicBoolean(false);
+        return Flux.<AgentStreamEvent>defer(() -> {
             if (closed) {
                 return Flux.just(errorEvent("Agent 已关闭"));
             }
@@ -1256,12 +1363,77 @@ public class OpencodeServerAgent implements Agent {
                             resolveModelRef(), shellEnabled, mode);
                 }
                 SessionContext context = ensureSession();
-                return streamTurn(context, () -> sendPrompt(context, input))
+                return streamTurn(context, () -> sendPrompt(context, input), tracker)
                         .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
             } catch (Throwable t) {
                 return Flux.just(errorEvent(messageOf(t)));
             }
-        });
+        }).doOnNext(event -> {
+            if (event == null || event.getType() == null) {
+                return;
+            }
+            switch (event.getType()) {
+                case REASONING_DELTA -> {
+                    if (event.getDelta() != null) {
+                        evalOutput.append(event.getDelta());
+                    }
+                }
+                case COMPLETE -> {
+                    evalComplete.set(true);
+                    evalUsage.set(event.getUsage());
+                }
+                case ERROR -> evalError.set(event.getToolOutput());
+                default -> {
+                    // 其余事件不参与评测聚合
+                }
+            }
+        }).doOnComplete(() -> {
+            String error = evalError.get();
+            boolean success = evalComplete.get() && error == null;
+            fireEvalEnd(hook, evalContext, evalOutput.toString(), success,
+                    success ? null : (error != null ? error : "本轮未正常完成"), evalUsage.get());
+        }).doOnError(t -> fireEvalEnd(hook, evalContext, evalOutput.toString(), false,
+                messageOf(t), evalUsage.get()))
+                .doOnCancel(() -> fireEvalEnd(hook, evalContext, evalOutput.toString(), false,
+                        "运行被取消", evalUsage.get()));
+    }
+
+    /**
+     * 按当前预算规格创建记账器。
+     *
+     * @return 记账器（未配置预算时为不限额实现，仍照常累计便于观测）
+     */
+    private AgentBudgetTracker newBudgetTracker() {
+        return new SimpleAgentBudgetTracker(budget());
+    }
+
+    /**
+     * 回调评测钩子的运行结束事件。
+     *
+     * <p>钩子异常只记日志；成功与失败分别构造对应的评测记录，失败时如实带上原因，
+     * 不虚构用量与输出。</p>
+     *
+     * @param hook    评测钩子，可为 null
+     * @param context 评测上下文，可为 null
+     * @param output  已聚合的输出文本
+     * @param success 是否成功完成
+     * @param error   失败原因（成功时为 null）
+     * @param usage   用量（可得时携带，否则为 null）
+     */
+    private void fireEvalEnd(AgentEvalHook hook, AgentEvalContext context, String output,
+                             boolean success, String error, AiUsage usage) {
+        if (hook == null || context == null) {
+            return;
+        }
+        try {
+            long duration = System.currentTimeMillis() - context.startMillis();
+            AgentEvalRecord record = success
+                    ? AgentEvalRecord.success(context, output, duration, usage)
+                    : AgentEvalRecord.failure(context, error, duration);
+            hook.onRunEnd(record);
+        } catch (Exception e) {
+            log.warn("[opencode-server] 评测钩子 onRunEnd 回调失败: {}", e.getMessage());
+        }
     }
 
     @Override
@@ -1280,7 +1452,8 @@ public class OpencodeServerAgent implements Agent {
                     context = ensureSession();
                 }
                 SessionContext session = context;
-                return streamTurn(session, () -> replyPermissions(session, replyId, decisions, feedback))
+                return streamTurn(session, () -> replyPermissions(session, replyId, decisions, feedback),
+                        newBudgetTracker())
                         .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
             } catch (Throwable t) {
                 return Flux.just(errorEvent(messageOf(t)));
@@ -1569,11 +1742,13 @@ public class OpencodeServerAgent implements Agent {
      *
      * @param context 会话上下文
      * @param starter 启动动作
+     * @param tracker 预算记账器（本入口新建，随 Turn 在事件边界做熔断检查）
      * @return 事件流
      */
-    private Flux<AgentStreamEvent> streamTurn(SessionContext context, Runnable starter) {
+    private Flux<AgentStreamEvent> streamTurn(SessionContext context, Runnable starter,
+                                              AgentBudgetTracker tracker) {
         return Flux.<AgentStreamEvent>create(sink -> {
-            Turn turn = new Turn(context, sink);
+            Turn turn = new Turn(context, sink, tracker);
             activeTurn = turn;
             sink.onDispose(() -> {
                 if (activeTurn == turn) {
@@ -2564,14 +2739,21 @@ public class OpencodeServerAgent implements Agent {
         private String finishReason;
 
         /**
+         * 预算记账器（随轮创建；熔断检查与 token/费用/工具记账都走它）
+         */
+        private final AgentBudgetTracker tracker;
+
+        /**
          * 构造一轮。
          *
          * @param context 会话上下文
          * @param sink    事件接收端
+         * @param tracker 预算记账器
          */
-        private Turn(SessionContext context, FluxSink<AgentStreamEvent> sink) {
+        private Turn(SessionContext context, FluxSink<AgentStreamEvent> sink, AgentBudgetTracker tracker) {
             this.context = context;
             this.sink = sink;
+            this.tracker = tracker;
         }
 
         /**
@@ -2752,11 +2934,59 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
+         * 事件边界检查：协作式取消与预算熔断。
+         *
+         * <p>本实现由客户端驱动 SSE 事件消费，每个事件到达时检查一次；命中后向远端
+         * 会话发送中断请求并立即收尾，不再消费后续事件。</p>
+         *
+         * @return true 表示已取消/熔断并收尾，调用方应立即返回
+         */
+        private boolean checkRunLimits() {
+            if (isFinished()) {
+                return true;
+            }
+            AgentCancellationToken token = cancellationToken();
+            if (token != null && token.isCancelled()) {
+                String reason = token.reason();
+                log.info("[opencode-server] 运行被取消: {}",
+                        StringUtils.isBlank(reason) ? "未说明" : reason);
+                requestInterrupt(context);
+                abort("运行已被取消" + (StringUtils.isBlank(reason) ? "" : ": " + reason));
+                return true;
+            }
+            if (tracker.isExceeded()) {
+                String reason = tracker.violationReason();
+                log.warn("[opencode-server] 预算熔断: {}", reason);
+                requestInterrupt(context);
+                abort("预算已超限，运行熔断" + (reason == null ? "" : ": " + reason));
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * 以错误事件终止本轮（预算熔断 / 协作式取消）。
+         *
+         * @param message 终止原因
+         */
+        private void abort(String message) {
+            if (!finished.compareAndSet(false, true)) {
+                return;
+            }
+            closeQuietly();
+            sink.next(errorEvent(message));
+            sink.complete();
+        }
+
+        /**
          * 翻译一条 durable 事件。
          *
          * @param node 事件 JSON
          */
         private void onEvent(JsonNode node) {
+            if (checkRunLimits()) {
+                return;
+            }
             String type = canonicalType(node.path("type").asText(""));
             JsonNode data = node.path("data");
             long seq = node.path("durable").path("seq").asLong(-1L);
@@ -2922,6 +3152,7 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onToolCalled(JsonNode data) {
+            tracker.recordToolCall();
             String tool = toolNameOf(data);
             String input = truncate(text(data.path("input")));
             AgentLoopGuard guard = loopGuard;
@@ -3037,6 +3268,7 @@ public class OpencodeServerAgent implements Agent {
          * @param data 事件数据
          */
         private void onShellStarted(JsonNode data) {
+            tracker.recordToolCall();
             JsonNode shell = data.path("shell");
             String command = truncate(shell.path("command").asText(data.path("command").asText("")));
             String spanId = AgentTrace.newSpanId(agentId(), "shell", toolSeq.incrementAndGet());
@@ -3129,7 +3361,11 @@ public class OpencodeServerAgent implements Agent {
             outputTokens += stepOutput;
             reasoningTokens += tokens.path("reasoning").asLong(0L);
             cacheTokens += tokens.path("cache").path("read").asLong(0L);
-            cost = cost.add(BigDecimal.valueOf(data.path("cost").asDouble(0D)));
+            BigDecimal stepCost = BigDecimal.valueOf(data.path("cost").asDouble(0D));
+            cost = cost.add(stepCost);
+            // 预算记账：token 按步累计；费用按 opencode 的美元成本换算成微单位（1e-6 美元）
+            tracker.recordTokens(stepInput, stepOutput);
+            tracker.recordCost(stepCost.movePointRight(6).longValue());
             finishReason = data.path("finish").asText(finishReason);
             if (context.v2()) {
                 return;
