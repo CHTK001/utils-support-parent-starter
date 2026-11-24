@@ -1010,6 +1010,210 @@ public interface Agent extends AutoCloseable {
         return def != null ? def.getSystemPrompt() : null;
     }
 
+    // ==================== 生产化扩展：暂停持久化 / 预算熔断 / 取消 / 并行工具 / 风险裁决 / 编排 / 计划确认 / 评测 ====================
+
+    /**
+     * 设置暂停状态存储
+     *
+     * <p>人工确认 / 提问挂起时，把可续跑的暂停状态写入该存储并携带 TTL；
+     * {@link #resumeStream(String, List)} 恢复时按 replyId 取回。
+     * 未设置时实现类可退化为进程内默认存储或不支持挂起。</p>
+     *
+     * @param suspendStore 暂停状态存储，null 表示移除
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent suspendStore(AgentSuspendStore suspendStore) {
+        return this;
+    }
+
+    /**
+     * 获取暂停状态存储
+     *
+     * @return 暂停状态存储，未设置时返回 null
+     */
+    default AgentSuspendStore suspendStore() {
+        return null;
+    }
+
+    /**
+     * 设置预算限制
+     *
+     * <p>本次运行的最大 Token / 工具调用次数 / 费用 / 时长预算；超出后运行熔断，
+     * 产出带熔断原因的错误或终止事件。null 表示不设限。</p>
+     *
+     * @param budget 预算限制，null 表示不设限
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent budget(AgentBudget budget) {
+        return this;
+    }
+
+    /**
+     * 获取预算限制
+     *
+     * @return 预算限制，未设置时返回 null
+     */
+    default AgentBudget budget() {
+        return null;
+    }
+
+    /**
+     * 设置取消令牌
+     *
+     * <p>外部可在运行中途取消本次执行；实现类应在推理与工具执行边界检查令牌，
+     * 被取消时尽快停止并抛出 {@link AgentCancelledException} 或发出终止事件。</p>
+     *
+     * @param cancellationToken 取消令牌，null 等价于 {@link AgentCancellationToken#none()}
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent cancellationToken(AgentCancellationToken cancellationToken) {
+        return this;
+    }
+
+    /**
+     * 获取取消令牌
+     *
+     * @return 取消令牌，未设置时返回永不取消的空实现
+     */
+    default AgentCancellationToken cancellationToken() {
+        return AgentCancellationToken.none();
+    }
+
+    /**
+     * 设置工具安全策略
+     *
+     * <p>决定哪些工具可以并行执行、哪些必须串行（有副作用 / 高风险工具串行）。
+     * 未设置时按只读安全默认策略处理。</p>
+     *
+     * @param toolSafetyPolicy 工具安全策略，null 表示移除（退回默认策略）
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent toolSafetyPolicy(AgentToolSafetyPolicy toolSafetyPolicy) {
+        return this;
+    }
+
+    /**
+     * 获取工具安全策略
+     *
+     * @return 工具安全策略，未设置时返回只读安全默认策略
+     */
+    default AgentToolSafetyPolicy toolSafetyPolicy() {
+        return AgentToolSafetyPolicy.readOnlyDefault();
+    }
+
+    /**
+     * 设置风险裁决器
+     *
+     * <p>工具执行前回答「这个调用能不能放行」：低风险自动放行，中高风险可走
+     * 决策模型裁决，危险操作恒定转人工确认。未设置时不做风险裁决。</p>
+     *
+     * @param riskAdjudicator 风险裁决器，null 表示不启用
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent riskAdjudicator(AgentRiskAdjudicator riskAdjudicator) {
+        return this;
+    }
+
+    /**
+     * 获取风险裁决器
+     *
+     * @return 风险裁决器，未设置时返回 null
+     */
+    default AgentRiskAdjudicator riskAdjudicator() {
+        return null;
+    }
+
+    /**
+     * 设置计划确认器
+     *
+     * <p>Agent 产出执行计划后先送审批：放行才执行、修订则重新出计划、拒绝则终止。
+     * 未设置时计划直接执行（不送审）。</p>
+     *
+     * @param planConfirmation 计划确认器，null 表示不启用
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent planConfirmation(AgentPlanConfirmation planConfirmation) {
+        return this;
+    }
+
+    /**
+     * 获取计划确认器
+     *
+     * @return 计划确认器，未设置时返回 null
+     */
+    default AgentPlanConfirmation planConfirmation() {
+        return null;
+    }
+
+    /**
+     * 设置评测 / 回放钩子
+     *
+     * <p>在运行开始 / 结束边界回调，用于评测打分、回归对比与审计。
+     * 钩子异常不影响主流程。</p>
+     *
+     * @param evalHook 评测钩子，null 表示不启用
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent evalHook(AgentEvalHook evalHook) {
+        return this;
+    }
+
+    /**
+     * 获取评测 / 回放钩子
+     *
+     * @return 评测钩子，未设置时返回 null
+     */
+    default AgentEvalHook evalHook() {
+        return null;
+    }
+
+    /**
+     * 设置多 Agent 编排器
+     *
+     * <p>用于 {@link #orchestrate(AgentOrchestrationRequest)} 与
+     * {@link #orchestrateStream(AgentOrchestrationRequest)} 的编排实现；
+     * 未设置时使用默认的 {@link SimpleAgentOrchestrator}。</p>
+     *
+     * @param orchestrator 编排器，null 表示移除（退回默认实现）
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent orchestrator(AgentOrchestrator orchestrator) {
+        return this;
+    }
+
+    /**
+     * 获取多 Agent 编排器
+     *
+     * @return 编排器，未设置时返回默认的 {@link SimpleAgentOrchestrator}
+     */
+    default AgentOrchestrator orchestrator() {
+        return SimpleAgentOrchestrator.INSTANCE;
+    }
+
+    /**
+     * 多 Agent 编排（同步）
+     *
+     * <p>便捷入口：把多个 Agent 按 PIPELINE / FAN_OUT 模式编排执行并聚合结果。</p>
+     *
+     * @param request 编排请求
+     * @return 聚合响应
+     */
+    default AgentResponse orchestrate(AgentOrchestrationRequest request) {
+        return orchestrator().orchestrate(request);
+    }
+
+    /**
+     * 多 Agent 编排（流式）
+     *
+     * <p>便捷入口：转发各 Agent 的增量 / 工具事件，最后只发一个聚合 COMPLETE。</p>
+     *
+     * @param request 编排请求
+     * @return 事件流
+     */
+    default Flux<AgentStreamEvent> orchestrateStream(AgentOrchestrationRequest request) {
+        return orchestrator().orchestrateStream(request);
+    }
+
     /**
      * 关闭 Agent，释放资源
      */
