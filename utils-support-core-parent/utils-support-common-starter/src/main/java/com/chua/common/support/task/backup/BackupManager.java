@@ -145,6 +145,51 @@ public class BackupManager {
         return new DatabaseBackupStrategy().restore(config);
     }
 
+    // ==================== 预检 / 校验 / 历史 ====================
+
+    /**
+     * 恢复前只读预检：脚本可读、备份清单（含可选 SHA-256 校验和）、目标库连通性、
+     * 空库检查、语句解析计数；不对目标库执行任何写操作。
+     *
+     * @param config 数据库恢复配置
+     * @return 预检结果
+     */
+    public RestorePreflight.PreflightResult preflightRestore(DatabaseRestoreConfig config) {
+        return RestorePreflight.check(config);
+    }
+
+    /**
+     * 恢复试运行：在单连接事务内执行全部脚本后回滚，验证语句真实可执行。
+     * 注意 MySQL DDL 隐式提交无法回滚，请勿对生产库执行。
+     *
+     * @param config 数据库恢复配置
+     * @return 预检结果
+     */
+    public RestorePreflight.PreflightResult dryRunRestore(DatabaseRestoreConfig config) {
+        return RestorePreflight.dryRun(config);
+    }
+
+    /**
+     * 离线校验备份产物完整性：按备份清单逐文件核对字节数与 SHA-256（支持目录/.sql/.zip）。
+     *
+     * @param target 备份目录、.sql 脚本或 .zip 归档
+     * @return 校验结果
+     */
+    public BackupVerifier.VerificationResult verifyBackup(Path target) {
+        return BackupVerifier.verify(target);
+    }
+
+    /**
+     * 查询最近的数据库备份历史。
+     *
+     * @param store 备份历史存储（如内置 {@link JsonlBackupHistoryStore}）
+     * @param limit 最多返回条数
+     * @return 历史记录列表（按开始时间倒序）
+     */
+    public List<BackupHistoryRecord> history(BackupHistoryStore store, int limit) {
+        return store.list(limit);
+    }
+
     /**
      * 清理过期备份
      *

@@ -56,9 +56,10 @@ import java.util.zip.ZipInputStream;
 public class DatabaseRestoreStrategy {
 
     /**
-     * CREATE TABLE 语句的目标表名提取（{@code CREATE [TEMPORARY] TABLE [IF NOT EXISTS] `t` / "t" / t}）
+     * CREATE TABLE 语句的目标表名提取（{@code CREATE [TEMPORARY] TABLE [IF NOT EXISTS] `t` / "t" / t}）。
+     * 包级开放供 {@link RestorePreflight} 试运行复用。
      */
-    private static final Pattern CREATE_TABLE = Pattern.compile(
+    static final Pattern CREATE_TABLE = Pattern.compile(
             "(?is)^\\s*CREATE\\s+(?:TEMPORARY\\s+)?TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?[`\"]?([A-Za-z_]\\w*)[`\"]?");
 
     /**

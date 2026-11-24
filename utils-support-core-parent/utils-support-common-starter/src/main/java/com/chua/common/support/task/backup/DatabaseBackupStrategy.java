@@ -28,8 +28,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -57,6 +59,14 @@ import java.util.zip.ZipOutputStream;
  *       SHA-256 校验和，供恢复侧 {@code verifyChecksum} 恢复前校验。</li>
  *   <li>流式导出 — {@code fetchSize} 非 0 时下发给 {@code Statement#setFetchSize}，
  *       大表导出不再整表驻留内存。</li>
+ *   <li>一致性快照 — {@code consistentSnapshot}（默认开启）时以单连接事务
+ *       （REPEATABLE_READ，不支持时回退 SERIALIZABLE）包住全表导出，保证多表数据
+ *       取自同一快照；备份全程只读，结束统一回滚。</li>
+ *   <li>备份历史 — 每次备份成功/失败追加 {@link BackupHistoryRecord} 到
+ *       {@link BackupHistoryStore}（默认 JSONL 文件，位于备份根目录）。</li>
+ *   <li>保留策略 — {@code retentionDays}/{@code maxAgeDays} 按天 +
+ *       {@code maxBackupCount} 按份数清理；只清理 {@code database-*} 命名空间，
+ *       不触碰同目录下其他策略的产物。</li>
  * </ul>
  *
  * <p>说明：通用 JDBC 元数据导出不覆盖存储过程、触发器、视图等高级对象；
@@ -144,6 +154,8 @@ public class DatabaseBackupStrategy implements BackupStrategy {
      */
     public BackupResult execute(DatabaseBackupConfig config) {
         long start = System.currentTimeMillis();
+        LocalDateTime startedAt = LocalDateTime.now();
+        BackupHistoryStore historyStore = resolveHistoryStore(config);
         try {
             validate(config);
             String dbName = extractDbName(config.getJdbcUrl());
@@ -167,7 +179,7 @@ public class DatabaseBackupStrategy implements BackupStrategy {
             if (config.isCompressArchives()) {
                 archiveYesterday(config);
             }
-            cleanExpired(toFileConfig(config));
+            cleanExpiredDatabase(config);
 
             long duration = System.currentTimeMillis() - start;
             long totalSize = files.stream().mapToLong(DatabaseBackupStrategy::sizeOf).sum();
@@ -186,6 +198,7 @@ public class DatabaseBackupStrategy implements BackupStrategy {
                     .finishedTables(outcome.tables())
                     .totalRows(outcome.rows())
                     .build());
+            recordHistory(historyStore, config, dbName, true, result, null, startedAt, duration);
             return result;
         } catch (Exception e) {
             log.error("[backup] 数据库备份失败: {}", e.getMessage(), e);
@@ -197,7 +210,57 @@ public class DatabaseBackupStrategy implements BackupStrategy {
                     .result(failure)
                     .errorMessage(e.getMessage())
                     .build());
+            recordHistory(historyStore, config, null, false, failure, e.getMessage(), startedAt,
+                    System.currentTimeMillis() - start);
             return failure;
+        }
+    }
+
+    /**
+     * 解析备份历史存储：优先使用显式配置的 {@link DatabaseBackupConfig#getHistoryStore()}；
+     * 未配置时默认挂载内置 {@link JsonlBackupHistoryStore}（JSONL 文件，位于备份根目录）。
+     */
+    private BackupHistoryStore resolveHistoryStore(DatabaseBackupConfig config) {
+        if (config == null) {
+            return null;
+        }
+        BackupHistoryStore store = config.getHistoryStore();
+        if (store != null) {
+            return store;
+        }
+        try {
+            return config.getBackupDir() == null ? null : new JsonlBackupHistoryStore(config.getBackupDir());
+        } catch (Exception e) {
+            log.warn("[backup] 初始化备份历史存储失败，本次不记录历史: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 追加一条备份历史记录（成功与失败都记录）；存储故障只告警，不影响备份结果返回。
+     */
+    private void recordHistory(BackupHistoryStore historyStore, DatabaseBackupConfig config, String dbName,
+                               boolean success, BackupResult result, String errorMessage,
+                               LocalDateTime startedAt, long durationMillis) {
+        if (historyStore == null) {
+            return;
+        }
+        try {
+            List<Path> files = result == null || result.getFiles() == null ? List.of() : result.getFiles();
+            historyStore.append(new BackupHistoryRecord(
+                    UUID.randomUUID().toString(),
+                    dbName == null ? extractDbName(config.getJdbcUrl()) : dbName,
+                    success,
+                    result == null || result.getBackupPath() == null ? null : result.getBackupPath().toString(),
+                    result == null || result.getManifestFile() == null ? null : result.getManifestFile().toString(),
+                    files.size(),
+                    files.stream().mapToLong(DatabaseBackupStrategy::sizeOf).sum(),
+                    durationMillis,
+                    startedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    errorMessage));
+        } catch (Exception e) {
+            log.warn("[backup] 写入备份历史失败: {}", e.getMessage());
         }
     }
 
@@ -277,35 +340,110 @@ public class DatabaseBackupStrategy implements BackupStrategy {
         Path target = todayDir.resolve(FILE_PREFIX + dbName + "-" + LocalDateTime.now().format(TS_FMT) + ".sql");
 
         try (Connection conn = DriverManager.getConnection(config.getJdbcUrl(), config.getUsername(), config.getPassword())) {
-            DatabaseMetaData meta = conn.getMetaData();
-            String quote = identifierQuote(meta);
-            List<String> tables = listTables(conn, meta, config);
-            int finished = 0;
-            long totalRows = 0;
-            try (BufferedWriter writer = Files.newBufferedWriter(target, StandardCharsets.UTF_8)) {
-                writer.write("-- 数据库逻辑备份");
-                writer.newLine();
-                writer.write("-- 生成时间: " + LocalDateTime.now());
-                writer.newLine();
-                writer.write("-- 数据库: " + dbName);
-                writer.newLine();
-                writer.newLine();
-                for (String table : tables) {
-                    long rows = writeTable(writer, conn, meta, config, quote, table);
-                    finished++;
-                    totalRows += rows;
-                    fire(config, event(config, dbName, BackupEvent.PHASE_TABLE)
-                            .table(table)
-                            .tableRows(rows)
-                            .totalRows(totalRows)
-                            .totalTables(tables.size())
-                            .finishedTables(finished)
-                            .build());
+            // 一致性快照：单连接事务（REPEATABLE_READ，不支持时回退 SERIALIZABLE）包住全表导出，
+            // 保证多表数据取自同一快照；备份全程只读，结束统一回滚释放快照。
+            boolean snapshot = config.isConsistentSnapshot();
+            if (snapshot) {
+                beginConsistentSnapshot(conn);
+            }
+            try {
+                DatabaseMetaData meta = conn.getMetaData();
+                String quote = identifierQuote(meta);
+                List<String> tables = listTables(conn, meta, config);
+                if (snapshot) {
+                    pinSnapshotTables(conn, tables, quote);
+                }
+                int finished = 0;
+                long totalRows = 0;
+                try (BufferedWriter writer = Files.newBufferedWriter(target, StandardCharsets.UTF_8)) {
+                    writer.write("-- 数据库逻辑备份");
+                    writer.newLine();
+                    writer.write("-- 生成时间: " + LocalDateTime.now());
+                    writer.newLine();
+                    writer.write("-- 数据库: " + dbName);
+                    writer.newLine();
+                    writer.newLine();
+                    for (String table : tables) {
+                        long rows = writeTable(writer, conn, meta, config, quote, table);
+                        finished++;
+                        totalRows += rows;
+                        fire(config, event(config, dbName, BackupEvent.PHASE_TABLE)
+                                .table(table)
+                                .tableRows(rows)
+                                .totalRows(totalRows)
+                                .totalTables(tables.size())
+                                .finishedTables(finished)
+                                .build());
+                    }
+                }
+                files.add(target);
+                log.info("[backup] 数据库备份完成: {} 张表 → {}", tables.size(), target);
+                return new ExportOutcome(tables.size(), totalRows);
+            } finally {
+                if (snapshot) {
+                    endConsistentSnapshot(conn);
                 }
             }
-            files.add(target);
-            log.info("[backup] 数据库备份完成: {} 张表 → {}", tables.size(), target);
-            return new ExportOutcome(tables.size(), totalRows);
+        }
+    }
+
+    /**
+     * 开启一致性快照事务：关闭自动提交并升级到 REPEATABLE_READ（不支持时回退 SERIALIZABLE）。
+     */
+    private void beginConsistentSnapshot(Connection conn) {
+        try {
+            conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            log.warn("[backup] 关闭自动提交失败，一致性快照降级为驱动默认模式: {}", e.getMessage());
+            return;
+        }
+        try {
+            conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+        } catch (SQLException e) {
+            try {
+                conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+                log.info("[backup] 数据库不支持 REPEATABLE_READ，一致性快照回退 SERIALIZABLE");
+            } catch (SQLException e2) {
+                log.warn("[backup] 事务隔离级别升级失败，使用驱动默认级别: {}", e2.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 结束一致性快照事务：备份全程只读，统一回滚释放快照并恢复自动提交。
+     */
+    private void endConsistentSnapshot(Connection conn) {
+        try {
+            conn.rollback();
+        } catch (SQLException e) {
+            log.warn("[backup] 快照事务回滚失败: {}", e.getMessage());
+        }
+        try {
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            log.warn("[backup] 恢复自动提交失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 预触全部表，把快照固定到同一时点。
+     *
+     * <p>部分数据库（实测 H2 2.4.x，含 REPEATABLE_READ 与 SERIALIZABLE）的读快照
+     * 按「表首次读取」粒度固定：未读过的表在后续语句中可能看到别的事务新提交的行，
+     * 逐表导出时会产生跨表不一致。导出前对每张表执行一次零行查询
+     * （{@code SELECT * FROM t WHERE 1=0}）即可把全部表固定到同一快照点。
+     * MySQL InnoDB 的 REPEATABLE_READ 快照本就是事务级，此预触为无害的冗余操作。
+     *
+     * @throws SQLException 任一表预触失败（表不可读时后续导出同样会失败，尽早暴露）
+     */
+    private void pinSnapshotTables(Connection conn, List<String> tables, String quote) throws SQLException {
+        for (String table : tables) {
+            try (Statement statement = conn.createStatement();
+                 ResultSet rs = statement.executeQuery("SELECT * FROM " + quote(table, quote) + " WHERE 1=0")) {
+                while (rs.next()) {
+                    rs.getString(1);
+                }
+            }
         }
     }
 
@@ -665,6 +803,248 @@ public class DatabaseBackupStrategy implements BackupStrategy {
             uploader.upload(file, remote);
         }
         log.info("[backup] 备份文件已上传至远端 {}@{}:{}", remote.getUsername(), remote.getHost(), remote.getPort());
+    }
+
+    // ==================== 命名空间安全的过期清理 ====================
+
+    /**
+     * 命名空间安全的过期清理：只清理本策略产生的 {@code database-*} 脚本、对应
+     * {@link BackupManifest#MANIFEST_FILE_NAME}、清空后的日期目录与纯数据库备份的归档 ZIP，
+     * 不触碰同目录下其他策略（文件备份等）的产物。
+     *
+     * <p>年龄阈值优先取 {@code maxAgeDays}（&gt;0 时），否则回退 {@code retentionDays}；
+     * {@code maxBackupCount} &gt; 0 时按份数（日期目录与归档 ZIP 各计一份）从最旧开始清理。
+     *
+     * @return 清理的备份份数
+     */
+    private int cleanExpiredDatabase(DatabaseBackupConfig config) {
+        int removed = 0;
+        try {
+            int ageDays = config.getMaxAgeDays() > 0 ? config.getMaxAgeDays() : config.getRetentionDays();
+            if (ageDays > 0) {
+                LocalDate cutoff = LocalDate.now().minusDays(ageDays);
+                removed += cleanExpiredDateDirs(config.getBackupDir(), cutoff);
+            }
+            if (config.getMaxBackupCount() > 0) {
+                removed += enforceMaxBackupCount(config);
+            }
+        } catch (Exception e) {
+            log.warn("[backup] 数据库备份过期清理失败: {}", e.getMessage());
+        }
+        return removed;
+    }
+
+    /**
+     * 清理早于 cutoff 的日期目录中的数据库备份文件；目录清空后连同目录一起删除。
+     */
+    private int cleanExpiredDateDirs(Path backupDir, LocalDate cutoff) {
+        if (backupDir == null || !Files.isDirectory(backupDir)) {
+            return 0;
+        }
+        int removed = 0;
+        try (Stream<Path> dirs = Files.list(backupDir)) {
+            for (Path dir : dirs.filter(Files::isDirectory).toList()) {
+                LocalDate date = parseDateDir(dir.getFileName().toString());
+                if (date == null || !date.isBefore(cutoff)) {
+                    continue;
+                }
+                int files = cleanDatabaseFilesInDir(dir);
+                if (files > 0) {
+                    removed++;
+                    log.info("[backup] 清理过期数据库备份: {} ({} 个文件)", dir, files);
+                }
+                if (isEmptyDirectory(dir)) {
+                    deleteDirectory(dir);
+                }
+            }
+        } catch (IOException e) {
+            log.warn("[backup] 扫描过期备份目录失败: {}", e.getMessage());
+        }
+        return removed;
+    }
+
+    /**
+     * 删除目录内本策略命名空间的文件（database-*.sql 与 manifest.json），返回删除数。
+     */
+    private int cleanDatabaseFilesInDir(Path dir) {
+        int removed = 0;
+        try (Stream<Path> files = Files.list(dir)) {
+            for (Path file : files.filter(Files::isRegularFile).toList()) {
+                String name = file.getFileName().toString();
+                if ((name.startsWith(FILE_PREFIX) && name.toLowerCase(Locale.ROOT).endsWith(".sql"))
+                        || BackupManifest.MANIFEST_FILE_NAME.equalsIgnoreCase(name)) {
+                    quietDelete(file);
+                    removed++;
+                }
+            }
+        } catch (IOException e) {
+            log.warn("[backup] 清理过期备份文件失败: {} - {}", dir, e.getMessage());
+        }
+        return removed;
+    }
+
+    /**
+     * 按 {@code maxBackupCount} 限制备份份数：日期目录与归档 ZIP 各计一份，
+     * 超出时从最旧开始清理。混合了非数据库备份产物的归档跳过并告警，避免误删他策略文件。
+     */
+    private int enforceMaxBackupCount(DatabaseBackupConfig config) {
+        Path backupDir = config.getBackupDir();
+        List<BackupUnit> units = new ArrayList<>();
+        try (Stream<Path> dirs = Files.list(backupDir)) {
+            for (Path dir : dirs.filter(Files::isDirectory).toList()) {
+                LocalDate date = parseDateDir(dir.getFileName().toString());
+                if (date != null && !listDatabaseScripts(dir).isEmpty()) {
+                    units.add(new BackupUnit(date, dir, null));
+                }
+            }
+        } catch (IOException e) {
+            log.warn("[backup] 扫描备份目录失败: {}", e.getMessage());
+        }
+        Path archiveDir = backupDir.resolve(ARCHIVE_DIR);
+        if (Files.isDirectory(archiveDir)) {
+            try (Stream<Path> zips = Files.list(archiveDir)) {
+                for (Path zip : zips.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".zip"))
+                        .toList()) {
+                    String baseName = zip.getFileName().toString()
+                            .replaceAll("(?i)\\.zip$", "");
+                    LocalDate date = parseDateDir(baseName);
+                    if (date != null && containsDatabaseScripts(zip)) {
+                        units.add(new BackupUnit(date, null, zip));
+                    }
+                }
+            } catch (IOException e) {
+                log.warn("[backup] 扫描备份归档失败: {}", e.getMessage());
+            }
+        }
+        int max = config.getMaxBackupCount();
+        if (units.size() <= max) {
+            return 0;
+        }
+        units.sort(Comparator.comparing(BackupUnit::date).reversed());
+        int removed = 0;
+        for (int i = max; i < units.size(); i++) {
+            BackupUnit unit = units.get(i);
+            if (unit.dir() != null) {
+                int files = cleanDatabaseFilesInDir(unit.dir());
+                if (files > 0) {
+                    removed++;
+                    log.info("[backup] 按最大份数 {} 清理过期备份: {} ({} 个文件)", max, unit.dir(), files);
+                }
+                if (isEmptyDirectory(unit.dir())) {
+                    deleteDirectory(unit.dir());
+                }
+            } else if (isPureDatabaseArchive(unit.zip())) {
+                quietDelete(unit.zip());
+                removed++;
+                log.info("[backup] 按最大份数 {} 清理过期归档: {}", max, unit.zip());
+            } else {
+                log.warn("[backup] 归档混合了非数据库备份产物，跳过清理: {}", unit.zip());
+            }
+        }
+        return removed;
+    }
+
+    /**
+     * 列出目录内本策略的 SQL 脚本（database-*.sql）。
+     */
+    private List<Path> listDatabaseScripts(Path dir) {
+        try (Stream<Path> files = Files.list(dir)) {
+            return files.filter(Files::isRegularFile)
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.startsWith(FILE_PREFIX) && name.toLowerCase(Locale.ROOT).endsWith(".sql");
+                    })
+                    .toList();
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    /**
+     * 判断 ZIP 归档内是否包含本策略的 SQL 脚本（按 basename 比对）。
+     */
+    private boolean containsDatabaseScripts(Path zipFile) {
+        try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(zipFile), StandardCharsets.UTF_8)) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                String baseName = entry.getName().substring(entry.getName().lastIndexOf('/') + 1);
+                if (baseName.startsWith(FILE_PREFIX) && baseName.toLowerCase(Locale.ROOT).endsWith(".sql")) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            log.warn("[backup] 读取归档失败: {} - {}", zipFile, e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * 判断 ZIP 归档是否为纯数据库备份（全部条目均为 database-*.sql 或 manifest，且至少一个脚本），
+     * 只有纯数据库归档才允许整体删除。
+     */
+    private boolean isPureDatabaseArchive(Path zipFile) {
+        boolean hasScript = false;
+        try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(zipFile), StandardCharsets.UTF_8)) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                String baseName = entry.getName().substring(entry.getName().lastIndexOf('/') + 1);
+                if (BackupManifest.MANIFEST_FILE_NAME.equalsIgnoreCase(baseName)) {
+                    continue;
+                }
+                if (baseName.startsWith(FILE_PREFIX) && baseName.toLowerCase(Locale.ROOT).endsWith(".sql")) {
+                    hasScript = true;
+                    continue;
+                }
+                return false;
+            }
+        } catch (IOException e) {
+            log.warn("[backup] 读取归档失败: {} - {}", zipFile, e.getMessage());
+            return false;
+        }
+        return hasScript;
+    }
+
+    /**
+     * 解析 yyyy-MM-dd 目录/归档名，非日期名返回 null。
+     */
+    private LocalDate parseDateDir(String name) {
+        try {
+            return LocalDate.parse(name, DATE_FMT);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 判断目录是否为空（读取失败按非空处理，避免误删）。
+     */
+    private static boolean isEmptyDirectory(Path dir) {
+        try (Stream<Path> entries = Files.list(dir)) {
+            return entries.findAny().isEmpty();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * 删除单个文件，失败只告警。
+     */
+    private static void quietDelete(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            log.warn("[backup] 删除过期备份文件失败: {} - {}", file, e.getMessage());
+        }
+    }
+
+    /**
+     * 一份备份单元：日期目录备份（dir）或归档 ZIP 备份（zip），二者取其一。
+     */
+    private record BackupUnit(LocalDate date, Path dir, Path zip) {
     }
 
     /**

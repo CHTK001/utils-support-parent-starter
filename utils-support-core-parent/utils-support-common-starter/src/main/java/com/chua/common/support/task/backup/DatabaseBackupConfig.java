@@ -103,6 +103,35 @@ public class DatabaseBackupConfig {
     @Builder.Default
     private boolean writeManifest = true;
 
+    /**
+     * 一致性快照导出：备份期间使用单连接事务（REPEATABLE_READ，不支持时回退
+     * SERIALIZABLE）包住全表导出，保证多表数据取自同一快照，避免导出中途
+     * 其他事务写入导致跨表数据不一致。默认开启。
+     */
+    @Builder.Default
+    private boolean consistentSnapshot = true;
+
+    /**
+     * 最大备份份数：按 {@code database-*} 脚本计数（含 archive 内压缩备份），
+     * 超出后从最旧开始清理；只清理本策略命名空间（database-* 脚本、对应
+     * manifest 与清空后的日期目录），不触碰其他文件。0 表示不按份数清理，默认 0。
+     */
+    @Builder.Default
+    private int maxBackupCount = 0;
+
+    /**
+     * 最大保留天数：超过该天数的 {@code database-*} 备份被清理（仅清理本策略
+     * 命名空间）。&gt;0 时优先于 {@code retentionDays}；0 表示沿用 {@code retentionDays}。
+     */
+    @Builder.Default
+    private int maxAgeDays = 0;
+
+    /**
+     * 备份历史存储（可选）：每次备份成功/失败后追加一条 {@link BackupHistoryRecord}；
+     * 未配置时默认使用内置 {@link JsonlBackupHistoryStore}（JSONL 文件，位于备份根目录）。
+     */
+    private BackupHistoryStore historyStore;
+
     // ==================== 远端上传（可选） ====================
 
     /**
