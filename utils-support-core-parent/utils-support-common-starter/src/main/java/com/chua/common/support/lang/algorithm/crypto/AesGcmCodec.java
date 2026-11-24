@@ -121,6 +121,49 @@ public class AesGcmCodec implements Codec {
     }
 
     /**
+     * 加密原始字节，返回 {@code IV(12B) ‖ 密文+GCM 认证标签} 的组合字节。
+     *
+     * <p>与 {@link #encodeHex(String)} 共用同一套 AES-256-GCM 运算与密钥派生，
+     * 仅省去 {@code g1:} 前缀与十六进制封装，供需要自定义外层格式
+     * （如 Base64、自有版本前缀）的调用方复用，避免各处再维护一份 Cipher 样板。</p>
+     *
+     * @param plain 明文字节，不允许为 {@code null}
+     * @return IV 与密文的组合字节
+     */
+    public byte[] encryptToCombined(byte[] plain) {
+        if (plain == null) {
+            throw new IllegalArgumentException("明文不能为空");
+        }
+        try {
+            byte[] iv = new byte[GCM_IV_LENGTH];
+            RANDOM.nextBytes(iv);
+            Cipher cipher = Cipher.getInstance(GCM_TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, generateKey(), new GCMParameterSpec(GCM_TAG_BITS, iv));
+            byte[] encrypted = cipher.doFinal(plain);
+            byte[] combined = new byte[iv.length + encrypted.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
+            return combined;
+        } catch (Exception e) {
+            throw new IllegalStateException("AES 加密失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 解密 {@link #encryptToCombined(byte[])} 产出的组合字节。
+     *
+     * @param combined {@code IV(12B) ‖ 密文+GCM 认证标签}
+     * @return 明文字节
+     */
+    public byte[] decryptCombined(byte[] combined) {
+        try {
+            return doDecryptGcm(combined);
+        } catch (Exception e) {
+            throw new IllegalStateException("AES 解密失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 解密当前 GCM 密文。
      *
      * @param combined IV 与密文的拼接
@@ -128,14 +171,24 @@ public class AesGcmCodec implements Codec {
      * @throws Exception 认证失败或格式非法
      */
     private String decryptGcm(byte[] combined) throws Exception {
-        if (combined.length <= GCM_IV_LENGTH) {
+        return new String(doDecryptGcm(combined), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 执行 GCM 解密，不封装异常，供 {@link #decryptCombined(byte[])} 与 {@link #decryptGcm(byte[])} 复用。
+     *
+     * @param combined IV 与密文的拼接
+     * @return 明文字节
+     * @throws Exception 认证失败或格式非法
+     */
+    private byte[] doDecryptGcm(byte[] combined) throws Exception {
+        if (combined == null || combined.length <= GCM_IV_LENGTH) {
             throw new IllegalArgumentException("GCM 密文长度不足");
         }
         byte[] iv = Arrays.copyOfRange(combined, 0, GCM_IV_LENGTH);
         Cipher cipher = Cipher.getInstance(GCM_TRANSFORMATION);
         cipher.init(Cipher.DECRYPT_MODE, generateKey(), new GCMParameterSpec(GCM_TAG_BITS, iv));
-        return new String(cipher.doFinal(combined, GCM_IV_LENGTH, combined.length - GCM_IV_LENGTH),
-                StandardCharsets.UTF_8);
+        return cipher.doFinal(combined, GCM_IV_LENGTH, combined.length - GCM_IV_LENGTH);
     }
 
     /**

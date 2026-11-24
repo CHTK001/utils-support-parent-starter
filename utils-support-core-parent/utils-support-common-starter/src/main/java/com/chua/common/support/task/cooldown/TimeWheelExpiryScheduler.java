@@ -30,6 +30,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>同一个 {@code scope + key} 重新登记时，旧的队列项会被取消并移除，
  * 避免「连续失败改到期时间」出现提前恢复。</p>
  *
+ * <p>通用定时任务调度（任意 TimerTask、槽位轮推进）见
+ * {@code com.chua.common.support.task.timer.HashedWheelTimer}；
+ * 本类专注冷却到期派发，内部以 DelayQueue 保证同到期时刻按登记顺序先进先出。</p>
+ *
  * @author CH
  * @since 4.0.0.53
  */

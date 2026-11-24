@@ -1,11 +1,10 @@
 package com.chua.crypto.support.key;
 
 import com.chua.common.support.collection.wrap.Wraps;
-import com.chua.crypto.support.CryptoException;
+import com.chua.common.support.utils.DigestUtils;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -149,17 +148,7 @@ public final class ServerFingerprint {
      * @return 十六进制摘要
      */
     private static String sha256Hex(String data) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = digest.digest(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(bytes.length * 2);
-            for (byte b : bytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new CryptoException("服务器指纹计算失败", e);
-        }
+        return DigestUtils.sha256(data);
     }
 
     @Override

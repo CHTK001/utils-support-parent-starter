@@ -29,6 +29,10 @@ import com.chua.common.support.utils.StringUtils;
 /**
  * Telnet Shell 服务器 — 提供远程字符界面。
  *
+ * <p>通用网络服务 SPI 下的 Telnet 服务器见
+ * {@code com.chua.common.support.network.server.impl.JdkTelnetServer}（{@code @Spi("jdk-telnet")}）；
+ * 本类是 runtime-shell 的诊断入口，默认只绑定 127.0.0.1:4567。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */

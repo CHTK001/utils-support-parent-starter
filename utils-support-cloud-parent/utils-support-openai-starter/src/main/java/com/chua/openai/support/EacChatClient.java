@@ -3,6 +3,7 @@ package com.chua.openai.support;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.DigestUtils;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.http.HttpRequest;
 import com.openai.core.http.HttpRequestAuthenticator;
@@ -14,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.HexFormat;
 import com.chua.common.support.utils.StringUtils;
 
@@ -213,9 +213,7 @@ public class EacChatClient extends OpenAiChatClient {
          * @throws Exception 异常
         */
         private static String sha256Hex(String input) throws Exception {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
+            return DigestUtils.sha256(input);
         }
 
         /**

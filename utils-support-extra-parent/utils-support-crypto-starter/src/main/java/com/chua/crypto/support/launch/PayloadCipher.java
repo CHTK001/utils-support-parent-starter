@@ -2,6 +2,7 @@
 package com.chua.crypto.support.launch;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.utils.DigestUtils;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
@@ -10,7 +11,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collections;
@@ -274,17 +274,7 @@ public final class PayloadCipher {
      * @return 十六进制串
      */
     private static String sha256Hex(String data) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = digest.digest(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(bytes.length * 2);
-            for (byte b : bytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new IllegalStateException("摘要计算失败", e);
-        }
+        return DigestUtils.sha256(data);
     }
 
     /**

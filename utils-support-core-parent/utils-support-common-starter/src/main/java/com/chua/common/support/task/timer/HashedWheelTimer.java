@@ -28,6 +28,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <li><strong>单任务故障隔离</strong> — 任何 Throwable 都在提交侧兜底记录，不影响时间轮存活</li>
  * </ul>
  *
+ * <p>冷却过期场景（按 scope+key 登记、要求同到期时刻先进先出）请优先使用
+ * {@code com.chua.common.support.task.cooldown.TimeWheelExpiryScheduler}；
+ * 本类面向通用定时任务调度。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */

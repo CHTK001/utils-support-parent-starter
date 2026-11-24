@@ -8,20 +8,18 @@ import com.chua.common.support.network.download.Downloader;
 import com.chua.common.support.network.download.DownloadResult;
 import com.chua.common.support.network.download.extractor.Extractor;
 import com.chua.common.support.network.download.extractor.ExtractorFactory;
+import com.chua.common.support.utils.DigestUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -214,20 +212,7 @@ public final class TsharkArtifactInstaller {
      */
     @Nonnull
     private static String sha256(@Nonnull Path file) throws IOException {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            try (InputStream in = Files.newInputStream(file)) {
-                // [P3C A20 豁免]
-                byte[] buffer = new byte[8192];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    digest.update(buffer, 0, read);
-                }
-            }
-            return HexFormat.of().formatHex(digest.digest());
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new IOException("当前 JVM 不支持 SHA-256", e);
-        }
+        return DigestUtils.sha256(file);
     }
 
     // ==================== 安装 ====================

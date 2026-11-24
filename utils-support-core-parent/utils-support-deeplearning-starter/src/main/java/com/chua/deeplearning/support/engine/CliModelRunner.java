@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.OsFamily;
+import com.chua.common.support.utils.DigestUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -896,23 +897,7 @@ public final class CliModelRunner {
      * @throws IOException 失败
      */
     private static String sha256Hex(Path file) throws IOException {
-        try {
-            var md = java.security.MessageDigest.getInstance("SHA-256");
-            try (var in = Files.newInputStream(file)) {
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    md.update(buf, 0, n);
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            for (byte b : md.digest()) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 不可用", e);
-        }
+        return DigestUtils.sha256(file);
     }
 
     /**

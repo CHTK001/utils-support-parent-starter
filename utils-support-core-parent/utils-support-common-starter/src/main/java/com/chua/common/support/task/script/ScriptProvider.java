@@ -16,6 +16,10 @@ import java.nio.file.Path;
  *   provider.unloadScript(Path.of("transform.js"));
  * }</pre>
  *
+ * <p>collect 模块内的流程脚本节点使用内联 Groovy 求值，见
+ * {@code com.chua.starter.collect.engine.CollectGroovyRuntime}（依赖齐备才加载）；
+ * 本接口面向 SPI 方式的文件型脚本引擎。</p>
+ *
  * @author CH
  * @since 2026/07/16
  */

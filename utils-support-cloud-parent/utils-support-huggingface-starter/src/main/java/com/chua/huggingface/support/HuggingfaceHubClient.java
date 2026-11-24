@@ -14,11 +14,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -707,16 +707,7 @@ public class HuggingfaceHubClient {
      * @return 结果字符串
      */
     private static String sha256Hex(byte[] content) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(content);
-            var sb = new StringBuilder(digest.length * 2);
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new IllegalStateException("SHA-256 不可用", e);
-        }
+        return DigestUtils.sha256(content);
     }
 
     /**

@@ -63,6 +63,10 @@ import java.util.concurrent.TimeUnit;
  * Hello Telnet
  * </pre>
  *
+ * <p>runtime-shell 里另有一个面向诊断运维的 Telnet 入口
+ * {@code com.chua.runtime.shell.TelnetServer}（默认绑定 127.0.0.1:4567，
+ * 注册 APM/线程/内存等内置命令）；本类面向通用网络服务 SPI 场景，两者互不替代。</p>
+ *
  * @author CH
  * @since 2026/07/18
  */
