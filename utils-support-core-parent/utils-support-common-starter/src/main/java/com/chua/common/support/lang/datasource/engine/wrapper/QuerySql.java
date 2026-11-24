@@ -108,7 +108,7 @@ public record QuerySql<T>(
     public QuerySql(Class<T> entityClass, List<String> selectColumns, String whereClause,
                     List<Object> params, String groupByColumn, List<String> orderBys, int limit, int offset) {
         this(entityClass, selectColumns, whereClause, params, groupByColumn, orderBys,
-                limit, offset, List.of(), null, List.of());
+                limit, offset, List.of(), null, List.of(), null);
     }
 
     /**
