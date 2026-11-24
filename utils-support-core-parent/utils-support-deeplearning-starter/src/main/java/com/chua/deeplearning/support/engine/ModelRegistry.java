@@ -214,7 +214,8 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对模型根目录 / 类路径 路径，可为 空
-     * @param downloadUrl         远程下载地址，空表示不下载
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置
+     *                            多个候选地址（按序容灾尝试），空表示不下载
      * @param downloadMirrors     主文件的备用镜像地址（主地址失败时依次尝试），可为 空
      * @param downloadFiles       随主文件一并下载的附属文件清单（绝对 URL，或相对
      *                            主文件同目录的路径），可为 空；与 {@code downloadMirrors}
@@ -411,7 +412,7 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
-     * @param downloadUrl         远程下载地址
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param compress            是否压缩包
      * @param downloadFileName    压缩包内目标文件名
      */
@@ -432,7 +433,7 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
-     * @param downloadUrl         远程下载地址
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 空
      * @param compress            是否压缩包
      * @param downloadFileName    压缩包内目标文件名
@@ -455,7 +456,7 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
-     * @param downloadUrl         远程下载地址
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
      * @param compress            是否压缩包
      * @param downloadFileName    压缩包内目标文件名
@@ -484,7 +485,7 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
-     * @param downloadUrl         远程下载地址
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
      * @param downloadFiles       附属文件清单（绝对 URL 或相对主文件同目录路径），可为 空
      * @param compress            是否压缩包
@@ -509,7 +510,7 @@ public final class ModelRegistry {
      * @param outputType          输出类型
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
-     * @param downloadUrl         远程下载地址
+     * @param downloadUrl         远程下载地址，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
      * @param downloadFiles       附属文件清单（绝对 URL 或相对主文件同目录路径），可为 空
      * @param compress            是否压缩包
@@ -533,20 +534,71 @@ public final class ModelRegistry {
     /**
      * 解析备用镜像地址列表。
      *
-     * <p>主地址为 huggingface.co 且未显式提供镜像时，自动追加 hf-mirror.com 备用镜像
-     * （国内可直接访问），保证下载失败时可自动切换。</p>
+     * <p>downloadUrl 的候选地址（支持分隔符配置多个）中，凡 huggingface.co 地址且未显式提供
+     * hf-mirror.com 镜像时，自动追加对应的 hf-mirror.com 备用镜像（国内可直接访问），
+     * 保证下载失败时可自动切换。</p>
      *
-     * @param downloadUrl     主下载地址
+     * @param downloadUrl     主下载地址（可为分隔符分隔的多个候选地址）
      * @param downloadMirrors 显式备用地址，可为 空
      * @return 镜像地址列表，可为 空
      */
     private static List<String> resolveMirrors(String downloadUrl, List<String> downloadMirrors) {
         List<String> mirrors = downloadMirrors == null ? Wraps.list() : Wraps.list(downloadMirrors);
-        if (downloadUrl != null && downloadUrl.contains("huggingface.co") &&
-                mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
-            mirrors.add(downloadUrl.replace("huggingface.co", "hf-mirror.com"));
+        for (String url : splitDownloadUrls(downloadUrl)) {
+            if (url.contains("huggingface.co") &&
+                    mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
+                mirrors.add(url.replace("huggingface.co", "hf-mirror.com"));
+            }
         }
         return mirrors.isEmpty() ? null : List.copyOf(mirrors);
+    }
+
+    /**
+     * 解析 downloadUrl 中的多个候选下载地址。
+     *
+     * <p>多个地址可用逗号、分号、竖线（含中文标点）或空白分隔，按配置顺序返回
+     * （去重、去空）；单地址返回单元素列表。</p>
+     *
+     * @param downloadUrl 下载地址配置，可为 空
+     * @return 候选地址列表（可能为空列表，不会为 空）
+     */
+    private static List<String> splitDownloadUrls(String downloadUrl) {
+        List<String> urls = Wraps.list();
+        if (downloadUrl == null || downloadUrl.isBlank()) {
+            return urls;
+        }
+        for (String part : downloadUrl.split("[,，;；|\\s]+")) {
+            String url = part.trim();
+            if (!url.isEmpty() && !urls.contains(url)) {
+                urls.add(url);
+            }
+        }
+        return urls;
+    }
+
+    /**
+     * 取 downloadUrl 的第一个候选地址（缓存文件名与附属文件相对路径的拼接基准）。
+     *
+     * @param entry 注册条目
+     * @return 第一个候选地址，无法解析返回 空
+     */
+    private static String firstDownloadUrl(Entry entry) {
+        List<String> urls = splitDownloadUrls(entry.downloadUrl());
+        return urls.isEmpty() ? null : urls.getFirst();
+    }
+
+    /**
+     * 解析下载文件名：显式 downloadFileName 优先，否则取第一个候选地址的最后一段。
+     *
+     * @param entry 注册条目
+     * @return 下载文件名，无法解析返回 空
+     */
+    private static String resolveDownloadFileName(Entry entry) {
+        if (entry.downloadFileName() != null && !entry.downloadFileName().isBlank()) {
+            return entry.downloadFileName();
+        }
+        List<String> urls = splitDownloadUrls(entry.downloadUrl());
+        return urls.isEmpty() ? null : lastSegment(urls.getFirst());
     }
 
     /**
@@ -725,7 +777,7 @@ public final class ModelRegistry {
             Path dlTarget = cachedDownloadTarget(modelId, entry);
             if (dlTarget != null) {
                 // 缓存命中时补齐 downloadFiles 声明的缺失附属文件（已存在则幂等跳过）
-                downloadDeclaredFiles(modelId, entry, entry.downloadUrl(), dlTarget.getParent());
+                downloadDeclaredFiles(modelId, entry, firstDownloadUrl(entry), dlTarget.getParent());
                 return dlTarget;
             }
         }
@@ -836,7 +888,7 @@ public final class ModelRegistry {
         Path cached = cachedDownloadTarget(modelId, entry);
         if (cached != null) {
             // 缓存命中时补齐 downloadFiles 声明的缺失附属文件（已存在则幂等跳过）
-            downloadDeclaredFiles(modelId, entry, entry.downloadUrl(), cached.getParent());
+            downloadDeclaredFiles(modelId, entry, firstDownloadUrl(entry), cached.getParent());
             return cached;
         }
         return tryDownloadFromRemote(modelId, entry);
@@ -851,9 +903,10 @@ public final class ModelRegistry {
      */
     private static Path cachedDownloadTarget(String modelId, Entry entry) {
         Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR).resolve(modelId);
-        String fileName = entry.downloadFileName() != null && !entry.downloadFileName().isBlank()
-                ? entry.downloadFileName()
-                : entry.downloadUrl().substring(entry.downloadUrl().lastIndexOf('/') + 1);
+        String fileName = resolveDownloadFileName(entry);
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
         Path target = downloadDir.resolve(fileName);
         try {
             if (Files.isRegularFile(target) && Files.size(target) > 0) {
@@ -869,7 +922,8 @@ public final class ModelRegistry {
     /**
      * 尝试从 Entry 配置的 downloadurl 下载模型。
      *
-     * <p>依次尝试主地址与备用镜像地址（{@link Entry#downloadMirrors()}），
+     * <p>downloadUrl 支持以分隔符（逗号/分号/竖线，含中文标点）或空白配置多个候选地址，
+     * 与备用镜像地址（{@link Entry#downloadMirrors()}）合并去重后按序依次尝试，
      * 任一地址下载成功即返回，全部失败返回 空。</p>
      *
      * @param modelId 模型标识
@@ -880,8 +934,7 @@ public final class ModelRegistry {
         if (entry == null || entry.downloadUrl() == null || entry.downloadUrl().isBlank()) {
             return null;
         }
-        List<String> urls = Wraps.list();
-        urls.add(entry.downloadUrl());
+        List<String> urls = splitDownloadUrls(entry.downloadUrl());
         if (entry.downloadMirrors() != null) {
             for (String mirror : entry.downloadMirrors()) {
                 if (mirror != null && !mirror.isBlank() && !urls.contains(mirror)) {
@@ -889,11 +942,13 @@ public final class ModelRegistry {
                 }
             }
         }
+        if (urls.isEmpty()) {
+            log.warn("[deeplearning-engine] downloadUrl 未解析出有效下载地址: {}", modelId);
+            return null;
+        }
         Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR).resolve(modelId);
-        String fileName = entry.downloadFileName() != null && !entry.downloadFileName().isBlank()
-                ? entry.downloadFileName()
-                : entry.downloadUrl().substring(entry.downloadUrl().lastIndexOf('/') + 1);
-        if (fileName.isBlank()) {
+        String fileName = resolveDownloadFileName(entry);
+        if (fileName == null || fileName.isBlank()) {
             fileName = modelId + MODEL_SUFFIXES[0];
         }
         Path target = downloadDir.resolve(fileName);
@@ -1041,7 +1096,8 @@ public final class ModelRegistry {
      * <ul>
      *   <li>绝对 URL（http/https 开头）原样下载；</li>
      *   <li>相对路径按候选基地址的目录拼接：优先实际下载成功的地址（preferredBaseUrl），
-     *       其次 {@link Entry#downloadUrl()} 与 {@link Entry#downloadMirrors()}，按序尝试直到成功；</li>
+     *       其次 {@link Entry#downloadUrl()} 的各候选地址（支持分隔符配置多个）与
+     *       {@link Entry#downloadMirrors()}，按序尝试直到成功；</li>
      *   <li>目标文件名取 URL 最后一段（剥离查询串与锚点），平铺落盘于 {@code downloadDir}；</li>
      *   <li>已存在且非空的文件跳过（幂等）；</li>
      *   <li>单个附属文件下载失败仅告警，不阻断主文件加载。</li>
@@ -1057,10 +1113,12 @@ public final class ModelRegistry {
         if (files == null || files.isEmpty() || downloadDir == null) {
             return;
         }
-        // 相对路径候选基地址：实际下载成功地址优先，其次主地址与镜像（去重、保持顺序）
+        // 相对路径候选基地址：实际下载成功地址优先，其次主地址的各候选地址与镜像（去重、保持顺序）
         List<String> bases = Wraps.list();
         addBaseUrl(bases, preferredBaseUrl);
-        addBaseUrl(bases, entry.downloadUrl());
+        for (String url : splitDownloadUrls(entry.downloadUrl())) {
+            addBaseUrl(bases, url);
+        }
         if (entry.downloadMirrors() != null) {
             for (String mirror : entry.downloadMirrors()) {
                 addBaseUrl(bases, mirror);

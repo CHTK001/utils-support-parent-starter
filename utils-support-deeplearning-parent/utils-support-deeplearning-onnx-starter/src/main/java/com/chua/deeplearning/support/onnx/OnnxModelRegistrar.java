@@ -1688,7 +1688,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
      * @param outputType 输出类型
      * @param capability capability
      * @param relativePath relative路径
-     * @param downloadUrl downloadurl
+     * @param downloadUrl downloadurl，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param compress compress
      * @param downloadFileName download文件名称
      */
@@ -1710,7 +1710,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
      * @param outputType 输出类型
      * @param capability capability
      * @param relativePath relative路径
-     * @param downloadUrl downloadurl
+     * @param downloadUrl downloadurl，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors downloadmirrors
      * @param compress compress
      * @param downloadFileName download文件名称
@@ -1734,7 +1734,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
      * @param outputType 输出类型
      * @param capability capability
      * @param relativePath relative路径
-     * @param downloadUrl downloadurl
+     * @param downloadUrl downloadurl，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors downloadmirrors
      * @param downloadFiles 随主文件一并下载的附属文件清单（绝对 URL 或相对主文件目录的路径）
      * @param compress compress
@@ -1760,7 +1760,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
      * @param outputType 输出类型
      * @param capability capability
      * @param relativePath relative路径
-     * @param downloadUrl downloadurl
+     * @param downloadUrl downloadurl，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors downloadmirrors
      * @param downloadFiles 随主文件一并下载的附属文件清单（绝对 URL 或相对主文件目录的路径）
      * @param compress compress
@@ -1789,7 +1789,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
      * @param outputType 输出类型
      * @param capability capability
      * @param relativePath relative路径
-     * @param downloadUrl downloadurl
+     * @param downloadUrl downloadurl，可用逗号/分号/竖线（含中文标点）或空白分隔配置多个候选地址（按序容灾尝试）
      * @param downloadMirrors downloadmirrors
      * @param compress compress
      * @param downloadFileName download文件名称
