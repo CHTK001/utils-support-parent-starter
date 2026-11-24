@@ -1015,6 +1015,7 @@ server.start();
 
 - `ServiceDiscovery` SPI：`peermesh` 实现，自带节点表与故障剔除。
 - `scatter`：无中心化集群，帧协议最小化，TCP/UDP 两种传输。**发现方式三选一：自动发现 / seed 引导 / DNS 服务发现**。
+- 负载均衡：`getService(path, balance, protocol)` 内置 `weight`（默认）/ `random` / `round` 策略，seed 引导节点不参与业务选取；成员自动注册、变更可订阅（详见下文）。
 
 #### 发现方式三选一（`ScatterSetting`）
 
@@ -1078,6 +1079,84 @@ try (Scatter scatter = ScatterBuilder.udp()
 ```
 
 > 注意：自动发现要求各节点使用**固定且一致**的 `port`（`port=0` 系统分配时无法定位对端，会告警并跳过发现）；自动发现/seed 均可显式传 `subnet("192.168.1.0/24")` 覆盖默认网段。
+
+#### 服务注册与负载均衡（默认 `weight`）
+
+**相同服务自动注册**：节点 `start()` 后，每轮发现都会把自身写入 `servicePath` 成员表（默认 `/scatter`，可用 `.servicePath(...)` 修改），权重为按 CPU/内存负载计算的动态值（0.1~1.0，每轮刷新）；同 `groupId` 的节点经发现协议自动互见，**无需手工注册**即组成同一服务列表。`registerService` / `updateService` / `unregisterService` 用于登记**额外端点**（如本进程内其它服务端口）。
+
+> `nodeId` 即成员表中的实例标识（`serverId`），**全网必须唯一**，且框架**不生成默认值**（不设会以 null 互相覆盖）。Spring 侧建议默认取 `spring.application.name + "@" + ip + ":" + port`：单实例部署可直接用应用名；**多实例必须带实例后缀**，否则同应用多副本按 `serverId` 去重后成员表只剩一个，负载均衡也只剩一个。
+
+```java
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.scatter.Scatter;
+import com.chua.common.support.scatter.ScatterBuilder;
+import com.chua.common.support.scatter.ScatterServiceDiscovery;
+import com.chua.common.support.scatter.ScatterStats;
+
+// 节点 A（seed，192.168.1.10）
+Scatter a = ScatterBuilder.tcp()
+        .nodeId("order-1").groupId("order")
+        .host("192.168.1.10").port(19001)
+        .autoDiscoveryInterval(1000).heartbeatInterval(2000)
+        .persistenceEnabled(false)
+        .build();
+a.start();
+
+// 节点 B：seeds 指向 A，加入同一分组
+Scatter b = ScatterBuilder.tcp()
+        .nodeId("order-2").groupId("order")
+        .port(19002)
+        .seeds("192.168.1.10:19001")
+        .autoDiscoveryInterval(1000).heartbeatInterval(2000)
+        .persistenceEnabled(false)
+        .build();
+b.start();
+
+ScatterServiceDiscovery d = b.discovery();
+// 成员表：A、B 已自动注册，直接可查
+java.util.Set<Discovery> all = d.getServiceAll("/scatter");
+// 负载均衡取一个实例：默认 weight（动态权重），可选 "random"、"round"（别名 "polling"）
+Discovery one = d.getService("/scatter");
+Discovery rnd = d.getService("/scatter", "random");
+// 成员变更订阅（ADD/UPDATE/REMOVE，仅回调订阅之后的变更；全量请先 getServiceAll）
+d.subscribe((serverName, discovery, event) ->
+        System.out.println(event + " " + discovery.getServerId()));
+// 观测快照：成员表 + 发现/同步/心跳/帧计数（含鉴权失败 authFail、被拒成员 rejected）
+ScatterStats stats = d.stats();
+// 优雅离网：广播 LEAVE，对端立即剔除本节点（不等心跳超限）；随后 close() 释放端口
+a.discovery().leave();
+a.close();
+b.close();
+```
+
+负载均衡行为（`AbstractServiceDiscovery#getService`）：
+
+| 事项 | 说明 |
+|---|---|
+| 默认策略 | `weight`（`balance` 参数为空时）；策略为 `LoadBalance` SPI（`lang.balance`），可自行扩展注册 |
+| 内置策略 | `weight`（按动态权重）、`random`、`round`（别名 `polling`） |
+| 未知策略 | 回落返回列表第一个实例 |
+| seed/网关节点 | 成员 metadata `seed=true` 的节点只做发现引导，**不参与业务负载均衡** |
+| 分组隔离 | `getService(path, scatterId, balance, protocol)` 仅在相同 `scatterId`（即 `groupId`）内选取；`protocol` 非空时按协议过滤 |
+| 实例缓存 | 服务表未变化时复用同一 `LoadBalance` 实例（保持 weight 衰减等状态），表变化时自动重建 |
+
+> 鉴权：组网可用共享 token，通过 `ScatterSetting#setAuthToken(...)` 设置（builder 暂未提供对应链式方法）；token 不匹配的帧会被拒绝并计入 `stats().getAuthFailFrames()`。
+
+#### 与 Spring 集成
+
+utils 层只提供 SPI 契约与纯 Java 实现；Spring Boot 侧做成**独立 starter**（谁用谁依赖，不并入 `spring-support-common-starter` 默认依赖，避免给所有宿主引入节点服务端线程与定时发现开销），并按「依赖即用」做条件装配：未配置 scatter 时零副作用。启用后以下均为 starter 的**一等配置项**（缺省自动回落，均可显式覆盖）：
+
+| starter 配置项 | 缺省回落 | 说明 |
+|---|---|---|
+| `scatter.node-id` | `{spring.application.name}@{ip}:{port}` | 实例标识，全网唯一（多实例防 `serverId` 撞车去重） |
+| `scatter.service-path` | `/{spring.application.name}` | **服务分组**：同类服务聚在同一成员表，`getService("/order")` 即 order 全部实例 |
+| `scatter.group` | `default` | **组网范围**（哪些节点互相同步成员表）；跨服务调用靠查不同 `service-path`，勿当服务分组用 |
+| `scatter.context-path` | `${server.servlet.context-path}`（WebFlux `${spring.webflux.base-path}`） | **业务地址前缀**：进注册条目 metadata，拼 URL 时自动前置 |
+| `scatter.protocol` / `port` / `seeds` / `subnet` | `tcp` / 默认端口 / 空 / 本机网段 | 组网传输与发现拓扑；同机撞节点端口、跨网段时才需显式配置 |
+
+> **服务分组与组网范围是两个维度**：`service-path` 决定「同类服务落在哪张成员表」（多应用同属一个逻辑服务组时，显式配成同一路径）；`group` 决定「哪些节点互见」。不要拿 `group` 当服务分组用。
+
+**contextPath 与双端口口径**：注册条目必须携带业务前缀，否则消费方拼出的地址调不通。承载点用 `Discovery` 的 `metadata`（`ScatterSetting#setMetadata(...)` 会自动叠加进注册条目）；URL 拼接由 starter 侧封装在 `Discovery#createUrl` 结果上自动前置 contextPath，调用方无感——不要把 Spring 概念下沉进 utils。另注意 scatter 节点端口（组网/gossip）与业务 HTTP 端口（`server.port`）是两个端口：业务服务发现注册/查询业务端点（`server.port` + context-path），不要拿组网地址当业务调用地址。
 
 #### 大规模部署：请配置多个 seed 节点
 

@@ -585,7 +585,11 @@ public abstract class AbstractEngine implements Engine {
                 }
                 wrapper.offset(origOffset);
             }
-            return new Page<>(pn, ps, total, records);
+            // 引擎具备游标能力时算下一页键值；不具备（或已到末页/条件不满足）则为 null，按页码翻页。
+            // 用 COUNT 结果先判末页，避免「正好整页」时多给一个必然取空的游标。
+            List<Object> nextCursor = (long) pn * ps < total
+                    ? computeNextCursor(wrapper, records, ps) : null;
+            return new Page<>(pn, ps, total, records, nextCursor);
         }
         List<T> all = executeQuery(wrapper, ec);
         int from = (pn - 1) * ps;

@@ -415,7 +415,6 @@ public abstract class JdbcEngine extends AbstractEngine {
         return params;
     }
 
-
     /**
      * 为 SQL 追加分页子句。
      * <p>无方言或方言支持标准 LIMIT 语法（MySQL/PostgreSQL/H2/SQLite 等）时，
@@ -524,6 +523,42 @@ public abstract class JdbcEngine extends AbstractEngine {
             cursor.add(value);
         }
         return cursor;
+    }
+
+    /**
+     * 读取实体在某个 ORDER BY 项上的键值。
+     *
+     * <p>{@code orderBys} 的格式为 {@code "列名 ASC"} / {@code "列名 DESC"}（由
+     * {@code AbstractLambdaWrapper} 生成）。列名转实体字段的映射交给
+     * {@link EntityFieldMapper}（与结果集列名映射同一套规则），因此
+     * {@code user_id} → {@code userId}、{@code ID} → {@code id} 都能取到。</p>
+     *
+     * @param entity  实体实例
+     * @param orderBy 排序项（{@code "列名 ASC|DESC"}）
+     * @return 键值，取不到时返回 null
+     */
+    private static Object orderValue(Object entity, String orderBy) {
+        if (orderBy == null || orderBy.trim().isEmpty()) {
+            return null;
+        }
+        String[] parts = orderBy.trim().split("\\s+");
+        return MethodCache.getValue(entity, EntityFieldMapper.toCamelCase(parts[0]));
+    }
+
+    /**
+     * 当前引擎是否具备游标（keyset）分页能力。
+     * <p>仅当实验开关 {@link #isCursorPagingEnabled()} 开启且默认数据源是 JDBC
+     * 数据源时返回 true；调用方据此决定是否读取 {@code Page#getNextCursor()}。</p>
+     *
+     * @return true 表示可用游标分页
+     */
+    @Override
+    public boolean supportsCursorPaging() {
+        if (!isCursorPagingEnabled()) {
+            return false;
+        }
+        EngineDataSource<?> ds = getDataSource();
+        return ds != null && ds.getSource() instanceof DataSource;
     }
 
     /**

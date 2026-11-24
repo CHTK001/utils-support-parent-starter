@@ -459,7 +459,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("uniface-face-mesh", "com.chua.deeplearning.support.onnx.uniface.UniFaceMeshTranslator", Image.class,
             float[].class, FeatureExtractor.class, "face/landmark/uniface/facemesh/face_mesh_Nx3x192x192.onnx",
             "https://github.com/yakhyo/uniface/releases/download/weights/face_mesh_Nx3x192x192.onnx",
-            List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/face_mesh_Nx3x192x192.onnx"), false,
+            List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/face_mesh.onnx"), false,
             null);
         // 人脸2D关键点(PIPNet)：WFLW 98 点，热图+偏移+邻居融合，输出 [x,y]*98 原图坐标；模型内嵌 jar
         reg("uniface-pipnet-landmark", "com.chua.deeplearning.support.onnx.uniface.UniFacePipnetLandmarkTranslator",
@@ -507,7 +507,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("uniface-minifasnet-liveness", "com.chua.deeplearning.support.onnx.uniface.UniFaceMinifasnetLivenessTranslator",
             Image.class, Float.class, LivenessDetector.class, "face/liveness/uniface/MiniFASNetV1SE.onnx",
             "https://github.com/yakhyo/face-anti-spoofing/releases/download/weights/MiniFASNetV1SE.onnx",
-            List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/MiniFASNetV1SE.onnx"), false,
+            List.of("https://huggingface.co/yakhyo/uniface-weights/resolve/main/minifasnet_v1se.onnx"), false,
             null);
         // 人口学属性(FairFace)：种族(7)/性别(2)/年龄段(9)，value="race|gender|age"；模型内嵌 jar
         reg("uniface-fairface", "com.chua.deeplearning.support.onnx.uniface.UniFaceFairfaceTranslator", Image.class,
