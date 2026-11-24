@@ -95,9 +95,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     private static final String PROVIDER_GPU_LLAMA3 = "gpu-llama3";
 
     /**
-     * gpu-llama3 模块 Translator 类名前缀（该模块模型统一归属 gpu-llama3 提供者）
+     * llama3 Translator 类名前缀（原 gpu-llama3 模块已并入 jitllm，模型统一归属 gpu-llama3 提供者）
      */
-    private static final String GPU_LLAMA3_TRANSLATOR_PREFIX = "com.chua.deeplearning.support.gpu.llama3.";
+    private static final String GPU_LLAMA3_TRANSLATOR_PREFIX = "com.chua.jitllm.support.llama3.";
 
     /**
      * 类路径 前缀
@@ -590,7 +590,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-     * 解析提供者：优先按注册条目的 Translator 类归属判断（如 gpu-llama3 模块），
+     * 解析提供者：优先按注册条目的 Translator 类归属判断（如 jitllm 模块的 llama3 Translator），
      * 再按模型文件路径后缀推断。
      *
      * @param entry 模型注册条目

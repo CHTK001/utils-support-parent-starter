@@ -238,7 +238,7 @@ mvn -o -q compile -DskipTests
 
 | 能力 | 去处 |
 | --- | --- |
-| ONNX / sherpa-onnx / PyTorch / Paddle / TensorFlow / MXNet / AgentScope / LangChain4j / OpenCV / safetensors / 3D / gpu-llama3 / Ollama / laya / DL4J 等其它深度学习引擎 | 同仓 `utils-support-deeplearning-parent` 下对应的 `utils-support-deeplearning-*-starter` 模块 |
+| ONNX / sherpa-onnx / PyTorch / Paddle / TensorFlow / MXNet / AgentScope / LangChain4j / OpenCV / safetensors / 3D / jitllm / Ollama / laya / DL4J 等其它深度学习引擎 | 同仓 `utils-support-deeplearning-parent` 下对应的 `utils-support-deeplearning-*-starter` 模块 |
 | Weka 实现的同类表格分类（本模块 `ModelDomain` / `FeatureColumn` / `EvaluationReport` 与 weka 侧同构） | `utils-support-deeplearning-weka-starter` |
 | `ClassifierTask` 等 SPI 接口定义与 `ServiceProvider` 装配 | `utils-support-common-starter` |
 | 回归 / 聚类 / 排序 / 推荐、NLP / CV / 语音 / 生成式任务 | 不在本模块（本模块仅表格数据 MLP 分类） |

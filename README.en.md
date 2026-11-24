@@ -118,7 +118,7 @@ utils-support-parent-starter/\r\n
 |   |   deeplearning-safetensors-starter          # Safetensors model loader\r\n
 |   |   deeplearning-3d-starter                   # 3D models\r\n
 |   |   deeplearning-dl4j-starter                 # Deeplearning4j\r\n
-|   |   deeplearning-gpu-llama3-starter           # GPU LLaMA3\r\n
+|   |   deeplearning-jitllm-starter               # JIT LLM (llama.cpp / GGUF / sidecar)\r\n
 |   |   deeplearning-laya-starter                 # Lays\r\n
 |   |   deeplearning-mage-starter                 # Mage\r\n
 |   |   deeplearning-mxnet-starter                # MXNet\r\n

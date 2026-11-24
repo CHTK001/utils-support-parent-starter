@@ -406,7 +406,7 @@ mvn -o -q -pl utils-support-deeplearning-parent/utils-support-deeplearning-dl4j-
 | 能力 | 去处 |
 | --- | --- |
 | 通用深度学习能力接口与组件（图像分类/检测、OCR、姿态、车牌、语音、时序、翻译器等，如 `ImageClassifier`、`OcrPipeline`、`PoseEstimator`、`SpeechRecognizer`、`TimeSeriesForecaster`、`TranslatorRegistry`） | `utils-support-deeplearning-starter`（`com.chua.deeplearning.support` 下各包），本模块不重复实现 |
-| 其它框架的训练/推理实现（ONNX、sherpa-onnx、PyTorch、Paddle、TensorFlow、MXNet、AgentScope、LangChain4j、OpenCV、safetensors、3D、gpu-llama3、ollama、laya、weka） | 同属 `utils-support-deeplearning-parent` 的兄弟 starter |
+| 其它框架的训练/推理实现（ONNX、sherpa-onnx、PyTorch、Paddle、TensorFlow、MXNet、AgentScope、LangChain4j、OpenCV、safetensors、3D、jitllm、ollama、laya、weka） | 同属 `utils-support-deeplearning-parent` 的兄弟 starter |
 | Spring Boot 自动配置、HTTP 端点、定时任务、持久化 | 均不存在；本模块是纯 Java 训练/推理库 |
 | 预训练权重的在线下载 | 仅 `ResNet50Model.build()`（无参）走 DL4J zoo 在线下载；经 `Trainer` / `ChainedTrainer` 的训练链路要求调用方提供本地模型文件（`modelPath` 或 `resumeModelPath`） |
 | OpenCV 原生库的加载 | 本模块不做 `System.loadLibrary` 类初始化，`org.opencv.core.Mat` 的可用性由依赖与环境准备 |
