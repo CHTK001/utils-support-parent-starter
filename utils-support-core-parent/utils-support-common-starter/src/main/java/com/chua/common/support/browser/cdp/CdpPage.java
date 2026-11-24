@@ -36,6 +36,16 @@ import com.chua.common.support.utils.StringUtils;
 final class CdpPage implements BrowserPage {
 
     /**
+     * 导航后早返回模式的最长等待时间（毫秒）
+     */
+    private static final long EARLY_NAVIGATION_TIMEOUT_MILLIS = 5000L;
+
+    /**
+     * 导航后早返回模式的轮询间隔（毫秒）
+     */
+    private static final long EARLY_NAVIGATION_POLL_MILLIS = 25L;
+
+    /**
      * 绑定名序号
      */
     private static final AtomicInteger BINDING_SEQUENCE = new AtomicInteger();
@@ -113,6 +123,11 @@ final class CdpPage implements BrowserPage {
      * 实时画面帧监听器；为空表示未开启 screencast
      */
     private volatile Consumer<byte[]> screencastListener;
+
+    /**
+     * 已注册的新文档初始化脚本标识（复用页面时按标识逐个移除，避免上一会话的脚本叠加执行）
+     */
+    private final List<String> initScriptIds = new ArrayList<>();
 
     /**
      * 构造页面
@@ -226,9 +241,43 @@ final class CdpPage implements BrowserPage {
         this.screencastListener = frameListener;
         var params = new LinkedHashMap<String, Object>();
         params.put("format", "jpeg");
-        params.put("quality", 70);
+        int quality = screencastOption("chua.browser.screencast.quality", 55);
+        if (quality <= 0 || quality > 100) {
+            quality = 55;
+        }
+        params.put("quality", quality);
+        // 限幅降采样：帧越小，JPEG 编码 / base64 / 网络传输越快，实时画面端到端延迟越低。
+        // 960x675 按登录页 1280x900 等比降档：像素量只有原来的 70%，表单文字与滑块仍可辨认；
+        // 需要更清晰或原始分辨率时把对应属性调高 / 设为 0（不限制）。
+        int maxWidth = screencastOption("chua.browser.screencast.max-width", 960);
+        int maxHeight = screencastOption("chua.browser.screencast.max-height", 675);
+        if (maxWidth > 0) {
+            params.put("maxWidth", maxWidth);
+        }
+        if (maxHeight > 0) {
+            params.put("maxHeight", maxHeight);
+        }
         connection.call("Page.startScreencast", params, sessionId, commandTimeout);
         return this::stopScreencast;
+    }
+
+    /**
+     * 读取实时画面推送参数（系统属性优先，缺省回退）
+     *
+     * @param key      系统属性名
+     * @param fallback 缺省值；宽高属性显式设为 0 表示不限制
+     * @return 参数值
+     */
+    private static int screencastOption(String key, int fallback) {
+        String value = System.getProperty(key);
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 
     /**
@@ -356,8 +405,33 @@ final class CdpPage implements BrowserPage {
         if (StringUtils.isBlank(script)) {
             return;
         }
-        connection.call("Page.addScriptToEvaluateOnNewDocument",
+        Map<String, Object> result = connection.call("Page.addScriptToEvaluateOnNewDocument",
                 Map.of("source", script), sessionId, commandTimeout);
+        String identifier = asString(result.get("identifier"));
+        if (StringUtils.isNotBlank(identifier)) {
+            synchronized (initScriptIds) {
+                initScriptIds.add(identifier);
+            }
+        }
+    }
+
+    /**
+     * 移除本页注册的全部新文档初始化脚本（页面复用时调用）。
+     */
+    void clearInitScripts() {
+        List<String> identifiers;
+        synchronized (initScriptIds) {
+            identifiers = new ArrayList<>(initScriptIds);
+            initScriptIds.clear();
+        }
+        for (String identifier : identifiers) {
+            try {
+                connection.call("Page.removeScriptToEvaluateOnNewDocument",
+                        Map.of("identifier", identifier), sessionId, commandTimeout);
+            } catch (RuntimeException e) {
+                log.debug("[cdp] 移除初始化脚本失败: {}", e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -366,7 +440,8 @@ final class CdpPage implements BrowserPage {
         move.put("type", "mouseMoved");
         move.put("x", x);
         move.put("y", y);
-        connection.call("Input.dispatchMouseEvent", move, sessionId, commandTimeout);
+        // 同样只入队：点击的三个事件保序到达即可，不必逐个等浏览器主线程回执
+        connection.post("Input.dispatchMouseEvent", move, sessionId);
         dispatchMouseButton("mousePressed", x, y);
         dispatchMouseButton("mouseReleased", x, y);
     }
@@ -412,6 +487,14 @@ final class CdpPage implements BrowserPage {
             return;
         }
         int virtualKey = Integer.parseInt(descriptor[2]);
+        boolean submit = "enter".equalsIgnoreCase(key.trim());
+        if (submit) {
+            // 提交键等回执：确认已进浏览器主线程，避免紧接着读状态时提交还没生效
+            dispatchKeyWaiting(descriptor[3] == null ? "rawKeyDown" : "keyDown",
+                    descriptor[0], descriptor[1], descriptor[3], virtualKey);
+            dispatchKeyWaiting("keyUp", descriptor[0], descriptor[1], null, virtualKey);
+            return;
+        }
         dispatchKey(descriptor[3] == null ? "rawKeyDown" : "keyDown",
                 descriptor[0], descriptor[1], descriptor[3], virtualKey);
         dispatchKey("keyUp", descriptor[0], descriptor[1], null, virtualKey);
@@ -423,7 +506,9 @@ final class CdpPage implements BrowserPage {
         params.put("type", "mouseMoved");
         params.put("x", x);
         params.put("y", y);
-        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+        // 只入队不等待：输入事件不需要回执，等回执会让每次移动都吃一次浏览器主线程往返
+        // （实测 headless 下 14~36ms/次），实时画面拖动因此明显拖影
+        connection.post("Input.dispatchMouseEvent", params, sessionId);
     }
 
     @Override
@@ -444,7 +529,8 @@ final class CdpPage implements BrowserPage {
         params.put("y", y);
         params.put("deltaX", deltaX);
         params.put("deltaY", deltaY);
-        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+        // 同 mouseMove：滚动只入队，不等回执
+        connection.post("Input.dispatchMouseEvent", params, sessionId);
     }
 
     /**
@@ -472,7 +558,8 @@ final class CdpPage implements BrowserPage {
         params.put("y", y);
         params.put("button", "left");
         params.put("clickCount", 1);
-        connection.call("Input.dispatchMouseEvent", params, sessionId, commandTimeout);
+        // 按下/抬起同样只入队：WebSocket 保序，后续命令仍排在它之后，语义不变
+        connection.post("Input.dispatchMouseEvent", params, sessionId);
     }
 
     /**
@@ -485,6 +572,39 @@ final class CdpPage implements BrowserPage {
      * @param virtualKey Windows 虚拟键码，普通字符传 0
      */
     private void dispatchKey(String type, String key, String code, String text, int virtualKey) {
+        // 键盘同样只入队：逐字输入不再每个字符付两次同步往返（headless 下单次 14~36ms）
+        connection.post("Input.dispatchKeyEvent", keyParams(type, key, code, text, virtualKey), sessionId);
+    }
+
+    /**
+     * 派发一次键盘事件并等待浏览器回执（仅提交类按键使用）。
+     *
+     * <p>Enter 往往触发提交/跳转，拿到回执才能确定事件已进浏览器主线程，
+     * 避免后续读到未生效的页面状态。</p>
+     *
+     * @param type       事件类型（keyDown / rawKeyDown / keyUp）
+     * @param key        键名
+     * @param code       键码名
+     * @param text       产生的文本，无则为 null
+     * @param virtualKey Windows 虚拟键码，普通字符传 0
+     */
+    private void dispatchKeyWaiting(String type, String key, String code, String text, int virtualKey) {
+        connection.call("Input.dispatchKeyEvent", keyParams(type, key, code, text, virtualKey),
+                sessionId, commandTimeout);
+    }
+
+    /**
+     * 组装键盘事件参数
+     *
+     * @param type       事件类型（keyDown / rawKeyDown / keyUp）
+     * @param key        键名
+     * @param code       键码名
+     * @param text       产生的文本，无则为 null
+     * @param virtualKey Windows 虚拟键码，普通字符传 0
+     * @return 事件参数
+     */
+    private static Map<String, Object> keyParams(String type, String key, String code,
+                                                String text, int virtualKey) {
         var params = new LinkedHashMap<String, Object>();
         params.put("type", type);
         params.put("key", key);
@@ -496,7 +616,7 @@ final class CdpPage implements BrowserPage {
         if (text != null) {
             params.put("text", text);
         }
-        connection.call("Input.dispatchKeyEvent", params, sessionId, commandTimeout);
+        return params;
     }
 
     @Override
@@ -508,6 +628,71 @@ final class CdpPage implements BrowserPage {
             throw new IllegalStateException("页面导航失败: " + url + " (" + errorText + ")");
         }
         waitForDocument();
+    }
+
+    @Override
+    public void navigateEarly(String url) {
+        String beforeHref = hrefQuietly();
+        Map<String, Object> result = connection.call("Page.navigate",
+                Map.of("url", url), sessionId, commandTimeout);
+        String errorText = asString(result.get("errorText"));
+        if (StringUtils.isNotBlank(errorText)) {
+            throw new IllegalStateException("页面导航失败: " + url + " (" + errorText + ")");
+        }
+        waitForInteractive(beforeHref, url);
+    }
+
+    /**
+     * 等待新文档进入可交互状态（DOMContentLoaded），不等子资源全部加载完。
+     *
+     * <p>满足任一条件即返回：地址已从导航前切走且 readyState 不再是 loading；
+     * 或观测到 loading 之后又离开 loading。前者兼顾缓存命中的快页面
+     * （可能一次都采不到 loading），后者兼顾同地址重载。超时不抛异常，
+     * 页面可以继续在后台加载。</p>
+     *
+     * @param beforeHref 导航前地址
+     * @param targetUrl  目标地址（仅用于调试日志）
+     */
+    private void waitForInteractive(String beforeHref, String targetUrl) {
+        long deadline = System.currentTimeMillis()
+                + Math.min(commandTimeout.toMillis(), EARLY_NAVIGATION_TIMEOUT_MILLIS);
+        boolean seenLoading = false;
+        while (System.currentTimeMillis() < deadline) {
+            String snapshot = null;
+            try {
+                snapshot = evaluate("location.href + '|' + document.readyState", false);
+            } catch (RuntimeException e) {
+                log.debug("[cdp] 读取导航状态失败: {}", e.getMessage());
+            }
+            if (snapshot != null) {
+                int split = snapshot.lastIndexOf('|');
+                if (split > 0) {
+                    String href = snapshot.substring(0, split);
+                    String state = snapshot.substring(split + 1);
+                    if ("loading".equals(state)) {
+                        seenLoading = true;
+                    } else if (seenLoading || !href.equals(beforeHref)) {
+                        return;
+                    }
+                }
+            }
+            sleep(EARLY_NAVIGATION_POLL_MILLIS);
+        }
+        log.debug("[cdp] 等待页面可交互超时，继续: {}", targetUrl);
+    }
+
+    /**
+     * 读当前地址（失败返回空串，不打断导航）。
+     *
+     * @return 当前地址
+     */
+    private String hrefQuietly() {
+        try {
+            return evaluate("location.href", false);
+        } catch (RuntimeException e) {
+            log.debug("[cdp] 读取当前地址失败: {}", e.getMessage());
+            return "";
+        }
     }
 
     /**
@@ -730,6 +915,21 @@ final class CdpPage implements BrowserPage {
         Map<String, Object> result = connection.call("Page.captureScreenshot", params, sessionId, commandTimeout);
         Object data = result.get("data");
         return data instanceof String str ? str : null;
+    }
+
+    /**
+     * 轻量预热一帧：只截视口 JPEG，不等待回执。
+     *
+     * <p>开实时画面时用它逼合成器立刻产帧。相比整页 PNG 截图（实测 122ms，
+     * 长页面更久），视口 JPEG 只是让合成器画一下，代价低且不阻塞调用方。</p>
+     */
+    @Override
+    public void warmFrame() {
+        var params = new LinkedHashMap<String, Object>();
+        params.put("format", "jpeg");
+        params.put("quality", 30);
+        params.put("captureBeyondViewport", false);
+        connection.post("Page.captureScreenshot", params, sessionId);
     }
 
     @Override

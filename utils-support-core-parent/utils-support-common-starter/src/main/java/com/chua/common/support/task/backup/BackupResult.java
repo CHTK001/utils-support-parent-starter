@@ -58,6 +58,12 @@ public class BackupResult {
     private String errorMessage;
 
     /**
+     * 备份清单文件（{@link BackupManifest#MANIFEST_FILE_NAME}，含各 SQL 脚本 SHA-256 校验和）；
+     * 未开启 {@code writeManifest} 时为 null
+     */
+    private Path manifestFile;
+
+    /**
      * 创建成功结果
      * @param path 路径
      * @param files 文件
@@ -66,6 +72,19 @@ public class BackupResult {
      * @return 成功的结果
      */
     public static BackupResult success(Path path, List<Path> files, long size, long duration) {
+        return success(path, files, size, duration, null);
+    }
+
+    /**
+     * 创建成功结果（含备份清单文件）
+     * @param path 路径
+     * @param files 文件
+     * @param size 大小
+     * @param duration 持续时间
+     * @param manifestFile 备份清单文件（可为 null）
+     * @return 成功的结果
+     */
+    public static BackupResult success(Path path, List<Path> files, long size, long duration, Path manifestFile) {
         return BackupResult.builder()
                 .success(true)
                 .backupPath(path)
@@ -73,6 +92,7 @@ public class BackupResult {
                 .fileCount(files.size())
                 .totalSize(size)
                 .durationMillis(duration)
+                .manifestFile(manifestFile)
                 .build();
     }
 

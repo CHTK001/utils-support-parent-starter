@@ -1,5 +1,6 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,11 @@ import java.util.zip.ZipOutputStream;
  *       {@link BackupUploader} SPI 上传；SFTP 实现依赖
  *       <b>utils-support-ssh-starter</b> 模块，未引入时跳过上传并告警，
  *       本地备份不受影响。</li>
+ *   <li>备份清单 — {@code writeManifest}（默认开启）时在备份目录写
+ *       {@link BackupManifest#MANIFEST_FILE_NAME}，记录各 SQL 脚本的
+ *       SHA-256 校验和，供恢复侧 {@code verifyChecksum} 恢复前校验。</li>
+ *   <li>流式导出 — {@code fetchSize} 非 0 时下发给 {@code Statement#setFetchSize}，
+ *       大表导出不再整表驻留内存。</li>
  * </ul>
  *
  * <p>说明：通用 JDBC 元数据导出不覆盖存储过程、触发器、视图等高级对象；
@@ -151,6 +157,12 @@ public class DatabaseBackupStrategy implements BackupStrategy {
             fire(config, event(config, dbName, BackupEvent.PHASE_START).build());
             ExportOutcome outcome = exportDatabase(config, todayDir, files, dbName);
 
+            // 1b. 写备份清单（各 SQL 脚本字节数 + SHA-256 校验和），供恢复侧恢复前校验
+            Path manifestFile = null;
+            if (config.isWriteManifest()) {
+                manifestFile = writeManifest(todayDir, files, dbName);
+            }
+
             // 2. 归档昨日 + 清理过期（目录结构与文件备份一致）
             if (config.isCompressArchives()) {
                 archiveYesterday(config);
@@ -159,10 +171,14 @@ public class DatabaseBackupStrategy implements BackupStrategy {
 
             long duration = System.currentTimeMillis() - start;
             long totalSize = files.stream().mapToLong(DatabaseBackupStrategy::sizeOf).sum();
-            BackupResult result = BackupResult.success(todayDir, files, totalSize, duration);
+            BackupResult result = BackupResult.success(todayDir, files, totalSize, duration, manifestFile);
 
-            // 3. 可选：上传远端（依赖 utils-support-ssh-starter 等 SPI 实现）
-            uploadRemote(config, files);
+            // 3. 可选：上传远端（依赖 utils-support-ssh-starter 等 SPI 实现；manifest 一并上传）
+            List<Path> uploadFiles = new ArrayList<>(files);
+            if (manifestFile != null) {
+                uploadFiles.add(manifestFile);
+            }
+            uploadRemote(config, uploadFiles);
 
             fire(config, event(config, dbName, BackupEvent.PHASE_SUCCESS)
                     .result(result)
@@ -294,6 +310,29 @@ public class DatabaseBackupStrategy implements BackupStrategy {
     }
 
     /**
+     * 写备份清单 manifest.json：记录每个 SQL 脚本的字节数与 SHA-256 校验和。
+     *
+     * @param todayDir 当天备份目录
+     * @param files    已导出的 SQL 脚本
+     * @param dbName   数据库名
+     * @return 清单文件路径
+     */
+    private Path writeManifest(Path todayDir, List<Path> files, String dbName) throws IOException {
+        List<BackupManifest.FileEntry> entries = new ArrayList<>(files.size());
+        for (Path file : files) {
+            entries.add(new BackupManifest.FileEntry(
+                    file.getFileName().toString(), Files.size(file), BackupManifest.sha256Hex(file)));
+        }
+        BackupManifest manifest = new BackupManifest(dbName,
+                LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                BackupManifest.ALGORITHM_SHA256, entries);
+        Path manifestFile = todayDir.resolve(BackupManifest.MANIFEST_FILE_NAME);
+        Files.writeString(manifestFile, manifest.toJson(), StandardCharsets.UTF_8);
+        log.info("[backup] 备份清单已写入: {} ({} 个文件)", manifestFile, entries.size());
+        return manifestFile;
+    }
+
+    /**
      * 导出单张表：建表语句 + 全量 INSERT。
      *
      * @return 该表导出的行数
@@ -373,37 +412,42 @@ public class DatabaseBackupStrategy implements BackupStrategy {
      */
     private long exportRows(BufferedWriter writer, Connection conn, DatabaseBackupConfig config,
                             String quote, String table) throws SQLException, IOException {
-        try (Statement statement = conn.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT * FROM " + quote(table, quote))) {
-            ResultSetMetaData rsm = rs.getMetaData();
-            int columnCount = rsm.getColumnCount();
-            boolean[] binary = new boolean[columnCount + 1];
-            for (int i = 1; i <= columnCount; i++) {
-                binary[i] = isBinaryType(rsm.getColumnType(i));
+        try (Statement statement = conn.createStatement()) {
+            // 流式导出：fetchSize != 0 时下发给驱动（MySQL 真流式为 Integer.MIN_VALUE，其余建议 100~10000）
+            if (config.getFetchSize() != 0) {
+                statement.setFetchSize(config.getFetchSize());
             }
-
-            StringBuilder row = new StringBuilder();
-            int pending = 0;
-            long rows = 0;
-            while (rs.next()) {
-                rows++;
-                row.setLength(0);
-                row.append("INSERT INTO ").append(quote(table, quote)).append(" VALUES (");
+            try (ResultSet rs = statement.executeQuery("SELECT * FROM " + quote(table, quote))) {
+                ResultSetMetaData rsm = rs.getMetaData();
+                int columnCount = rsm.getColumnCount();
+                boolean[] binary = new boolean[columnCount + 1];
                 for (int i = 1; i <= columnCount; i++) {
-                    if (i > 1) {
-                        row.append(", ");
+                    binary[i] = isBinaryType(rsm.getColumnType(i));
+                }
+
+                StringBuilder row = new StringBuilder();
+                int pending = 0;
+                long rows = 0;
+                while (rs.next()) {
+                    rows++;
+                    row.setLength(0);
+                    row.append("INSERT INTO ").append(quote(table, quote)).append(" VALUES (");
+                    for (int i = 1; i <= columnCount; i++) {
+                        if (i > 1) {
+                            row.append(", ");
+                        }
+                        appendValue(row, rs, i, binary[i]);
                     }
-                    appendValue(row, rs, i, binary[i]);
+                    row.append(");\n");
+                    writer.write(row.toString());
+                    if (++pending >= config.getBatchSize()) {
+                        writer.flush();
+                        pending = 0;
+                    }
                 }
-                row.append(");\n");
-                writer.write(row.toString());
-                if (++pending >= config.getBatchSize()) {
-                    writer.flush();
-                    pending = 0;
-                }
+                writer.flush();
+                return rows;
             }
-            writer.flush();
-            return rows;
         }
     }
 

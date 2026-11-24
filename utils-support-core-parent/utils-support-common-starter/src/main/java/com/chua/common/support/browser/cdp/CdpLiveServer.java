@@ -88,17 +88,26 @@ public final class CdpLiveServer implements AutoCloseable {
               var img=document.getElementById('screen');
               var INPUT='__INPUT__';
               var STREAM=img.getAttribute('src');
+              // 目标页面视口（CSS 像素）。screencast 帧会被降采样，帧坐标必须按
+              // 「视口/帧尺寸」放大后才能发给 CDP Input，否则点击/滚轮整体偏向左上角。
+              var VW=__VW__, VH=__VH__;
               stage.focus();
               function scale(){
                 var r=img.getBoundingClientRect();
-                var nw=img.naturalWidth||1280, nh=img.naturalHeight||900;
+                var nw=img.naturalWidth||VW||1280, nh=img.naturalHeight||VH||900;
                 var s=Math.min(r.width/nw,r.height/nh)||1;
                 return {s:s, ox:r.left+(r.width-nw*s)/2, oy:r.top+(r.height-nh*s)/2, nw:nw, nh:nh};
               }
+              // 帧坐标 → 页面 CSS 坐标的换算系数（帧被降采样时大于 1；视口未知按 1:1）
+              function cssFactor(g){
+                if(VW>0&&VH>0&&g.nw>0&&g.nh>0){ return {fx:VW/g.nw, fy:VH/g.nh}; }
+                return {fx:1, fy:1};
+              }
               function pos(e){
-                var g=scale();
-                var x=Math.round((e.clientX-g.ox)/g.s), y=Math.round((e.clientY-g.oy)/g.s);
-                return {x:Math.max(0,Math.min(g.nw,x)), y:Math.max(0,Math.min(g.nh,y))};
+                var g=scale(), f=cssFactor(g);
+                var x=Math.round((e.clientX-g.ox)/g.s*f.fx), y=Math.round((e.clientY-g.oy)/g.s*f.fy);
+                var mw=f.fx>1?VW:g.nw, mh=f.fy>1?VH:g.nh;
+                return {x:Math.max(0,Math.min(mw,x)), y:Math.max(0,Math.min(mh,y))};
               }
               var last=0, timer=null, pending=null;
               function throttle(e){
@@ -106,13 +115,28 @@ public final class CdpLiveServer implements AutoCloseable {
                 if(timer) return;
                 timer=setTimeout(function(){ timer=null; send('mm',pos(pending)); }, 40);
               }
+              // 串行化上报：mousedown/mouseup 走不同连接时可能乱序到达，服务端按到达序
+              // 派发，乱序会把「按下→抬起」颠倒成无效点击。用 promise 链保证前一个
+              // 事件有结果后才发下一个；单事件 3s 兜底，避免一次挂起卡死后续输入。
+              var chain=Promise.resolve();
               function send(type,data){
                 var body='t='+type;
                 for(var k in data){ body+='&'+k+'='+encodeURIComponent(data[k]); }
-                fetch(INPUT,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body})
-                  .catch(function(){
-                    // 忽略：输入上报失败无需处理（查看器仅尽力投递，失败时保持静默）
+                // 高频事件（移动/滚轮）不排队：它们各自带坐标，乱序无害，排队反而推高延迟
+                if(type==='mm'||type==='wh'){
+                  fetch(INPUT,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body})
+                    .catch(function(){});
+                  return;
+                }
+                chain=chain.then(function(){
+                  return new Promise(function(resolve){
+                    var done=false;
+                    var finish=function(){ if(!done){ done=true; resolve(); } };
+                    fetch(INPUT,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body})
+                      .then(finish,finish);
+                    setTimeout(finish,3000);
                   });
+                });
               }
               var KEYS=['Enter','Backspace','Delete','Tab','Escape','ArrowUp','ArrowDown',
                         'ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'];
@@ -123,8 +147,9 @@ public final class CdpLiveServer implements AutoCloseable {
               stage.addEventListener('mousemove',throttle);
               stage.addEventListener('wheel',function(e){
                 e.preventDefault();
-                var p=pos(e), g=scale();
-                send('wh',{x:p.x,y:p.y,dx:e.deltaX/g.s,dy:e.deltaY/g.s});
+                // 滚轮位移与坐标同理：要换算成页面 CSS 像素（帧被降采样时放大 fx/fy 倍）
+                var p=pos(e), g=scale(), f=cssFactor(g);
+                send('wh',{x:p.x,y:p.y,dx:e.deltaX*f.fx/g.s,dy:e.deltaY*f.fy/g.s});
               },{passive:false});
               stage.addEventListener('contextmenu',function(e){ e.preventDefault(); });
               stage.addEventListener('keydown',function(e){
@@ -137,19 +162,21 @@ public final class CdpLiveServer implements AutoCloseable {
                 var t=e.clipboardData&&e.clipboardData.getData('text');
                 if(t){ e.preventDefault(); send('txt',{text:t}); }
               });
-              // 流自愈：首帧迟迟不到或连接报错时，加缓存参数重连；拿到首帧后不再抢流
+              // 流自愈：首帧迟迟不到或连接报错时，加缓存参数重连；拿到画面后不再抢流。
+              // 不能用 img.complete 判定成功——加载失败时它同样为 true，404 流会因此永不重试；
+              // 这里用 naturalWidth>0 判定「已拿到帧」。
               var backoff=1000, trying=false;
               function reconnect(){
-                if(img.complete||trying){ return; }
+                if(trying||img.naturalWidth>0){ return; }
                 trying=true;
                 img.src=STREAM+(STREAM.indexOf('?')<0?'?':'&')+'r='+Date.now();
                 setTimeout(function(){
                   trying=false;
-                  if(!img.complete){ backoff=Math.min(backoff*2,8000); reconnect(); }
+                  if(img.naturalWidth===0){ backoff=Math.min(backoff*2,8000); reconnect(); }
                 },backoff);
               }
               img.addEventListener('error',function(){
-                if(!img.complete&&!trying){ setTimeout(reconnect,300); }
+                if(!trying){ setTimeout(reconnect,300); }
               });
               setTimeout(function(){ reconnect(); },3000);
             })();
@@ -448,9 +475,12 @@ public final class CdpLiveServer implements AutoCloseable {
      * @throws IOException 写响应失败
      */
     private void handleViewerPage(HttpExchange exchange, Session session) throws IOException {
+        int[] viewport = viewport(session.page);
         String html = VIEWER_HTML
                 .replace("__STREAM__", "/live/s/" + session.token + "/stream")
-                .replace("__INPUT__", "/live/s/" + session.token + "/input");
+                .replace("__INPUT__", "/live/s/" + session.token + "/input")
+                .replace("__VW__", String.valueOf(viewport[0]))
+                .replace("__VH__", String.valueOf(viewport[1]));
         byte[] body = html.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
@@ -460,6 +490,32 @@ public final class CdpLiveServer implements AutoCloseable {
         } finally {
             exchange.close();
         }
+    }
+
+    /**
+     * 读取页面视口尺寸（CSS 像素）
+     *
+     * <p>查看器用它把「降采样帧坐标」换算回「页面 CSS 坐标」再交给 CDP Input，
+     * 否则点击/滚轮会整体偏向左上角（帧被降采样到多大比例就偏多少）。
+     * 页面尚未就绪或查询失败时返回 0，查看器自动退回 1:1 映射。</p>
+     *
+     * @param page 目标页面
+     * @return {@code [宽, 高]}，失败时两个元素均为 0
+     */
+    private static int[] viewport(BrowserPage page) {
+        try {
+            String raw = page.evaluate("(function(){return (window.innerWidth||0)+'x'+(window.innerHeight||0);})()");
+            if (raw != null) {
+                int sep = raw.indexOf('x');
+                if (sep > 0) {
+                    return new int[]{Integer.parseInt(raw.substring(0, sep).trim()),
+                            Integer.parseInt(raw.substring(sep + 1).trim())};
+                }
+            }
+        } catch (Exception e) {
+            log.debug("[cdp-live] 读取页面视口失败: {}", e.getMessage());
+        }
+        return new int[]{0, 0};
     }
 
     /**
@@ -538,12 +594,8 @@ public final class CdpLiveServer implements AutoCloseable {
             case "md" -> page.mouseDown(intValue(form, "x"), intValue(form, "y"));
             case "mu" -> page.mouseUp(intValue(form, "x"), intValue(form, "y"));
             case "wh" -> {
-                // 后台标签页可能不响应滚轮事件：滚动前先确保页面在前台
-                try {
-                    page.bringToFront();
-                } catch (Exception e) {
-                    log.debug("[cdp-live] 滚动前激活页面失败: {}", e.getMessage());
-                }
+                // 不再每次滚动都 bringToFront：那是同步 CDP 往返（实测 14~21ms），
+                // 滚轮会被拖成逐格卡顿；页面在开流时已激活，后台标签页由调用方自己保证
                 page.mouseWheel(intValue(form, "x"), intValue(form, "y"),
                         doubleValue(form, "dx"), doubleValue(form, "dy"));
             }

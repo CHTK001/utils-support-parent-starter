@@ -5,6 +5,7 @@ import com.chua.common.support.browser.BrowserPage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -61,6 +62,11 @@ public final class CdpMjpegStream extends InputStream {
     private static final long FRAME_WAIT_MILLIS = 1000L;
 
     /**
+     * multipart 分段尾部的 CRLF
+     */
+    private static final byte[] CRLF = {'\r', '\n'};
+
+    /**
      * 帧队列
      */
     private final BlockingQueue<byte[]> frames = new LinkedBlockingQueue<>(FRAME_BUFFER);
@@ -115,9 +121,10 @@ public final class CdpMjpegStream extends InputStream {
             // 尽力而为：激活失败不阻塞开流，后续帧仍按正常节奏推送
         }
         stream.handle = page.startScreencast(stream::offer);
-        // 静态页合成器闲置时首帧可能迟迟不来：截图强制其立即产出一帧，客户端免于等待
+        // 静态页合成器闲置时首帧可能迟迟不来：轻量预热逼其立即产出一帧（只截视口 JPEG，
+        // 不阻塞；旧实现用整页 PNG 截图，实测 122ms 起步，长页面更久）
         try {
-            page.screenshot(false);
+            page.warmFrame();
         } catch (Exception e) {
             // 尽力而为：助推失败不阻塞开流，后续帧仍按正常节奏推送
         }
@@ -174,6 +181,53 @@ public final class CdpMjpegStream extends InputStream {
     }
 
     /**
+     * 直接把 MJPEG 分段写进输出流（每帧零整段拷贝）。
+     *
+     * <p>HTTP 实时画面走这条路径：逐帧写「分段头 + 原始 JPEG + CRLF」到响应流，
+     * 不再为每帧分配一个与帧等大的段数组、也不再经中间 read 缓冲，
+     * 省掉一次全帧分配与两次拷贝。</p>
+     *
+     * @param out 响应输出流
+     * @return 写入的总字节数
+     * @throws IOException 写出失败
+     */
+    @Override
+    public long transferTo(OutputStream out) throws IOException {
+        if (out == null) {
+            throw new NullPointerException("out 不能为空");
+        }
+        long written = 0L;
+        while (true) {
+            if (!open.get()) {
+                if (endWritten) {
+                    return written;
+                }
+                endWritten = true;
+                byte[] end = endBoundary();
+                out.write(end);
+                out.flush();
+                return written + end.length;
+            }
+            byte[] frame;
+            try {
+                frame = frames.poll(FRAME_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("读取实时画面被中断", e);
+            }
+            if (frame == null) {
+                continue;
+            }
+            byte[] head = buildHead(frame.length);
+            out.write(head);
+            out.write(frame);
+            out.write(CRLF);
+            out.flush();
+            written += head.length + frame.length + CRLF.length;
+        }
+    }
+
+    /**
      * 取下一帧的完整 multipart 分段
      *
      * @return 分段字节；流结束返回 null
@@ -209,15 +263,24 @@ public final class CdpMjpegStream extends InputStream {
      * @return 分段字节
      */
     private static byte[] buildSegment(byte[] frame) {
-        byte[] head = ("--" + BOUNDARY + "\r\n"
-                + "Content-Type: image/jpeg\r\n"
-                + "Content-Length: " + frame.length + "\r\n\r\n").getBytes(StandardCharsets.US_ASCII);
-        byte[] tail = "\r\n".getBytes(StandardCharsets.US_ASCII);
-        byte[] result = new byte[head.length + frame.length + tail.length];
+        byte[] head = buildHead(frame.length);
+        byte[] result = new byte[head.length + frame.length + CRLF.length];
         System.arraycopy(head, 0, result, 0, head.length);
         System.arraycopy(frame, 0, result, head.length, frame.length);
-        System.arraycopy(tail, 0, result, head.length + frame.length, tail.length);
+        System.arraycopy(CRLF, 0, result, head.length + frame.length, CRLF.length);
         return result;
+    }
+
+    /**
+     * 组装单帧的 multipart 分段头
+     *
+     * @param length JPEG 字节数
+     * @return 分段头字节
+     */
+    private static byte[] buildHead(int length) {
+        return ("--" + BOUNDARY + "\r\n"
+                + "Content-Type: image/jpeg\r\n"
+                + "Content-Length: " + length + "\r\n\r\n").getBytes(StandardCharsets.US_ASCII);
     }
 
     /**

@@ -23,5 +23,12 @@
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
         </dependency>
+        <!-- okhttp 5.x 的 okhttp 构件是 KMP 空壳（真实 okhttp3 类在 okhttp-jvm，见根 pom 依赖管理）。
+             本模块源码直接使用 OkHttpClient/Request/Response 等 okhttp3 类，必须显式依赖 okhttp-jvm，
+             不能依赖传递兜底（同 xunfei/3d-starter 口径）。 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-jvm</artifactId>
+        </dependency>
     </dependencies>
 </project>

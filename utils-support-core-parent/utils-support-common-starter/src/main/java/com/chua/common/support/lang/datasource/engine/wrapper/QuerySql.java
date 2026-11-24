@@ -23,6 +23,8 @@ import java.util.Objects;
  * @param joins         JOIN 关联子句列表，空列表表示无关联
  * @param havingClause  HAVING 条件片段（{@code ?} 占位符，不含 HAVING 关键字），null 表示无
  * @param havingParams  HAVING 参数列表（与占位符顺序一致，绑定在 WHERE 参数之后）
+ * @param cursorValues  游标（keyset）分页的上一页末行键值，顺序与 {@code orderBys} 严格一致；
+ *                      null 表示按页码/偏移分页（历史行为）
  * @param <T>           实体类型
  * @author CH
  * @since 4.0.0.42
@@ -38,7 +40,8 @@ public record QuerySql<T>(
         int offset,
         List<JoinClause> joins,
         String havingClause,
-        List<Object> havingParams
+        List<Object> havingParams,
+        List<Object> cursorValues
 ) {
 
     /**
@@ -62,6 +65,7 @@ public record QuerySql<T>(
      * @param joins         JOIN 关联子句列表，可为 null
      * @param havingClause  HAVING 条件片段，可为 null
      * @param havingParams  HAVING 参数列表，可为 null
+     * @param cursorValues  游标键值列表，可为 null（null 表示不走游标分页）
      * @param <T>           实体类型
      */
     public QuerySql {
@@ -71,6 +75,8 @@ public record QuerySql<T>(
         orderBys = copyList(orderBys);
         joins = copyList(joins);
         havingParams = copyList(havingParams);
+        // 游标键值是不可变绑定值，同样保留 null 语义（null = 按页码分页）
+        cursorValues = copyList(cursorValues);
     }
 
     /**

@@ -69,6 +69,14 @@ public class DatabaseBackupConfig {
     @Builder.Default
     private int batchSize = 1000;
 
+    /**
+     * ResultSet 抓取批次大小（{@code Statement#setFetchSize}），用于大表流式导出。
+     * 默认 0 表示不设置（使用驱动默认行为）；MySQL 真流式需设为 {@link Integer#MIN_VALUE}，
+     * 其他数据库建议 100~10000。正负值都会原样传给驱动。
+     */
+    @Builder.Default
+    private int fetchSize = 0;
+
     // ==================== 输出与保留 ====================
 
     /**
@@ -87,6 +95,13 @@ public class DatabaseBackupConfig {
      */
     @Builder.Default
     private boolean compressArchives = true;
+
+    /**
+     * 是否在备份目录写入 {@link BackupManifest#MANIFEST_FILE_NAME}（记录每个 SQL 脚本的
+     * 字节数与 SHA-256 校验和），供恢复侧 {@code verifyChecksum} 恢复前校验，默认开启。
+     */
+    @Builder.Default
+    private boolean writeManifest = true;
 
     // ==================== 远端上传（可选） ====================
 

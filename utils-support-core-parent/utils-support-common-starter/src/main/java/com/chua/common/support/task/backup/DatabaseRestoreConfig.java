@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 数据库恢复配置
@@ -85,4 +87,25 @@ public class DatabaseRestoreConfig {
      */
     @Builder.Default
     private boolean dryRun = false;
+
+    /**
+     * 恢复前校验备份产物的 SHA-256 校验和。默认 false。
+     *
+     * <p>开启后恢复前必须能读到 {@link BackupManifest#MANIFEST_FILE_NAME}
+     * （与 .sql 同目录，或 ZIP 归档内），且每个脚本校验和逐一匹配；
+     * 任一不满足即拒绝恢复，防止损坏/篡改的备份静默落库。
+     */
+    @Builder.Default
+    private boolean verifyChecksum = false;
+
+    // ==================== 事件监听（可选） ====================
+
+    /**
+     * 恢复事件监听器（可选）
+     *
+     * <p>在恢复开始、进度推进、成功、失败时收到 {@link RestoreEvent} 通知；
+     * 监听器抛出的异常只记录告警，不会中断恢复流程。
+     */
+    @Builder.Default
+    private List<RestoreListener> listeners = new ArrayList<>();
 }

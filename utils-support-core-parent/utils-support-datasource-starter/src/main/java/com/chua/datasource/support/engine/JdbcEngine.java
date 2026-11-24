@@ -46,10 +46,65 @@ public abstract class JdbcEngine extends AbstractEngine {
             org.slf4j.LoggerFactory.getLogger(JdbcEngine.class);
 
     /**
+     * 游标分页实验开关的 JVM 系统属性名。
+     * <p>启动参数 {@code -Dengine.jdbc.cursor-paging=true} 可让所有 JDBC 引擎实例
+     * 默认开启游标分页；实例级开关 {@link #setCursorPagingEnabled(boolean)} 优先级更高。</p>
+     */
+    public static final String CURSOR_PAGING_PROPERTY = "engine.jdbc.cursor-paging";
+
+    /**
      * 默认 SQL 执行器缓存：{@link JdbcSqlExecutor} 无状态（仅持有引擎引用，
      * 连接在每次执行时获取），可安全共享；懒加载避免重复对象分配。
      */
     private volatile SqlExecutor executorCache;
+
+    /**
+     * 游标（keyset）分页的实验开关，默认关闭。
+     * <p>关闭时全部分页行为与历史版本完全一致（COUNT + LIMIT/OFFSET）；开启后
+     * 仅在「JDBC 物理分页 + 有确定 ORDER BY + 无 GROUP BY/JOIN + 调用方提供游标」
+     * 四个条件同时满足时改走 keyset 组装，其余场景仍回退 LIMIT/OFFSET。</p>
+     */
+    private volatile boolean cursorPagingEnabled;
+
+    /**
+     * 实验开关是否已解析完毕（显式设置或读取过系统属性），避免每页重复读系统属性。
+     */
+    private volatile boolean cursorPagingResolved;
+
+    /**
+     * 开启/关闭游标（keyset）分页实验能力。
+     * <p>这是 JDBC 引擎独有配置，不进入 {@link com.chua.common.support.lang.datasource.engine.Engine}
+     * 公共契约，非 JDBC 引擎不具备该能力。显式设置为 true/false 后不再读取系统属性
+     * {@link #CURSOR_PAGING_PROPERTY}。</p>
+     *
+     * @param enabled true 表示允许在满足前置条件时分页走游标模式
+     * @return 当前引擎实例
+     */
+    public JdbcEngine setCursorPagingEnabled(boolean enabled) {
+        this.cursorPagingEnabled = enabled;
+        this.cursorPagingResolved = true;
+        return this;
+    }
+
+    /**
+     * 查询游标（keyset）分页实验能力是否开启。
+     * <p>未显式设置时按系统属性 {@link #CURSOR_PAGING_PROPERTY} 解析一次并缓存，
+     * 缺省 false，保证历史行为不变。</p>
+     *
+     * @return true 表示允许游标分页
+     */
+    public boolean isCursorPagingEnabled() {
+        if (!cursorPagingResolved) {
+            synchronized (this) {
+                if (!cursorPagingResolved) {
+                    cursorPagingEnabled = Boolean.parseBoolean(
+                            System.getProperty(CURSOR_PAGING_PROPERTY, "false"));
+                    cursorPagingResolved = true;
+                }
+            }
+        }
+        return cursorPagingEnabled;
+    }
 
     /**
      * 执行新查询

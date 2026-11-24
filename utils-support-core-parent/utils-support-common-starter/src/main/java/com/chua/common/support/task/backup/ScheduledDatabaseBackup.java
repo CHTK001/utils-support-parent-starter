@@ -1,9 +1,11 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.task.scheduler.CronTrigger;
 import com.chua.common.support.task.timer.Timer;
 import com.chua.common.support.task.timer.TimerTask;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,8 +13,17 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * 基于时间轮的数据库定时备份任务
  *
- * <p>使用 common-starter 的哈希时间轮（{@link Timer#newTimer()}）按固定周期
- * 执行 {@link DatabaseBackupStrategy} 数据库备份，支持配置首次延迟与执行周期。
+ * <p>使用 common-starter 的哈希时间轮（{@link Timer#newTimer()}）执行
+ * {@link DatabaseBackupStrategy} 数据库备份，支持两种调度方式：
+ * <ul>
+ *   <li>固定周期 — {@link #ScheduledDatabaseBackup(DatabaseBackupConfig, long, long, TimeUnit)}
+ *       按首次延迟 + 固定周期循环执行；</li>
+ *   <li>cron 表达式 — {@link #ScheduledDatabaseBackup(DatabaseBackupConfig, String)} 按标准
+ *       6 字段 cron（秒 分 时 日 月 周）触发，复用 {@link CronTrigger} 解析；每次执行完成后
+ *       基于 {@link CronTrigger#nextExecutionTime(LocalDateTime)} 计算并预排下一次，
+ *       支持 {@code 0 0 2 * * ?}（每天凌晨 2 点）、{@code 0 0/30 * * * MON-FRI}（工作日每半小时）等
+ *       日历语义。</li>
+ * </ul>
  *
  * <h3>使用示例</h3>
  * <pre>{@code
@@ -21,8 +32,10 @@ import java.util.concurrent.atomic.AtomicLong;
  *           .username("root").password("***")
  *           .backupDir(Path.of("D:/backup"))
  *           .build();
- *   // 每 6 小时备份一次，首次延迟 1 分钟
+ *   // 固定周期：每 6 小时备份一次，首次延迟 1 分钟
  *   ScheduledDatabaseBackup job = new ScheduledDatabaseBackup(config, 1, 360, TimeUnit.MINUTES);
+ *   // cron：每天凌晨 2 点备份
+ *   ScheduledDatabaseBackup cronJob = ScheduledDatabaseBackup.startWithCron(config, "0 0 2 * * ?");
  *   ...
  *   job.stop();
  * }</pre>
@@ -42,9 +55,17 @@ public class ScheduledDatabaseBackup implements AutoCloseable {
      */
     private final Timer timer;
     /**
-     * 定时任务句柄
+     * cron 触发器（固定周期模式下为 null）
      */
-    private final TimerTask timerTask;
+    private final CronTrigger cronTrigger;
+    /**
+     * 当前在册任务句柄（固定周期模式下即周期任务；cron 模式下为最近一次单次任务）
+     */
+    private volatile TimerTask currentTask;
+    /**
+     * 是否已停止（停止后 cron 不再续排）
+     */
+    private volatile boolean stopped;
 
     /**
      * 是否正在执行备份
@@ -72,7 +93,7 @@ public class ScheduledDatabaseBackup implements AutoCloseable {
     private final AtomicLong totalFailures = new AtomicLong();
 
     /**
-     * 创建并启动定时备份任务
+     * 创建并启动固定周期定时备份任务
      *
      * @param config       数据库备份配置
      * @param initialDelay 首次执行延迟
@@ -82,8 +103,24 @@ public class ScheduledDatabaseBackup implements AutoCloseable {
     public ScheduledDatabaseBackup(DatabaseBackupConfig config, long initialDelay, long period, TimeUnit unit) {
         this.config = config;
         this.timer = Timer.newTimer();
-        this.timerTask = timer.scheduleAtFixedRate(this::executeBackup, initialDelay, period, unit);
+        this.cronTrigger = null;
+        this.currentTask = timer.scheduleAtFixedRate(this::executeBackup, initialDelay, period, unit);
         log.info("[backup] 数据库定时备份已启动: 首次延迟 {} {}, 周期 {} {}", initialDelay, unit, period, unit);
+    }
+
+    /**
+     * 创建并启动 cron 定时备份任务
+     *
+     * @param config 数据库备份配置
+     * @param cron   标准 6 字段 cron 表达式（秒 分 时 日 月 周，支持 * , - / ? 与英文周缩写）
+     */
+    public ScheduledDatabaseBackup(DatabaseBackupConfig config, String cron) {
+        this.config = config;
+        // 先解析 cron 表达式：非法表达式直接抛出，避免泄漏时间轮线程
+        this.cronTrigger = new CronTrigger(cron);
+        this.timer = Timer.newTimer();
+        scheduleNextCronRun();
+        log.info("[backup] 数据库定时备份已启动(cron): {}, 下次执行 {}", cron, nextFireTime());
     }
 
     /**
@@ -99,6 +136,49 @@ public class ScheduledDatabaseBackup implements AutoCloseable {
     }
 
     /**
+     * 便捷启动：按 cron 表达式执行
+     *
+     * @param config 数据库备份配置
+     * @param cron   标准 6 字段 cron 表达式
+     * @return 定时备份任务
+     */
+    public static ScheduledDatabaseBackup startWithCron(DatabaseBackupConfig config, String cron) {
+        return new ScheduledDatabaseBackup(config, cron);
+    }
+
+    /**
+     * 预排下一次 cron 触发：按当前时间计算下一次执行点，到期执行备份后再续排。
+     * 备份抛出的任何异常都不会中断续排（{@link DatabaseBackupStrategy#execute} 内部已兜底）。
+     */
+    private void scheduleNextCronRun() {
+        if (stopped) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime next = cronTrigger.nextExecutionTime(now);
+        long delayMs = Math.max(0, Duration.between(now, next).toMillis());
+        currentTask = timer.schedule(() -> {
+            if (stopped) {
+                return;
+            }
+            try {
+                executeBackup();
+            } finally {
+                scheduleNextCronRun();
+            }
+        }, delayMs, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 查询下一次触发时间（仅 cron 模式有值；固定周期模式返回 null）。
+     *
+     * @return 下一次触发时间；固定周期模式返回 null
+     */
+    public LocalDateTime nextFireTime() {
+        return cronTrigger == null ? null : cronTrigger.nextExecutionTime(LocalDateTime.now());
+    }
+
+    /**
      * 手动执行一次备份（不依赖时间轮触发）
      *
      * @return 备份结果
@@ -111,8 +191,10 @@ public class ScheduledDatabaseBackup implements AutoCloseable {
      * 停止定时任务并关闭时间轮
      */
     public void stop() {
-        if (timerTask != null) {
-            timer.cancel(timerTask);
+        stopped = true;
+        TimerTask task = currentTask;
+        if (task != null) {
+            timer.cancel(task);
         }
         timer.shutdown();
         log.info("[backup] 数据库定时备份已停止");

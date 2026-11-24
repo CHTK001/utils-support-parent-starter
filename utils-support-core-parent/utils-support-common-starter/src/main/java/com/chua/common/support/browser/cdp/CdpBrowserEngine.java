@@ -95,6 +95,11 @@ public class CdpBrowserEngine implements BrowserEngine {
     public static final String PROPERTY_ROTATE_USER_AGENT = "chua.browser.rotateUserAgent";
 
     /**
+     * 显式开启/关闭沙箱的系统属性（true / false），未设置时按运行账户自动判定
+     */
+    public static final String PROPERTY_NO_SANDBOX = "chua.browser.noSandbox";
+
+    /**
      * 等待 DevTools 端口的时间（毫秒）
      */
     private static final long DEVTOOLS_TIMEOUT_MILLIS = 60_000L;
@@ -155,6 +160,18 @@ public class CdpBrowserEngine implements BrowserEngine {
     private boolean shutdownHookRegistered;
 
     /**
+     * 进程级指纹缓存：同一 JVM 内多个引擎（无头登录 / 有头登录 / 实时画面）不必
+     * 分别再做 Browser.getVersion + SystemInfo.getInfo，冷启动阶段少两次 CDP 往返
+     */
+    private static volatile String cachedUserAgent;
+
+    private static volatile String cachedFullVersion;
+
+    private static volatile String cachedBrand;
+
+    private static volatile Boolean cachedWindows11;
+
+    /**
      * 是否已关闭
      */
     private volatile boolean closed;
@@ -182,9 +199,9 @@ public class CdpBrowserEngine implements BrowserEngine {
             throw new IllegalStateException("附加浏览器标签页失败: " + Json.toJson(attached));
         }
 
-        connection.call("Page.enable", Map.of(), sessionId, commandTimeout);
-        connection.call("Runtime.enable", Map.of(), sessionId, commandTimeout);
-        connection.call("Network.enable", Map.of(), sessionId, commandTimeout);
+        connection.post("Page.enable", Map.of(), sessionId);
+        connection.post("Runtime.enable", Map.of(), sessionId);
+        connection.post("Network.enable", Map.of(), sessionId);
         applyViewport(sessionId, actual, commandTimeout);
         applyUserAgent(sessionId, actual, commandTimeout);
         applyTimezone(sessionId, actual, commandTimeout);
@@ -193,6 +210,200 @@ public class CdpBrowserEngine implements BrowserEngine {
         pages.add(page);
         page.onClose(() -> pages.remove(page));
         return page;
+    }
+
+    /**
+     * 在独立浏览器上下文里打开页面（共享浏览器进程，存储/ Cookie 完全隔离）。
+     *
+     * <p>实时登录一次开一个浏览器进程的冷启动要 1.3~3.3s，是「打开登录窗口卡顿」的
+     * 主因。本方法复用已启动的浏览器，每个会话建一个 {@code incognito} 上下文：
+     * 只付上下文/标签页创建（实测 0.4~1.4s），且不同供应商的登录态互不可见。页面关闭时自动销毁上下文。
+     *
+     * @param options 页面参数
+     * @return 页面；关闭时连带销毁所属上下文
+     */
+    /**
+     * 复用页面的固定上下文 ID；为空表示还没建（随页面关闭置空）
+     */
+    private volatile String reusableContextId;
+
+    /**
+     * 复用页面（登录窗口常驻页）：上下文与标签页只建一次，会话之间只做复位
+     */
+    private volatile BrowserPage reusablePage;
+
+    public synchronized BrowserPage openIsolatedPage(BrowserOptions options) {
+        if (closed) {
+            throw new IllegalStateException("浏览器引擎已关闭");
+        }
+        BrowserOptions actual = options == null ? new BrowserOptions() : options;
+        ensureLaunched(actual);
+        Duration commandTimeout = actual.getCommandTimeout();
+
+        Map<String, Object> context = connection.call("Target.createBrowserContext",
+                Map.of("disposeOnDetach", true), null, commandTimeout);
+        String contextId = asString(context.get("browserContextId"));
+        if (StringUtils.isBlank(contextId)) {
+            throw new IllegalStateException("创建浏览器上下文失败: " + Json.toJson(context));
+        }
+
+        var createParams = new LinkedHashMap<String, Object>();
+        createParams.put("url", "about:blank");
+        createParams.put("browserContextId", contextId);
+        Map<String, Object> created = connection.call("Target.createTarget", createParams, null, commandTimeout);
+        String targetId = asString(created.get("targetId"));
+        if (StringUtils.isBlank(targetId)) {
+            disposeContext(contextId);
+            throw new IllegalStateException("创建浏览器标签页失败: " + Json.toJson(created));
+        }
+        Map<String, Object> attached = connection.call("Target.attachToTarget",
+                Map.of("targetId", targetId, "flatten", true), null, commandTimeout);
+        String sessionId = asString(attached.get("sessionId"));
+        if (StringUtils.isBlank(sessionId)) {
+            disposeContext(contextId);
+            throw new IllegalStateException("附加浏览器标签页失败: " + Json.toJson(attached));
+        }
+
+        connection.post("Page.enable", Map.of(), sessionId);
+        connection.post("Runtime.enable", Map.of(), sessionId);
+        applyViewport(sessionId, actual, commandTimeout);
+        applyUserAgent(sessionId, actual, commandTimeout);
+        CdpPage page = new CdpPage(connection, targetId, sessionId, commandTimeout);
+        pages.add(page);
+        page.onClose(() -> {
+            pages.remove(page);
+            disposeContext(contextId);
+        });
+        return page;
+    }
+
+    /**
+     * 销毁浏览器上下文（尽力而为，失败不抛）。
+     *
+     * @param contextId 上下文标识
+     */
+    private void disposeContext(String contextId) {
+        if (StringUtils.isBlank(contextId) || connection == null) {
+            return;
+        }
+        try {
+            connection.call("Target.disposeBrowserContext",
+                    Map.of("browserContextId", contextId), null, Duration.ofSeconds(5));
+        } catch (RuntimeException e) {
+            log.debug("[cdp] 销毁浏览器上下文失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 取复用页面（固定上下文 + 常驻标签页）。
+     *
+     * <p>与 {@link #openIsolatedPage(BrowserOptions)} 的区别：上下文、标签页、会话与 UA 覆盖
+     * 只建一次，后续会话直接复用，省掉开窗链路上的全部同步往返。登录态由
+     * {@link #releaseReusablePage(String)} 清理，不要跨会话共享页面。</p>
+     *
+     * @param options 页面参数（仅首次创建时生效）
+     * @return 页面；由引擎持有，调用方不要关闭
+     */
+    public synchronized BrowserPage acquireReusablePage(BrowserOptions options) {
+        BrowserPage existing = reusablePage;
+        if (existing != null) {
+            return existing;
+        }
+        if (closed) {
+            throw new IllegalStateException("浏览器引擎已关闭");
+        }
+        BrowserOptions actual = options == null ? new BrowserOptions() : options;
+        ensureLaunched(actual);
+        Duration commandTimeout = actual.getCommandTimeout();
+
+        Map<String, Object> context = connection.call("Target.createBrowserContext",
+                Map.of("disposeOnDetach", true), null, commandTimeout);
+        String contextId = asString(context.get("browserContextId"));
+        if (StringUtils.isBlank(contextId)) {
+            throw new IllegalStateException("创建浏览器上下文失败: " + Json.toJson(context));
+        }
+
+        var createParams = new LinkedHashMap<String, Object>();
+        createParams.put("url", "about:blank");
+        createParams.put("browserContextId", contextId);
+        Map<String, Object> created = connection.call("Target.createTarget", createParams, null, commandTimeout);
+        String targetId = asString(created.get("targetId"));
+        if (StringUtils.isBlank(targetId)) {
+            disposeContext(contextId);
+            throw new IllegalStateException("创建浏览器标签页失败: " + Json.toJson(created));
+        }
+        Map<String, Object> attached = connection.call("Target.attachToTarget",
+                Map.of("targetId", targetId, "flatten", true), null, commandTimeout);
+        String sessionId = asString(attached.get("sessionId"));
+        if (StringUtils.isBlank(sessionId)) {
+            disposeContext(contextId);
+            throw new IllegalStateException("附加浏览器标签页失败: " + Json.toJson(attached));
+        }
+
+        connection.post("Page.enable", Map.of(), sessionId);
+        connection.post("Runtime.enable", Map.of(), sessionId);
+        applyViewport(sessionId, actual, commandTimeout);
+        applyUserAgent(sessionId, actual, commandTimeout);
+        CdpPage page = new CdpPage(connection, targetId, sessionId, commandTimeout);
+        pages.add(page);
+        page.onClose(() -> {
+            pages.remove(page);
+            reusablePage = null;
+            reusableContextId = null;
+            disposeContext(contextId);
+        });
+        reusableContextId = contextId;
+        reusablePage = page;
+        return page;
+    }
+
+    /**
+     * 复位复用页面：清 Cookie、站点存储与上一会话的新文档脚本，回到 about:blank。
+     *
+     * <p>只清登录态，不销毁上下文与标签页——复用省下的就是这几步的同步往返。
+     * HTTP 缓存按顶层站点分区，不跨供应商。</p>
+     *
+     * @param origin 需要清存储的源（如 {@code https://www.volcengine.com}）；为空只清 Cookie
+     */
+    public synchronized void releaseReusablePage(String origin) {
+        BrowserPage page = reusablePage;
+        if (page == null) {
+            return;
+        }
+        try {
+            page.navigate("about:blank");
+        } catch (RuntimeException e) {
+            log.debug("[cdp] 复用页面复位导航失败: {}", e.getMessage());
+        }
+        if (page instanceof CdpPage cdpPage) {
+            cdpPage.clearInitScripts();
+        }
+        Duration timeout = Duration.ofSeconds(5);
+        String contextId = reusableContextId;
+        if (StringUtils.isNotBlank(contextId)) {
+            try {
+                connection.call("Storage.clearCookies", Map.of("browserContextId", contextId), null, timeout);
+            } catch (RuntimeException e) {
+                log.debug("[cdp] 清理复用页面 Cookie 失败: {}", e.getMessage());
+            }
+        }
+        if (StringUtils.isNotBlank(origin)) {
+            try {
+                connection.call("Storage.clearDataForOrigin",
+                        Map.of("origin", origin, "storageTypes", "all"), null, timeout);
+            } catch (RuntimeException e) {
+                log.debug("[cdp] 清理复用页面站点存储失败: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 当前复用页面（未创建返回 null）。
+     *
+     * @return 复用页面
+     */
+    public BrowserPage reusablePage() {
+        return reusablePage;
     }
 
     /**
@@ -291,8 +502,8 @@ public class CdpBrowserEngine implements BrowserEngine {
             return;
         }
         try {
-            connection.call("Emulation.setTimezoneOverride",
-                    Map.of("timezoneId", options.getTimezoneId()), sessionId, timeout);
+            connection.post("Emulation.setTimezoneOverride",
+                    Map.of("timezoneId", options.getTimezoneId()), sessionId);
         } catch (Exception e) {
             log.debug("[cdp] 设置时区失败: {}", e.getMessage());
         }
@@ -310,8 +521,8 @@ public class CdpBrowserEngine implements BrowserEngine {
             return;
         }
         try {
-            connection.call("Emulation.setLocaleOverride",
-                    Map.of("locale", options.getLocale()), sessionId, timeout);
+            connection.post("Emulation.setLocaleOverride",
+                    Map.of("locale", options.getLocale()), sessionId);
         } catch (Exception e) {
             log.debug("[cdp] 设置语言失败: {}", e.getMessage());
         }
@@ -330,7 +541,8 @@ public class CdpBrowserEngine implements BrowserEngine {
         params.put("height", Math.max(options.getHeight(), 1));
         params.put("deviceScaleFactor", 1);
         params.put("mobile", false);
-        connection.call("Emulation.setDeviceMetricsOverride", params, sessionId, timeout);
+        // 只入队：开页链路上少一次同步往返；CDP 消息保序，后续导航一定排在它之后
+        connection.post("Emulation.setDeviceMetricsOverride", params, sessionId);
     }
 
     /**
@@ -653,10 +865,23 @@ public class CdpBrowserEngine implements BrowserEngine {
         command.add("--disable-blink-features=AutomationControlled");
         command.add("--disable-dev-shm-usage");
         command.add("--disable-features=Translate,OptimizationHints");
+        // 登录窗口这类短生命周期的一次性浏览器，启动阶段与交互无关的后台任务
+        // （扩展扫描、组件更新、账号同步、后台网络探测、默认应用初始化）全关掉，
+        // 能明显缩短冷启动；均为纯提速参数，不影响渲染与登录流程
+        command.add("--disable-extensions");
+        command.add("--disable-component-update");
+        command.add("--disable-background-networking");
+        command.add("--disable-sync");
+        command.add("--disable-default-apps");
+        command.add("--mute-audio");
+        command.add("--metrics-recording-only");
         command.add("--window-size=" + Math.max(actual.getWidth(), 1) + "," + Math.max(actual.getHeight(), 1));
         command.add("--lang=zh-CN");
         if (StringUtils.isNotBlank(actual.getProxy())) {
             command.add("--proxy-server=" + actual.getProxy().trim());
+        }
+        if (shouldDisableSandbox(actual)) {
+            command.add("--no-sandbox");
         }
         command.addAll(actual.getArgs());
         command.add("about:blank");
@@ -708,26 +933,78 @@ public class CdpBrowserEngine implements BrowserEngine {
     }
 
     /**
+     * 判断本次启动是否需要关闭 Chromium 沙箱
+     *
+     * <p>Windows 服务账户（SYSTEM / LOCAL SERVICE / NETWORK SERVICE / 机器账户）运行在
+     * Session 0，没有交互式窗口站，Chromium 沙箱无法初始化，浏览器进程会立即退出
+     * （常见 exit=1002）。此时必须附加 {@code --no-sandbox} 才能启动。</p>
+     *
+     * <p>判定顺序：调用方已显式传 {@code --no-sandbox} 时不重复添加；
+     * 系统属性 {@code chua.browser.noSandbox} 显式设置时以其为准；
+     * 否则在 Windows 上按运行账户自动判定。</p>
+     *
+     * @param actual 启动参数
+     * @return true 表示需要附加 {@code --no-sandbox}
+     */
+    private static boolean shouldDisableSandbox(BrowserOptions actual) {
+        for (String arg : actual.getArgs()) {
+            if (arg != null && "--no-sandbox".equalsIgnoreCase(arg.trim())) {
+                return false;
+            }
+        }
+        String configured = System.getProperty(PROPERTY_NO_SANDBOX);
+        if (StringUtils.isNotBlank(configured)) {
+            return Boolean.parseBoolean(configured.trim());
+        }
+        if (!OsFamily.current().isWindows()) {
+            return false;
+        }
+        String user = System.getProperty("user.name", "");
+        if (StringUtils.isBlank(user)) {
+            return false;
+        }
+        String name = user.trim();
+        return "SYSTEM".equalsIgnoreCase(name)
+                || "LOCAL SERVICE".equalsIgnoreCase(name)
+                || "NETWORK SERVICE".equalsIgnoreCase(name)
+                || name.endsWith("$");
+    }
+
+    /**
      * 初始化指纹基线
      *
      * <p>读取浏览器自身的 UA 与完整版本，作为默认 UA 与 UA-CH 的数据来源；
      * 这样浏览器升级后指纹自动跟着变，不需要在代码里写死版本号。</p>
      */
     private void initFingerprint() {
-        try {
-            Map<String, Object> version = connection.call("Browser.getVersion", Map.of(), null,
-                    Duration.ofSeconds(5));
-            Object userAgent = version.get("userAgent");
-            if (userAgent != null) {
-                realUserAgent = String.valueOf(userAgent).replace("HeadlessChrome", "Chrome");
-                browserBrand = realUserAgent.contains("Edg/") ? "edge" : "chrome";
+        // 同一 JVM 内指纹只读一次：多个引擎（实时登录 / 有头登录 / 续期回访）
+        // 共享同一份浏览器版本信息，后续引擎启动少两次同步 CDP 往返
+        String ua = cachedUserAgent;
+        if (ua == null) {
+            try {
+                Map<String, Object> version = connection.call("Browser.getVersion", Map.of(), null,
+                        Duration.ofSeconds(5));
+                Object userAgent = version.get("userAgent");
+                if (userAgent != null) {
+                    ua = String.valueOf(userAgent).replace("HeadlessChrome", "Chrome");
+                    cachedUserAgent = ua;
+                    cachedBrand = ua.contains("Edg/") ? "edge" : "chrome";
+                }
+                cachedFullVersion = extractFullVersion(
+                        String.valueOf(version.getOrDefault("product", "")), ua);
+            } catch (RuntimeException e) {
+                log.debug("[cdp] 读取浏览器版本失败: {}", e.getMessage());
             }
-            fullVersion = extractFullVersion(String.valueOf(version.getOrDefault("product", "")),
-                    realUserAgent);
-        } catch (RuntimeException e) {
-            log.debug("[cdp] 读取浏览器版本失败: {}", e.getMessage());
         }
-        windows11 = detectWindows11();
+        realUserAgent = ua;
+        fullVersion = cachedFullVersion == null ? "" : cachedFullVersion;
+        browserBrand = cachedBrand == null ? "chrome" : cachedBrand;
+        Boolean win11 = cachedWindows11;
+        if (win11 == null) {
+            win11 = detectWindows11();
+            cachedWindows11 = win11;
+        }
+        windows11 = win11;
     }
 
     /**

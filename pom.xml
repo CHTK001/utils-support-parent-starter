@@ -129,7 +129,9 @@
             13.0.0 为当前最新 release（class 文件版本 61 / Java 17 目标，本仓 release=25 可直接加载）。
         -->
         <eclipse.collections.version>13.0.0</eclipse.collections.version>
-        <spring.version>7.0.9</spring.version>
+        <!-- 2026-11-24 随 Spring Boot 4.2.0 对齐 Framework 7.1.0（Boot 4.2 基于 Framework 7.1 构建，
+             7.0.x 与 Boot 4.2 混用属不受支持组合）；RestTemplate 在 7.1 仅废弃未移除，源码无需改动。 -->
+        <spring.version>7.1.0</spring.version>
         <pmd.ruleset.path>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</pmd.ruleset.path>
         <!--
             p3c-pmd 2.1.1 需 PMD 6.15.0，而 maven-pmd-plugin 3.20.0 注入 PMD 6.53.0，
@@ -141,7 +143,10 @@
         -->
         <pmd.skip>true</pmd.skip>
         <project.root.dir>${maven.multiModuleProjectDirectory}</project.root.dir>
-        <spring.boot.version>4.1.1</spring.boot.version>
+        <!-- 2026-11-24 由 4.1.1 升到 4.2.0（2026-11-19 GA）：启动性能优化、AMQP 1.0、LDAP SSL bundle、
+             OTLP 统一配置等；本仓未用 RestTemplate / spring-boot-amqp / forwarded-headers 旧配置，无破坏面。
+             本仓显式托管的 jackson 2.23 / json-path 3.0.0 / caffeine 3.3.1 等仍覆盖 Boot BOM。 -->
+        <spring.boot.version>4.2.0</spring.boot.version>
         <jakarta.cdi.version>4.1.0</jakarta.cdi.version>
         <httpclient5.version>5.6.5</httpclient5.version>
         <playwright.version>1.63.0</playwright.version>
@@ -1115,9 +1120,10 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                <!-- 2026-10-06 依赖升级：3.5.3 → 4.1.1（低风险跨 major，Spring Boot 4 主线，
-                     starter 仅追加依赖与自动配置，跟进本仓 spring.boot.version 4.x 的大版本对齐） -->
-                <version>4.1.1</version>
+                <!-- 2026-10-06 依赖升级：3.5.3 → 4.1.1（低风险跨 major，Spring Boot 4 主线）；
+                     2026-11-24 改引 ${spring.boot.version}（现 4.2.0），随 Boot 大版本自动对齐，
+                     消除与根属性的双重硬编码。 -->
+                <version>${spring.boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.vertx</groupId>

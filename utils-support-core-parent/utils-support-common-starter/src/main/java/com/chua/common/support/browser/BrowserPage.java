@@ -56,6 +56,20 @@ public interface BrowserPage extends AutoCloseable {
     void navigate(String url);
 
     /**
+     * 导航到目标地址并尽早返回：只等新文档进入可交互状态（DOMContentLoaded），
+     * 不等图片、字体、统计脚本等子资源加载完成。
+     *
+     * <p>用于「先把画面送给用户、让页面自行继续加载」的场景（如实时登录窗口）。
+     * 需要页面完全就绪后再取内容的调用方仍用 {@link #navigate(String)}。
+     * 默认实现退化为完整等待。</p>
+     *
+     * @param url 地址
+     */
+    default void navigateEarly(String url) {
+        navigate(url);
+    }
+
+    /**
      * 执行 JavaScript 表达式并等待 Promise
      *
      * @param expression 表达式
@@ -212,6 +226,17 @@ public interface BrowserPage extends AutoCloseable {
      * @return PNG 字节
      */
     byte[] screenshot(boolean fullPage);
+
+    /**
+     * 轻量预热一帧（仅用于实时画面开流）
+     *
+     * <p>页面静止时合成器可能长时间不产帧，开流后客户端迟迟看不到画面。
+     * 实现应尽量廉价地逼合成器画一帧（如只截视口的小尺寸 JPEG），
+     * 不能像 {@link #screenshot(boolean)} 那样整页截图——长页面上要几百毫秒，
+     * 会把首帧延迟推到用户可见的程度。默认实现什么都不做。</p>
+     */
+    default void warmFrame() {
+    }
 
     /**
      * 在页面内发起请求并把响应分片回传

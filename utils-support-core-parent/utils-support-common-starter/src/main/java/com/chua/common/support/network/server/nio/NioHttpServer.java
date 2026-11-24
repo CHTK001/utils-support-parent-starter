@@ -734,12 +734,18 @@ public class NioHttpServer extends AbstractServer {
             st.readBuf = buf;
         }
         // 管线兜底:解析中的定长体剩余量超当前缓冲时先扩容(只增不减;
-        // 常规扩/缩容在 feed 之后按已解析请求状态统一决策,见 resizeReadBuffer)
+        // 常规扩/缩容在 feed 之后按已解析请求状态统一决策,见 resizeReadBuffer)。
+        // 目标容量须先按 maxReadBufferSize 截断,再与当前容量比较:体量超过上限的
+        // 大请求(如 1MB)每轮 read 都会进入此处,若按「剩余量>容量」判定,会对已到
+        // 上限的缓冲反复重配(每请求多次 256KB 分配+拷贝,实测 1MB 吞吐 -25%)。
         int pendingBody = st.request.remainingFixedBody();
-        if (pendingBody > buf.capacity()) {
+        if (pendingBody > 0) {
             int cap = Math.max(setting.getMaxReadBufferSize(), Math.max(setting.getBufferSize(), MIN_READ_BUFFER_SIZE));
-            buf = reallocateReadBuffer(buf, Math.min(pendingBody, cap));
-            st.readBuf = buf;
+            int desired = Math.min(pendingBody, cap);
+            if (desired > buf.capacity()) {
+                buf = reallocateReadBuffer(buf, desired);
+                st.readBuf = buf;
+            }
         }
         int n = st.channel.read(buf);
         if (n < 0) {

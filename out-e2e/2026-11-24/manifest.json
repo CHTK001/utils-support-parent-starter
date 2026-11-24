@@ -1,0 +1,10 @@
+{
+  "database" : "database",
+  "createdAt" : "2026-11-24T11:42:15.5372571",
+  "checksumAlgorithm" : "SHA-256",
+  "files" : [ {
+    "fileName" : "database-database-20261124114215.sql",
+    "sizeBytes" : 395,
+    "sha256" : "e30ab9acf009b5b3f546df3d5646e7a3d26d03154be227f3a598668e7a9b2f49"
+  } ]
+}
