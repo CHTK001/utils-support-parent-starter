@@ -314,7 +314,7 @@ public class DataSourceFlyway implements Flyway {
                 String target = FlywayScripts.extractTargetTable(statement);
                 if (target != null && !tableExists(conn, target)) {
                     skipped++;
-                    log.info("迁移脚本 {} 的语句因目标表 {} 不存在而跳过（跨系统表，本库无其建表脚本）",
+                    log.trace("迁移脚本 {} 的语句因目标表 {} 不存在而跳过（跨系统表，本库无其建表脚本）",
                             scriptName, target);
                     continue;
                 }
@@ -337,7 +337,7 @@ public class DataSourceFlyway implements Flyway {
             throw new IllegalStateException("执行迁移脚本失败: " + scriptName, e);
         }
         if (skipped > 0) {
-            log.info("迁移脚本 {} 共跳过 {} 条「目标表不存在」的语句", scriptName, skipped);
+            log.trace("迁移脚本 {} 共跳过 {} 条「目标表不存在」的语句", scriptName, skipped);
         }
         return new ScriptResult(executed, skipped, failed);
     }

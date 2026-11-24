@@ -106,6 +106,46 @@ public class BackupManager {
     }
 
     /**
+     * 执行数据库备份
+     *
+     * <p>对配置的数据库做逻辑备份（导出建表语句与全量数据）。
+     * 通过 SPI 查找 type=database 的策略实现，命中内置/自定义
+     * {@link DatabaseBackupStrategy} 时使用数据库配置执行；
+     * 自定义实现不支持数据库配置时回退内置实现。
+     *
+     * @param config 数据库备份配置
+     * @return 备份结果
+     */
+    public BackupResult backupDatabase(DatabaseBackupConfig config) {
+        BackupStrategy strategy = findStrategy("database");
+        if (strategy instanceof DatabaseBackupStrategy databaseStrategy) {
+            return databaseStrategy.execute(config);
+        }
+        log.warn("[backup] 自定义 database 策略不支持 DatabaseBackupConfig，回退内置实现");
+        return new DatabaseBackupStrategy().execute(config);
+    }
+
+    /**
+     * 恢复数据库备份
+     *
+     * <p>将 {@link DatabaseBackupStrategy} 导出的 SQL 脚本（或其 ZIP 归档）
+     * 恢复到目标数据库。通过 SPI 查找 type=database 的策略实现，
+     * 命中内置/自定义 {@link DatabaseBackupStrategy} 时使用其恢复能力；
+     * 自定义实现不支持恢复时回退内置实现。
+     *
+     * @param config 数据库恢复配置
+     * @return 恢复结果
+     */
+    public DatabaseRestoreResult restoreDatabase(DatabaseRestoreConfig config) {
+        BackupStrategy strategy = findStrategy("database");
+        if (strategy instanceof DatabaseBackupStrategy databaseStrategy) {
+            return databaseStrategy.restore(config);
+        }
+        log.warn("[backup] 自定义 database 策略不支持数据库恢复，回退内置实现");
+        return new DatabaseBackupStrategy().restore(config);
+    }
+
+    /**
      * 清理过期备份
      *
      * @param config 备份配置
