@@ -316,9 +316,12 @@ public abstract class JdbcEngine extends AbstractEngine {
             // 游标谓词必须与调用方条件同时成立；已有 WHERE 时加括号保证 AND 优先级
             sb.append(" WHERE ");
             if (sql.hasWhere()) {
-                sb.append('(').append(sql.whereClause()).append(") AND ");
+                // 游标谓词本身是 OR 链，必须再包一层括号，否则 (where) AND (a>?) OR (...) 会把
+                // 调用方条件当成第一个 OR 分支（SQL 中 AND 优先级高于 OR）
+                sb.append('(').append(sql.whereClause()).append(") AND (").append(cursorPredicate).append(')');
+            } else {
+                sb.append(cursorPredicate);
             }
-            sb.append(cursorPredicate);
         } else if (sql.hasWhere()) {
             sb.append(" WHERE ").append(sql.whereClause());
         }
@@ -351,7 +354,25 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return true 表示可用游标谓词替代 OFFSET
      */
     private <T> boolean keysetApplicable(QuerySql<T> sql) {
-        if (!isCursorPagingEnabled() || !sql.hasCursor()) {
+        if (!sql.hasCursor()) {
+            return false;
+        }
+        return cursorPredicateSupported(sql);
+    }
+
+    /**
+     * 判断查询形态本身是否允许使用游标谓词（不考虑调用方是否已给游标）。
+     *
+     * <p>与 {@link #keysetApplicable} 的差别：这里不看 {@code hasCursor()}，因为
+     * 「本页是否该产出下一页游标」必须在第一页（尚无游标）时就能判定——
+     * 第一页拿不到游标的话，游标链路根本起不来。</p>
+     *
+     * @param sql 查询 SQL 信息
+     * @param <T> 实体类型
+     * @return true 表示该查询可用游标谓词替代 OFFSET
+     */
+    private <T> boolean cursorPredicateSupported(QuerySql<T> sql) {
+        if (!isCursorPagingEnabled() || !sql.hasOrderBy()) {
             return false;
         }
         if (sql.hasGroupBy() || sql.hasJoins()) {
@@ -510,6 +531,11 @@ public abstract class JdbcEngine extends AbstractEngine {
         QuerySql<T> sql = wrapper.buildSql();
         List<String> orderBys = sql.orderBys();
         if (orderBys == null || orderBys.isEmpty()) {
+            return null;
+        }
+        // 与 buildSelectSql 的 keyset 判定同口径：开关关闭 / GROUP BY / JOIN / 方言无 LIMIT
+        // 时本页不是按游标谓词取的数，给出游标会在下一页造成重复或漏行
+        if (!cursorPredicateSupported(sql)) {
             return null;
         }
         T last = records.get(records.size() - 1);

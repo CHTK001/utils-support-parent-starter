@@ -1152,9 +1152,12 @@ utils 层只提供 SPI 契约与纯 Java 实现；Spring Boot 侧做成**独立 
 | `scatter.service-path` | `/{spring.application.name}` | **服务分组**：同类服务聚在同一成员表，`getService("/order")` 即 order 全部实例 |
 | `scatter.group` | `default` | **组网范围**（哪些节点互相同步成员表）；跨服务调用靠查不同 `service-path`，勿当服务分组用 |
 | `scatter.context-path` | `${server.servlet.context-path}`（WebFlux `${spring.webflux.base-path}`） | **业务地址前缀**：进注册条目 metadata，拼 URL 时自动前置 |
+| `scatter.self-balance` | `true` | **自我负载均衡**：注入 Filter 拦截本服务请求，按 `service-path` 从 scatter 池选实例转发；本节点在池内，天然兜底 |
 | `scatter.protocol` / `port` / `seeds` / `subnet` | `tcp` / 默认端口 / 空 / 本机网段 | 组网传输与发现拓扑；同机撞节点端口、跨网段时才需显式配置 |
 
 > **服务分组与组网范围是两个维度**：`service-path` 决定「同类服务落在哪张成员表」（多应用同属一个逻辑服务组时，显式配成同一路径）；`group` 决定「哪些节点互见」。不要拿 `group` 当服务分组用。
+
+**自我负载均衡（`self-balance`，默认 `true`）**：开启后 starter 向 Servlet 链注入一个 Filter，拦截进入本服务的请求，按 `service-path` 从 scatter 池 `getService(servicePath, balance)` 选取实例：选中**其它**实例则转发过去（转发请求带标记头，Filter 对带标记的请求直接放行，防死循环）；选中自己、池内仅本节点或转发异常时**兜底本地处理**——本节点本身就在 scatter 池里，天然有兜底。WebSocket 升级、文件流等不宜转发的请求直接放行本地。
 
 **contextPath 与双端口口径**：注册条目必须携带业务前缀，否则消费方拼出的地址调不通。承载点用 `Discovery` 的 `metadata`（`ScatterSetting#setMetadata(...)` 会自动叠加进注册条目）；URL 拼接由 starter 侧封装在 `Discovery#createUrl` 结果上自动前置 contextPath，调用方无感——不要把 Spring 概念下沉进 utils。另注意 scatter 节点端口（组网/gossip）与业务 HTTP 端口（`server.port`）是两个端口：业务服务发现注册/查询业务端点（`server.port` + context-path），不要拿组网地址当业务调用地址。
 

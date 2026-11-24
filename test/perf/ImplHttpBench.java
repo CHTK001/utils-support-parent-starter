@@ -20,16 +20,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * HTTP 服务端实现对比压测探针（Java 11 兼容，纯 JDK 客户端）。
+ * HTTP 服务端实现对比压测探针（Java 21+，纯 JDK 客户端）。
  *
  * <p>用法：</p>
  * <pre>
  *   server &lt;impl&gt; &lt;port&gt;
  *       启动指定实现（jdk|nio|aio|vertx|quarkus|armeria），注册
  *       POST /echo（原样回显请求体）与 GET /ping（冒烟），打印 SERVER_READY 后常驻。
+ *       可用系统属性：-Dbench.maxConns=N 覆盖最大连接数与并发处理上限；
+ *       -Dbench.backlog=N 覆盖监听 backlog。
  *
  *   client &lt;host&gt; &lt;port&gt; &lt;workers&gt; &lt;seconds&gt; &lt;bodyBytes&gt; &lt;label&gt;
  *       先冒烟校验 /echo 回显一致性，再 3s 预热 + seconds 测量，输出
@@ -38,14 +41,32 @@ import java.util.concurrent.atomic.LongAdder;
  *
  * <p>回环口径：server 与 client 同机不同 JVM（127.0.0.1）；
  * 远程口径：server 在目标机容器（端口发布到宿主），client 在另一台机器走真实网卡。</p>
+ *
+ * <p>高并发口径：workers &gt; {@link #VIRTUAL_THREAD_THRESHOLD} 时改用虚拟线程发起请求；
+ * 延迟采样改为全局封顶（最多 {@link #MAX_SAMPLES_TOTAL} 条，按测量窗口内请求顺序，
+ * 超出只计数不采样），避免万级 worker 的 per-worker 采样缓冲内存膨胀。
+ * 低档位（≤600 worker）仍为平台线程 + 同步阻塞 send，与历史基线同口径。</p>
  */
 public final class ImplHttpBench {
 
     /** 预热时长（毫秒），不计入统计 */
     private static final long WARMUP_MILLIS = 3000L;
 
-    /** 每工作线程延迟采样上限（long 数组，无装箱） */
-    private static final int MAX_SAMPLES_PER_WORKER = 256 * 1024;
+    /** 全局延迟采样上限（long 数组，无装箱；高并发下封顶，超出只计数不采样） */
+    private static final int MAX_SAMPLES_TOTAL = 1_000_000;
+
+    /** 超过该 worker 数改用虚拟线程（万级平台线程会耗尽内存与内核调度） */
+    private static final int VIRTUAL_THREAD_THRESHOLD = 600;
+
+    /** 每个标签最多打印的异常明细条数 */
+    private static final int VERBOSE_ERRS = 3;
+
+    /** 全局延迟采样缓冲：测量窗口内按请求完成顺序封顶采样 */
+    private static final long[] SHARED_LAT = new long[MAX_SAMPLES_TOTAL];
+
+    /** 全局采样计数器（含预热期；测量期样本 = 计数 - sampleBase） */
+    private static final java.util.concurrent.atomic.AtomicInteger SHARED_N =
+            new java.util.concurrent.atomic.AtomicInteger();
 
     private ImplHttpBench() {
     }
@@ -82,6 +103,15 @@ public final class ImplHttpBench {
         ServerSetting setting = ServerSetting.defaults();
         setting.setHost("0.0.0.0");
         setting.setPort(port);
+        String mc = System.getProperty("bench.maxConns");
+        if (mc != null) {
+            setting.setMaxConnections(Integer.parseInt(mc));
+            setting.setMaxConcurrency(Integer.parseInt(mc));
+        }
+        String bl = System.getProperty("bench.backlog");
+        if (bl != null) {
+            setting.setBacklog(Integer.parseInt(bl));
+        }
         AbstractServer server = create(impl, setting);
         server.registerMapping("/ping", HttpMethod.GET,
                 (req, resp) -> resp.end("OK".getBytes()));
@@ -127,17 +157,21 @@ public final class ImplHttpBench {
         AtomicBoolean running = new AtomicBoolean(true);
         List<Worker> ws = new ArrayList<>(workers);
         CountDownLatch latch = new CountDownLatch(workers);
+        boolean virtual = workers > VIRTUAL_THREAD_THRESHOLD;
         for (int i = 0; i < workers; i++) {
             Worker w = new Worker(client, request, total, errors, running, latch);
             ws.add(w);
-            Thread t = new Thread(w, "probe-" + i);
+            Thread t = virtual
+                    ? Thread.ofVirtual().name("probe-" + i).unstarted(w)
+                    : new Thread(w, "probe-" + i);
             t.setDaemon(true);
             t.start();
         }
         Thread.sleep(WARMUP_MILLIS);
         long baseline = total.sum();
+        int sampleBase = SHARED_N.get();
         for (Worker w : ws) {
-            w.reset();
+            w.reset(sampleBase);
         }
         long start = System.nanoTime();
         Thread.sleep(seconds * 1000L);
@@ -147,14 +181,10 @@ public final class ImplHttpBench {
 
         long count = total.sum() - baseline;
         long err = errors.sum();
-        long[] all = new long[(int) Math.min(count, Integer.MAX_VALUE - 8)];
-        int n = 0;
-        for (Worker w : ws) {
-            for (int j = 0; j < w.size; j++) {
-                if (n < all.length) {
-                    all[n++] = w.latencies[j];
-                }
-            }
+        int n = Math.max(0, Math.min(SHARED_N.get() - sampleBase, MAX_SAMPLES_TOTAL));
+        long[] all = new long[n];
+        for (int j = 0; j < n; j++) {
+            all[j] = SHARED_LAT[j];
         }
         Arrays.sort(all, 0, n);
         double tputMBps = count * 2.0 * bodyBytes / elapsed / (1024.0 * 1024.0);
@@ -179,8 +209,8 @@ public final class ImplHttpBench {
         private final LongAdder errors;
         private final AtomicBoolean running;
         private final CountDownLatch latch;
-        private final long[] latencies = new long[MAX_SAMPLES_PER_WORKER];
-        private volatile int size;
+        /** 测量期采样基线：SHARED_N 计数超过该值的部分属于测量窗口 */
+        private volatile int base;
 
         Worker(HttpClient client, HttpRequest request, LongAdder total, LongAdder errors,
                AtomicBoolean running, CountDownLatch latch) {
@@ -192,8 +222,8 @@ public final class ImplHttpBench {
             this.latch = latch;
         }
 
-        void reset() {
-            this.size = 0;
+        void reset(int sampleBase) {
+            this.base = sampleBase;
         }
 
         @Override
@@ -203,13 +233,17 @@ public final class ImplHttpBench {
                     long t0 = System.nanoTime();
                     try {
                         client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-                        if (size < latencies.length) {
-                            latencies[size] = System.nanoTime() - t0;
-                            size++;
+                        int idx = SHARED_N.incrementAndGet() - 1 - base;
+                        if (idx >= 0 && idx < MAX_SAMPLES_TOTAL) {
+                            SHARED_LAT[idx] = System.nanoTime() - t0;
                         }
                         total.increment();
                     } catch (Exception e) {
-                        errors.increment();
+                        long c = errors.increment();
+                        if (c <= VERBOSE_ERRS) {
+                            System.out.println("label probe err#" + c + " ex=" + e);
+                            System.out.flush();
+                        }
                     }
                 }
             } finally {
