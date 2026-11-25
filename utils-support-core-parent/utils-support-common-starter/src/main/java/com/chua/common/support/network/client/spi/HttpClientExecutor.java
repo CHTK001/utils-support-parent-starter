@@ -46,6 +46,9 @@ public interface HttpClientExecutor {
      *
      * <p>实现类应处理以下场景：</p>
      * <ul>
+     *   <li>URL 已包含全部 query 参数 — {@link ClientRequest#getParams()} 已由
+     *       {@link com.chua.common.support.network.client.DefaultHttpClient} 在委托前拼入 URL，
+     *       实现类直接使用 {@link ClientRequest#getUrl()}，不得重复拼接 params</li>
      *   <li>请求体为 {@link String} 或 {@code byte[]} 时直接发送</li>
      *   <li>请求体为 {@code null} 时发送无体请求（适用于 GET / DELETE / HEAD）</li>
      *   <li>请求体为其他类型时调用 {@link Object#toString()} 转为字符串</li>

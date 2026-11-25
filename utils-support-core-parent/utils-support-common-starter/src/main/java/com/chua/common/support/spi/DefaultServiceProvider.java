@@ -186,8 +186,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public T getExtension(String name) {
         if (StringUtils.isEmpty(name)) {
-            return definitions.size() == 1 ? definitions.values().iterator().next().first()
-                    .getObj(serviceAutowire) : getDefaultImpl();
+            SortedList<ServiceDefinition> single = null;
+            Iterator<SortedList<ServiceDefinition>> iterator = definitions.values().iterator();
+            if (iterator.hasNext()) {
+                single = iterator.next();
+            }
+            // 并发注销可能移除唯一键或摘空列表：取不到唯一实现时按「无实现」回落默认实现
+            if (null == single || definitions.size() != 1) {
+                return getDefaultImpl();
+            }
+            synchronized (single) {
+                return single.isEmpty() ? getDefaultImpl() : single.first().getObj(serviceAutowire);
+            }
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name);
         return (T) Optional.ofNullable(serviceDefinition.getObj(serviceAutowire)).orElseGet(this::getDefaultImpl);
@@ -214,8 +224,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public T getNewExtension(String name, Object... args) {
         if (StringUtils.isEmpty(name)) {
-            return definitions.size() == 1 ? definitions.values().iterator().next().first().newInstance(serviceAutowire,
-                                    args) : getDefaultImpl(args);
+            SortedList<ServiceDefinition> single = null;
+            Iterator<SortedList<ServiceDefinition>> iterator = definitions.values().iterator();
+            if (iterator.hasNext()) {
+                single = iterator.next();
+            }
+            // 与 getExtension(null) 同口径：并发注销下取不到唯一实现时回落默认实现
+            if (null == single || definitions.size() != 1) {
+                return getDefaultImpl(args);
+            }
+            synchronized (single) {
+                return single.isEmpty() ? getDefaultImpl(args) : single.first().newInstance(serviceAutowire, args);
+            }
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name, args);
         T instance = (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(null);
@@ -604,7 +624,19 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
 
         for (Map.Entry<String, List<ServiceDefinition>> entry : remove.entrySet()) {
-            definitions.get(entry.getKey()).removeAll(entry.getValue());
+            SortedList<ServiceDefinition> remaining = definitions.get(entry.getKey());
+            if (null == remaining) {
+                continue;
+            }
+            synchronized (remaining) {
+                remaining.removeAll(entry.getValue());
+                // 摘空后连同 key 一起移除：否则 getExtension(null) 的唯一键分支
+                // 会对空列表调用 first() 抛 NoSuchElementException，
+                // 宿主在 bundle 卸载后取服务应回落默认实现而不是抛异常
+                if (remaining.isEmpty()) {
+                    definitions.remove(entry.getKey());
+                }
+            }
         }
     }
 

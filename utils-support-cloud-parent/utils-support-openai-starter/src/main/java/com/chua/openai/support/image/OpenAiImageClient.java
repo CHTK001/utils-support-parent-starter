@@ -38,6 +38,10 @@ import com.chua.common.support.utils.StringUtils;
  *   <li>gitee — Gitee AI</li>
  * </ul>
  *
+ * <p>MiniMax（海螺）等 OpenAI 兼容生图渠道经 {@code GenerateSpiRouter} 归一到本实现：
+ * 其 {@code /v1/images/generations} 与 OpenAI 同形（Bearer 鉴权、{@code data[].url}），
+ * {@code response_format} 默认即 {@code url}，无需特判。</p>
+ *
  * <p>调用示例：
  * <pre>{@code
  *   BufferedImage image = ImageClient.create("openai", "sk-xxx")
@@ -266,6 +270,9 @@ public class OpenAiImageClient implements ImageClient {
                 .json()
                 .body(requestBody)
                 .connectTimeout(120000)
+                // 生图是同步长请求（MiniMax 官方示例建议超时 600s）；readTimeout 若沿用
+                // HttpClientBuilder 默认 30s，正常出图（常见 10~60s+，4K 更久）会被误杀成超时。
+                .readTimeout(600000)
                 .post();
         if (!resp.isSuccess()) {
             throw new RuntimeException("图片生成请求失败: " + resp.getStatusCode() + " - " + resp.getBodyString());
@@ -291,14 +298,26 @@ public class OpenAiImageClient implements ImageClient {
         if (data == null || data.isEmpty()) {
             throw new RuntimeException("返回的图片数据为空");
         }
-        String imageUrl = (String) data.getFirst().get("url");
+        Map<String, Object> first = data.getFirst();
+        String imageUrl = (String) first.get("url");
         if (StringUtils.isBlank(imageUrl)) {
+            // 兼容 response_format=b64_json 的渠道（如 OpenAI gpt-image-1）：
+            // 该形态不回 url，直接解码 Base64 数据，不再发起下载。
+            String b64 = (String) first.get("b64_json");
+            if (StringUtils.isNotBlank(b64)) {
+                try {
+                    return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(b64)));
+                } catch (Exception e) {
+                    throw new RuntimeException("解析 b64_json 图片数据失败", e);
+                }
+            }
             throw new RuntimeException("返回的图片 URL 为空");
         }
 
-        // 下载图片
+        // 下载图片（生图渠道的 CDN 地址，4K 大图可能数 MB，读超时同样放宽）
         ClientResponse imgResp = HttpClientFactory.of(imageUrl)
                 .connectTimeout(60000)
+                .readTimeout(120000)
                 .get();
         if (!imgResp.isSuccess()) {
             throw new RuntimeException("下载图片失败: " + imgResp.getStatusCode());
