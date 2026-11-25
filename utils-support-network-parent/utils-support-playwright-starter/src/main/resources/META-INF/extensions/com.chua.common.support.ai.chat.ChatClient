@@ -1,2 +1,3 @@
 doubao-proxy=com.chua.playwright.support.doubao.DoubaoProxyChatClient
 qwen-proxy=com.chua.playwright.support.qwen.QwenProxyChatClient
+vidu-proxy=com.chua.playwright.support.vidu.ViduProxyChatClient
