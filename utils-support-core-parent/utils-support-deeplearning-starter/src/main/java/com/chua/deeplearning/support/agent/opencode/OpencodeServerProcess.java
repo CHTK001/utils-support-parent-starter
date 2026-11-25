@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -172,6 +173,17 @@ public final class OpencodeServerProcess {
      * 系统属性：Basic Auth 用户名
      */
     private static final String PROP_USERNAME = "opencode.server.username";
+
+    /**
+     * 系统属性：Windows 下 opencode 子进程使用的 bash 可执行文件路径。
+     * 未设置时按常见安装位置与 PATH 推导。
+     */
+    private static final String PROP_BASH_PATH = "opencode.server.bash-path";
+
+    /**
+     * 环境变量：opencode bash 工具使用的 shell
+     */
+    private static final String ENV_SHELL = "SHELL";
 
     /**
      * 系统属性：启动等待秒数
@@ -570,6 +582,7 @@ public final class OpencodeServerProcess {
                     OpencodeProjectConfig.providerEnvName(providerId), apiKey));
             injectedProviders.addAll(providerCredentials.keySet());
         }
+        applyShellEnvironment(environment);
 
         log.info("[opencode] 启动 server: {} (port={}, log={})", binary, port, logFile);
         try {
@@ -886,6 +899,114 @@ public final class OpencodeServerProcess {
         } catch (IOException e) {
             log.warn("[opencode] 写入 provider 凭据失败，将无法调用模型: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Windows 下为 opencode 子进程修正 SHELL 环境变量。
+     *
+     * <p>opencode 的 bash 工具在 Windows 上按「配置 shell 键 → 内置 gitbash 探测 →
+     * 环境变量 SHELL → pwsh/powershell/cmd 兜底」解析执行 shell。若机器级
+     * {@code SHELL} 被设为 cmd.exe/powershell，bash 工具会改用该 shell 执行命令，
+     * 所有 bash 命令都会直接失败（如 “Unable to execute command”）。
+     * 这里在启动子进程前把 SHELL 修正为真实存在的 Git Bash；
+     * 可通过系统属性 {@code opencode.server.bash-path} 显式指定 bash 路径。</p>
+     *
+     * @param environment 子进程环境变量
+     */
+    private static void applyShellEnvironment(Map<String, String> environment) {
+        if (!CliModelRunner.isWindows()) {
+            return;
+        }
+        String current = environment.get(ENV_SHELL);
+        if (current != null && !isCmdLikeShell(current)) {
+            // 已是 bash 类 shell，尊重现有配置
+            return;
+        }
+        Path bash = resolveWindowsBashPath();
+        if (bash == null) {
+            if (current != null) {
+                log.warn("[opencode] SHELL={} 指向 cmd/powershell 且未找到可用的 Git Bash，"
+                        + "bash 工具可能无法执行命令；可通过 -D{} 指定 bash 路径",
+                        current, PROP_BASH_PATH);
+            }
+            return;
+        }
+        environment.put(ENV_SHELL, bash.toString());
+        log.info("[opencode] 已为子进程设置 SHELL={}（原值: {}）", bash, current);
+    }
+
+    /**
+     * 判断 shell 路径是否为 cmd/powershell 类（会使 opencode bash 工具失效的 shell）。
+     *
+     * @param shell shell 路径
+     * @return 是否 cmd/powershell 类
+     */
+    private static boolean isCmdLikeShell(String shell) {
+        String lower = shell.toLowerCase(Locale.ROOT);
+        return lower.contains("cmd.exe") || lower.contains("powershell") || lower.contains("pwsh");
+    }
+
+    /**
+     * 解析 Windows 下可用的 Git Bash 路径。
+     *
+     * <p>优先级：系统属性 {@code opencode.server.bash-path} 显式指定 →
+     * 常见安装位置（Program Files / LocalAppData）→ PATH 上 git.exe 推导。
+     * 仅返回真实存在的常规文件。</p>
+     *
+     * @return bash 可执行文件；找不到返回 {@code null}
+     */
+    private static Path resolveWindowsBashPath() {
+        String configured = System.getProperty(PROP_BASH_PATH);
+        if (configured != null && !configured.isBlank()) {
+            Path configuredPath = Paths.get(configured.trim());
+            if (Files.isRegularFile(configuredPath)) {
+                return configuredPath;
+            }
+            log.warn("[opencode] 系统属性 {} 指定的路径不存在: {}", PROP_BASH_PATH, configured);
+        }
+        String[] candidates = {
+                "C:\\Program Files\\Git\\bin\\bash.exe",
+                "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
+                "C:\\Program Files\\Git\\usr\\bin\\bash.exe"
+        };
+        for (String candidate : candidates) {
+            Path path = Paths.get(candidate);
+            if (Files.isRegularFile(path)) {
+                return path;
+            }
+        }
+        String localAppData = System.getenv("LOCALAPPDATA");
+        if (localAppData != null && !localAppData.isBlank()) {
+            Path path = Paths.get(localAppData.trim(), "Programs", "Git", "bin", "bash.exe");
+            if (Files.isRegularFile(path)) {
+                return path;
+            }
+        }
+        String pathEnv = System.getenv("PATH");
+        if (pathEnv != null && !pathEnv.isBlank()) {
+            for (String dir : pathEnv.split(";")) {
+                if (dir == null || dir.isBlank()) {
+                    continue;
+                }
+                Path gitExe = Paths.get(dir.trim(), "git.exe");
+                if (!Files.isRegularFile(gitExe) || gitExe.getParent() == null) {
+                    continue;
+                }
+                Path gitRoot = gitExe.getParent().getParent();
+                if (gitRoot == null) {
+                    continue;
+                }
+                Path bash = gitRoot.resolve("bin").resolve("bash.exe");
+                if (Files.isRegularFile(bash)) {
+                    return bash;
+                }
+                bash = gitRoot.resolve("usr").resolve("bin").resolve("bash.exe");
+                if (Files.isRegularFile(bash)) {
+                    return bash;
+                }
+            }
+        }
+        return null;
     }
 
     /**

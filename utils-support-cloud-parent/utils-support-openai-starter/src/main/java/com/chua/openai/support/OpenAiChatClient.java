@@ -90,7 +90,7 @@ import com.chua.common.support.utils.StringUtils;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "opencode", "pollinations", "custom"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "opencode", "pollinations", "custom", "qianfan"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
