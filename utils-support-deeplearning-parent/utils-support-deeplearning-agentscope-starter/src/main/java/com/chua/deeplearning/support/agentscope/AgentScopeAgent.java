@@ -78,8 +78,11 @@ import io.agentscope.harness.agent.subagent.SubagentDeclaration;
 import io.agentscope.harness.agent.subagent.WorkspaceMode;
 import io.agentscope.harness.agent.filesystem.spec.LocalFilesystemSpec;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import reactor.core.publisher.Flux;
@@ -443,26 +446,85 @@ public class AgentScopeAgent implements Agent {
      * 用户输入边界检查：空白输入直接放行，其余按 USER_INPUT 检查。
      */
     private AgentContentVerdict inspectUserInput(String input) {
-        if (input == null || input.isBlank()) {
+        return inspectUserInput(input, null);
+    }
+
+    /**
+     * 用户输入边界检查（可带轨迹收集器）：命中或拦截时向 sink 记一条护栏轨迹。
+     *
+     * @param input     用户输入
+     * @param traceSink 轨迹收集队列，null 表示不收集
+     * @return 护栏结论
+     */
+    private AgentContentVerdict inspectUserInput(String input, Queue<AgentTrace> traceSink) {
+        AgentContentVerdict verdict = (input == null || input.isBlank())
+                ? AgentContentVerdict.allow()
+                : effectiveContentGuard().inspect(AgentContentKind.USER_INPUT, input);
+        offerGuardrailTrace(traceSink, "USER_INPUT", verdict);
+        return verdict;
+    }
+
+    /**
+     * 模型输出边界检查：空白输入直接放行，其余按 MODEL_OUTPUT 检查。
+     *
+     * @param output 模型输出原文
+     * @return 护栏结论
+     */
+    private AgentContentVerdict inspectModelOutput(String output) {
+        if (output == null || output.isBlank()) {
             return AgentContentVerdict.allow();
         }
-        return effectiveContentGuard().inspect(AgentContentKind.USER_INPUT, input);
+        return effectiveContentGuard().inspect(AgentContentKind.MODEL_OUTPUT, output);
     }
 
     /**
      * 模型输出边界检查：脱敏命中返回替换文本；被拒返回拦截通知文本。
      */
     private String guardModelOutput(String output) {
-        if (output == null || output.isBlank()) {
-            return output;
-        }
-        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.MODEL_OUTPUT, output);
+        return applyModelOutputGuard(output, inspectModelOutput(output));
+    }
+
+    /**
+     * 按护栏结论处理模型输出：脱敏命中返回替换文本；被拒返回拦截通知文本。
+     *
+     * @param output  模型输出原文
+     * @param verdict 护栏结论
+     * @return 放行 / 替换 / 拦截后的最终文本
+     */
+    private String applyModelOutputGuard(String output, AgentContentVerdict verdict) {
         if (verdict.action() == AgentContentVerdict.Action.BLOCK) {
             log.warn("[AgentScope] 模型输出被内容护栏拦截: agentId={}, findings={}",
                     agentId(), describeFindings(verdict));
             return AgentContentGuardMiddleware.BLOCKED_TEXT;
         }
         return verdict.content() != null ? verdict.content() : output;
+    }
+
+    /**
+     * 向轨迹收集器记一条内容护栏轨迹（{@link AgentTrace#KIND_GUARDRAIL}）。
+     *
+     * <p>命中（含审计级）或非放行动作才记录，纯放行不产生轨迹，避免噪声。</p>
+     *
+     * @param sink    轨迹收集队列，null 表示不收集
+     * @param boundary 边界名（USER_INPUT / TOOL_RESULT / MODEL_OUTPUT）
+     * @param verdict 护栏结论
+     */
+    private void offerGuardrailTrace(Queue<AgentTrace> sink, String boundary, AgentContentVerdict verdict) {
+        if (sink == null || verdict == null) {
+            return;
+        }
+        boolean hasFindings = verdict.findings() != null && !verdict.findings().isEmpty();
+        if (verdict.action() == AgentContentVerdict.Action.ALLOW && !hasFindings) {
+            return;
+        }
+        try {
+            String text = "边界=" + boundary
+                    + "；动作=" + verdict.action()
+                    + (hasFindings ? "；命中=" + describeFindings(verdict) : "");
+            sink.offer(AgentTrace.of(AgentTrace.KIND_GUARDRAIL, agentId(), null, text));
+        } catch (Exception e) {
+            log.warn("[AgentScope] 记录护栏轨迹失败: agentId={}, boundary={}", agentId(), boundary, e);
+        }
     }
 
     /**
