@@ -10,7 +10,14 @@ import com.chua.vertx.support.server.VertxHttpServer;
 import com.chua.quarkus.support.server.QuarkusHttpServer;
 import com.chua.armeria.support.server.ArmeriaHttpServer;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -37,6 +44,12 @@ import java.util.concurrent.atomic.LongAdder;
  *   client &lt;host&gt; &lt;port&gt; &lt;workers&gt; &lt;seconds&gt; &lt;bodyBytes&gt; &lt;label&gt;
  *       先冒烟校验 /echo 回显一致性，再 3s 预热 + seconds 测量，输出
  *       mode=client label=.. conns=.. body=..B qps=.. tputMBps=.. p50us=.. p99us=.. errs=.. reqs=..
+ *
+ *   client-raw &lt;host&gt; &lt;port&gt; &lt;workers&gt; &lt;seconds&gt; &lt;bodyBytes&gt; &lt;label&gt;
+ *       原生 Socket 客户端：-Dbench.conn=ka|close（close=每请求一条真实 TCP 连接，
+ *       SO_LINGER=0 RST 关闭避免 TIME_WAIT 堆积；ka=每 worker 一条长连接复用）；
+ *       -Dbench.headers=base|slim|pad（slim=去 Content-Type+短 UA；pad 追加 -Dbench.padBytes=N 字节 X-Pad）。
+ *       输出额外带 hdrB=请求头线上字节数（精确计量）。
  * </pre>
  *
  * <p>回环口径：server 与 client 同机不同 JVM（127.0.0.1）；
@@ -81,6 +94,9 @@ public final class ImplHttpBench {
             System.out.println("SERVER_READY impl=" + args[1] + " port=" + server.getPort());
             System.out.flush();
             new CountDownLatch(1).await();
+        } else if ("client-raw".equals(args[0])) {
+            runRawClient(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
+                    Integer.parseInt(args[4]), Integer.parseInt(args[5]), args.length > 6 ? args[6] : "bench");
         } else {
             runClient(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
                     Integer.parseInt(args[4]), Integer.parseInt(args[5]), args.length > 6 ? args[6] : "bench");
@@ -249,6 +265,317 @@ public final class ImplHttpBench {
             } finally {
                 latch.countDown();
             }
+        }
+    }
+
+    // ==================== client-raw：原生 Socket 模式 ====================
+    // 短连接实验（bench.conn=close）：每请求一条真实 TCP 连接，完整握手+请求+响应后
+    // 用 SO_LINGER(0) 以 RST 关闭——避免 TIME_WAIT 堆积耗尽临时端口/conntrack，
+    // 连接建立与销毁开销仍全额计入。头部梯度实验（bench.headers=base|slim|pad）：
+    // 请求头完全可控，hdrB 为线上头部字节数的精确计量值。
+
+    /** 原生 Socket 连接超时（毫秒） */
+    static final int CONNECT_TIMEOUT_MILLIS = 10_000;
+
+    /** 构造 POST /echo 请求头模板（US_ASCII）；返回字节数即线上头部真实大小（不含 body）。 */
+    static byte[] buildHeader(String host, int port, int bodyBytes, String headersMode, int padBytes, boolean close) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("POST /echo HTTP/1.1\r\n");
+        sb.append("Host: ").append(host).append(':').append(port).append("\r\n");
+        if ("slim".equals(headersMode)) {
+            sb.append("User-Agent: b\r\n");
+        } else {
+            sb.append("Content-Type: application/octet-stream\r\n");
+            sb.append("User-Agent: Java-http-client/25\r\n");
+        }
+        sb.append("Content-Length: ").append(bodyBytes).append("\r\n");
+        if ("pad".equals(headersMode) && padBytes > 0) {
+            sb.append("X-Pad: ");
+            for (int i = 0; i < padBytes; i++) {
+                sb.append('x');
+            }
+            sb.append("\r\n");
+        }
+        if (close) {
+            sb.append("Connection: close\r\n");
+        }
+        sb.append("\r\n");
+        return sb.toString().getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /** 一条 TCP 连接 + 接收缓冲。非线程安全：每 worker 独占一条。 */
+    static final class RawConn implements AutoCloseable {
+        final Socket socket;
+        final InputStream in;
+        final OutputStream out;
+        final byte[] rbuf = new byte[32 * 1024];
+        int rp;
+        int rl;
+
+        RawConn(String host, int port, boolean rstClose) throws IOException {
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(host, port), CONNECT_TIMEOUT_MILLIS);
+            socket.setTcpNoDelay(true);
+            socket.setSoTimeout(15_000);
+            if (rstClose) {
+                // close 时发 RST：短连接压测不进 TIME_WAIT
+                socket.setSoLinger(true, 0);
+            }
+            in = socket.getInputStream();
+            out = socket.getOutputStream();
+        }
+
+        @Override
+        public void close() throws IOException {
+            socket.close();
+        }
+    }
+
+    /** 读取一条完整 /echo 响应；sink 非 null 时把 body 拷入 sink（长度必须一致）。返回 Content-Length。 */
+    static int readEchoResponse(RawConn c, byte[] sink) throws IOException {
+        int headerEnd = -1;
+        search:
+        while (true) {
+            for (int i = c.rp + 3; i < c.rl; i++) {
+                if (c.rbuf[i] == '\n' && c.rbuf[i - 1] == '\r' && c.rbuf[i - 2] == '\n' && c.rbuf[i - 3] == '\r') {
+                    headerEnd = i + 1;
+                    break search;
+                }
+            }
+            if (c.rp > 0) {
+                System.arraycopy(c.rbuf, c.rp, c.rbuf, 0, c.rl - c.rp);
+                c.rl -= c.rp;
+                c.rp = 0;
+            }
+            if (c.rl == c.rbuf.length) {
+                throw new IOException("resp header too large");
+            }
+            int n = c.in.read(c.rbuf, c.rl, c.rbuf.length - c.rl);
+            if (n < 0) {
+                throw new IOException("EOF while reading header");
+            }
+            c.rl += n;
+        }
+        int cl = parseContentLength(c.rbuf, c.rp, headerEnd);
+        int avail = c.rl - headerEnd;
+        if (avail < cl) {
+            if (sink != null && cl != sink.length) {
+                throw new IOException("body len mismatch " + cl + "!=" + sink.length);
+            }
+            int off = avail;
+            if (sink != null) {
+                System.arraycopy(c.rbuf, headerEnd, sink, 0, avail);
+            }
+            int need = cl - avail;
+            c.rp = 0;
+            c.rl = 0;
+            while (need > 0) {
+                int n = c.in.read(c.rbuf, 0, Math.min(need, c.rbuf.length));
+                if (n < 0) {
+                    throw new IOException("EOF while reading body");
+                }
+                if (sink != null) {
+                    System.arraycopy(c.rbuf, 0, sink, off, n);
+                }
+                off += n;
+                need -= n;
+            }
+        } else {
+            if (sink != null) {
+                System.arraycopy(c.rbuf, headerEnd, sink, 0, cl);
+            }
+            c.rp = headerEnd + cl;
+        }
+        return cl;
+    }
+
+    /** 在响应头区 [from,to) 内找 Content-Length（不区分大小写），找不到抛异常。 */
+    static int parseContentLength(byte[] b, int from, int to) throws IOException {
+        int i = from;
+        while (i < to) {
+            int eol = i;
+            while (eol < to && b[eol] != '\n') {
+                eol++;
+            }
+            if (eol - i >= 16
+                    && (b[i] | 0x20) == 'c' && (b[i + 1] | 0x20) == 'o' && (b[i + 2] | 0x20) == 'n'
+                    && (b[i + 3] | 0x20) == 't' && (b[i + 4] | 0x20) == 'e' && (b[i + 5] | 0x20) == 'n'
+                    && (b[i + 6] | 0x20) == 't' && b[i + 7] == '-'
+                    && (b[i + 8] | 0x20) == 'l' && (b[i + 9] | 0x20) == 'e' && (b[i + 10] | 0x20) == 'n'
+                    && (b[i + 11] | 0x20) == 'g' && (b[i + 12] | 0x20) == 't' && (b[i + 13] | 0x20) == 'h') {
+                int j = i + 14;
+                while (j < eol && (b[j] == ':' || b[j] == ' ' || b[j] == '\t')) {
+                    j++;
+                }
+                int v = 0;
+                while (j < eol && b[j] >= '0' && b[j] <= '9') {
+                    v = v * 10 + (b[j] - '0');
+                    j++;
+                }
+                return v;
+            }
+            i = eol + 1;
+        }
+        throw new IOException("no content-length header");
+    }
+
+    static void runRawClient(String host, int port, int workers, int seconds, int bodyBytes, String label) throws Exception {
+        String connMode = System.getProperty("bench.conn", "ka");
+        boolean closeConn = "close".equalsIgnoreCase(connMode);
+        String headersMode = System.getProperty("bench.headers", "base");
+        int padBytes = Integer.parseInt(System.getProperty("bench.padBytes", "0"));
+        byte[] body = new byte[bodyBytes];
+        for (int i = 0; i < bodyBytes; i++) {
+            body[i] = (byte) (i & 0x7f);
+        }
+        byte[] header = buildHeader(host, port, bodyBytes, headersMode, padBytes, closeConn);
+        int hdrB = header.length;
+
+        // 冒烟：真实回显一致性校验（该档头/连接模式不被服务端接受时在此失败）
+        try (RawConn c = new RawConn(host, port, closeConn)) {
+            c.out.write(header);
+            c.out.write(body);
+            c.out.flush();
+            byte[] echo = new byte[bodyBytes];
+            readEchoResponse(c, echo);
+            if (!Arrays.equals(body, echo)) {
+                System.out.println("label=" + label + " SMOKE_FAIL raw echo mismatch hdrB=" + hdrB);
+                System.out.flush();
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("label=" + label + " SMOKE_FAIL raw ex=" + e + " hdrB=" + hdrB);
+            System.out.flush();
+            return;
+        }
+
+        LongAdder total = new LongAdder();
+        LongAdder errors = new LongAdder();
+        AtomicBoolean running = new AtomicBoolean(true);
+        List<RawWorker> ws = new ArrayList<>(workers);
+        CountDownLatch latch = new CountDownLatch(workers);
+        boolean virtual = workers > VIRTUAL_THREAD_THRESHOLD;
+        for (int i = 0; i < workers; i++) {
+            RawWorker w = new RawWorker(host, port, header, body, closeConn, total, errors, running, latch);
+            ws.add(w);
+            Thread t = virtual
+                    ? Thread.ofVirtual().name("raw-" + i).unstarted(w)
+                    : new Thread(w, "raw-" + i);
+            t.setDaemon(true);
+            t.start();
+        }
+        Thread.sleep(WARMUP_MILLIS);
+        long baseline = total.sum();
+        int sampleBase = SHARED_N.get();
+        for (RawWorker w : ws) {
+            w.reset(sampleBase);
+        }
+        long start = System.nanoTime();
+        Thread.sleep(seconds * 1000L);
+        running.set(false);
+        latch.await();
+        double elapsed = (System.nanoTime() - start) / 1e9;
+
+        long count = total.sum() - baseline;
+        long err = errors.sum();
+        int n = Math.max(0, Math.min(SHARED_N.get() - sampleBase, MAX_SAMPLES_TOTAL));
+        long[] all = new long[n];
+        for (int j = 0; j < n; j++) {
+            all[j] = SHARED_LAT[j];
+        }
+        Arrays.sort(all, 0, n);
+        double tputMBps = count * 2.0 * bodyBytes / elapsed / (1024.0 * 1024.0);
+        System.out.printf("mode=raw-%s label=%s hdrB=%d conns=%d body=%dB qps=%.0f tputMBps=%.1f p50us=%d p99us=%d errs=%d reqs=%d%n",
+                connMode, label, hdrB, workers, bodyBytes, count / elapsed, tputMBps,
+                pct(all, n, 0.50), pct(all, n, 0.99), err, count);
+        System.out.flush();
+    }
+
+    private static final class RawWorker implements Runnable {
+        private final String host;
+        private final int port;
+        private final byte[] header;
+        private final byte[] body;
+        private final boolean closeConn;
+        private final LongAdder total;
+        private final LongAdder errors;
+        private final AtomicBoolean running;
+        private final CountDownLatch latch;
+        /** 测量期采样基线：SHARED_N 计数超过该值的部分属于测量窗口 */
+        private volatile int base;
+
+        RawWorker(String host, int port, byte[] header, byte[] body, boolean closeConn,
+                  LongAdder total, LongAdder errors, AtomicBoolean running, CountDownLatch latch) {
+            this.host = host;
+            this.port = port;
+            this.header = header;
+            this.body = body;
+            this.closeConn = closeConn;
+            this.total = total;
+            this.errors = errors;
+            this.running = running;
+            this.latch = latch;
+        }
+
+        void reset(int sampleBase) {
+            this.base = sampleBase;
+        }
+
+        @Override
+        public void run() {
+            RawConn conn = null;
+            try {
+                if (!closeConn) {
+                    conn = newConn();
+                }
+                while (running.get()) {
+                    long t0 = System.nanoTime();
+                    try {
+                        RawConn c = closeConn ? newConn() : conn;
+                        try {
+                            c.out.write(header);
+                            c.out.write(body);
+                            c.out.flush();
+                            int cl = readEchoResponse(c, null);
+                            if (cl != body.length) {
+                                throw new IOException("bad body len " + cl);
+                            }
+                        } finally {
+                            if (closeConn) {
+                                c.close();
+                            }
+                        }
+                        int idx = SHARED_N.incrementAndGet() - 1 - base;
+                        if (idx >= 0 && idx < MAX_SAMPLES_TOTAL) {
+                            SHARED_LAT[idx] = System.nanoTime() - t0;
+                        }
+                        total.increment();
+                    } catch (Exception e) {
+                        if (!closeConn && conn != null) {
+                            try { conn.close(); } catch (IOException ignore) { }
+                            conn = newConn();
+                        }
+                        errors.increment();
+                        if (errors.sum() <= VERBOSE_ERRS) {
+                            System.out.println("label probe err#" + errors.sum() + " ex=" + e);
+                            System.out.flush();
+                        }
+                    }
+                }
+            } catch (Exception fatal) {
+                errors.increment();
+                System.out.println("raw worker fatal ex=" + fatal);
+                System.out.flush();
+            } finally {
+                if (conn != null) {
+                    try { conn.close(); } catch (IOException ignore) { }
+                }
+                latch.countDown();
+            }
+        }
+
+        private RawConn newConn() throws IOException {
+            return new RawConn(host, port, closeConn);
         }
     }
 }
