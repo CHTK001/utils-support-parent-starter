@@ -2151,7 +2151,7 @@ public class AgentScopeAgent implements Agent {
                 runningHarness = null;
                 cleanupModelRegistrations();
                 fireEvalEnd(evalContext, null, false, preBlock, tracker);
-                return Flux.just(errorEvent(plan.agentId, preBlock));
+                return tracesThenError(gateTraces, plan.agentId, preBlock);
             }
             final HarnessAgent harnessAgent;
             try {
@@ -2461,12 +2461,15 @@ public class AgentScopeAgent implements Agent {
                                 .startTime(startTime)
                                 .durationMillis(duration)
                                 .build();
-                        return Flux.just(AgentStreamEvent.builder()
+                        // 收尾前把队列里可能残留的轨迹一并下发（正常路径已在事件边界排空）
+                        List<AgentStreamEvent> tail = drainTraceEvents(gateTraces);
+                        AgentStreamEvent complete = AgentStreamEvent.builder()
                                 .type(AgentStreamEvent.Type.COMPLETE)
                                 .agentId(plan.agentId)
                                 .usage(usage)
                                 .timestamp(System.currentTimeMillis())
-                                .build());
+                                .build();
+                        return Flux.concat(Flux.fromIterable(tail), Flux.just(complete));
                     }))
                     .doOnError(e -> {
                         streamFailed.set(true);
@@ -2919,7 +2922,8 @@ public class AgentScopeAgent implements Agent {
                                       boolean effectivePlan, int effectivePlanMaxTask,
                                       AgentDebugHook effectiveDebugHook,
                                       AgentPlanHook effectivePlanHook, int effectiveMaxIters,
-                                      String feedback, AgentBudgetTracker tracker) {
+                                      String feedback, AgentBudgetTracker tracker,
+                                      Queue<AgentTrace> gateTraces) {
         HarnessAgent.Builder builder = HarnessAgent.builder()
                 .name(agentId)
                 .description(definition != null ? definition.getName() : "Agent")
@@ -3005,7 +3009,7 @@ public class AgentScopeAgent implements Agent {
         // 包装工具级的闸门拦不到）。MiddlewareChain 从注册列表尾向头折叠、
         // 先注册者在外层，必须先于调试中间件注册才能赶在执行链之前裁决。
         builder.middleware(new AgentToolGateMiddleware(riskAdjudicator(), agentId, tracker,
-                java.util.Set.of(ASK_USER_TOOL)));
+                java.util.Set.of(ASK_USER_TOOL), gateTraces));
 
         // 内容护栏中间件：模型调用前对上下文里的工具返回统一脱敏 / 摘除，
         // 覆盖 harness 内建工具与 schema 工具的全部返回（onModelCall 单点收口）。
