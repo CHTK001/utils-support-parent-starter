@@ -1694,15 +1694,29 @@ public class AgentScopeAgent implements Agent {
      * @return 轨迹 + 错误事件流
      */
     private Flux<AgentStreamEvent> tracesThenError(Queue<AgentTrace> traces, String agentId, String message) {
-        List<AgentStreamEvent> events = new ArrayList<>();
+        List<AgentStreamEvent> events = new ArrayList<>(drainTraceEvents(traces));
+        events.add(errorEvent(agentId, message));
+        return Flux.fromIterable(events);
+    }
+
+    /**
+     * 排干轨迹队列并转成流式轨迹事件（保持入队顺序）。
+     *
+     * @param traces 轨迹队列
+     * @return 轨迹事件列表，队列空时为空列表
+     */
+    private List<AgentStreamEvent> drainTraceEvents(Queue<AgentTrace> traces) {
+        List<AgentStreamEvent> events = null;
         if (traces != null) {
             AgentTrace t;
             while ((t = traces.poll()) != null) {
+                if (events == null) {
+                    events = new ArrayList<>();
+                }
                 events.add(AgentStreamEvent.trace(t));
             }
         }
-        events.add(errorEvent(agentId, message));
-        return Flux.fromIterable(events);
+        return events != null ? events : java.util.Collections.emptyList();
     }
 
     /**
@@ -2144,7 +2158,8 @@ public class AgentScopeAgent implements Agent {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
                         plan.primaryModelId, plan.declarations, plan.effectivePlan,
                         plan.effectivePlanMaxTask, plan.effectiveDebugHook,
-                        plan.effectivePlanHook, plan.effectiveMaxIters, plan.feedback, tracker);
+                        plan.effectivePlanHook, plan.effectiveMaxIters, plan.feedback, tracker,
+                        gateTraces);
             } catch (Exception e) {
                 return Flux.error(e);
             }
@@ -2207,6 +2222,8 @@ public class AgentScopeAgent implements Agent {
                             return Flux.just(errorEvent(plan.agentId, message));
                         }
                         final List<AgentStreamEvent> emitted = Wraps.list();
+                        // 输入护栏 / 工具裁决轨迹随事件边界下发（不丢、不与正文事件乱序）
+                        emitted.addAll(drainTraceEvents(gateTraces));
                         try {
                             String aid = plan.agentId;
                             if (event instanceof TextBlockDeltaEvent delta) {
@@ -2313,7 +2330,12 @@ public class AgentScopeAgent implements Agent {
                                 Msg resultMsg = re.getResult();
                                 String fullText = resultMsg != null ? resultMsg.getTextContent() : "";
                                 // 内容护栏：模型输出边界收口（流式 delta 已发无法召回，这里兜底最终正文）
-                                fullText = guardModelOutput(fullText);
+                                AgentContentVerdict outputVerdict = inspectModelOutput(fullText);
+                                AgentTrace guardTrace = buildGuardrailTrace("MODEL_OUTPUT", outputVerdict);
+                                if (guardTrace != null) {
+                                    emitted.add(AgentStreamEvent.trace(guardTrace));
+                                }
+                                fullText = applyModelOutputGuard(fullText, outputVerdict);
                                 if (StringUtils.isNotEmpty(fullText)) {
                                     emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TEXT, aid, null, fullText)));
@@ -2465,6 +2487,8 @@ public class AgentScopeAgent implements Agent {
                                 && signal == reactor.core.publisher.SignalType.ON_COMPLETE;
                         fireEvalEnd(evalContext, outputText.toString(), success,
                                 success ? null : failReason.get(), tracker);
+                        // 兜底排水：异常 / 取消路径残留的轨迹落日志，观测不丢
+                        logGateTraces(gateTraces);
                     });
         });
     }
