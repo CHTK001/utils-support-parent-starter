@@ -501,27 +501,43 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 向轨迹收集器记一条内容护栏轨迹（{@link AgentTrace#KIND_GUARDRAIL}）。
+     * 构建内容护栏轨迹：命中（含审计级）或非放行动作才生成，纯放行返回 null，避免噪声。
      *
-     * <p>命中（含审计级）或非放行动作才记录，纯放行不产生轨迹，避免噪声。</p>
-     *
-     * @param sink    轨迹收集队列，null 表示不收集
      * @param boundary 边界名（USER_INPUT / TOOL_RESULT / MODEL_OUTPUT）
-     * @param verdict 护栏结论
+     * @param verdict  护栏结论
+     * @return 轨迹；纯放行时为 null
      */
-    private void offerGuardrailTrace(Queue<AgentTrace> sink, String boundary, AgentContentVerdict verdict) {
-        if (sink == null || verdict == null) {
-            return;
+    private AgentTrace buildGuardrailTrace(String boundary, AgentContentVerdict verdict) {
+        if (verdict == null) {
+            return null;
         }
         boolean hasFindings = verdict.findings() != null && !verdict.findings().isEmpty();
         if (verdict.action() == AgentContentVerdict.Action.ALLOW && !hasFindings) {
+            return null;
+        }
+        String text = "边界=" + boundary
+                + "；动作=" + verdict.action()
+                + (hasFindings ? "；命中=" + describeFindings(verdict) : "");
+        return AgentTrace.of(AgentTrace.KIND_GUARDRAIL, agentId(), null, text);
+    }
+
+    /**
+     * 向轨迹收集器投递一条内容护栏轨迹（{@link AgentTrace#KIND_GUARDRAIL}）。
+     *
+     * @param sink     轨迹收集队列，null 表示不收集
+     * @param boundary 边界名（USER_INPUT / TOOL_RESULT / MODEL_OUTPUT）
+     * @param verdict  护栏结论
+     */
+    private void offerGuardrailTrace(Queue<AgentTrace> sink, String boundary, AgentContentVerdict verdict) {
+        if (sink == null) {
+            return;
+        }
+        AgentTrace trace = buildGuardrailTrace(boundary, verdict);
+        if (trace == null) {
             return;
         }
         try {
-            String text = "边界=" + boundary
-                    + "；动作=" + verdict.action()
-                    + (hasFindings ? "；命中=" + describeFindings(verdict) : "");
-            sink.offer(AgentTrace.of(AgentTrace.KIND_GUARDRAIL, agentId(), null, text));
+            sink.offer(trace);
         } catch (Exception e) {
             log.warn("[AgentScope] 记录护栏轨迹失败: agentId={}, boundary={}", agentId(), boundary, e);
         }
@@ -1250,11 +1266,15 @@ public class AgentScopeAgent implements Agent {
     */
     @Override
     public AgentResponse run(String input) {
+        // 轨迹收集队列：护栏 / 工具裁决轨迹在本队列暂存，同步路径无流式通道，
+        // 运行结束时统一落日志与响应 metadata（观测不丢）。
+        final Queue<AgentTrace> gateTraces = new ConcurrentLinkedQueue<>();
         // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
-        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        AgentContentVerdict inputVerdict = inspectUserInput(input, gateTraces);
         if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
             log.warn("[AgentScope] 用户输入被内容护栏拦截: agentId={}, findings={}",
                     agentId(), describeFindings(inputVerdict));
+            logGateTraces(gateTraces);
             return AgentResponse.builder()
                     .output("")
                     .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
@@ -1321,7 +1341,7 @@ public class AgentScopeAgent implements Agent {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
                         plan.primaryModelId, plan.declarations, plan.effectivePlan,
                         plan.effectivePlanMaxTask, plan.effectiveDebugHook,
-                        plan.effectivePlanHook, plan.effectiveMaxIters, null, tracker);
+                        plan.effectivePlanHook, plan.effectiveMaxIters, null, tracker, gateTraces);
                 // 暴露给 interrupt()：外部中断靠关闭它来打断阻塞中的 call()
                 runningHarness = harnessAgent;
 
@@ -1334,7 +1354,9 @@ public class AgentScopeAgent implements Agent {
                 Msg resultMsg = harnessAgent.call(plan.userMsg, ctx).block();
                 String output = resultMsg != null ? resultMsg.getTextContent() : "";
                 // 内容护栏：模型输出边界（隐私 / 凭据脱敏；命中拦截替换为通知文本）
-                output = guardModelOutput(output);
+                AgentContentVerdict outputVerdict = inspectModelOutput(output);
+                offerGuardrailTrace(gateTraces, "MODEL_OUTPUT", outputVerdict);
+                output = applyModelOutputGuard(output, outputVerdict);
                 autoSaveMemory(input, output);
                 result = AgentResponse.builder()
                         .output(output)
@@ -1383,7 +1405,58 @@ public class AgentScopeAgent implements Agent {
         cleanupModelRegistrations();
         // 评测收尾：按 metadata 是否带 error 判定成败（中断 / 取消不算失败，按实际 metadata 口径）
         fireEvalEnd(evalContext, result, tracker);
+        // 同步路径收尾：裁决 / 护栏轨迹落日志（无流式通道），用量快照进响应 metadata
+        logGateTraces(gateTraces);
+        attachUsageSnapshot(result, tracker);
         return result;
+    }
+
+    /**
+     * 把暂存的裁决 / 护栏轨迹落日志（同步路径无流式通道，观测不丢）。
+     *
+     * @param traces 轨迹队列
+     */
+    private void logGateTraces(Queue<AgentTrace> traces) {
+        if (traces == null || traces.isEmpty()) {
+            return;
+        }
+        AgentTrace t;
+        while ((t = traces.poll()) != null) {
+            log.info("[AgentScope] 轨迹[{}]: agentId={}, tool={}, {}",
+                    t.getKind(), t.getAgentId(), t.getToolName(), t.getText());
+        }
+    }
+
+    /**
+     * 把本轮用量快照附加到响应 metadata（同步路径无流式 usage 事件，如实记录）。
+     *
+     * <p>口径：Token / 费用在同步路径拿不到逐轮事件，快照值可能为 0（缺省即「未计量」），
+     * 工具调用次数来自风险闸门单点记账，真实可靠；预算熔断态一并带出。</p>
+     *
+     * @param result  运行结果
+     * @param tracker 预算记账器
+     */
+    private void attachUsageSnapshot(AgentResponse result, AgentBudgetTracker tracker) {
+        if (result == null || tracker == null) {
+            return;
+        }
+        try {
+            Map<String, Object> usage = new java.util.LinkedHashMap<>();
+            usage.put("inputTokens", tracker.usedInputTokens());
+            usage.put("outputTokens", tracker.usedOutputTokens());
+            usage.put("totalTokens", tracker.usedTotalTokens());
+            usage.put("toolCalls", tracker.usedToolCalls());
+            usage.put("costMicros", tracker.usedCostMicros());
+            usage.put("elapsedMillis", tracker.elapsedMillis());
+            result.getMetadata().put("usage", usage);
+            if (tracker.isExceeded()) {
+                result.getMetadata().put("budgetExceeded", Boolean.TRUE);
+                result.getMetadata().put("budgetViolation", tracker.violationReason());
+            }
+        } catch (Exception e) {
+            // metadata 可能为不可变 Map（部分分支用 Map.of 构建），附加失败不影响运行结果
+            log.debug("[AgentScope] 附加用量快照失败: agentId={}", agentId(), e);
+        }
     }
 
     /**
@@ -1579,13 +1652,15 @@ public class AgentScopeAgent implements Agent {
     */
     @Override
     public Flux<AgentStreamEvent> runStream(String input) {
+        // 轨迹收集队列：输入护栏 → drive 内的工具裁决 / 输出护栏轨迹统一经此下发前端
+        final Queue<AgentTrace> gateTraces = new ConcurrentLinkedQueue<>();
         // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
-        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        AgentContentVerdict inputVerdict = inspectUserInput(input, gateTraces);
         if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
             log.warn("[AgentScope] 用户输入被内容护栏拦截(流式): agentId={}, findings={}",
                     agentId(), describeFindings(inputVerdict));
-            return Flux.just(errorEvent(agentId(),
-                    "用户输入被内容护栏拦截: " + describeFindings(inputVerdict)));
+            return tracesThenError(gateTraces, agentId(),
+                    "用户输入被内容护栏拦截: " + describeFindings(inputVerdict));
         }
         input = inputVerdict.content() != null ? inputVerdict.content() : input;
         final RunPlan plan;
@@ -1607,7 +1682,27 @@ public class AgentScopeAgent implements Agent {
             return Flux.just(errorEvent(plan.agentId,
                     (rejected ? "计划未获批准，终止执行" : "计划需修订后重新提交") + detail));
         }
-        return drive(plan, true);
+        return drive(plan, true, gateTraces);
+    }
+
+    /**
+     * 先下发队列中暂存的轨迹，再以 ERROR 事件收尾（护栏拦截等前置终止路径）。
+     *
+     * @param traces  轨迹队列
+     * @param agentId Agent 标识
+     * @param message 错误消息
+     * @return 轨迹 + 错误事件流
+     */
+    private Flux<AgentStreamEvent> tracesThenError(Queue<AgentTrace> traces, String agentId, String message) {
+        List<AgentStreamEvent> events = new ArrayList<>();
+        if (traces != null) {
+            AgentTrace t;
+            while ((t = traces.poll()) != null) {
+                events.add(AgentStreamEvent.trace(t));
+            }
+        }
+        events.add(errorEvent(agentId, message));
+        return Flux.fromIterable(events);
     }
 
     /**
@@ -1998,6 +2093,19 @@ public class AgentScopeAgent implements Agent {
      * @return 流式事件 Flux
      */
     private Flux<AgentStreamEvent> drive(final RunPlan plan, boolean initialRun) {
+        return drive(plan, initialRun, new ConcurrentLinkedQueue<>());
+    }
+
+    /**
+     * 驱动一次 Harness 流式运行（带轨迹收集队列）。
+     *
+     * @param plan       运行计划
+     * @param initialRun 是否首轮：仅首轮按 planStartActive 预进入 Plan；恢复轮不重复进入
+     * @param gateTraces 轨迹收集队列（护栏 / 工具裁决），由调用方创建并可在运行前预埋轨迹
+     * @return 流式事件 Flux
+     */
+    private Flux<AgentStreamEvent> drive(final RunPlan plan, boolean initialRun,
+                                         final Queue<AgentTrace> gateTraces) {
         final long startTime = System.currentTimeMillis();
         return Flux.defer(() -> {
             // 新的一轮：清掉上一轮的中断信号与重复计数
