@@ -96,6 +96,27 @@ public class AgentTrace implements Serializable {
     public static final String KIND_EDGE = "edge";
 
     /**
+     * 工具风险裁决记录：一次裁决一条（工具 / 风险等级 / 裁决结论 / 原因）。
+     *
+     * @since 4.0.0.52
+     */
+    public static final String KIND_ADJUDICATION = "adjudication";
+
+    /**
+     * 内容护栏命中记录：输入 / 输出边界各一条（动作 = 放行 / 脱敏 / 拦截 + 命中项）。
+     *
+     * @since 4.0.0.52
+     */
+    public static final String KIND_GUARDRAIL = "guardrail";
+
+    /**
+     * 评测回放记录：一次运行结束一条（成败 / 耗时 / 失败原因），供回放对比与审计。
+     *
+     * @since 4.0.0.52
+     */
+    public static final String KIND_EVAL = "eval";
+
+    /**
      * 快速构建一条 trace。
      *
      * @param kind     类别

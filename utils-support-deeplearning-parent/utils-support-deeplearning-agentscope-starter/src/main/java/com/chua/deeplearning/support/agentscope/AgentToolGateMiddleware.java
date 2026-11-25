@@ -5,6 +5,7 @@ import com.chua.common.support.ai.agent.AgentBudgetTracker;
 import com.chua.common.support.ai.agent.AgentRiskAdjudicator;
 import com.chua.common.support.ai.agent.AgentRiskDecision;
 import com.chua.common.support.ai.agent.AgentRiskRequest;
+import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.agent.ToolRiskPolicy;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.agentscope.core.agent.Agent;
@@ -28,8 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -94,7 +97,14 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
     private final Set<String> exemptTools;
 
     /**
-     * 创建工具风险闸门中间件。
+     * 裁决轨迹队列：每次裁决一条（{@link AgentTrace#KIND_ADJUDICATION}），
+     * 由运行方（AgentScopeAgent 的流映射循环）按事件边界排空后下发前端回放。
+     * 并发队列：onActing 在 reactor 线程执行，排空在订阅线程。
+     */
+    private final Queue<AgentTrace> traceQueue;
+
+    /**
+     * 创建工具风险闸门中间件（不带裁决轨迹队列）。
      *
      * @param riskAdjudicator 风险裁决器，可为 null
      * @param agentId         Agent 标识，可为 null
@@ -103,10 +113,26 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
      */
     public AgentToolGateMiddleware(AgentRiskAdjudicator riskAdjudicator, String agentId,
                                    AgentBudgetTracker tracker, Set<String> exemptTools) {
+        this(riskAdjudicator, agentId, tracker, exemptTools, null);
+    }
+
+    /**
+     * 创建工具风险闸门中间件。
+     *
+     * @param riskAdjudicator 风险裁决器，可为 null
+     * @param agentId         Agent 标识，可为 null
+     * @param tracker         预算记账器，可为 null
+     * @param exemptTools     豁免风险裁决的工具名，可为 null
+     * @param traceQueue      裁决轨迹队列，null 表示不记录裁决轨迹
+     */
+    public AgentToolGateMiddleware(AgentRiskAdjudicator riskAdjudicator, String agentId,
+                                   AgentBudgetTracker tracker, Set<String> exemptTools,
+                                   Queue<AgentTrace> traceQueue) {
         this.riskAdjudicator = riskAdjudicator;
         this.agentId = agentId;
         this.tracker = tracker;
         this.exemptTools = exemptTools;
+        this.traceQueue = traceQueue;
     }
 
     @Override
@@ -231,27 +257,86 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
                 ? decision.riskLevel() : riskLevel;
         String reason = decision.reason() != null && !decision.reason().isBlank()
                 ? decision.reason() : null;
+        String outcome;
+        String denyReason;
         switch (decision.verdict()) {
             case ALLOW:
                 if (ToolRiskPolicy.isDangerous(effectiveLevel)) {
                     // 危险操作即使裁决放行也拦截（fail-safe：必须走人工强确认链路）
                     log.warn("[AgentScope] 危险操作被风险闸门拦截: agentId={}, tool={}, risk={}",
                             agentId, toolName, effectiveLevel);
-                    return "危险操作已拦截（风险等级 " + effectiveLevel + "），需人工确认后重试";
+                    outcome = "拦截(危险操作需人工确认)";
+                    denyReason = "危险操作已拦截（风险等级 " + effectiveLevel + "），需人工确认后重试";
+                    recordAdjudication(toolName, effectiveLevel, "BLOCKED",
+                            outcome + "；裁决原因: " + (reason != null ? reason : "-"));
+                    return denyReason;
                 }
+                recordAdjudication(toolName, effectiveLevel, "ALLOW",
+                        reason != null ? "放行；裁决原因: " + reason : "放行");
                 return null;
             case DENY:
                 log.info("[AgentScope] 工具调用被风险裁决拒绝: agentId={}, tool={}, reason={}",
                         agentId, toolName, reason);
-                return "工具调用被风险裁决拒绝: " + (reason != null ? reason : "不允许执行该操作");
+                outcome = "拒绝";
+                denyReason = "工具调用被风险裁决拒绝: " + (reason != null ? reason : "不允许执行该操作");
+                recordAdjudication(toolName, effectiveLevel, "DENY",
+                        "拒绝；裁决原因: " + (reason != null ? reason : "-"));
+                return denyReason;
             case CONFIRM_REQUIRED:
             default:
                 // 不挂起等待人工确认：fail-safe 跳过执行，把原因回给模型改道
                 log.info("[AgentScope] 工具调用需人工确认，本次跳过执行: agentId={}, tool={}, risk={}, reason={}",
                         agentId, toolName, effectiveLevel, reason);
-                return "工具调用需人工确认，本次已跳过执行（风险等级 "
+                outcome = "需人工确认(本次跳过)";
+                denyReason = "工具调用需人工确认，本次已跳过执行（风险等级 "
                         + effectiveLevel + (reason != null ? "：" + reason : "") + "）";
+                recordAdjudication(toolName, effectiveLevel, "CONFIRM_REQUIRED",
+                        outcome + "；裁决原因: " + (reason != null ? reason : "-"));
+                return denyReason;
         }
+    }
+
+    /**
+     * 记录一条工具风险裁决轨迹（{@link AgentTrace#KIND_ADJUDICATION}）。
+     *
+     * <p>轨迹失败不影响裁决结果（观测埋点不改变业务语义）；无队列时静默跳过。</p>
+     *
+     * @param toolName  工具名
+     * @param riskLevel 风险等级
+     * @param verdict   裁决结论（ALLOW / DENY / CONFIRM_REQUIRED / BLOCKED）
+     * @param detail    裁决说明
+     */
+    private void recordAdjudication(String toolName, String riskLevel, String verdict, String detail) {
+        Queue<AgentTrace> queue = this.traceQueue;
+        if (queue == null) {
+            return;
+        }
+        try {
+            String text = "风险=" + (riskLevel != null ? riskLevel : "-")
+                    + "；裁决=" + verdict
+                    + (detail != null && !detail.isBlank() ? "；" + detail : "");
+            queue.offer(AgentTrace.of(AgentTrace.KIND_ADJUDICATION, agentId, toolName, text));
+        } catch (Exception e) {
+            log.warn("[AgentScope] 记录裁决轨迹失败: agentId={}, tool={}", agentId, toolName, e);
+        }
+    }
+
+    /**
+     * 排空并返回当前累计的裁决轨迹（由运行方在事件边界调用）。
+     *
+     * @return 轨迹列表；无队列或无轨迹时为空列表
+     */
+    public List<AgentTrace> drainTraces() {
+        Queue<AgentTrace> queue = this.traceQueue;
+        if (queue == null || queue.isEmpty()) {
+            return List.of();
+        }
+        List<AgentTrace> drained = new ArrayList<>(queue.size());
+        AgentTrace t;
+        while ((t = queue.poll()) != null) {
+            drained.add(t);
+        }
+        return drained;
     }
 
     /**
