@@ -3,10 +3,12 @@ package com.chua.common.support.ai.chat.indicator;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
 
@@ -32,6 +34,22 @@ final class IndicatorJsonSupport {
      * 判定「按 Token 计价」的阈值：小于该值的单价几乎不可能按百万 Token 报价
      */
     private static final BigDecimal PER_TOKEN_THRESHOLD = new BigDecimal("0.0001");
+
+    /**
+     * 千 Token 换算系数（百度千帆以「元 / 千 Token」报价）
+     */
+    private static final BigDecimal KILO = BigDecimal.valueOf(1_000L);
+
+    /**
+     * 人民币兑美元默认汇率（千帆控制台价格口径换算用），
+     * 可用系统属性 {@code indicator.price.cny-per-usd} 覆盖。
+     */
+    private static final BigDecimal DEFAULT_CNY_PER_USD = new BigDecimal("7.2");
+
+    /**
+     * 人民币兑美元汇率的系统属性名
+     */
+    private static final String CNY_PER_USD_PROPERTY = "indicator.price.cny-per-usd";
 
     private IndicatorJsonSupport() {
     }
@@ -288,5 +306,74 @@ final class IndicatorJsonSupport {
      */
     static boolean has(Map<String, Object> target, String key) {
         return target.containsKey(key) && target.get(key) != null;
+    }
+
+    /**
+     * 平台是否以「人民币 / 千 Token」报价（百度千帆等）。
+     *
+     * <p>千帆 {@code /v2/models} 的 {@code pricing.prompt / completion} 是
+     * 「元 / 千 Token」，且不带币种 / 单位元数据，数值量级与 USD / 百万 Token
+     * 无法区分，只能按平台固定口径换算。</p>
+     *
+     * @param platform 平台标识（如 {@code qianfan}）
+     * @return 是返回 true
+     */
+    static boolean isCnyPerKiloTokenPlatform(String platform) {
+        return platform != null && platform.toLowerCase(Locale.ROOT).contains("qianfan");
+    }
+
+    /**
+     * 人民币兑美元汇率（系统属性 {@code indicator.price.cny-per-usd} 可覆盖）。
+     *
+     * @return 每美元兑人民币数额；配置非法时回落默认值
+     */
+    static BigDecimal cnyPerUsd() {
+        String configured = System.getProperty(CNY_PER_USD_PROPERTY);
+        if (StringUtils.isNotBlank(configured)) {
+            try {
+                BigDecimal rate = new BigDecimal(configured.trim());
+                if (rate.signum() > 0) {
+                    return rate;
+                }
+            } catch (NumberFormatException ignored) {
+                // 配置非法时回落默认汇率
+            }
+        }
+        return DEFAULT_CNY_PER_USD;
+    }
+
+    /**
+     * 按平台报价口径换算为 USD / 百万 Token；未识别平台沿用启发式判定。
+     *
+     * @param node     价格节点
+     * @param platform 平台标识（可为空）
+     * @return 每百万 Token 价格；缺失或非法时返回 null
+     */
+    static BigDecimal platformPerMillion(JsonNode node, String platform) {
+        BigDecimal value = decimal(node);
+        if (value == null || value.signum() < 0) {
+            return null;
+        }
+        if (isCnyPerKiloTokenPlatform(platform)) {
+            // 元 / 千 Token → 美元 / 百万 Token：×1000 ÷ 汇率
+            return value.multiply(KILO).divide(cnyPerUsd(), 6, RoundingMode.HALF_UP)
+                    .stripTrailingZeros();
+        }
+        return perMillionHeuristic(node);
+    }
+
+    /**
+     * 按平台报价口径换算按次价格（图片 / 检索）；未识别平台原样保留。
+     *
+     * @param node     价格节点
+     * @param platform 平台标识（可为空）
+     * @return 单次价格；缺失或非法时返回 null
+     */
+    static BigDecimal platformPerUnit(JsonNode node, String platform) {
+        BigDecimal value = perUnit(node);
+        if (value != null && value.signum() > 0 && isCnyPerKiloTokenPlatform(platform)) {
+            return value.divide(cnyPerUsd(), 6, RoundingMode.HALF_UP).stripTrailingZeros();
+        }
+        return value;
     }
 }

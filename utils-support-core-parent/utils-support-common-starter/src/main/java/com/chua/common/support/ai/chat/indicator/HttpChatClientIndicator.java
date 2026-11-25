@@ -338,6 +338,22 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
      * @return 指标 Map（可能为空，不会返回 null）
      */
     public static Map<String, Object> parseModelMetrics(JsonNode model) {
+        return parseModelMetrics(model, null);
+    }
+
+    /**
+     * 解析单个模型条目的标准指标，并按供应商平台修正报价口径。
+     *
+     * <p>部分平台（百度千帆）的目录价格是「人民币 / 千 Token」的平台固定口径，
+     * 不带币种 / 单位元数据，数值量级与 USD / 百万 Token 无法区分；这里按平台
+     * 标识统一换算，其余平台沿用 {@link #parseModelMetrics(JsonNode)} 的启发式
+     * 判定，行为不变。</p>
+     *
+     * @param model    单个模型条目 JSON（对象）
+     * @param platform 供应商平台标识（如 {@code qianfan}，可为空）
+     * @return 指标 Map（可能为空，不会返回 null）
+     */
+    public static Map<String, Object> parseModelMetrics(JsonNode model, String platform) {
         var metrics = new LinkedHashMap<String, Object>(32);
         if (model == null || !model.isObject()) {
             return metrics;
@@ -350,20 +366,20 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
         // 2) 价格：兼容 pricing / cost 两类结构
         JsonNode pricing = model.get("pricing");
         if (pricing != null && pricing.isObject()) {
-            putHeuristicPrice(metrics, "price_input_per_musd", pricing.get("input"));
-            putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("output"));
-            putHeuristicPrice(metrics, "price_cache_hit_per_musd", pricing.get("cache_read"));
-            putHeuristicPrice(metrics, "price_cache_write_per_musd", pricing.get("cache_write"));
-            putHeuristicPrice(metrics, "price_input_per_musd", pricing.get("prompt"));
-            putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("completion"));
+            putHeuristicPrice(metrics, "price_input_per_musd", pricing.get("input"), platform);
+            putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("output"), platform);
+            putHeuristicPrice(metrics, "price_cache_hit_per_musd", pricing.get("cache_read"), platform);
+            putHeuristicPrice(metrics, "price_cache_write_per_musd", pricing.get("cache_write"), platform);
+            putHeuristicPrice(metrics, "price_input_per_musd", pricing.get("prompt"), platform);
+            putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("completion"), platform);
             putPerTokenPrice(metrics, "price_input_per_musd", pricing.get("promptTextTokens"));
             putPerTokenPrice(metrics, "price_output_per_musd", pricing.get("completionTextTokens"));
             putPerTokenPrice(metrics, "price_cache_hit_per_musd", pricing.get("promptCachedTokens"));
             putPerTokenPrice(metrics, "price_cache_write_per_musd", pricing.get("promptCacheWriteTokens"));
             putPerTokenPrice(metrics, "price_cache_hit_per_musd", pricing.get("input_cache_read"));
             putPerTokenPrice(metrics, "price_cache_write_per_musd", pricing.get("input_cache_write"));
-            putUnitPrice(metrics, "price_image_per_unit", pricing.get("image"));
-            putUnitPrice(metrics, "price_web_search_per_unit", pricing.get("web_search"));
+            putUnitPrice(metrics, "price_image_per_unit", pricing.get("image"), platform);
+            putUnitPrice(metrics, "price_web_search_per_unit", pricing.get("web_search"), platform);
             putPerTokenPrice(metrics, "price_internal_reasoning_per_musd",
                     pricing.get("internal_reasoning"));
         }
