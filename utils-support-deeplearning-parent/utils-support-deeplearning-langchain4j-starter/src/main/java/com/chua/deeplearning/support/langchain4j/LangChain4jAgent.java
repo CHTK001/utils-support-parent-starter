@@ -21,6 +21,9 @@ import com.chua.common.support.ai.agent.AgentBudget;
 import com.chua.common.support.ai.agent.AgentBudgetTracker;
 import com.chua.common.support.ai.agent.AgentCancelledException;
 import com.chua.common.support.ai.agent.AgentCancellationToken;
+import com.chua.common.support.ai.agent.AgentContentGuard;
+import com.chua.common.support.ai.agent.AgentContentKind;
+import com.chua.common.support.ai.agent.AgentContentVerdict;
 import com.chua.common.support.ai.agent.AgentEvalContext;
 import com.chua.common.support.ai.agent.AgentEvalHook;
 import com.chua.common.support.ai.agent.AgentEvalRecord;
@@ -97,6 +100,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
 
@@ -276,6 +280,11 @@ public class LangChain4jAgent implements Agent {
      * 风险裁决器（显式注入）；null 时若配置了 {@link #decisionsClient} 则用决策模型兜底裁决
      */
     private volatile AgentRiskAdjudicator riskAdjudicator;
+
+    /**
+     * 内容护栏；null 时回落默认启发式护栏（{@link #contentGuard(AgentContentGuard)} 传 noop 显式关闭）
+     */
+    private volatile AgentContentGuard contentGuard;
 
     /**
      * 决策模型兜底裁决器缓存（懒创建，避免每次裁决都重建）
@@ -1059,6 +1068,97 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
+     * 设置内容护栏；null 时回落默认启发式护栏，传 {@link AgentContentGuard#noop()} 显式关闭。
+     */
+    @Override
+    public Agent contentGuard(AgentContentGuard contentGuard) {
+        this.contentGuard = contentGuard;
+        return this;
+    }
+
+    /**
+     * 获取内容护栏；未设置时返回 null（运行时经 {@link #effectiveContentGuard()} 回落默认启发式护栏）。
+     */
+    @Override
+    public AgentContentGuard contentGuard() {
+        return this.contentGuard;
+    }
+
+    /**
+     * 生效内容护栏：未显式设置时回落默认启发式护栏（注入检测 + 隐私脱敏 + 凭据拦截）。
+     */
+    private AgentContentGuard effectiveContentGuard() {
+        AgentContentGuard guard = this.contentGuard;
+        return guard != null ? guard : AgentContentGuard.heuristic();
+    }
+
+    /**
+     * 用户输入边界检查：空白输入直接放行，其余按 USER_INPUT 检查。
+     */
+    private AgentContentVerdict inspectUserInput(String input) {
+        if (input == null || input.isBlank()) {
+            return AgentContentVerdict.allow();
+        }
+        return effectiveContentGuard().inspect(AgentContentKind.USER_INPUT, input);
+    }
+
+    /**
+     * 模型输出边界检查：脱敏命中返回替换文本；被拒返回拦截通知文本。
+     */
+    private String guardModelOutput(String output) {
+        if (output == null || output.isBlank()) {
+            return output;
+        }
+        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.MODEL_OUTPUT, output);
+        if (verdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[LangChain4j] 模型输出被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(verdict));
+            return AgentContentGuard.BLOCKED_NOTICE;
+        }
+        return verdict.content() != null ? verdict.content() : output;
+    }
+
+    /**
+     * 工具返回边界检查（单点收口于 {@link #executeTool}）：注入命中摘除为通知文本，
+     * 隐私 / 凭据命中替换为脱敏文本，其余原样返回。
+     */
+    private String guardToolResult(String toolName, String output) {
+        if (output == null || output.isBlank()) {
+            return output;
+        }
+        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.TOOL_RESULT, output);
+        if (verdict == null) {
+            return output;
+        }
+        switch (verdict.action()) {
+            case BLOCK:
+                log.warn("[LangChain4j] 工具返回被内容护栏摘除: agentId={}, tool={}, findings={}",
+                        agentId(), toolName, describeFindings(verdict));
+                return AgentContentGuard.BLOCKED_NOTICE;
+            case REDACT:
+                return verdict.content() != null ? verdict.content() : output;
+            case ALLOW:
+            default:
+                return output;
+        }
+    }
+
+    /**
+     * 汇总命中项为简短描述（类型/规则，去重限 5 条）。
+     */
+    private static String describeFindings(AgentContentVerdict verdict) {
+        if (verdict == null || verdict.findings().isEmpty()) {
+            return "unspecified";
+        }
+        return verdict.findings().stream()
+                .map(finding -> finding.type()
+                        + (finding.rule() == null || finding.rule().isBlank() ? "" : "/" + finding.rule()))
+                .distinct()
+                .limit(5)
+                .collect(Collectors.joining(", "));
+    }
+
+    /**
      * 设置计划确认器
      *
      * @param planConfirmation 计划确认器，null 表示不送审
@@ -1345,6 +1445,14 @@ public class LangChain4jAgent implements Agent {
      * @return Agent 响应
      */
     private AgentResponse doRun(String input) {
+        // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
+        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[LangChain4j] 用户输入被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(inputVerdict));
+            return errorResponse("用户输入被内容护栏拦截: " + describeFindings(inputVerdict));
+        }
+        input = inputVerdict.content() != null ? inputVerdict.content() : input;
         AgentBudgetTracker budgetTracker = createBudgetTracker();
         RunPlan plan = prepareRun(input);
         if (printConfigEnabled) {
@@ -1455,14 +1563,22 @@ public class LangChain4jAgent implements Agent {
         if (chatModel == null) {
             return Flux.just(errorEvent("ChatModel 未配置，请先调用 chatModel(...)"));
         }
-        if (!(chatModel instanceof StreamingChatModel)) {
-            return runStreamFallback(input);
+        // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
+        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[LangChain4j] 用户输入被内容护栏拦截(流式): agentId={}, findings={}",
+                    agentId(), describeFindings(inputVerdict));
+            return Flux.just(errorEvent("用户输入被内容护栏拦截: " + describeFindings(inputVerdict)));
         }
-        AgentEvalContext evalContext = newEvalContext(input, "stream");
+        final String guardedInput = inputVerdict.content() != null ? inputVerdict.content() : input;
+        if (!(chatModel instanceof StreamingChatModel)) {
+            return runStreamFallback(guardedInput);
+        }
+        AgentEvalContext evalContext = newEvalContext(guardedInput, "stream");
         fireEvalStart(evalContext);
         return Flux.create(sink -> {
             try {
-                streamRun(input, sink);
+                streamRun(guardedInput, sink);
                 fireEvalEnd(evalContext, null, null);
             } catch (AgentCancelledException e) {
                 log.info("[LangChain4j] 流式运行被取消: {}", e.getMessage());
@@ -1796,9 +1912,18 @@ public class LangChain4jAgent implements Agent {
         }
         history.addAll(results);
         if (StringUtils.isNotBlank(feedback)) {
+            // 内容护栏：恢复轮用户反馈视作用户输入边界检查（注入默认阻断）
+            AgentContentVerdict feedbackVerdict = inspectUserInput(feedback);
+            if (feedbackVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+                log.warn("[LangChain4j] 恢复轮用户反馈被内容护栏拦截: agentId={}, findings={}",
+                        agentId(), describeFindings(feedbackVerdict));
+                sink.next(errorEvent("用户反馈被内容护栏拦截: " + describeFindings(feedbackVerdict)));
+                return;
+            }
+            String guardedFeedback = feedbackVerdict.content() != null ? feedbackVerdict.content() : feedback;
             // 用户修改意见注入模型上下文与会话历史，模型据此调整后续动作
-            history.add(UserMessage.from(feedback));
-            appendSessionFeedback(feedback);
+            history.add(UserMessage.from(guardedFeedback));
+            appendSessionFeedback(guardedFeedback);
         }
 
         UsageAcc acc = new UsageAcc();
@@ -1908,7 +2033,8 @@ public class LangChain4jAgent implements Agent {
                     aiMessage.text() != null ? aiMessage.text() : "", iter + 1);
 
             if (!aiMessage.hasToolExecutionRequests()) {
-                finalOutput = aiMessage.text() != null ? aiMessage.text() : "";
+                // 内容护栏：模型输出边界（隐私 / 凭据脱敏；命中拦截替换为通知文本）
+                finalOutput = guardModelOutput(aiMessage.text() != null ? aiMessage.text() : "");
                 break;
             }
 
@@ -2028,7 +2154,8 @@ public class LangChain4jAgent implements Agent {
                     aiMessage.text() != null ? aiMessage.text() : "", iter + 1);
 
             if (!aiMessage.hasToolExecutionRequests()) {
-                finalOutput = aiMessage.text() != null ? aiMessage.text() : "";
+                // 内容护栏：模型输出边界（隐私 / 凭据脱敏；命中拦截替换为通知文本）
+                finalOutput = guardModelOutput(aiMessage.text() != null ? aiMessage.text() : "");
                 break;
             }
 
@@ -2884,13 +3011,14 @@ public class LangChain4jAgent implements Agent {
     private String executeTool(ToolExecutionRequest request, Map<String, ToolExecutor> executors) {
         ToolExecutor executor = executors.get(request.name());
         if (executor == null) {
-            return "Error: unknown tool '" + request.name() + "'";
+            return guardToolResult(request.name(), "Error: unknown tool '" + request.name() + "'");
         }
         try {
             Map<String, Object> args = parseArguments(request.arguments());
-            return truncate(executor.execute(args));
+            return guardToolResult(request.name(), truncate(executor.execute(args)));
         } catch (Exception e) {
-            return "Error executing tool '" + request.name() + "': " + e.getMessage();
+            return guardToolResult(request.name(),
+                    "Error executing tool '" + request.name() + "': " + e.getMessage());
         }
     }
 

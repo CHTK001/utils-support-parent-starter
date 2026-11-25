@@ -17,6 +17,9 @@ import com.chua.common.support.ai.agent.AgentStreamEvent;
 import com.chua.common.support.ai.agent.AgentBudget;
 import com.chua.common.support.ai.agent.AgentBudgetTracker;
 import com.chua.common.support.ai.agent.AgentCancellationToken;
+import com.chua.common.support.ai.agent.AgentContentGuard;
+import com.chua.common.support.ai.agent.AgentContentKind;
+import com.chua.common.support.ai.agent.AgentContentVerdict;
 import com.chua.common.support.ai.agent.AgentEvalContext;
 import com.chua.common.support.ai.agent.AgentEvalHook;
 import com.chua.common.support.ai.agent.AgentEvalRecord;
@@ -64,6 +67,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -447,6 +451,11 @@ public class OpencodeServerAgent implements Agent {
     private volatile DecisionsClient decisionsClient;
 
     /**
+     * 内容护栏；null 时回落默认启发式护栏（{@link #contentGuard(AgentContentGuard)} 传 noop 显式关闭）
+     */
+    private volatile AgentContentGuard contentGuard;
+
+    /**
      * 是否请求启用 Plan 能力
      */
     private volatile boolean planEnabled;
@@ -646,6 +655,104 @@ public class OpencodeServerAgent implements Agent {
     public AgentCancellationToken cancellationToken() {
         AgentCancellationToken current = cancellationToken;
         return current == null ? AgentCancellationToken.none() : current;
+    }
+
+    /**
+     * 设置内容护栏；null 时回落默认启发式护栏，传 {@link AgentContentGuard#noop()} 显式关闭。
+     */
+    @Override
+    public Agent contentGuard(AgentContentGuard contentGuard) {
+        this.contentGuard = contentGuard;
+        return this;
+    }
+
+    /**
+     * 获取内容护栏；未设置时返回 null（运行时经 {@link #effectiveContentGuard()} 回落默认启发式护栏）。
+     */
+    @Override
+    public AgentContentGuard contentGuard() {
+        return this.contentGuard;
+    }
+
+    /**
+     * 生效内容护栏：未显式设置时回落默认启发式护栏（注入检测 + 隐私脱敏 + 凭据拦截）。
+     */
+    private AgentContentGuard effectiveContentGuard() {
+        AgentContentGuard guard = this.contentGuard;
+        return guard != null ? guard : AgentContentGuard.heuristic();
+    }
+
+    /**
+     * 用户输入边界检查：空白输入直接放行，其余按 USER_INPUT 检查。
+     */
+    private AgentContentVerdict inspectUserInput(String input) {
+        if (input == null || input.isBlank()) {
+            return AgentContentVerdict.allow();
+        }
+        return effectiveContentGuard().inspect(AgentContentKind.USER_INPUT, input);
+    }
+
+    /**
+     * 模型输出边界检查：脱敏命中返回替换文本；被拒返回拦截通知文本。
+     *
+     * <p>本引擎的模型与工具运行在 opencode server 进程内，SPI 侧只能在事件边界检查：
+     * 流式增量按 delta 边界尽力检查（跨片段拼接的敏感内容可能漏检），同步出口对聚合
+     * 全文复检兜底；已下发的增量无法召回。</p>
+     */
+    private String guardModelOutput(String output) {
+        if (output == null || output.isBlank()) {
+            return output;
+        }
+        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.MODEL_OUTPUT, output);
+        if (verdict == null) {
+            return output;
+        }
+        if (verdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[opencode-server] 模型输出被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(verdict));
+            return AgentContentGuard.BLOCKED_NOTICE;
+        }
+        return verdict.content() != null ? verdict.content() : output;
+    }
+
+    /**
+     * 工具返回边界检查（SSE 事件构建处）：注入命中摘除为通知文本，
+     * 隐私 / 凭据命中替换为脱敏文本，其余原样返回。
+     */
+    private String guardToolResult(String toolName, String output) {
+        if (output == null || output.isBlank()) {
+            return output;
+        }
+        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.TOOL_RESULT, output);
+        if (verdict == null) {
+            return output;
+        }
+        switch (verdict.action()) {
+            case BLOCK:
+                log.warn("[opencode-server] 工具返回被内容护栏摘除: agentId={}, tool={}, findings={}",
+                        agentId(), toolName, describeFindings(verdict));
+                return AgentContentGuard.BLOCKED_NOTICE;
+            case REDACT:
+                return verdict.content() != null ? verdict.content() : output;
+            case ALLOW:
+            default:
+                return output;
+        }
+    }
+
+    /**
+     * 汇总命中项为简短描述（类型/规则，去重限 5 条）。
+     */
+    private static String describeFindings(AgentContentVerdict verdict) {
+        if (verdict == null || verdict.findings().isEmpty()) {
+            return "unspecified";
+        }
+        return verdict.findings().stream()
+                .map(finding -> finding.type()
+                        + (finding.rule() == null || finding.rule().isBlank() ? "" : "/" + finding.rule()))
+                .distinct()
+                .limit(5)
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -1307,11 +1414,13 @@ public class OpencodeServerAgent implements Agent {
         if (error.get() != null) {
             log.warn("[opencode-server] 同步执行失败: {}", error.get());
         }
+        // 内容护栏：模型输出边界（隐私 / 凭据脱敏；命中拦截替换为通知文本）
         return AgentResponse.builder()
-                .output(output.toString())
+                .output(guardModelOutput(output.toString()))
                 .mode(mode.name())
                 .selectedAgent(agentId())
                 .usage(usage.get())
+                .metadata(error.get() == null ? Map.of() : Map.of("error", error.get()))
                 .build();
     }
 
@@ -1333,9 +1442,17 @@ public class OpencodeServerAgent implements Agent {
      * @return 事件流
      */
     private Flux<AgentStreamEvent> runStream(String input, String evalMode) {
+        // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
+        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[opencode-server] 用户输入被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(inputVerdict));
+            return Flux.just(errorEvent("用户输入被内容护栏拦截: " + describeFindings(inputVerdict)));
+        }
+        final String guardedInput = inputVerdict.content() != null ? inputVerdict.content() : input;
         AgentEvalHook hook = evalHook;
         AgentEvalContext evalContext = hook == null ? null
-                : AgentEvalContext.of(agentId(), input).withMode(evalMode, sessionId);
+                : AgentEvalContext.of(agentId(), guardedInput).withMode(evalMode, sessionId);
         if (hook != null && evalContext != null) {
             try {
                 hook.onRunStart(evalContext);
@@ -1352,7 +1469,7 @@ public class OpencodeServerAgent implements Agent {
             if (closed) {
                 return Flux.just(errorEvent("Agent 已关闭"));
             }
-            if (StringUtils.isBlank(input)) {
+            if (StringUtils.isBlank(guardedInput)) {
                 return Flux.just(errorEvent("输入为空"));
             }
             AgentLoopGuard guard = loopGuard;
@@ -1367,7 +1484,7 @@ public class OpencodeServerAgent implements Agent {
                             resolveModelRef(), shellEnabled, mode);
                 }
                 SessionContext context = ensureSession();
-                return streamTurn(context, () -> sendPrompt(context, input), tracker)
+                return streamTurn(context, () -> sendPrompt(context, guardedInput), tracker)
                         .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
             } catch (Throwable t) {
                 return Flux.just(errorEvent(messageOf(t)));
@@ -1450,13 +1567,21 @@ public class OpencodeServerAgent implements Agent {
             if (!pendingToolRecoveryEnabled) {
                 return Flux.just(errorEvent("已禁用待执行工具恢复，请重新发起运行"));
             }
+            // 内容护栏：恢复轮用户反馈视作用户输入边界检查（注入默认阻断）
+            AgentContentVerdict feedbackVerdict = inspectUserInput(feedback);
+            if (feedbackVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+                log.warn("[opencode-server] 用户反馈被内容护栏拦截: agentId={}, findings={}",
+                        agentId(), describeFindings(feedbackVerdict));
+                return Flux.just(errorEvent("用户反馈被内容护栏拦截: " + describeFindings(feedbackVerdict)));
+            }
+            final String guardedFeedback = feedbackVerdict.content() != null ? feedbackVerdict.content() : feedback;
             try {
                 SessionContext context = currentSession;
                 if (context == null) {
                     context = ensureSession();
                 }
                 SessionContext session = context;
-                return streamTurn(session, () -> replyPermissions(session, replyId, decisions, feedback),
+                return streamTurn(session, () -> replyPermissions(session, replyId, decisions, guardedFeedback),
                         newBudgetTracker())
                         .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
             } catch (Throwable t) {
@@ -3204,10 +3329,15 @@ public class OpencodeServerAgent implements Agent {
             if (StringUtils.isEmpty(delta)) {
                 return;
             }
+            // 内容护栏：流式输出边界尽力检查（跨片段拼接可能漏检，同步聚合出口会兜底复检）
+            String guarded = guardModelOutput(delta);
+            if (StringUtils.isEmpty(guarded)) {
+                return;
+            }
             sink.next(AgentStreamEvent.builder()
                     .type(type)
                     .agentId(agentId())
-                    .delta(delta)
+                    .delta(guarded)
                     .timestamp(System.currentTimeMillis())
                     .build());
         }
@@ -3325,6 +3455,8 @@ public class OpencodeServerAgent implements Agent {
         private void onToolResult(JsonNode data, String error) {
             String toolName = toolNameOf(data);
             String output = error != null ? truncate(error) : truncate(toolContent(data));
+            // 内容护栏：工具返回边界（注入摘除 / 隐私与凭据脱敏）
+            output = guardToolResult(toolName, output);
             ToolSpan span = toolSpans.remove(toolKey(data, toolName));
             toolNames.remove(callIdOf(data));
             sink.next(AgentStreamEvent.builder()

@@ -155,6 +155,11 @@ public final class OpencodeServerProcess {
     private static final String CONFIG_FILE = "opencode.json";
 
     /**
+     * 配置里指定 bash 工具执行 shell 的键名（opencode 原生键）
+     */
+    private static final String CONFIG_SHELL_KEY = "shell";
+
+    /**
      * 系统属性：托管目录
      */
     private static final String PROP_HOME = "opencode.server.home";
@@ -184,6 +189,15 @@ public final class OpencodeServerProcess {
      * 环境变量：opencode bash 工具使用的 shell
      */
     private static final String ENV_SHELL = "SHELL";
+
+    /**
+     * 环境变量：opencode 内置 Git Bash 探测的显式路径（官方机制）。
+     *
+     * <p>opencode 内部按「该变量 → PATH 上 git.exe 推导」定位 Git Bash，
+     * 供 less/diff 等辅助链路使用；bash 工具的执行 shell 则读合并配置的
+     * {@code shell} 键（见 {@link #prepareConfig}）。</p>
+     */
+    private static final String ENV_GIT_BASH_PATH = "OPENCODE_GIT_BASH_PATH";
 
     /**
      * 系统属性：启动等待秒数
@@ -790,20 +804,73 @@ public final class OpencodeServerProcess {
     /**
      * 写入最小配置，避免继承用户全局配置中的不兼容键。
      *
+     * <p>Windows 下同时把解析到的 Git Bash 路径写为配置的 {@code shell} 键：
+     * opencode 1.18.x 的 bash 工具按「合并配置的 shell 键 → 环境变量 COMSPEC
+     * 兜底 cmd.exe」选择执行 shell，缺省即落 cmd.exe。已有配置文件时只补缺失的
+     * {@code shell} 键，其余内容（含用户已显式配置的 shell）不动。</p>
+     *
      * @param configHome 隔离配置根
      */
     private void prepareConfig(Path configHome) {
         Path directory = prepareDirectory(configHome.resolve(OPENCODE_SUBDIRECTORY));
         Path configFile = directory.resolve(CONFIG_FILE);
-        if (Files.exists(configFile)) {
+        String shell = windowsShellForConfig();
+        if (!Files.exists(configFile)) {
+            Map<String, Object> config = new LinkedHashMap<>();
+            config.put("$schema", "https://opencode.ai/config.json");
+            if (shell != null) {
+                config.put(CONFIG_SHELL_KEY, shell);
+            }
+            try {
+                Files.writeString(configFile, MAPPER.writeValueAsString(config), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new IllegalStateException("写入 opencode 最小配置失败: " + configFile, e);
+            }
             return;
         }
-        Map<String, Object> config = new LinkedHashMap<>();
-        config.put("$schema", "https://opencode.ai/config.json");
+        ensureShellKey(configFile, shell);
+    }
+
+    /**
+     * Windows 下写入配置 {@code shell} 键的 bash 路径（正斜杠形式）。
+     *
+     * @return bash 路径；非 Windows 或未找到 bash 时返回 {@code null}
+     */
+    private static String windowsShellForConfig() {
+        if (!CliModelRunner.isWindows()) {
+            return null;
+        }
+        Path bash = resolveWindowsBashPath();
+        return bash == null ? null : bash.toString().replace('\\', '/');
+    }
+
+    /**
+     * 确保已有全局配置带 {@code shell} 键。
+     *
+     * <p>仅当配置缺该键且本机解析到 bash 时补写；配置不是合法 JSON 对象、
+     * 或用户已显式配置 shell 时保持原样，绝不覆盖用户内容。</p>
+     *
+     * @param configFile 全局配置文件
+     * @param shell      待补写的 shell 路径；空白表示跳过
+     */
+    private static void ensureShellKey(Path configFile, String shell) {
+        if (shell == null || shell.isBlank()) {
+            return;
+        }
         try {
-            Files.writeString(configFile, MAPPER.writeValueAsString(config), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new IllegalStateException("写入 opencode 最小配置失败: " + configFile, e);
+            JsonNode node = MAPPER.readTree(Files.readString(configFile, StandardCharsets.UTF_8));
+            if (!(node instanceof com.fasterxml.jackson.databind.node.ObjectNode object)) {
+                return;
+            }
+            JsonNode existing = object.get(CONFIG_SHELL_KEY);
+            if (existing != null && existing.isTextual() && !existing.asText("").isBlank()) {
+                return;
+            }
+            object.put(CONFIG_SHELL_KEY, shell);
+            Files.writeString(configFile, MAPPER.writeValueAsString(object), StandardCharsets.UTF_8);
+            log.info("[opencode] 已在全局配置补写 shell={}", shell);
+        } catch (Exception e) {
+            log.warn("[opencode] 补写全局配置 shell 键失败（bash 工具可能退回 cmd.exe）: {}", e.getMessage());
         }
     }
 
@@ -902,14 +969,17 @@ public final class OpencodeServerProcess {
     }
 
     /**
-     * Windows 下为 opencode 子进程修正 SHELL 环境变量。
+     * Windows 下为 opencode 子进程注入 shell 相关环境变量。
      *
-     * <p>opencode 的 bash 工具在 Windows 上按「配置 shell 键 → 内置 gitbash 探测 →
-     * 环境变量 SHELL → pwsh/powershell/cmd 兜底」解析执行 shell。若机器级
-     * {@code SHELL} 被设为 cmd.exe/powershell，bash 工具会改用该 shell 执行命令，
-     * 所有 bash 命令都会直接失败（如 “Unable to execute command”）。
-     * 这里在启动子进程前把 SHELL 修正为真实存在的 Git Bash；
-     * 可通过系统属性 {@code opencode.server.bash-path} 显式指定 bash 路径。</p>
+     * <p>opencode 1.18.x 的 bash 工具在 Windows 上按「合并配置的 shell 键 →
+     * 环境变量 COMSPEC 兜底 cmd.exe」选择执行 shell，<b>不读取 SHELL</b>
+     * （SHELL 仅影响 Pty 终端会话）。shell 键由 {@link #prepareConfig} 写入
+     * 隔离全局配置；这里再注入官方 Git Bash 探测变量 {@code OPENCODE_GIT_BASH_PATH}
+     * 与修正后的 {@code SHELL}，覆盖 less/diff 等辅助链路与终端会话。</p>
+     *
+     * <p>若机器级 {@code SHELL} 被设为 cmd.exe/powershell，bash 工具虽不直接读它，
+     * 但终端会话会受影响，这里一并修正为真实存在的 Git Bash；可通过系统属性
+     * {@code opencode.server.bash-path} 显式指定 bash 路径。</p>
      *
      * @param environment 子进程环境变量
      */
@@ -917,12 +987,15 @@ public final class OpencodeServerProcess {
         if (!CliModelRunner.isWindows()) {
             return;
         }
+        Path bash = resolveWindowsBashPath();
+        if (bash != null) {
+            environment.put(ENV_GIT_BASH_PATH, bash.toString());
+        }
         String current = environment.get(ENV_SHELL);
         if (current != null && !isCmdLikeShell(current)) {
             // 已是 bash 类 shell，尊重现有配置
             return;
         }
-        Path bash = resolveWindowsBashPath();
         if (bash == null) {
             if (current != null) {
                 log.warn("[opencode] SHELL={} 指向 cmd/powershell 且未找到可用的 Git Bash，"
@@ -932,7 +1005,8 @@ public final class OpencodeServerProcess {
             return;
         }
         environment.put(ENV_SHELL, bash.toString());
-        log.info("[opencode] 已为子进程设置 SHELL={}（原值: {}）", bash, current);
+        log.info("[opencode] 已为子进程设置 SHELL={}、{}={}（原 SHELL: {}）",
+                bash, ENV_GIT_BASH_PATH, bash, current);
     }
 
     /**

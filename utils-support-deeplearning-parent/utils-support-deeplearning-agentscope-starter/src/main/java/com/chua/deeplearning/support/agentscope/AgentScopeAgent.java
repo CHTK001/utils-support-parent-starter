@@ -7,6 +7,9 @@ import com.chua.common.support.ai.agent.AgentBudget;
 import com.chua.common.support.ai.agent.AgentBudgetTracker;
 import com.chua.common.support.ai.agent.AgentCompressionConfig;
 import com.chua.common.support.ai.agent.AgentCancellationToken;
+import com.chua.common.support.ai.agent.AgentContentGuard;
+import com.chua.common.support.ai.agent.AgentContentKind;
+import com.chua.common.support.ai.agent.AgentContentVerdict;
 import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentEvent;
@@ -77,6 +80,7 @@ import io.agentscope.harness.agent.filesystem.spec.LocalFilesystemSpec;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import reactor.core.publisher.Flux;
 import java.util.Iterator;
@@ -288,6 +292,11 @@ public class AgentScopeAgent implements Agent {
     private volatile AgentRiskAdjudicator riskAdjudicator;
 
     /**
+     * 内容护栏；null 时回落默认启发式护栏（{@link #contentGuard(AgentContentGuard)} 传 noop 显式关闭）
+     */
+    private volatile AgentContentGuard contentGuard;
+
+    /**
      * 计划确认器；null 表示不送审直接执行
      */
     private volatile AgentPlanConfirmation planConfirmation;
@@ -403,6 +412,72 @@ public class AgentScopeAgent implements Agent {
             return this.riskAdjudicator;
         }
         return this.decisionsClient != null ? new DecisionsAgentRiskAdjudicator(this.decisionsClient) : null;
+    }
+
+    /**
+     * 设置内容护栏；null 时回落默认启发式护栏，传 {@link AgentContentGuard#noop()} 显式关闭。
+     */
+    @Override
+    public Agent contentGuard(AgentContentGuard contentGuard) {
+        this.contentGuard = contentGuard;
+        return this;
+    }
+
+    /**
+     * 获取内容护栏；未设置时返回 null（运行时经 {@link #effectiveContentGuard()} 回落默认启发式护栏）。
+     */
+    @Override
+    public AgentContentGuard contentGuard() {
+        return this.contentGuard;
+    }
+
+    /**
+     * 生效内容护栏：未显式设置时回落默认启发式护栏（注入检测 + 隐私脱敏 + 凭据拦截）。
+     */
+    private AgentContentGuard effectiveContentGuard() {
+        AgentContentGuard guard = this.contentGuard;
+        return guard != null ? guard : AgentContentGuard.heuristic();
+    }
+
+    /**
+     * 用户输入边界检查：空白输入直接放行，其余按 USER_INPUT 检查。
+     */
+    private AgentContentVerdict inspectUserInput(String input) {
+        if (input == null || input.isBlank()) {
+            return AgentContentVerdict.allow();
+        }
+        return effectiveContentGuard().inspect(AgentContentKind.USER_INPUT, input);
+    }
+
+    /**
+     * 模型输出边界检查：脱敏命中返回替换文本；被拒返回拦截通知文本。
+     */
+    private String guardModelOutput(String output) {
+        if (output == null || output.isBlank()) {
+            return output;
+        }
+        AgentContentVerdict verdict = effectiveContentGuard().inspect(AgentContentKind.MODEL_OUTPUT, output);
+        if (verdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[AgentScope] 模型输出被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(verdict));
+            return AgentContentGuardMiddleware.BLOCKED_TEXT;
+        }
+        return verdict.content() != null ? verdict.content() : output;
+    }
+
+    /**
+     * 汇总命中项为简短描述（类型/规则，去重限 5 条）。
+     */
+    private static String describeFindings(AgentContentVerdict verdict) {
+        if (verdict == null || verdict.findings().isEmpty()) {
+            return "unspecified";
+        }
+        return verdict.findings().stream()
+                .map(finding -> finding.type()
+                        + (finding.rule() == null || finding.rule().isBlank() ? "" : "/" + finding.rule()))
+                .distinct()
+                .limit(5)
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -1113,6 +1188,18 @@ public class AgentScopeAgent implements Agent {
     */
     @Override
     public AgentResponse run(String input) {
+        // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
+        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[AgentScope] 用户输入被内容护栏拦截: agentId={}, findings={}",
+                    agentId(), describeFindings(inputVerdict));
+            return AgentResponse.builder()
+                    .output("")
+                    .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
+                    .metadata(Map.of("error", "用户输入被内容护栏拦截: " + describeFindings(inputVerdict)))
+                    .build();
+        }
+        input = inputVerdict.content() != null ? inputVerdict.content() : input;
         RunPlan plan = prepareRun(input);
         // 新的一轮：清掉上一轮的中断信号与重复计数
         loopGuard.reset();
@@ -1184,6 +1271,8 @@ public class AgentScopeAgent implements Agent {
                 }
                 Msg resultMsg = harnessAgent.call(plan.userMsg, ctx).block();
                 String output = resultMsg != null ? resultMsg.getTextContent() : "";
+                // 内容护栏：模型输出边界（隐私 / 凭据脱敏；命中拦截替换为通知文本）
+                output = guardModelOutput(output);
                 autoSaveMemory(input, output);
                 result = AgentResponse.builder()
                         .output(output)
@@ -1428,6 +1517,15 @@ public class AgentScopeAgent implements Agent {
     */
     @Override
     public Flux<AgentStreamEvent> runStream(String input) {
+        // 内容护栏：用户输入边界（注入默认阻断；脱敏命中替换后放行）
+        AgentContentVerdict inputVerdict = inspectUserInput(input);
+        if (inputVerdict.action() == AgentContentVerdict.Action.BLOCK) {
+            log.warn("[AgentScope] 用户输入被内容护栏拦截(流式): agentId={}, findings={}",
+                    agentId(), describeFindings(inputVerdict));
+            return Flux.just(errorEvent(agentId(),
+                    "用户输入被内容护栏拦截: " + describeFindings(inputVerdict)));
+        }
+        input = inputVerdict.content() != null ? inputVerdict.content() : input;
         final RunPlan plan;
         try {
             plan = prepareRun(input);
@@ -2044,6 +2142,8 @@ public class AgentScopeAgent implements Agent {
                                 // 统一记一条“模型输出”轨迹；若此前未通过 delta 输出正文，则补一次正文供渲染
                                 Msg resultMsg = re.getResult();
                                 String fullText = resultMsg != null ? resultMsg.getTextContent() : "";
+                                // 内容护栏：模型输出边界收口（流式 delta 已发无法召回，这里兜底最终正文）
+                                fullText = guardModelOutput(fullText);
                                 if (StringUtils.isNotEmpty(fullText)) {
                                     emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TEXT, aid, null, fullText)));
@@ -2712,6 +2812,11 @@ public class AgentScopeAgent implements Agent {
         // 先注册者在外层，必须先于调试中间件注册才能赶在执行链之前裁决。
         builder.middleware(new AgentToolGateMiddleware(riskAdjudicator(), agentId, tracker,
                 java.util.Set.of(ASK_USER_TOOL)));
+
+        // 内容护栏中间件：模型调用前对上下文里的工具返回统一脱敏 / 摘除，
+        // 覆盖 harness 内建工具与 schema 工具的全部返回（onModelCall 单点收口）。
+        // 注册在工具闸门之后、调试中间件之前：先注册者在外层。
+        builder.middleware(new AgentContentGuardMiddleware(effectiveContentGuard(), agentId));
 
         // 始终注册调试中间件：输出 thinking/输出/轮次/工具全量轨迹日志（hooks 可为 null）
         {

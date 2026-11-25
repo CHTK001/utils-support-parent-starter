@@ -33,6 +33,12 @@ import java.util.List;
 public interface AgentContentGuard {
 
     /**
+     * 工具返回 / 模型输出被护栏拒绝时的统一替换通知文本：
+     * 模型下一轮可见、可据此改道；调用方也可据此识别被拦截内容。
+     */
+    String BLOCKED_NOTICE = "[BLOCKED BY CONTENT GUARD]";
+
+    /**
      * 检查一段内容。
      *
      * @param request 检查请求，不应为 null
