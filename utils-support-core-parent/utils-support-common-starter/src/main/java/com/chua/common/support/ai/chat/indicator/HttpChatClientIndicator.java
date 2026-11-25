@@ -761,10 +761,21 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
      * @return 返回值
     */
     private static void putHeuristicPrice(Map<String, Object> target, String key, JsonNode node) {
+        putHeuristicPrice(target, key, node, null);
+    }
+
+    /**
+     * 每 Token / 每百万自适应口径，并按平台修正报价口径；已存在时不覆盖。
+     * @param target 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param platform 平台标识（可为空）
+     */
+    private static void putHeuristicPrice(Map<String, Object> target, String key, JsonNode node, String platform) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
         }
-        IndicatorJsonSupport.put(target, key, IndicatorJsonSupport.perMillionHeuristic(node));
+        IndicatorJsonSupport.put(target, key, IndicatorJsonSupport.platformPerMillion(node, platform));
     }
 
     /**
@@ -776,10 +787,21 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
      * @return 返回值
     */
     private static void putUnitPrice(Map<String, Object> target, String key, JsonNode node) {
+        putUnitPrice(target, key, node, null);
+    }
+
+    /**
+     * 按次计费价格，并按平台换算币种；已存在时不覆盖，0 表示不单独收费，不写入。
+     * @param target 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param platform 平台标识（可为空）
+     */
+    private static void putUnitPrice(Map<String, Object> target, String key, JsonNode node, String platform) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
         }
-        BigDecimal value = IndicatorJsonSupport.perUnit(node);
+        BigDecimal value = IndicatorJsonSupport.platformPerUnit(node, platform);
         if (value != null && value.signum() > 0) {
             target.put(key, value);
         }
