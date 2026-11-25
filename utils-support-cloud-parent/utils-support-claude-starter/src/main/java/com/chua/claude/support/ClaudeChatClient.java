@@ -33,7 +33,7 @@ import com.chua.common.support.utils.StringUtils;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"claude"})
+@Spi({"claude", "anthropic"})
 public class ClaudeChatClient implements ChatClient {
 
     /**

@@ -1,1 +1,2 @@
 claude=com.chua.claude.support.ClaudeChatClient
+anthropic=com.chua.claude.support.ClaudeChatClient
