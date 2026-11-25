@@ -48,8 +48,12 @@ import java.util.concurrent.atomic.LongAdder;
  *   client-raw &lt;host&gt; &lt;port&gt; &lt;workers&gt; &lt;seconds&gt; &lt;bodyBytes&gt; &lt;label&gt;
  *       原生 Socket 客户端：-Dbench.conn=ka|close（close=每请求一条真实 TCP 连接，
  *       SO_LINGER=0 RST 关闭避免 TIME_WAIT 堆积；ka=每 worker 一条长连接复用）；
- *       -Dbench.headers=base|slim|pad（slim=去 Content-Type+短 UA；pad 追加 -Dbench.padBytes=N 字节 X-Pad）。
- *       输出额外带 hdrB=请求头线上字节数（精确计量）。
+ *       -Dbench.headers=base|slim|pad|many（slim=去 Content-Type+短 UA；pad 追加 -Dbench.padBytes=N 字节 X-Pad；
+ *       many 追加 -Dbench.headerCount=N 个 X-Hi: v 小头，测头解析每行固定成本）。
+ *       -Dbench.get=/path：GET 模式，读取该路径响应体（期望长度 -Dbench.respBytes=N，用于吞吐计算与冒烟校验）。
+ *       -Dbench.missPct=N：N% 的请求改打 /miss（服务端 404 错误路径），测错误响应成本与连接复用。
+ *       -Dbench.pipeline=N：同一连接连续写 N 个请求再读 N 个响应（HTTP/1.1 pipeline 批处理效率）。
+ *       输出额外带 hdrB=请求头线上字节数（精确计量）、pipe=N、miss=N。
  * </pre>
  *
  * <p>回环口径：server 与 client 同机不同 JVM（127.0.0.1）；
@@ -135,8 +139,22 @@ public final class ImplHttpBench {
             byte[] body = req.getBody();
             resp.end(body == null || body.length == 0 ? "EMPTY".getBytes() : body);
         });
+        registerPayload(server, "/d1k", 1024);
+        registerPayload(server, "/d8k", 8192);
+        registerPayload(server, "/d64k", 65536);
+        registerPayload(server, "/d256k", 262144);
+        registerPayload(server, "/d1m", 1048576);
         server.start();
         return server;
+    }
+
+    /** 注册静态 payload GET 端点（响应体大小梯度实验用；payload 预生成，handler 零拷贝引用）。 */
+    private static void registerPayload(AbstractServer server, String path, int size) {
+        byte[] payload = new byte[size];
+        for (int i = 0; i < size; i++) {
+            payload[i] = (byte) (i & 0x7f);
+        }
+        server.registerMapping(path, HttpMethod.GET, (req, resp) -> resp.end(payload));
     }
 
     static void runClient(String host, int port, int workers, int seconds, int bodyBytes, String label) throws Exception {
@@ -277,8 +295,13 @@ public final class ImplHttpBench {
     /** 原生 Socket 连接超时（毫秒） */
     static final int CONNECT_TIMEOUT_MILLIS = 10_000;
 
+    /** missPct 实验的全局请求计数器（决定当次请求是否改打 /miss） */
+    private static final java.util.concurrent.atomic.AtomicLong MISS_COUNTER =
+            new java.util.concurrent.atomic.AtomicLong();
+
     /** 构造 POST /echo 请求头模板（US_ASCII）；返回字节数即线上头部真实大小（不含 body）。 */
-    static byte[] buildHeader(String host, int port, int bodyBytes, String headersMode, int padBytes, boolean close) {
+    static byte[] buildHeader(String host, int port, int bodyBytes, String headersMode, int padBytes, boolean close,
+                              int headerCount) {
         StringBuilder sb = new StringBuilder(256);
         sb.append("POST /echo HTTP/1.1\r\n");
         sb.append("Host: ").append(host).append(':').append(port).append("\r\n");
@@ -296,6 +319,22 @@ public final class ImplHttpBench {
             }
             sb.append("\r\n");
         }
+        for (int i = 0; i < headerCount; i++) {
+            sb.append("X-H").append(i).append(": v\r\n");
+        }
+        if (close) {
+            sb.append("Connection: close\r\n");
+        }
+        sb.append("\r\n");
+        return sb.toString().getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /** 构造 GET 请求头模板（US_ASCII）；响应体梯度实验与 miss（/miss 404）实验共用。 */
+    static byte[] buildGetHeader(String path, String host, int port, boolean close) {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("GET ").append(path).append(" HTTP/1.1\r\n");
+        sb.append("Host: ").append(host).append(':').append(port).append("\r\n");
+        sb.append("User-Agent: b\r\n");
         if (close) {
             sb.append("Connection: close\r\n");
         }
@@ -424,24 +463,61 @@ public final class ImplHttpBench {
         boolean closeConn = "close".equalsIgnoreCase(connMode);
         String headersMode = System.getProperty("bench.headers", "base");
         int padBytes = Integer.parseInt(System.getProperty("bench.padBytes", "0"));
+        int headerCount = Integer.parseInt(System.getProperty("bench.headerCount", "0"));
+        String getPath = System.getProperty("bench.get");
+        int respBytes = Integer.parseInt(System.getProperty("bench.respBytes", "0"));
+        int missPct = Integer.parseInt(System.getProperty("bench.missPct", "0"));
+        int pipeline = Math.max(1, Integer.parseInt(System.getProperty("bench.pipeline", "1")));
+        boolean isGet = getPath != null && !getPath.isEmpty();
         byte[] body = new byte[bodyBytes];
         for (int i = 0; i < bodyBytes; i++) {
             body[i] = (byte) (i & 0x7f);
         }
-        byte[] header = buildHeader(host, port, bodyBytes, headersMode, padBytes, closeConn);
+        byte[] header = isGet
+                ? buildGetHeader(getPath, host, port, closeConn)
+                : buildHeader(host, port, bodyBytes, headersMode, padBytes, closeConn, headerCount);
+        byte[] missHeader = missPct > 0 ? buildGetHeader("/miss", host, port, closeConn) : null;
         int hdrB = header.length;
+        int respLen = respBytes > 0 ? respBytes : bodyBytes;
 
-        // 冒烟：真实回显一致性校验（该档头/连接模式不被服务端接受时在此失败）
+        // 冒烟：真实回显/响应一致性校验（该档头/连接/路径模式不被服务端接受时在此失败）
         try (RawConn c = new RawConn(host, port, closeConn)) {
-            c.out.write(header);
-            c.out.write(body);
-            c.out.flush();
-            byte[] echo = new byte[bodyBytes];
-            readEchoResponse(c, echo);
-            if (!Arrays.equals(body, echo)) {
-                System.out.println("label=" + label + " SMOKE_FAIL raw echo mismatch hdrB=" + hdrB);
-                System.out.flush();
-                return;
+            if (isGet) {
+                c.out.write(header);
+                c.out.flush();
+                int cl = readEchoResponse(c, null);
+                if (cl != respLen) {
+                    throw new IOException("GET " + getPath + " body len " + cl + " != " + respLen);
+                }
+            } else {
+                c.out.write(header);
+                c.out.write(body);
+                c.out.flush();
+                byte[] echo = new byte[bodyBytes];
+                readEchoResponse(c, echo);
+                if (!Arrays.equals(body, echo)) {
+                    throw new IOException("raw echo mismatch");
+                }
+            }
+            if (pipeline > 1) {
+                for (int i = 0; i < pipeline; i++) {
+                    c.out.write(header);
+                    if (!isGet) {
+                        c.out.write(body);
+                    }
+                }
+                c.out.flush();
+                for (int i = 0; i < pipeline; i++) {
+                    int cl = readEchoResponse(c, null);
+                    if (cl != respLen) {
+                        throw new IOException("pipeline resp len " + cl);
+                    }
+                }
+            }
+            if (missHeader != null) {
+                c.out.write(missHeader);
+                c.out.flush();
+                readEchoResponse(c, null); // 404 响应必须带 Content-Length 才能通过冒烟
             }
         } catch (Exception e) {
             System.out.println("label=" + label + " SMOKE_FAIL raw ex=" + e + " hdrB=" + hdrB);
@@ -456,7 +532,8 @@ public final class ImplHttpBench {
         CountDownLatch latch = new CountDownLatch(workers);
         boolean virtual = workers > VIRTUAL_THREAD_THRESHOLD;
         for (int i = 0; i < workers; i++) {
-            RawWorker w = new RawWorker(host, port, header, body, closeConn, total, errors, running, latch);
+            RawWorker w = new RawWorker(host, port, header, missHeader, body, closeConn, pipeline, missPct,
+                    respLen, isGet, total, errors, running, latch);
             ws.add(w);
             Thread t = virtual
                     ? Thread.ofVirtual().name("raw-" + i).unstarted(w)
@@ -484,9 +561,11 @@ public final class ImplHttpBench {
             all[j] = SHARED_LAT[j];
         }
         Arrays.sort(all, 0, n);
-        double tputMBps = count * 2.0 * bodyBytes / elapsed / (1024.0 * 1024.0);
-        System.out.printf("mode=raw-%s label=%s hdrB=%d conns=%d body=%dB qps=%.0f tputMBps=%.1f p50us=%d p99us=%d errs=%d reqs=%d%n",
-                connMode, label, hdrB, workers, bodyBytes, count / elapsed, tputMBps,
+        // 吞吐口径：GET 只计响应体下行；POST /echo 计请求体上行+响应体下行（miss 混入时为名义值）
+        double bytesPerReq = isGet ? respLen : 2.0 * bodyBytes;
+        double tputMBps = count * bytesPerReq / elapsed / (1024.0 * 1024.0);
+        System.out.printf("mode=raw-%s label=%s hdrB=%d pipe=%d miss=%d conns=%d body=%dB qps=%.0f tputMBps=%.1f p50us=%d p99us=%d errs=%d reqs=%d%n",
+                connMode, label, hdrB, pipeline, missPct, workers, bodyBytes, count / elapsed, tputMBps,
                 pct(all, n, 0.50), pct(all, n, 0.99), err, count);
         System.out.flush();
     }
@@ -495,8 +574,13 @@ public final class ImplHttpBench {
         private final String host;
         private final int port;
         private final byte[] header;
+        private final byte[] missHeader;
         private final byte[] body;
         private final boolean closeConn;
+        private final int pipeline;
+        private final int missPct;
+        private final int respLen;
+        private final boolean isGet;
         private final LongAdder total;
         private final LongAdder errors;
         private final AtomicBoolean running;
@@ -504,13 +588,19 @@ public final class ImplHttpBench {
         /** 测量期采样基线：SHARED_N 计数超过该值的部分属于测量窗口 */
         private volatile int base;
 
-        RawWorker(String host, int port, byte[] header, byte[] body, boolean closeConn,
+        RawWorker(String host, int port, byte[] header, byte[] missHeader, byte[] body, boolean closeConn,
+                  int pipeline, int missPct, int respLen, boolean isGet,
                   LongAdder total, LongAdder errors, AtomicBoolean running, CountDownLatch latch) {
             this.host = host;
             this.port = port;
             this.header = header;
+            this.missHeader = missHeader;
             this.body = body;
             this.closeConn = closeConn;
+            this.pipeline = pipeline;
+            this.missPct = missPct;
+            this.respLen = respLen;
+            this.isGet = isGet;
             this.total = total;
             this.errors = errors;
             this.running = running;
@@ -533,23 +623,33 @@ public final class ImplHttpBench {
                     try {
                         RawConn c = closeConn ? newConn() : conn;
                         try {
-                            c.out.write(header);
-                            c.out.write(body);
+                            // missPct>0 时按全局计数器决定本批是否改打 /miss（404 错误路径）
+                            boolean miss = missHeader != null
+                                    && (int) (MISS_COUNTER.incrementAndGet() % 100) < missPct;
+                            byte[] h = miss ? missHeader : header;
+                            for (int i = 0; i < pipeline; i++) {
+                                c.out.write(h);
+                                if (!isGet && !miss) {
+                                    c.out.write(body);
+                                }
+                            }
                             c.out.flush();
-                            int cl = readEchoResponse(c, null);
-                            if (cl != body.length) {
-                                throw new IOException("bad body len " + cl);
+                            for (int i = 0; i < pipeline; i++) {
+                                int cl = readEchoResponse(c, null);
+                                if (!miss && cl != respLen) {
+                                    throw new IOException("bad body len " + cl);
+                                }
+                                int idx = SHARED_N.incrementAndGet() - 1 - base;
+                                if (idx >= 0 && idx < MAX_SAMPLES_TOTAL) {
+                                    SHARED_LAT[idx] = System.nanoTime() - t0;
+                                }
                             }
                         } finally {
                             if (closeConn) {
                                 c.close();
                             }
                         }
-                        int idx = SHARED_N.incrementAndGet() - 1 - base;
-                        if (idx >= 0 && idx < MAX_SAMPLES_TOTAL) {
-                            SHARED_LAT[idx] = System.nanoTime() - t0;
-                        }
-                        total.increment();
+                        total.add(pipeline);
                     } catch (Exception e) {
                         if (!closeConn && conn != null) {
                             try { conn.close(); } catch (IOException ignore) { }
