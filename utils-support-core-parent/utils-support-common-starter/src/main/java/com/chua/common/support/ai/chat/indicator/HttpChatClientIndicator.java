@@ -370,6 +370,11 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("output"), platform);
             putHeuristicPrice(metrics, "price_cache_hit_per_musd", pricing.get("cache_read"), platform);
             putHeuristicPrice(metrics, "price_cache_write_per_musd", pricing.get("cache_write"), platform);
+            // 百度千帆等平台把缓存输入价挂在 pricing.cache（元/千 Token）；标准 cache_read
+            // 缺席时按平台口径补位（putHeuristicPrice 不覆盖已有键，其余平台不受影响）
+            if (IndicatorJsonSupport.isCnyPerKiloTokenPlatform(platform)) {
+                putHeuristicPrice(metrics, "price_cache_hit_per_musd", pricing.get("cache"), platform);
+            }
             putHeuristicPrice(metrics, "price_input_per_musd", pricing.get("prompt"), platform);
             putHeuristicPrice(metrics, "price_output_per_musd", pricing.get("completion"), platform);
             putPerTokenPrice(metrics, "price_input_per_musd", pricing.get("promptTextTokens"));
@@ -380,6 +385,7 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             putPerTokenPrice(metrics, "price_cache_write_per_musd", pricing.get("input_cache_write"));
             putUnitPrice(metrics, "price_image_per_unit", pricing.get("image"), platform);
             putUnitPrice(metrics, "price_web_search_per_unit", pricing.get("web_search"), platform);
+            putUnitPrice(metrics, "price_video_per_unit", pricing.get("video"), platform);
             putPerTokenPrice(metrics, "price_internal_reasoning_per_musd",
                     pricing.get("internal_reasoning"));
         }
