@@ -74,6 +74,10 @@ public class FirewallServerFilter implements ServerFilter {
     /**
      * 按配置初始化。
      *
+     * <p>参数缺失时保留当前值：服务器启动阶段会以空配置对已初始化的过滤器二次 init
+     * （{@code AbstractServer.start()} → {@code initFilters(SimpleServerFilterConfig)}），
+     * 条件赋值保证节点级参数（qps/burst 等）不被空配置抹除。</p>
+     *
      * @param config 过滤器配置
      */
     @Override
@@ -81,30 +85,72 @@ public class FirewallServerFilter implements ServerFilter {
         if (config == null) {
             return;
         }
-        String mode = config.getInitParameter("mode");
+        applyParams(config.getInitParameter("mode"), config.getInitParameter("ips"),
+                config.getInitParameter("qps"), config.getInitParameter("burst"));
+    }
+
+    /**
+     * 热更新参数（不重建过滤器实例、不重启服务器）。
+     *
+     * @param config 新的参数键值
+     */
+    @Override
+    public void updateConfig(Map<String, Object> config) {
+        if (config == null || config.isEmpty()) {
+            return;
+        }
+        applyParams(toStringValue(config.get("mode")), toStringValue(config.get("ips")),
+                toStringValue(config.get("qps")), toStringValue(config.get("burst")));
+    }
+
+    /**
+     * 提取参数的字符串值，null 保持为 null（与「参数缺失」同义）。
+     *
+     * @param value 原始值
+     * @return 字符串值
+     */
+    private static String toStringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * 应用参数：除 {@code ips} 显式传空串表示清空名单外，其余参数非空才覆盖，
+     * 避免空配置二次初始化时重置已生效的参数。
+     *
+     * @param mode  模式（blacklist/whitelist），可为 null
+     * @param ips   IP 列表，可为 null（null 表示保持原名单）
+     * @param qps   每秒配额，可为 null
+     * @param burst 突发容量，可为 null
+     */
+    private void applyParams(String mode, String ips, String qps, String burst) {
         if (StringUtils.isNotBlank(mode)) {
             whitelistMode = "whitelist".equalsIgnoreCase(mode.trim());
         }
-        String ips = config.getInitParameter("ips");
-        if (StringUtils.isNotBlank(ips)) {
+        if (ips != null) {
             whitelist.clear();
             blacklist.clear();
-            for (String raw : ips.split("[,;\\s]+")) {
-                String ip = raw.trim();
-                if (ip.isEmpty()) {
-                    continue;
-                }
-                if (whitelistMode) {
-                    whitelist.add(ip);
-                } else {
-                    blacklist.add(ip);
+            if (StringUtils.isNotBlank(ips)) {
+                for (String raw : ips.split("[,;\\s]+")) {
+                    String ip = raw.trim();
+                    if (ip.isEmpty()) {
+                        continue;
+                    }
+                    if (whitelistMode) {
+                        whitelist.add(ip);
+                    } else {
+                        blacklist.add(ip);
+                    }
                 }
             }
         }
-        qps = parseDouble(config.getInitParameter("qps"), 0);
-        burst = (int) parseDouble(config.getInitParameter("burst"), 0);
-        if (burst <= 0 && qps > 0) {
-            burst = Math.max(1, (int) Math.ceil(qps));
+        if (StringUtils.isNotBlank(qps)) {
+            this.qps = parseDouble(qps, 0);
+        }
+        if (StringUtils.isNotBlank(burst)) {
+            this.burst = (int) parseDouble(burst, 0);
+        }
+        if (this.burst <= 0 && this.qps > 0) {
+            this.burst = Math.max(1, (int) Math.ceil(this.qps));
         }
         buckets.clear();
     }

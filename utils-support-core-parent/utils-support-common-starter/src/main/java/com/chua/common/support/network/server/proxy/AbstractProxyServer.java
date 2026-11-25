@@ -182,6 +182,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * 过滤器加进 manager，而包装层是监控侧的 {@code DelegatingServerFilter}，所以这里统一
      * 拆包后判定，避免依赖 addFilter 形参的具体类型。</p>
      *
+     * <p>热启停语义：包装层 {@code isEnabled()} 为 false 的过滤器不参与本闸门，与 HTTP 链
+     * {@code DefaultServerFilterChain} 的逐请求检查一致。{@code ipFilters}/{@code firewalls}
+     * 成员列表持有的是拆包后的真实过滤器，其启停状态以包装该实例的外层过滤器为准。</p>
+     *
      * @param clientSocket 客户端连接
      * @return true 表示放行
      */
@@ -191,7 +195,17 @@ public abstract class AbstractProxyServer extends AbstractServer {
         }
         String ip = clientSocket.getInetAddress() == null
                 ? "" : clientSocket.getInetAddress().getHostAddress();
+        // 收集被热停用的真实过滤器（键 = 拆包后的实例），成员列表与合并链共用同一判定。
+        java.util.Set<ServerFilter> disabledReals = new java.util.HashSet<>();
         for (ServerFilter filter : filterManager.getMergedFilters()) {
+            if (!filter.isEnabled()) {
+                disabledReals.add(unwrapFilter(filter));
+            }
+        }
+        for (ServerFilter filter : filterManager.getMergedFilters()) {
+            if (!filter.isEnabled()) {
+                continue;
+            }
             ServerFilter real = unwrapFilter(filter);
             if (real instanceof IpServerFilter && !((IpServerFilter) real).allows(ip)) {
                 log.info("[proxy-gate] deny ip={} by IpServerFilter", ip);
@@ -203,12 +217,18 @@ public abstract class AbstractProxyServer extends AbstractServer {
             }
         }
         for (IpServerFilter filter : ipFilters) {
+            if (disabledReals.contains(filter)) {
+                continue;
+            }
             if (!filter.allows(ip)) {
                 log.info("[proxy-gate] deny ip={} by IpServerFilter(list)", ip);
                 return false;
             }
         }
         for (FirewallServerFilter filter : firewalls) {
+            if (disabledReals.contains(filter)) {
+                continue;
+            }
             if (!filter.allows(ip)) {
                 log.info("[proxy-gate] deny ip={} by FirewallServerFilter(list)", ip);
                 return false;

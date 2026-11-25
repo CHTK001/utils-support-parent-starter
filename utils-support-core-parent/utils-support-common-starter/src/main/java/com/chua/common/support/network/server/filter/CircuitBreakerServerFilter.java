@@ -66,6 +66,10 @@ public class CircuitBreakerServerFilter implements ServerFilter {
     /**
      * 按配置初始化。
      *
+     * <p>参数缺失时保留当前值：服务器启动阶段会以空配置对已初始化的过滤器二次 init
+     * （{@code AbstractServer.start()} → {@code initFilters(SimpleServerFilterConfig)}），
+     * 条件赋值保证节点级参数（failureThreshold/openMs 等）不被空配置抹除。</p>
+     *
      * @param config 过滤器配置
      */
     @Override
@@ -73,18 +77,59 @@ public class CircuitBreakerServerFilter implements ServerFilter {
         if (config == null) {
             return;
         }
-        failureThreshold = (int) parseLong(config.getInitParameter("failureThreshold"), 5);
-        openMs = parseLong(config.getInitParameter("openMs"), 10_000);
-        ignoreStatuses.clear();
-        String statuses = config.getInitParameter("ignoreStatuses");
-        if (StringUtils.isNotBlank(statuses)) {
-            for (String raw : statuses.split(",")) {
-                String s = raw.trim();
-                if (!s.isEmpty()) {
-                    try {
-                        ignoreStatuses.add(Integer.parseInt(s));
-                    } catch (NumberFormatException ignored) {
-                        // 非法状态码忽略
+        applyParams(config.getInitParameter("failureThreshold"), config.getInitParameter("openMs"),
+                config.getInitParameter("ignoreStatuses"));
+    }
+
+    /**
+     * 热更新参数（不重建过滤器实例、不重启服务器）。
+     *
+     * @param config 新的参数键值
+     */
+    @Override
+    public void updateConfig(Map<String, Object> config) {
+        if (config == null || config.isEmpty()) {
+            return;
+        }
+        applyParams(toStringValue(config.get("failureThreshold")), toStringValue(config.get("openMs")),
+                toStringValue(config.get("ignoreStatuses")));
+    }
+
+    /**
+     * 提取参数的字符串值，null 保持为 null（与「参数缺失」同义）。
+     *
+     * @param value 原始值
+     * @return 字符串值
+     */
+    private static String toStringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * 应用参数：非空才覆盖，避免空配置二次初始化时重置已生效的参数。
+     *
+     * @param threshold 连续失败阈值，可为 null
+     * @param openMs    打开窗口毫秒，可为 null
+     * @param statuses  忽略的状态码列表，可为 null（null 表示保持原集合）
+     */
+    private void applyParams(String threshold, String openMs, String statuses) {
+        if (StringUtils.isNotBlank(threshold)) {
+            failureThreshold = (int) parseLong(threshold, 5);
+        }
+        if (StringUtils.isNotBlank(openMs)) {
+            this.openMs = parseLong(openMs, 10_000);
+        }
+        if (statuses != null) {
+            ignoreStatuses.clear();
+            if (StringUtils.isNotBlank(statuses)) {
+                for (String raw : statuses.split(",")) {
+                    String s = raw.trim();
+                    if (!s.isEmpty()) {
+                        try {
+                            ignoreStatuses.add(Integer.parseInt(s));
+                        } catch (NumberFormatException ignored) {
+                            // 非法状态码忽略
+                        }
                     }
                 }
             }

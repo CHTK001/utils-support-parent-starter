@@ -54,6 +54,10 @@ public class MockServerFilter implements ServerFilter {
     /**
      * 按配置初始化规则。
      *
+     * <p>参数缺失时保留当前值：服务器启动阶段会以空配置对已初始化的过滤器二次 init
+     * （{@code AbstractServer.start()} → {@code initFilters(SimpleServerFilterConfig)}），
+     * 条件赋值保证节点级参数（rules/defaultStatus）不被空配置抹除。</p>
+     *
      * @param config 过滤器配置
      */
     @Override
@@ -61,13 +65,48 @@ public class MockServerFilter implements ServerFilter {
         if (config == null) {
             return;
         }
-        defaultStatus = (int) parseLong(config.getInitParameter("defaultStatus"), 404);
-        rules.clear();
-        String text = config.getInitParameter("rules");
-        if (StringUtils.isBlank(text)) {
+        applyParams(config.getInitParameter("rules"), config.getInitParameter("defaultStatus"));
+    }
+
+    /**
+     * 热更新参数（不重建过滤器实例、不重启服务器）。
+     *
+     * @param config 新的参数键值
+     */
+    @Override
+    public void updateConfig(Map<String, Object> config) {
+        if (config == null || config.isEmpty()) {
             return;
         }
-        for (String line : text.split("\\r?\\n")) {
+        applyParams(toStringValue(config.get("rules")), toStringValue(config.get("defaultStatus")));
+    }
+
+    /**
+     * 提取参数的字符串值，null 保持为 null（与「参数缺失」同义）。
+     *
+     * @param value 原始值
+     * @return 字符串值
+     */
+    private static String toStringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * 应用参数：{@code rules} 传 null 表示保持已有规则（空配置二次 init 不清空），
+     * 传空串表示清空规则表；{@code defaultStatus} 非空才覆盖。
+     *
+     * @param rulesText     规则文本，可为 null
+     * @param defaultStatus 兜底状态码，可为 null
+     */
+    private void applyParams(String rulesText, String defaultStatus) {
+        if (StringUtils.isNotBlank(defaultStatus)) {
+            this.defaultStatus = (int) parseLong(defaultStatus, 404);
+        }
+        if (rulesText == null) {
+            return;
+        }
+        Map<String, MockRule> parsed = new LinkedHashMap<>();
+        for (String line : rulesText.split("\\r?\\n")) {
             String trimmed = line.trim();
             if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                 continue;
@@ -80,9 +119,11 @@ public class MockServerFilter implements ServerFilter {
             String spec = trimmed.substring(at + 1).trim();
             MockRule rule = MockRule.parse(spec);
             if (rule != null && !pattern.isEmpty()) {
-                rules.put(pattern, rule);
+                parsed.put(pattern, rule);
             }
         }
+        rules.clear();
+        rules.putAll(parsed);
     }
 
     /**

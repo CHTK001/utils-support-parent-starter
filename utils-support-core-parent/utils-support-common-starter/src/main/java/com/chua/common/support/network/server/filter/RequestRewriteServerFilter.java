@@ -88,6 +88,10 @@ public class RequestRewriteServerFilter implements ServerFilter {
     /**
      * 按配置初始化。
      *
+     * <p>参数缺失时保留当前值：服务器启动阶段会以空配置对已初始化的过滤器二次 init
+     * （{@code AbstractServer.start()} → {@code initFilters(SimpleServerFilterConfig)}），
+     * 条件赋值保证节点级参数（stripPrefix/addPrefix/头改写规则）不被空配置抹除。</p>
+     *
      * @param config 过滤器配置
      */
     @Override
@@ -95,23 +99,22 @@ public class RequestRewriteServerFilter implements ServerFilter {
         if (config == null) {
             return;
         }
-        stripPrefix = (int) parseLong(config.getInitParameter("stripPrefix"), 0);
-        addPrefix = config.getInitParameter("addPrefix");
-        if (addPrefix == null) {
-            addPrefix = "";
-        } else {
-            addPrefix = addPrefix.trim();
-            if (!addPrefix.isEmpty() && !addPrefix.startsWith("/")) {
-                addPrefix = "/" + addPrefix;
-            }
-            if (addPrefix.endsWith("/")) {
-                addPrefix = addPrefix.substring(0, addPrefix.length() - 1);
-            }
+        String strip = config.getInitParameter("stripPrefix");
+        if (StringUtils.isNotBlank(strip)) {
+            stripPrefix = (int) parseLong(strip, stripPrefix);
+        }
+        String prefix = config.getInitParameter("addPrefix");
+        if (prefix != null) {
+            addPrefix = normalizeAddPrefix(prefix);
+        }
+        Map<String, String> params = config.getInitParameters();
+        if (params == null || params.isEmpty()) {
+            return;
         }
         setHeaders.clear();
         removeHeaders.clear();
         pathVars.clear();
-        for (Map.Entry<String, String> entry : config.getInitParameters().entrySet()) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             if (key.startsWith("setHeader.") && key.length() > "setHeader.".length()) {
@@ -135,6 +138,23 @@ public class RequestRewriteServerFilter implements ServerFilter {
         for (String name : removeHeaders) {
             removeHeaderKeys.put(name, REMOVE_HEADER_PREFIX + name);
         }
+    }
+
+    /**
+     * 规整追加前缀：非「/」开头补「/」，去掉末尾「/」。
+     *
+     * @param raw 原始前缀
+     * @return 规整后的前缀
+     */
+    private static String normalizeAddPrefix(String raw) {
+        String prefix = raw.trim();
+        if (!prefix.isEmpty() && !prefix.startsWith("/")) {
+            prefix = "/" + prefix;
+        }
+        if (prefix.endsWith("/")) {
+            prefix = prefix.substring(0, prefix.length() - 1);
+        }
+        return prefix;
     }
 
     /**
