@@ -4,8 +4,11 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 默认 HTTP 客户端实现，采用<b>委托模式（Delegation Pattern）</b>转发给 {@link HttpClientExecutor}。
@@ -124,6 +127,8 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public ClientResponse execute(ClientRequest request) {
+        // query 参数统一在本层拼回 URL（执行器不感知 params，见 appendParamsToUrl）
+        appendParamsToUrl(request);
         // 无拦截器时直接走真实调用：省去每次请求的链对象与 merge 列表分配
         // （与 executeAsync 的短路一致；重试仍在 doExecute 内处理，语义不变）
         if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null) {
@@ -152,6 +157,51 @@ public class DefaultHttpClient implements HttpClient {
                         throw new RuntimeException("HTTP request failed: " + req.getUrl(), e);
                     }
                 });
+    }
+
+    /**
+     * 将 {@link ClientRequest#getParams()} 拼接为 URL 的 query 参数。
+     *
+     * <p>{@code HttpClientBuilder.query()} 只把参数存入 {@link ClientRequest}，并不修改 URL；
+     * 各 {@link HttpClientExecutor} 实现（JDK / OkHttp / HttpClient5）均不读取 params，
+     * 若不在本层拼回，query 参数会被整体丢弃。因此在委托执行器前统一完成拼接，
+     * 保证「执行器拿到的是最终 URL」这一契约，与 {@link CurlFormatter} 的展示口径一致。</p>
+     *
+     * <p>拼接规则：键值均按 UTF-8 做 form 编码（与 {@link URLEncoder} 约定一致，
+     * 空格编码为 {@code +}）；已有 query 的 URL 以 {@code &} 续接；片段（{@code #}）保持在其后；
+     * 值为 {@code null} 时仅输出键名；键的插入顺序即输出顺序（builder 内为 {@code LinkedHashMap}），
+     * 对依赖参数顺序的签名类接口（如 LiblibAI）必须保持稳定。</p>
+     *
+     * @param request 待处理的请求对象，就地更新其 URL
+     */
+    private static void appendParamsToUrl(ClientRequest request) {
+        Map<String, String> params = request.getParams();
+        if (params == null || params.isEmpty()) {
+            return;
+        }
+        String url = request.getUrl();
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+        int fragmentIndex = url.indexOf('#');
+        String base = fragmentIndex >= 0 ? url.substring(0, fragmentIndex) : url;
+        String fragment = fragmentIndex >= 0 ? url.substring(fragmentIndex) : "";
+        StringBuilder sb = new StringBuilder(url.length() + params.size() * 32);
+        sb.append(base);
+        sb.append(base.indexOf('?') >= 0 ? '&' : '?');
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (!first) {
+                sb.append('&');
+            }
+            first = false;
+            sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+            if (entry.getValue() != null) {
+                sb.append('=').append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+            }
+        }
+        sb.append(fragment);
+        request.setUrl(sb.toString());
     }
 
     /**
@@ -209,6 +259,8 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
+        // query 参数统一在本层拼回 URL（执行器不感知 params，见 appendParamsToUrl）
+        appendParamsToUrl(request);
         int retries = HttpRetrySupport.resolveMaxRetries(request, null);
         if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null
                 && retries <= 0) {
