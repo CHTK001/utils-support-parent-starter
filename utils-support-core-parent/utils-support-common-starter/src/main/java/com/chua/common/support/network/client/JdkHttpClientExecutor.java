@@ -41,6 +41,12 @@ import reactor.core.publisher.Mono;
  */
 public class JdkHttpClientExecutor implements HttpClientExecutor {
 
+    /** 默认连接超时，单位毫秒。 */
+    private static final long DEFAULT_CONNECT_TIMEOUT = 30000L;
+
+    /** 执行器长期保留的自定义配置数。 */
+    private static final int MAX_CUSTOM_CLIENTS = 16;
+
     /**
      * 字节数组响应体 handler（无状态，同步/异步所有请求共享，免去每请求新建）
      */
@@ -51,7 +57,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
      * JDK 内置 HTTP 客户端实例（跟随重定向）。
      *
      * <p>配置了自动跟随标准重定向（NORMAL 模式：跟随 HTTP→HTTP 和 HTTPS→HTTPS 的重定向，
-     * 但不跟随 HTTP→HTTPS 的协议降级重定向）。客户端实例是线程安全的，可被多个请求共享。</p>
+     * 但不跟随 HTTPS→HTTP 的协议降级重定向）。客户端实例是线程安全的，可被多个请求共享。</p>
      */
     private final HttpClient redirectClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
@@ -69,56 +75,89 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
             .connectTimeout(Duration.ofSeconds(30))
             .build();
 
+    /** 默认配置的共享归还句柄，避免热路径重复分配。 */
+    private final ClientLease redirectLease = new ClientLease(redirectClient, false);
+
+    /** 不跟随重定向配置的共享归还句柄。 */
+    private final ClientLease noRedirectLease = new ClientLease(noRedirectClient, false);
+
     /**
-     * 自定义配置客户端缓存（代理 / 非默认保活 / 重定向差异）。
+     * 自定义配置客户端缓存（代理、连接超时与重定向差异）。
      *
      * <p>旧实现每次遇到自定义配置都 {@code HttpClient.newBuilder().build()}，
      * 而 JDK HttpClient 实例各自持有内部连接池、互不共享，导致这类请求每次
      * 都要重新 TCP/TLS 握手，高 QPS 下开销显著。改为按配置键缓存客户端实例
-     * （JDK HttpClient 线程安全、内部自带连接池，可全局复用）；上限 16 个，
-     * 超出后整体清空，避免代理轮换等场景下无界增长。</p>
+     * （JDK HttpClient 线程安全、内部自带连接池，可全局复用）；上限 16 个。
+     * 达到上限后仅对新配置使用请求结束即关闭的临时客户端，保留已有热连接池。
+     * JDK 不支持请求级空闲保活时长，因此该字段不参与缓存键，也不修改全局系统属性。</p>
      */
-    private final Map<String, HttpClient> customClients = new ConcurrentHashMap<>();
+    private final Map<ClientKey, ClientLease> customClients = new ConcurrentHashMap<>();
+
+    /** 关闭后拒绝取得新客户端。 */
+    private volatile boolean closed;
+
+    /** 实际可由 JDK 客户端消费的不可变配置。 */
+    private record ClientKey(String proxyHost, int proxyPort, long connectTimeout, boolean followRedirects) {
+    }
+
+    /** 临时客户端由单次请求归还；缓存客户端随执行器统一关闭。 */
+    private record ClientLease(HttpClient client, boolean temporary) implements AutoCloseable {
+        @Override
+        public void close() {
+            if (temporary) {
+                client.shutdown();
+            }
+        }
+    }
 
     /**
      * 根据请求配置创建或选择对应的 JDK HttpClient 实例。
      *
-     * <p>如果请求设置了代理或非默认保活时长，则按配置键从 {@link #customClients}
+     * <p>如果请求设置了代理或非默认连接超时，则按配置键从 {@link #customClients}
      * 取缓存实例（未命中才新建）；否则使用预先创建的两个缓存实例
      * （redirectClient / noRedirectClient）。</p>
      *
      * @param request 请求对象，包含代理和重定向配置
      * @return 适合当前请求的 JDK HttpClient 实例
      */
-    private HttpClient resolveHttpClient(com.chua.common.support.network.client.ClientRequest request) {
-        // 检查是否需要自定义配置的客户端
-        boolean needsCustomClient = (request.getProxyHost() != null && !request.getProxyHost().isEmpty())
-                || request.getKeepAliveTimeout() != 60000;
+    private ClientLease resolveHttpClient(ClientRequest request) {
+        if (closed) {
+            throw new IllegalStateException("HTTP executor is closed");
+        }
+        String proxyHost = request.getProxyHost() == null ? "" : request.getProxyHost();
+        boolean needsCustomClient = !proxyHost.isEmpty()
+                || request.getConnectTimeout() != DEFAULT_CONNECT_TIMEOUT;
         if (!needsCustomClient) {
-            // 无自定义配置：使用缓存的客户端实例
-            return request.isFollowRedirects() ? redirectClient : noRedirectClient;
+            return request.isFollowRedirects() ? redirectLease : noRedirectLease;
         }
-        // 有自定义配置：按配置键复用客户端，避免每请求新建连接池
-        String key = (request.getProxyHost() == null ? "" : request.getProxyHost())
-                + ":" + request.getProxyPort()
-                + "|" + request.getKeepAliveTimeout()
-                + "|" + request.isFollowRedirects()
-                + "|" + request.getConnectTimeout();
-        if (customClients.size() > 16) {
-            customClients.clear();
+        ClientKey key = new ClientKey(proxyHost, proxyHost.isEmpty() ? 0 : request.getProxyPort(),
+                request.getConnectTimeout(), request.isFollowRedirects());
+        ClientLease cached = customClients.get(key);
+        if (cached != null) {
+            return cached;
         }
-        return customClients.computeIfAbsent(key, k -> {
-            HttpClient.Builder builder = HttpClient.newBuilder();
-            builder.followRedirects(request.isFollowRedirects()
-                    ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER);
-            builder.connectTimeout(Duration.ofMillis(request.getConnectTimeout()));
-            // 配置代理
-            if (request.getProxyHost() != null && !request.getProxyHost().isEmpty()) {
-                builder.proxy(ProxySelector.of(
-                        new InetSocketAddress(request.getProxyHost(), request.getProxyPort())));
+        synchronized (customClients) {
+            if (closed) {
+                throw new IllegalStateException("HTTP executor is closed");
             }
-            return builder.build();
-        });
+            cached = customClients.get(key);
+            if (cached != null) {
+                return cached;
+            }
+            HttpClient.Builder builder = HttpClient.newBuilder()
+                    .followRedirects(key.followRedirects() ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER)
+                    .connectTimeout(Duration.ofMillis(key.connectTimeout()));
+            if (!key.proxyHost().isEmpty()) {
+                builder.proxy(ProxySelector.of(
+                        new InetSocketAddress(key.proxyHost(), key.proxyPort())));
+            }
+            boolean temporary = customClients.size() >= MAX_CUSTOM_CLIENTS;
+            ClientLease lease = new ClientLease(builder.build(), temporary);
+            if (!temporary) {
+                customClients.put(key, lease);
+            }
+            return lease;
+        }
     }
 
     /**
@@ -181,11 +220,10 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                 break;
         }
 
-        // 根据代理和重定向配置选择合适的客户端实例
-        HttpClient targetClient = resolveHttpClient(request);
-
-        // 发送请求并获取响应（同步）
-        HttpResponse<byte[]> response = targetClient.send(builder.build(), BYTE_ARRAY_HANDLER);
+        HttpResponse<byte[]> response;
+        try (ClientLease lease = resolveHttpClient(request)) {
+            response = lease.client().send(builder.build(), BYTE_ARRAY_HANDLER);
+        }
 
         // 封装响应
         ClientResponse cr = new ClientResponse();
@@ -302,9 +340,16 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                     break;
             }
 
-            HttpClient targetClient = resolveHttpClient(request);
-            CompletableFuture<HttpResponse<byte[]>> future = targetClient
-                    .sendAsync(builder.build(), BYTE_ARRAY_HANDLER);
+            ClientLease lease = resolveHttpClient(request);
+            CompletableFuture<HttpResponse<byte[]>> future;
+            try {
+                future = lease.client().sendAsync(builder.build(), BYTE_ARRAY_HANDLER);
+            } catch (RuntimeException | Error e) {
+                lease.close();
+                throw e;
+            }
+            // 保持原 future，确保 Reactor 取消仍能传递到底层请求。
+            future.whenComplete((response, failure) -> lease.close());
             return Mono.fromFuture(future).map(response -> {
                 ClientResponse cr = new ClientResponse();
                 cr.setStatusCode(response.statusCode());
@@ -345,5 +390,22 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     @Override
     public boolean isAvailable() {
         return true;
+    }
+
+    /**
+     * 发起有序关闭并释放执行器持有的客户端；已提交请求继续完成。
+     */
+    @Override
+    public void close() {
+        synchronized (customClients) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            redirectClient.shutdown();
+            noRedirectClient.shutdown();
+            customClients.values().forEach(lease -> lease.client().shutdown());
+            customClients.clear();
+        }
     }
 }

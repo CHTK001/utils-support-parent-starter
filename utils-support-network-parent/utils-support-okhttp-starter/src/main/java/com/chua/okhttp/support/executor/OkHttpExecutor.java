@@ -78,50 +78,66 @@ public class OkHttpExecutor implements HttpClientExecutor {
     @Override
     public ClientResponse execute(ClientRequest request) {
         try {
-            Builder builder = new Request.Builder().url(request.getUrl());
-            builder.method(request.getMethod().name(), null);
-
-            if (request.getHeaders() != null) {
-                for (Map.Entry<String, String> e : request.getHeaders().toMap().entrySet()) {
-                    builder.header(e.getKey(), e.getValue());
-                }
-            }
-
-            RequestBody body = null;
-            if (request.getBody() != null) {
-                if (request.getBody() instanceof byte[] b) {
-                    body = RequestBody.create(b, MediaType.parse("application/octet-stream"));
-                } else {
-                    String s = request.getBody().toString();
-                    body = RequestBody.create(s, MediaType.parse("text/plain; charset=utf-8"));
-                }
-            }
-
-            if (body == null &&
-                    ("POST".equals(request.getMethod().name()) || "PUT".equals(request.getMethod().name()))) {
-                body = RequestBody.create("", MediaType.parse("text/plain"));
-            }
-
-            OkHttpClient.Builder clientBuilder = client.newBuilder()
-                    .connectTimeout(request.getConnectTimeout(), TimeUnit.MILLISECONDS)
-                    .readTimeout(request.getReadTimeout(), TimeUnit.MILLISECONDS)
-                    .followRedirects(request.isFollowRedirects());
-
-            // 配置 HTTP 代理
-            if (request.getProxyHost() != null && !request.getProxyHost().isEmpty()) {
-                clientBuilder.proxy(new Proxy(Proxy.Type.HTTP,
-                        new InetSocketAddress(request.getProxyHost(), request.getProxyPort())));
-            }
-
-            OkHttpClient reqClient = clientBuilder.build();
-
-            okhttp3.Request okReq = builder.build();
+            okhttp3.Request okReq = toRequest(request);
+            OkHttpClient reqClient = resolveClient(request);
             try (Response okResp = reqClient.newCall(okReq).execute()) {
                 return toClientResponse(okResp);
             }
         } catch (IOException e) {
             throw new RuntimeException("OkHttp执行失败", e);
         }
+    }
+
+    /**
+     * 在设置 HTTP 方法前完成请求体构建，并保留调用方声明的媒体类型。
+     *
+     * @param request 请求参数
+     * @return 可交给 OkHttp 发送的请求
+     */
+    private Request toRequest(ClientRequest request) {
+        Builder builder = new Request.Builder().url(request.getUrl());
+        String contentType = null;
+        if (request.getHeaders() != null) {
+            for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
+                builder.header(entry.getKey(), entry.getValue());
+                if ("Content-Type".equalsIgnoreCase(entry.getKey())) {
+                    contentType = entry.getValue();
+                }
+            }
+        }
+        MediaType mediaType = MediaType.parse(contentType != null ? contentType
+                : request.getBody() instanceof byte[] ? "application/octet-stream" : "text/plain; charset=utf-8");
+        RequestBody body = null;
+        if (request.getBody() instanceof byte[] bytes) {
+            body = RequestBody.create(bytes, mediaType);
+        } else if (request.getBody() != null) {
+            body = RequestBody.create(request.getBody().toString(), mediaType);
+        }
+        String method = request.getMethod().name();
+        if (body == null && ("POST".equals(method) || "PUT".equals(method) || "PATCH".equals(method)
+                || "PROPPATCH".equals(method))) {
+            body = RequestBody.create(new byte[0], mediaType);
+        }
+        return builder.method(method, body).build();
+    }
+
+    /**
+     * 派生请求级配置，同时沿用执行器的连接池与调度器。
+     *
+     * @param request 请求参数
+     * @return 具有请求级超时与代理配置的客户端
+     */
+    private OkHttpClient resolveClient(ClientRequest request) {
+        OkHttpClient.Builder builder = client.newBuilder()
+                .connectTimeout(request.getConnectTimeout(), TimeUnit.MILLISECONDS)
+                .readTimeout(request.getReadTimeout(), TimeUnit.MILLISECONDS)
+                .writeTimeout(request.getWriteTimeout(), TimeUnit.MILLISECONDS)
+                .followRedirects(request.isFollowRedirects());
+        if (request.getProxyHost() != null && !request.getProxyHost().isEmpty()) {
+            builder.proxy(new Proxy(Proxy.Type.HTTP,
+                    new InetSocketAddress(request.getProxyHost(), request.getProxyPort())));
+        }
+        return builder.build();
     }
 
     /**
