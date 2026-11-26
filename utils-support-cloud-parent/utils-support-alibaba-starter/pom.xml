@@ -69,6 +69,20 @@
             <groupId>com.alibaba</groupId>
             <artifactId>dashscope-sdk-java</artifactId>
         </dependency>
+        <!--
+          2026-11-25: dashscope-sdk-java 2.23.1 传递引入 jsonschema-generator 4.31.1，
+          而 agentscope/openai-java-core 链路带的是 jsonschema-module-jackson 4.38.0。
+          module-jackson 4.38.0 引用了 generator 4.38.0 才有的 AnnotationHelper，
+          混用会在 agentscope Toolkit 生成工具 JSON schema 时炸
+          NoClassDefFoundError: com/github/victools/jsonschema/generator/AnnotationHelper。
+          此处显式声明 generator 4.38.0：直接依赖在 Maven 最近优先仲裁中以更近深度胜出，
+          使 dashscope 与 agentscope 两条链路共用同一 generator 版本。
+        -->
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+            <version>4.38.0</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-payment-starter</artifactId>

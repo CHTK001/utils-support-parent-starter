@@ -9,6 +9,7 @@ kilo=com.chua.openai.support.OpenAiChatClient
 opencode=com.chua.openai.support.OpenAiChatClient
 pollinations=com.chua.openai.support.OpenAiChatClient
 custom=com.chua.openai.support.OpenAiChatClient
+groq=com.chua.openai.support.OpenAiChatClient
 inceptionlabs=com.chua.openai.support.InceptionChatClient
 mercury=com.chua.openai.support.InceptionChatClient
 ptero=com.chua.openai.support.PteroChatClient

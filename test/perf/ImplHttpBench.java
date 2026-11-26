@@ -40,6 +40,8 @@ import java.util.concurrent.atomic.LongAdder;
  *       POST /echo（原样回显请求体）与 GET /ping（冒烟），打印 SERVER_READY 后常驻。
  *       可用系统属性：-Dbench.maxConns=N 覆盖最大连接数与并发处理上限；
  *       -Dbench.backlog=N 覆盖监听 backlog。
+ *       另注册 GET /block：handler 内 sleep -Dbench.blockMs（默认 0）毫秒后返回 "OK"（2 字节），
+ *       用于阻塞 handler 对比实验。
  *
  *   client &lt;host&gt; &lt;port&gt; &lt;workers&gt; &lt;seconds&gt; &lt;bodyBytes&gt; &lt;label&gt;
  *       先冒烟校验 /echo 回显一致性，再 3s 预热 + seconds 测量，输出
@@ -53,7 +55,15 @@ import java.util.concurrent.atomic.LongAdder;
  *       -Dbench.get=/path：GET 模式，读取该路径响应体（期望长度 -Dbench.respBytes=N，用于吞吐计算与冒烟校验）。
  *       -Dbench.missPct=N：N% 的请求改打 /miss（服务端 404 错误路径），测错误响应成本与连接复用。
  *       -Dbench.pipeline=N：同一连接连续写 N 个请求再读 N 个响应（HTTP/1.1 pipeline 批处理效率）。
+ *       -Dbench.slowChunk=N -Dbench.slowSleepMs=M：GET 模式响应头读完后按 N 字节块慢速消费 body、
+ *       块间 sleep M 毫秒（F1 慢客户端模拟；slowChunk=0 走全速读）。
+ *       -Dbench.progressSecs=N：每 N 秒打印一行 PROGRESS t=..s total=.. qps=..（长跑吞吐漂移观察）。
  *       输出额外带 hdrB=请求头线上字节数（精确计量）、pipe=N、miss=N。
+ *
+ *   stall &lt;host&gt; &lt;port&gt; &lt;conns&gt; &lt;seconds&gt; &lt;path&gt;
+ *       写阻塞背压源（F2）：开 conns 条连接各发一个 GET 后永不读取响应，持住 seconds 秒后统一关闭；
+ *       服务端发送缓冲被填满后写路径阻塞/用户态堆积。输出
+ *       mode=stall path=.. conns=.. opened=.. errs=.. held=..s。
  * </pre>
  *
  * <p>回环口径：server 与 client 同机不同 JVM（127.0.0.1）；
@@ -90,7 +100,9 @@ public final class ImplHttpBench {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("usage: server <impl> <port> | client <host> <port> <workers> <seconds> <bodyBytes> <label>");
+            System.out.println("usage: server <impl> <port> | client <host> <port> <workers> <seconds> <bodyBytes> <label>"
+                    + " | client-raw <host> <port> <workers> <seconds> <bodyBytes> <label>"
+                    + " | stall <host> <port> <conns> <seconds> <path>");
             System.exit(2);
         }
         if ("server".equals(args[0])) {
@@ -101,6 +113,9 @@ public final class ImplHttpBench {
         } else if ("client-raw".equals(args[0])) {
             runRawClient(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
                     Integer.parseInt(args[4]), Integer.parseInt(args[5]), args.length > 6 ? args[6] : "bench");
+        } else if ("stall".equals(args[0])) {
+            runStall(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
+                    Integer.parseInt(args[4]), args.length > 5 ? args[5] : "/d1m");
         } else {
             runClient(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
                     Integer.parseInt(args[4]), Integer.parseInt(args[5]), args.length > 6 ? args[6] : "bench");
@@ -138,6 +153,17 @@ public final class ImplHttpBench {
         server.registerMapping("/echo", HttpMethod.POST, (req, resp) -> {
             byte[] body = req.getBody();
             resp.end(body == null || body.length == 0 ? "EMPTY".getBytes() : body);
+        });
+        final int blockMs = Integer.parseInt(System.getProperty("bench.blockMs", "0"));
+        server.registerMapping("/block", HttpMethod.GET, (req, resp) -> {
+            if (blockMs > 0) {
+                try {
+                    Thread.sleep(blockMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            resp.end("OK".getBytes());
         });
         registerPayload(server, "/d1k", 1024);
         registerPayload(server, "/d8k", 8192);
@@ -186,6 +212,7 @@ public final class ImplHttpBench {
             return;
         }
 
+        int progressSecs = Integer.parseInt(System.getProperty("bench.progressSecs", "0"));
         LongAdder total = new LongAdder();
         LongAdder errors = new LongAdder();
         AtomicBoolean running = new AtomicBoolean(true);
@@ -201,6 +228,7 @@ public final class ImplHttpBench {
             t.setDaemon(true);
             t.start();
         }
+        startProgressThread(running, total, progressSecs);
         Thread.sleep(WARMUP_MILLIS);
         long baseline = total.sum();
         int sampleBase = SHARED_N.get();
@@ -370,8 +398,8 @@ public final class ImplHttpBench {
         }
     }
 
-    /** 读取一条完整 /echo 响应；sink 非 null 时把 body 拷入 sink（长度必须一致）。返回 Content-Length。 */
-    static int readEchoResponse(RawConn c, byte[] sink) throws IOException {
+    /** 读取响应头直到 \r\n\r\n 结束；返回 headerEnd 偏移（rbuf 内 body 起点下标）。 */
+    static int readResponseHeader(RawConn c) throws IOException {
         int headerEnd = -1;
         search:
         while (true) {
@@ -395,6 +423,12 @@ public final class ImplHttpBench {
             }
             c.rl += n;
         }
+        return headerEnd;
+    }
+
+    /** 读取一条完整 /echo 响应；sink 非 null 时把 body 拷入 sink（长度必须一致）。返回 Content-Length。 */
+    static int readEchoResponse(RawConn c, byte[] sink) throws IOException {
+        int headerEnd = readResponseHeader(c);
         int cl = parseContentLength(c.rbuf, c.rp, headerEnd);
         int avail = c.rl - headerEnd;
         if (avail < cl) {
@@ -424,6 +458,28 @@ public final class ImplHttpBench {
                 System.arraycopy(c.rbuf, headerEnd, sink, 0, cl);
             }
             c.rp = headerEnd + cl;
+        }
+        return cl;
+    }
+
+    /** 慢速读取一条完整响应（F1 慢客户端）：头部照常解析，body 按 chunk 字节逐块读取、
+     *  块间 sleep sleepMs 毫秒，模拟慢消费者对服务端发送缓冲与写路径的拖拽。返回 Content-Length。 */
+    static int readEchoResponseSlow(RawConn c, int chunk, long sleepMs) throws IOException, InterruptedException {
+        int headerEnd = readResponseHeader(c);
+        int cl = parseContentLength(c.rbuf, c.rp, headerEnd);
+        int need = cl - (c.rl - headerEnd);
+        c.rp = 0;
+        c.rl = 0;
+        int sz = Math.max(1, Math.min(chunk, c.rbuf.length));
+        while (need > 0) {
+            int n = c.in.read(c.rbuf, 0, Math.min(need, sz));
+            if (n < 0) {
+                throw new IOException("EOF while slow-reading body");
+            }
+            need -= n;
+            if (need > 0 && sleepMs > 0) {
+                Thread.sleep(sleepMs);
+            }
         }
         return cl;
     }
@@ -468,6 +524,9 @@ public final class ImplHttpBench {
         int respBytes = Integer.parseInt(System.getProperty("bench.respBytes", "0"));
         int missPct = Integer.parseInt(System.getProperty("bench.missPct", "0"));
         int pipeline = Math.max(1, Integer.parseInt(System.getProperty("bench.pipeline", "1")));
+        int slowChunk = Integer.parseInt(System.getProperty("bench.slowChunk", "0"));
+        long slowSleepMs = Long.parseLong(System.getProperty("bench.slowSleepMs", "0"));
+        int progressSecs = Integer.parseInt(System.getProperty("bench.progressSecs", "0"));
         boolean isGet = getPath != null && !getPath.isEmpty();
         byte[] body = new byte[bodyBytes];
         for (int i = 0; i < bodyBytes; i++) {
@@ -533,7 +592,7 @@ public final class ImplHttpBench {
         boolean virtual = workers > VIRTUAL_THREAD_THRESHOLD;
         for (int i = 0; i < workers; i++) {
             RawWorker w = new RawWorker(host, port, header, missHeader, body, closeConn, pipeline, missPct,
-                    respLen, isGet, total, errors, running, latch);
+                    respLen, isGet, slowChunk, slowSleepMs, total, errors, running, latch);
             ws.add(w);
             Thread t = virtual
                     ? Thread.ofVirtual().name("raw-" + i).unstarted(w)
@@ -541,6 +600,7 @@ public final class ImplHttpBench {
             t.setDaemon(true);
             t.start();
         }
+        startProgressThread(running, total, progressSecs);
         Thread.sleep(WARMUP_MILLIS);
         long baseline = total.sum();
         int sampleBase = SHARED_N.get();
@@ -570,6 +630,61 @@ public final class ImplHttpBench {
         System.out.flush();
     }
 
+    /** 周期打印累计吞吐（-Dbench.progressSecs=N；N<=0 不启动）。长跑实验观察吞吐漂移用。 */
+    private static void startProgressThread(AtomicBoolean running, LongAdder total, int progressSecs) {
+        if (progressSecs <= 0) {
+            return;
+        }
+        Thread pt = new Thread(() -> {
+            long t0 = System.nanoTime();
+            while (running.get()) {
+                try {
+                    Thread.sleep(progressSecs * 1000L);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                double t = (System.nanoTime() - t0) / 1e9;
+                System.out.printf("PROGRESS t=%.0fs total=%d qps=%.0f%n", t, total.sum(), total.sum() / Math.max(t, 1e-9));
+                System.out.flush();
+            }
+        }, "progress");
+        pt.setDaemon(true);
+        pt.start();
+    }
+
+    /** 写阻塞背压源（F2）：开 conns 条连接，各发一个 GET 后永不读取响应，持住到 seconds 秒。
+     *  服务端响应写满内核/用户态发送缓冲后写路径阻塞或堆积，用于观察各实现背压行为与服务端内存。
+     *  输出 mode=stall path=.. conns=.. opened=.. errs=.. held=..s */
+    static void runStall(String host, int port, int conns, int seconds, String path) throws Exception {
+        byte[] header = buildGetHeader(path, host, port, false);
+        AtomicInteger opened = new AtomicInteger();
+        AtomicInteger errs = new AtomicInteger();
+        CountDownLatch done = new CountDownLatch(conns);
+        long endAt = System.nanoTime() + seconds * 1_000_000_000L;
+        for (int i = 0; i < conns; i++) {
+            Thread t = new Thread(() -> {
+                try (RawConn c = new RawConn(host, port, false)) {
+                    c.socket.setSoTimeout(0);
+                    c.out.write(header);
+                    c.out.flush();
+                    opened.incrementAndGet();
+                    long remainMs = Math.max(0, (endAt - System.nanoTime()) / 1_000_000L);
+                    Thread.sleep(remainMs);
+                } catch (Exception e) {
+                    errs.incrementAndGet();
+                } finally {
+                    done.countDown();
+                }
+            }, "stall-" + i);
+            t.setDaemon(true);
+            t.start();
+        }
+        done.await();
+        System.out.printf("mode=stall path=%s conns=%d opened=%d errs=%d held=%ds%n",
+                path, conns, opened.get(), errs.get(), seconds);
+        System.out.flush();
+    }
+
     private static final class RawWorker implements Runnable {
         private final String host;
         private final int port;
@@ -581,6 +696,8 @@ public final class ImplHttpBench {
         private final int missPct;
         private final int respLen;
         private final boolean isGet;
+        private final int slowChunk;
+        private final long slowSleepMs;
         private final LongAdder total;
         private final LongAdder errors;
         private final AtomicBoolean running;
@@ -589,7 +706,7 @@ public final class ImplHttpBench {
         private volatile int base;
 
         RawWorker(String host, int port, byte[] header, byte[] missHeader, byte[] body, boolean closeConn,
-                  int pipeline, int missPct, int respLen, boolean isGet,
+                  int pipeline, int missPct, int respLen, boolean isGet, int slowChunk, long slowSleepMs,
                   LongAdder total, LongAdder errors, AtomicBoolean running, CountDownLatch latch) {
             this.host = host;
             this.port = port;
@@ -601,6 +718,8 @@ public final class ImplHttpBench {
             this.missPct = missPct;
             this.respLen = respLen;
             this.isGet = isGet;
+            this.slowChunk = slowChunk;
+            this.slowSleepMs = slowSleepMs;
             this.total = total;
             this.errors = errors;
             this.running = running;
@@ -635,7 +754,9 @@ public final class ImplHttpBench {
                             }
                             c.out.flush();
                             for (int i = 0; i < pipeline; i++) {
-                                int cl = readEchoResponse(c, null);
+                                int cl = isGet && slowChunk > 0
+                                        ? readEchoResponseSlow(c, slowChunk, slowSleepMs)
+                                        : readEchoResponse(c, null);
                                 if (!miss && cl != respLen) {
                                     throw new IOException("bad body len " + cl);
                                 }
