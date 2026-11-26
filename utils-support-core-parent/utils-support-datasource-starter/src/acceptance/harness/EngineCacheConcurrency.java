@@ -52,10 +52,14 @@ public final class EngineCacheConcurrency {
     /** Instruments lifecycle callbacks while all data operations remain in JdbcEngine. */
     private static final class ObservedJdbc extends JdbcEngine {
         private Runnable afterRead = () -> { };
+        private Runnable afterWrite = () -> { };
         @Override public List<EngineInterceptor> interceptors() {
             return List.of(new EngineInterceptor() {
                 @Override public void afterQuery(String sql, Object[] params, List<?> rows) {
                     afterRead.run();
+                }
+                @Override public void afterUpdate(String sql, Object[] params, int affected) {
+                    afterWrite.run();
                 }
             });
         }
@@ -96,6 +100,69 @@ public final class EngineCacheConcurrency {
     }
 
     public static void main(String[] args) {
+        check("failed post-write callback still invalidates the cache", () -> {
+            ObservedJdbc delegate = new ObservedJdbc();
+            try (ObservedCache engine = new ObservedCache(delegate)) {
+                engine.store("cache_row", List.of(new Row(1, "one"), new Row(2, "two")));
+                require(engine.query(Row.class).list().size() == 2);
+                AtomicInteger notices = new AtomicInteger();
+                engine.addInvalidator(table -> notices.incrementAndGet());
+                delegate.afterWrite = () -> { throw new IllegalStateException("after-write failure"); };
+                boolean thrown = false;
+                try { engine.delete(Row.class).eq(Row::getId, 1).delete(); }
+                catch (IllegalStateException expected) { thrown = true; }
+                delegate.afterWrite = () -> { };
+                require(thrown && delegate.query(Row.class).list().size() == 1);
+                require(engine.query(Row.class).list().size() == 1 && notices.get() == 1);
+            }
+        });
+        check("indexed insert batch update and delete remain visible", () -> {
+            try (InMemoryEngine engine = new InMemoryEngine()) {
+                engine.store("cache_row", List.of(new Row(1, "one")));
+                engine.index();
+                require(engine.insert(Row.class, new Row(2, "two")) == 1);
+                require(engine.query(Row.class).eq(Row::getId, 2).count() == 1);
+                engine.index();
+                require(engine.insertBatch(Row.class, List.of(new Row(3, "three"), new Row(4, "four"))) == 2);
+                require(engine.query(Row.class).eq(Row::getId, 4).count() == 1);
+                engine.index();
+                require(engine.delete(Row.class).eq(Row::getId, 2).delete() == 1);
+                require(engine.query(Row.class).eq(Row::getId, 2).count() == 0);
+                engine.index();
+                require(engine.executeSql("DELETE FROM cache_row WHERE id = ?", 3) == 1);
+                require(engine.query(Row.class).eq(Row::getId, 3).count() == 0);
+            }
+        });
+        check("concurrent writers and index rebuilds do not lose inserts", () -> {
+            try (InMemoryEngine engine = new InMemoryEngine()) {
+                engine.store("cache_row", List.of(new Row(0, "zero")));
+                AtomicReference<Throwable> error = new AtomicReference<>();
+                java.util.ArrayList<Thread> threads = new java.util.ArrayList<>();
+                for (int worker = 0; worker < 4; worker++) {
+                    final int offset = worker * 100;
+                    threads.add(new Thread(() -> {
+                        try {
+                            for (int i = 1; i <= 100; i++) {
+                                engine.insert(Row.class, new Row(offset + i, "row"));
+                                if (i % 20 == 0) { engine.index(); }
+                            }
+                        } catch (Throwable t) { error.set(t); }
+                    }));
+                }
+                threads.forEach(Thread::start);
+                threads.forEach(thread -> {
+                    try { thread.join(5000); } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); throw new AssertionError(e);
+                    }
+                    require(!thread.isAlive());
+                });
+                require(error.get() == null && engine.query(Row.class).count() == 401);
+                engine.index();
+                for (int i = 0; i <= 400; i++) {
+                    require(engine.query(Row.class).eq(Row::getId, i).count() == 1);
+                }
+            }
+        });
         check("indexed OR retains both branches", () -> {
             try (InMemoryEngine engine = new InMemoryEngine()) {
                 engine.store("cache_row", List.of(new Row(1, "one"), new Row(2, "two")));

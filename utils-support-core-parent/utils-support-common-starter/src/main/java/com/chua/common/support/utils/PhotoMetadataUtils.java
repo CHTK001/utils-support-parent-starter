@@ -59,7 +59,9 @@ import java.util.zip.Inflater;
  *   <li>清除（strip）只处理元数据字节，不解码/重编码像素；像素级旋转请配合 {@link BufferedImageUtils}；
  *       检测（analyze）在元数据无信号时会对像素做<b>只读</b>统计采样（降采样后计算残差自相关等），不修改原图；</li>
  *   <li>检测结果<b>仅供参考</b>：元数据可被伪造或剥离，无 AI 痕迹不代表一定是实拍；
- *       像素统计兜底为启发式方法，截图、图表、程序绘制的合成图形也可能呈现类似统计特征而出现疑似误报；</li>
+ *       像素统计兜底为启发式方法，截图、图表、程序绘制的合成图形也可能呈现类似统计特征而出现疑似误报；
+ *       扁平数字内容路径（跨通道残差相关）对剥除元数据的 AI 平涂插画、手绘插画、logo、错误页等
+ *       同属「无传感器噪声的平坦数字图」，存在把真实数字素材误判为「疑似 AI」的可能，故阈值从严且结论仅为「疑似」；</li>
  * </ul>
  *
  * <h2>使用示例</h2>
@@ -516,22 +518,39 @@ public final class PhotoMetadataUtils {
         pixels = null;
         double[] lap = laplacian(luma, w, h);
         double texFraction = textureFraction(lap, w, h);
-        if (texFraction < PHOTOGRAPHIC_TEX_MIN || texFraction > PHOTOGRAPHIC_TEX_MAX) {
-            return new PixelAnalysis(0, List.of());
-        }
-        SpectralPeak peak = measureSpectralPeak(lap, w, h, format);
-        if (peak == null) {
-            return new PixelAnalysis(0, List.of());
-        }
         List<String> signals = new ArrayList<>();
-        int hits = peak.ratio() >= SPECTRAL_PEAK_STRONG ? 2 : 1;
-        signals.add(String.format(
-                "像素统计：功率谱在周期 %d 频点呈显著峰（%s方向显著度 %.1f 倍于局部中位），符合上采样网格伪迹特征",
-                peak.period(), peak.axis(), peak.ratio()));
-        String noise = crossChannelNoiseSignal(red, green, blue, lap, w, h);
-        if (noise != null) {
+        int hits;
+        if (texFraction > PHOTOGRAPHIC_TEX_MAX) {
+            // 纹理占比过高（接近满幅强边缘）：CAD 填充、棋盘格等周期纹理，
+            // 谱峰来自图案本身的重复结构，不作为上采样证据。
+            return new PixelAnalysis(0, List.of());
+        }
+        if (texFraction >= PHOTOGRAPHIC_TEX_MIN) {
+            // 照片内容：以上采样网格伪迹（谱峰）为主证据，跨通道噪声缺失为加重证据。
+            SpectralPeak peak = measureSpectralPeak(lap, w, h, format);
+            if (peak == null) {
+                return new PixelAnalysis(0, List.of());
+            }
+            hits = peak.ratio() >= SPECTRAL_PEAK_STRONG ? 2 : 1;
+            signals.add(String.format(
+                    "像素统计：功率谱在周期 %d 频点呈显著峰（%s方向显著度 %.1f 倍于局部中位），符合上采样网格伪迹特征",
+                    peak.period(), peak.axis(), peak.ratio()));
+            String noise = crossChannelNoiseSignal(red, green, blue, lap, w, h,
+                    CROSS_CHANNEL_CORR_MISSING, CROSS_CHANNEL_STD_MIN, CROSS_CHANNEL_SAT_MIN);
+            if (noise != null) {
+                signals.add(noise);
+                hits++;
+            }
+        } else {
+            // 扁平数字内容（AI 平涂插画 / 手绘插画 / 截屏）：上采样谱峰不可靠，
+            // 改用「跨通道残差相关异常偏高」这一强证据，阈值从严以抑制误报。
+            String noise = crossChannelNoiseSignal(red, green, blue, lap, w, h,
+                    FLAT_CORR_MISSING, FLAT_STD_MIN, FLAT_SAT_MIN);
+            if (noise == null) {
+                return new PixelAnalysis(0, List.of());
+            }
             signals.add(noise);
-            hits++;
+            hits = 1;
         }
         return new PixelAnalysis(hits, signals);
     }
@@ -562,16 +581,22 @@ public final class PhotoMetadataUtils {
      * 跨通道残差相关为中等水平；生成图像缺少独立的传感器噪声，残差几乎只剩共享
      * 结构，跨通道相关异常偏高。仅当图像确实存在纹理/噪声（亮度残差标准差足够大）
      * 且非近灰度图时才判定，避免对平滑图与单色图误报。</p>
+     *
+     * @param corrMin 跨通道相关下限（高于该值视为缺失独立传感器噪声）
+     * @param stdMin  亮度残差标准差下限（过低说明几乎无内容）
+     * @param satMin  平均饱和度下限（过低说明近灰度，跨通道相关无意义）
+     * @return 命中时的信号描述；未达阈值返回 {@code null}
      */
     private static String crossChannelNoiseSignal(double[] red, double[] green, double[] blue,
-                                                  double[] lumaLap, int w, int h) {
+                                                  double[] lumaLap, int w, int h,
+                                                  double corrMin, double stdMin, double satMin) {
         double satSum = 0;
         for (int i = 0; i < red.length; i++) {
             double mx = Math.max(red[i], Math.max(green[i], blue[i]));
             double mn = Math.min(red[i], Math.min(green[i], blue[i]));
             satSum += mx - mn;
         }
-        if (satSum / red.length < 4) {
+        if (satSum / red.length < satMin) {
             return null;
         }
         double[] rLap = laplacian(red, w, h);
@@ -591,7 +616,7 @@ public final class PhotoMetadataUtils {
         }
         double variance = sumSq / count - (sum / count) * (sum / count);
         double std = variance > 0 ? Math.sqrt(variance) : 0;
-        if (std < 1.5 || corr < CROSS_CHANNEL_CORR_MISSING) {
+        if (std < stdMin || corr < corrMin) {
             return null;
         }
         return String.format("像素统计：跨通道残差相关性异常偏高（平均 ρ=%.2f，亮度残差 σ=%.1f），缺少独立的相机传感器噪声特征", corr, std);
