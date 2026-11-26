@@ -221,7 +221,7 @@ public class InMemoryEngine extends AbstractEngine {
             if (!guardEnabled) {
                 return true;
             }
-            purgeExpiredLocked();
+            purgeExpiredLocked(table);
 
             long incomingRows = Math.max(incoming, 0L);
             long currentRows = tableRows(table);
@@ -404,7 +404,7 @@ public class InMemoryEngine extends AbstractEngine {
             if (!guardEnabled) {
                 return;
             }
-            purgeExpiredLocked();
+            purgeExpiredLocked(table);
             lastAccess.put(table, System.currentTimeMillis());
         }
     }
@@ -422,6 +422,25 @@ public class InMemoryEngine extends AbstractEngine {
                     "内存引擎需要回落引擎承载该操作，但未绑定回落引擎，请先调用 setFallbackEngine(Engine)");
         }
         return engine;
+    }
+
+    /**
+     * 获取可按 {@link AbstractEngine} 契约承载结构化更新/删除的回落引擎。
+     *
+     * <p>{@link UpdateSql} / {@link DeleteSql} 重载只声明在 {@link AbstractEngine} 上，
+     * 公共 {@link Engine} 契约没有这两个入口；因此委托前必须判别实现类型，
+     * 不能对任意 {@code Engine} 实现做无条件强转。</p>
+     *
+     * @return 回落引擎
+     * @throws IllegalStateException 未绑定回落引擎，或其实现不支持结构化更新/删除
+     */
+    private AbstractEngine fallbackWritable() {
+        Engine engine = fallback();
+        if (engine instanceof AbstractEngine abstractEngine) {
+            return abstractEngine;
+        }
+        throw new IllegalStateException("回落引擎不支持结构化更新/删除：" + engine.getClass().getName()
+                + "，请绑定 AbstractEngine 的实现");
     }
 
     /**
@@ -908,7 +927,7 @@ public class InMemoryEngine extends AbstractEngine {
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String table = getTableName(sql.entityClass());
         if (isBypassed(table)) {
-            return fallback().executeUpdate(sql);
+            return fallbackWritable().executeUpdate(sql);
         }
         touch(table);
         return mutate(table, () -> super.executeUpdate(sql));
@@ -924,7 +943,7 @@ public class InMemoryEngine extends AbstractEngine {
     public <T> int executeDelete(DeleteSql<T> sql) {
         String table = getTableName(sql.entityClass());
         if (isBypassed(table)) {
-            return fallback().executeDelete(sql);
+            return fallbackWritable().executeDelete(sql);
         }
         touch(table);
         return mutate(table, () -> super.executeDelete(sql));
