@@ -1,4 +1,4 @@
-package com.chua.common.support.image;
+package com.chua.image.support.imaging;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

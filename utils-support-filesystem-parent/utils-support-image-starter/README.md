@@ -51,7 +51,7 @@ if (convertSystem != null) {
 
 ```java
 import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.image.Imaging;
+import com.chua.image.support.imaging.Imaging;
 import java.io.File;
 
 Imaging imaging = ServiceProvider.of(Imaging.class).getNewExtension();

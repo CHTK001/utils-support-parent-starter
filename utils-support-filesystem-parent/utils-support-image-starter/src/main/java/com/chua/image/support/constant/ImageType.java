@@ -1,4 +1,4 @@
-package com.chua.common.support.constant;
+package com.chua.image.support.constant;
 /**
  * 图像类型枚举。
  *

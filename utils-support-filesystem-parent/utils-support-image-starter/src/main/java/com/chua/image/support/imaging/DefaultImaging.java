@@ -1,7 +1,6 @@
 package com.chua.image.support.imaging;
 
 import com.chua.common.support.utils.BufferedImageUtils;
-import com.chua.common.support.image.Imaging;
 import com.chua.common.support.media.MediaType;
 import com.chua.common.support.media.MediaTypeFactory;
 

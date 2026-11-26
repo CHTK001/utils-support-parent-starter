@@ -2,8 +2,8 @@ package com.chua.image.support.filter;
 
 
 import com.chua.common.support.spi.annotations.SpiIgnore;
-import com.chua.common.support.constant.Position;
-import com.chua.common.support.image.ImagePoint;
+import com.chua.image.support.constant.Position;
+import com.chua.image.support.imaging.ImagePoint;
 import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.utils.IoUtils;
 import lombok.Setter;

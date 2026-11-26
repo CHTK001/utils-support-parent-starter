@@ -1,4 +1,4 @@
-package com.chua.common.support.image;
+package com.chua.image.support.imaging;
 
 import java.awt.image.BufferedImage;
 /**

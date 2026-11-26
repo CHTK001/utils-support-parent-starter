@@ -1,6 +1,6 @@
 package com.chua.image.support.filter;
 
-import com.chua.common.support.constant.Position;
+import com.chua.image.support.constant.Position;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;

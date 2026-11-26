@@ -4,8 +4,8 @@ package com.chua.image.support.filter;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiIgnore;
 import com.chua.common.support.spi.annotations.SpiDescribe;
-import com.chua.common.support.constant.Position;
-import com.chua.common.support.image.ImagePoint;
+import com.chua.image.support.constant.Position;
+import com.chua.image.support.imaging.ImagePoint;
 import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.utils.IoUtils;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-import static com.chua.common.support.constant.Position.RIGHT_BOTTOM;
+import static com.chua.image.support.constant.Position.RIGHT_BOTTOM;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -50,7 +50,7 @@ import javax.annotation.Nullable;
  * <h3>参数说明（构造器）</h3>
  * <ul>
  *   <li><b>bytes / stream / file</b>：水印图片来源（三选一）</li>
- *   <li><b>direction</b>：水印位置（{@link com.chua.common.support.constant.Position} 四角），默认 RIGHT_BOTTOM（final）</li>
+ *   <li><b>direction</b>：水印位置（{@link com.chua.image.support.constant.Position} 四角），默认 RIGHT_BOTTOM（final）</li>
  *   <li><b>bytes</b>：水印图片字节（final）</li>
  *   <li><b>point</b>：水印位置点偏移，默认 (20, 20)，可用 setter 修改</li>
  * </ul>

@@ -1,4 +1,4 @@
-package com.chua.common.support.constant;
+package com.chua.image.support.constant;
 /**
  * 图像位置枚举（左上、右上、右下、左下、居中）。
  *

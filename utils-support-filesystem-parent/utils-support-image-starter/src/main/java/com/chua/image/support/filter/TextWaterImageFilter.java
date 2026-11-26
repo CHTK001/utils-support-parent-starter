@@ -3,7 +3,7 @@ package com.chua.image.support.filter;
 
 
 import com.chua.common.support.spi.annotations.SpiIgnore;
-import com.chua.common.support.constant.Position;
+import com.chua.image.support.constant.Position;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
  * <h3>参数说明（构造器）</h3>
  * <ul>
  *   <li><b>text</b>：水印文字内容</li>
- *   <li><b>position</b>：水印位置（{@link com.chua.common.support.constant.Position} 四角），
+ *   <li><b>position</b>：水印位置（{@link com.chua.image.support.constant.Position} 四角），
  *       默认 RIGHT_BOTTOM</li>
  *   <li><b>font</b>：字体（黑体），默认 18 号</li>
  *   <li><b>fontSize</b>：字号，默认 18</li>
