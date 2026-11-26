@@ -3,8 +3,10 @@ package harness;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.common.support.spi.annotations.SpiOrder;
 import com.chua.common.support.spi.definition.ServiceDefinition;
+import com.chua.common.support.spi.definition.ServiceDefinitionUtils;
 import com.chua.common.support.spi.resolver.OsgiServiceResolver;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.engine.CachingEngine;
@@ -35,11 +37,20 @@ public final class EngineSpiLifecycle {
         @Override public void run() { calls.incrementAndGet(); }
     }
 
-    public interface Echo { String value(); }
+    public interface Echo { String value(); String echo(String input); }
+    @SpiOrder(100)
     public static final class EchoService implements Echo {
         private final String value;
         public EchoService(String value) { this.value = value; }
         @Override public String value() { return value; }
+        @Override public String echo(String input) { return value + ":" + input; }
+    }
+
+    @SpiDefault
+    @Spi("fallback")
+    public static final class DefaultEcho implements Echo {
+        @Override public String value() { return "fallback"; }
+        @Override public String echo(String input) { return "fallback:" + input; }
     }
 
     @TableName("lifecycle")
@@ -112,6 +123,15 @@ public final class EngineSpiLifecycle {
             check("priority enumeration includes distinct registrations", provider.getPriorityServiceDefinitions().stream()
                     .filter(it -> it.getObj() == first || it.getObj() == second).count() == 2);
             check("priority instance is framework managed", priority != null && values.contains(provider.getPriority()));
+            AtomicInteger namedDefinitions = new AtomicInteger();
+            provider.forDefinitionEach(it -> { if (values.contains(it.getObj())) { namedDefinitions.incrementAndGet(); } });
+            check("named definition iteration includes live service", namedDefinitions.get() == 1);
+            AtomicInteger allDefinitions = new AtomicInteger();
+            provider.forAnyDefinitionEach(it -> { if (values.contains(it.getObj())) { allDefinitions.incrementAndGet(); } });
+            check("all definition iteration includes distinct registrations", allDefinitions.get() == 2);
+            AtomicInteger available = new AtomicInteger();
+            provider.moreEach((name, instance) -> { if ("TASK".equals(name) && values.contains(instance)) { available.incrementAndGet(); } });
+            check("available iteration includes live service", available.get() == 1);
             provider.register(staticDefinition);
             check("unconstructed static definition does not hide dynamic instances", provider.getDefinitions(null).stream()
                     .filter(it -> it.getObj() == first || it.getObj() == second).count() == 2);
@@ -150,18 +170,41 @@ public final class EngineSpiLifecycle {
         }
     }
 
+    private static void manualChecks() {
+        ServiceProvider<CharSequence> provider = ServiceProvider.of(CharSequence.class);
+        String manual = "manual";
+        provider.register("manual", manual);
+        check("manual registration retains its name", provider.names().contains("MANUAL")
+                && provider.list().get("MANUAL") == manual && provider.getExtension("manual") == manual);
+        provider.register("manualType", (Class) StringBuilder.class);
+        check("manual class registration retains its name", provider.listType().get("MANUALTYPE") == (Class<?>) StringBuilder.class);
+    }
+
     private static void proxyChecks(FelixOsgiLauncher launcher) {
         ServiceProvider<Echo> provider = ServiceProvider.of(Echo.class);
+        DefaultEcho fallback = new DefaultEcho();
+        provider.register(ServiceDefinitionUtils.buildDefinitionAlias(Echo.class, ProbeResolver.class,
+                fallback, DefaultEcho.class, null, "FALLBACK", 0));
         Echo proxy = provider.getValidProvider();
+        Echo namedProxy = provider.getObjectProvider("ECHOSERVICE");
         ServiceRegistration<Echo> first = launcher.getFrameworkBundleContext()
                 .registerService(Echo.class, new EchoService("first"), null);
         ServiceRegistration<Echo> second = null;
         try {
             check("existing proxy sees later service registration", "first".equals(proxy.value()));
+            check("existing proxy passes method arguments", "first:argument".equals(proxy.echo("argument")));
+            check("existing named proxy sees later registration", "first".equals(namedProxy.value()));
+            check("explicit default survives higher priority dynamic service", provider.getExtension("") == fallback);
+            check("priority query still selects higher priority dynamic service", "first".equals(provider.getPriority().value()));
             first.unregister();
             first = null;
             second = launcher.getFrameworkBundleContext().registerService(Echo.class, new EchoService("second"), null);
             check("existing proxy sees replacement service instance", "second".equals(proxy.value()));
+            check("existing named proxy sees replacement service instance", "second".equals(namedProxy.value()));
+            second.unregister();
+            second = null;
+            check("existing proxy falls back after dynamic unregister", "fallback".equals(proxy.value()));
+            check("default remains after dynamic unregister", provider.getExtension("") == fallback);
         } finally {
             if (first != null) { first.unregister(); }
             if (second != null) { second.unregister(); }
@@ -188,6 +231,7 @@ public final class EngineSpiLifecycle {
         provider.register(definition);
         try {
             registryChecks(launcher);
+            manualChecks();
             proxyChecks(launcher);
             List<EngineInterceptor> initial = engine.interceptors();
             int initialConstructions = StaticInterceptor.CONSTRUCTED.get();

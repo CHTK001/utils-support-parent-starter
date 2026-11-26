@@ -582,10 +582,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public void forDefinitionEach(Consumer<ServiceDefinition> consumer) {
-        for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
-            SortedList<ServiceDefinition> value = entry.getValue();
-            consumer.accept(value.first());
-        }
+        currentNamedDefinitions().values().forEach(consumer);
     }
 
     /**
@@ -593,12 +590,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public void forAnyDefinitionEach(Consumer<ServiceDefinition> consumer) {
-        for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
-            SortedList<ServiceDefinition> value = entry.getValue();
-            for (ServiceDefinition serviceDefinition : value) {
-                consumer.accept(serviceDefinition);
-            }
-        }
+        getDefinitions(null).forEach(consumer);
     }
 
     /**
@@ -606,15 +598,16 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public void moreEach(BiConsumer<String, T> consumer) {
-        for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
-            SortedList<ServiceDefinition> value = entry.getValue();
-            for (ServiceDefinition definition : value) {
+        Set<String> visited = new HashSet<>();
+        for (ServiceDefinition definition : getDefinitions(null)) {
+            String name = definition.getName();
+            if (!visited.contains(name)) {
                 T imageConverter = definition.getObj(serviceAutowire);
                 if (null == imageConverter) {
                     continue;
                 }
-                consumer.accept(entry.getKey(), imageConverter);
-                break;
+                consumer.accept(name, imageConverter);
+                visited.add(name);
             }
         }
     }
@@ -716,6 +709,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     public void register(String name, Object ref) {
         name = name.toUpperCase();
         ServiceDefinition serviceDefinition = new ServiceDefinition();
+        serviceDefinition.setName(name);
         serviceDefinition.setObj(ref);
         serviceDefinition.setType(type);
         serviceDefinition.setImplClass(ref.getClass());
@@ -734,6 +728,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     public void register(String name, Class<T> ref) {
         name = name.toUpperCase();
         ServiceDefinition serviceDefinition = new ServiceDefinition();
+        serviceDefinition.setName(name);
         serviceDefinition.setImplClass(ref);
         serviceDefinition.setType(type);
         SortedList<ServiceDefinition> list =
@@ -749,12 +744,9 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public T getObjectProvider(String names, Object... args) {
-        List<T> impl = Wraps.list();
+        List<String> requestedNames = new ArrayList<>();
         for (String name : Splitter.on(',').omitEmptyStrings().trimResults().splitToList(names)) {
-            T deepNewExtension = getNewExtension(name, args);
-            if (null != deepNewExtension) {
-                impl.add(deepNewExtension);
-            }
+            requestedNames.add(name);
         }
         Class<T> service = type;
         return ProxyUtils.newProxy(service, classLoader,
@@ -765,7 +757,11 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             @Override
             public Object safeApply(ProxyMethod proxyMethod) throws Throwable {
                 Object rs = null;
-                for (T t : impl) {
+                for (String name : requestedNames) {
+                    T t = getNewExtension(name, args);
+                    if (t == null) {
+                        continue;
+                    }
                     rs = invoke(t, proxyMethod);
                 }
                 return rs;
