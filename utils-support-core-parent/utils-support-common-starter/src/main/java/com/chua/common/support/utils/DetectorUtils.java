@@ -1200,4 +1200,790 @@ public final class DetectorUtils {
                     new Fingerprint(0, 0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 0);
         }
     }
+
+    // ==================== HTTP 请求机器人检测 ====================
+
+    /**
+     * 机器人判定结果枚举。
+     *
+     * <p>按证据强度从低到高分为四档：</p>
+     * <ol>
+     *   <li>{@link #HUMAN} — 未发现明显机器人信号</li>
+     *   <li>{@link #UNKNOWN} — 发现少量信号但不足以定性</li>
+     *   <li>{@link #SUSPICIOUS} — 多项信号聚集，建议进一步验证</li>
+     *   <li>{@link #BOT} — 证据充分，判定为机器人</li>
+     * </ol>
+     *
+     * <p>0 误判在数学上不可达——启发式只能降低误报率，不能消除。
+     * 最终判定应结合密码学签名（Web Bot Auth）与 IP 信誉等外部信号。</p>
+     */
+    public enum BotVerdict {
+        /** 未发现明显机器人信号 */
+        HUMAN("人工"),
+        /** 发现少量信号但不足以定性 */
+        UNKNOWN("未知"),
+        /** 多项信号聚集，建议进一步验证 */
+        SUSPICIOUS("可疑"),
+        /** 证据充分，判定为机器人 */
+        BOT("机器人");
+
+        private final String label;
+
+        BotVerdict(String label) {
+            this.label = label;
+        }
+
+        /**
+         * @return 判定结果的中文标签
+         */
+        public String label() {
+            return label;
+        }
+    }
+
+    /**
+     * 机器人信号类别，用于区分不同来源的检测证据。
+     */
+    public enum BotSignalCategory {
+        /** User-Agent 解析 */
+        USER_AGENT,
+        /** 请求头缺失/异常 */
+        HEADER,
+        /** TLS 指纹（JA3/JA4） */
+        TLS,
+        /** 行为特征 */
+        BEHAVIORAL,
+        /** 密码学签名验证（Web Bot Auth） */
+        CRYPTOGRAPHIC
+    }
+
+    /**
+     * 单条机器人检测信号。
+     *
+     * @param category    信号类别
+     * @param name        信号名称（如请求头名称）
+     * @param value       信号值（如 UA 字符串）
+     * @param weight      该信号的权重（0–100）
+     * @param description 人类可读的判定说明
+     */
+    public record BotSignal(BotSignalCategory category, String name, String value,
+                            int weight, String description) {
+    }
+
+    /**
+     * 机器人信号分析的结构化详情（替代 {@code Map<String, Object>}，避免无类型键值对）。
+     *
+     * @param botScore              启发式累计分数
+     * @param signalCount           信号条数
+     * @param hardBlock             是否触发确定性拦截（仅 HTTP 头 / TLS 层面不可伪造的信号）
+     * @param uaType                UA 类型："missing" / "present"
+     * @param uaLength              UA 长度（缺失时为 0）
+     * @param uaBotMatch            UA 是否匹配已知机器人/爬虫模式
+     * @param uaHeadlessMatch       UA 是否匹配无头浏览器模式
+     * @param uaPlaywrightMatch     UA 是否匹配 Playwright/Puppeteer 模式
+     * @param uaApiDebugMatch       UA 是否匹配 API 调试工具模式
+     * @param uaBrowserMatch        UA 是否匹配常见浏览器特征
+     * @param missingStandardHeaders 缺少的现代浏览器标准请求数量
+     * @param missingSecFetchDest   是否缺少 Sec-Fetch-Dest 头（真实浏览器文档请求必带）
+     * @param tlsFingerprint        TLS 指纹字符串（未提供时为 null）
+     * @param tlsBotMatch           TLS 指纹是否匹配已知机器人模式
+     */
+    public record BotAnalysisDetails(int botScore, int signalCount, boolean hardBlock,
+                                      String uaType, int uaLength,
+                                      boolean uaBotMatch, boolean uaHeadlessMatch,
+                                      boolean uaPlaywrightMatch, boolean uaApiDebugMatch,
+                                      boolean uaBrowserMatch,
+                                      int missingStandardHeaders, boolean missingSecFetchDest,
+                                      String tlsFingerprint, boolean tlsBotMatch) {
+    }
+
+    /**
+     * 机器人检测分析结果。
+     *
+     * @param verdict    最终判定
+     * @param confidence 置信度（0–100）
+     * @param signals    检测到的所有信号
+     * @param details    结构化详情（UA 解析、TLS 指纹等）
+     * @param hardBlock  是否触发确定性拦截（仅 HTTP 头 / TLS 层面不可伪造的信号）
+     */
+    public record BotAnalysis(BotVerdict verdict, int confidence,
+                              List<BotSignal> signals, BotAnalysisDetails details,
+                              boolean hardBlock) {
+    }
+
+    /**
+     * 已知机器人/爬虫的 User-Agent 关键词（忽略大小写，整词匹配）。
+     */
+    private static final Pattern PATTERN_BOT_UA = Pattern.compile(
+            "(?i)\\b(bot|crawler|spider|scraper|slurp|archive|wget|curl|python|java-http|" +
+            "okhttp|apache-httpclient|httpclient|go-http|requests|urllib|aiohttp|" +
+            "node-fetch|axios|feed|rss|atom|parser|scrap|harvest|collect|index)\\b");
+
+    /**
+     * 无头浏览器的 User-Agent 关键词。
+     */
+    private static final Pattern PATTERN_HEADLESS = Pattern.compile(
+            "(?i)(headless|phantom|selenium|playwright|puppeteer|chromium-headless|chrome-headless)");
+
+    /**
+     * API 调试工具的 User-Agent 关键词。
+     */
+    private static final Pattern PATTERN_API_DEBUG_UA = Pattern.compile(
+            "(?i)(postman|insomnia|httpie|swagger|openapi|apifox|apipost|jmeter|loadrunner|k6|artillery)");
+
+    /**
+     * 常见浏览器的 User-Agent 特征（用于区分机器人与真实浏览器）。
+     */
+    private static final Pattern PATTERN_BROWSER_UA = Pattern.compile(
+            "(?i)(mozilla/5\\.0|chrome/|safari/|firefox/|edge/|opera/|trident/)");
+
+    /**
+     * Playwright 专门特征（Playwright 生成的 UA 通常包含这些关键词）。
+     */
+    private static final Pattern PATTERN_PLAYWRIGHT_UA = Pattern.compile(
+            "(?i)(playwright|puppeteer|chromium-headless|chrome-headless)");
+
+    /**
+     * 现代浏览器通常会携带的标准请求头（小写名称）。
+     * 缺少这些头中的多个，机器人可能性显著升高。
+     */
+    private static final Set<String> STANDARD_BROWSER_HEADERS = Set.of(
+            "accept", "accept-language", "accept-encoding", "connection",
+            "sec-fetch-dest", "sec-fetch-mode", "sec-fetch-site");
+
+    /**
+     * 已知机器人 TLS 指纹前缀（简化的指纹库，实际使用时应接入真实威胁情报）。
+     */
+    private static final Set<String> KNOWN_BOT_TLS_PREFIXES = Set.of(
+            "bot-", "crawler-", "scraper-", "headless-",
+            "playwright-", "puppeteer-", "selenium-");
+
+    /**
+     * 对 HTTP 请求做完整的机器人信号分析，返回 {@link BotAnalysis}。
+     *
+     * <p>检测维度：</p>
+     * <ol>
+     *   <li><b>User-Agent 解析</b>：识别已知机器人/爬虫/无头浏览器/API 调试工具 UA 特征</li>
+     *   <li><b>请求头分析</b>：检查是否缺少现代浏览器的标准请求头</li>
+     *   <li><b>TLS 指纹</b>：匹配已知机器人 TLS 指纹前缀</li>
+     *   <li><b>行为特征</b>：检查 Accept 头、Cookie 等行为信号</li>
+     * </ol>
+     *
+     * <p>判定口径：权重 ≥ 50 为 BOT，25–49 为 SUSPICIOUS，1–24 为 UNKNOWN，0 为 HUMAN。</p>
+     * <p>0 误判在数学上不可达——启发式只能降低误报率，不能消除。
+     * 最终判定应结合密码学签名（Web Bot Auth）与 IP 信誉等外部信号。</p>
+     *
+     * @param headers        请求头（不区分大小写，调用方需自行规整 key）
+     * @param tlsFingerprint TLS 指纹字符串（JA3/JA4 等），可为 null
+     * @return 永不为 null 的分析结果
+     */
+    public static BotAnalysis analyzeBotSignals(Map<String, String> headers, String tlsFingerprint) {
+        Map<String, String> lowerHeaders = new LinkedHashMap<>();
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                if (entry.getKey() != null) {
+                    lowerHeaders.put(entry.getKey().toLowerCase(), entry.getValue());
+                }
+            }
+        }
+
+        List<BotSignal> signals = new ArrayList<>();
+        int botScore = 0;
+
+        // 局部布尔标志（替代 Map<String, Object> 明细累加器）
+        boolean uaBotMatch = false;
+        boolean uaHeadlessMatch = false;
+        boolean uaPlaywrightMatch = false;
+        boolean uaApiDebugMatch = false;
+        boolean uaBrowserMatch = false;
+        boolean tlsBotMatch = false;
+        String tlsFingerprintOut = null;
+        boolean missingSecFetchDest = false;
+
+        // ---- 1. User-Agent 分析 ----
+        String ua = lowerHeaders.get("user-agent");
+        if (ua == null || ua.isEmpty()) {
+            signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", "(missing)", 30,
+                    "缺少 User-Agent 头，强烈暗示非浏览器客户端"));
+            botScore += 30;
+        } else {
+            if (PATTERN_BOT_UA.matcher(ua).find()) {
+                signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", ua, 25,
+                        "User-Agent 匹配已知机器人/爬虫模式"));
+                botScore += 25;
+                uaBotMatch = true;
+            }
+            if (PATTERN_HEADLESS.matcher(ua).find()) {
+                signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", ua, 25,
+                        "User-Agent 匹配无头浏览器模式（headless/selenium/playwright 等）"));
+                botScore += 25;
+                uaHeadlessMatch = true;
+            }
+            if (PATTERN_PLAYWRIGHT_UA.matcher(ua).find()) {
+                signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", ua, 15,
+                        "User-Agent 匹配 Playwright/Puppeteer 模式，可能是自动化浏览器"));
+                botScore += 15;
+                uaPlaywrightMatch = true;
+            }
+            if (PATTERN_API_DEBUG_UA.matcher(ua).find()) {
+                signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", ua, 10,
+                        "User-Agent 匹配 API 调试工具（Postman/curl/swagger 等）"));
+                botScore += 10;
+                uaApiDebugMatch = true;
+            }
+            if (PATTERN_BROWSER_UA.matcher(ua).find()) {
+                uaBrowserMatch = true;
+            }
+        }
+
+        // ---- 2. 请求头分析 ----
+        int missingStandardHeaders = 0;
+        for (String header : STANDARD_BROWSER_HEADERS) {
+            if (!lowerHeaders.containsKey(header)) {
+                missingStandardHeaders++;
+                if ("sec-fetch-dest".equals(header)) {
+                    missingSecFetchDest = true;
+                }
+            }
+        }
+        if (missingStandardHeaders >= 3) {
+            signals.add(new BotSignal(BotSignalCategory.HEADER, "standard-headers",
+                    missingStandardHeaders + " missing", 20,
+                    "缺少 " + missingStandardHeaders + " 个现代浏览器标准请求头（Sec-Fetch-* 等），"
+                            + "强烈暗示非浏览器客户端"));
+            botScore += 20;
+        } else if (missingStandardHeaders >= 1) {
+            signals.add(new BotSignal(BotSignalCategory.HEADER, "standard-headers",
+                    missingStandardHeaders + " missing", 8,
+                    "缺少 " + missingStandardHeaders + " 个现代浏览器标准请求头"));
+            botScore += 8;
+        }
+
+        // ---- 3. TLS 指纹分析 ----
+        if (tlsFingerprint != null && !tlsFingerprint.isEmpty()) {
+            tlsFingerprintOut = tlsFingerprint;
+            if (isKnownBotTlsFingerprint(tlsFingerprint)) {
+                signals.add(new BotSignal(BotSignalCategory.TLS, "tlsFingerprint",
+                        tlsFingerprint, 20,
+                        "TLS 指纹匹配已知机器人/无头浏览器模式"));
+                botScore += 20;
+                tlsBotMatch = true;
+            }
+        } else {
+            // 缺少 TLS 指纹仅记录，不计入评分——非 TLS 场景或调用方未提供时不应受罚
+            signals.add(new BotSignal(BotSignalCategory.TLS, "tlsFingerprint", "(missing)", 0,
+                    "缺少 TLS 指纹信息，无法做密码学层面验证"));
+        }
+
+        // 注意：Accept / Cookie / Referer / Accept-Encoding 等行为信号存在误判风险
+        // （首次访问无 Cookie/Referer、部分合法工具发送 */* 等），
+        // 按「工具类必须绝对正确」口径，此处不纳入评分。
+
+        // ---- 判定 ----
+        // hardBlock：确定性信号（HTTP 头 / TLS 层面不可伪造），可直接触发 BLOCK。
+        boolean hardBlock = (ua == null || ua.isEmpty())  // 缺少 User-Agent
+                || uaBotMatch                               // 已知机器人 UA 模式
+                || tlsBotMatch                              // 已知 TLS 指纹
+                || uaHeadlessMatch                          // 无头浏览器 UA（真实浏览器永不含）
+                || missingStandardHeaders >= 3;             // 缺少 ≥3 个现代浏览器标准请求头
+
+        BotVerdict verdict;
+        int confidence;
+        if (botScore >= 50) {
+            verdict = BotVerdict.BOT;
+            confidence = Math.min(95, botScore);
+        } else if (botScore >= 25) {
+            verdict = BotVerdict.SUSPICIOUS;
+            confidence = botScore;
+        } else if (botScore >= 1) {
+            verdict = BotVerdict.UNKNOWN;
+            confidence = botScore;
+        } else {
+            verdict = BotVerdict.HUMAN;
+            confidence = 60;
+        }
+
+        BotAnalysisDetails details = new BotAnalysisDetails(
+                botScore, signals.size(), hardBlock,
+                (ua == null || ua.isEmpty()) ? "missing" : "present",
+                ua == null ? 0 : ua.length(),
+                uaBotMatch, uaHeadlessMatch, uaPlaywrightMatch, uaApiDebugMatch,
+                uaBrowserMatch,
+                missingStandardHeaders, missingSecFetchDest,
+                tlsFingerprintOut, tlsBotMatch);
+
+        return new BotAnalysis(verdict, confidence, signals, details, hardBlock);
+    }
+
+    /**
+     * 快速判断请求是否为机器人（判定为 {@link BotVerdict#BOT} 时返回 true）。
+     *
+     * @param headers        请求头
+     * @param tlsFingerprint TLS 指纹
+     * @return 是否判定为机器人
+     */
+    public static boolean isBot(Map<String, String> headers, String tlsFingerprint) {
+        return analyzeBotSignals(headers, tlsFingerprint).verdict() == BotVerdict.BOT;
+    }
+
+    /**
+     * 快速判断请求是否为机器人（默认无 TLS 指纹信息）。
+     *
+     * @param headers 请求头
+     * @return 是否判定为机器人
+     */
+    public static boolean isBot(Map<String, String> headers) {
+        return isBot(headers, null);
+    }
+
+    /**
+     * 判断请求是否为 API 调试工具发起的调用。
+     *
+     * <p>检测口径：</p>
+     * <ul>
+     *   <li>User-Agent 匹配 Postman / Insomnia / curl / swagger 等调试工具</li>
+     *   <li>请求路径包含 /debug、/actuator、/swagger、/openapi 等调试端点</li>
+     * </ul>
+     *
+     * @param headers    请求头
+     * @param requestUri 请求路径
+     * @return 是否为 API 调试请求
+     */
+    public static boolean isApiDebugCall(Map<String, String> headers, String requestUri) {
+        if (headers != null) {
+            String ua = headers.get("User-Agent");
+            if (ua != null) {
+                String lowerUa = ua.toLowerCase();
+                if (lowerUa.contains("postman") || lowerUa.contains("insomnia")
+                        || lowerUa.contains("httpie") || lowerUa.contains("swagger")
+                        || lowerUa.contains("apifox") || lowerUa.contains("apipost")
+                        || lowerUa.contains("jmeter") || lowerUa.contains("curl")
+                        || lowerUa.contains("wget")) {
+                    return true;
+                }
+            }
+        }
+        if (requestUri != null) {
+            String lowerUri = requestUri.toLowerCase();
+            if (lowerUri.contains("/debug") || lowerUri.contains("/actuator")
+                    || lowerUri.contains("/swagger") || lowerUri.contains("/openapi")
+                    || lowerUri.contains("/api-debug")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断请求是否为 API 调试工具发起的调用（仅根据 User-Agent）。
+     *
+     * @param headers 请求头
+     * @return 是否为 API 调试请求
+     */
+    public static boolean isApiDebugCall(Map<String, String> headers) {
+        return isApiDebugCall(headers, null);
+    }
+
+    /**
+     * 验证 Web Bot Auth 签名。
+     *
+     * <p>Web Bot Auth 是 W3C 推出的协议，允许网站通过密码学签名验证请求是否来自
+     * 已认证的机器人。签名使用 HMAC-SHA256，密钥为网站颁发的公钥。</p>
+     *
+     * <p>使用示例：</p>
+     * <pre>{@code
+     * String signature = "abc123...";
+     * String payload = "GET\n/api\n1700000000";
+     * String publicKey = "your-public-key";
+     * boolean valid = DetectorUtils.verifyWebBotAuth(signature, payload, publicKey);
+     * }</pre>
+     *
+     * @param signature  待验证的签名字符串（十六进制）
+     * @param payload    签名的原始载荷（方法+路径+时间戳等）
+     * @param publicKey  网站颁发的公钥
+     * @return 签名有效返回 true，任一参数为空返回 false
+     */
+    public static boolean verifyWebBotAuth(String signature, String payload, String publicKey) {
+        if (signature == null || signature.isEmpty()
+                || payload == null || publicKey == null) {
+            return false;
+        }
+        try {
+            String expected = DigestUtils.hmacSha256(payload, publicKey);
+            return constantTimeEquals(signature, expected);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 常量时间字符串比较（防止时序攻击）。
+     */
+    private static boolean constantTimeEquals(String a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a.length() != b.length()) {
+            return false;
+        }
+        int result = 0;
+        for (int i = 0; i < a.length(); i++) {
+            result |= a.charAt(i) ^ b.charAt(i);
+        }
+        return result == 0;
+    }
+
+    /**
+     * 检查 TLS 指纹是否匹配已知机器人模式（简化的指纹库）。
+     *
+     * @param tlsFingerprint TLS 指纹字符串
+     * @return 是否匹配
+     */
+    private static boolean isKnownBotTlsFingerprint(String tlsFingerprint) {
+        if (tlsFingerprint == null) {
+            return false;
+        }
+        String lower = tlsFingerprint.toLowerCase();
+        for (String prefix : KNOWN_BOT_TLS_PREFIXES) {
+            if (lower.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ==================== 综合请求分析 ====================
+
+    /**
+     * 整体风险等级，供上层决策使用。
+     */
+    public enum OverallRisk {
+        /** 低风险 — 未发现明显机器人信号 */
+        LOW("低风险"),
+        /** 中风险 — 存在不确定信号，建议监控 */
+        MEDIUM("中风险"),
+        /** 高风险 — 多项机器人信号聚集，建议挑战 */
+        HIGH("高风险"),
+        /** 极高风险 — 确认机器人或 API 调试工具，建议拦截 */
+        CRITICAL("极高风险");
+
+        private final String label;
+
+        OverallRisk(String label) {
+            this.label = label;
+        }
+
+        /**
+         * @return 风险等级的中文标签
+         */
+        public String label() {
+            return label;
+        }
+    }
+
+    /**
+     * 综合请求分析的结构化详情（替代 {@code Map<String, Object>}）。
+     *
+     * @param totalScore        合并所有维度后的累计得分
+     * @param heuristicDetails  启发式分析的结构化明细
+     * @param clientProbe       客户端探针数据（未使用时为 null）
+     */
+    public record RequestAnalysisDetails(int totalScore,
+                                         BotAnalysisDetails heuristicDetails,
+                                         ClientProbeData clientProbe) {
+    }
+
+    /**
+     * 综合请求分析结果，整合机器人检测、API 调试识别与密码学签名验证。
+     *
+     * @param verdict         机器人判定结果
+     * @param confidence      置信度（0–100）
+     * @param signals         所有检测信号（含启发式 + 补充启发式 + 密码学）
+     * @param details         结构化详情
+     * @param apiDebugCall    是否为 API 调试请求
+     * @param webBotAuthValid Web Bot Auth 验证结果（null 表示未尝试验证）
+     * @param overallRisk     整体风险等级
+     * @param recommendation  处置建议：ALLOW / CHALLENGE / BLOCK / MONITOR
+     * @param hardBlock       是否触发确定性拦截
+     */
+    public record RequestAnalysis(BotVerdict verdict, int confidence,
+                                  List<BotSignal> signals, RequestAnalysisDetails details,
+                                  boolean apiDebugCall, Boolean webBotAuthValid,
+                                  OverallRisk overallRisk, String recommendation,
+                                  boolean hardBlock) {
+    }
+
+    /**
+     * 对 HTTP 请求做全面的综合分析，一次性返回所有检测维度的结果与处置建议。
+     *
+     * <p>这是推荐的统一入口方法——它整合以下所有检测维度：</p>
+     * <ol>
+     *   <li><b>启发式信号</b>：User-Agent 解析、请求头分析、TLS 指纹、行为特征</li>
+     *   <li><b>API 调试识别</b>：检测 Postman/curl/swagger 等调试工具或调试端点</li>
+     *   
+     *   <li><b>密码学验证</b>：Web Bot Auth 签名验证（可选，传入签名材料时生效）</li>
+     * </ol>
+     *
+     * <p>处置建议口径：</p>
+     * <ul>
+     *   <li>Web Bot Auth 验证通过 → {@code ALLOW}（密码学保证，无论启发式结果）</li>
+     *   <li>判定为 BOT 且非 API 调试 → {@code BLOCK}</li>
+     *   <li>判定为 BOT 但识别为 API 调试 → {@code CHALLENGE}（可能是合法测试）</li>
+     *   <li>判定为 SUSPICIOUS → {@code CHALLENGE}</li>
+     *   <li>判定为 UNKNOWN → {@code MONITOR}</li>
+     *   <li>判定为 HUMAN → {@code ALLOW}</li>
+     * </ul>
+     *
+     * @param headers              请求头（不区分大小写，内部统一转小写）
+     * @param tlsFingerprint       TLS 指纹字符串（JA3/JA4 等），可为 null
+     * @param requestUri           请求路径（用于 API 调试识别），可为 null
+     * @param webBotAuthSignature  Web Bot Auth 签名（十六进制），可为 null
+     * @param webBotAuthPayload    Web Bot Auth 签名载荷，可为 null
+     * @param webBotAuthPublicKey  Web Bot Auth 公钥，可为 null
+     * @return 永不为 null 的综合分析结果
+     */
+    public static RequestAnalysis analyzeRequest(
+            Map<String, String> headers,
+            String tlsFingerprint,
+            String requestUri,
+            String webBotAuthSignature,
+            String webBotAuthPayload,
+            String webBotAuthPublicKey) {
+
+        // 1. 启发式信号分析
+        BotAnalysis heuristic = analyzeBotSignals(headers, tlsFingerprint);
+        List<BotSignal> allSignals = new ArrayList<>(heuristic.signals());
+        int totalScore = heuristic.details().botScore();
+
+        // 注意：Cookie / Referer / Accept-Encoding 等行为信号存在误判风险
+        // （首次访问无 Cookie/Referer、部分合法工具发送 */* 等），
+        // 按「工具类必须绝对正确」口径，此处不纳入评分。
+
+        // 2. API 调试识别
+        boolean apiDebug = isApiDebugCall(headers, requestUri);
+        if (apiDebug) {
+            allSignals.add(new BotSignal(BotSignalCategory.BEHAVIORAL, "apiDebug",
+                    "detected", 10,
+                    "请求匹配 API 调试工具特征（Postman/curl/swagger 等）或调试端点"));
+            totalScore += 10;
+        }
+
+        // 3. Web Bot Auth 密码学验证
+        Boolean webBotAuthValid = null;
+        if (webBotAuthSignature != null && !webBotAuthSignature.isEmpty()
+                && webBotAuthPayload != null && webBotAuthPublicKey != null) {
+            webBotAuthValid = verifyWebBotAuth(webBotAuthSignature,
+                    webBotAuthPayload, webBotAuthPublicKey);
+            if (webBotAuthValid) {
+                allSignals.add(new BotSignal(BotSignalCategory.CRYPTOGRAPHIC,
+                        "webBotAuth", "valid", 0,
+                        "Web Bot Auth 签名验证通过，请求来自已认证机器人"));
+            } else {
+                allSignals.add(new BotSignal(BotSignalCategory.CRYPTOGRAPHIC,
+                        "webBotAuth", "invalid", 15,
+                        "Web Bot Auth 签名验证失败"));
+                totalScore += 15;
+            }
+        }
+
+        // 4. 综合判定
+        BotVerdict verdict;
+        int confidence;
+        if (totalScore >= 50) {
+            verdict = BotVerdict.BOT;
+            confidence = Math.min(95, totalScore);
+        } else if (totalScore >= 25) {
+            verdict = BotVerdict.SUSPICIOUS;
+            confidence = totalScore;
+        } else if (totalScore >= 1) {
+            verdict = BotVerdict.UNKNOWN;
+            confidence = totalScore;
+        } else {
+            verdict = BotVerdict.HUMAN;
+            confidence = 60;
+        }
+
+        // 5. 风险等级与处置建议
+        OverallRisk risk;
+        String recommendation;
+        if (webBotAuthValid != null && webBotAuthValid) {
+            // 密码学验证通过 — 无论启发式结果如何，放行
+            risk = OverallRisk.LOW;
+            recommendation = "ALLOW";
+        } else if (verdict == BotVerdict.BOT && !apiDebug) {
+            risk = OverallRisk.CRITICAL;
+            recommendation = "BLOCK";
+        } else if (verdict == BotVerdict.BOT && apiDebug) {
+            risk = OverallRisk.HIGH;
+            recommendation = "CHALLENGE";
+        } else if (verdict == BotVerdict.SUSPICIOUS) {
+            risk = OverallRisk.HIGH;
+            recommendation = "CHALLENGE";
+        } else if (verdict == BotVerdict.UNKNOWN) {
+            risk = OverallRisk.MEDIUM;
+            recommendation = "MONITOR";
+        } else {
+            risk = OverallRisk.LOW;
+            recommendation = "ALLOW";
+        }
+
+        RequestAnalysisDetails details = new RequestAnalysisDetails(
+                totalScore, heuristic.details(), null);
+
+        return new RequestAnalysis(verdict, confidence, allSignals, details,
+                apiDebug, webBotAuthValid, risk, recommendation, heuristic.hardBlock());
+    }
+
+    /**
+     * 对 HTTP 请求做全面的综合分析（无 Web Bot Auth 签名材料的快捷版）。
+     *
+     * @param headers      请求头
+     * @param tlsFingerprint TLS 指纹
+     * @param requestUri   请求路径
+     * @return 综合分析结果
+     */
+    public static RequestAnalysis analyzeRequest(
+            Map<String, String> headers,
+            String tlsFingerprint,
+            String requestUri) {
+        return analyzeRequest(headers, tlsFingerprint, requestUri, null, null, null);
+    }
+
+    /**
+     * 对 HTTP 请求做全面的综合分析（仅请求头与路径的快捷版）。
+     *
+     * @param headers    请求头
+     * @param requestUri 请求路径
+     * @return 综合分析结果
+     */
+    public static RequestAnalysis analyzeRequest(
+            Map<String, String> headers,
+            String requestUri) {
+        return analyzeRequest(headers, null, requestUri, null, null, null);
+    }
+
+    // ==================== 客户端探针数据（JS 采集）====================
+
+    /**
+     * 客户端探针数据——由浏览器端 JS 脚本采集并随请求提交的浏览器指纹信号。
+     *
+     * <p>Playwright / Puppeteer 等自动化框架可以完美伪造 HTTP 请求头（UA / Cookie / Referer / Sec-Fetch-*），
+     * 但对 JavaScript 运行时环境的伪造成本极高。此类数据是服务端启发式检测的<strong>关键补充</strong>。</p>
+     *
+     * <p>采集建议（前端 JS 片段示例）：</p>
+     * <pre>{@code
+     * const probe = {
+     *   webdriver: navigator.webdriver,
+     *   plugins: navigator.plugins.length,
+     *   languages: navigator.languages.join(','),
+     *   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+     *   platform: navigator.platform,
+     *   hardwareConcurrency: navigator.hardwareConcurrency,
+     *   devicePixelRatio: window.devicePixelRatio,
+     *   screenWidth: screen.width,
+     *   screenHeight: screen.height,
+     *   hasChromeRuntime: typeof window.chrome === 'object',
+     *   webGlVendor: getWebGLVendor(),
+     *   webGlRenderer: getWebGLRenderer(),
+     * };
+     * // 随请求头 X-Client-Probe 以 JSON 提交
+     * }</pre>
+     *
+     * @param webdriver          navigator.webdriver（true = 自动化标志）
+     * @param plugins           navigator.plugins.length（真实浏览器 ≥ 1）
+     * @param languages         navigator.languages（逗号分隔）
+     * @param timezone          时区（如 Asia/Shanghai）
+     * @param platform          平台（如 Win32 / Linux x86_64 / MacIntel）
+     * @param hardwareConcurrency navigator.hardwareConcurrency
+     * @param devicePixelRatio  window.devicePixelRatio
+     * @param screenWidth       screen.width
+     * @param screenHeight      screen.height
+     * @param hasChromeRuntime typeof window.chrome === 'object'
+     * @param webGlVendor       WebGL vendor
+     * @param webGlRenderer     WebGL renderer
+     * @param canvasHash        Canvas 指纹哈希（可选，简化为前 16 字符）
+     */
+    public record ClientProbeData(Boolean webdriver, int plugins, String languages,
+                                   String timezone, String platform, int hardwareConcurrency,
+                                   double devicePixelRatio, int screenWidth, int screenHeight,
+                                   boolean hasChromeRuntime, String webGlVendor,
+                                   String webGlRenderer, String canvasHash) {
+
+        /** 空探针数据（无 JS 采集能力时使用） */
+        public static ClientProbeData empty() {
+            return new ClientProbeData(null, 0, null, null, null, 0,
+                    1.0, 0, 0, false, null, null, null);
+        }
+    }
+
+    /**
+     * 对 HTTP 请求做全面的综合分析（含客户端 JS 探针数据）。
+     *
+     * <p>在 {@link #analyzeRequest(Map, String, String, String, String, String)}
+     * 的基础上，将客户端探针数据（{@link ClientProbeData}）附入结果详情，
+     * 供上层业务层做二次 CDP 挑战判定（navigator.webdriver + CDP 状态确认）。</p>
+     *
+     * <p><b>注意：</b>客户端探针数据可被 JS 伪造，工具类不对其进行概率评分。
+     * 确定性检测仅依赖 HTTP 头 / TLS 指纹 / Web Bot Auth 等不可伪造维度。</p>
+     *
+     * @param headers         请求头
+     * @param tlsFingerprint  TLS 指纹
+     * @param requestUri      请求路径
+     * @param webBotAuthSignature  Web Bot Auth 签名
+     * @param webBotAuthPayload   Web Bot Auth 载荷
+     * @param webBotAuthPublicKey Web Bot Auth 公钥
+     * @param clientProbe      客户端探针数据（可为 null 或 {@link ClientProbeData#empty()}）
+     * @return 综合分析结果
+     */
+    public static RequestAnalysis analyzeRequest(
+            Map<String, String> headers,
+            String tlsFingerprint,
+            String requestUri,
+            String webBotAuthSignature,
+            String webBotAuthPayload,
+            String webBotAuthPublicKey,
+            ClientProbeData clientProbe) {
+
+        // 先走基础分析
+        RequestAnalysis base = analyzeRequest(headers, tlsFingerprint, requestUri,
+                webBotAuthSignature, webBotAuthPayload, webBotAuthPublicKey);
+
+        if (clientProbe == null) {
+            return base;
+        }
+
+        // 注意：客户端探针数据（navigator.webdriver / plugins / WebGL 等）
+        // 可被 JS 伪造，不纳入工具类的确定性评分。
+        // 工具类只负责传递数据载体（ClientProbeData），
+        // 真正的 CDP 挑战判定（navigator.webdriver + CDP 状态二次确认）
+        // 属于 Spring 业务层的逻辑，工具类不实现。
+
+        // 将客户端探针数据附入结果，供上层业务使用
+        RequestAnalysisDetails enrichedDetails = new RequestAnalysisDetails(
+                base.details().totalScore(),
+                base.details().heuristicDetails(),
+                clientProbe);
+
+        return new RequestAnalysis(base.verdict(), base.confidence(),
+                base.signals(), enrichedDetails,
+                base.apiDebugCall(), base.webBotAuthValid(),
+                base.overallRisk(), base.recommendation(), base.hardBlock());
+    }
+
+    /**
+     * 对 HTTP 请求做全面的综合分析（含客户端探针数据，无 Web Bot Auth 签名材料的快捷版）。
+     *
+     * @param headers        请求头
+     * @param tlsFingerprint TLS 指纹
+     * @param requestUri     请求路径
+     * @param clientProbe    客户端探针数据
+     * @return 综合分析结果
+     */
+    public static RequestAnalysis analyzeRequest(
+            Map<String, String> headers,
+            String tlsFingerprint,
+            String requestUri,
+            ClientProbeData clientProbe) {
+        return analyzeRequest(headers, tlsFingerprint, requestUri, null, null, null, clientProbe);
+    }
 }
