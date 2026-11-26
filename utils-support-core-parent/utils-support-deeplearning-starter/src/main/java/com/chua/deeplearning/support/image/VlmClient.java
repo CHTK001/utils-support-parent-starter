@@ -39,4 +39,27 @@ public interface VlmClient {
      * @return 理解结果
      */
     UnderstandResult understand(byte[] imageData, UnderstandTask task);
+
+    /**
+     * 指令式视觉推理：按 {@link VlmRequest} 指定的任务与文本输入执行推理，
+     * 返回结构化结果（框/点/掩码 + 原始响应文本）。
+     *
+     * <p>本方法是 {@link #understand(byte[], UnderstandTask)} 的并列能力：
+     * 后者只承载 Florence-2 的固定前缀任务与纯文本输出，前者承载
+     * 「检测 / 指代 / 计数 / 分割 / 抠图 / OCR 定位」等需要文本输入的指令式任务，
+     * 以及框、点、掩码等结构化输出。
+     *
+     * <p>默认实现抛出 {@link UnsupportedOperationException}，以保证
+     * 既有实现（如 Florence-2）在不改造的前提下继续满足契约；
+     * 支持结构化推理的实现必须覆写本方法。
+     *
+     * @param request 推理请求
+     * @return 结构化推理结果
+     * @throws UnsupportedOperationException 当前实现不支持指令式推理
+     * @since 4.0.0.51
+     */
+    default VlmResult infer(VlmRequest request) {
+        throw new UnsupportedOperationException(
+                getClass().getName() + " 未实现指令式视觉推理（VlmClient#infer）");
+    }
 }

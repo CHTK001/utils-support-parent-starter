@@ -29,6 +29,8 @@
 - 模型实现（如 onnx `deepfake-detector`）由对应引擎 starter 注册，**不得标 `@SpiDefault`、不得抬高 order 抢默认**；模型未就绪时 `available()=false` 且 `detect()` 返回 `AiImageDetectResult.unavailable(...)`，不抛异常。
 - 结论用 `AiImageVerdict` 枚举而不是中文文案；`NO_AI_SIGNAL` 语义是「没发现痕迹」，**不等于「人工创作」**，上层不得渲染成「人工」。
 - 启发式实现 `aiProbability` 恒 `null`（不产出校准概率）；需要概率走模型实现。
+- **扁平路径阈值与临界带必须成对调整（2026-11-26 定版）**：`FLAT_STD_MIN` / `FLAT_SAT_MIN` 现为 8/8，且 `tex ∈ [0.20, 0.25]` 内谱峰缺失时会补跑一次扁平路径（命中仍只算「疑似」）。放宽这两个闸门的唯一凭据是「界面截图负样本误报数 = 0」——实测近灰度截图 sat 仅 1.4~4.4，`sat ≥ 8` 仍有 2 倍余量；把 sat 降到 4 以下会立刻把这类截图打成 AI，禁止再降。照片路径「谱峰为主证据」的结论不变（绝区零人类插画 ρ=0.989 仍须判「未发现」）。
+- **C2PA 清单字段提取（2026-11-26 定版）**：PNG `caBX`、JPEG APP11、WebP `C2PA` 三种承载统一走 `parseC2pa(byte[])` → `C2paInfo`，对 JUMBF 做**不建树的宽松 CBOR 文本扫描**（只解码 major type 3 文本串，`isPrintableText` 过滤二进制误命中），读 `digitalSourceType` / `softwareAgent{name,version}` / `claim_generator_info{name}` / 旧版 `claim_generator`。**两个安全阀不可去掉**：① `softwareAgent` 只在来源类型属 AI 或代理名命中 `GENERATOR_STRONG` 时才算生成器（否则相机/修图软件签发的凭证会被误报成 AI）；② 取不到的字段一律留空，禁止拼猜。`when` 与 `c2pa.actions` 未透出（`Report` 契约无对应字段）。
 
 ## 动态 SPI 生命周期（2026-11-26）
 

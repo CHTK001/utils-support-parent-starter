@@ -163,6 +163,7 @@ public final class PhotoMetadataUtils {
     private static final String[] GENERATOR_STRONG = {
             "midjourney", "stable diffusion", "stablediffusion", "stable-diffusion",
             "dall-e", "dall·e", "dall·e", "dalle", "openai", "sora", "gpt-4o",
+            "chatgpt", "gpt-image", "gpt image",
             "adobe firefly", "firefly", "comfyui", "automatic1111", "novelai",
             "sdxl", "dreambooth", "civitai", "kohya", "invokeai", "runway",
             "google imagen", "生成式人工智能", "ai生成", "ai 生成",
@@ -1055,6 +1056,7 @@ public final class PhotoMetadataUtils {
         String xmp = null;
         ExifInfo exif = ExifInfo.empty();
         List<String> comments = new ArrayList<>();
+        C2paInfo c2pa = C2paInfo.EMPTY;
         List<String> extraSignals = new ArrayList<>();
 
         var segments = new ArrayList<JpegSegment>();
@@ -1070,6 +1072,7 @@ public final class PhotoMetadataUtils {
                 }
             } else if (segment.marker() == 0xEB) {
                 contentCredentials = true;
+                c2pa = mergeC2pa(c2pa, parseC2pa(segment.payload()));
                 String jumbf = new String(segment.payload(), StandardCharsets.ISO_8859_1);
                 if (containsAnyIgnoreCase(jumbf, AI_LABEL_KEYWORDS)) {
                     credentialsAi = true;
@@ -1080,7 +1083,7 @@ public final class PhotoMetadataUtils {
             }
         }
         return summarizeFromTexts("JPEG", contentCredentials, credentialsAi, xmp, exif,
-                String.join("\n", comments), extraSignals);
+                String.join("\n", comments), extraSignals, c2pa);
     }
 
     /**
@@ -1312,6 +1315,221 @@ public final class PhotoMetadataUtils {
         return bigEndian ? (a << 24) | (b << 16) | (c << 8) | d : (d << 24) | (c << 16) | (b << 8) | a;
     }
 
+    // ==== C2PA（JUMBF）清单字段提取 ====
+
+    /** C2PA 清单里 IPTC DigitalSourceType 的完整 URL。 */
+    private static final Pattern P_C2PA_DST = Pattern.compile(
+            "https?://cv\\.iptc\\.org/newscodes/digitalsourcetype/[A-Za-z0-9]+",
+            Pattern.CASE_INSENSITIVE);
+
+    /**
+     * C2PA 清单中可展示的生成来源信息（任一字段可能为 {@code null}）。
+     */
+    private record C2paInfo(String digitalSourceType, String generator, String generatorSource) {
+
+        /** 没有从清单里读到可用字段时的空结果。 */
+        private static final C2paInfo EMPTY = new C2paInfo(null, null, null);
+
+        private boolean isEmpty() {
+            return digitalSourceType == null && generator == null;
+        }
+    }
+
+    /**
+     * 从 C2PA / JUMBF 负载（PNG {@code caBX}、JPEG APP11、WebP {@code C2PA} 块）中读出
+     * {@code digitalSourceType}、{@code softwareAgent}、{@code claim_generator(_info)}。
+     *
+     * <p>C2PA 清单是 CBOR 编码，这里做一个<b>不建树</b>的宽松扫描：把负载中连续出现的
+     * CBOR 文本串按出现顺序收集，再按键取后一个串作为值。这样既不引入 CBOR 依赖，也不会
+     * 因 JUMBF 盒嵌套层次变化而失效；代价是不校验结构，取不到的字段一律留空（宁缺勿错）。</p>
+     *
+     * @param payload JUMBF 负载字节，可为 {@code null}
+     * @return 提取结果；未命中返回 {@link C2paInfo#EMPTY}
+     */
+    private static C2paInfo parseC2pa(byte[] payload) {
+        if (payload == null || payload.length < 8) {
+            return C2paInfo.EMPTY;
+        }
+        List<String> texts = cborTextStrings(payload);
+        if (texts.isEmpty()) {
+            return C2paInfo.EMPTY;
+        }
+        String digitalSourceType = null;
+        for (String text : texts) {
+            Matcher matcher = P_C2PA_DST.matcher(text);
+            if (matcher.find()) {
+                digitalSourceType = matcher.group();
+                break;
+            }
+        }
+        String generator = null;
+        String generatorSource = null;
+        int agent = indexOfContaining(texts, "softwareAgent");
+        if (agent >= 0) {
+            String name = textAfterKey(texts, agent, "name", 8);
+            if (name != null) {
+                String version = textAfterKey(texts, agent, "version", 8);
+                generator = version == null ? name : name + " " + version;
+                generatorSource = "C2PA softwareAgent";
+            }
+        }
+        if (generator == null) {
+            int claimInfo = indexOfContaining(texts, "claim_generator_info");
+            if (claimInfo >= 0) {
+                String name = textAfterKey(texts, claimInfo, "name", 8);
+                if (name != null) {
+                    generator = name;
+                    generatorSource = "C2PA claim_generator_info";
+                }
+            }
+        }
+        if (generator == null) {
+            int legacy = indexOfExact(texts, "claim_generator");
+            if (legacy >= 0 && legacy + 1 < texts.size() && isPrintableText(texts.get(legacy + 1))) {
+                generator = texts.get(legacy + 1);
+                generatorSource = "C2PA claim_generator";
+            }
+        }
+        if (digitalSourceType == null && generator == null) {
+            return C2paInfo.EMPTY;
+        }
+        return new C2paInfo(digitalSourceType, generator, generatorSource);
+    }
+
+    /**
+     * 合并两份 C2PA 提取结果（多段 APP11 / 多个 JUMBF 盒时逐段解析后合并，先到先得）。
+     */
+    private static C2paInfo mergeC2pa(C2paInfo base, C2paInfo extra) {
+        if (extra == null || extra.isEmpty()) {
+            return base == null ? C2paInfo.EMPTY : base;
+        }
+        if (base == null || base.isEmpty()) {
+            return extra;
+        }
+        return new C2paInfo(
+                base.digitalSourceType() != null ? base.digitalSourceType() : extra.digitalSourceType(),
+                base.generator() != null ? base.generator() : extra.generator(),
+                base.generatorSource() != null ? base.generatorSource() : extra.generatorSource());
+    }
+
+    /**
+     * 顺序收集 CBOR 负载中的文本串（major type 3）。
+     *
+     * <p>只做「滑动找文本头」的线性扫描：命中文本头则按长度取出并跳过，否则前移一字节。
+     * 非文本内容（映射头、字节串、浮点等）不解码，直接跳过。取出的串经过可打印校验，
+     * 二进制误命中的噪声会被过滤掉。</p>
+     */
+    private static List<String> cborTextStrings(byte[] payload) {
+        List<String> texts = new ArrayList<>();
+        int i = 0;
+        while (i < payload.length) {
+            int b = payload[i] & 0xFF;
+            int major = b >>> 5;
+            if (major != 3) {
+                i++;
+                continue;
+            }
+            int additional = b & 0x1F;
+            int header = 1;
+            long length;
+            if (additional < 24) {
+                length = additional;
+            } else if (additional == 24) {
+                if (i + 1 >= payload.length) {
+                    i++;
+                    continue;
+                }
+                length = payload[i + 1] & 0xFFL;
+                header = 2;
+            } else if (additional == 25) {
+                if (i + 2 >= payload.length) {
+                    i++;
+                    continue;
+                }
+                length = ((payload[i + 1] & 0xFFL) << 8) | (payload[i + 2] & 0xFFL);
+                header = 3;
+            } else {
+                i++;
+                continue;
+            }
+            if (length <= 0 || i + header + length > payload.length) {
+                i++;
+                continue;
+            }
+            String text = new String(payload, i + header, (int) length, StandardCharsets.UTF_8);
+            if (isPrintableText(text)) {
+                texts.add(text);
+            }
+            i += header + (int) length;
+        }
+        return texts;
+    }
+
+    /**
+     * 文本串是否为可读文本：不含控制字符与解码替换符（用于过滤二进制误命中）。
+     */
+    private static boolean isPrintableText(String text) {
+        if (StringUtils.isBlank(text)) {
+            return false;
+        }
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < 0x20 || c == 0x7F || c == '\uFFFD') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 在文本串列表中查找包含指定键的项（大小写不敏感）。
+     */
+    private static int indexOfContaining(List<String> texts, String key) {
+        for (int i = 0; i < texts.size(); i++) {
+            if (texts.get(i).toLowerCase().contains(key.toLowerCase())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 在文本串列表中查找与指定键完全相等的项（大小写不敏感），用于区分
+     * {@code claim_generator} 与 {@code claim_generator_info}。
+     */
+    private static int indexOfExact(List<String> texts, String key) {
+        for (int i = 0; i < texts.size(); i++) {
+            if (texts.get(i).equalsIgnoreCase(key)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 从 {@code from} 之后最多 {@code window} 个文本串里找键，返回其后的值串。
+     *
+     * <p>CBOR 映射的键值在文本序列里交替出现，故「键的下一个串」即其值。</p>
+     */
+    private static String textAfterKey(List<String> texts, int from, String key, int window) {
+        int end = Math.min(texts.size() - 1, from + window);
+        for (int i = from + 1; i <= end; i++) {
+            if (texts.get(i).equalsIgnoreCase(key) && i + 1 <= end) {
+                String value = texts.get(i + 1);
+                return isPrintableText(value) && !value.equalsIgnoreCase("name")
+                        && !value.equalsIgnoreCase("version") ? value : null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断来源类型是否属于 AI 生成/编辑（含 IPTC 各 AI 来源码）。
+     */
+    private static boolean isAiSourceType(String sourceType) {
+        return sourceType != null && containsAnyIgnoreCase(sourceType, AI_LABEL_KEYWORDS);
+    }
+
     // ==== AI 信号判定与 XMP 过滤 ====
 
     /**
@@ -1462,15 +1680,29 @@ public final class PhotoMetadataUtils {
     }
 
     /**
-     * 由 EXIF + XMP + 额外文本汇总检测报告（JPEG/PNG/WebP 共用）。
+     * 由 EXIF + XMP + C2PA 清单 + 额外文本汇总检测报告（JPEG/PNG/WebP 共用）。
+     *
+     * @param c2pa 从 C2PA/JUMBF 负载中读到的字段（可能为空）；其 {@code softwareAgent}
+     *             只在来源类型声明为 AI、或代理名落在已知生成器关键词里时才算生成器，
+     *             避免把相机/修图软件签发的凭证误报成 AI 生成
      */
     private static Report summarizeFromTexts(String format, boolean contentCredentials,
                                              boolean credentialsAi, String xmp, ExifInfo exif,
-                                             String extraText, List<String> extraSignals) {
+                                             String extraText, List<String> extraSignals,
+                                             C2paInfo c2pa) {
         String digitalSourceType = findDigitalSourceType(xmp);
+        if (StringUtils.isBlank(digitalSourceType) && c2pa != null) {
+            digitalSourceType = c2pa.digitalSourceType();
+        }
         String generator = null;
         String generatorSource = null;
-        if (!StringUtils.isBlank(exif.software())) {
+        if (c2pa != null && c2pa.generator() != null
+                && (isAiSourceType(c2pa.digitalSourceType())
+                || findGenerator(c2pa.generator(), false) != null)) {
+            generator = c2pa.generator();
+            generatorSource = c2pa.generatorSource();
+        }
+        if (generator == null && !StringUtils.isBlank(exif.software())) {
             String found = findGenerator(exif.software(), false);
             if (found != null) {
                 generator = found;
@@ -1704,10 +1936,12 @@ public final class PhotoMetadataUtils {
         String xmp = null;
         String parameters = null;
         ExifInfo exif = ExifInfo.empty();
+        C2paInfo c2pa = C2paInfo.EMPTY;
         List<String> extraSignals = new ArrayList<>();
         for (PngChunk chunk : readPngChunks(data)) {
             if (chunk.type() == PNG_CHUNK_C2PA || chunk.type() == PNG_CHUNK_CABX) {
                 contentCredentials = true;
+                c2pa = mergeC2pa(c2pa, parseC2pa(chunk.payload()));
                 String text = new String(chunk.payload(), StandardCharsets.ISO_8859_1);
                 if (containsAnyIgnoreCase(text, AI_LABEL_KEYWORDS)) {
                     credentialsAi = true;
@@ -1731,7 +1965,7 @@ public final class PhotoMetadataUtils {
             }
         }
         return summarizeFromTexts("PNG", contentCredentials, credentialsAi, xmp, exif,
-                parameters, extraSignals);
+                parameters, extraSignals, c2pa);
     }
 
     /**
@@ -1870,6 +2104,7 @@ public final class PhotoMetadataUtils {
         ExifInfo exif = ExifInfo.empty();
         boolean contentCredentials = false;
         boolean credentialsAi = false;
+        C2paInfo c2pa = C2paInfo.EMPTY;
         List<String> extraSignals = new ArrayList<>();
         for (WebpChunk chunk : readWebpChunks(data)) {
             if (chunk.type() == WEBP_CHUNK_XMP) {
@@ -1878,6 +2113,7 @@ public final class PhotoMetadataUtils {
                 exif = parseExif(normalizeExifPayload(chunk.payload()));
             } else if (chunk.type() == WEBP_CHUNK_C2PA) {
                 contentCredentials = true;
+                c2pa = mergeC2pa(c2pa, parseC2pa(chunk.payload()));
                 String jumbf = new String(chunk.payload(), StandardCharsets.ISO_8859_1);
                 if (containsAnyIgnoreCase(jumbf, AI_LABEL_KEYWORDS)) {
                     credentialsAi = true;
@@ -1890,7 +2126,7 @@ public final class PhotoMetadataUtils {
             credentialsAi = containsAnyIgnoreCase(xmp, AI_LABEL_KEYWORDS);
         }
         return summarizeFromTexts("WebP", contentCredentials, credentialsAi, xmp, exif, null,
-                extraSignals);
+                extraSignals, c2pa);
     }
 
     /**
