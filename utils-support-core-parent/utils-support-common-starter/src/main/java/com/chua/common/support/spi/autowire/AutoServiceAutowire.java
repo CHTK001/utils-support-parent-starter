@@ -29,7 +29,7 @@ public class AutoServiceAutowire implements ServiceAutowire {
     /**
      * Spring Bean 工具类的全限定类名
      */
-    public static final String UTILS = "com.chua.starter.common.support.configuration.SpringBeanUtils";
+    public static final String UTILS = "com.chua.spring.support.configuration.SpringBeanUtils";
 
     /**
      * Spring 环境下的自动装配器实现类的全限定类名
