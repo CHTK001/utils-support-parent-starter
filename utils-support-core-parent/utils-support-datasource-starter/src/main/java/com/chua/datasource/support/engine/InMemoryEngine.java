@@ -425,21 +425,23 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     /**
-     * 获取可按 {@link AbstractEngine} 契约承载结构化更新/删除的回落引擎。
+     * 获取可按 {@link AbstractEngine} 契约承载结构化读写的回落引擎。
      *
-     * <p>{@link UpdateSql} / {@link DeleteSql} 重载只声明在 {@link AbstractEngine} 上，
-     * 公共 {@link Engine} 契约没有这两个入口；因此委托前必须判别实现类型，
-     * 不能对任意 {@code Engine} 实现做无条件强转。</p>
+     * <p>包装器重载（{@code executeQuery(wrapper, ec)} / {@code executePage(wrapper, ec, pn, ps)} /
+     * {@code queryCount(wrapper)}）与 {@link UpdateSql} / {@link DeleteSql} 只声明在
+     * {@link AbstractEngine} 上，公共 {@link Engine} 契约没有这些入口；而且 {@link Engine}
+     * 的同名默认实现会回调 {@code wrapper.list()} 打回本引擎，形成自调用死循环。
+     * 因此委托前必须判别实现类型，不能对任意 {@code Engine} 实现做无条件强转。</p>
      *
      * @return 回落引擎
-     * @throws IllegalStateException 未绑定回落引擎，或其实现不支持结构化更新/删除
+     * @throws IllegalStateException 未绑定回落引擎，或其实现不支持结构化读写
      */
-    private AbstractEngine fallbackWritable() {
+    private AbstractEngine fallbackStructured() {
         Engine engine = fallback();
         if (engine instanceof AbstractEngine abstractEngine) {
             return abstractEngine;
         }
-        throw new IllegalStateException("回落引擎不支持结构化更新/删除：" + engine.getClass().getName()
+        throw new IllegalStateException("回落引擎不支持结构化读写：" + engine.getClass().getName()
                 + "，请绑定 AbstractEngine 的实现");
     }
 
@@ -927,7 +929,7 @@ public class InMemoryEngine extends AbstractEngine {
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String table = getTableName(sql.entityClass());
         if (isBypassed(table)) {
-            return fallbackWritable().executeUpdate(sql);
+            return fallbackStructured().executeUpdate(sql);
         }
         touch(table);
         return mutate(table, () -> super.executeUpdate(sql));
@@ -943,7 +945,7 @@ public class InMemoryEngine extends AbstractEngine {
     public <T> int executeDelete(DeleteSql<T> sql) {
         String table = getTableName(sql.entityClass());
         if (isBypassed(table)) {
-            return fallbackWritable().executeDelete(sql);
+            return fallbackStructured().executeDelete(sql);
         }
         touch(table);
         return mutate(table, () -> super.executeDelete(sql));
@@ -1017,11 +1019,20 @@ public class InMemoryEngine extends AbstractEngine {
     /**
      * evaluate查询。
      *
+     * <p>旁路表的数据已交接给回落引擎，必须短路过去；不能把 wrapper 交回
+     * {@link Engine#executeQuery(LambdaQueryWrapper)} 默认实现（它会回调
+     * {@code wrapper.list()} 打回本引擎形成自调用）。</p>
+     *
      * @param wrapper 方法入参 wrapper
      * @return 结果列表，无数据时为空列表
      */
     @SuppressWarnings("unchecked")
     <T> List<T> evaluateQuery(EngineQueryWrapper<T> wrapper) {
+        String table = getTableName(wrapper.getEntityClass());
+        if (isBypassed(table)) {
+            return fallbackStructured().executeQuery(wrapper, wrapper.getEntityClass());
+        }
+        touch(table);
         List<T> data = getData(wrapper.getEntityClass());
         if (data.isEmpty()) {
             return data;
@@ -1091,6 +1102,12 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 页 对象
      */
     <T> Page<T> evaluatePage(EngineQueryWrapper<T> wrapper, int pn, int ps) {
+        String table = getTableName(wrapper.getEntityClass());
+        // 旁路表交给回落引擎按它自己的分页能力取数（SQL 引擎可物理分页），
+        // 用包装器重载而不是 wrapper.page()，避免回调回本引擎。
+        if (isBypassed(table)) {
+            return fallbackStructured().executePage(wrapper, wrapper.getEntityClass(), pn, ps);
+        }
         List<T> all = evaluateQuery(wrapper);
         int from = (pn - 1) * ps;
         int to = Math.min(from + ps, all.size());
@@ -1108,7 +1125,13 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 结果数值
      */
     <T> int evaluateUpdate(EngineUpdateWrapper<T> wrapper) {
-        return mutate(getTableName(wrapper.getEntityClass()), () -> evaluateUpdateRows(wrapper));
+        String table = getTableName(wrapper.getEntityClass());
+        if (isBypassed(table)) {
+            // 走 buildSql()：无 SET / 无 WHERE 的守卫由它自己校验，回落引擎只需执行语句
+            return fallbackStructured().executeUpdate(wrapper.buildSql());
+        }
+        touch(table);
+        return mutate(table, () -> evaluateUpdateRows(wrapper));
     }
 
     private <T> int evaluateUpdateRows(EngineUpdateWrapper<T> wrapper) {
@@ -1145,7 +1168,12 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 结果数值
      */
     <T> int evaluateDelete(EngineDeleteWrapper<T> wrapper) {
-        return mutate(getTableName(wrapper.getEntityClass()), () -> evaluateDeleteRows(wrapper));
+        String table = getTableName(wrapper.getEntityClass());
+        if (isBypassed(table)) {
+            return fallbackStructured().executeDelete(wrapper.buildSql());
+        }
+        touch(table);
+        return mutate(table, () -> evaluateDeleteRows(wrapper));
     }
 
     private <T> int evaluateDeleteRows(EngineDeleteWrapper<T> wrapper) {
@@ -1177,8 +1205,16 @@ public class InMemoryEngine extends AbstractEngine {
     public void close() {
         synchronized (indexMutationLock) {
             indexes.clear();
-            super.close();
         }
+        synchronized (guardLock) {
+            lastAccess.clear();
+            bypassedTables.clear();
+            rejectedWrites = 0L;
+            evictedTables = 0L;
+            expiredTables = 0L;
+            bypassTransitions = 0L;
+        }
+        super.close();
     }
 
     /**

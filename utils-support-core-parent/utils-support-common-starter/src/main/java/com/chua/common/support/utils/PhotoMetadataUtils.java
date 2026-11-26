@@ -461,13 +461,32 @@ public final class PhotoMetadataUtils {
 
     /**
      * 扁平数字内容路径：亮度残差标准差下限（排除近乎纯色/纯渐变的平坦图）。
+     *
+     * <p>2026-11-26 由 10.0 下调到 8.0：实测一张裁切重压缩的 AI 平涂贴纸 σ=9.0、
+     * 14 张真实界面截图的 σ 为 13.0~46.3，下调后截图侧仍由 {@link #FLAT_SAT_MIN}
+     * 拦住，误报数为 0。</p>
      */
-    private static final double FLAT_STD_MIN = 10.0;
+    private static final double FLAT_STD_MIN = 8.0;
 
     /**
      * 扁平数字内容路径：平均饱和度下限（排除近灰度图）。
+     *
+     * <p>2026-11-26 由 20.0 下调到 8.0：这是区分「近灰度界面截图」与「彩色平涂插画」
+     * 的真正分界——界截图的 sat 实测只有 1.4~4.4，而 AI 平涂贴纸 sat=10.0，
+     * 原 20.0 会把后者一并放过。下调到 8.0 后两侧仍留有 2 倍以上余量。</p>
      */
-    private static final double FLAT_SAT_MIN = 20.0;
+    private static final double FLAT_SAT_MIN = 8.0;
+
+    /**
+     * 照片路径与扁平路径的临界带上限（纹理占比）。
+     *
+     * <p>纹理占比落在 [{@link #PHOTOGRAPHIC_TEX_MIN}, 本值] 区间的图，既可能是照片，
+     * 也可能是被裁切/重压缩破坏掉上采样网格伪迹的平涂插画——实测样本 tex=0.205
+     * 只比下限高 0.005，分支选择对零点几个百分点极度敏感。该区间内照片路径若
+     * 找不到谱峰（主证据缺失），补跑一次扁平路径，命中即判「疑似」，避免因分支
+     * 边界而漏掉整类样本。</p>
+     */
+    private static final double PHOTOGRAPHIC_TEX_CRITICAL = 0.25;
 
     /**
      * 对图像做像素统计兜底分析（元数据无 AI 信号时使用）。
@@ -481,11 +500,14 @@ public final class PhotoMetadataUtils {
      *   <li><b>照片内容</b>（纹理占比处于 [0.20, 0.80]）：以谱峰为上采样证据，跨通道
      *       噪声缺失作为加重证据；谱峰须先通过谱连续度闸门，排除截图、渐变、周期填充
      *       图案等对谱峰的误触发；</li>
+     *   <li><b>临界带补跑</b>（纹理占比处于 [0.20, 0.25]）：照片路径找不到谱峰时，补跑
+     *       一次扁平路径。裁切/重压缩会破坏上采样网格伪迹，使平涂插画被分到照片路径后
+     *       直接放过；补跑命中仍只计一条证据（结论为「疑似」）。</li>
      *   <li><b>扁平数字内容</b>（纹理占比 &lt; 0.20，如 AI 平涂插画、手绘插画、截图）：
      *       上采样谱峰不可靠（常因大面积平坦内容而消失），改用「跨通道残差相关异常偏高
-     *       （ρ ≥ 0.95）」作为强证据。数字生成/绘制的平坦图缺少相机独立的传感器噪声，
-     *       相关接近 1；阈值明显高于照片路径以抑制对真实数字素材的误报。此路径为启发式，
-     *       对本类素材仍可能存在误报。</li>
+     *       （ρ ≥ 0.95）+ 残差强度 σ ≥ 8 + 平均饱和度 sat ≥ 8」作为强证据。数字生成/绘制
+     *       的平坦图缺少相机独立的传感器噪声，相关接近 1；阈值明显高于照片路径以抑制
+     *       对真实数字素材的误报。此路径为启发式，对本类素材仍可能存在误报。</li>
      * </ul>
      *
      * @param data   图像文件字节
@@ -541,6 +563,15 @@ public final class PhotoMetadataUtils {
             // 照片内容：以上采样网格伪迹（谱峰）为主证据，跨通道噪声缺失为加重证据。
             SpectralPeak peak = measureSpectralPeak(lap, w, h, format);
             if (peak == null) {
+                // 临界带补跑：裁切/重压缩会破坏网格伪迹，使平涂插画被分到照片路径后
+                // 直接放过；该区间内再给扁平路径一次机会（命中仍只算「疑似」）。
+                if (texFraction <= PHOTOGRAPHIC_TEX_CRITICAL) {
+                    String noise = crossChannelNoiseSignal(red, green, blue, lap, w, h,
+                            FLAT_CORR_MISSING, FLAT_STD_MIN, FLAT_SAT_MIN);
+                    if (noise != null) {
+                        return new PixelAnalysis(1, List.of(noise));
+                    }
+                }
                 return new PixelAnalysis(0, List.of());
             }
             hits = peak.ratio() >= SPECTRAL_PEAK_STRONG ? 2 : 1;

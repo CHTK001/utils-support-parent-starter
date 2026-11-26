@@ -18,6 +18,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -80,7 +81,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
             case "HEAD" -> new HttpHead(request.getUrl());
             case "OPTIONS" -> new HttpOptions(request.getUrl());
             case "PATCH" -> new HttpPatch(request.getUrl());
-            default -> new HttpGet(request.getUrl());
+            default -> new HttpUriRequestBase(method, URI.create(request.getUrl()));
         };
 
         if (request.getHeaders() != null) {

@@ -1,0 +1,2 @@
+asm=com.chua.asm.support.proxy.asm.AsmProxyFactory
+javassist=com.chua.asm.support.proxy.javassist.JavassistProxyFactory
