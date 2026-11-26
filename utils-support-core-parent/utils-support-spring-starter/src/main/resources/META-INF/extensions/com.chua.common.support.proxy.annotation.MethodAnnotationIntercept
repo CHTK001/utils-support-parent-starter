@@ -2,3 +2,7 @@ com.chua.common.support.concurrent.lock.annotation.DistributedLock=com.chua.spri
 com.chua.common.support.concurrent.rate.annotation.RateLimiter=com.chua.spring.support.proxy.intercept.RateLimiterIntercept
 org.springframework.cache.annotation.Cacheable=com.chua.spring.support.proxy.intercept.CacheableIntercept
 org.springframework.transaction.annotation.Transactional=com.chua.spring.support.proxy.intercept.TransactionalIntercept
+com.chua.common.support.concurrent.bulkhead.annotation.Bulkhead=com.chua.spring.support.proxy.intercept.BulkheadIntercept
+com.chua.common.support.concurrent.circuitbreaker.annotation.CircuitBreaker=com.chua.spring.support.proxy.intercept.CircuitBreakerIntercept
+com.chua.spring.support.annotation.Collapsible=com.chua.spring.support.proxy.intercept.CollapsibleIntercept
+com.chua.common.support.concurrent.timeout.annotation.Timeout=com.chua.spring.support.proxy.intercept.TimeoutIntercept
