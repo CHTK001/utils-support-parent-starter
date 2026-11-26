@@ -21,8 +21,16 @@
 
 渠道管理业务属于 `spring-support-account-starter`；本层只提供**契约与工具**，不持有渠道表、不实现渠道规则。
 
-## 交付闸门
+## 图片 AI 检测门户（2026-11-26 定版）
 
+判断「一张图是否 AI 参与」的唯一入口 = `com.chua.common.support.ai.image.AiImageDetector`（本层）。默认实现 `HeuristicAiImageDetector`（`@SpiDefault` + `@Spi("heuristic")`）只做委托，判定口径仍由 `PhotoMetadataUtils.analyze` 决定，不得在门户里另写一套判据。
+
+- **取实例只走 `AiImageDetector.create()` / `create(String)`**，禁止 `ServiceProvider#getPriority()`。实测：同时注册 `heuristic`（`@SpiDefault`，order 0）与一个 order 100 的实现后，`getExtension("")` 仍返回 heuristic，而 `getPriority()` 返回 order 高的那个——`@SpiDefault` 只保护默认路径，`getPriority()` 完全按 `@Spi(order)` 排序。
+- 模型实现（如 onnx `deepfake-detector`）由对应引擎 starter 注册，**不得标 `@SpiDefault`、不得抬高 order 抢默认**；模型未就绪时 `available()=false` 且 `detect()` 返回 `AiImageDetectResult.unavailable(...)`，不抛异常。
+- 结论用 `AiImageVerdict` 枚举而不是中文文案；`NO_AI_SIGNAL` 语义是「没发现痕迹」，**不等于「人工创作」**，上层不得渲染成「人工」。
+- 启发式实现 `aiProbability` 恒 `null`（不产出校准概率）；需要概率走模型实现。
+
+## 交付闸门
 不反向依赖 `spring-*`；无重复实现；`mvn -o -q compile -DskipTests` EXIT=0；编码 `BOM=0 / U+FFFD=0`。任一项不满足不得声称完成。
 
 ## 提交

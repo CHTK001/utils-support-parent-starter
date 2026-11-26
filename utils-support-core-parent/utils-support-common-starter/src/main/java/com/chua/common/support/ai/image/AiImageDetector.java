@@ -18,6 +18,13 @@ import com.chua.common.support.spi.ServiceProvider;
  * 也不得靠 SPI 优先级顶掉默认实现——否则宿主只要引入 onnx 依赖，判定口径就会
  * 在无人察觉的情况下从「确定性证据 + 统计」切到某个具体模型。</p>
  *
+ * <p><b>取实例只走 {@link #create()} / {@link #create(String)}</b>，禁止用
+ * {@code ServiceProvider#getPriority()}：实测（4.0.0.51 探针）同时注册
+ * {@code heuristic}（{@code @SpiDefault}，order 0）与一个 order 100 的模型实现后，
+ * {@code getExtension("")} 仍返回 heuristic，而 {@code getPriority()} 返回模型实现。
+ * 也就是说 {@code @SpiDefault} 只保护默认路径，{@code getPriority()} 完全按
+ * {@code @Spi(order)} 排序，谁把 order 写大都可能悄悄改掉判定口径。</p>
+ *
  * <p>上层只依赖本接口与 {@link AiImageDetectResult}，不感知引擎类型；要换引擎只改
  * SPI 名称，不改调用代码。</p>
  *

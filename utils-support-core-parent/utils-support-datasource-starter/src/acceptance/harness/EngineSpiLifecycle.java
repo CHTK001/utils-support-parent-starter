@@ -35,6 +35,13 @@ public final class EngineSpiLifecycle {
         @Override public void run() { calls.incrementAndGet(); }
     }
 
+    public interface Echo { String value(); }
+    public static final class EchoService implements Echo {
+        private final String value;
+        public EchoService(String value) { this.value = value; }
+        @Override public String value() { return value; }
+    }
+
     @TableName("lifecycle")
     public static final class Row {
         private int id;
@@ -91,10 +98,28 @@ public final class EngineSpiLifecycle {
             check("unnamed optional lookup uses live service", values.contains(provider.getIfPresent(null).orElse(null)));
             check("dynamic definitions preserve SPI order", provider.getDefinitions("TASK").stream()
                     .allMatch(it -> it.getOrder() == 77));
+            check("support checks include live registrations", provider.isSupport("task"));
+            check("names include live registrations", provider.names().contains("TASK")
+                    && provider.supportedTypes().contains("TASK"));
+            check("provider is not empty while a dynamic service exists", !provider.isEmpty());
+            ServiceDefinition named = provider.getDefinition("TASK");
+            check("definition lookup includes live registrations", named != null && values.contains(named.getObj()));
+            check("new collection preserves framework instances", !provider.collectNew().isEmpty()
+                    && provider.collectNew().stream().allMatch(values::contains));
+            check("available lookup preserves framework instances", values.contains(provider.getIfAvailable("TASK")));
+            ServiceDefinition priority = provider.getPriorityServiceDefinition();
+            check("priority lookup includes live registrations", priority != null && values.contains(priority.getObj()));
+            check("priority enumeration includes distinct registrations", provider.getPriorityServiceDefinitions().stream()
+                    .filter(it -> it.getObj() == first || it.getObj() == second).count() == 2);
+            check("priority instance is framework managed", priority != null && values.contains(provider.getPriority()));
             provider.register(staticDefinition);
             check("unconstructed static definition does not hide dynamic instances", provider.getDefinitions(null).stream()
                     .filter(it -> it.getObj() == first || it.getObj() == second).count() == 2);
+            check("higher priority dynamic registration wins named lookup", values.contains(provider.getNewExtension("TASK")));
+            staticDefinition.setOrder(100);
+            check("higher priority static registration wins named lookup", provider.getDefinitions("TASK").first() == staticDefinition);
             provider.unregister("TASK", ProbeResolver.class);
+            check("keep lookup returns framework-managed instance", values.contains(provider.getKeepExtension("probe-owned-keep", "TASK")));
             Runnable unnamed = provider.getNewExtension((String) null);
             check("null-name new lookup uses a registered instance", unnamed == first || unnamed == second);
             Runnable existing = provider.getExtension((String) null);
@@ -113,10 +138,33 @@ public final class EngineSpiLifecycle {
                     && provider.listType().isEmpty() && provider.getExtensions().isEmpty());
             check("unregistered services disappear from optional lookup", provider.getIfPresent("TASK").isEmpty());
             check("null-name lookup does not retain removed service", provider.getNewExtension((String) null) == null);
+            check("keep lookup does not retain removed service", provider.getKeepExtension("probe-owned-keep", "TASK") == null);
+            check("support and names clear after unregister", !provider.isSupport("task") && provider.names().isEmpty()
+                    && provider.supportedTypes().isEmpty() && provider.isEmpty());
+            check("priority and definitions clear after unregister", provider.getPriorityServiceDefinition() == null
+                    && provider.getPriorityServiceDefinitions().isEmpty() && provider.getDefinition("TASK") == null);
         } finally {
             provider.unregister("TASK", ProbeResolver.class);
             if (one != null) { one.unregister(); }
             if (two != null) { two.unregister(); }
+        }
+    }
+
+    private static void proxyChecks(FelixOsgiLauncher launcher) {
+        ServiceProvider<Echo> provider = ServiceProvider.of(Echo.class);
+        Echo proxy = provider.getValidProvider();
+        ServiceRegistration<Echo> first = launcher.getFrameworkBundleContext()
+                .registerService(Echo.class, new EchoService("first"), null);
+        ServiceRegistration<Echo> second = null;
+        try {
+            check("existing proxy sees later service registration", "first".equals(proxy.value()));
+            first.unregister();
+            first = null;
+            second = launcher.getFrameworkBundleContext().registerService(Echo.class, new EchoService("second"), null);
+            check("existing proxy sees replacement service instance", "second".equals(proxy.value()));
+        } finally {
+            if (first != null) { first.unregister(); }
+            if (second != null) { second.unregister(); }
         }
     }
 
@@ -140,6 +188,7 @@ public final class EngineSpiLifecycle {
         provider.register(definition);
         try {
             registryChecks(launcher);
+            proxyChecks(launcher);
             List<EngineInterceptor> initial = engine.interceptors();
             int initialConstructions = StaticInterceptor.CONSTRUCTED.get();
             check("static extension is constructed", initialConstructions == 1);

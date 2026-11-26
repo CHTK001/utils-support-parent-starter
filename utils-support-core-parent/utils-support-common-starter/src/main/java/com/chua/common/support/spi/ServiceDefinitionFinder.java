@@ -160,7 +160,7 @@ public class ServiceDefinitionFinder {
                 }
             }
             if (null != best) {
-                return best;
+                return preferDynamic(name1, type, best);
             }
         }
 
@@ -179,7 +179,7 @@ public class ServiceDefinitionFinder {
         }
 
         if (!definitions.isEmpty()) {
-            return definitions.first();
+            return preferDynamic(name1, type, definitions.first());
         }
 
         SortedList<ServiceDefinition> definitions2 = new SortedArrayList<>(COMPARATOR);
@@ -220,6 +220,29 @@ public class ServiceDefinitionFinder {
             }
         }
         return definitions2.isEmpty() ? DEFAULT_DEFINITION : definitions2.first();
+    }
+
+    /**
+     * 同名静态候选也必须与当前动态候选比较优先级，不能提前遮住热安装的服务。
+     *
+     * @param name 扩展名
+     * @param describeType 可选描述类型
+     * @param best 已找到的静态候选
+     * @return 当前优先级最高的候选
+     */
+    private ServiceDefinition preferDynamic(String name, String describeType, ServiceDefinition best) {
+        if (dynamic && dynamicResolvers != null) {
+            for (ServiceResolver resolver : dynamicResolvers) {
+                for (ServiceDefinition candidate : resolveDynamic(resolver)) {
+                    if (name.equalsIgnoreCase(candidate.getName())
+                            && (describeType == null || describeType.equalsIgnoreCase(candidate.getDescribeType()))
+                            && COMPARATOR.compare(candidate, best) < 0) {
+                        best = candidate;
+                    }
+                }
+            }
+        }
+        return best;
     }
 
     /**

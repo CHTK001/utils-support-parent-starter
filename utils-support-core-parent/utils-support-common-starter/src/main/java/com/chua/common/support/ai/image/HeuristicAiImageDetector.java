@@ -52,49 +52,15 @@ public class HeuristicAiImageDetector implements AiImageDetector {
     public AiImageDetectResult detect(byte[] data) {
         PhotoMetadataUtils.Report report = PhotoMetadataUtils.analyze(data);
         return new AiImageDetectResult(NAME,
-                verdictOf(report.verdict()),
-                confidenceOf(report.confidence()),
+                AiImageVerdict.ofText(report.verdict()),
+                AiImageConfidence.ofText(report.confidence()),
                 report.format(),
                 report.hasContentCredentials(),
                 report.digitalSourceType(),
                 report.generator(),
+                report.generatorSource(),
                 report.generationParams(),
                 null,
                 report.signals());
-    }
-
-    /**
-     * 报告结论文案 → 语义枚举。
-     *
-     * @param verdict 报告结论文案
-     * @return 语义结论，无法识别时取 {@link AiImageVerdict#UNKNOWN}
-     */
-    private static AiImageVerdict verdictOf(String verdict) {
-        if (PhotoMetadataUtils.VERDICT_AI_GENERATED.equals(verdict)) {
-            return AiImageVerdict.AI_GENERATED;
-        }
-        if (PhotoMetadataUtils.VERDICT_AI_EDITED.equals(verdict)) {
-            return AiImageVerdict.AI_EDITED;
-        }
-        if (PhotoMetadataUtils.VERDICT_NO_AI_SIGNALS.equals(verdict)) {
-            return AiImageVerdict.NO_AI_SIGNAL;
-        }
-        return AiImageVerdict.UNKNOWN;
-    }
-
-    /**
-     * 报告置信度文案 → 语义枚举。
-     *
-     * @param confidence 报告置信度文案
-     * @return 语义置信度，无法识别时取 {@link AiImageConfidence#LOW}
-     */
-    private static AiImageConfidence confidenceOf(String confidence) {
-        if (PhotoMetadataUtils.CONFIDENCE_HIGH.equals(confidence)) {
-            return AiImageConfidence.HIGH;
-        }
-        if (PhotoMetadataUtils.CONFIDENCE_MEDIUM.equals(confidence)) {
-            return AiImageConfidence.MEDIUM;
-        }
-        return AiImageConfidence.LOW;
     }
 }

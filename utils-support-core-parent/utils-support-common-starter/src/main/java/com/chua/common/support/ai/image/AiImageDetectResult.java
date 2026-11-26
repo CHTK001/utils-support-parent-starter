@@ -23,6 +23,7 @@ import java.util.List;
  * @param hasContentCredentials 是否存在 C2PA 内容凭证（JUMBF）
  * @param digitalSourceType     IPTC DigitalSourceType 值（无则空串）
  * @param generator             命中的生成器名称（无则空串）
+ * @param generatorSource       生成器名称的来源字段（无则空串）
  * @param generationParams      是否检测到生成参数块（prompt / steps / sampler / seed 等）
  * @param aiProbability         模型给出的 AI 概率（0~1）；启发式实现为 {@code null}
  * @param evidence              证据描述列表
@@ -36,6 +37,7 @@ public record AiImageDetectResult(String detector,
                                  boolean hasContentCredentials,
                                  String digitalSourceType,
                                  String generator,
+                                 String generatorSource,
                                  boolean generationParams,
                                  Double aiProbability,
                                  List<String> evidence) {
@@ -50,6 +52,7 @@ public record AiImageDetectResult(String detector,
         format = format == null || format.isBlank() ? "UNKNOWN" : format;
         digitalSourceType = digitalSourceType == null ? "" : digitalSourceType;
         generator = generator == null ? "" : generator;
+        generatorSource = generatorSource == null ? "" : generatorSource;
         evidence = evidence == null ? List.of() : List.copyOf(evidence);
     }
 
@@ -75,6 +78,6 @@ public record AiImageDetectResult(String detector,
      */
     public static AiImageDetectResult unavailable(String detector, String note) {
         return new AiImageDetectResult(detector, AiImageVerdict.UNKNOWN, AiImageConfidence.LOW,
-                "UNKNOWN", false, "", "", false, null, List.of(note == null ? "" : note));
+                "UNKNOWN", false, "", "", "", false, null, List.of(note == null ? "" : note));
     }
 }

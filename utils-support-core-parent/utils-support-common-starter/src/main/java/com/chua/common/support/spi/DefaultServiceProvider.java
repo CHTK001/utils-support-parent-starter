@@ -188,13 +188,26 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * @return 已注册的 OSGi 实例，或新建的静态扩展
      */
     private T newExtension(ServiceDefinition definition, Object... args) {
-        Class<?> finderType = definition.getFinderType();
-        if (finderType != null
-                && com.chua.common.support.spi.resolver.OsgiServiceResolver.class.isAssignableFrom(finderType)
-                && definition.getObj() != null) {
+        if (isFrameworkManaged(definition)) {
             return (T) definition.getObj();
         }
         return definition.newInstance(serviceAutowire, args);
+    }
+
+    /**
+     * 判断定义是否携带由 OSGi 框架管理的注册实例。
+     *
+     * @param definition 服务定义
+     * @return 是否由框架管理
+     */
+    private boolean isFrameworkManaged(ServiceDefinition definition) {
+        if (definition == null) {
+            return false;
+        }
+        Class<?> finderType = definition.getFinderType();
+        return finderType != null
+                && com.chua.common.support.spi.resolver.OsgiServiceResolver.class.isAssignableFrom(finderType)
+                && definition.getObj() != null;
     }
 
     /**
@@ -336,7 +349,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public T getKeepExtension(String uid, String name, Object... args) {
-        checkDaemon();
+        ServiceDefinition current = StringUtils.isEmpty(name) ? singleDefinition()
+                : definitionFinder.getServiceDefinition(name, args);
+        if (isFrameworkManaged(current)) {
+            keepAlive.invalidate(uid);
+            return (T) current.getObj();
+        }
         Value<T> ifPresent = keepAlive.getIfPresent(uid);
         if (null != ifPresent) {
             T value = ifPresent.getValue();
@@ -344,6 +362,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return value;
         }
         T newExtension = getNewExtension(name, args);
+        if (newExtension == null) {
+            return null;
+        }
+        checkDaemon();
         keepAlive.put(uid, Value.of(newExtension));
         return newExtension;
     }
@@ -397,7 +419,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
                     Method method = proxyMethod.getMethod();
                     ReflectUtils.setAccessibleAccessible(method);
                     Object invoke = ReflectUtils.invoke(t, method.getName(), method.getReturnType(),
-                            proxyMethod.getArgs(), new Object[0], new Object[0]);
+                            method.getParameterTypes(), proxyMethod.getArgs());
                     if (null != invoke && !Proxy.isProxyClass(invoke.getClass())) {
                         return invoke;
                     }
@@ -544,7 +566,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public boolean isSupport(String name) {
-        return null != name && definitions.containsKey(name.toUpperCase());
+        return null != name && !getDefinitions(name).isEmpty();
     }
 
     /**
@@ -775,8 +797,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public ServiceDefinition getDefinition(String type) {
-        type = type.toUpperCase();
-        return CollectionUtils.findFirst(definitions.get(type));
+        return CollectionUtils.findFirst(getDefinitions(type));
     }
 
     /**
@@ -806,19 +827,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public List<T> collectNew() {
-        if (definitions.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<T> result = Wraps.list(definitions.size());
-
-        for (SortedList<ServiceDefinition> value : this.definitions.values()) {
-            ServiceDefinition noneObject = value.first();
-            if (null == noneObject) {
-                continue;
+        List<T> result = new ArrayList<>();
+        for (ServiceDefinition noneObject : currentNamedDefinitions().values()) {
+            if (!isFrameworkManaged(noneObject)) {
+                noneObject.setObj(null);
+                noneObject.setLoaded(false);
             }
-            noneObject.setObj(null);
-            noneObject.setLoaded(false);
             Object obj = noneObject.getObj(serviceAutowire);
             if (null == obj) {
                 continue;
@@ -841,7 +855,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public boolean isEmpty() {
-        return definitions.isEmpty();
+        return getDefinitions(null).isEmpty();
     }
 
     /**
@@ -851,7 +865,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     public T getIfAvailable(String name, Object... args) {
         SortedList<ServiceDefinition> temp = definitionFinder.getDefinitions(name, args);
         for (ServiceDefinition serviceDefinition : temp) {
-            Object object = serviceDefinition.newInstance(serviceAutowire, args);
+            Object object = newExtension(serviceDefinition, args);
             if (null != object) {
                 return (T) object;
             }
@@ -880,7 +894,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public Set<String> supportedTypes() {
-        return definitions.keySet();
+        return getExtensions();
     }
 
     /**
@@ -904,13 +918,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public ServiceDefinition getPriorityServiceDefinition() {
-        Collection<SortedList<ServiceDefinition>> values = definitions.values();
-        SortedList<ServiceDefinition> tempList = new SortedArrayList<>(COMPARATOR);
-        for (SortedList<ServiceDefinition> value : values) {
-            tempList.addAll(value);
-        }
-        tempList.addAll(defaultDefinitions);
-        return tempList.first();
+        return CollectionUtils.findFirst(getPriorityServiceDefinitions());
     }
 
     /**
@@ -918,7 +926,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public T getPriority() {
-        return getPriorityServiceDefinition().newInstance(serviceAutowire);
+        ServiceDefinition definition = getPriorityServiceDefinition();
+        return definition == null ? null : newExtension(definition);
     }
 
     /**
@@ -926,11 +935,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public List<ServiceDefinition> getPriorityServiceDefinitions() {
-        Collection<SortedList<ServiceDefinition>> values = definitions.values();
         SortedList<ServiceDefinition> tempList = new SortedArrayList<>(COMPARATOR);
-        for (SortedList<ServiceDefinition> value : values) {
-            tempList.addAll(value);
-        }
+        tempList.addAll(getDefinitions(null));
         tempList.addAll(defaultDefinitions);
         return tempList;
     }
@@ -940,7 +946,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public Set<String> names() {
-        return definitions.keySet();
+        return getExtensions();
     }
 
     /**
