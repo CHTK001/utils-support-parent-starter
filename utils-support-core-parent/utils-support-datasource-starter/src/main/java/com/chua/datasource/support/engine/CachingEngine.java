@@ -22,14 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
@@ -146,19 +146,23 @@ public class CachingEngine extends AbstractEngine {
     private final JdbcEngine delegate;
 
     /**
-     * 只读副本，仅由本类装载与失效，不对外暴露。
+     * 冷装载按表分片互斥，同表只装载一次，命中读取不取得该锁。
      */
-    private final InMemoryEngine replica = new InMemoryEngine();
+    private final Object[] loadLocks = java.util.stream.IntStream.range(0, 64)
+            .mapToObj(i -> new Object()).toArray();
+
+    /** 失效代数，拒绝发布失效之前开始装载的快照。 */
+    private final AtomicLong cacheGeneration = new AtomicLong();
 
     /**
-     * 副本装载/失效的互斥锁。
+     * 仅保护容量核算、发布和失效，不在此锁内访问 delegate。
      */
     private final Object cacheLock = new Object();
 
     /**
-     * 已装载表的状态，accessOrder 保证按访问顺序记录 LRU。
+     * 已装载表的独立快照；命中仅读并发映射和更新访问时间。
      */
-    private final Map<String, TableCache> tableCaches = new LinkedHashMap<>(16, 0.75f, true);
+    private final Map<String, TableCache> tableCaches = new ConcurrentHashMap<>();
 
     /**
      * 跨实例失效通知器，默认空列表（不做任何通知）。
@@ -317,6 +321,7 @@ public class CachingEngine extends AbstractEngine {
             throw new IllegalArgumentException("单表缓存行数上限必须大于 0");
         }
         this.maxRows = maxRows;
+        evictAll();
         return this;
     }
 
@@ -331,6 +336,7 @@ public class CachingEngine extends AbstractEngine {
             throw new IllegalArgumentException("缓存总行数上限必须大于 0");
         }
         this.maxTotalRows = maxTotalRows;
+        evictAll();
         return this;
     }
 
@@ -461,12 +467,14 @@ public class CachingEngine extends AbstractEngine {
         }
         QuerySql<T> sql = wrapper.buildSql();
         String table = resolveTableName(engineWrapper.getEntityClass());
-        if (!readableQuery(sql) || !cacheableTable(table) || !loadTable(table, engineWrapper.getEntityClass())) {
+        TableCache cache = readableQuery(sql) && cacheableTable(table)
+                ? loadTable(table, engineWrapper.getEntityClass()) : null;
+        if (cache == null || cache.bypass()) {
             return delegate.executeQuery(wrapper, entityClass);
         }
         Object[] params = sql.params().toArray(new Object[0]);
         return interceptQuery(sql.whereClause(), params,
-                () -> truncate(replica.evaluateQuery(engineWrapper), wrapper));
+                () -> truncate(cache.replica().evaluateQuery(engineWrapper), wrapper));
     }
 
     /**
@@ -493,12 +501,15 @@ public class CachingEngine extends AbstractEngine {
         }
         QuerySql<T> sql = wrapper.buildSql();
         String table = resolveTableName(engineWrapper.getEntityClass());
-        if (!readableQuery(sql) || !cacheableTable(table) || !loadTable(table, engineWrapper.getEntityClass())) {
+        TableCache cache = readableQuery(sql) && cacheableTable(table)
+                ? loadTable(table, engineWrapper.getEntityClass()) : null;
+        if (cache == null || cache.bypass()) {
             return delegate.executePage(wrapper, entityClass, pn, ps);
         }
         Object[] params = sql.params().toArray(new Object[0]);
         final int pageNum = pn;
-        return interceptPage(sql.whereClause(), params, () -> readPage(engineWrapper, pageNum, ps));
+        return interceptPage(sql.whereClause(), params,
+                () -> readPage(cache.replica(), engineWrapper, pageNum, ps));
     }
 
     /**
@@ -547,10 +558,12 @@ public class CachingEngine extends AbstractEngine {
         }
         QuerySql<T> sql = wrapper.buildSql();
         String table = resolveTableName(engineWrapper.getEntityClass());
-        if (!readableQuery(sql) || !cacheableTable(table) || !loadTable(table, engineWrapper.getEntityClass())) {
+        TableCache cache = readableQuery(sql) && cacheableTable(table)
+                ? loadTable(table, engineWrapper.getEntityClass()) : null;
+        if (cache == null || cache.bypass()) {
             return delegate.queryCount(wrapper);
         }
-        return replica.evaluateQuery(engineWrapper).size();
+        return cache.replica().evaluateQuery(engineWrapper).size();
     }
 
     /**
@@ -562,7 +575,8 @@ public class CachingEngine extends AbstractEngine {
      * @param <T>      实体泛型
      * @return 分页结果，nextCursor 恒为 null
      */
-    private <T> Page<T> readPage(EngineQueryWrapper<T> wrapper, int pageNum, int pageSize) {
+    private <T> Page<T> readPage(InMemoryEngine replica, EngineQueryWrapper<T> wrapper,
+                               int pageNum, int pageSize) {
         if (wrapper.getLimit() <= 0) {
             // 未额外设 limit：分页语义与内存引擎完全一致，直接复用其求值入口
             return replica.evaluatePage(wrapper, pageNum, pageSize);
@@ -676,7 +690,7 @@ public class CachingEngine extends AbstractEngine {
     @Override
     public <T> Engine store(String name, List<T> data) {
         delegate.store(name, data);
-        if (enabled && name != null) {
+        if (name != null) {
             invalidateAfterWrite(name);
         }
         return this;
@@ -689,44 +703,53 @@ public class CachingEngine extends AbstractEngine {
      *
      * @param table       表名
      * @param entityClass 实体类型
-     * @return true 表示可以读副本；false 表示该表被旁路或装不下
+     * @return 当前版本的独立快照；并发失效时返回 null，调用方直接查询 delegate
      */
-    private boolean loadTable(String table, Class<?> entityClass) {
-        synchronized (cacheLock) {
+    private TableCache loadTable(String table, Class<?> entityClass) {
+        TableCache ready = tableCaches.get(table);
+        if (ready != null && !expired(ready)) {
+            ready.lastAccessNanos().set(System.nanoTime());
+            return ready;
+        }
+        Object loadLock = loadLocks[(table.hashCode() & Integer.MAX_VALUE) % loadLocks.length];
+        synchronized (loadLock) {
             TableCache cache = tableCaches.get(table);
-            if (cache != null) {
-                if (cache.bypass()) {
-                    return false;
-                }
-                if (!expired(cache)) {
-                    return true;
-                }
-                // 过期：丢弃后重新装载
-                tableCaches.remove(table);
-                replica.store(table, Collections.emptyList());
+            if (cache != null && !expired(cache)) {
+                cache.lastAccessNanos().set(System.nanoTime());
+                return cache;
             }
+            long generation = cacheGeneration.get();
+            int rowLimit = Math.min(maxRows, maxTotalRows);
             long total = delegate.queryCount(delegate.query(entityClass));
-            if (total > maxRows) {
-                tableCaches.put(table, new TableCache(clamp(total), true, System.currentTimeMillis()));
-                log.debug("表 {} 共 {} 行，超过单表上限 {}，旁路不缓存", table, total, maxRows);
-                return false;
+            TableCache loaded;
+            if (total > rowLimit) {
+                loaded = new TableCache(clamp(total), true, null);
+            } else {
+                // COUNT 与 SELECT 之间可能增长，最多读取阈值 + 1 行并再次校验。
+                int fetchLimit = rowLimit == Integer.MAX_VALUE ? rowLimit : rowLimit + 1;
+                List<?> rows = delegate.query(entityClass).limit(fetchLimit).list();
+                if (rows.size() > rowLimit) {
+                    loaded = new TableCache(rows.size(), true, null);
+                } else {
+                    InMemoryEngine snapshot = new InMemoryEngine();
+                    snapshot.store(table, rows);
+                    snapshot.index();
+                    loaded = new TableCache(rows.size(), false, snapshot);
+                }
             }
-            List<?> rows = delegate.query(entityClass).list();
-            if (rows.size() > maxTotalRows) {
-                tableCaches.put(table, new TableCache(rows.size(), true, System.currentTimeMillis()));
-                log.debug("表 {} 共 {} 行，超过缓存总上限 {}，旁路不缓存", table, rows.size(), maxTotalRows);
-                return false;
+            synchronized (cacheLock) {
+                if (generation != cacheGeneration.get() || !enabled || isClosed()) {
+                    return null;
+                }
+                tableCaches.remove(table);
+                if (!loaded.bypass()) {
+                    while ((long) cachedRows() + loaded.rowCount() > maxTotalRows && !tableCaches.isEmpty()) {
+                        evictEldest();
+                    }
+                }
+                tableCaches.put(table, loaded);
             }
-            while (cachedRows() + rows.size() > maxTotalRows && !tableCaches.isEmpty()) {
-                evictEldest();
-            }
-            if (cachedRows() + rows.size() > maxTotalRows) {
-                tableCaches.put(table, new TableCache(rows.size(), true, System.currentTimeMillis()));
-                return false;
-            }
-            replica.store(table, rows);
-            tableCaches.put(table, new TableCache(rows.size(), false, System.currentTimeMillis()));
-            return true;
+            return loaded;
         }
     }
 
@@ -741,7 +764,7 @@ public class CachingEngine extends AbstractEngine {
         if (ttl <= 0) {
             return false;
         }
-        return System.currentTimeMillis() - cache.loadedAtMillis() >= ttl * 1000L;
+        return (System.nanoTime() - cache.loadedAtNanos()) / 1_000_000_000L >= ttl;
     }
 
     /**
@@ -763,14 +786,15 @@ public class CachingEngine extends AbstractEngine {
      * 逐出最久未访问的一张表。
      */
     private void evictEldest() {
-        Iterator<Map.Entry<String, TableCache>> iterator = tableCaches.entrySet().iterator();
-        if (!iterator.hasNext()) {
-            return;
+        Map.Entry<String, TableCache> eldest = null;
+        for (Map.Entry<String, TableCache> entry : tableCaches.entrySet()) {
+            if (eldest == null || entry.getValue().lastAccessNanos().get()
+                    < eldest.getValue().lastAccessNanos().get()) {
+                eldest = entry;
+            }
         }
-        Map.Entry<String, TableCache> eldest = iterator.next();
-        iterator.remove();
-        if (!eldest.getValue().bypass()) {
-            replica.store(eldest.getKey(), Collections.emptyList());
+        if (eldest != null) {
+            tableCaches.remove(eldest.getKey());
             log.debug("缓存逐出表 {}（{} 行）", eldest.getKey(), eldest.getValue().rowCount());
         }
     }
@@ -781,9 +805,6 @@ public class CachingEngine extends AbstractEngine {
      * @param table 表名
      */
     private void invalidateAfterWrite(String table) {
-        if (!enabled) {
-            return;
-        }
         evictLocal(table);
         notifyInvalidators(table);
     }
@@ -792,9 +813,6 @@ public class CachingEngine extends AbstractEngine {
      * 原生写入成功后失效全部副本并通知外部。
      */
     private void invalidateAllAfterWrite() {
-        if (!enabled) {
-            return;
-        }
         evictAll();
         notifyInvalidators(null);
     }
@@ -806,9 +824,8 @@ public class CachingEngine extends AbstractEngine {
      */
     private void evictLocal(String table) {
         synchronized (cacheLock) {
-            if (tableCaches.remove(table) != null) {
-                replica.store(table, Collections.emptyList());
-            }
+            cacheGeneration.incrementAndGet();
+            tableCaches.remove(table);
         }
     }
 
@@ -817,9 +834,7 @@ public class CachingEngine extends AbstractEngine {
      */
     private void evictAll() {
         synchronized (cacheLock) {
-            for (String table : new ArrayList<>(tableCaches.keySet())) {
-                replica.store(table, Collections.emptyList());
-            }
+            cacheGeneration.incrementAndGet();
             tableCaches.clear();
         }
     }
@@ -1191,10 +1206,15 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public void close() {
-        replica.close();
-        delegate.close();
-        invalidators.clear();
-        super.close();
+        synchronized (cacheLock) {
+            super.close();
+            evictAll();
+        }
+        try {
+            delegate.close();
+        } finally {
+            invalidators.clear();
+        }
     }
 
     /**
@@ -1202,9 +1222,15 @@ public class CachingEngine extends AbstractEngine {
      *
      * @param rowCount       装载时的行数
      * @param bypass         是否因超限被旁路
-     * @param loadedAtMillis 装载时刻（毫秒）
+     * @param loadedAtNanos  装载时刻（单调时间）
+     * @param replica        完整发布的独立只读副本，旁路表为 null
+     * @param lastAccessNanos 最近访问时刻，用于装载时逐出最久未使用的表
      */
-    private record TableCache(int rowCount, boolean bypass, long loadedAtMillis) {
+    private record TableCache(int rowCount, boolean bypass, long loadedAtNanos,
+                              InMemoryEngine replica, AtomicLong lastAccessNanos) {
+        private TableCache(int rowCount, boolean bypass, InMemoryEngine replica) {
+            this(rowCount, bypass, System.nanoTime(), replica, new AtomicLong(System.nanoTime()));
+        }
     }
 
     /**

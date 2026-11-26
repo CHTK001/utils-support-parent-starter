@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,9 +39,9 @@ import java.util.regex.Pattern;
  * </p>
  *
  * <p><b>并发语义</b>：表数据（{@code dataStores}）与二级索引（{@code indexes}）
- * 均为并发安全容器，多个线程可安全并发执行查询；写入（insert / update /
- * delete / store / 原生 DML）与读取并发时，写入路径会先失效目标表索引再改写数据，
- * 读取端未命中索引自动回退全表扫描，因此不会读到陈旧索引的悬空引用。
+     * 均通过安全发布供多个线程读取；索引在本地构建完成后一次发布。
+     * 写入与索引重建互斥，写入前后均失效目标表索引，查询热路径不取得该互斥锁。
+     * 读取端校验索引所属行集合的身份，未命中时自动回退全表扫描。
  * 但单表内部的复合操作（如「先查再改」）不构成原子单元，需要原子性时
  * 请由调用方自行加锁或在事务上下文中使用。</p>
  *
@@ -59,7 +60,26 @@ public class InMemoryEngine extends AbstractEngine {
     /**
      * indexes
     */
-    private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
+    private final Map<String, TableIndex> indexes = new ConcurrentHashMap<>();
+
+    /** 仅串行化写入与索引发布，不阻塞已发布索引上的读取。 */
+    private final Object indexMutationLock = new Object();
+
+    /** 索引与实际存储行集合绑定，防止换表期间读到其他版本的候选行。 */
+    private record TableIndex(List<?> rows, Map<String, Map<Object, List<Object>>> fields) {
+    }
+
+    /** 写入与重建共用边界，finally 同时覆盖部分写入后抛异常的路径。 */
+    private <T> T mutate(String table, Supplier<T> action) {
+        synchronized (indexMutationLock) {
+            invalidateIndexes(table);
+            try {
+                return action.get();
+            } finally {
+                invalidateIndexes(table);
+            }
+        }
+    }
 
     /**
      * 存储
@@ -69,9 +89,7 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
-        super.store(name, data);
-        invalidateIndexes(name);
-        return this;
+        return mutate(name, () -> super.store(name, data));
     }
 
     /**
@@ -80,8 +98,10 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 当前引擎实例
      */
     public InMemoryEngine index() {
-        for (Map.Entry<String, List<?>> e : dataStores.entrySet()) {
-            buildIndex(e.getKey(), e.getValue());
+        synchronized (indexMutationLock) {
+            for (Map.Entry<String, List<?>> e : dataStores.entrySet()) {
+                buildIndex(e.getKey(), e.getValue());
+            }
         }
         return this;
     }
@@ -114,9 +134,7 @@ public class InMemoryEngine extends AbstractEngine {
         @SuppressWarnings("unchecked")
         List<Object> rows = (List<Object>) data;
         T first = data.getFirst();
-        Map<String, Map<Object, List<Object>>> tableIdx = indexes.computeIfAbsent(
-                name, k -> new ConcurrentHashMap<>());
-        tableIdx.clear();
+        Map<String, Map<Object, List<Object>>> tableIdx = Wraps.map();
         List<String> fields = getGetters(first.getClass());
         for (Object row : rows) {
             for (String field : fields) {
@@ -131,6 +149,7 @@ public class InMemoryEngine extends AbstractEngine {
                 idxRows.add(row);
             }
         }
+        indexes.put(name, new TableIndex(data, tableIdx));
     }
 
     /**
@@ -263,11 +282,9 @@ public class InMemoryEngine extends AbstractEngine {
         Object[] args = params == null ? new Object[0] : params;
         return interceptUpdate(sql, args, () -> {
             var plan = new MemorySqlParser().parseDml(sql);
-            // 原生 DML 直接改写行集合，等价于表结构变更，索引必须随写失效
-            invalidateIndexes(plan.table());
-            return MemorySqlAst.executeDml(plan,
+            return mutate(plan.table(), () -> MemorySqlAst.executeDml(plan,
                     java.util.Arrays.asList(args),
-                    () -> mutableRowsFor(plan.table()));
+                    () -> mutableRowsFor(plan.table())));
         });
     }
 
@@ -293,8 +310,7 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        invalidateIndexes(getTableName(sql.entityClass()));
-        return super.executeUpdate(sql);
+        return mutate(getTableName(sql.entityClass()), () -> super.executeUpdate(sql));
     }
 
     /**
@@ -305,8 +321,17 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
-        invalidateIndexes(getTableName(sql.entityClass()));
-        return super.executeDelete(sql);
+        return mutate(getTableName(sql.entityClass()), () -> super.executeDelete(sql));
+    }
+
+    @Override
+    public <T> int insert(Class<T> entityClass, T entity) {
+        return mutate(getTableName(entityClass), () -> super.insert(entityClass, entity));
+    }
+
+    @Override
+    public <T> int insertBatch(Class<T> entityClass, List<T> entities) {
+        return mutate(getTableName(entityClass), () -> super.insertBatch(entityClass, entities));
     }
 
     /**
@@ -398,19 +423,20 @@ public class InMemoryEngine extends AbstractEngine {
     @SuppressWarnings("unchecked")
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
         Condition first = conditions.getFirst();
-        if (!"=".equals(first.getOperator())) {
+        if (!"=".equals(first.getOperator()) || conditions.stream().anyMatch(c -> c.isNested()
+                && "OR".equalsIgnoreCase(c.getNestedOperator()))) {
             return data;
         }
         String field = first.getColumnName();
         String tableName = getTableName(clazz);
-        Map<String, Map<Object, List<Object>>> tableIdx = indexes.get(tableName);
-        if (tableIdx == null) {
-            tableIdx = findIndexForData(data);
+        TableIndex tableIdx = indexes.get(tableName);
+        if (tableIdx == null || tableIdx.rows() != data) {
+            tableIdx = indexes.get("default");
         }
-        if (tableIdx == null) {
+        if (tableIdx == null || tableIdx.rows() != data) {
             return data;
         }
-        Map<Object, List<Object>> fieldIdx = tableIdx.get(field);
+        Map<Object, List<Object>> fieldIdx = tableIdx.fields().get(field);
         if (fieldIdx == null) {
             return data;
         }
@@ -420,27 +446,6 @@ public class InMemoryEngine extends AbstractEngine {
             return Collections.emptyList();
         }
         return (List<T>) matched;
-    }
-
-    /**
-     * 查找索引for数据
-     *
-     * @param data 数据
-     * @return find索引for数据的结果
-     */
-    @SuppressWarnings("unchecked")
-    private <T> Map<String, Map<Object, List<Object>>> findIndexForData(List<T> data) {
-        for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
-            for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
-                for (List<Object> rows : fe.getValue().values()) {
-                    if (!rows.isEmpty() && rows.getFirst() != null &&
-                            rows.getFirst().getClass() == data.getFirst().getClass()) {
-                        return e.getValue();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -469,6 +474,10 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 结果数值
      */
     <T> int evaluateUpdate(EngineUpdateWrapper<T> wrapper) {
+        return mutate(getTableName(wrapper.getEntityClass()), () -> evaluateUpdateRows(wrapper));
+    }
+
+    private <T> int evaluateUpdateRows(EngineUpdateWrapper<T> wrapper) {
         // 内存求值不经过 buildSql()，必须在此复用同一套全表守卫，
         // 否则无 WHERE 的 update() 会因空条件谓词恒真而更新整表（静默数据破坏）。
         wrapper.requireWhereCondition("更新");
@@ -502,6 +511,10 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 结果数值
      */
     <T> int evaluateDelete(EngineDeleteWrapper<T> wrapper) {
+        return mutate(getTableName(wrapper.getEntityClass()), () -> evaluateDeleteRows(wrapper));
+    }
+
+    private <T> int evaluateDeleteRows(EngineDeleteWrapper<T> wrapper) {
         // 与 evaluateUpdate 同理：空条件谓词取反后恒假，会删除整表。
         wrapper.requireWhereCondition("删除");
         List<T> data = getData(wrapper.getEntityClass());
@@ -524,6 +537,14 @@ public class InMemoryEngine extends AbstractEngine {
             }
         }
         return removed;
+    }
+
+    @Override
+    public void close() {
+        synchronized (indexMutationLock) {
+            indexes.clear();
+            super.close();
+        }
     }
 
     /**
