@@ -4,7 +4,7 @@
 >
 > - **坐标**：`com.chua:utils-support-filesearch-starter:4.0.0.51`（jar，父模块 `utils-support-filesystem-parent:4.0.0.51`）
 > - **JDK**：25（父 POM `maven.compiler.release=25` / `java.version=25`）
-> - **包名**：`com.chua.filesearch.support`（子包 `service` / `bridge` / `nativeaccess` / `resource` / `spi.impl`）
+> - **包名**：`com.chua.filesearch.support`（子包 `service` / `helper` / `nativeaccess` / `resource` / `spi.impl`）
 
 ## 目录
 
@@ -149,7 +149,7 @@ public class FileSearchDemo {
 **流式搜索与取消**（大目录建议流式消费，避免一次性持有全部结果）：
 
 ```java
-import com.chua.filesearch.support.bridge.RustFileSearchHelper;
+import com.chua.filesearch.support.helper.RustFileSearchHelper;
 
 long count = RustFileSearchHelper.searchStream(criteria, fileInfo -> {
     // 每 128 条一批回调到这里

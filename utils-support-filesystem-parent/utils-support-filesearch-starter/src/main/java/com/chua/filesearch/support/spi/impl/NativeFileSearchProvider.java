@@ -1,6 +1,6 @@
 package com.chua.filesearch.support.spi.impl;
 
-import com.chua.filesearch.support.bridge.RustFileSearchHelper;
+import com.chua.filesearch.support.helper.RustFileSearchHelper;
 import com.chua.filesystem.support.filesearch.model.FileInfo;
 import com.chua.filesystem.support.filesearch.model.FileSearchCriteria;
 import com.chua.filesystem.support.filesearch.spi.FileSearchProvider;
