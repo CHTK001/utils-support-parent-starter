@@ -355,15 +355,19 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             keepAlive.invalidate(uid);
             return (T) current.getObj();
         }
+        if (current == null || current == ServiceDefinitionFinder.DEFAULT_DEFINITION) {
+            keepAlive.invalidate(uid);
+            return getNewExtension(name, args);
+        }
         Value<T> ifPresent = keepAlive.getIfPresent(uid);
         if (null != ifPresent) {
             T value = ifPresent.getValue();
             keepAlive.put(uid, ifPresent);
             return value;
         }
-        T newExtension = getNewExtension(name, args);
+        T newExtension = newExtension(current, args);
         if (newExtension == null) {
-            return null;
+            return getDefaultImpl(args);
         }
         checkDaemon();
         keepAlive.put(uid, Value.of(newExtension));
@@ -1042,6 +1046,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * @param serviceDefinition 需要注册为默认实现的服务定义
      */
     private void registerDefault(ServiceDefinition serviceDefinition) {
+        // 框架实例随插件生命周期变化，默认选择交给当前定义视图，不持久缓存实例。
+        if (isFrameworkManaged(serviceDefinition)) {
+            return;
+        }
         if (hasDefaultAndLoaded.get()) {
             return;
         }
@@ -1096,7 +1104,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * <p>
      * 首先尝试返回已缓存的 {@code defaultImpl}，
      * 如果不存在则遍历 {@code defaultDefinitions} 列表，
-     * 创建并返回第一个可用的实例。
+     * 创建并返回第一个可用的实例；框架托管的默认实现从当前定义中实时选择。
      * </p>
      *
      * @param args 实例化参数
@@ -1119,7 +1127,14 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             }
         }
 
- // 如果所有尝试都失败，返回 空
+        // 插件默认实现不能写入静态默认缓存，卸载后当前定义视图即不再包含它。
+        for (ServiceDefinition definition : getDefinitions(null)) {
+            if (definition.isDefault() && isFrameworkManaged(definition)) {
+                return (T) definition.getObj();
+            }
+        }
+
+        // 如果所有尝试都失败，返回空。
         return null;
     }
 }

@@ -195,6 +195,7 @@ public final class EngineSpiLifecycle {
             check("existing proxy passes method arguments", "first:argument".equals(proxy.echo("argument")));
             check("existing named proxy sees later registration", "first".equals(namedProxy.value()));
             check("explicit default survives higher priority dynamic service", provider.getExtension("") == fallback);
+            check("keep-alive miss uses live default", provider.getKeepExtension("default-miss", "missing") == fallback);
             check("priority query still selects higher priority dynamic service", "first".equals(provider.getPriority().value()));
             first.unregister();
             first = null;
@@ -205,7 +206,12 @@ public final class EngineSpiLifecycle {
             second = null;
             check("existing proxy falls back after dynamic unregister", "fallback".equals(proxy.value()));
             check("default remains after dynamic unregister", provider.getExtension("") == fallback);
+            provider.unregister("FALLBACK", ProbeResolver.class);
+            check("framework default is not retained after unregister", provider.getExtension("") == null
+                    && provider.getDefault() == null);
+            check("keep-alive miss does not retain removed default", provider.getKeepExtension("default-miss", "missing") == null);
         } finally {
+            provider.unregister("FALLBACK", ProbeResolver.class);
             if (first != null) { first.unregister(); }
             if (second != null) { second.unregister(); }
         }

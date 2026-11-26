@@ -23,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -155,8 +157,8 @@ public class InMemoryEngine extends AbstractEngine {
     /** 表名 → 最近访问时刻（毫秒）；{@code accessOrder} 使迭代顺序即 LRU 顺序。 */
     private final Map<String, Long> lastAccess = new LinkedHashMap<>(16, 0.75f, true);
 
-    /** 已交接给回落引擎的表名。 */
-    private final Set<String> bypassedTables = new HashSet<>();
+    /** 已交接给回落引擎的表名；并发集合，使热路径可在锁外做一次快速判别。 */
+    private final Set<String> bypassedTables = ConcurrentHashMap.newKeySet();
 
     /** 被容量保护拒绝的写入次数。 */
     private long rejectedWrites;
@@ -185,6 +187,462 @@ public class InMemoryEngine extends AbstractEngine {
     public record GuardStats(boolean enabled, int tables, long totalRows, int bypassedTables,
                              long rejectedWrites, long evictedTables, long expiredTables,
                              long bypassTransitions) {
+    }
+
+    /* ==================== 容量保护：判定 / 降级 / 观测 ==================== */
+
+    /**
+     * 容量准入判定。
+     *
+     * <p>总开关关闭时直接放行（零行为变化）；开启时在 {@link #guardLock} 内先回收空闲
+     * 超时的表，再按「单表行数 → 表数 → 合计行数」的顺序判定本次写入。
+     * 合计行数超限时只在绑定了回落引擎的降级模式下把最久未访问的表整体 spill 过去，
+     * 否则一律拒绝——本引擎没有第二份数据来源，逐出即丢数据。</p>
+     *
+     * @param table    目标表名，{@code null} 直接放行
+     * @param incoming 本次写入行数（{@code replace} 为 true 时是整表替换后的行数）
+     * @param replace  是否整表替换（{@link #store} 为 true）
+     * @return true 表示由本引擎承载；false 表示已交接给回落引擎
+     * @throws IllegalArgumentException 超限且未开启降级
+     * @throws IllegalStateException    超限、已开启降级但未绑定回落引擎
+     */
+    private boolean admit(String table, long incoming, boolean replace) {
+        if (table == null) {
+            return true;
+        }
+        // 已旁路的表即使总开关事后关闭也仍由回落引擎承载，否则两边各存一份会分裂数据
+        if (!guardEnabled && bypassedTables.isEmpty()) {
+            return true;
+        }
+        synchronized (guardLock) {
+            if (bypassedTables.contains(table)) {
+                return false;
+            }
+            if (!guardEnabled) {
+                return true;
+            }
+            purgeExpiredLocked();
+
+            long incomingRows = Math.max(incoming, 0L);
+            long currentRows = tableRows(table);
+            long singleAfter = replace ? incomingRows : currentRows + incomingRows;
+            if (maxRows > 0 && singleAfter > maxRows) {
+                return rejectOrBypass(table, singleAfter, "单表行数上限 " + maxRows);
+            }
+
+            boolean exists = dataStores.containsKey(table) || lastAccess.containsKey(table);
+            if (maxTables > 0 && !exists && dataStores.size() + 1 > maxTables
+                    && !shrinkTablesLocked(table)) {
+                return rejectOrBypass(table, incomingRows, "表数上限 " + maxTables);
+            }
+
+            if (maxTotalRows > 0) {
+                long projectedTotal = totalRowsLocked() - currentRows + incomingRows;
+                while (projectedTotal > maxTotalRows) {
+                    if (fallbackEngine == null) {
+                        return rejectOrBypass(table, projectedTotal, "合计行数上限 " + maxTotalRows);
+                    }
+                    String victim = pollLruTableLocked(table);
+                    if (victim == null) {
+                        return rejectOrBypass(table, projectedTotal, "合计行数上限 " + maxTotalRows);
+                    }
+                    long victimRows = tableRows(victim);
+                    spill(victim);
+                    evictedTables++;
+                    projectedTotal -= victimRows;
+                }
+            }
+            lastAccess.put(table, System.currentTimeMillis());
+            return true;
+        }
+    }
+
+    /**
+     * 超限处置：拒绝（默认）或把该表整体交接给回落引擎（降级模式）。
+     *
+     * @param table     目标表名
+     * @param projected 预计行数，用于异常文案
+     * @param limit     被突破的上限描述
+     * @return 降级模式恒返回 false（表示由回落引擎承载）
+     */
+    private boolean rejectOrBypass(String table, long projected, String limit) {
+        if (bypassOnOverflow) {
+            if (fallbackEngine == null) {
+                throw new IllegalStateException("内存引擎容量超限（表 " + table + "，预计 " + projected
+                        + " 行，" + limit + "），已开启降级但未绑定回落引擎，"
+                        + "请先调用 setFallbackEngine(Engine)");
+            }
+            spill(table);
+            bypassTransitions++;
+            return false;
+        }
+        rejectedWrites++;
+        throw new IllegalArgumentException("内存引擎容量超限：表 " + table + "，预计 " + projected
+                + " 行，超过" + limit + "；可调整上限，或绑定回落引擎后开启降级（"
+                + BYPASS_ON_OVERFLOW_PROPERTY + "）");
+    }
+
+    /**
+     * 在表数超限时按 LRU 顺序把表 spill 到回落引擎，腾出表位。
+     *
+     * @param keep 本次要写入的表名，不参与逐出
+     * @return true 表示已腾出表位；false 表示无回落引擎或无表可逐出
+     */
+    private boolean shrinkTablesLocked(String keep) {
+        if (fallbackEngine == null) {
+            return false;
+        }
+        while (maxTables > 0 && dataStores.size() + 1 > maxTables) {
+            String victim = pollLruTableLocked(keep);
+            if (victim == null) {
+                return false;
+            }
+            spill(victim);
+            evictedTables++;
+        }
+        return true;
+    }
+
+    /**
+     * 回收空闲超时的表：有回落引擎则先 spill 再摘除，否则直接丢弃并记账。
+     */
+    private void purgeExpiredLocked() {
+        long ttl = ttlSeconds;
+        if (ttl <= 0 || lastAccess.isEmpty()) {
+            return;
+        }
+        long deadline = System.currentTimeMillis() - ttl * 1000L;
+        Iterator<Map.Entry<String, Long>> it = lastAccess.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Long> entry = it.next();
+            Long accessAt = entry.getValue();
+            if (accessAt == null || accessAt > deadline) {
+                continue;
+            }
+            it.remove();
+            String table = entry.getKey();
+            if (!dataStores.containsKey(table)) {
+                continue;
+            }
+            if (fallbackEngine != null) {
+                spill(table);
+            } else {
+                dataStores.remove(table);
+                invalidateIndexes(table);
+            }
+            expiredTables++;
+        }
+    }
+
+    /**
+     * 取最久未访问的表名并从 LRU 顺序表中移除（候选耗尽返回 null）。
+     *
+     * @param keep 本次要写入的表名，不参与逐出
+     * @return 可逐出的表名，无候选时返回 null
+     */
+    private String pollLruTableLocked(String keep) {
+        Iterator<Map.Entry<String, Long>> it = lastAccess.entrySet().iterator();
+        while (it.hasNext()) {
+            String name = it.next().getKey();
+            if (Objects.equals(name, keep)) {
+                continue;
+            }
+            it.remove();
+            if (dataStores.containsKey(name)) {
+                return name;
+            }
+        }
+        // 总开关打开前装载的表没有 LRU 记录，退化为按存储键逐出
+        for (String name : dataStores.keySet()) {
+            if (!Objects.equals(name, keep)) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 把目标表的行整体交接给回落引擎，并标记为旁路。
+     *
+     * <p>顺序是「先写回落引擎再摘本地行」：回落引擎写入失败时本地数据仍在，
+     * 不会出现两边都没有的窗口。</p>
+     *
+     * @param table 表名
+     * @throws IllegalStateException 未绑定回落引擎
+     */
+    @SuppressWarnings("unchecked")
+    private void spill(String table) {
+        Engine target = fallbackEngine;
+        if (target == null) {
+            throw new IllegalStateException("内存引擎尝试把表交接给回落引擎，但未绑定回落引擎: " + table);
+        }
+        List<?> rows = dataStores.get(table);
+        if (rows != null) {
+            target.store(table, (List<Object>) rows);
+        }
+        dataStores.remove(table);
+        invalidateIndexes(table);
+        bypassedTables.add(table);
+        lastAccess.remove(table);
+    }
+
+    /**
+     * 记录一次表访问；总开关关闭时不产生任何行为变化。
+     *
+     * @param table 表名，{@code null} 忽略
+     */
+    private void touch(String table) {
+        if (table == null || !guardEnabled) {
+            return;
+        }
+        synchronized (guardLock) {
+            if (!guardEnabled) {
+                return;
+            }
+            purgeExpiredLocked();
+            lastAccess.put(table, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * 获取回落引擎。
+     *
+     * @return 回落引擎
+     * @throws IllegalStateException 未绑定回落引擎
+     */
+    private Engine fallback() {
+        Engine engine = fallbackEngine;
+        if (engine == null) {
+            throw new IllegalStateException(
+                    "内存引擎需要回落引擎承载该操作，但未绑定回落引擎，请先调用 setFallbackEngine(Engine)");
+        }
+        return engine;
+    }
+
+    /**
+     * 指定表是否已交接给回落引擎。
+     *
+     * @param table 表名，{@code null} 返回 false
+     * @return true 表示该表由回落引擎承载
+     */
+    public boolean isBypassed(String table) {
+        if (table == null) {
+            return false;
+        }
+        synchronized (guardLock) {
+            return bypassedTables.contains(table);
+        }
+    }
+
+    /**
+     * 当前仍由本引擎持有的表名快照（不含旁路表）。
+     *
+     * @return 表名集合
+     */
+    public Set<String> memoryTables() {
+        return new LinkedHashSet<>(dataStores.keySet());
+    }
+
+    /**
+     * 当前已交接给回落引擎的表名快照。
+     *
+     * @return 表名集合
+     */
+    public Set<String> bypassedTables() {
+        synchronized (guardLock) {
+            return new LinkedHashSet<>(bypassedTables);
+        }
+    }
+
+    /**
+     * 清除旁路标记，使该表重新由本引擎承载。
+     *
+     * <p>只清标记、不动数据：旁路期间该表的行在回落引擎里，
+     * 清除后调用方需重新 {@link #store} 装载内存副本（否则读走空表）。</p>
+     *
+     * @param table 表名；{@code null} 表示清除全部旁路标记
+     */
+    public void reload(String table) {
+        synchronized (guardLock) {
+            if (table == null) {
+                bypassedTables.clear();
+                lastAccess.clear();
+                return;
+            }
+            bypassedTables.remove(table);
+            lastAccess.put(table, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * 容量保护快照。
+     *
+     * @return 状态快照
+     */
+    public GuardStats stats() {
+        synchronized (guardLock) {
+            return new GuardStats(guardEnabled, dataStores.size(), totalRowsLocked(),
+                    bypassedTables.size(), rejectedWrites, evictedTables, expiredTables,
+                    bypassTransitions);
+        }
+    }
+
+    /**
+     * 目标表当前行数（不存在按 0）。
+     *
+     * @param table 表名
+     * @return 行数
+     */
+    private long tableRows(String table) {
+        List<?> rows = dataStores.get(table);
+        return rows == null ? 0L : rows.size();
+    }
+
+    /**
+     * 内存中合计行数（须持有 {@link #guardLock}）。
+     *
+     * @return 合计行数
+     */
+    private long totalRowsLocked() {
+        long total = 0L;
+        for (List<?> rows : dataStores.values()) {
+            total += rows == null ? 0L : rows.size();
+        }
+        return total;
+    }
+
+    /**
+     * 读取布尔属性，非法/缺失回退默认值。
+     *
+     * @param key          属性名
+     * @param defaultValue 默认值
+     * @return 属性值
+     */
+    private static boolean booleanProperty(String key, boolean defaultValue) {
+        String raw = System.getProperty(key);
+        return raw == null || raw.isBlank() ? defaultValue : Boolean.parseBoolean(raw.trim());
+    }
+
+    /**
+     * 读取整型属性，非法值回退默认值。
+     *
+     * @param key          属性名
+     * @param defaultValue 默认值
+     * @return 属性值
+     */
+    private static int intProperty(String key, int defaultValue) {
+        try {
+            String raw = System.getProperty(key);
+            return raw == null || raw.isBlank() ? defaultValue : Integer.parseInt(raw.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * 读取长整型属性，非法值回退默认值。
+     *
+     * @param key          属性名
+     * @param defaultValue 默认值
+     * @return 属性值
+     */
+    private static long longProperty(String key, long defaultValue) {
+        try {
+            String raw = System.getProperty(key);
+            return raw == null || raw.isBlank() ? defaultValue : Long.parseLong(raw.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * 容量保护总开关当前值。
+     *
+     * @return true 表示启用容量保护
+     */
+    public boolean isGuardEnabled() {
+        return guardEnabled;
+    }
+
+    /**
+     * 运行期开关容量保护。关闭只影响后续判定，已旁路的表仍由回落引擎承载。
+     *
+     * @param guardEnabled true 开启
+     * @return this
+     */
+    public InMemoryEngine setGuardEnabled(boolean guardEnabled) {
+        this.guardEnabled = guardEnabled;
+        return this;
+    }
+
+    /**
+     * 设置单表行数上限，{@code <=0} 表示不限制。
+     *
+     * <p>收紧上限不回溯逐出已有数据，只影响后续写入判定。</p>
+     *
+     * @param maxRows 行数上限
+     * @return this
+     */
+    public InMemoryEngine setMaxRows(int maxRows) {
+        this.maxRows = maxRows;
+        return this;
+    }
+
+    /**
+     * 设置合计行数上限，{@code <=0} 表示不限制。
+     *
+     * @param maxTotalRows 合计行数上限
+     * @return this
+     */
+    public InMemoryEngine setMaxTotalRows(long maxTotalRows) {
+        this.maxTotalRows = maxTotalRows;
+        return this;
+    }
+
+    /**
+     * 设置表数上限，{@code <=0} 表示不限制。
+     *
+     * @param maxTables 表数上限
+     * @return this
+     */
+    public InMemoryEngine setMaxTables(int maxTables) {
+        this.maxTables = maxTables;
+        return this;
+    }
+
+    /**
+     * 设置空闲回收秒数，{@code <=0} 表示不回收。
+     *
+     * @param ttlSeconds 秒数
+     * @return this
+     */
+    public InMemoryEngine setTtlSeconds(long ttlSeconds) {
+        this.ttlSeconds = ttlSeconds;
+        return this;
+    }
+
+    /**
+     * 设置超限动作：拒绝（默认）或降级到回落引擎。
+     *
+     * <p>开启降级必须同时绑定回落引擎，否则超限时抛 {@link IllegalStateException}。</p>
+     *
+     * @param bypassOnOverflow true 表示超限时把表交接给回落引擎
+     * @return this
+     */
+    public InMemoryEngine setBypassOnOverflow(boolean bypassOnOverflow) {
+        this.bypassOnOverflow = bypassOnOverflow;
+        return this;
+    }
+
+    /**
+     * 绑定降级承载方。
+     *
+     * @param fallbackEngine 回落引擎，{@code null} 表示解绑
+     * @return this
+     */
+    public InMemoryEngine setFallbackEngine(Engine fallbackEngine) {
+        this.fallbackEngine = fallbackEngine;
+        return this;
     }
 
     /** 写入与重建共用边界，finally 同时覆盖部分写入后抛异常的路径。 */
