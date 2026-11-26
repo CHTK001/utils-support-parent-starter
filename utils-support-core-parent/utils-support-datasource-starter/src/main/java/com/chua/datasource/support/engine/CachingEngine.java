@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 /**
  * 只读缓存装饰器：以 {@link JdbcEngine} 为唯一写入通道，用 {@link InMemoryEngine} 承载只读副本。
  *
- * <p>写路径全部落回 JDBC，提交成功后把目标表的内存副本整表失效，下次读取时重新装载；
+ * <p>写路径全部落回 JDBC，写入结束后把目标表的内存副本整表失效，下次读取时重新装载；
  * 读路径在满足条件时直接对内存副本求值，不访问数据库。这样做的目的不是「读比写快」，
  * 而是把高频、反复、条件简单的小表读全部压到进程内，避免每次查询都付一次网络往返。</p>
  *
@@ -526,17 +526,18 @@ public class CachingEngine extends AbstractEngine {
      * @return {@code action} 的执行结果
      */
     private <T> Page<T> interceptPage(String ql, Object[] params, Supplier<Page<T>> action) {
-        for (EngineInterceptor interceptor : interceptors()) {
+        List<EngineInterceptor> current = interceptors();
+        for (EngineInterceptor interceptor : current) {
             interceptor.beforeQuery(ql, params);
         }
         try {
             Page<T> page = action.get();
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : current) {
                 interceptor.afterQuery(ql, params, page.records());
             }
             return page;
         } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : current) {
                 interceptor.onError(ql, params, re);
             }
             throw re;
@@ -602,9 +603,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        int affected = delegate.executeUpdate(sql);
-        invalidateAfterWrite(resolveTableName(sql.entityClass()));
-        return affected;
+        return writeAndInvalidate(resolveTableName(sql.entityClass()), () -> delegate.executeUpdate(sql));
     }
 
     /**
@@ -616,9 +615,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
-        int affected = delegate.executeDelete(sql);
-        invalidateAfterWrite(resolveTableName(sql.entityClass()));
-        return affected;
+        return writeAndInvalidate(resolveTableName(sql.entityClass()), () -> delegate.executeDelete(sql));
     }
 
     /**
@@ -631,9 +628,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> int insert(Class<T> entityClass, T entity) {
-        int affected = delegate.insert(entityClass, entity);
-        invalidateAfterWrite(resolveTableName(entityClass));
-        return affected;
+        return writeAndInvalidate(resolveTableName(entityClass), () -> delegate.insert(entityClass, entity));
     }
 
     /**
@@ -646,9 +641,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> int insertBatch(Class<T> entityClass, List<T> entities) {
-        int affected = delegate.insertBatch(entityClass, entities);
-        invalidateAfterWrite(resolveTableName(entityClass));
-        return affected;
+        return writeAndInvalidate(resolveTableName(entityClass), () -> delegate.insertBatch(entityClass, entities));
     }
 
     /**
@@ -660,9 +653,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public int executeSql(String ql, Object... params) {
-        int affected = delegate.executeSql(ql, params);
-        invalidateAllAfterWrite();
-        return affected;
+        return writeAndInvalidate(null, () -> delegate.executeSql(ql, params));
     }
 
     /**
@@ -674,9 +665,7 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public int[] batchSql(String ql, List<Object[]> batchParams) {
-        int[] affected = delegate.batchSql(ql, batchParams);
-        invalidateAllAfterWrite();
-        return affected;
+        return writeAndInvalidate(null, () -> delegate.batchSql(ql, batchParams));
     }
 
     /**
@@ -689,11 +678,28 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
-        delegate.store(name, data);
-        if (name != null) {
-            invalidateAfterWrite(name);
-        }
+        writeAndInvalidate(name, () -> delegate.store(name, data));
         return this;
+    }
+
+    /**
+     * 统一写入边界：部分批量成功、提交后回调异常也必须清除旧副本。
+     *
+     * @param table 目标表，null 表示无法限定到单表
+     * @param action 委托写入动作
+     * @param <T> 返回值类型
+     * @return 委托返回值
+     */
+    private <T> T writeAndInvalidate(String table, Supplier<T> action) {
+        try {
+            return action.get();
+        } finally {
+            if (table == null) {
+                invalidateAllAfterWrite();
+            } else {
+                invalidateAfterWrite(table);
+            }
+        }
     }
 
     // ==================== 缓存装载与失效 ====================
@@ -1021,7 +1027,11 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
-        delegate.addDataSource(name, ds);
+        try {
+            delegate.addDataSource(name, ds);
+        } finally {
+            evictAll();
+        }
         return this;
     }
 
@@ -1033,7 +1043,11 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public Engine setDefaultDataSourceName(String name) {
-        delegate.setDefaultDataSourceName(name);
+        try {
+            delegate.setDefaultDataSourceName(name);
+        } finally {
+            evictAll();
+        }
         return this;
     }
 
@@ -1109,7 +1123,11 @@ public class CachingEngine extends AbstractEngine {
      */
     @Override
     public Engine removeDataSource(String name) {
-        delegate.removeDataSource(name);
+        try {
+            delegate.removeDataSource(name);
+        } finally {
+            evictAll();
+        }
         return this;
     }
 

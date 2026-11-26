@@ -314,10 +314,8 @@ public class ServiceDefinitionFinder {
      * @return 服务定义列表
      */
     public SortedList<ServiceDefinition> getDefinitions(String name, Object... args) {
-        if (null == name && definitions.size() == 1) {
-            return definitions.values().iterator().next();
-        }
-        name =  null == name ? DEFAULT : name.toUpperCase();
+        boolean all = name == null;
+        name = all ? DEFAULT : name.toUpperCase();
         SortedList<ServiceDefinition> rs = new SortedArrayList<>(COMPARATOR);
 
         SortedList<ServiceDefinition> serviceDefinitions = definitions.get(name);
@@ -333,7 +331,11 @@ public class ServiceDefinitionFinder {
             }
 
             SortedList<ServiceDefinition> entryValue = entry.getValue();
-            if (null != args) {
+            if (all) {
+                synchronized (entryValue) {
+                    rs.addAll(entryValue);
+                }
+            } else if (null != args) {
                 synchronized (entryValue) {
                     rs.addAll(createNameAware(name, entryValue, args));
                 }
@@ -348,7 +350,7 @@ public class ServiceDefinitionFinder {
                     if (sdName == null) {
                         continue;
                     }
-                    if (name.equalsIgnoreCase(sdName) && !containsDefinition(rs, sd)) {
+                    if ((all || name.equalsIgnoreCase(sdName)) && !containsDefinition(rs, sd)) {
                         rs.add(sd);
                     }
                 }
@@ -367,6 +369,12 @@ public class ServiceDefinitionFinder {
      */
     private boolean containsDefinition(SortedList<ServiceDefinition> list, ServiceDefinition target) {
         for (ServiceDefinition sd : list) {
+            if (target.getObj() != null || sd.getObj() != null) {
+                if (target.getObj() != null && target.getObj() == sd.getObj()) {
+                    return true;
+                }
+                continue;
+            }
             if (null != sd.getName() && sd.getName().equalsIgnoreCase(target.getName())) {
                 return true;
             }

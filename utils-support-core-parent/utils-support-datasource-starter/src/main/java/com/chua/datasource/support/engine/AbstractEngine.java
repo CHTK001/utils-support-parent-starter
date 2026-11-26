@@ -20,6 +20,8 @@ import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.autowire.AutoServiceAutowire;
+import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.datasource.support.meta.DefaultMetaData;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserManager;
@@ -29,6 +31,8 @@ import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,31 +86,87 @@ public abstract class AbstractEngine implements Engine {
     private volatile DslManager dslManagerCache;
 
     /**
-     * 引擎拦截器扩展缓存，首次访问时通过 SPI 加载。
+     * 当前拦截器快照；定义未变化时复用实例，避免热路径反复构造扩展。
      */
-    private volatile List<EngineInterceptor> interceptorCache;
+    private volatile InterceptorSnapshot interceptorCache = new InterceptorSnapshot(List.of(), List.of());
+
+    /** 拦截器刷新与关闭互斥，不占用引擎的数据操作锁。 */
+    private final Object interceptorLock = new Object();
+
+    /** 服务身份和该引擎使用的实例；静态定义按定义身份，已发布实例按对象身份。 */
+    private record InterceptorEntry(Object key, EngineInterceptor interceptor) { }
+
+    /** 原子发布的只读拦截器集合。 */
+    private record InterceptorSnapshot(List<InterceptorEntry> entries, List<EngineInterceptor> instances) { }
 
     /**
-     * 获取引擎拦截器扩展列表（首次调用后缓存）。
-     * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
-     * 结果按 order 降序排列；无注册实现时返回空列表。
-     * <p>本方法在每条语句的 before/after/error 三个环节都会被调用，
-     * 因此结果必须缓存，否则每次执行都要重扫 SPI 注册表。</p>
+     * 获取当前引擎拦截器，按 SPI order 降序排列。
+     * <p>只检查当前注册集合，不重扫类路径；集合不变时复用快照和静态扩展实例。
+     * OSGi 服务直接使用框架注册的对象，安装、替换与摘除在后续操作可见。</p>
      *
      * @return 拦截器列表（非 null，只读）
      */
     @Override
     public List<EngineInterceptor> interceptors() {
-        if (interceptorCache == null) {
-            synchronized (this) {
-                if (interceptorCache == null) {
-                    List<EngineInterceptor> loaded = ServiceProvider.of(EngineInterceptor.class)
-                            .getNewExtensions(EngineInterceptor.SPI_NAME, this);
-                    interceptorCache = loaded == null ? List.of() : List.copyOf(loaded);
+        if (closed.get()) {
+            return List.of();
+        }
+        ServiceProvider<EngineInterceptor> provider = ServiceProvider.of(EngineInterceptor.class);
+        List<ServiceDefinition> definitions = provider.getDefinitions(null);
+        InterceptorSnapshot snapshot = interceptorCache;
+        if (sameInterceptors(snapshot, definitions)) {
+            return snapshot.instances();
+        }
+        synchronized (interceptorLock) {
+            if (closed.get()) {
+                return List.of();
+            }
+            // 在刷新锁内重新读注册集合，防止较旧的读者覆盖较新的快照。
+            definitions = provider.getDefinitions(null);
+            snapshot = interceptorCache;
+            if (sameInterceptors(snapshot, definitions)) {
+                return snapshot.instances();
+            }
+            Map<Object, EngineInterceptor> previous = new IdentityHashMap<>();
+            for (InterceptorEntry entry : snapshot.entries()) {
+                previous.put(entry.key(), entry.interceptor());
+            }
+            List<InterceptorEntry> entries = new ArrayList<>(definitions.size());
+            List<EngineInterceptor> instances = new ArrayList<>(definitions.size());
+            for (ServiceDefinition definition : definitions) {
+                Object key = interceptorKey(definition);
+                EngineInterceptor instance = previous.get(key);
+                if (!previous.containsKey(key)) {
+                    instance = key instanceof EngineInterceptor registered ? registered
+                            : definition.newInstance(AutoServiceAutowire.INSTANCE, this);
+                }
+                entries.add(new InterceptorEntry(key, instance));
+                if (instance != null) {
+                    instances.add(instance);
                 }
             }
+            interceptorCache = new InterceptorSnapshot(List.copyOf(entries), List.copyOf(instances));
+            return interceptorCache.instances();
         }
-        return interceptorCache;
+    }
+
+    /** 比较服务身份与顺序，不用插件自定义的 equals。 */
+    private boolean sameInterceptors(InterceptorSnapshot snapshot, List<ServiceDefinition> definitions) {
+        if (snapshot.entries().size() != definitions.size()) {
+            return false;
+        }
+        for (int index = 0; index < definitions.size(); index++) {
+            if (snapshot.entries().get(index).key() != interceptorKey(definitions.get(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** 已发布服务按实例区分，同类的两次注册不能复用旧对象。 */
+    private Object interceptorKey(ServiceDefinition definition) {
+        Object instance = definition.getObj();
+        return instance == null ? definition : instance;
     }
 
     /**
@@ -338,6 +398,9 @@ public abstract class AbstractEngine implements Engine {
     public void close() {
         if (!closed.compareAndSet(false, true)) {
             return;
+        }
+        synchronized (interceptorLock) {
+            interceptorCache = new InterceptorSnapshot(List.of(), List.of());
         }
         for (Map.Entry<String, EngineDataSource<Object>> entry : dataSources.entrySet()) {
             try {

@@ -104,6 +104,155 @@ public class ServerSetting {
      */
     private static final int MAX_BUFFER_SIZE = 16384;
 
+    /** 自动配置不得覆盖调用方显式设置的选项。 */
+    private static final long EXPLICIT_WORKERS = 1L;
+    private static final long EXPLICIT_BACKLOG = 1L << 1;
+    private static final long EXPLICIT_FRAME_SIZE = 1L << 2;
+    private static final long EXPLICIT_KEEP_ALIVE = 1L << 3;
+    private static final long EXPLICIT_REACTOR = 1L << 4;
+    private static final long EXPLICIT_IO_THREADS = 1L << 5;
+    private static final long EXPLICIT_EVENT_LOOPS = 1L << 6;
+
+    /** 显式选项位图，覆盖 setter 与 Builder 两条配置路径。 */
+    private long autoConfigExplicit;
+
+    /** @param workerThreads 显式 Worker 线程数 */
+    public void setWorkerThreads(int workerThreads) {
+        this.workerThreads = workerThreads;
+        this.autoConfigExplicit |= EXPLICIT_WORKERS;
+    }
+
+    /** @param backlog 显式等待队列长度 */
+    public void setBacklog(int backlog) {
+        this.backlog = backlog;
+        this.autoConfigExplicit |= EXPLICIT_BACKLOG;
+    }
+
+    /** @param maxFrameSize 显式最大帧大小 */
+    public void setMaxFrameSize(int maxFrameSize) {
+        this.maxFrameSize = maxFrameSize;
+        this.autoConfigExplicit |= EXPLICIT_FRAME_SIZE;
+    }
+
+    /** @param maxKeepAliveRequests 显式连接复用次数 */
+    public void setMaxKeepAliveRequests(int maxKeepAliveRequests) {
+        this.maxKeepAliveRequests = maxKeepAliveRequests;
+        this.autoConfigExplicit |= EXPLICIT_KEEP_ALIVE;
+    }
+
+    /** @param reactor 显式响应式处理开关 */
+    public void setReactor(boolean reactor) {
+        this.reactor = reactor;
+        this.autoConfigExplicit |= EXPLICIT_REACTOR;
+    }
+
+    /** @param ioThreads 显式 IO 线程数，0 恢复按平台计算 */
+    public void setIoThreads(int ioThreads) {
+        this.ioThreads = ioThreads;
+        this.autoConfigExplicit = (autoConfigExplicit & ~EXPLICIT_EVENT_LOOPS) | EXPLICIT_IO_THREADS;
+    }
+
+    /** @param eventLoops 显式事件循环数，0 恢复按平台计算 */
+    public void setEventLoops(int eventLoops) {
+        this.eventLoops = eventLoops;
+        this.autoConfigExplicit = (autoConfigExplicit & ~EXPLICIT_IO_THREADS) | EXPLICIT_EVENT_LOOPS;
+    }
+
+    /**
+     * 创建保留显式配置来源的 Builder，不依赖 Lombok 的内部字段布局。
+     *
+     * @return 配置构建器
+     */
+    public static ServerSettingBuilder builder() {
+        return new ExplicitServerSettingBuilder();
+    }
+
+    /** 通过生成的公开构建方法写值，在 build 时一次性合入显式选项。 */
+    private static final class ExplicitServerSettingBuilder extends ServerSettingBuilder {
+        private long explicit;
+        private boolean connections;
+        private boolean concurrency;
+        private boolean buffer;
+        private boolean direct;
+
+        @Override
+        public ServerSettingBuilder workerThreads(int value) {
+            explicit |= EXPLICIT_WORKERS;
+            return super.workerThreads(value);
+        }
+
+        @Override
+        public ServerSettingBuilder backlog(int value) {
+            explicit |= EXPLICIT_BACKLOG;
+            return super.backlog(value);
+        }
+
+        @Override
+        public ServerSettingBuilder maxFrameSize(int value) {
+            explicit |= EXPLICIT_FRAME_SIZE;
+            return super.maxFrameSize(value);
+        }
+
+        @Override
+        public ServerSettingBuilder maxKeepAliveRequests(int value) {
+            explicit |= EXPLICIT_KEEP_ALIVE;
+            return super.maxKeepAliveRequests(value);
+        }
+
+        @Override
+        public ServerSettingBuilder reactor(boolean value) {
+            explicit |= EXPLICIT_REACTOR;
+            return super.reactor(value);
+        }
+
+        @Override
+        public ServerSettingBuilder ioThreads(int value) {
+            explicit = (explicit & ~EXPLICIT_EVENT_LOOPS) | EXPLICIT_IO_THREADS;
+            return super.ioThreads(value);
+        }
+
+        @Override
+        public ServerSettingBuilder eventLoops(int value) {
+            explicit = (explicit & ~EXPLICIT_IO_THREADS) | EXPLICIT_EVENT_LOOPS;
+            return super.eventLoops(value);
+        }
+
+        @Override
+        public ServerSettingBuilder maxConnections(int value) {
+            connections = true;
+            return super.maxConnections(value);
+        }
+
+        @Override
+        public ServerSettingBuilder maxConcurrency(int value) {
+            concurrency = true;
+            return super.maxConcurrency(value);
+        }
+
+        @Override
+        public ServerSettingBuilder bufferSize(int value) {
+            buffer = true;
+            return super.bufferSize(value);
+        }
+
+        @Override
+        public ServerSettingBuilder useDirectBuffer(boolean value) {
+            direct = true;
+            return super.useDirectBuffer(value);
+        }
+
+        @Override
+        public ServerSetting build() {
+            ServerSetting setting = super.build();
+            setting.autoConfigExplicit |= explicit;
+            setting.maxConnectionsExplicit |= connections;
+            setting.maxConcurrencyExplicit |= concurrency;
+            setting.bufferSizeExplicit |= buffer;
+            setting.useDirectBufferExplicit |= direct;
+            return setting;
+        }
+    }
+
     /**
      * 按当前系统自动配置最优参数。
      *
@@ -119,7 +268,9 @@ public class ServerSetting {
 
         // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持默认（accept 循环按核数扩展现已足够，
         // 且 KCP 等同时用 bossThreads 作为 IO event loop 数，需随核数扩展）
-        this.workerThreads = Math.max(2, cpus * 2);
+        if ((autoConfigExplicit & EXPLICIT_WORKERS) == 0) {
+            this.workerThreads = Math.max(2, cpus * 2);
+        }
         if (this.bossThreads < 1) {
             this.bossThreads = 1;
         }
@@ -133,9 +284,11 @@ public class ServerSetting {
         // 等待队列：Windows 语义较弱适当收敛，Unix 系可放大。
         // 百万连接场景下 backlog 只影响「瞬时未 accept 的握手队列」，真正的容量由
         // maxConnections + 每连接内存决定，因此这里不做数量级放大（内核 somaxconn 才是硬上限）。
-        this.backlog = windows
-                ? Math.min(Math.max(cpus * 64, 128), 1024)
-                : Math.min(Math.max(cpus * 128, 256), 4096);
+        if ((autoConfigExplicit & EXPLICIT_BACKLOG) == 0) {
+            this.backlog = windows
+                    ? Math.min(Math.max(cpus * 64, 128), 1024)
+                    : Math.min(Math.max(cpus * 128, 256), 4096);
+        }
 
         // 缓冲区与连接数必须由「同一份内存预算」联合推导，否则 autoConfig 自相矛盾：
         // 旧实现按堆分别定 maxConnections(16GB→100万) 与 bufferSize(4GB+→16KB)，
@@ -161,13 +314,19 @@ public class ServerSetting {
             long affordable = perConnKb > 0 ? budgetMb * 1024L / perConnKb : this.maxConnections;
             long resolved = resolveMaxConnections(heapMb);
             long limit = Math.min(resolved, affordable);
-            if (limit > 0) {
-                this.maxConnections = (int) limit;
+            long fdLimit = readFdLimit();
+            if (fdLimit >= 0 && fdLimit != Long.MAX_VALUE) {
+                // 为监听器、日志、文件和其它运行时资源预留句柄；显式连接数只诊断、不改写。
+                long descriptorBudget = Math.max(1L, fdLimit - Math.max(64L, fdLimit / 20L));
+                limit = Math.min(limit, descriptorBudget);
             }
+            this.maxConnections = (int) Math.max(1L, limit);
         }
 
         // 最大帧/请求体：跟随缓冲区分级，容纳大消息往返（含长度头余量）
-        this.maxFrameSize = heapMb >= 4096 ? 1024 * 1024 : 65536;
+        if ((autoConfigExplicit & EXPLICIT_FRAME_SIZE) == 0) {
+            this.maxFrameSize = heapMb >= 4096 ? 1024 * 1024 : 65536;
+        }
 
         // 最大并发请求数：与连接池容量对齐（RPC auto 连接数=cpu*8）,
         // 防止异常场景下在途请求无限堆积击穿内存,同时不限制正常高吞吐。
@@ -176,14 +335,21 @@ public class ServerSetting {
         // 显式配置过(>0 或 0=不限制)时保留原值,仅未配置时按核数给默认
         if (!maxConcurrencyExplicit) {
             this.maxConcurrency = Math.max(cpus * 256, 4096);
+            if (this.maxConnections > 0) {
+                this.maxConcurrency = Math.min(this.maxConcurrency, this.maxConnections);
+            }
         }
 
         // 最大 Keep-Alive 请求数：内存充足时放宽长连接复用次数，
         // 减少高吞吐场景下频繁建连/断连的握手开销
-        this.maxKeepAliveRequests = heapMb >= 4096 ? 500 : 100;
+        if ((autoConfigExplicit & EXPLICIT_KEEP_ALIVE) == 0) {
+            this.maxKeepAliveRequests = heapMb >= 4096 ? 500 : 100;
+        }
 
         // 响应式处理模式：多核机器默认启用（由具体实现决定是否支持）
-        this.reactor = cpus >= 8;
+        if ((autoConfigExplicit & EXPLICIT_REACTOR) == 0) {
+            this.reactor = cpus >= 8;
+        }
 
         return this;
     }
@@ -207,7 +373,8 @@ public class ServerSetting {
      */
     public int resolveEventLoops(int cpus, boolean windows) {
         // 显式配置优先（eventLoops 与 ioThreads 任一配置都算显式）
-        int configured = this.eventLoops > 0 ? this.eventLoops : this.ioThreads;
+        int configured = (autoConfigExplicit & EXPLICIT_EVENT_LOOPS) != 0 ? this.eventLoops
+                : (autoConfigExplicit & EXPLICIT_IO_THREADS) != 0 ? this.ioThreads : 0;
         int loops;
         if (configured > 0) {
             loops = configured;
@@ -366,27 +533,49 @@ public class ServerSetting {
      * @return 文件描述符上限，失败时返回 -1
      */
     private static long readFdLimit() {
-        try {
+        try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile("/proc/self/limits", "r")) {
             // [P3C W2 豁免] Linux 专用路径
-            java.io.File file = new java.io.File("/proc/self/limits");
-            java.io.RandomAccessFile raf = new java.io.RandomAccessFile(file, "r");
             String line;
             while ((line = raf.readLine()) != null) {
-                // 行格式：Max open files  soft limit = 1024 hard limit = 1024
-                if (line.contains("Maximum open files") || line.contains("Max open files")) {
-                    try {
-                        long soft = Long.parseLong(line.split("=")[1].trim().replaceAll("\\D", ""));
-                        return soft > 0 ? soft : -1;
-                    } catch (Exception ignore) {
-                        // 不是解析不了，就是没权限
-                    }
+                if (line.stripLeading().startsWith("Max open files")) {
+                    return parseFdLimit(line);
                 }
             }
-            raf.close();
         } catch (Exception ignore) {
             // 无法诊断（可能是非 Linux/没进程），静默
         }
         return -1;
+    }
+
+    /**
+     * 解析 proc limits 的软限制列；unlimited 以最大 long 表示，不可解析以 -1 表示。
+     *
+     * @param line proc limits 中的一行
+     * @return 当前进程软限制
+     */
+    static long parseFdLimit(String line) {
+        if (line == null) {
+            return -1;
+        }
+        String trimmed = line.strip();
+        String prefix = "Max open files";
+        if (!trimmed.startsWith(prefix)) {
+            return -1;
+        }
+        String columns = trimmed.substring(prefix.length());
+        if (columns.isEmpty() || !Character.isWhitespace(columns.charAt(0))) {
+            return -1;
+        }
+        String soft = columns.strip().split("\\s+", 2)[0];
+        if ("unlimited".equals(soft)) {
+            return Long.MAX_VALUE;
+        }
+        try {
+            long value = Long.parseLong(soft);
+            return value >= 0 ? value : -1;
+        } catch (NumberFormatException ignored) {
+            return -1;
+        }
     }
 
     /**
@@ -931,7 +1120,7 @@ public class ServerSetting {
         if (perConnectionCostKb > 0) {
             return perConnectionCostKb;
         }
-        return Math.max(bufferSize / 1024L, 1L) + PER_CONNECTION_FIXED_KB;
+        return Math.max((bufferSize + 1023L) / 1024L, 1L) + PER_CONNECTION_FIXED_KB;
     }
 
     /**

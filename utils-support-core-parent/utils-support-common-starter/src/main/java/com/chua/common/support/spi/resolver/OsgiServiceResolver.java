@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.OsgiLauncher;
 import com.chua.common.support.osgi.OsgiLauncherHolder;
 import com.chua.common.support.spi.definition.ServiceDefinition;
+import com.chua.common.support.spi.definition.ServiceDefinitionUtils;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
@@ -39,16 +40,11 @@ public class OsgiServiceResolver implements ServiceResolver {
         List<ServiceDefinition> result = Wraps.list();
         for (Object service : services) {
             try {
-                ServiceDefinition definition = new ServiceDefinition();
                 String name = service.getClass().getSimpleName().toUpperCase();
-                definition.setName(name);
-                definition.setImplClass(service.getClass());
-                definition.setType(type);
-                definition.setClassLoader(classLoader);
-                definition.setObj(service);
+                ServiceDefinition definition = ServiceDefinitionUtils.buildDefinitionAlias(type,
+                        OsgiServiceResolver.class, service, service.getClass(), null, name, 0);
                 definition.setLoaded(true);
                 definition.setLoadTime(System.currentTimeMillis());
-                definition.setFinderType(OsgiServiceResolver.class);
                 result.add(definition);
             } catch (Exception e) {
                 log.debug("Failed to create ServiceDefinition from OSGI service: {}", e.getMessage());

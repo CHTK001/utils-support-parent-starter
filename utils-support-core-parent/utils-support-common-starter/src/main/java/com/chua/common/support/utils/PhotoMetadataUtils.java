@@ -417,6 +417,9 @@ public final class PhotoMetadataUtils {
     /**
      * 照片内容闸门的纹理占比下限：内部像素中 |拉普拉斯残差|&gt;3 的占比低于该值时，
      * 视为截图/渐变/大面积平坦内容，其谱峰多来自压缩或抖动伪影，不计为上采样证据。
+     *
+     * <p>低于该值的图不再走上采样谱峰路径，改走「扁平数字内容」路径，以从严的
+     * 跨通道残差相关（{@link #FLAT_CORR_MISSING}）作为唯一证据。</p>
      */
     private static final double PHOTOGRAPHIC_TEX_MIN = 0.20;
 
@@ -507,9 +510,18 @@ public final class PhotoMetadataUtils {
         double[] blue = new double[n];
         for (int i = 0; i < n; i++) {
             int argb = pixels[i];
+            int a = (argb >>> 24) & 0xFF;
             int r = (argb >>> 16) & 0xFF;
             int g = (argb >>> 8) & 0xFF;
             int b = argb & 0xFF;
+            if (a != 255) {
+                // 透明/半透明像素的 RGB 无意义（解码器通常给 0），直接参与统计会把贴纸类
+                // PNG 的跨通道相关与饱和度算坏（实测透明底贴纸 ρ 从 0.98 掉到 0.47）。
+                // 统一按 alpha 合成到白底，保证统计量只反映可见像素。
+                r = (r * a + 255 * (255 - a)) / 255;
+                g = (g * a + 255 * (255 - a)) / 255;
+                b = (b * a + 255 * (255 - a)) / 255;
+            }
             red[i] = r;
             green[i] = g;
             blue[i] = b;

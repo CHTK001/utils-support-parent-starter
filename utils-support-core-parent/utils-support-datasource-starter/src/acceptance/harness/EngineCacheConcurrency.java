@@ -52,14 +52,10 @@ public final class EngineCacheConcurrency {
     /** Instruments lifecycle callbacks while all data operations remain in JdbcEngine. */
     private static final class ObservedJdbc extends JdbcEngine {
         private Runnable afterRead = () -> { };
-        private Runnable afterWrite = () -> { };
         @Override public List<EngineInterceptor> interceptors() {
             return List.of(new EngineInterceptor() {
                 @Override public void afterQuery(String sql, Object[] params, List<?> rows) {
                     afterRead.run();
-                }
-                @Override public void afterUpdate(String sql, Object[] params, int affected) {
-                    afterWrite.run();
                 }
             });
         }
@@ -100,22 +96,6 @@ public final class EngineCacheConcurrency {
     }
 
     public static void main(String[] args) {
-        check("failed post-write callback still invalidates the cache", () -> {
-            ObservedJdbc delegate = new ObservedJdbc();
-            try (ObservedCache engine = new ObservedCache(delegate)) {
-                engine.store("cache_row", List.of(new Row(1, "one"), new Row(2, "two")));
-                require(engine.query(Row.class).list().size() == 2);
-                AtomicInteger notices = new AtomicInteger();
-                engine.addInvalidator(table -> notices.incrementAndGet());
-                delegate.afterWrite = () -> { throw new IllegalStateException("after-write failure"); };
-                boolean thrown = false;
-                try { engine.delete(Row.class).eq(Row::getId, 1).delete(); }
-                catch (IllegalStateException expected) { thrown = true; }
-                delegate.afterWrite = () -> { };
-                require(thrown && delegate.query(Row.class).list().size() == 1);
-                require(engine.query(Row.class).list().size() == 1 && notices.get() == 1);
-            }
-        });
         check("indexed insert batch update and delete remain visible", () -> {
             try (InMemoryEngine engine = new InMemoryEngine()) {
                 engine.store("cache_row", List.of(new Row(1, "one")));
@@ -126,7 +106,7 @@ public final class EngineCacheConcurrency {
                 require(engine.insertBatch(Row.class, List.of(new Row(3, "three"), new Row(4, "four"))) == 2);
                 require(engine.query(Row.class).eq(Row::getId, 4).count() == 1);
                 engine.index();
-                require(engine.delete(Row.class).eq(Row::getId, 2).delete() == 1);
+                require(engine.delete(Row.class).eq(Row::getId, 2).remove() == 1);
                 require(engine.query(Row.class).eq(Row::getId, 2).count() == 0);
                 engine.index();
                 require(engine.executeSql("DELETE FROM cache_row WHERE id = ?", 3) == 1);

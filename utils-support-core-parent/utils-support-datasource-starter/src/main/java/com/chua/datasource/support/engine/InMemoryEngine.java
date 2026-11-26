@@ -22,9 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -44,6 +47,30 @@ import java.util.regex.Pattern;
      * 读取端校验索引所属行集合的身份，未命中时自动回退全表扫描。
  * 但单表内部的复合操作（如「先查再改」）不构成原子单元，需要原子性时
  * 请由调用方自行加锁或在事务上下文中使用。</p>
+ *
+ * <h2>容量保护（默认关闭，逐层放行）</h2>
+ * <p>内存引擎是终端引擎：数据只存在于本进程堆内，「不缓存」等于「数据不存在」。
+ * 因此容量闸不做静默截断，只有两种口径——<b>拒绝</b>（默认）或<b>降级到回落引擎</b>（显式开启）。</p>
+ * <ol>
+ *   <li><b>总开关</b> {@value #GUARD_ENABLED_PROPERTY}（默认 {@code false}）：
+ *       关闭时不产生任何行为变化，{@link #store} / {@link #insert} / 原生 DML 全部保持原有语义。</li>
+ *   <li><b>实例开关</b> {@link #setGuardEnabled(boolean)}：运行期可开可关；
+ *       关闭只影响后续判定，已降级的表仍由回落引擎承载（需 {@link #reload(String)} 才回到内存）。</li>
+ *   <li><b>上限</b>：{@value #MAX_ROWS_PROPERTY}（单表，默认 {@value #DEFAULT_MAX_ROWS}）、
+ *       {@value #MAX_TOTAL_ROWS_PROPERTY}（合计，默认 {@value #DEFAULT_MAX_TOTAL_ROWS}）、
+ *       {@value #MAX_TABLES_PROPERTY}（表数，默认 {@value #DEFAULT_MAX_TABLES}）、
+ *       {@value #TTL_SECONDS_PROPERTY}（空闲回收秒数，默认 {@value #DEFAULT_TTL_SECONDS} 即不回收）。
+ *       {@code <=0} 表示该项不限制。合计与表数超限时<b>不逐出</b>：本引擎没有第二份数据来源，
+ *       逐出即丢数据，与单表超限一样走「拒绝 / 降级」；唯一的例外是配置了回落引擎的降级模式下
+ *       把最久未访问的表整体 spill 过去（见下一条）。</li>
+ *   <li><b>超限动作</b>：默认抛 {@link IllegalArgumentException}（含表名、预计行数、上限）；
+ *       {@value #BYPASS_ON_OVERFLOW_PROPERTY} 为 {@code true} 时把该表整体交接给
+ *       {@link #setFallbackEngine(Engine)} 绑定的回落引擎，此后该表的读写全部走回落引擎，
+ *       直到 {@link #reload(String)} 清除旁路标记。</li>
+ * </ol>
+ * <p>观测：{@link #stats()} 返回表数、合计行数、旁路表数与被拒 / 逐出 / 回收计数。</p>
+ * <p><b>降级前置条件</b>：{@value #BYPASS_ON_OVERFLOW_PROPERTY} 只在绑定了回落引擎时才有意义，
+ * 否则超限时抛 {@link IllegalStateException} 明确报告配置缺失，而不是静默丢数据。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -69,6 +96,97 @@ public class InMemoryEngine extends AbstractEngine {
     private record TableIndex(List<?> rows, Map<String, Map<Object, List<Object>>> fields) {
     }
 
+    /* ==================== 容量保护 ==================== */
+
+    /** 容量保护总开关，默认 {@code false}（关闭时零行为变化）。 */
+    public static final String GUARD_ENABLED_PROPERTY = "engine.memory.guard";
+
+    /** 单表行数上限。 */
+    public static final String MAX_ROWS_PROPERTY = "engine.memory.max-rows";
+
+    /** 全部表合计行数上限。 */
+    public static final String MAX_TOTAL_ROWS_PROPERTY = "engine.memory.max-total-rows";
+
+    /** 表数量上限。 */
+    public static final String MAX_TABLES_PROPERTY = "engine.memory.max-tables";
+
+    /** 空闲回收秒数，{@code <=0} 表示不回收。 */
+    public static final String TTL_SECONDS_PROPERTY = "engine.memory.ttl-seconds";
+
+    /** 超限时是否降级到回落引擎，默认 {@code false}（直接拒绝并抛异常）。 */
+    public static final String BYPASS_ON_OVERFLOW_PROPERTY = "engine.memory.bypass-on-overflow";
+
+    /** 单表行数默认上限。 */
+    public static final int DEFAULT_MAX_ROWS = 50000;
+
+    /** 合计行数默认上限。 */
+    public static final long DEFAULT_MAX_TOTAL_ROWS = 200000L;
+
+    /** 表数默认上限。 */
+    public static final int DEFAULT_MAX_TABLES = 64;
+
+    /** 空闲回收默认值：不回收。 */
+    public static final long DEFAULT_TTL_SECONDS = 0L;
+
+    /** 容量保护总开关的当前值。 */
+    private volatile boolean guardEnabled = booleanProperty(GUARD_ENABLED_PROPERTY, false);
+
+    /** 单表行数上限，{@code <=0} 表示不限制。 */
+    private volatile int maxRows = intProperty(MAX_ROWS_PROPERTY, DEFAULT_MAX_ROWS);
+
+    /** 合计行数上限，{@code <=0} 表示不限制。 */
+    private volatile long maxTotalRows = longProperty(MAX_TOTAL_ROWS_PROPERTY, DEFAULT_MAX_TOTAL_ROWS);
+
+    /** 表数上限，{@code <=0} 表示不限制。 */
+    private volatile int maxTables = intProperty(MAX_TABLES_PROPERTY, DEFAULT_MAX_TABLES);
+
+    /** 空闲回收秒数，{@code <=0} 表示不回收。 */
+    private volatile long ttlSeconds = longProperty(TTL_SECONDS_PROPERTY, DEFAULT_TTL_SECONDS);
+
+    /** 超限是否降级到回落引擎。 */
+    private volatile boolean bypassOnOverflow = booleanProperty(BYPASS_ON_OVERFLOW_PROPERTY, false);
+
+    /** 降级承载方，未绑定时超限只能拒绝。 */
+    private volatile Engine fallbackEngine;
+
+    /** 保护 LRU 顺序、旁路集合与计数；与 {@link #indexMutationLock} 分离，读路径也能记账。 */
+    private final Object guardLock = new Object();
+
+    /** 表名 → 最近访问时刻（毫秒）；{@code accessOrder} 使迭代顺序即 LRU 顺序。 */
+    private final Map<String, Long> lastAccess = new LinkedHashMap<>(16, 0.75f, true);
+
+    /** 已交接给回落引擎的表名。 */
+    private final Set<String> bypassedTables = new HashSet<>();
+
+    /** 被容量保护拒绝的写入次数。 */
+    private long rejectedWrites;
+
+    /** 因合计超限或空闲回收而逐出的表数。 */
+    private long evictedTables;
+
+    /** 空闲超时回收的表数。 */
+    private long expiredTables;
+
+    /** 转入旁路（交接回落引擎）的次数。 */
+    private long bypassTransitions;
+
+    /**
+     * 容量保护快照。
+     *
+     * @param enabled          总开关当前值
+     * @param tables           内存中表数
+     * @param totalRows        内存中合计行数
+     * @param bypassedTables   已旁路表数
+     * @param rejectedWrites   被拒绝的写入次数
+     * @param evictedTables    因合计超限逐出的表数
+     * @param expiredTables    因空闲超时回收的表数
+     * @param bypassTransitions 转入旁路的次数
+     */
+    public record GuardStats(boolean enabled, int tables, long totalRows, int bypassedTables,
+                             long rejectedWrites, long evictedTables, long expiredTables,
+                             long bypassTransitions) {
+    }
+
     /** 写入与重建共用边界，finally 同时覆盖部分写入后抛异常的路径。 */
     private <T> T mutate(String table, Supplier<T> action) {
         synchronized (indexMutationLock) {
@@ -86,9 +204,16 @@ public class InMemoryEngine extends AbstractEngine {
      *
      * <p>整体替换目标表数据后，旧索引指向的行集合作废，
      * 必须先摘除该表索引，避免 {@link #tryIndexLookup} 命中已失效的行引用。</p>
+     *
+     * <p>开启容量保护后，装载前先按整表替换口径判定容量：超限且未开启降级时
+     * 抛 {@link IllegalArgumentException}；开启降级时整表交接给回落引擎。</p>
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
+        long incoming = data == null ? 0L : data.size();
+        if (!admit(name, incoming, true)) {
+            return fallback().store(name, data);
+        }
         return mutate(name, () -> super.store(name, data));
     }
 
@@ -230,6 +355,10 @@ public class InMemoryEngine extends AbstractEngine {
         }
         Object[] args = params == null ? new Object[0] : params;
         String table = extractTable(sql);
+        if (isBypassed(table)) {
+            return fallback().querySql(sql, args);
+        }
+        touch(table);
         List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
         return interceptQuery(sql, args, () -> new MemorySqlParser().executeQuery(sql, rows, args));
     }
@@ -282,6 +411,10 @@ public class InMemoryEngine extends AbstractEngine {
         Object[] args = params == null ? new Object[0] : params;
         return interceptUpdate(sql, args, () -> {
             var plan = new MemorySqlParser().parseDml(sql);
+            long incoming = plan instanceof InsertPlan ins ? ins.rows().size() : 0L;
+            if (!admit(plan.table(), incoming, false)) {
+                return fallback().executeSql(sql, args);
+            }
             return mutate(plan.table(), () -> MemorySqlAst.executeDml(plan,
                     java.util.Arrays.asList(args),
                     () -> mutableRowsFor(plan.table())));
@@ -310,7 +443,12 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        return mutate(getTableName(sql.entityClass()), () -> super.executeUpdate(sql));
+        String table = getTableName(sql.entityClass());
+        if (isBypassed(table)) {
+            return fallback().executeUpdate(sql);
+        }
+        touch(table);
+        return mutate(table, () -> super.executeUpdate(sql));
     }
 
     /**
@@ -321,17 +459,31 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
-        return mutate(getTableName(sql.entityClass()), () -> super.executeDelete(sql));
+        String table = getTableName(sql.entityClass());
+        if (isBypassed(table)) {
+            return fallback().executeDelete(sql);
+        }
+        touch(table);
+        return mutate(table, () -> super.executeDelete(sql));
     }
 
     @Override
     public <T> int insert(Class<T> entityClass, T entity) {
-        return mutate(getTableName(entityClass), () -> super.insert(entityClass, entity));
+        String table = getTableName(entityClass);
+        if (!admit(table, 1L, false)) {
+            return fallback().insert(entityClass, entity);
+        }
+        return mutate(table, () -> super.insert(entityClass, entity));
     }
 
     @Override
     public <T> int insertBatch(Class<T> entityClass, List<T> entities) {
-        return mutate(getTableName(entityClass), () -> super.insertBatch(entityClass, entities));
+        String table = getTableName(entityClass);
+        long incoming = entities == null ? 0L : entities.size();
+        if (!admit(table, incoming, false)) {
+            return fallback().insertBatch(entityClass, entities);
+        }
+        return mutate(table, () -> super.insertBatch(entityClass, entities));
     }
 
     /**

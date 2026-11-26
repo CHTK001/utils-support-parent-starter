@@ -548,14 +548,14 @@ public interface Engine extends AutoCloseable {
      * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
      * 结果按 order 降序排列，无注册实现时返回空列表。</p>
      *
-     * <p>本方法在每条语句的 before/after/error 三个环节都会被调用，基类实现应覆盖为
-     * 首次加载后缓存，避免每次执行都重扫 SPI 注册表。</p>
+     * <p>每次操作取得当前注册集合；基类可按定义身份复用实例，不能永久缓存首次结果。
+     * 同一次操作的 before/after/error 共用取得的快照。</p>
      *
      * @return 拦截器列表（非 null）
      */
     default List<EngineInterceptor> interceptors() {
         List<EngineInterceptor> interceptors = ServiceProvider.of(EngineInterceptor.class)
-                .getNewExtensions(EngineInterceptor.SPI_NAME, this);
+                .getNewExtensions(null, this);
         return interceptors == null ? List.of() : interceptors;
     }
 
@@ -574,17 +574,18 @@ public interface Engine extends AutoCloseable {
      * @return {@code action} 的执行结果（非 null 由 action 保证）
      */
     default <T> List<T> interceptQuery(String ql, Object[] params, Supplier<List<T>> action) {
-        for (EngineInterceptor interceptor : interceptors()) {
+        List<EngineInterceptor> snapshot = interceptors();
+        for (EngineInterceptor interceptor : snapshot) {
             interceptor.beforeQuery(ql, params);
         }
         try {
             List<T> result = action.get();
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : snapshot) {
                 interceptor.afterQuery(ql, params, result);
             }
             return result;
         } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : snapshot) {
                 interceptor.onError(ql, params, re);
             }
             throw re;
@@ -605,17 +606,18 @@ public interface Engine extends AutoCloseable {
      * @return {@code action} 返回的受影响行数
      */
     default int interceptUpdate(String ql, Object[] params, Supplier<Integer> action) {
-        for (EngineInterceptor interceptor : interceptors()) {
+        List<EngineInterceptor> snapshot = interceptors();
+        for (EngineInterceptor interceptor : snapshot) {
             interceptor.beforeUpdate(ql, params);
         }
         try {
             int affected = action.get();
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : snapshot) {
                 interceptor.afterUpdate(ql, params, affected);
             }
             return affected;
         } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptors()) {
+            for (EngineInterceptor interceptor : snapshot) {
                 interceptor.onError(ql, params, re);
             }
             throw re;
