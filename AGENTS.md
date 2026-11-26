@@ -30,6 +30,13 @@
 - 结论用 `AiImageVerdict` 枚举而不是中文文案；`NO_AI_SIGNAL` 语义是「没发现痕迹」，**不等于「人工创作」**，上层不得渲染成「人工」。
 - 启发式实现 `aiProbability` 恒 `null`（不产出校准概率）；需要概率走模型实现。
 
+## 动态 SPI 生命周期（2026-11-26）
+
+- OSGi 注册对象由框架持有；SPI 查询、代理调用、枚举与优先级入口必须读取当前注册视图，不得另建插件实例或永久缓存动态结果与 miss。
+- `@SpiDefault` 默认选择与 `getPriority()` 排序是两个契约。框架托管的默认对象不得进入静态默认缓存或保活缓存；尤其要回归「扩展名未命中 → 默认插件 → 卸载」这条回退路径。
+- 宿主桥与 resolver 统一复用 `ServiceDefinitionUtils.buildDefinitionAlias(...)`，保留 `SpiOrder`、`Spi.order`、`SpiDefault` 等元数据；上层不得再手工拼一套注解解析规则。
+- 真实 Felix 的普通 bundle 事件异步投递。生命周期验收须在有界时间内等待服务可见/消失，再断言实例身份与业务结果；仅等 `Bundle.start()` 返回不足以证明发布链已完成。
+
 ## 交付闸门
 不反向依赖 `spring-*`；无重复实现；`mvn -o -q compile -DskipTests` EXIT=0；编码 `BOM=0 / U+FFFD=0`。任一项不满足不得声称完成。
 

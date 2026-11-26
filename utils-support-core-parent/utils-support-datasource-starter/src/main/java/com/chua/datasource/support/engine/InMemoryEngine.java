@@ -305,8 +305,10 @@ public class InMemoryEngine extends AbstractEngine {
 
     /**
      * 回收空闲超时的表：有回落引擎则先 spill 再摘除，否则直接丢弃并记账。
+     *
+     * @param keep 本次要写入的表名，不参与回收（否则写入目标会先被回收再被重建为空表）
      */
-    private void purgeExpiredLocked() {
+    private void purgeExpiredLocked(String keep) {
         long ttl = ttlSeconds;
         if (ttl <= 0 || lastAccess.isEmpty()) {
             return;
@@ -319,8 +321,11 @@ public class InMemoryEngine extends AbstractEngine {
             if (accessAt == null || accessAt > deadline) {
                 continue;
             }
-            it.remove();
             String table = entry.getKey();
+            if (Objects.equals(table, keep)) {
+                continue;
+            }
+            it.remove();
             if (!dataStores.containsKey(table)) {
                 continue;
             }
