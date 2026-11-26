@@ -1,5 +1,6 @@
-package com.chua.common.support.network.sip;
+package com.chua.zstd.support.sip;
 
+import com.chua.common.support.network.sip.SipStreamCompressor;
 import com.chua.common.support.spi.annotations.Spi;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;

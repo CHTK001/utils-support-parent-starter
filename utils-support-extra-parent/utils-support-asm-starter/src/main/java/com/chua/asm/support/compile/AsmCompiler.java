@@ -1,6 +1,7 @@
-package com.chua.common.support.lang.compile;
+package com.chua.asm.support.compile;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.compile.Compiler;
 import com.chua.common.support.spi.annotations.Spi;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;

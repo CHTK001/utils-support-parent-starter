@@ -1,4 +1,4 @@
-package com.chua.common.support.proxy.javassist;
+package com.chua.asm.support.proxy.javassist;
 
 import com.chua.common.support.proxy.ProxyFactory;
 import com.chua.common.support.proxy.intercept.MethodIntercept;

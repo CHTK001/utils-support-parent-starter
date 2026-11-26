@@ -1,4 +1,4 @@
-package com.chua.common.support.proxy.asm;
+package com.chua.asm.support.proxy.asm;
 
 import com.chua.common.support.proxy.ProxyFactory;
 import com.chua.common.support.proxy.intercept.MethodIntercept;

@@ -2,7 +2,7 @@
 
 > utils 体系的**字节码实现模块**：为 `utils-support-common-starter` 定义的三份契约 —— `BeanCopier`（Bean 属性拷贝）、`Compiler`（Java 源码动态编译）、`ProxyFactory`（动态代理）—— 提供基于 **ASM** 与 **Javassist** 的高性能实现，SPI 名称 `asm` / `javassist`，引入依赖即被 `ServiceProvider` 发现，无需任何配置。
 >
-> 版本：`4.0.0.51`｜JDK：`25`（`maven.compiler.source/target=25`）｜包名：`com.chua.common.support`（子包 `bean`、`lang.compile`、`proxy.asm`、`proxy.javassist`）
+> 版本：`4.0.0.51`｜JDK：`25`（`maven.compiler.source/target=25`）｜包名：`com.chua.asm.support`（子包 `bean`、`compile`、`proxy.asm`、`proxy.javassist`）
 
 ---
 
@@ -51,10 +51,10 @@
 
 | 类 | SPI 名称 | 实现契约 | 说明 |
 | --- | --- | --- | --- |
-| `com.chua.common.support.bean.AsmBeanCopier` | `asm` | `BeanCopier` | 按 (源类, 目标类) 生成字节码拷贝类并缓存复用，直接调 getter/setter |
-| `com.chua.common.support.lang.compile.AsmCompiler` | `asm` | `Compiler` | JDK 编译器 API 内存编译 + ASM 二次处理补全 stack map 帧 |
-| `com.chua.common.support.proxy.asm.AsmProxyFactory` | `asm` | `ProxyFactory` | 目标是接口 → 退回 JDK 动态代理；目标是类 → 生成 `$AsmProxy` 字节码子类 |
-| `com.chua.common.support.proxy.javassist.JavassistProxyFactory` | `javassist` | `ProxyFactory` | Javassist 生成目标类子类，挂 `MethodHandler` |
+| `com.chua.asm.support.bean.AsmBeanCopier` | `asm` | `BeanCopier` | 按 (源类, 目标类) 生成字节码拷贝类并缓存复用，直接调 getter/setter |
+| `com.chua.asm.support.compile.AsmCompiler` | `asm` | `Compiler` | JDK 编译器 API 内存编译 + ASM 二次处理补全 stack map 帧 |
+| `com.chua.asm.support.proxy.asm.AsmProxyFactory` | `asm` | `ProxyFactory` | 目标是接口 → 退回 JDK 动态代理；目标是类 → 生成 `$AsmProxy` 字节码子类 |
+| `com.chua.asm.support.proxy.javassist.JavassistProxyFactory` | `javassist` | `ProxyFactory` | Javassist 生成目标类子类，挂 `MethodHandler` |
 
 常见能力速查：
 
@@ -115,8 +115,8 @@ Object hello = clazz.getDeclaredConstructor().newInstance();
 
 ```java
 import com.chua.common.support.proxy.ProxyFactory;
-import com.chua.common.support.proxy.asm.AsmProxyFactory;
-import com.chua.common.support.proxy.javassist.JavassistProxyFactory;
+import com.chua.asm.support.proxy.asm.AsmProxyFactory;
+import com.chua.asm.support.proxy.javassist.JavassistProxyFactory;
 import com.chua.common.support.proxy.intercept.MethodIntercept;
 import java.lang.reflect.Method;
 
@@ -168,8 +168,8 @@ UserService p2 = javassist.createProxy(UserService.class, new Class<?>[0],
 
 | 注册文件（接口全限定名） | 内容 |
 | --- | --- |
-| `com.chua.common.support.lang.compile.Compiler` | `asm=com.chua.common.support.lang.compile.AsmCompiler` |
-| `com.chua.common.support.lang.bean.BeanCopier` | `asm=com.chua.common.support.bean.AsmBeanCopier` |
+| `com.chua.common.support.lang.compile.Compiler` | `asm=com.chua.asm.support.compile.AsmCompiler` |
+| `com.chua.common.support.lang.bean.BeanCopier` | `asm=com.chua.asm.support.bean.AsmBeanCopier` |
 
 两个代理工厂通过类上的 `@Spi("asm")` / `@Spi("javassist")` 注解声明名称；本模块**没有**为 `ProxyFactory` 提供 `META-INF/extensions` 注册文件。
 

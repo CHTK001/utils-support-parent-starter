@@ -1,1 +1,1 @@
-asm=com.chua.common.support.lang.compile.AsmCompiler
+asm=com.chua.asm.support.compile.AsmCompiler

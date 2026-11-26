@@ -2,7 +2,7 @@
 
 > utils 体系的 **zstd 压缩扩展模块**：为 SIP 数据面的流式压缩 SPI（`SipStreamCompressor`）提供基于 zstd-jni 的原生 zstd 实现，作为默认 GZIP 压缩器之外的替换选项。
 >
-> 版本：`4.0.0.51`｜JDK：`25`（`maven.compiler.release=25`，含 `--enable-preview`）｜包名：`com.chua.common.support.network.sip`
+> 版本：`4.0.0.51`｜JDK：`25`（`maven.compiler.release=25`，含 `--enable-preview`）｜包名：`com.chua.zstd.support.sip`
 
 ---
 
@@ -41,7 +41,7 @@
 
 ### 1.3 规模
 
-- Java 源文件 **1** 个：`com.chua.common.support.network.sip.ZstdSipStreamCompressor`（`@since 4.0.0.43`，作者 `CH`）。
+- Java 源文件 **1** 个：`com.chua.zstd.support.sip.ZstdSipStreamCompressor`（`@since 4.0.0.43`，作者 `CH`）。
 - 无 `src/main/resources`（因此也没有 `META-INF/extensions` 登记文件），无测试源码。
 
 ---

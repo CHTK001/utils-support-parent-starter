@@ -1,6 +1,6 @@
 [
 {
-  "name": "com.chua.common.support.lang.compile.AsmCompiler",
+  "name": "com.chua.asm.support.compile.AsmCompiler",
   "allDeclaredConstructors": true,
   "allPublicConstructors": true,
   "allDeclaredMethods": true,

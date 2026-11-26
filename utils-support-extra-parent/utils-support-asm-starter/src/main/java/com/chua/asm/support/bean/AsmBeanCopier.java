@@ -1,4 +1,4 @@
-package com.chua.common.support.bean;
+package com.chua.asm.support.bean;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.bean.BeanCopier;
