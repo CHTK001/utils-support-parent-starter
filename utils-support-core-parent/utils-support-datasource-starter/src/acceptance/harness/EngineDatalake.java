@@ -1,7 +1,7 @@
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
-import com.chua.datalake.support.engine.HttpDatalakeQueryEngine;
+import com.chua.datalake.support.query.HttpDatalakeQueryEngine;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 

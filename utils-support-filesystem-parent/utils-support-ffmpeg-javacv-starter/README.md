@@ -2,7 +2,7 @@
 
 > utils 体系的**多媒体处理实现模块**：基于 JavaCV/FFmpeg 提供视频转码、截帧、缩略图、剪辑拼接、GIF、推拉流、媒体信息读取，以及 NVIDIA 硬编解码（NVENC/NVDEC）与 gdigrab 屏幕采集，全部以 SPI 实现的形式挂入 utils 体系。
 >
-> 版本：`4.0.0.51`｜JDK：`25`｜包名：`com.chua.ffmpeg.support.processor`、`com.chua.ffmpeg.support.codec`、`com.chua.common.support.media.capture`
+> 版本：`4.0.0.51`｜JDK：`25`｜包名：`com.chua.ffmpeg.support.processor.javacv`、`com.chua.ffmpeg.support.codec`、`com.chua.common.support.media.capture`
 
 ---
 
@@ -44,7 +44,7 @@
 
 | 类 | 包 | 职责 |
 | --- | --- | --- |
-| `JavaCVFFmpegProcessor` | `com.chua.ffmpeg.support.processor` | `FFmpegProcessor` 的 JavaCV 实现，SPI 名 `javacv`，order 50 |
+| `JavaCVFFmpegProcessor` | `com.chua.ffmpeg.support.processor.javacv` | `FFmpegProcessor` 的 JavaCV 实现，SPI 名 `javacv`，order 50 |
 | `H264NvencVideoEncoder` | `com.chua.ffmpeg.support.codec` | 基于 ffmpeg `h264_nvenc` 的 H.264 硬件编码器，SPI 名 `h264_nvenc` / `nvenc`，order 100 |
 | `H264NvencVideoDecoder` | `com.chua.ffmpeg.support.codec` | 基于 ffmpeg `h264_cuvid` 的 H.264 硬件解码器，SPI 名 `h264_cuvid` / `nvdec`，order 100 |
 | `NvCodecProbe` | `com.chua.ffmpeg.support.codec` | NV 编解码可用性探针（模块内私有工具类） |
@@ -164,7 +164,7 @@ ffmpeg.captureFrame(new File("output.mp4"), new File("cover.jpg"), 1.0);
 double seconds = ffmpeg.getDuration(new File("output.mp4"));
 ```
 
-也可以直接实例化：`FFmpegProcessor ffmpeg = new JavaCVFFmpegProcessor();`（`com.chua.ffmpeg.support.processor.JavaCVFFmpegProcessor`）。
+也可以直接实例化：`FFmpegProcessor ffmpeg = new JavaCVFFmpegProcessor();`（`com.chua.ffmpeg.support.processor.javacv.JavaCVFFmpegProcessor`）。
 
 带参数的转码示例：
 
@@ -192,7 +192,7 @@ ffmpeg.convertVideo(new File("input.avi"), new File("output.mp4"), "mp4", option
 
 | SPI 接口 | 注册名 | 实现类 | order |
 | --- | --- | --- | --- |
-| `com.chua.common.support.media.ffmpeg.FFmpegProcessor` | `javacv` | `com.chua.ffmpeg.support.processor.JavaCVFFmpegProcessor` | 50 |
+| `com.chua.common.support.media.ffmpeg.FFmpegProcessor` | `javacv` | `com.chua.ffmpeg.support.processor.javacv.JavaCVFFmpegProcessor` | 50 |
 | `com.chua.common.support.media.codec.ScreenCature` | （无名注册） | `com.chua.common.support.media.capture.JavaCVScreenCapture` | — |
 | `com.chua.common.support.codec.video.VideoEncoder` | `h264_nvenc` | `com.chua.ffmpeg.support.codec.H264NvencVideoEncoder` | 100 |
 | `com.chua.common.support.codec.video.VideoDecoder` | `h264_cuvid` | `com.chua.ffmpeg.support.codec.H264NvencVideoDecoder` | 100 |
@@ -201,7 +201,7 @@ ffmpeg.convertVideo(new File("input.avi"), new File("output.mp4"), "mp4", option
 
 ```text
 # META-INF/extensions/com.chua.common.support.media.ffmpeg.FFmpegProcessor
-javacv=com.chua.ffmpeg.support.processor.JavaCVFFmpegProcessor
+javacv=com.chua.ffmpeg.support.processor.javacv.JavaCVFFmpegProcessor
 
 # META-INF/extensions/com.chua.common.support.media.codec.ScreenCature
 com.chua.common.support.media.capture.JavaCVScreenCapture

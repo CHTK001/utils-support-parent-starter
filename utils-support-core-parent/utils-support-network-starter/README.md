@@ -49,7 +49,7 @@ pom 描述原文：《网络通信模块：Vert.x HTTP/WebSocket、Socket、Serv
 | 起响应式 HTTP 服务 | `ServerBuilder.create().type("vertx-http")` → `VertxHttpServer` | SPI 名 `vertx-http` / `http`；同步阻塞 + 响应式（`supportsReactor()=true`）双模式；虚拟线程执行过滤器链；支持 SSE（`sse()`/`sseEvent`/`sseClose`）、h2c 明文多路复用、gzip、CORS、SSL（JKS/PEM/自签名）、WebSocket 升级分发（`onSubscribe(topic, handler)`） |
 | 起 WebSocket 服务 | `VertxWebSocketServer`（SPI `vertx-websocket`） | 按「topic\nbody」约定路由；`onSubscribe(topic, handler)` 订阅、`publish(topic, payload)` 广播；`@OnOpen` / `@OnMessage`（`value()` 即 topic）/ `@OnClose` 注解驱动；未接 TLS |
 | TCP 服务 | `VertxTcpServer`（SPI `vertx-tcp`） | 与 `JdkTcpServer` 能力对齐：默认回显、`registerHandler(String, JdkTcpServer.TcpHandler)`、`setHandler(TcpServerHandler)`；keep-alive；`ServerSetting#isEncrypt()` + `encryptKey` 时经 `StreamCodec` 传输加密，帧格式不变 |
-| TCP 短连接调用 | `VertxTcpClient`（`com.chua.common.support.network.tcp`） | `call(host, port, byte[])` 一请求一响应一断；帧协议「4 字节大端长度头 + 主体」（上限 64MB）；`encrypt(type, key)` 开启加密（`aes-gcm` / `keylog`，与 `JdkTcpClient` 同口径） |
+| TCP 短连接调用 | `VertxTcpClient`（`com.chua.vertx.support.client`） | `call(host, port, byte[])` 一请求一响应一断；帧协议「4 字节大端长度头 + 主体」（上限 64MB）；`encrypt(type, key)` 开启加密（`aes-gcm` / `keylog`，与 `JdkTcpClient` 同口径） |
 | HTTP / TCP 反向代理 | `VertxHttpProxyServer`（`vertx-http-proxy`）、`VertxTcpProxyServer`（`vertx-tcp-proxy`） | 全链路事件循环异步，双向 `pipeTo` 转发（TCP）；后端地址由 common 包 `ProxyTargetResolver<InetSocketAddress>` 解析（构造可注入静态 backend 或解析器实例，无 SPI 加载） |
 | 过滤器式代理 | `HttpReverseProxyServerFilter` / `TcpProxyServerFilter` / `UdpProxyServerFilter` / `VertxWebSocketProxyServerFilter` / `ReverseProxyServerFilter` | 以 `ServerFilter` 挂到任意服务端；HTTP（Vert.x HttpClient / JDK HttpClient 两种）、TCP、UDP、WebSocket 双向帧转发；静态路由 `staticRoutes(Map)` 或动态解析器；`ReverseProxyServer` 提供可读门面（`route`/`scatterId`/`balance`/`excludeServerId`） |
 | 无中心化集群 | `ClusterServer`（`com.chua.common.support.network.cluster`） | 一行启动节点：seeds 引导加入 Scatter 对等网格，自动注册自身与显式远端服务，HTTP/TCP 双入口代理，按 `scatterId` 分组路由、负载均衡（weight/round/random）、故障退避 |
@@ -116,7 +116,7 @@ wsServer.stop();
 ### 3.4 TCP 短连接调用（VertxTcpClient）
 
 ```java
-import com.chua.common.support.network.tcp.VertxTcpClient;
+import com.chua.vertx.support.client.VertxTcpClient;
 
 try (VertxTcpClient client = new VertxTcpClient()) {
     byte[] resp = client.call("127.0.0.1", 9000, "ping".getBytes());

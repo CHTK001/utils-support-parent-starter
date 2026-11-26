@@ -44,7 +44,7 @@
 
 ### 1.3 规模
 
-- Java 源文件 **3** 个：`client.DatalakeHttpClient`、`client.DefaultDatalakeHttpClient`、`engine.HttpDatalakeQueryEngine`。
+- Java 源文件 **3** 个：`client.DatalakeHttpClient`、`client.DefaultDatalakeHttpClient`、`query.HttpDatalakeQueryEngine`。
 - `src/main/resources` 仅有 GraalVM native-image 的 `reflect-config.json`（3 个类的反射注册）；**没有** `META-INF/extensions` SPI 注册文件，也没有任何配置文件。
 - 3 个顶层类均为 `@since 4.0.0.42`，作者 CH。
 
@@ -98,7 +98,7 @@ List<Map<String, Object>> parsed = DefaultDatalakeHttpClient.parseRows(body);
 
 ### 2.3 HttpDatalakeQueryEngine —— 只读 Engine 适配
 
-`com.chua.datalake.support.engine.HttpDatalakeQueryEngine` 实现 common 层 `com.chua.common.support.lang.datasource.engine.Engine`，内部持有一个 `DefaultDatalakeHttpClient`：
+`com.chua.datalake.support.query.HttpDatalakeQueryEngine` 实现 common 层 `com.chua.common.support.lang.datasource.engine.Engine`，内部持有一个 `DefaultDatalakeHttpClient`：
 
 ```java
 HttpDatalakeQueryEngine engine = new HttpDatalakeQueryEngine("http://localhost:8700");
@@ -161,7 +161,7 @@ engine.isClosed();   // true
 
 ```java
 import com.chua.datalake.support.client.DefaultDatalakeHttpClient;
-import com.chua.datalake.support.engine.HttpDatalakeQueryEngine;
+import com.chua.datalake.support.query.HttpDatalakeQueryEngine;
 
 import java.util.List;
 import java.util.Map;

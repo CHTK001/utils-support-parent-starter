@@ -58,7 +58,7 @@ public final class EngineRemaining {
         // 127.0.0.1:1 是保留的不可达端口：构造只装配 HTTP 客户端，不建立连接。
         Engine e;
         try {
-            e = new com.chua.datalake.support.engine.HttpDatalakeQueryEngine("http://127.0.0.1:1/datalake");
+            e = new com.chua.datalake.support.query.HttpDatalakeQueryEngine("http://127.0.0.1:1/datalake");
         } catch (Throwable t) {
             EngineFunctional.recordFail(p + "构造异常: " + EngineFunctional.chain(t));
             return;
