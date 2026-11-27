@@ -708,6 +708,61 @@ public class ArrayUtils {
         return null == array || array.length == 0;
     }
 
+    /**
+     * 是否为 Empty。
+     *
+     *
+     * @param array array
+     * @return true
+     */
+    public static boolean isEmpty(@Nullable final long[] array) {
+        return null == array || array.length == 0;
+    }
+
+    /**
+     * 是否为 Empty。
+     *
+     *
+     * @param array array
+     * @return true
+     */
+    public static boolean isEmpty(@Nullable final short[] array) {
+        return null == array || array.length == 0;
+    }
+
+    /**
+     * 是否为 Empty。
+     *
+     *
+     * @param array array
+     * @return true
+     */
+    public static boolean isEmpty(@Nullable final char[] array) {
+        return null == array || array.length == 0;
+    }
+
+    /**
+     * 是否为 Empty。
+     *
+     *
+     * @param array array
+     * @return true
+     */
+    public static boolean isEmpty(@Nullable final boolean[] array) {
+        return null == array || array.length == 0;
+    }
+
+    /**
+     * 是否为 Empty。
+     *
+     *
+     * @param array array
+     * @return true
+     */
+    public static boolean isEmpty(@Nullable final double[] array) {
+        return null == array || array.length == 0;
+    }
+
     // ----------------------------------------------------------------------
 
     /**
@@ -733,6 +788,76 @@ public class ArrayUtils {
      * @since 2.5
      */
     public static <T> boolean isNotEmpty(@Nullable final byte[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final int[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final long[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final short[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final char[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final boolean[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final float[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * 是否为 NotEmpty。
+     *
+     * @param array array
+     * @return {@code true}                                {@code null}
+     */
+    public static boolean isNotEmpty(@Nullable final double[] array) {
         return !isEmpty(array);
     }
 
