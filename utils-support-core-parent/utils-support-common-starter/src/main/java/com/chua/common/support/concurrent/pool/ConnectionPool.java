@@ -280,7 +280,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
                         && !closedHandles.containsKey(target)) {
                     try {
                         ((AutoCloseable) target).close();
-                    } catch (Exception e) {
+                    } catch (Exception | LinkageError e) {
                         invalid = true;
                         log.debug("[pool] JDBC 子句柄清理失败，销毁物理连接: {}", e.getMessage());
                     }
@@ -504,8 +504,12 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         private void restore(SqlGetter<T> getter, SqlSetter<T> setter) throws SQLException {
-            if (supported && !Objects.equals(value, getter.get())) {
-                setter.set(value);
+            try {
+                if (supported && !Objects.equals(value, getter.get())) {
+                    setter.set(value);
+                }
+            } catch (AbstractMethodError e) {
+                throw new SQLFeatureNotSupportedException("驱动无法恢复 JDBC 会话属性", e);
             }
         }
     }
