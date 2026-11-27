@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.CollectionUtils;
 
@@ -157,6 +158,9 @@ final class CodeDocAnalyzer {
         Exception failure = null;
         for (int attempt = 0; attempt <= options.retries(); attempt++) {
             checkInterrupted();
+            if (attempt > 0) {
+                backoff(attempt);
+            }
             try {
                 modelCalls.incrementAndGet();
                 String response = options.chatClient().chatSync(prompt);
@@ -168,6 +172,25 @@ final class CodeDocAnalyzer {
             }
         }
         throw new IOException("模型调用失败或未返回合法文档结构: " + path, failure);
+    }
+
+    /**
+     * 重试前退避：0 表示不等待（历史行为），大于 0 时按基数指数递增并附加不超过 25% 的抖动，
+     * 让上游限流窗口有时间恢复，同时避免多个并发任务在同一时刻重打。
+     */
+    private void backoff(int attempt) throws IOException {
+        int base = options.retryBackoffMillis();
+        if (base <= 0) {
+            return;
+        }
+        long delay = (long) base << Math.min(attempt - 1, 10);
+        delay += ThreadLocalRandom.current().nextLong(Math.max(1, delay / 4));
+        try {
+            Thread.sleep(Math.min(delay, 120_000L));
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IOException("文档生成已中断", exception);
+        }
     }
 
     static Fragment parse(String response, Chunk chunk) throws IOException {

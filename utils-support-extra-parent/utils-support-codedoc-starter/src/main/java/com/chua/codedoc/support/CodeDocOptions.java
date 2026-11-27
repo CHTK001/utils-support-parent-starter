@@ -20,7 +20,7 @@ record CodeDocOptions(ChatClient chatClient, Path directory, Path outputDirector
                       String title, String prompt, String instructions, String cacheNamespace,
                       boolean incremental, boolean failFast, int maxDepth,
                       int maxFiles, long maxFileBytes, int chunkChars, int retries, int concurrency,
-                      Consumer<CodeDocs.Progress> progress) {
+                      int retryBackoffMillis, int groupDepth, Consumer<CodeDocs.Progress> progress) {
     CodeDocOptions {
         includeTypes = Set.copyOf(includeTypes);
         excludeTypes = Set.copyOf(excludeTypes);
@@ -28,6 +28,12 @@ record CodeDocOptions(ChatClient chatClient, Path directory, Path outputDirector
         excludes = List.copyOf(excludes);
         if (concurrency < 1) {
             throw new IllegalArgumentException("concurrency 必须 > 0");
+        }
+        if (retryBackoffMillis < 0) {
+            throw new IllegalArgumentException("retryBackoffMillis 必须 >= 0");
+        }
+        if (groupDepth < 0) {
+            throw new IllegalArgumentException("groupDepth 必须 >= 0");
         }
     }
 }

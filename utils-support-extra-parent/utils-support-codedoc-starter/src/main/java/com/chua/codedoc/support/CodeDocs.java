@@ -11,9 +11,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -100,6 +102,8 @@ public final class CodeDocs {
         private int chunkChars = 16_000;
         private int retries = 1;
         private int concurrency = 1;
+        private int retryBackoffMillis;
+        private int groupDepth;
         private Consumer<Progress> progress = event -> { };
 
         private Builder(ChatClient chatClient) {
@@ -251,6 +255,40 @@ public final class CodeDocs {
             return this;
         }
 
+        /**
+         * 每次失败重试前的等待基数，0 表示不等待（默认），范围 0..60000 毫秒。
+         * 实际等待按 {@code 基数 * 2^(已重试次数-1)} 递增并附加不超过 25% 的抖动，
+         * 用于让上游限流（429）在退避后自然恢复，而不是立刻重打。
+         *
+         * @param value 退避基数毫秒
+         * @return 当前构建器
+         */
+        public Builder retryBackoffMillis(int value) {
+            if (value < 0 || value > 60_000) {
+                throw new IllegalArgumentException("retryBackoffMillis 必须在 0..60000 之间");
+            }
+            retryBackoffMillis = value;
+            return this;
+        }
+
+        /**
+         * 分组调度深度：0 表示按文件调度（默认），1..16 表示按相对路径前 N 段目录分组。
+         * 开启后先写出站点骨架与菜单，再由每个目录一个虚拟线程独立生成本组文件，
+         * 每完成一组就用已生成的页面刷新菜单，使站点在生成过程中即可浏览。
+         * 该配置只在 {@link #concurrency(int)} 大于 1 时生效。
+         * 深度越大组越多、单组越小：源码树层级较深时应取 10~14，避免出现上千文件的大组拖长尾。
+         *
+         * @param value 目录分段数
+         * @return 当前构建器
+         */
+        public Builder groupDepth(int value) {
+            if (value < 0 || value > 16) {
+                throw new IllegalArgumentException("groupDepth 必须在 0..16 之间");
+            }
+            groupDepth = value;
+            return this;
+        }
+
         /** @param value 同步进度回调；回调抛出异常会中止任务 @return 当前构建器 */
         public Builder onProgress(Consumer<Progress> value) {
             progress = Objects.requireNonNull(value, "progress");
@@ -280,7 +318,7 @@ public final class CodeDocs {
             }
             return new CodeDocOptions(chatClient, root, output, includeTypes, excludeTypes, includes, excludes,
                     charset, title, prompt, instructions, cacheNamespace, incremental, failFast, maxDepth, maxFiles,
-                    maxFileBytes, chunkChars, retries, concurrency, progress);
+                    maxFileBytes, chunkChars, retries, concurrency, retryBackoffMillis, groupDepth, progress);
         }
 
         private static Set<String> types(String[] values) {
@@ -333,9 +371,15 @@ public final class CodeDocs {
         List<CodeDocResult.Issue> issues = new ArrayList<>();
         List<Path> files = SourceScanner.scan(options, issues);
         CodeDocAnalyzer analyzer = new CodeDocAnalyzer(options);
-        List<FileResult> results = options.concurrency() > 1
-                ? analyzeConcurrently(files, options, analyzer)
-                : analyzeSequentially(files, options, analyzer);
+        boolean grouped = options.groupDepth() > 0 && options.concurrency() > 1;
+        List<FileResult> results;
+        if (grouped) {
+            results = analyzeByGroups(files, options, analyzer, issues);
+        } else if (options.concurrency() > 1) {
+            results = analyzeConcurrently(files, options, analyzer);
+        } else {
+            results = analyzeSequentially(files, options, analyzer);
+        }
         List<CodeDocPage> pages = new ArrayList<>(results.size());
         int cached = 0;
         for (FileResult result : results) {
@@ -416,6 +460,107 @@ public final class CodeDocs {
             executor.shutdownNow();
         }
         return results;
+    }
+
+    /**
+     * 分组调度：先写出站点骨架与菜单，再让每个目录（模块）占用一个虚拟线程独立生成本组文件，
+     * 组内按扫描顺序逐个处理，每完成一组就用已完成的页面刷新站点菜单。
+     * 全局同时在飞的模型调用数仍受 concurrency 限制；进度与结果按扫描顺序发布。
+     */
+    private static List<FileResult> analyzeByGroups(List<Path> files, CodeDocOptions options,
+                                                     CodeDocAnalyzer analyzer, List<CodeDocResult.Issue> issues)
+            throws IOException {
+        int total = files.size();
+        FileResult[] slots = new FileResult[total];
+        List<FileResult> results = new ArrayList<>(total);
+        int[] next = {0};
+        Semaphore permits = new Semaphore(options.concurrency());
+        Map<String, List<Integer>> groups = groupIndexes(files, options);
+        refreshSite(options, slots, results, total, issues, analyzer.modelCalls());
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        List<Future<?>> futures = new ArrayList<>(groups.size());
+        try {
+            for (List<Integer> positions : groups.values()) {
+                futures.add(executor.submit(() -> {
+                    for (int position : positions) {
+                        try {
+                            permits.acquire();
+                        } catch (InterruptedException exception) {
+                            Thread.currentThread().interrupt();
+                            return null;
+                        }
+                        try {
+                            FileResult result = analyzeFile(files.get(position), options, analyzer);
+                            if (result.page() != null) {
+                                CodeDocSite.writePage(options, result.page());
+                            }
+                            synchronized (slots) {
+                                slots[position] = result;
+                                drain(slots, next, results, options);
+                            }
+                        } finally {
+                            permits.release();
+                        }
+                    }
+                    refreshSite(options, slots, results, total, issues, analyzer.modelCalls());
+                    return null;
+                }));
+            }
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("文档生成已中断", exception);
+                } catch (ExecutionException exception) {
+                    throw unwrap(exception);
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+        return results;
+    }
+
+    /** 按相对路径前 groupDepth 段目录归组，保持扫描顺序，根目录文件单独成组。 */
+    private static Map<String, List<Integer>> groupIndexes(List<Path> files, CodeDocOptions options) {
+        Map<String, List<Integer>> groups = new LinkedHashMap<>();
+        int depth = options.groupDepth();
+        for (int index = 0; index < files.size(); index++) {
+            String relative = SourceScanner.relative(options.directory(), files.get(index));
+            String[] segments = relative.split("/");
+            int keep = Math.max(0, Math.min(depth, segments.length - 1));
+            String group = keep == 0 ? "" : String.join("/", Arrays.copyOf(segments, keep));
+            groups.computeIfAbsent(group, key -> new ArrayList<>()).add(index);
+        }
+        return groups;
+    }
+
+    /** 用当前已完成的页面刷新站点数据与菜单；刷新失败不影响生成结果，最终写入会再次暴露问题。 */
+    private static void refreshSite(CodeDocOptions options, FileResult[] slots, List<FileResult> results,
+                                    int scanned, List<CodeDocResult.Issue> issues, int modelCalls) {
+        List<CodeDocPage> pages = new ArrayList<>();
+        List<CodeDocResult.Issue> current = new ArrayList<>(issues);
+        int cached = 0;
+        synchronized (slots) {
+            for (FileResult result : results) {
+                if (result.page() != null) {
+                    pages.add(result.page());
+                }
+                if (result.cached()) {
+                    cached++;
+                }
+                if (result.issue() != null) {
+                    current.add(result.issue());
+                }
+            }
+        }
+        try {
+            CodeDocSite.writeProgress(options, pages, new CodeDocResult(
+                    options.outputDirectory().resolve("index.html"), scanned, pages.size(), cached, modelCalls, current));
+        } catch (IOException ignored) {
+            // 进度刷新是尽力而为的展示行为
+        }
     }
 
     /** 调用方持有 slots 锁，按扫描顺序连续发布已完成的文件。 */

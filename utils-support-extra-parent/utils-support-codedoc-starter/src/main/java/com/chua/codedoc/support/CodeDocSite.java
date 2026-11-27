@@ -26,6 +26,18 @@ final class CodeDocSite {
 
     static void write(CodeDocOptions options, List<CodeDocPage> pages, CodeDocResult result) throws IOException {
         Path output = options.outputDirectory();
+        for (CodeDocPage page : pages) {
+            writePage(options, page);
+        }
+        writeProgress(options, pages, result);
+    }
+
+    /**
+     * 只刷新站点数据、榜单与静态资源，不重写各页 Markdown。
+     * 用于生成过程中的增量刷新：菜单随已完成的分组逐步长出来。
+     */
+    static void writeProgress(CodeDocOptions options, List<CodeDocPage> pages, CodeDocResult result) throws IOException {
+        Path output = options.outputDirectory();
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("title", options.title());
         data.put("generatedAt", Instant.now().toString());
@@ -35,9 +47,6 @@ final class CodeDocSite {
         data.put("modelCalls", result.modelCalls());
         data.put("issues", result.issues());
         data.put("pages", pages);
-        for (CodeDocPage page : pages) {
-            writeText(output.resolve("guides").resolve(page.id() + ".md"), markdown(page));
-        }
         // data.js 作为经典脚本加载，避免 file:// 环境下 fetch/module 的跨域限制。
         writeText(output.resolve("data.js"), "window.CODEDOC_DATA = " + safeJson(data) + ";\n");
         writeText(output.resolve("manifest.json"), Json.toPrettyJson(Map.of(
@@ -51,6 +60,11 @@ final class CodeDocSite {
                 writeText(output.resolve(resource), new String(input.readAllBytes(), StandardCharsets.UTF_8));
             }
         }
+    }
+
+    /** 单页 Markdown 落盘；生成过程中即时写出，站点刷新不必重复渲染全量页面。 */
+    static void writePage(CodeDocOptions options, CodeDocPage page) throws IOException {
+        writeText(options.outputDirectory().resolve("guides").resolve(page.id() + ".md"), markdown(page));
     }
 
     static String safeJson(Object value) {

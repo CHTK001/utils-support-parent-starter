@@ -1,11 +1,19 @@
 package com.chua.common.support.concurrent.pool;
 
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.reflection.ReflectUtils;
 
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -105,7 +113,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
      * @param builder builder
      */
     private ConnectionPool(Builder builder) {
-        super(builder.buildConfig(), new ConnectionFactory(builder));
+        super(builder.buildConfig(), new ManagedConnectionFactory(new ConnectionFactory(builder)));
         this.url = builder.url;
         this.username = builder.username;
         this.password = builder.password;
@@ -114,6 +122,83 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         this.initSqls = builder.initSqls;
         this.defaultAutoCommit = builder.defaultAutoCommit;
         this.defaultTransactionIsolation = builder.defaultTransactionIsolation;
+    }
+
+    /**
+     * 使用自定义 JDBC 连接工厂创建连接池。
+     *
+     * <p>自定义工厂可负责驱动加载、SSH 隧道或其他建连方式；本类统一管理连接会话重置，
+     * 并通过 {@link #borrowConnection()} 提供 close-to-return 租约语义。</p>
+     *
+     * @param config 池配置
+     * @param factory JDBC 连接工厂
+     */
+    public ConnectionPool(ObjectPoolConfig config, ObjectFactory<Connection> factory) {
+        super(config, new ManagedConnectionFactory(Objects.requireNonNull(factory, "factory")));
+        this.url = null;
+        this.username = null;
+        this.password = null;
+        this.driverProperties = new Properties();
+        this.validationQuery = null;
+        this.initSqls = null;
+        this.defaultAutoCommit = null;
+        this.defaultTransactionIsolation = null;
+    }
+
+    /**
+     * 借出一条独占连接租约；关闭租约时归还池，连接类 SQLState 会使物理连接失效。
+     *
+     * @return 独占连接代理
+     * @throws Exception 借出失败
+     */
+    public Connection borrowConnection() throws Exception {
+        Connection connection = borrow();
+        AtomicBoolean returned = new AtomicBoolean();
+        AtomicBoolean invalid = new AtomicBoolean();
+        return (Connection) Proxy.newProxyInstance(
+                ConnectionPool.class.getClassLoader(), new Class<?>[]{Connection.class}, (proxy, method, args) -> {
+                    if (method.getDeclaringClass() == Object.class) {
+                        return switch (method.getName()) {
+                            case "equals" -> proxy == args[0];
+                            case "hashCode" -> System.identityHashCode(proxy);
+                            case "toString" -> "PooledJdbcConnection[returned=" + returned.get() + "]";
+                            default -> ReflectUtils.invokeProxy(connection, method, args);
+                        };
+                    }
+                    if ("close".equals(method.getName())) {
+                        if (returned.compareAndSet(false, true)) {
+                            if (invalid.get()) {
+                                invalidateObject(connection);
+                            } else {
+                                returnObject(connection);
+                            }
+                        }
+                        return null;
+                    }
+                    if ("isClosed".equals(method.getName()) && returned.get()) {
+                        return true;
+                    }
+                    if ("isWrapperFor".equals(method.getName()) && args != null && args.length == 1
+                            && args[0] instanceof Class<?> type && type.isInstance(proxy)) {
+                        return true;
+                    }
+                    if ("unwrap".equals(method.getName()) && args != null && args.length == 1
+                            && args[0] instanceof Class<?> type && type.isInstance(proxy)) {
+                        return proxy;
+                    }
+                    if (returned.get()) {
+                        throw new SQLException("连接租约已关闭");
+                    }
+                    try {
+                        return ReflectUtils.invokeProxy(connection, method, args);
+                    } catch (SQLException e) {
+                        String state = e.getSQLState();
+                        if (state != null && state.startsWith("08")) {
+                            invalid.set(true);
+                        }
+                        throw e;
+                    }
+                });
     }
 
     /**
@@ -192,7 +277,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
             if (builder.initSqls != null) {
                 for (String sql : builder.initSqls) {
                     if (sql != null && !sql.isBlank()) {
-                        conn.createStatement().execute(sql);
+                        try (var statement = conn.createStatement()) {
+                            statement.execute(sql);
+                        }
                     }
                 }
             }
@@ -239,6 +326,91 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
             } catch (SQLException e) {
                 return false;
             }
+        }
+    }
+
+    /** 在所有连接池实现上统一应用 JDBC 会话隔离与归还前重置。 */
+    private static final class ManagedConnectionFactory implements ObjectFactory<Connection> {
+        private final ObjectFactory<Connection> delegate;
+        private final Map<Connection, ConnectionState> states =
+                Collections.synchronizedMap(new IdentityHashMap<>());
+
+        private ManagedConnectionFactory(ObjectFactory<Connection> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Connection create() throws Exception {
+            return delegate.create();
+        }
+
+        @Override
+        public void initObject(Connection connection) throws Exception {
+            delegate.initObject(connection);
+            states.put(connection, ConnectionState.capture(connection));
+        }
+
+        @Override
+        public void passivateObject(Connection connection) throws Exception {
+            ConnectionState state = states.get(connection);
+            if (state == null) {
+                throw new SQLException("JDBC 连接缺少会话基线");
+            }
+            state.restore(connection);
+            delegate.passivateObject(connection);
+        }
+
+        @Override
+        public boolean validate(Connection connection) {
+            return delegate.validate(connection);
+        }
+
+        @Override
+        public void destroy(Connection connection) {
+            states.remove(connection);
+            delegate.destroy(connection);
+        }
+    }
+
+    /** 捕获物理连接的初始会话设置，并在每次租约归还时恢复。 */
+    private record ConnectionState(boolean autoCommit, boolean readOnly, int isolation,
+                                   String catalog, String schema, boolean schemaSupported, int holdability) {
+        private static ConnectionState capture(Connection connection) throws SQLException {
+            String schema = null;
+            boolean schemaSupported = true;
+            try {
+                schema = connection.getSchema();
+            } catch (SQLFeatureNotSupportedException e) {
+                schemaSupported = false;
+            }
+            return new ConnectionState(connection.getAutoCommit(), connection.isReadOnly(),
+                    connection.getTransactionIsolation(), connection.getCatalog(), schema,
+                    schemaSupported, connection.getHoldability());
+        }
+
+        private void restore(Connection connection) throws SQLException {
+            if (!connection.getAutoCommit()) {
+                connection.rollback();
+            }
+            if (connection.getAutoCommit() != autoCommit) {
+                connection.setAutoCommit(autoCommit);
+            }
+            if (connection.isReadOnly() != readOnly) {
+                connection.setReadOnly(readOnly);
+            }
+            if (connection.getTransactionIsolation() != isolation) {
+                connection.setTransactionIsolation(isolation);
+            }
+            if (!Objects.equals(connection.getCatalog(), catalog)) {
+                connection.setCatalog(catalog);
+            }
+            if (schemaSupported && !Objects.equals(connection.getSchema(), schema)) {
+                connection.setSchema(schema);
+            }
+            if (connection.getHoldability() != holdability) {
+                connection.setHoldability(holdability);
+            }
+            connection.clearWarnings();
         }
     }
 

@@ -1215,7 +1215,11 @@ public class NioHttpServer extends AbstractServer {
                 depth++;
                 allWritten = true;
                 if (sseStreaming) {
-                    // 推流线程继续写这条连接，不能再处理后续 pipeline 请求
+                    // 推流线程继续写这条连接，不能再处理后续 pipeline 请求。
+                    // 必须挂上 sseResponse：这条连接的对端断开是由事件循环读到 EOF 后
+                    // closeConn 收尾的，而响应对象已不在 st.response 里（recycle 已丢弃），
+                    // 只有这里留的引用才能把「对端已消失」告知推流/保活线程。
+                    st.sseResponse = response;
                     break;
                 }
                 if (depth >= MAX_PIPELINE_DEPTH) {
@@ -1368,6 +1372,7 @@ public class NioHttpServer extends AbstractServer {
         // SSE 连接永久残留一个线程 + 一个任务监听器（每写一帧都往死连接推全量快照）。
         NioServerResponse sse = st.sseResponse;
         if (sse != null) {
+            st.sseResponse = null;
             sse.markChannelClosed();
         }
         // 连接预算必须与 tryAcquireConnection() 严格配对，且只释放一次：

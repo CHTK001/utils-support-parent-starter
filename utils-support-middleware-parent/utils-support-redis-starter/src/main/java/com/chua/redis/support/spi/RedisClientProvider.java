@@ -14,11 +14,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.time.Duration;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Protocol;
 import redis.clients.jedis.params.ScanParams;
 import com.chua.common.support.utils.StringUtils;
 
@@ -36,7 +42,7 @@ import com.chua.common.support.utils.StringUtils;
  * @since 4.0.0.42
  */
 @Spi(value = "redis", order = 200)
-public class RedisClientProvider implements MiddlewareClientProvider {
+public class RedisClientProvider implements MiddlewareClientProvider, AutoCloseable {
 
     /** SPI 名称，同时是注册文件名 */
     public static final String SPI_NAME = "com.chua.datasource.support.middleware.MiddlewareClientProvider";
@@ -52,6 +58,27 @@ public class RedisClientProvider implements MiddlewareClientProvider {
 
     /** 连接与读超时（毫秒） */
     private static final int TIMEOUT_MS = 5000;
+
+    /** 同一实现实例内复用连接池，配置摘要不保留明文口令。 */
+    private final Map<PoolKey, PoolEntry> pools = new ConcurrentHashMap<>();
+
+    /** 与建池、借出及淘汰共用监视器，关闭后禁止再次创建连接池。 */
+    private boolean closed;
+
+    /** 连接配置变化后，长期未使用且无借出连接的池可被惰性回收。 */
+    private static final long POOL_IDLE_TTL_NANOS = java.util.concurrent.TimeUnit.MINUTES.toNanos(10);
+
+    private record PoolKey(String host, int port, int database, String credentialFingerprint, int timeoutMillis) {
+    }
+
+    private static final class PoolEntry {
+        private final JedisPool pool;
+        private final AtomicLong lastAccessNanos = new AtomicLong(System.nanoTime());
+
+        private PoolEntry(JedisPool pool) {
+            this.pool = pool;
+        }
+    }
 
     @Override
     public String name() {
@@ -99,7 +126,6 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         List<MiddlewareTreeNode> out = new ArrayList<>();
         try (Jedis jedis = jedis(request)) {
             // 顶层节点 = 逻辑库；只把「有键的库」列出来，避免一堆空库占满界面
-            int dbCount = 16;
             String keyspaces = jedis.info("keyspace");
             for (String line : keyspaces.split("\n")) {
                 line = line.trim();
@@ -125,10 +151,7 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         List<MiddlewareTreeNode> out = new ArrayList<>();
         // parentKey 形如 "db0"
         int index = dbIndex(parentKey);
-        try (Jedis jedis = jedis(request)) {
-            if (index > 0) {
-                jedis.select(index);
-            }
+        try (Jedis jedis = jedis(request, index)) {
             ScanParams params = new ScanParams().count(SCAN_COUNT);
             String cursor = SCAN_START;
             int guard = 0;
@@ -202,7 +225,8 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-        try (Jedis jedis = jedis(request)) {
+        try (Jedis jedis = StringUtils.isNotBlank(scope)
+                ? jedis(request, dbIndex(scope)) : jedis(request)) {
             String type = jedis.type(key);
             Map<String, String> attrs = new LinkedHashMap<>();
             attrs.put("type", type);
@@ -230,13 +254,34 @@ public class RedisClientProvider implements MiddlewareClientProvider {
      * @return 返回值
     */
     private Jedis jedis(MiddlewareConnectRequest request) {
-        DefaultJedisClientConfig.Builder b = DefaultJedisClientConfig.builder()
-                .connectionTimeoutMillis(TIMEOUT_MS)
-                .socketTimeoutMillis(TIMEOUT_MS);
-        int db = dbIndex(request.database());
-        if (db > 0) {
-            b.database(db);
+        return jedis(request, dbIndex(request.database()));
+    }
+
+    /** 借用固定逻辑库的连接，避免共享 Jedis 实例在 SELECT 后污染后续租约。 */
+    private synchronized Jedis jedis(MiddlewareConnectRequest request, int database) {
+        if (closed) {
+            throw new IllegalStateException("Redis 客户端已关闭");
         }
+        PoolKey key = poolKey(request, database);
+        PoolEntry entry = pools.computeIfAbsent(key, ignored -> new PoolEntry(createPool(request, key)));
+        entry.lastAccessNanos.set(System.nanoTime());
+        evictIdlePools();
+        return entry.pool.getResource();
+    }
+
+    private PoolKey poolKey(MiddlewareConnectRequest request, int database) {
+        String username = request.username() == null ? "" : request.username();
+        String password = request.password() == null ? "" : request.password();
+        String credentials = digest(username + '\n' + password);
+        return new PoolKey(request.host(), request.port() <= 0 ? 6379 : request.port(),
+                database, credentials, TIMEOUT_MS);
+    }
+
+    private JedisPool createPool(MiddlewareConnectRequest request, PoolKey key) {
+        DefaultJedisClientConfig.Builder b = DefaultJedisClientConfig.builder()
+                .connectionTimeoutMillis(key.timeoutMillis())
+                .socketTimeoutMillis(key.timeoutMillis())
+                .database(key.database());
         String username = request.username();
         if (StringUtils.isNotBlank(username)) {
             b.user(username);
@@ -245,7 +290,45 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         if (StringUtils.isNotBlank(password)) {
             b.password(password);
         }
-        return new Jedis(request.host(), request.port() <= 0 ? 6379 : request.port(), b.build());
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(16);
+        poolConfig.setMaxIdle(8);
+        poolConfig.setMinIdle(0);
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestOnReturn(false);
+        poolConfig.setMaxWait(Duration.ofMillis(TIMEOUT_MS));
+        poolConfig.setMinEvictableIdleDuration(Duration.ofMinutes(10));
+        poolConfig.setTimeBetweenEvictionRuns(Duration.ofMinutes(1));
+        return new JedisPool(poolConfig, new redis.clients.jedis.HostAndPort(key.host(), key.port()), b.build());
+    }
+
+    private void evictIdlePools() {
+        long cutoff = System.nanoTime() - POOL_IDLE_TTL_NANOS;
+        pools.forEach((key, entry) -> {
+            if (entry.lastAccessNanos.get() < cutoff && entry.pool.getNumActive() == 0
+                    && pools.remove(key, entry)) {
+                entry.pool.close();
+            }
+        });
+    }
+
+    @Override
+    public synchronized void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        pools.values().forEach(entry -> entry.pool.close());
+        pools.clear();
+    }
+
+    private static String digest(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 不可用", e);
+        }
     }
 
     /**
