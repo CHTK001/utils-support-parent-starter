@@ -408,7 +408,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     private boolean validateQuietly(T object) {
         try {
             return factory.validate(object);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | LinkageError e) {
             LOG.log(System.Logger.Level.DEBUG, "[pool] 校验失败: " + e.getMessage(), e);
             return false;
         }
@@ -424,7 +424,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         try {
             factory.passivateObject(object);
             return true;
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             LOG.log(System.Logger.Level.DEBUG, "[pool] 归还前清理失败: " + e.getMessage(), e);
             return false;
         }
@@ -437,7 +437,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     private void destroyObjectQuietly(PooledObject<T> pooled) {
         try {
             factory.destroy(pooled.getObject());
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             LOG.log(System.Logger.Level.DEBUG, "[pool] 销毁对象失败，已忽略: " + e.getMessage(), e);
         }
     }
@@ -460,7 +460,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 idleObjects.addLast(pooled);
                 allObjects.add(pooled);
             }
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             clear();
             throw new RuntimeException("预分配对象失败", e);
         }
@@ -479,11 +479,11 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         T obj = Objects.requireNonNull(factory.create(), "对象工厂返回了 null");
         try {
             factory.initObject(obj);
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             // 初始化失败，销毁对象
             try {
                 factory.destroy(obj);
-            } catch (Exception destroyEx) {
+            } catch (Exception | LinkageError destroyEx) {
                 LOG.log(System.Logger.Level.DEBUG, "[pool] 清理对象失败，已忽略: " + destroyEx.getMessage(), destroyEx);
             }
             throw e;

@@ -1095,8 +1095,10 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 应用额外请求体参数，将通用 键 映射到 打开AI 标准字段。
      *
-     * <p>支持的 key：frequency_penalty、presence_penalty、max_completion_tokens、user。
-     * 未识别 键 忽略（保证向后兼容）。
+     * <p>常用的 key（frequency_penalty、presence_penalty、max_completion_tokens、user）
+     * 走 SDK 的类型化入口；其余 key 原样透传到请求体，用于供应商私有开关，
+     * 例如通义/蚂蚁百灵系的 {@code enable_thinking=false}、本地引擎的 {@code top_k}。
+     * 调用方显式设置的 key 才会透传，未设置时请求体与历史行为一致。
      *
      * @param builder   打开AI 请求参数构建器
      * @param extraBody 额外请求体参数
@@ -1127,7 +1129,7 @@ public class OpenAiChatClient implements ChatClient {
                     }
                 }
                 case "user" -> builder.user(String.valueOf(value));
-                default -> log.debug("忽略未映射的额外请求体参数: {}", entry.getKey());
+                default -> builder.putAdditionalBodyProperty(entry.getKey(), JsonValue.from(value));
             }
         }
     }
