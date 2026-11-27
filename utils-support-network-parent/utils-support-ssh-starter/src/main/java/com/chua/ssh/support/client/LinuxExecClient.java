@@ -43,8 +43,9 @@ public class LinuxExecClient implements AutoCloseable {
                 .port(setting.getPort())
                 .username(setting.getUsername())
                 .password(setting.getPassword())
-                .connectTimeout(10)
-                .sessionTimeout(30)
+                .connectTimeout(toSeconds(setting.getConnectTimeout()))
+                .sessionTimeout(toSeconds(setting.getReadTimeout()))
+                .execTimeout(toSeconds(setting.getReadTimeout()))
                 .build();
         this.sshClient.connect();
     }
@@ -57,16 +58,43 @@ public class LinuxExecClient implements AutoCloseable {
      * @return 执行命令的结果
      */
     public SshClient.ExecResult executeCommand(String command, int timeoutMs) {
+        return executeCommand(command, (long) timeoutMs);
+    }
+
+    /**
+     * 执行命令
+     *
+     * @param command 命令
+     * @param timeoutMs 超时毫秒
+     * @return 执行命令的结果
+     */
+    public SshClient.ExecResult executeCommand(String command, long timeoutMs) {
         if (sshClient == null) {
             throw new IllegalStateException("SSH 客户端未连接，请先调用 connect()");
         }
         try {
-            return sshClient.exec()
-                    .command(command)
-                    .execute();
+            SshClient.ExecOperation operation = sshClient.exec().command(command);
+            if (timeoutMs > 0) {
+                operation.timeout(timeoutMs);
+            }
+            return operation.execute();
         } catch (Exception e) {
             throw new SshClient.SshClientException("SSH 命令执行失败: " + command, e);
         }
+    }
+
+    /**
+     * 将通用 ClientSetting 的毫秒超时转换为 SshClient 使用的秒超时，向上取整避免缩短配置。
+     *
+     * @param timeoutMillis 毫秒
+     * @return 秒
+     */
+    private static int toSeconds(long timeoutMillis) {
+        if (timeoutMillis <= 0) {
+            return 1;
+        }
+        long seconds = ((timeoutMillis - 1L) / 1000L) + 1L;
+        return (int) Math.min(Integer.MAX_VALUE, seconds);
     }
 
     /**
@@ -76,7 +104,7 @@ public class LinuxExecClient implements AutoCloseable {
      * @return 执行命令的结果
      */
     public SshClient.ExecResult executeCommand(String command) {
-        return executeCommand(command, 30_000);
+        return executeCommand(command, setting.getReadTimeout());
     }
 
     /**

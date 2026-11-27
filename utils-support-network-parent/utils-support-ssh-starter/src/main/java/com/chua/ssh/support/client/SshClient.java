@@ -69,11 +69,11 @@ public class SshClient implements AutoCloseable {
      */
     private final String privateKeyPath;
     /**
-     * 连接超时时间（毫秒）
+     * 连接超时时间（秒）
      */
     private final int connectTimeout;
     /**
-     * 会话超时时间
+     * 会话超时时间（秒）
      */
     private final int sessionTimeout;
     /**
@@ -365,6 +365,10 @@ public class SshClient implements AutoCloseable {
          * command
          */
         private String command;
+        /**
+         * 本次命令执行/读取超时时间（毫秒）；为空时使用客户端默认值。
+         */
+        private Long timeoutMillis;
 
         /**
          * Exec Operation
@@ -386,6 +390,20 @@ public class SshClient implements AutoCloseable {
         }
 
         /**
+         * 设置本次命令执行/读取超时时间。
+         *
+         * @param timeoutMs 超时时间（毫秒）
+         * @return 命令操作
+         */
+        public ExecOperation timeout(long timeoutMs) {
+            if (timeoutMs <= 0) {
+                throw new IllegalArgumentException("命令超时时间必须大于 0 毫秒");
+            }
+            this.timeoutMillis = timeoutMs;
+            return this;
+        }
+
+        /**
          * 执行
          * @return 返回值
         */
@@ -403,9 +421,13 @@ public class SshClient implements AutoCloseable {
                 // 只等 CLOSED 会让「启动后台进程后立刻退出」的命令卡满等待上限：
                 // 后台子进程仍持有通道管道，通道要等它退出才关闭，而退出码其实早已送达。
                 // 先等 exit-status，再给数据流一个短暂的 EOF 窗口，兼顾输出完整与响应速度。
-                channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
-                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
-                        TimeUnit.SECONDS.toMillis(client.execTimeoutSeconds));
+                java.util.Set<org.apache.sshd.client.channel.ClientChannelEvent> completed = channel.waitFor(
+                        java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
+                                org.apache.sshd.client.channel.ClientChannelEvent.CLOSED), executionTimeoutMillis());
+                if (completed.contains(org.apache.sshd.client.channel.ClientChannelEvent.TIMEOUT)) {
+                    channel.close();
+                    throw new SshClientException("SSH 命令执行超时: " + command, null);
+                }
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EOF),
                         EXEC_OUTPUT_DRAIN_MILLIS);
                 Integer status = channel.getExitStatus();
@@ -416,6 +438,17 @@ public class SshClient implements AutoCloseable {
             } catch (Exception e) {
                 throw new SshClientException("SSH 命令执行失败: " + command, e);
             }
+        }
+
+        /**
+         * 取本次命令的等待上限。
+         *
+         * @return 毫秒
+         */
+        private long executionTimeoutMillis() {
+            return timeoutMillis == null
+                    ? TimeUnit.SECONDS.toMillis(client.execTimeoutSeconds)
+                    : timeoutMillis;
         }
 
         /**
@@ -453,9 +486,13 @@ public class SshClient implements AutoCloseable {
                         stderrLine == null ? null : new LineOutputStream(stderrLine)));
 
                 channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-                channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
-                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
-                        TimeUnit.SECONDS.toMillis(client.execTimeoutSeconds));
+                java.util.Set<org.apache.sshd.client.channel.ClientChannelEvent> completed = channel.waitFor(
+                        java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
+                                org.apache.sshd.client.channel.ClientChannelEvent.CLOSED), executionTimeoutMillis());
+                if (completed.contains(org.apache.sshd.client.channel.ClientChannelEvent.TIMEOUT)) {
+                    channel.close();
+                    throw new SshClientException("SSH 流式命令执行超时: " + command, null);
+                }
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EOF),
                         EXEC_OUTPUT_DRAIN_MILLIS);
                 Integer status = channel.getExitStatus();
@@ -529,7 +566,7 @@ public class SshClient implements AutoCloseable {
             try {
                 channel = client.getSession().createShellChannel();
                 channel.setupSensibleDefaultPty();
-                channel.open().verify(30, TimeUnit.SECONDS);
+                channel.open().verify(client.sessionTimeout, TimeUnit.SECONDS);
             } catch (Exception e) {
                 throw new SshClientException("Shell 连接失败", e);
             }
@@ -994,7 +1031,7 @@ public class SshClient implements AutoCloseable {
 
                 channel = client.getSession().createShellChannel(ptyConfig, null);
                 channel.setUsePty(pty);
-                channel.open().verify(30, TimeUnit.SECONDS);
+                channel.open().verify(client.sessionTimeout, TimeUnit.SECONDS);
 
                 inputStream = channel.getInvertedOut();
                 outputStream = channel.getInvertedIn();

@@ -2,7 +2,6 @@
 package com.chua.ssh.support.client;
 
 import com.chua.common.support.collection.wrap.Wraps;
-import com.chua.common.support.network.protocol.client.FileClient;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.SshClient;
@@ -48,9 +47,13 @@ public class SftpClient implements AutoCloseable {
      */
     private final String privateKeyPath;
     /**
-     * 连接超时时间（毫秒）
+     * 连接超时时间（秒）
      */
     private final int connectTimeout;
+    /**
+     * 认证超时时间（秒）
+     */
+    private final int authTimeout;
     /**
      * 主机密钥校验策略
      */
@@ -89,6 +92,7 @@ public class SftpClient implements AutoCloseable {
         this.password = b.password;
         this.privateKeyPath = b.privateKeyPath;
         this.connectTimeout = b.connectTimeout;
+        this.authTimeout = b.authTimeout;
         this.hostKeyPolicy = b.hostKeyPolicy;
         this.knownHostsPath = b.knownHostsPath;
     }
@@ -169,7 +173,7 @@ public class SftpClient implements AutoCloseable {
                     session.addPublicKeyIdentity(kp);
                 }
             }
-            session.auth().verify(30, TimeUnit.SECONDS);
+            session.auth().verify(authTimeout, TimeUnit.SECONDS);
             sftp = org.apache.sshd.sftp.client.SftpClientFactory.instance().createSftpClient(session);
             log.info("SFTP 连接成功: {}@{}:{}", username, host, port);
         } catch (Exception e) {
@@ -734,6 +738,10 @@ public class SftpClient implements AutoCloseable {
          */
         private int connectTimeout = 30;
         /**
+         * 认证超时时间（秒）
+         */
+        private int authTimeout = 30;
+        /**
          * 主机密钥校验策略，默认 accept-new
          */
         private HostKeyPolicy hostKeyPolicy = HostKeyPolicy.ACCEPT_NEW;
@@ -815,13 +823,24 @@ public class SftpClient implements AutoCloseable {
             return this;
         }
         /**
-         * 连接超时
+         * 连接超时（秒）
          *
-         * @param t t
+         * @param t 秒
          * @return 连接超时的结果
          */
         public Builder connectTimeout(int t) {
             connectTimeout = t;
+            return this;
+        }
+
+        /**
+         * 认证超时
+         *
+         * @param t 秒
+         * @return 构建器
+         */
+        public Builder authTimeout(int t) {
+            authTimeout = t;
             return this;
         }
         /**

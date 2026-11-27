@@ -236,3 +236,9 @@ utils-support-core-parent/utils-support-common-starter/src/main/resources/META-I
 *.db.bak
 *.db.tmp
 *.db.corrupt
+
+# WeVisOne-VL 推理服务：requirements.txt 是依赖清单，属全局 *.txt 忽略的例外
+!utils-support-deeplearning-parent/utils-support-deeplearning-wevisone-starter/python/requirements.txt
+# 官方源码检出目录（Docker 构建上下文需要，含第三方代码与权重，不入库）
+utils-support-deeplearning-parent/utils-support-deeplearning-wevisone-starter/python/WeVisOne-VL/
+utils-support-deeplearning-parent/utils-support-deeplearning-wevisone-starter/python/models/

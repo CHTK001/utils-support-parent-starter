@@ -1,0 +1,16 @@
+# WeVisOne-VL 推理服务的 CPU 依赖
+#
+# 官方 requirements.txt 里的 torch/torchvision 是 GPU 轮子，CPU 机器上装它等于白占几 GB；
+# 这里只保留推理必需的包，torch 由 Dockerfile 显式从 PyTorch CPU 索引安装。
+#
+# 版本与官方 pin 保持一致（torch==2.11.0 / transformers==5.12.1 / accelerate==1.14.0 /
+# qwen_vl_utils==0.0.14 / numpy==2.2.6 / Pillow==12.2.0 / scipy==1.18.1 / safetensors==0.8.0）。
+transformers==5.12.1
+accelerate==1.14.0
+qwen-vl-utils==0.0.14
+numpy==2.2.6
+Pillow==12.2.0
+scipy==1.18.1
+safetensors==0.8.0
+fastapi==0.128.0
+uvicorn==0.38.0

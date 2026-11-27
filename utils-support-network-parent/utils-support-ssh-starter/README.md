@@ -145,7 +145,7 @@ ssh.connect().forward().dynamic(1080).start();
 - `SftpClient.create(host, username, password)`：等价 builder 三件套。
 - `SftpClient.of(ClientSession session, String username, String host, int port)`：基于既有已认证会话构建（复用 SSH 连接，不新建连接）；`close()` 只关 SFTP 通道，会话生命周期归提供方（连接池）管理；会话未建立或已关闭时抛 `IllegalStateException`。
 
-**Builder 参数与默认值**：`port` 默认 `22`；`connectTimeout` 默认 `30`；`hostKeyPolicy` 默认 `ACCEPT_NEW`；`knownHostsPath` 默认 `${user.home}/.ssh/known_hosts`；另有 `password`、`privateKey`。会话认证超时固定 30 秒。
+**Builder 参数与默认值**：`port` 默认 `22`；`connectTimeout` 默认 `30` 秒；`authTimeout` 默认 `30` 秒；`hostKeyPolicy` 默认 `ACCEPT_NEW`；`knownHostsPath` 默认 `${user.home}/.ssh/known_hosts`；另有 `password`、`privateKey`。独立链式客户端的连接/认证超时均以秒配置；SPI 适配器将 `ClientSetting` 的 connect/read 毫秒值向上换算为秒，其中 read 值用于认证等待。SFTP 文件操作级 read/write timeout 尚无单独消费实现。
 
 **操作入口**（均为「入口方法 → 链式设参 → `exec()` 执行」结构）：
 
@@ -328,7 +328,7 @@ mgr.startRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
 
 路径规则：默认部署目录 `/opt/sip-server`；jar 相对路径拼接到该目录，绝对路径原样使用。未连接时调用上述操作抛 `IllegalStateException`。
 
-**LinuxExecClient**（`com.chua.ssh.support.client`）：Linux 命令执行客户端，兼容服务端指标服务 impl 的调用方式。构造入参为 common 层 `ClientSetting`（取 `host`/`port`/`username`/`password`）。方法：`connect()`（连接/会话超时 10s/30s）、`executeCommand(String command, int timeoutMs)`、`executeCommand(String command)`（默认传 `30_000`；该超时形参当前未参与执行，实际使用 `SshClient` 的 `execTimeout`）、`closeQuietly()`、`close()`。
+**LinuxExecClient**（`com.chua.ssh.support.client`）：Linux 命令执行客户端，兼容服务端指标服务 impl 的调用方式。构造入参为 common 层 `ClientSetting`（取 `host`/`port`/`username`/`password`）。连接超时与认证/命令读取超时从毫秒配置向上换算为秒；`executeCommand(command, timeoutMs)` 将该命令级毫秒超时交给 SSH 等待，单参重载使用 `ClientSetting.readTimeout`。独立的 write timeout 未映射。
 
 ---
 
@@ -419,13 +419,14 @@ server.start();
 | --- | --- | --- | --- |
 | `com.chua.common.support.service.RemoteServiceManager` | `ssh`（`@Spi("ssh")`） | `SshRemoteServiceManager` | `services/com.chua.common.support.service.RemoteServiceManager` |
 | `com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser` | `shell-method`（`@Spi("shell-method")`） | `ShellMethodServerHandlerParser` | `extensions/com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser` |
-| `com.chua.common.support.network.protocol.client.FileClient` | 按类名注册 | `SftpClient` | `extensions/com.chua.common.support.network.protocol.client.FileClient` |
+| `com.chua.common.support.network.protocol.client.FileClient` | `SftpSpi`（实现类名去掉接口名推导） | `SftpFileClientSpi`（委托给链式 `SftpClient`） | `extensions/com.chua.common.support.network.protocol.client.FileClient` |
 | `com.chua.common.support.lang.directory.PolledDirectory` | 按类名注册 | `SftpPolledDirectory` | `extensions/com.chua.common.support.lang.directory.PolledDirectory` |
 
 说明：
 
 - `extensions/com.chua.common.support.network.protocol.server.AbstractProtocolServer` 文件存在但内容为空，即本模块未在该扩展点注册任何实现。
 - 消费方式示例：`ServiceProvider.of(RemoteServiceManager.class).getNewExtension("ssh")`、`ServiceProvider.of(ViewParser.class)`（`produce` 渲染）。
+- 文件客户端按 `ServiceProvider.of(FileClient.class).getNewExtension("SftpSpi", clientSetting)` 创建；`SftpClient` 本身继续提供链式 API，不直接实现 `FileClient`。
 - GraalVM native-image：`reflect-config.json` 注册 `LinuxExecClient`、`SftpClient`、`SftpPolledDirectory`、`ShellMethodServerHandlerParser` 的全量反射；`resource-config.json` 保留 `META-INF/extensions/.*` 资源。
 
 ---

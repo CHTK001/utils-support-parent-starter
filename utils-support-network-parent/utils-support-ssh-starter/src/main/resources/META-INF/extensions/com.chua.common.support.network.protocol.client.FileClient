@@ -1,2 +1,2 @@
-com.chua.ssh.support.client.SftpClient
+com.chua.ssh.support.client.SftpFileClientSpi
 

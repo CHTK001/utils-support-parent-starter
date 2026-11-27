@@ -63,11 +63,11 @@ public class WinRmExecClient implements AutoCloseable {
     /**
      * 连接超时时间（毫秒）
      */
-    private final int connectTimeout;
+    private final long connectTimeout;
     /**
      * 会话超时时间
      */
-    private final int sessionTimeout;
+    private final long sessionTimeout;
     /**
      * 认证方案（NTLM / 基础），默认 NTLM
      */
@@ -114,8 +114,8 @@ public class WinRmExecClient implements AutoCloseable {
         this.username = setting.getUsername();
         this.password = setting.getPassword();
         this.domain = null;
-        this.connectTimeout = 30;
-        this.sessionTimeout = 30;
+        this.connectTimeout = Math.max(1L, setting.getConnectTimeout());
+        this.sessionTimeout = Math.max(1L, setting.getReadTimeout());
         this.authenticationScheme = "NTLM";
         this.payloadEncryptionOff = false;
     }
@@ -168,7 +168,8 @@ public class WinRmExecClient implements AutoCloseable {
             builder.targetAuthSchemes(targetSchemes);
             builder.disableCertificateChecks(true);
             builder.connectionTimeout(connectTimeout);
-            builder.receiveTimeout((long) sessionTimeout);
+            builder.receiveTimeout(sessionTimeout);
+            builder.operationTimeout(sessionTimeout);
             winRmClient = builder.build();
             connected = true;
             log.info("WinRM 连接成功: {}@{}:{} scheme={}", username, host, port, authenticationScheme);
@@ -202,7 +203,18 @@ public class WinRmExecClient implements AutoCloseable {
      * @return 执行命令的结果
      */
     public ExecResult executeCommand(String command, int timeoutMs) {
-        return exec().command(command).execute();
+        return executeCommand(command, (long) timeoutMs);
+    }
+
+    /**
+     * 执行命令
+     *
+     * @param command 命令
+     * @param timeoutMs 超时（毫秒）
+     * @return 执行命令的结果
+     */
+    public ExecResult executeCommand(String command, long timeoutMs) {
+        return exec().command(command).timeout(timeoutMs).execute();
     }
 
     /**
@@ -212,7 +224,7 @@ public class WinRmExecClient implements AutoCloseable {
      * @return 执行命令的结果
      */
     public ExecResult executeCommand(String command) {
-        return executeCommand(command, 30_000);
+        return executeCommand(command, sessionTimeout);
     }
 
     /**
@@ -330,6 +342,10 @@ public class WinRmExecClient implements AutoCloseable {
          * 命令
          */
         private String command;
+        /**
+         * 本次命令操作超时时间（毫秒）；为空时使用客户端会话超时。
+         */
+        private Long timeoutMillis;
 
         /**
          * Exec Operation
@@ -352,6 +368,20 @@ public class WinRmExecClient implements AutoCloseable {
         }
 
         /**
+         * 设置本次命令操作超时时间。
+         *
+         * @param timeoutMs 超时时间（毫秒）
+         * @return 命令操作
+         */
+        public ExecOperation timeout(long timeoutMs) {
+            if (timeoutMs <= 0) {
+                throw new IllegalArgumentException("命令超时时间必须大于 0 毫秒");
+            }
+            this.timeoutMillis = timeoutMs;
+            return this;
+        }
+
+        /**
          * 执行
          *
          * @return 执行的结果
@@ -363,11 +393,19 @@ public class WinRmExecClient implements AutoCloseable {
                 }
                 ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
                 ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
-                try (Writer outWriter = new OutputStreamWriter(outBuf, StandardCharsets.UTF_8);
-                     Writer errWriter = new OutputStreamWriter(errBuf, StandardCharsets.UTF_8)) {
-                    int exitCode = client.getWinRmClient().command(command, outWriter, errWriter);
-                    return new ExecResult(exitCode, outBuf.toString(StandardCharsets.UTF_8.name()),
-                            errBuf.toString(StandardCharsets.UTF_8.name()));
+                synchronized (client.getWinRmClient()) {
+                    long operationTimeout = timeoutMillis == null ? client.sessionTimeout : timeoutMillis;
+                    if (operationTimeout > 0) {
+                        client.getWinRmClient().setOperationTimeout(operationTimeout);
+                    }
+                    try (Writer outWriter = new OutputStreamWriter(outBuf, StandardCharsets.UTF_8);
+                         Writer errWriter = new OutputStreamWriter(errBuf, StandardCharsets.UTF_8)) {
+                        int exitCode = client.getWinRmClient().command(command, outWriter, errWriter);
+                        return new ExecResult(exitCode, outBuf.toString(StandardCharsets.UTF_8.name()),
+                                errBuf.toString(StandardCharsets.UTF_8.name()));
+                    } finally {
+                        client.getWinRmClient().setOperationTimeout(client.sessionTimeout);
+                    }
                 }
             } catch (Exception e) {
                 throw new WinRMException("WinRM 命令执行失败[" + rootCause(e) + "]: " + brief(command), e);
@@ -711,11 +749,11 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
         /**
          * 连接超时时间（毫秒）
          */
-        private int connectTimeout = 30;
+        private long connectTimeout = 30_000;
         /**
          * 会话超时时间
          */
-        private int sessionTimeout = 30;
+        private long sessionTimeout = 30_000;
         /**
          * 认证方案（NTLM / 基础），默认 NTLM
          */
@@ -787,7 +825,16 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
          * @return 连接超时的结果
          */
         public Builder connectTimeout(int t) {
-            this.connectTimeout = t;
+            return connectTimeout((long) t);
+        }
+
+        /**
+         * 连接超时
+         * @param t 超时毫秒
+         * @return Builder
+         */
+        public Builder connectTimeout(long t) {
+            this.connectTimeout = Math.max(1L, t);
             return this;
         }
 
@@ -798,7 +845,16 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
          * @return 会话超时的结果
          */
         public Builder sessionTimeout(int t) {
-            this.sessionTimeout = t;
+            return sessionTimeout((long) t);
+        }
+
+        /**
+         * 会话/命令操作超时
+         * @param t 超时毫秒
+         * @return Builder
+         */
+        public Builder sessionTimeout(long t) {
+            this.sessionTimeout = Math.max(1L, t);
             return this;
         }
 

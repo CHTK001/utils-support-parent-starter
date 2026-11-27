@@ -31,8 +31,8 @@ public class WinRmFileClient implements FileClient {
                 .port(setting.getPort())
                 .username(setting.getUsername())
                 .password(setting.getPassword())
-                .connectTimeout((int) Math.max(1, setting.getConnectTimeout() / 1000))
-                .sessionTimeout((int) Math.max(1, setting.getReadTimeout() / 1000))
+                .connectTimeout(Math.max(1, setting.getConnectTimeout()))
+                .sessionTimeout(Math.max(1, setting.getReadTimeout()))
                 .build());
     }
 

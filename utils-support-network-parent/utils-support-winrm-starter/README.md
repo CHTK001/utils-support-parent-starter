@@ -84,7 +84,7 @@ winrm.connect();                    // 端点固定为 http://<host>:<port>/wsma
 | --- | --- |
 | `WinRmExecClient.builder()` | 链式构建器，参数见 [4.2](#42-builder-参数与默认值) |
 | `WinRmExecClient.create(host, username, password)` | 快捷工厂，端口等取默认值 |
-| `new WinRmExecClient(ClientSetting)` | 从通用客户端配置构建；domain=null、超时固定 30、认证固定 NTLM、payloadEncryptionOff=false（**不**读取 ClientSetting 的超时字段） |
+| `new WinRmExecClient(ClientSetting)` | 从通用客户端配置构建；读取 connect/read 超时（毫秒），domain=null、认证固定 NTLM、payloadEncryptionOff=false |
 
 **连接行为（`connect()` 内部，与源码一致）：**
 
@@ -102,7 +102,7 @@ winrm.connect();                    // 端点固定为 http://<host>:<port>/wsma
 | `shell()` | `ShellOperation` | 交互式 Shell：`connect()` → `send(cmd)` → `readAll()` → `close()`；输出在 `send()` 时同步返回，`readAll()` 固定返回空串（仅为 API 兼容保留） |
 | `terminal()` | `TerminalOperation` | 伪终端：`pty(v)` / `width(w)` / `height(h)` 为兼容性占位（直接返回 this），`onOutput(Consumer<String>)` / `onClose(Runnable)` 回调，`connect()` → `send(cmd)`（每次 send 执行一条命令，stdout+stderr 合并进缓冲并回调）→ `readBuffer()`（取走并清空缓冲）→ `close()` |
 
-> 注意：`executeCommand(String command, int timeoutMs)` 的 `timeoutMs` 参数当前**未**参与底层超时控制，直接委托 `exec().command(command).execute()`；无参重载默认 30_000。
+`executeCommand(command, timeoutMs)` 会将毫秒值传给 winrm4j 的 operation timeout；无参重载采用客户端的 `sessionTimeout`。命令级超时走真实 WinRM 时序的验证尚未执行。
 
 **执行结果：**
 
@@ -135,7 +135,7 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
 构造方式二选一：
 
 ```java
-WinRmFileClient a = new WinRmFileClient(clientSetting);   // 独立连接；超时按 ClientSetting 毫秒值 /1000（最小 1）换算
+WinRmFileClient a = new WinRmFileClient(clientSetting);   // 独立连接；连接/读取超时按毫秒传递
 WinRmFileClient b = new WinRmFileClient(execClient);      // 复用已连接的 WinRmExecClient
 ```
 
@@ -252,7 +252,7 @@ mgr.disconnect();
 | 入口 | 说明 |
 | --- | --- |
 | `WinRmExecClient.Builder` | 逐项设置主机、端口、凭据、认证方案、超时等 |
-| `com.chua.common.support.network.protocol.ClientSetting` | 通用客户端配置；`new WinRmExecClient(setting)` 只取 host/port/username/password，`new WinRmFileClient(setting)` 额外把毫秒超时换算为秒（`/1000`，最小 1） |
+| `com.chua.common.support.network.protocol.ClientSetting` | 通用客户端配置；执行与文件客户端读取 host/port/username/password 及 connect/read 毫秒超时；`writeTimeout` 当前没有对应消费路径 |
 | `RemoteServiceManager.SshConfig(host, port, username, password, privateKeyPath)` | record；仅校验 host 与 username 非空白，WinRM 实现复用该载体、port 取 HTTP 端口 5985 |
 
 ### 4.2 Builder 参数与默认值
@@ -264,8 +264,8 @@ mgr.disconnect();
 | `username` | String | 必填 | 用户名；空白抛 `IllegalArgumentException("username 不能为空")` |
 | `password` | String | `null` | 密码 |
 | `domain` | String | `null` | 域；当前 `connect()` 流程未使用该值 |
-| `connectTimeout` | int | `30` | 传给 winrm4j `connectionTimeout`；字段注释标注为毫秒 |
-| `sessionTimeout` | int | `30` | 传给 winrm4j `receiveTimeout`；字段注释标注为毫秒 |
+| `connectTimeout` | int/long | `30,000` 毫秒 | 传给 winrm4j `connectionTimeout` |
+| `sessionTimeout` | int/long | `30,000` 毫秒 | 传给 winrm4j `receiveTimeout` 与命令的 `operationTimeout` |
 | `authenticationScheme` | String | `NTLM` | `NTLM` 或 `Basic` |
 | `payloadEncryptionOff` | boolean | `false` | `true` 时设置 `PayloadEncryptionMode.OFF`（Basic 认证需配合目标机 `allowunencrypted=true`） |
 
@@ -333,6 +333,6 @@ mvn -pl utils-support-network-parent/utils-support-winrm-starter -am clean packa
 | 连接池 / 多连接复用 | 无；一次 `builder()…build()` 对应一个连接，`ShellOperation`、`TerminalOperation` 均复用当前客户端 |
 | 大文件高速传输 | 不适合；`uploadFile` / `downloadFile` 将整个文件 Base64 后经 PowerShell 传输，全量驻留内存 |
 | 真实 PTY | 无；`terminal()` 的 `pty/width/height` 为兼容性占位（直接返回 this），伪终端按「每次 `send` 执行一条命令」模拟 |
-| 命令级超时控制 | `executeCommand(command, timeoutMs)` 的超时参数当前未透传给底层；`shell().readAll()` 固定返回空串（输出已在 `send()` 时同步返回） |
+| 命令级超时控制 | 命令执行会设置 winrm4j operation timeout；真实远程超时计时尚未验收。`shell().readAll()` 固定返回空串（输出已在 `send()` 时同步返回） |
 | 非 Windows 主机 | 不支持；PowerShell / `sc.exe` / `Get-Process` 等命令仅适用于 Windows 目标机 |
 | 单元测试 | `src/test` 无测试源码；仓库内《单元测试覆盖矩阵.md》为早期规划文档，其中的 `WinRMClient`、`WinRmServer*Spi` 及 okhttp / jackson-dataformat-xml 依赖与当前源码**不一致**，以本 README 与源码为准 |

@@ -1,6 +1,7 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
@@ -10,6 +11,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.MemorySqlAst.DeletePlan;
 import com.chua.datasource.support.engine.MemorySqlAst.DmlPlan;
@@ -20,6 +22,7 @@ import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,7 +60,7 @@ import java.util.regex.Pattern;
  *   <li><b>总开关</b> {@value #GUARD_ENABLED_PROPERTY}（默认 {@code false}）：
  *       关闭时不产生任何行为变化，{@link #store} / {@link #insert} / 原生 DML 全部保持原有语义。</li>
  *   <li><b>实例开关</b> {@link #setGuardEnabled(boolean)}：运行期可开可关；
- *       关闭只影响后续判定，已降级的表仍由回落引擎承载（需 {@link #reload(String)} 才回到内存）。</li>
+ *       关闭只影响后续判定，已降级的表仍由回落引擎承载（需 {@link #clearBypass(String)} 才回到内存）。</li>
  *   <li><b>上限</b>：{@value #MAX_ROWS_PROPERTY}（单表，默认 {@value #DEFAULT_MAX_ROWS}）、
  *       {@value #MAX_TOTAL_ROWS_PROPERTY}（合计，默认 {@value #DEFAULT_MAX_TOTAL_ROWS}）、
  *       {@value #MAX_TABLES_PROPERTY}（表数，默认 {@value #DEFAULT_MAX_TABLES}）、
@@ -68,7 +71,9 @@ import java.util.regex.Pattern;
  *   <li><b>超限动作</b>：默认抛 {@link IllegalArgumentException}（含表名、预计行数、上限）；
  *       {@value #BYPASS_ON_OVERFLOW_PROPERTY} 为 {@code true} 时把该表整体交接给
  *       {@link #setFallbackEngine(Engine)} 绑定的回落引擎，此后该表的读写全部走回落引擎，
- *       直到 {@link #reload(String)} 清除旁路标记。</li>
+ *       直到 {@link #clearBypass(String)} 清除旁路标记。</li>
+ *   <li><b>回写</b>：{@link #restore()} 把内存表与旁路表按行参数化 INSERT 回写到回落引擎的物理库
+ *       （追加语义，不去重、不清表）；{@link #restore(String)} 只回写单表。</li>
  * </ol>
  * <p>观测：{@link #stats()} 返回表数、合计行数、旁路表数与被拒 / 逐出 / 回收计数。</p>
  * <p><b>降级前置条件</b>：{@value #BYPASS_ON_OVERFLOW_PROPERTY} 只在绑定了回落引擎时才有意义，
@@ -163,7 +168,7 @@ public class InMemoryEngine extends AbstractEngine {
     /** 被容量保护拒绝的写入次数。 */
     private long rejectedWrites;
 
-    /** 因合计超限或空闲回收而逐出的表数。 */
+    /** 因表数/合计行数超限而逐出的表数。 */
     private long evictedTables;
 
     /** 空闲超时回收的表数。 */
@@ -171,6 +176,15 @@ public class InMemoryEngine extends AbstractEngine {
 
     /** 转入旁路（交接回落引擎）的次数。 */
     private long bypassTransitions;
+
+    /** 累计成功回写的表数（{@link #restore()}）。 */
+    private long restoredTables;
+
+    /** 累计成功回写的行数（{@link #restore()}）。 */
+    private long restoredRows;
+
+    /** 单条 INSERT 语句最多携带的行数，避免超出数据库绑定参数上限。 */
+    private static final int RESTORE_BATCH_ROWS = 500;
 
     /**
      * 容量保护快照。
@@ -183,10 +197,22 @@ public class InMemoryEngine extends AbstractEngine {
      * @param evictedTables    因合计超限逐出的表数
      * @param expiredTables    因空闲超时回收的表数
      * @param bypassTransitions 转入旁路的次数
+     * @param restoredTables   累计回写的表数
+     * @param restoredRows     累计回写的行数
      */
     public record GuardStats(boolean enabled, int tables, long totalRows, int bypassedTables,
                              long rejectedWrites, long evictedTables, long expiredTables,
-                             long bypassTransitions) {
+                             long bypassTransitions, long restoredTables, long restoredRows) {
+    }
+
+    /**
+     * 回写结果快照。
+     *
+     * @param tables  本次成功回写的表数
+     * @param rows    本次成功回写的行数（按回落引擎返回的影响行数累计）
+     * @param skipped 无行可写而跳过的表数
+     */
+    public record RestoreStats(int tables, long rows, int skipped) {
     }
 
     /* ==================== 容量保护：判定 / 降级 / 观测 ==================== */
@@ -486,9 +512,13 @@ public class InMemoryEngine extends AbstractEngine {
      * <p>只清标记、不动数据：旁路期间该表的行在回落引擎里，
      * 清除后调用方需重新 {@link #store} 装载内存副本（否则读走空表）。</p>
      *
+     * <p><b>刻意不叫 {@code reload}</b>：{@code CachingEngine.reload(table)} 的语义是
+     * 「淘汰本地副本、下次读按需重建」，与这里「先把表交还给本引擎」不同名不同义，
+     * 共用同一方法名会让调用方误以为调用后数据已回到内存。</p>
+     *
      * @param table 表名；{@code null} 表示清除全部旁路标记
      */
-    public void reload(String table) {
+    public void clearBypass(String table) {
         synchronized (guardLock) {
             if (table == null) {
                 bypassedTables.clear();
@@ -501,6 +531,203 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     /**
+     * 把全部内存表与旁路表回写到回落引擎（物理库）。
+     *
+     * <p>内存引擎的行只存在于本进程堆内：{@link #store} 与原生 INSERT 写的是本地表，
+     * 降级时 {@link #spill} 也只是把行交给回落引擎的内存副本（如 {@code JdbcEngine.store}），
+     * 只有原生 DML 才会落到物理库。因此需要一个显式的回写入口。</p>
+     *
+     * <p>回写口径：逐表按行生成参数化 {@code INSERT INTO ... VALUES (...)}，
+     * 经 {@link Engine#executeSql(String, Object...)} 交给回落引擎执行；
+     * 行可以是「列名 → 列值」映射，也可以是实体对象（按持久化字段摊平）。
+     * 采用<b>追加</b>语义：不比对、不去重、不清空目标表，重复调用会产生重复行；
+     * 目标表须由调用方先行建好（本方法不做 DDL）。</p>
+     *
+     * <p>回写不改变本引擎状态：内存表数据保留、旁路表仍由回落引擎承载；
+     * 某表失败时带上已完成进度抛出，已写入的表不回滚（由调用方按报告处置）。</p>
+     *
+     * @return 回写统计
+     * @throws IllegalStateException 未绑定回落引擎、回落引擎是本引擎自身，或回写失败
+     */
+    public RestoreStats restore() {
+        Set<String> tables = memoryTables();
+        synchronized (guardLock) {
+            tables.addAll(bypassedTables);
+        }
+        return restoreTables(tables);
+    }
+
+    /**
+     * 回写单表（内存表或旁路表）。
+     *
+     * @param table 表名
+     * @return 回写统计
+     * @throws IllegalArgumentException 表名非法或该表不在本引擎
+     * @throws IllegalStateException    未绑定回落引擎或回写失败
+     */
+    public RestoreStats restore(String table) {
+        if (table == null || table.isBlank()) {
+            throw new IllegalArgumentException("表名不能为空");
+        }
+        if (!dataStores.containsKey(table) && !isBypassed(table)) {
+            throw new IllegalArgumentException("表不存在于本引擎: " + table);
+        }
+        return restoreTables(Set.of(table));
+    }
+
+    /**
+     * 按表逐个回写，单表失败时带上已完成进度抛出。
+     *
+     * @param tables 待回写的表名
+     * @return 回写统计
+     */
+    private RestoreStats restoreTables(Collection<String> tables) {
+        Engine target = fallback();
+        if (target == this) {
+            throw new IllegalStateException("回落引擎不能是本引擎自身，无法回写: " + getClass().getName());
+        }
+        int restored = 0;
+        int skipped = 0;
+        long rows = 0L;
+        for (String table : tables) {
+            List<?> source = restoreRows(table);
+            if (source.isEmpty()) {
+                skipped++;
+                continue;
+            }
+            long affected;
+            try {
+                affected = writeBack(target, table, source);
+            } catch (RuntimeException e) {
+                throw new IllegalStateException("回写表 " + table + " 失败（已完成 " + restored
+                        + " 张表 / " + rows + " 行）: " + e.getMessage(), e);
+            }
+            rows += affected;
+            restored++;
+        }
+        synchronized (guardLock) {
+            restoredTables += restored;
+            restoredRows += rows;
+        }
+        return new RestoreStats(restored, rows, skipped);
+    }
+
+    /**
+     * 取待回写的行快照：内存表优先，其次旁路表在回落引擎里的行。
+     *
+     * @param table 表名
+     * @return 行快照，无行时返回空列表
+     */
+    private List<?> restoreRows(String table) {
+        List<?> rows = dataStores.get(table);
+        if (rows != null) {
+            return Wraps.list(rows);
+        }
+        Engine target = fallbackEngine;
+        if (target instanceof AbstractEngine abstractEngine) {
+            rows = abstractEngine.dataStores.get(table);
+        }
+        return rows == null ? List.of() : Wraps.list(rows);
+    }
+
+    /**
+     * 分批把行写成参数化 INSERT 并交给回落引擎执行。
+     *
+     * @param target 回落引擎
+     * @param table  表名
+     * @param rows   行快照
+     * @return 回落引擎返回的影响行数合计
+     */
+    private long writeBack(Engine target, String table, List<?> rows) {
+        String safeTable = SqlName.check(table, "表名");
+        long affected = 0L;
+        for (int from = 0; from < rows.size(); from += RESTORE_BATCH_ROWS) {
+            int to = Math.min(from + RESTORE_BATCH_ROWS, rows.size());
+            List<Map<String, Object>> chunk = Wraps.list(to - from);
+            for (int i = from; i < to; i++) {
+                chunk.add(restoreRow(rows.get(i)));
+            }
+            List<Object> params = Wraps.list();
+            String sql = renderInsert(safeTable, chunk, params);
+            affected += target.executeSql(sql, params.toArray(new Object[0]));
+        }
+        return affected;
+    }
+
+    /**
+     * 把一行数据规整为「列名 → 列值」映射。
+     *
+     * <p>映射行直接取键值（键经列名白名单校验），实体行按持久化字段摊平——
+     * 与 {@code AbstractEngine.entityRow} 同口径，避免两条回写路径产出不同列集。</p>
+     *
+     * @param row 行数据
+     * @return 列值映射
+     * @throws IllegalArgumentException 行不可回写（null、空映射、无可持久化字段）
+     */
+    private static Map<String, Object> restoreRow(Object row) {
+        if (row instanceof Map<?, ?> map) {
+            Map<String, Object> out = Wraps.linkedMap();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                out.put(SqlName.checkSimple(String.valueOf(entry.getKey()), "列名"), entry.getValue());
+            }
+            if (out.isEmpty()) {
+                throw new IllegalArgumentException("行数据为空映射，无法回写");
+            }
+            return out;
+        }
+        if (row == null) {
+            throw new IllegalArgumentException("行数据为 null，无法回写");
+        }
+        Map<String, Object> out = Wraps.linkedMap();
+        for (Field field : ReflectUtils.getPersistentFields(row.getClass())) {
+            out.put(SqlName.checkSimple(field.getName(), "列名"), MethodCache.getValue(row, field.getName()));
+        }
+        if (out.isEmpty()) {
+            throw new IllegalArgumentException("实体无可持久化字段: " + row.getClass().getName());
+        }
+        return out;
+    }
+
+    /**
+     * 渲染多行 INSERT：列清单取所有行键的并集（首行列序优先），值全部以 {@code ?} 绑定。
+     *
+     * @param table  已校验的表名
+     * @param rows   列值映射，至少一行
+     * @param params 输出参数列表
+     * @return INSERT 语句
+     */
+    private static String renderInsert(String table, List<Map<String, Object>> rows, List<Object> params) {
+        List<String> columns = Wraps.list(rows.getFirst().keySet());
+        for (Map<String, Object> row : rows) {
+            for (String column : row.keySet()) {
+                if (!columns.contains(column)) {
+                    columns.add(column);
+                }
+            }
+        }
+        StringBuilder values = new StringBuilder();
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                values.append(", ");
+            }
+            values.append('(');
+            for (int j = 0; j < columns.size(); j++) {
+                if (j > 0) {
+                    values.append(", ");
+                }
+                values.append('?');
+                params.add(rows.get(i).get(columns.get(j)));
+            }
+            values.append(')');
+        }
+        // [P3C 1.4 豁免] table 由 SqlName.check 校验、columns 在 restoreRow 中逐个校验；值全部为 ? 绑定
+        return "INSERT INTO " + table + " (" + String.join(", ", columns) + ") VALUES " + values;
+    }
+
+    /**
      * 容量保护快照。
      *
      * @return 状态快照
@@ -509,7 +736,7 @@ public class InMemoryEngine extends AbstractEngine {
         synchronized (guardLock) {
             return new GuardStats(guardEnabled, dataStores.size(), totalRowsLocked(),
                     bypassedTables.size(), rejectedWrites, evictedTables, expiredTables,
-                    bypassTransitions);
+                    bypassTransitions, restoredTables, restoredRows);
         }
     }
 
@@ -895,9 +1122,17 @@ public class InMemoryEngine extends AbstractEngine {
         Object[] args = params == null ? new Object[0] : params;
         return interceptUpdate(sql, args, () -> {
             var plan = new MemorySqlParser().parseDml(sql);
-            long incoming = plan instanceof InsertPlan ins ? ins.rows().size() : 0L;
-            if (!admit(plan.table(), incoming, false)) {
+            if (plan instanceof InsertPlan ins) {
+                // 只有 INSERT 会增加行数，才需要容量准入
+                if (!admit(plan.table(), ins.rows().size(), false)) {
+                    return fallback().executeSql(sql, args);
+                }
+            } else if (isBypassed(plan.table())) {
+                // UPDATE / DELETE 不减到超限以下的问题不该由容量闸回答：
+                // 事后收紧上限时若让释放行的语句也抛超限，调用方将无法自救
                 return fallback().executeSql(sql, args);
+            } else {
+                touch(plan.table());
             }
             return mutate(plan.table(), () -> MemorySqlAst.executeDml(plan,
                     java.util.Arrays.asList(args),
@@ -1213,6 +1448,8 @@ public class InMemoryEngine extends AbstractEngine {
             evictedTables = 0L;
             expiredTables = 0L;
             bypassTransitions = 0L;
+            restoredTables = 0L;
+            restoredRows = 0L;
         }
         super.close();
     }
