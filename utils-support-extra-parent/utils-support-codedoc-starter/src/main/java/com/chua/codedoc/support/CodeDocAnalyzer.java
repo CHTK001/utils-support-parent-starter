@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import com.chua.common.support.utils.CollectionUtils;
 
 /**
@@ -119,11 +120,21 @@ final class CodeDocAnalyzer {
     }
 
     private String clientIdentity() {
+        // 供应商迁移时可用 -Dcodedoc.clientIdentity 指定历史身份，继续复用已生成的缓存，
+        // 避免换上游就把全量文档重新生成一遍。留空则按真实客户端配置推导。
+        String override = System.getProperty("codedoc.clientIdentity", "").trim();
+        if (!override.isEmpty()) {
+            return override;
+        }
         var client = options.chatClient();
         var setting = client.getSetting();
         // 不序列化配置对象，避免将 appKey、系统提示词或认证头写入站点与缓存。
-        return client.getClass().getName() + "|" + client.getModel() + "|"
+        String identity = client.getClass().getName() + "|" + client.getModel() + "|"
                 + (setting == null ? "" : setting.getProvider() + "|" + setting.getModel() + "|" + setting.getBaseUrl());
+        if (System.getProperty("codedoc.printIdentity") != null) {
+            System.err.println("CLIENT_IDENTITY=" + identity);
+        }
+        return identity;
     }
 
     private CodeDocPage readCache(Path cache, String id, String path, String source) {
@@ -193,36 +204,317 @@ final class CodeDocAnalyzer {
         }
     }
 
+    /**
+     * 把模型输出归一成文档片段。模型侧的结构偏差（散文包裹、字段缺失、行号偏差、
+     * 输出截断）按可追溯原则就地修正：行号落回本块的源码范围，缺失的可选字段取空值，
+     * 只有标题、章节正文这些不可替代的内容确实缺失时才判为失败并重试。
+     */
     static Fragment parse(String response, Chunk chunk) throws IOException {
         if (response == null || response.isBlank() || response.length() > 2_097_152) {
             throw new IOException("模型返回空响应或响应过大");
         }
-        String json = response.strip();
-        if (json.startsWith("```")) {
-            int firstLine = json.indexOf('\n');
-            int end = json.lastIndexOf("```");
-            if (firstLine < 0 || end <= firstLine || !json.substring(end + 3).isBlank()) {
-                throw new IOException("JSON 围栏未闭合");
-            }
-            json = json.substring(firstLine + 1, end).strip();
+        String json = extractJsonObject(response);
+        if (json == null) {
+            throw new IOException("模型响应不是可解析的 JSON 对象（输出可能被截断）");
         }
-        if (!json.startsWith("{") || !json.endsWith("}")) {
-            throw new IOException("模型响应必须是单个 JSON 对象");
+        Map<String, Object> root;
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> parsed = (Map<String, Object>) Json.fromJson(json, Map.class);
+            root = parsed;
+        } catch (RuntimeException exception) {
+            throw new IOException("JSON 处理失败: " + exception.getMessage(), exception);
         }
-        Fragment fragment = Json.fromJson(json, Fragment.class);
-        if (fragment == null || fragment.summary() == null || fragment.apis() == null || fragment.notes() == null
-                || fragment.summary().isBlank() || fragment.title() == null || fragment.title().isBlank()
-                || fragment.category() == null || fragment.category().isBlank()) {
-            throw new IOException("模型响应缺少功能概述或文档集合");
+        if (root == null || root.isEmpty()) {
+            throw new IOException("模型响应不是可解析的 JSON 对象");
         }
-        validateApis(fragment.apis(), chunk.startLine(), chunk.endLine());
-        validateSections(fragment.sections(), chunk.startLine(), chunk.endLine());
-        for (String note : fragment.notes()) {
-            if (note == null) {
-                throw new IOException("注意事项不能包含 null");
+        List<CodeDocPage.Section> sections = new ArrayList<>();
+        for (Object raw : list(root.get("sections"))) {
+            CodeDocPage.Section section = section(raw, chunk);
+            if (section != null) {
+                sections.add(section);
             }
         }
-        return fragment;
+        if (sections.isEmpty()) {
+            throw new IOException("指南章节缺失或正文为空");
+        }
+        List<CodeDocPage.Api> apis = new ArrayList<>();
+        for (Object raw : list(root.get("apis"))) {
+            CodeDocPage.Api api = api(raw, chunk);
+            if (api != null) {
+                apis.add(api);
+            }
+        }
+        String title = text(root.get("title"));
+        String category = text(root.get("category"));
+        String summary = text(root.get("summary"));
+        if (summary.isBlank()) {
+            // 概述缺失时取首章正文，保住模型已经写出的内容，不额外补充任何事实。
+            summary = firstParagraph(sections.get(0).content());
+        }
+        if (summary.isBlank()) {
+            throw new IOException("模型响应缺少功能概述");
+        }
+        if (title.isBlank()) {
+            title = summary.length() > 40 ? summary.substring(0, 40) : summary;
+        }
+        if (category.isBlank()) {
+            category = "未分类";
+        }
+        return new Fragment(summary, apis, strings(root.get("notes")), title, category, sections);
+    }
+
+    /**
+     * 提取第一个完整的 JSON 对象。模型常在 JSON 前后附带解释文字，
+     * 或输出到一半被长度上限截断；前者按括号配平截取，后者按括号栈补齐闭合符。
+     */
+    private static String extractJsonObject(String response) {
+        String text = response.strip();
+        if (text.startsWith("```")) {
+            int firstLine = text.indexOf('\n');
+            if (firstLine > 0) {
+                text = text.substring(firstLine + 1);
+            }
+        }
+        int start = text.indexOf('{');
+        if (start < 0) {
+            return null;
+        }
+        int end = matchingBrace(text, start);
+        if (end > start) {
+            return text.substring(start, end + 1);
+        }
+        return repair(text.substring(start));
+    }
+
+    private static int matchingBrace(String text, int start) {
+        int depth = 0;
+        boolean inString = false;
+        boolean escaped = false;
+        for (int i = start; i < text.length(); i++) {
+            char current = text.charAt(i);
+            if (inString) {
+                if (escaped) {
+                    escaped = false;
+                } else if (current == '\\') {
+                    escaped = true;
+                } else if (current == '"') {
+                    inString = false;
+                }
+                continue;
+            }
+            if (current == '"') {
+                inString = true;
+            } else if (current == '{' || current == '[') {
+                depth++;
+            } else if (current == '}' || current == ']') {
+                depth--;
+                if (depth == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 补齐被截断对象的闭合符号：先闭合未结束的字符串，去掉截断处残留的逗号或冒号，
+     * 再按未闭合括号的逆序补齐。补齐后仍不能解析时返回 null，交给重试。
+     */
+    private static String repair(String truncated) {
+        StringBuilder stack = new StringBuilder();
+        boolean inString = false;
+        boolean escaped = false;
+        for (int i = 0; i < truncated.length(); i++) {
+            char current = truncated.charAt(i);
+            if (inString) {
+                if (escaped) {
+                    escaped = false;
+                } else if (current == '\\') {
+                    escaped = true;
+                } else if (current == '"') {
+                    inString = false;
+                }
+                continue;
+            }
+            if (current == '"') {
+                inString = true;
+            } else if (current == '{') {
+                stack.append('}');
+            } else if (current == '[') {
+                stack.append(']');
+            } else if ((current == '}' || current == ']') && stack.length() > 0) {
+                stack.setLength(stack.length() - 1);
+            }
+        }
+        StringBuilder repaired = new StringBuilder(truncated);
+        if (inString) {
+            repaired.append('"');
+        }
+        int last = repaired.length() - 1;
+        while (last >= 0 && Character.isWhitespace(repaired.charAt(last))) {
+            last--;
+        }
+        while (last >= 0 && (repaired.charAt(last) == ',' || repaired.charAt(last) == ':')) {
+            repaired.setLength(last);
+            last--;
+            while (last >= 0 && Character.isWhitespace(repaired.charAt(last))) {
+                last--;
+            }
+        }
+        for (int i = stack.length() - 1; i >= 0; i--) {
+            repaired.append(stack.charAt(i));
+        }
+        try {
+            Json.fromJson(repaired.toString(), Map.class);
+            return repaired.toString();
+        } catch (RuntimeException exception) {
+            return null;
+        }
+    }
+
+    private static CodeDocPage.Section section(Object raw, Chunk chunk) {
+        if (!(raw instanceof Map<?, ?> map)) {
+            return null;
+        }
+        String title = text(map.get("title"));
+        String content = text(map.get("content"));
+        if (title.isBlank() || content.isBlank()) {
+            return null;
+        }
+        int[] lines = clampLines(map.get("startLine"), map.get("endLine"), chunk);
+        List<CodeDocPage.Example> examples = new ArrayList<>();
+        for (Object item : list(map.get("examples"))) {
+            CodeDocPage.Example example = example(item);
+            if (example != null) {
+                examples.add(example);
+            }
+        }
+        return new CodeDocPage.Section(title, content, examples, strings(map.get("notes")),
+                lines[0], lines[1]);
+    }
+
+    private static CodeDocPage.Api api(Object raw, Chunk chunk) {
+        if (!(raw instanceof Map<?, ?> map)) {
+            return null;
+        }
+        String name = text(map.get("name"));
+        String signature = text(map.get("signature"));
+        if (name.isBlank() || signature.isBlank()) {
+            return null;
+        }
+        int[] lines = clampLines(map.get("startLine"), map.get("endLine"), chunk);
+        List<CodeDocPage.Parameter> parameters = new ArrayList<>();
+        for (Object item : list(map.get("parameters"))) {
+            if (!(item instanceof Map<?, ?> parameter)) {
+                continue;
+            }
+            String parameterName = text(parameter.get("name"));
+            if (parameterName.isBlank()) {
+                continue;
+            }
+            parameters.add(new CodeDocPage.Parameter(parameterName,
+                    unknownIfBlank(text(parameter.get("type"))), text(parameter.get("description"))));
+        }
+        List<CodeDocPage.Example> examples = new ArrayList<>();
+        for (Object item : list(map.get("examples"))) {
+            CodeDocPage.Example example = example(item);
+            if (example != null) {
+                examples.add(example);
+            }
+        }
+        return new CodeDocPage.Api(name, signature, text(map.get("description")), parameters,
+                unknownIfBlank(text(map.get("returns"))), examples, strings(map.get("notes")),
+                lines[0], lines[1]);
+    }
+
+    private static CodeDocPage.Example example(Object raw) {
+        if (raw instanceof Map<?, ?> map) {
+            String code = text(map.get("code"));
+            if (code.isBlank()) {
+                return null;
+            }
+            String title = text(map.get("title"));
+            return new CodeDocPage.Example(title.isBlank() ? "示例" : title, code,
+                    text(map.get("explanation")));
+        }
+        String code = text(raw);
+        return code.isBlank() ? null : new CodeDocPage.Example("示例", code, "");
+    }
+
+    /**
+     * 行号归一：与本块相交时收窄到本块范围，整段越界时退回本块范围。
+     * 未经核对的越界行号不能保留，否则源码链接会指向无关代码。
+     */
+    private static int[] clampLines(Object rawStart, Object rawEnd, Chunk chunk) {
+        int start = number(rawStart, chunk.startLine());
+        int end = number(rawEnd, chunk.endLine());
+        if (end < start) {
+            int swap = start;
+            start = end;
+            end = swap;
+        }
+        if (end < chunk.startLine() || start > chunk.endLine()) {
+            return new int[]{chunk.startLine(), chunk.endLine()};
+        }
+        return new int[]{Math.max(chunk.startLine(), start), Math.min(chunk.endLine(), end)};
+    }
+
+    private static int number(Object value, int fallback) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value instanceof String text) {
+            var matcher = Pattern.compile("-?\\d+").matcher(text);
+            if (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group());
+                } catch (NumberFormatException ignored) {
+                    return fallback;
+                }
+            }
+        }
+        return fallback;
+    }
+
+    private static String text(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof String string) {
+            return string.strip();
+        }
+        if (value instanceof Map<?, ?> || value instanceof List<?>) {
+            return Json.toJson(value);
+        }
+        return String.valueOf(value).strip();
+    }
+
+    private static List<?> list(Object value) {
+        if (value instanceof List<?> items) {
+            return items;
+        }
+        return value instanceof Map<?, ?> ? List.of(value) : List.of();
+    }
+
+    private static List<String> strings(Object value) {
+        List<String> result = new ArrayList<>();
+        for (Object item : list(value)) {
+            String note = text(item);
+            if (!note.isBlank()) {
+                result.add(note);
+            }
+        }
+        return result;
+    }
+
+    private static String firstParagraph(String content) {
+        String flat = content.strip().replaceAll("\\s+", " ");
+        return flat.length() > 240 ? flat.substring(0, 240) : flat;
+    }
+
+    private static String unknownIfBlank(String value) {
+        return value.isBlank() ? "源码未明确" : value;
     }
 
     private static String numberedSource(Chunk chunk) {

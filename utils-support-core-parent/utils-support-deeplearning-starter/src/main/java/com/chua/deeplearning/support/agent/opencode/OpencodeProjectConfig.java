@@ -646,6 +646,7 @@ public final class OpencodeProjectConfig {
             node.put("name", name);
             node.put("npm", PACKAGE_OPENAI_COMPATIBLE);
             if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
+                node.put("api", spec.baseUrl());
                 childObject(node, "options").put("baseURL", spec.baseUrl());
             }
             String apiKey = providerApiKeys.get(spec.id());
@@ -656,9 +657,16 @@ public final class OpencodeProjectConfig {
             ObjectNode v2Node = existing instanceof ObjectNode object ? object : container.putObject(spec.id());
             v2Node.put("name", name);
             v2Node.put("package", PACKAGE_OPENAI_COMPATIBLE);
+            ObjectNode providerApi = childObject(v2Node, "api");
+            providerApi.put("type", "aisdk");
+            providerApi.put("package", PACKAGE_OPENAI_COMPATIBLE);
             v2Node.putArray("env").add(providerEnvName(spec.id()));
             if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
+                providerApi.put("url", spec.baseUrl());
                 childObject(v2Node, "settings").put("baseURL", spec.baseUrl());
+            }
+            if (StringUtils.isNotBlank(apiKey)) {
+                childObject(childObject(v2Node, "request"), "body").put("apiKey", apiKey);
             }
             if (spec.models() == null || spec.models().isEmpty()) {
                 continue;
@@ -669,8 +677,18 @@ public final class OpencodeProjectConfig {
                 if (StringUtils.isBlank(model)) {
                     continue;
                 }
-                legacyModels.putObject(model.trim()).put("name", model.trim());
-                models.putObject(model.trim()).put("name", model.trim());
+                ObjectNode legacyModel = childObject(legacyModels, model.trim());
+                legacyModel.put("name", model.trim());
+                ObjectNode legacyApi = childObject(legacyModel, "provider");
+                legacyApi.put("npm", PACKAGE_OPENAI_COMPATIBLE);
+                if (spec.baseUrl() != null && !spec.baseUrl().isBlank()) {
+                    legacyApi.put("api", spec.baseUrl());
+                }
+                ObjectNode modelNode = childObject(models, model.trim());
+                modelNode.put("name", model.trim());
+                ObjectNode modelApi = childObject(modelNode, "api");
+                modelApi.setAll(providerApi);
+                modelApi.put("id", model.trim());
             }
         }
     }
