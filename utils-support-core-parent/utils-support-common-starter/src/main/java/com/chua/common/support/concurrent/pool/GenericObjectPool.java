@@ -128,6 +128,8 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         this.factory = Objects.requireNonNull(factory, "factory");
         if (config.getMaxTotal() < 1 || config.getMinIdle() < 0
                 || config.getMinIdle() > config.getMaxTotal() || config.getMaxIdle() < 0
+                || config.getMaxIdle() > config.getMaxTotal()
+                || config.getIdleTimeoutMillis() < 0
                 || config.getBorrowTimeoutMillis() < 0
                 || (config.isIdleEvictionEnabled() && config.getIdleEvictionIntervalMillis() < 1)) {
             throw new IllegalArgumentException("对象池容量、等待时间或清扫间隔无效");
@@ -204,8 +206,9 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 return;
             }
 
-            // 验证有效性
-            if (closed || (config.isTestOnReturn() && !validateQuietly(object))) {
+            // 归还前先清理可变状态，失败对象不进入空闲队列
+            if (closed || !passivateQuietly(object)
+                    || (config.isTestOnReturn() && !validateQuietly(object))) {
                 destroyPooled(pooled);
                 signalBorrowers();
                 return;
@@ -407,6 +410,22 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
             return factory.validate(object);
         } catch (RuntimeException e) {
             LOG.log(System.Logger.Level.DEBUG, "[pool] 校验失败: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 执行归还前清理；工厂异常按不可复用处理。
+     *
+     * @param object 池化对象
+     * @return 是否可以继续复用
+     */
+    private boolean passivateQuietly(T object) {
+        try {
+            factory.passivateObject(object);
+            return true;
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "[pool] 归还前清理失败: " + e.getMessage(), e);
             return false;
         }
     }

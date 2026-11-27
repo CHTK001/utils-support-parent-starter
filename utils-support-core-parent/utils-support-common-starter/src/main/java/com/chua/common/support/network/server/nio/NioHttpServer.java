@@ -626,13 +626,13 @@ public class NioHttpServer extends AbstractServer {
                         // 只清理该连接,不允许杀死整个事件循环线程
                         log.warn("Event loop[{}] key error: {} -> {}, closing conn", idx,
                                 t.getClass().getSimpleName(), t.getMessage(), t);
-                        try {
-                            key.cancel();
-                        } catch (Exception e) {
-                            log.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
-                        }
+                        // 必须走 closeConn：它负责取消 key、关通道、标记 SSE 收尾并归还
+                        // 连接预算。异常路径若只 cancel+close，会漏还预算（连接上限逐步耗尽）
+                        // 且让 SSE 保活线程永远看不到断链。
                         ConnectionState st = (ConnectionState) key.attachment();
-                        closeQuietly(st != null ? st.channel : null);
+                        if (st != null) {
+                            closeConn(key, st);
+                        }
                     }
                 }
             } catch (Throwable t) {
@@ -1363,6 +1363,13 @@ public class NioHttpServer extends AbstractServer {
             log.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
         }
         closeQuietly(st.channel);
+        // 流式响应(SSE)没有 handler 收尾，必须在这里通知响应对象「对端已消失」：
+        // 生产者/保活线程靠 isChannelClosed() 判断退出，漏掉这一步会让每条断开的
+        // SSE 连接永久残留一个线程 + 一个任务监听器（每写一帧都往死连接推全量快照）。
+        NioServerResponse sse = st.sseResponse;
+        if (sse != null) {
+            sse.markChannelClosed();
+        }
         // 连接预算必须与 tryAcquireConnection() 严格配对，且只释放一次：
         // 一条连接可能被「读结束 / 写结束 / 异常 / stop()」多条路径关闭，用标志位保证幂等。
         if (st.budgetAcquired) {

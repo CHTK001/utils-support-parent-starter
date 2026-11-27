@@ -56,6 +56,18 @@ public interface ObjectFactory<T> {
     }
 
     /**
+     * 归还对象前恢复可复用状态。
+     *
+     * <p>重置失败时对象池会销毁对象，而不是将脏状态交给下一位借用者。</p>
+     *
+     * @param object 即将归还的对象
+     * @throws Exception 重置失败
+     */
+    default void passivateObject(T object) throws Exception {
+        // 默认空实现，子类按需覆写
+    }
+
+    /**
      * 销毁对象
      *
      * <p>对象被移除出池时调用（空闲超时、归还时验证失败、池关闭等）。
