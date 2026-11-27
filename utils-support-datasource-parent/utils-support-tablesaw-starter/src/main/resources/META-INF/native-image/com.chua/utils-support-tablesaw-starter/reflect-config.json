@@ -1,6 +1,6 @@
 [
 {
-  "name": "com.chua.tablesaw.support.network.server.filter.BuiltinEndpointFilter",
+  "name": "com.chua.tablesaw.support.network.server.filter.BuiltinEndpointServerFilter",
   "allDeclaredConstructors": true,
   "allPublicConstructors": true,
   "allDeclaredMethods": true,

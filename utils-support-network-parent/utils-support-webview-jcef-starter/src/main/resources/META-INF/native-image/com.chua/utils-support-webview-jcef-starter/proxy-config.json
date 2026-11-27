@@ -1,4 +1,4 @@
 [
-  ["com.chua.common.support.directory.PolledDirectory"],
-  ["com.chua.common.support.webview.WebViewWindow"]
+  ["com.chua.common.support.lang.directory.PolledDirectory"],
+  ["com.chua.webview.support.webview.WebViewWindow"]
 ]

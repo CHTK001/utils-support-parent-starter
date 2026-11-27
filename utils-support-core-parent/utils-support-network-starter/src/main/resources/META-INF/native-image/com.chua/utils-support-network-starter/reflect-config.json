@@ -9,7 +9,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.CorsFilter",
+    "name": "com.chua.common.support.network.server.filter.CorsServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -18,7 +18,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.GzipFilter",
+    "name": "com.chua.common.support.network.server.filter.GzipServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -36,7 +36,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.IpFilter",
+    "name": "com.chua.common.support.network.server.filter.IpServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -45,7 +45,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.proxy.VertxWebSocketProxyFilter",
+    "name": "com.chua.common.support.network.server.filter.proxy.VertxWebSocketProxyServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -54,7 +54,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.RateLimitFilter",
+    "name": "com.chua.common.support.network.server.filter.RateLimitServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -63,7 +63,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.RequestIdFilter",
+    "name": "com.chua.common.support.network.server.filter.RequestIdServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -72,7 +72,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.RequestTimeoutFilter",
+    "name": "com.chua.common.support.network.server.filter.RequestTimeoutServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -81,7 +81,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.ResponseRewriteFilter",
+    "name": "com.chua.common.support.network.server.filter.ResponseRewriteServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
