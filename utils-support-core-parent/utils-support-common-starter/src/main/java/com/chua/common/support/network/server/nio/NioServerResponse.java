@@ -402,7 +402,13 @@ public class NioServerResponse implements ServerResponse {
      *         重置会破坏正在推送的流，因此不复用）
      */
     public boolean resetForNextRequest() {
-        boolean reusable = !sseMode;
+        if (sseMode) {
+            // SSE 响应在 handler 返回后仍由推送线程（及保活线程）持有：此时必须**原样保留**
+            // 全部状态后返回 false，交给调用方丢弃缓存。若先清 sseMode/ended/channelClosed
+            // 再返回 false，持有者后续 sseEvent/sseClose 会全部走「非 SSE 模式」静默返回，
+            // 表现为首帧快照后连接再无任何推送与心跳（真实事故：任务页 SSE 实时同步只生效一次）。
+            return false;
+        }
         statusCode = 200;
         if (headers != null) {
             headers.clear();
@@ -424,7 +430,7 @@ public class NioServerResponse implements ServerResponse {
                 rawOutput.reset();
             }
         }
-        return reusable;
+        return true;
     }
 
     /**

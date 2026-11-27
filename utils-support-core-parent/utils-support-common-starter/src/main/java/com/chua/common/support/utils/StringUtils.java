@@ -4338,7 +4338,7 @@ public class StringUtils {
         int length = source.length();
         for (int i = 0; i < length; i++) {
             char s = source.charAt(i);
-            if ((s ^ target.charAt(i)) == 1) {
+            if ((s ^ target.charAt(i)) != 0) {
                 return false;
             }
         }
