@@ -147,6 +147,8 @@ while (page.hasNext()) {
 
 - **JVM 系统属性**（JDBC 引擎专属）：`-Dengine.jdbc.cursor-paging=true`（常量 `JdbcEngine.CURSOR_PAGING_PROPERTY`）开启 keyset 游标分页实验能力，缺省 `false`；实例级 `setCursorPagingEnabled(boolean)` 优先于该属性。
 - **JVM 系统属性**（内存引擎容量保护，全部缺省关闭/不限制，关闭时行为零变化）：`-Dengine.memory.guard=true`（总开关，缺省 `false`）、`-Dengine.memory.max-rows=`（单表，缺省 50000）、`-Dengine.memory.max-total-rows=`（合计，缺省 200000）、`-Dengine.memory.max-tables=`（表数，缺省 64）、`-Dengine.memory.ttl-seconds=`（空闲回收，缺省 0 即不回收）、`-Dengine.memory.bypass-on-overflow=true`（超限软旁路到 `setFallbackEngine(...)`，缺省 `false` 即拒绝抛 `IllegalArgumentException`）。常量见 `InMemoryEngine.*_PROPERTY`，实例级 setter 优先于系统属性；阈值 `<=0` 表示该项不限制。
+- **JVM 系统属性**（内存引擎表存储，缺省 `heap` 与历史实现等价）：`-Dengine.memory.store=mmap` 把整表行序列化进 JDK 内存映射文件（每表一个 `.dat` 数据文件 + 一个 `.idx` 偏移索引侧车，堆内只常驻 `long[]` 偏移数组），缺省 `heap` 即行对象留在堆内；`-Dengine.memory.store.dir=<目录>` 指定存放目录，缺省 `${java.io.tmpdir}/chua-engine-mmap`。常量见 `InMemoryEngine.TABLE_STORE_PROPERTY` 与 `MappedFileTableStore.DIR_PROPERTY`，实例级 `setTableStore(String|TableStore)` 优先于系统属性；未知实现名直接抛 `IllegalStateException`，不静默回退。引擎 `close()` 保留数据文件与 `.idx` 供下次恢复，删表时清理对应文件。
+- **JVM 系统属性**（Engine 读缓存 `CachingEngine`，缺省全部关闭，不装饰时行为零变化）：`-Dengine.cache.enabled=true`（总开关，缺省 `false`）、`-Dengine.cache.tables=city,area`（表白名单，逗号/分号/空白分隔，`*` 表示全部；缺省为空即不缓存任何表）、`-Dengine.cache.max-rows=`（单表副本行数上限，缺省 50000，超限该表直读数据库）、`-Dengine.cache.max-total-rows=`（全部副本行数上限，缺省 200000，超限按 LRU 逐出）、`-Dengine.cache.ttl-seconds=`（副本存活秒数，缺省 0 即不过期）、`-Dengine.cache.refresh-interval-seconds=`（后台刷新间隔秒数，缺省 0 即不启动刷新时间轮；语义是「上一轮结束后再等 N 秒」）、`-Dengine.cache.refresh-wheel-slots=`（时间轮槽位，缺省 512）、`-Dengine.cache.refresh-wheel-tick-millis=`（tick 毫秒，缺省 1000）。常量见 `CachingEngine.*_PROPERTY`，实例级 setter 优先于系统属性。同一能力在 Spring 侧的入口是 `plugin.datasource.engine.cache.*`（`EngineCacheAutoConfiguration`，缺省 `enabled=false`），纯 Java 层与 Spring 层是同一能力的两个入口，不做互相覆盖。
 - **方言资源文件**：`META-INF/dialect-env/{protocol}.env`，例如 `MysqlDialect` → `mysql.env`、`PostgresqlDialect` → `postgresql.env`。模块内置 24 个文件：mysql、postgresql（env9/10）、oracle（11g/12c）、sqlserver（2008/2012）、sqlite（2）、h2（h2v1）、mariadb（103）、hive（2）、derby（1014）、duckdb（06）、clickhouse（20）。
 - **资源加载规则**（`AbstractDialect.loadDefaultEnv`）：按类路径 `getResources` 合并同名资源——类路径靠前的 jar 逐键优先，后续 jar 只补缺失键，全部按 UTF-8 读取。
 - **代码级覆盖**：`withProperties(Properties)` 传入的外部 properties 优先级高于内置 `.env`；`config(key, defaultValue)` 三级读取为「外部注入 → 内置 .env → 默认值」。
@@ -156,7 +158,7 @@ while (page.hasNext()) {
 
 ## SPI 扩展点
 
-注册文件位于 `src/main/resources/META-INF/extensions/`，共 9 个：
+注册文件位于 `src/main/resources/META-INF/extensions/`，共 11 个：
 
 | 接口全名（注册文件名） | 本模块注册项 |
 |---|---|
@@ -166,6 +168,8 @@ while (page.hasNext()) {
 | `com.chua.common.support.lang.datasource.engine.ddl.DslManager` | `default=DefaultDslManager`（通用 JDBC DDL 管理器，`@Spi` 别名 `DslManager.DEFAULT_ALIAS`，通过 `DatabaseMetaData` 读表结构再由注入的 `Dialect` 生成 DDL） |
 | `com.chua.common.support.lang.datasource.engine.ddl.DdlProvider` | `ddl-provider=DefaultDdlProvider`（`@Spi(order = -1)` 兜底占位：`supports()` 恒 false，建库/删库/建表方法均抛 `UnsupportedOperationException`；实际 DDL 由 `JdbcEngine` 内置语法或外部方言 provider 生成） |
 | `com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor` | `engine-interceptor=NoOpEngineInterceptor`（`@Spi(order = -1)` 空实现兜底，业务方注册更高 order 的拦截器在其前触发；`AbstractEngine.interceptors()` 结果按实例缓存） |
+| `com.chua.common.support.lang.datasource.schema.SchemaDriver` | `entity=EntitySchemaDriver`（按实体类表名注解与字段生成 `CREATE TABLE IF NOT EXISTS` 并执行，幂等；表名解析复用 `AbstractEngine.resolveTableName` 并优先读 MyBatis-Plus `@TableName`，列型经 `Dialect` 渲染，DDL 优先走 `DdlProvider` 方言实现） |
+| `com.chua.datasource.support.engine.store.TableStore` | `heap=HeapTableStore`（`@SpiDefault`，行对象驻堆，历史行为）、`mmap=MappedFileTableStore`（行序列化进内存映射文件，`.dat` 数据 + `.idx` 偏移索引侧车，堆内只留 `long[]`；`open()` 返回的列表每次 `get` 都是新副本，更新必须按下标 `set` 写回） |
 | `com.chua.common.support.lang.document.DocumentTemplate` | `default=DefaultDocumentTemplate`、`swagger=SwaggerDocumentTemplate`、`aurora=AuroraDocumentTemplate`、`stripe=StripeDocumentTemplate`、`screw=ScrewDocumentTemplate` |
 | `com.chua.common.support.lang.document.DocumentParser` | `database=DatabaseDocumentParser`、`swagger=SwaggerOpenApiParser`、`openapi=SwaggerOpenApiParser` |
 | `com.chua.common.support.lang.datasource.flyway.ScriptConverter` | `derby=DerbyScriptConverter`、`hive=HiveScriptConverter` |
