@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.time.Duration;
 import java.security.MessageDigest;
@@ -65,7 +68,10 @@ public class RedisClientProvider implements MiddlewareClientProvider, AutoClosea
     /** 与建池、借出及淘汰共用监视器，关闭后禁止再次创建连接池。 */
     private boolean closed;
 
-    /** 连接配置变化后，长期未使用且无借出连接的池可被惰性回收。 */
+    /** 延迟启动，所有池回收后自行退出，避免空注册实例长期持有线程。 */
+    private ScheduledExecutorService sweeper;
+
+    /** 长期未使用且无借出连接的池由后台清扫回收。 */
     private static final long POOL_IDLE_TTL_NANOS = java.util.concurrent.TimeUnit.MINUTES.toNanos(10);
 
     private record PoolKey(String host, int port, int database, String credentialFingerprint, int timeoutMillis) {
@@ -74,6 +80,8 @@ public class RedisClientProvider implements MiddlewareClientProvider, AutoClosea
     private static final class PoolEntry {
         private final JedisPool pool;
         private final AtomicLong lastAccessNanos = new AtomicLong(System.nanoTime());
+        /** 获取连接期间的保留数，防止尚未计入 active 就被清扫关闭。 */
+        private int acquiring;
 
         private PoolEntry(JedisPool pool) {
             this.pool = pool;
@@ -258,15 +266,26 @@ public class RedisClientProvider implements MiddlewareClientProvider, AutoClosea
     }
 
     /** 借用固定逻辑库的连接，避免共享 Jedis 实例在 SELECT 后污染后续租约。 */
-    private synchronized Jedis jedis(MiddlewareConnectRequest request, int database) {
-        if (closed) {
-            throw new IllegalStateException("Redis 客户端已关闭");
+    private Jedis jedis(MiddlewareConnectRequest request, int database) {
+        PoolEntry entry;
+        synchronized (this) {
+            if (closed) {
+                throw new IllegalStateException("Redis 客户端已关闭");
+            }
+            PoolKey key = poolKey(request, database);
+            entry = pools.computeIfAbsent(key, ignored -> new PoolEntry(createPool(request, key)));
+            entry.acquiring++;
+            entry.lastAccessNanos.set(System.nanoTime());
+            startSweeper();
         }
-        PoolKey key = poolKey(request, database);
-        PoolEntry entry = pools.computeIfAbsent(key, ignored -> new PoolEntry(createPool(request, key)));
-        entry.lastAccessNanos.set(System.nanoTime());
-        evictIdlePools();
-        return entry.pool.getResource();
+        try {
+            return entry.pool.getResource();
+        } finally {
+            synchronized (this) {
+                entry.acquiring--;
+                entry.lastAccessNanos.set(System.nanoTime());
+            }
+        }
     }
 
     private PoolKey poolKey(MiddlewareConnectRequest request, int database) {
@@ -302,14 +321,30 @@ public class RedisClientProvider implements MiddlewareClientProvider, AutoClosea
         return new JedisPool(poolConfig, new redis.clients.jedis.HostAndPort(key.host(), key.port()), b.build());
     }
 
-    private void evictIdlePools() {
+    /** 在池映射监视器内启动唯一后台清扫器。 */
+    private void startSweeper() {
+        if (sweeper == null) {
+            sweeper = Executors.newSingleThreadScheduledExecutor(task -> {
+                Thread thread = new Thread(task, "redis-client-pool-sweep");
+                thread.setDaemon(true);
+                return thread;
+            });
+            sweeper.scheduleWithFixedDelay(this::evictIdlePools, 1, 1, TimeUnit.MINUTES);
+        }
+    }
+
+    private synchronized void evictIdlePools() {
         long cutoff = System.nanoTime() - POOL_IDLE_TTL_NANOS;
         pools.forEach((key, entry) -> {
-            if (entry.lastAccessNanos.get() < cutoff && entry.pool.getNumActive() == 0
+            if (entry.acquiring == 0 && entry.lastAccessNanos.get() < cutoff && entry.pool.getNumActive() == 0
                     && pools.remove(key, entry)) {
                 entry.pool.close();
             }
         });
+        if (pools.isEmpty() && sweeper != null) {
+            sweeper.shutdown();
+            sweeper = null;
+        }
     }
 
     @Override
@@ -318,6 +353,10 @@ public class RedisClientProvider implements MiddlewareClientProvider, AutoClosea
             return;
         }
         closed = true;
+        if (sweeper != null) {
+            sweeper.shutdownNow();
+            sweeper = null;
+        }
         pools.values().forEach(entry -> entry.pool.close());
         pools.clear();
     }

@@ -380,7 +380,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
             boolean schemaSupported = true;
             try {
                 schema = connection.getSchema();
-            } catch (SQLFeatureNotSupportedException e) {
+            } catch (SQLFeatureNotSupportedException | AbstractMethodError e) {
                 schemaSupported = false;
             }
             return new ConnectionState(connection.getAutoCommit(), connection.isReadOnly(),
