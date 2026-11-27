@@ -4,16 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Proxy;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.Properties;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.utils.StringUtils;
 
 /**
@@ -153,52 +159,141 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
      */
     public Connection borrowConnection() throws Exception {
         Connection connection = borrow();
-        AtomicBoolean returned = new AtomicBoolean();
-        AtomicBoolean invalid = new AtomicBoolean();
-        return (Connection) Proxy.newProxyInstance(
-                ConnectionPool.class.getClassLoader(), new Class<?>[]{Connection.class}, (proxy, method, args) -> {
-                    if (method.getDeclaringClass() == Object.class) {
-                        return switch (method.getName()) {
-                            case "equals" -> proxy == args[0];
-                            case "hashCode" -> System.identityHashCode(proxy);
-                            case "toString" -> "PooledJdbcConnection[returned=" + returned.get() + "]";
-                            default -> ReflectUtils.invokeProxy(connection, method, args);
-                        };
-                    }
-                    if ("close".equals(method.getName())) {
-                        if (returned.compareAndSet(false, true)) {
-                            if (invalid.get()) {
-                                invalidateObject(connection);
-                            } else {
-                                returnObject(connection);
-                            }
-                        }
-                        return null;
-                    }
-                    if ("isClosed".equals(method.getName()) && returned.get()) {
-                        return true;
-                    }
-                    if ("isWrapperFor".equals(method.getName()) && args != null && args.length == 1
-                            && args[0] instanceof Class<?> type && type.isInstance(proxy)) {
-                        return true;
-                    }
-                    if ("unwrap".equals(method.getName()) && args != null && args.length == 1
-                            && args[0] instanceof Class<?> type && type.isInstance(proxy)) {
-                        return proxy;
-                    }
-                    if (returned.get()) {
-                        throw new SQLException("连接租约已关闭");
-                    }
+        try {
+            return new ConnectionLease(connection).proxy;
+        } catch (RuntimeException | Error e) {
+            invalidateObject(connection);
+            throw e;
+        }
+    }
+
+    /** 连接及其 JDBC 子句柄共用租约门禁，归还前关闭全部未关闭的 Statement。 */
+    private final class ConnectionLease implements InvocationHandler {
+        private final Connection connection;
+        private final Connection proxy;
+        private final Map<Object, Object> handles = new IdentityHashMap<>();
+        private final Map<Object, Boolean> closedHandles = new IdentityHashMap<>();
+        private boolean returned;
+        private boolean invalid;
+
+        private ConnectionLease(Connection connection) {
+            this.connection = connection;
+            this.proxy = (Connection) Proxy.newProxyInstance(ConnectionPool.class.getClassLoader(),
+                    new Class<?>[]{Connection.class}, this);
+        }
+
+        @Override
+        public synchronized Object invoke(Object handle, Method method, Object[] args) throws Throwable {
+            return invokeHandle(connection, handle, method, args);
+        }
+
+        private synchronized Object invokeHandle(Object target, Object handle, Method method, Object[] args)
+                throws Throwable {
+            String name = method.getName();
+            if (method.getDeclaringClass() == Object.class) {
+                return switch (name) {
+                    case "equals" -> handle == args[0];
+                    case "hashCode" -> System.identityHashCode(handle);
+                    case "toString" -> "PooledJdbcHandle[returned=" + returned + "]";
+                    default -> ReflectUtils.invokeProxy(target, method, args);
+                };
+            }
+            if ("close".equals(name)) {
+                if (target == connection) {
+                    release();
+                } else if (!returned && !closedHandles.containsKey(target)) {
                     try {
-                        return ReflectUtils.invokeProxy(connection, method, args);
-                    } catch (SQLException e) {
-                        String state = e.getSQLState();
-                        if (state != null && state.startsWith("08")) {
-                            invalid.set(true);
-                        }
-                        throw e;
+                        invokePhysical(target, method, args);
+                    } catch (Throwable failure) {
+                        invalid = true;
+                        throw failure;
+                    } finally {
+                        closedHandles.put(target, Boolean.TRUE);
                     }
-                });
+                }
+                return null;
+            }
+            if ("isClosed".equals(name) && (returned || closedHandles.containsKey(target))) {
+                return true;
+            }
+            if (returned || closedHandles.containsKey(target)) {
+                throw new SQLException("JDBC 租约或句柄已关闭");
+            }
+            if ("getConnection".equals(name) && method.getReturnType() == Connection.class) {
+                return proxy;
+            }
+            if (args != null && args.length == 1 && args[0] instanceof Class<?> type) {
+                if ("isWrapperFor".equals(name)) {
+                    return type.isInstance(handle);
+                }
+                if ("unwrap".equals(name)) {
+                    if (type.isInstance(handle)) {
+                        return handle;
+                    }
+                    throw new SQLFeatureNotSupportedException("连接租约不暴露底层 JDBC 句柄: " + type.getName());
+                }
+            }
+            if (target == connection && "abort".equals(name)) {
+                invalid = true;
+            }
+            return wrap(invokePhysical(target, method, args));
+        }
+
+        private Object invokePhysical(Object target, Method method, Object[] args) throws Throwable {
+            try {
+                return ReflectUtils.invokeProxy(target, method, args);
+            } catch (SQLException e) {
+                if (e.getSQLState() != null && e.getSQLState().startsWith("08")) {
+                    invalid = true;
+                }
+                throw e;
+            }
+        }
+
+        private Object wrap(Object value) {
+            if (value == connection) {
+                return proxy;
+            }
+            Class<?> type = switch (value) {
+                case CallableStatement ignored -> CallableStatement.class;
+                case PreparedStatement ignored -> PreparedStatement.class;
+                case Statement ignored -> Statement.class;
+                case ResultSet ignored -> ResultSet.class;
+                case DatabaseMetaData ignored -> DatabaseMetaData.class;
+                case null, default -> null;
+            };
+            if (type == null) {
+                return value;
+            }
+            return handles.computeIfAbsent(value, target -> Proxy.newProxyInstance(
+                    ConnectionPool.class.getClassLoader(), new Class<?>[]{type},
+                    (handle, method, args) -> invokeHandle(target, handle, method, args)));
+        }
+
+        private void release() {
+            if (returned) {
+                return;
+            }
+            returned = true;
+            for (Object target : handles.keySet()) {
+                if ((target instanceof Statement || target instanceof ResultSet)
+                        && !closedHandles.containsKey(target)) {
+                    try {
+                        ((AutoCloseable) target).close();
+                    } catch (Exception e) {
+                        invalid = true;
+                        log.debug("[pool] JDBC 子句柄清理失败，销毁物理连接: {}", e.getMessage());
+                    }
+                }
+            }
+            handles.clear();
+            closedHandles.clear();
+            if (invalid) {
+                invalidateObject(connection);
+            } else {
+                returnObject(connection);
+            }
+        }
     }
 
     /**
@@ -373,19 +468,13 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     }
 
     /** 捕获物理连接的初始会话设置，并在每次租约归还时恢复。 */
-    private record ConnectionState(boolean autoCommit, boolean readOnly, int isolation,
-                                   String catalog, String schema, boolean schemaSupported, int holdability) {
+    private record ConnectionState(boolean autoCommit, JdbcSetting<Boolean> readOnly, JdbcSetting<Integer> isolation,
+                                   JdbcSetting<String> catalog, JdbcSetting<String> schema,
+                                   JdbcSetting<Integer> holdability) {
         private static ConnectionState capture(Connection connection) throws SQLException {
-            String schema = null;
-            boolean schemaSupported = true;
-            try {
-                schema = connection.getSchema();
-            } catch (SQLFeatureNotSupportedException | AbstractMethodError e) {
-                schemaSupported = false;
-            }
-            return new ConnectionState(connection.getAutoCommit(), connection.isReadOnly(),
-                    connection.getTransactionIsolation(), connection.getCatalog(), schema,
-                    schemaSupported, connection.getHoldability());
+            return new ConnectionState(connection.getAutoCommit(), JdbcSetting.capture(connection::isReadOnly),
+                    JdbcSetting.capture(connection::getTransactionIsolation), JdbcSetting.capture(connection::getCatalog),
+                    JdbcSetting.capture(connection::getSchema), JdbcSetting.capture(connection::getHoldability));
         }
 
         private void restore(Connection connection) throws SQLException {
@@ -395,23 +484,40 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
             if (connection.getAutoCommit() != autoCommit) {
                 connection.setAutoCommit(autoCommit);
             }
-            if (connection.isReadOnly() != readOnly) {
-                connection.setReadOnly(readOnly);
-            }
-            if (connection.getTransactionIsolation() != isolation) {
-                connection.setTransactionIsolation(isolation);
-            }
-            if (!Objects.equals(connection.getCatalog(), catalog)) {
-                connection.setCatalog(catalog);
-            }
-            if (schemaSupported && !Objects.equals(connection.getSchema(), schema)) {
-                connection.setSchema(schema);
-            }
-            if (connection.getHoldability() != holdability) {
-                connection.setHoldability(holdability);
-            }
+            readOnly.restore(connection::isReadOnly, connection::setReadOnly);
+            isolation.restore(connection::getTransactionIsolation, connection::setTransactionIsolation);
+            catalog.restore(connection::getCatalog, connection::setCatalog);
+            schema.restore(connection::getSchema, connection::setSchema);
+            holdability.restore(connection::getHoldability, connection::setHoldability);
             connection.clearWarnings();
         }
+    }
+
+    /** 可选 JDBC 属性仅在驱动支持读取时记录；已支持的属性重置失败即淘汰连接。 */
+    private record JdbcSetting<T>(boolean supported, T value) {
+        private static <T> JdbcSetting<T> capture(SqlGetter<T> getter) throws SQLException {
+            try {
+                return new JdbcSetting<>(true, getter.get());
+            } catch (SQLFeatureNotSupportedException | AbstractMethodError e) {
+                return new JdbcSetting<>(false, null);
+            }
+        }
+
+        private void restore(SqlGetter<T> getter, SqlSetter<T> setter) throws SQLException {
+            if (supported && !Objects.equals(value, getter.get())) {
+                setter.set(value);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    private interface SqlGetter<T> {
+        T get() throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface SqlSetter<T> {
+        void set(T value) throws SQLException;
     }
 
     /**
