@@ -15,6 +15,8 @@ import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.network.tunnel.Tunnel;
+import com.chua.common.support.task.timer.Timer;
+import com.chua.common.support.task.timer.TimerTask;
 import com.chua.datasource.support.user.UserManager;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -119,6 +122,21 @@ public class CachingEngine extends AbstractEngine {
     public static final String TTL_SECONDS_PROPERTY = "engine.cache.ttl-seconds";
 
     /**
+     * 后台刷新间隔秒数属性名，{@code 0} 表示不启动刷新时间轮（默认）。
+     */
+    public static final String REFRESH_INTERVAL_SECONDS_PROPERTY = "engine.cache.refresh-interval-seconds";
+
+    /**
+     * 刷新时间轮槽位数属性名，默认 {@value #DEFAULT_REFRESH_WHEEL_SLOTS}。
+     */
+    public static final String REFRESH_WHEEL_SLOTS_PROPERTY = "engine.cache.refresh-wheel-slots";
+
+    /**
+     * 刷新时间轮 tick 毫秒数属性名，默认 {@value #DEFAULT_REFRESH_WHEEL_TICK_MILLIS}。
+     */
+    public static final String REFRESH_WHEEL_TICK_MILLIS_PROPERTY = "engine.cache.refresh-wheel-tick-millis";
+
+    /**
      * 单表行数默认上限。
      */
     public static final int DEFAULT_MAX_ROWS = 50_000;
@@ -132,6 +150,22 @@ public class CachingEngine extends AbstractEngine {
      * 副本默认存活秒数（0 = 不过期）。
      */
     public static final long DEFAULT_TTL_SECONDS = 0L;
+
+    /**
+     * 默认不启动后台刷新时间轮。
+     */
+    public static final long DEFAULT_REFRESH_INTERVAL_SECONDS = 0L;
+
+    /**
+     * 刷新时间轮默认槽位数。
+     */
+    public static final int DEFAULT_REFRESH_WHEEL_SLOTS = 512;
+
+    /**
+     * 刷新时间轮默认 tick 毫秒数：1s 唤醒一次，512 槽覆盖 512s 调度跨度，
+     * 避免默认 1ms tick 时每秒 1000 次空唤醒。
+     */
+    public static final long DEFAULT_REFRESH_WHEEL_TICK_MILLIS = 1000L;
 
     /**
      * 白名单通配符。
@@ -195,6 +229,36 @@ public class CachingEngine extends AbstractEngine {
     private volatile long ttlSeconds = DEFAULT_TTL_SECONDS;
 
     /**
+     * 后台刷新间隔秒数，{@code 0} 表示不刷新。
+     */
+    private volatile long refreshIntervalSeconds = DEFAULT_REFRESH_INTERVAL_SECONDS;
+
+    /**
+     * 刷新时间轮槽位数。
+     */
+    private volatile int refreshWheelSlots = DEFAULT_REFRESH_WHEEL_SLOTS;
+
+    /**
+     * 刷新时间轮 tick 毫秒数。
+     */
+    private volatile long refreshWheelTickMillis = DEFAULT_REFRESH_WHEEL_TICK_MILLIS;
+
+    /**
+     * 后台刷新时间轮，按需创建，{@code null} 表示未启动。
+     */
+    private volatile Timer refresher;
+
+    /**
+     * 时间轮内的下一轮刷新任务句柄，{@code null} 表示未排期。
+     */
+    private volatile TimerTask refreshTask;
+
+    /**
+     * 保护刷新时间轮的创建与停止。
+     */
+    private final Object refreshLock = new Object();
+
+    /**
      * 创建装饰器，实例开关取 {@value #ENABLED_PROPERTY} 的当前值。
      *
      * @param delegate 被装饰的 JDBC 引擎，不允许为 null
@@ -221,6 +285,12 @@ public class CachingEngine extends AbstractEngine {
         this.maxRows = intProperty(MAX_ROWS_PROPERTY, DEFAULT_MAX_ROWS);
         this.maxTotalRows = intProperty(MAX_TOTAL_ROWS_PROPERTY, DEFAULT_MAX_TOTAL_ROWS);
         this.ttlSeconds = longProperty(TTL_SECONDS_PROPERTY, DEFAULT_TTL_SECONDS);
+        this.refreshIntervalSeconds = longProperty(REFRESH_INTERVAL_SECONDS_PROPERTY,
+                DEFAULT_REFRESH_INTERVAL_SECONDS);
+        this.refreshWheelSlots = intProperty(REFRESH_WHEEL_SLOTS_PROPERTY, DEFAULT_REFRESH_WHEEL_SLOTS);
+        this.refreshWheelTickMillis = longProperty(REFRESH_WHEEL_TICK_MILLIS_PROPERTY,
+                DEFAULT_REFRESH_WHEEL_TICK_MILLIS);
+        startRefresherIfNeeded();
     }
 
     /**
@@ -272,6 +342,11 @@ public class CachingEngine extends AbstractEngine {
      */
     public CachingEngine setCacheEnabled(boolean enabled) {
         this.enabled = enabled;
+        if (enabled) {
+            synchronized (refreshLock) {
+                startRefresherLocked();
+            }
+        }
         return this;
     }
 
@@ -352,6 +427,244 @@ public class CachingEngine extends AbstractEngine {
         }
         this.ttlSeconds = ttlSeconds;
         return this;
+    }
+
+    /**
+     * 设置后台刷新间隔秒数，{@code 0} 表示不启动刷新时间轮（默认）。
+     *
+     * <p>刷新时间轮按固定间隔逐张重装载当前已跟踪的表，用新快照整体替换旧快照，
+     * 用于自动吸收「外部进程/其它实例直接改库」带来的不一致；
+     * 已被旁路的表同样每轮重探，表变小后自动恢复缓存。
+     * 单表刷新失败只记 WARN 并保留旧快照，不会中断后续轮次。</p>
+     *
+     * <p>每次重装载都是一次 {@code COUNT} + 一次全表 {@code SELECT}，
+     * 间隔应明显大于该表的读频率，否则缓存收益会被刷新开销吃掉。</p>
+     *
+     * @param seconds 间隔秒数，必须大于等于 0
+     * @return this
+     */
+    public CachingEngine setRefreshIntervalSeconds(long seconds) {
+        if (seconds < 0) {
+            throw new IllegalArgumentException("缓存刷新间隔不能为负数");
+        }
+        this.refreshIntervalSeconds = seconds;
+        synchronized (refreshLock) {
+            stopRefresher();
+            startRefresherLocked();
+        }
+        return this;
+    }
+
+    /**
+     * 当前后台刷新间隔秒数。
+     *
+     * @return 秒数，{@code 0} 表示未启用
+     */
+    public long getRefreshIntervalSeconds() {
+        return refreshIntervalSeconds;
+    }
+
+    /**
+     * 当前刷新时间轮槽位数。
+     *
+     * @return 槽位数
+     */
+    public int getRefreshWheelSlots() {
+        return refreshWheelSlots;
+    }
+
+    /**
+     * 当前刷新时间轮 tick 毫秒数。
+     *
+     * @return tick 毫秒数
+     */
+    public long getRefreshWheelTickMillis() {
+        return refreshWheelTickMillis;
+    }
+
+    /**
+     * 设置刷新时间轮槽位数，已开启的刷新会按新参数重建时间轮。
+     *
+     * @param slots 槽位数，必须大于 0
+     * @return this
+     */
+    public CachingEngine setRefreshWheelSlots(int slots) {
+        if (slots <= 0) {
+            throw new IllegalArgumentException("缓存刷新时间轮槽位数必须大于 0");
+        }
+        this.refreshWheelSlots = slots;
+        synchronized (refreshLock) {
+            stopRefresher();
+            startRefresherLocked();
+        }
+        return this;
+    }
+
+    /**
+     * 设置刷新时间轮 tick 毫秒数，已开启的刷新会按新参数重建时间轮。
+     *
+     * <p>tick 决定时间轮的唤醒粒度与最大调度跨度（{@code slots * tick}），
+     * 刷新间隔是秒级任务，不建议配成 1ms。</p>
+     *
+     * @param millis tick 毫秒数，必须大于 0
+     * @return this
+     */
+    public CachingEngine setRefreshWheelTickMillis(long millis) {
+        if (millis <= 0) {
+            throw new IllegalArgumentException("缓存刷新时间轮 tick 必须大于 0 毫秒");
+        }
+        this.refreshWheelTickMillis = millis;
+        synchronized (refreshLock) {
+            stopRefresher();
+            startRefresherLocked();
+        }
+        return this;
+    }
+
+    /**
+     * 后台刷新时间轮是否正在运行。
+     *
+     * @return true 表示已有时间轮在跑（间隔大于 0 且已启动）
+     */
+    public boolean isRefresherRunning() {
+        Timer timer = this.refresher;
+        return timer != null && timer.isRunning();
+    }
+
+    /**
+     * 立即按当前已跟踪的表重装载一次，语义与后台刷新的一轮完全一致。
+     *
+     * @return 成功重装载的表数（失败的表保留旧快照，不计入）
+     */
+    public int refreshNow() {
+        int refreshed = 0;
+        for (Map.Entry<String, TableCache> entry : tableCaches.entrySet()) {
+            if (refreshTable(entry.getKey(), entry.getValue().entityClass())) {
+                refreshed++;
+            }
+        }
+        return refreshed;
+    }
+
+    /**
+     * 强制重装载单表并发布；失败只记 WARN 并保留旧快照。
+     *
+     * @param table       表名
+     * @param entityClass 实体类型
+     * @return true 表示已用新快照替换
+     */
+    private boolean refreshTable(String table, Class<?> entityClass) {
+        if (entityClass == null || !enabled || isClosed() || !cacheableTable(table)) {
+            return false;
+        }
+        Object loadLock = loadLocks[(table.hashCode() & Integer.MAX_VALUE) % loadLocks.length];
+        synchronized (loadLock) {
+            if (!enabled || isClosed()) {
+                return false;
+            }
+            TableCache existing = tableCaches.get(table);
+            if (existing == null) {
+                // 装载期间被并发失效，交给下次读取或下一轮刷新重新装载。
+                return false;
+            }
+            long generation = cacheGeneration.get();
+            TableCache loaded;
+            try {
+                loaded = buildCache(table, entityClass);
+            } catch (RuntimeException e) {
+                log.warn("缓存刷新失败 table={}，保留旧快照: {}", table, e.getMessage(), e);
+                return false;
+            }
+            synchronized (cacheLock) {
+                if (generation != cacheGeneration.get() || !enabled || isClosed()) {
+                    return false;
+                }
+                publish(table, loaded);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * 构造期按需启动后台刷新时间轮。
+     */
+    private void startRefresherIfNeeded() {
+        synchronized (refreshLock) {
+            startRefresherLocked();
+        }
+    }
+
+    /**
+     * 间隔大于 0 且尚未启动时创建时间轮并排入首轮刷新（调用方须持有 refreshLock）。
+     *
+     * <p>用项目时间轮（{@link Timer}，默认 512 槽 / 1s tick）而不是
+     * {@code ScheduledExecutorService}：刷新是秒级低频任务，时间轮只占一条守护
+     * tick 线程，且任务到期后交给虚拟线程执行，不会因为 JVM 里另有调度需求而
+     * 各起一套线程池。</p>
+     */
+    private void startRefresherLocked() {
+        long interval = refreshIntervalSeconds;
+        if (interval <= 0 || refresher != null) {
+            return;
+        }
+        Timer timer = Timer.newTimer(refreshWheelSlots, refreshWheelTickMillis, TimeUnit.MILLISECONDS);
+        this.refresher = timer;
+        this.refreshTask = timer.schedule(() -> refreshRound(timer), interval, TimeUnit.SECONDS);
+        log.debug("缓存后台刷新已启动，间隔 {}s，时间轮 {} 槽 / {}ms tick",
+                interval, refreshWheelSlots, refreshWheelTickMillis);
+    }
+
+    /**
+     * 停止后台刷新时间轮（调用方须持有 refreshLock）。
+     */
+    private void stopRefresher() {
+        Timer timer = this.refresher;
+        this.refresher = null;
+        this.refreshTask = null;
+        if (timer != null) {
+            timer.shutdown();
+            log.debug("缓存后台刷新已停止");
+        }
+    }
+
+    /**
+     * 后台刷新的一轮，异常不外泄到时间轮线程。
+     *
+     * <p>本轮结束才排下一轮（等价固定的 {@code delay} 而不是 {@code fixed-rate}）：
+     * 一轮全表重装载耗时超过间隔时不会叠加执行，避免并发全表扫描。</p>
+     *
+     * @param owner 发起本轮的时间轮，重建时间轮后旧轮的对齐结果不再排期
+     */
+    private void refreshRound(Timer owner) {
+        try {
+            if (!enabled || isClosed() || refreshIntervalSeconds <= 0) {
+                return;
+            }
+            refreshNow();
+        } catch (RuntimeException e) {
+            log.warn("缓存后台刷新异常: {}", e.getMessage(), e);
+        } finally {
+            scheduleNextRound(owner);
+        }
+    }
+
+    /**
+     * 排入下一轮刷新；时间轮已被替换或已停、开关已关或间隔归零时不排。
+     *
+     * @param owner 发起本轮的时间轮
+     */
+    private void scheduleNextRound(Timer owner) {
+        synchronized (refreshLock) {
+            Timer timer = this.refresher;
+            if (timer == null || timer != owner || !timer.isRunning() || !enabled || isClosed()) {
+                return;
+            }
+            long interval = refreshIntervalSeconds;
+            if (interval <= 0) {
+                return;
+            }
+            this.refreshTask = timer.schedule(() -> refreshRound(owner), interval, TimeUnit.SECONDS);
+        }
     }
 
     /**
@@ -725,38 +1038,56 @@ public class CachingEngine extends AbstractEngine {
                 return cache;
             }
             long generation = cacheGeneration.get();
-            int rowLimit = Math.min(maxRows, maxTotalRows);
-            long total = delegate.queryCount(delegate.query(entityClass));
-            TableCache loaded;
-            if (total > rowLimit) {
-                loaded = new TableCache(clamp(total), true, null);
-            } else {
-                // COUNT 与 SELECT 之间可能增长，最多读取阈值 + 1 行并再次校验。
-                int fetchLimit = rowLimit == Integer.MAX_VALUE ? rowLimit : rowLimit + 1;
-                List<?> rows = delegate.query(entityClass).limit(fetchLimit).list();
-                if (rows.size() > rowLimit) {
-                    loaded = new TableCache(rows.size(), true, null);
-                } else {
-                    InMemoryEngine snapshot = new InMemoryEngine();
-                    snapshot.store(table, rows);
-                    snapshot.index();
-                    loaded = new TableCache(rows.size(), false, snapshot);
-                }
-            }
+            TableCache loaded = buildCache(table, entityClass);
             synchronized (cacheLock) {
                 if (generation != cacheGeneration.get() || !enabled || isClosed()) {
                     return null;
                 }
-                tableCaches.remove(table);
-                if (!loaded.bypass()) {
-                    while ((long) cachedRows() + loaded.rowCount() > maxTotalRows && !tableCaches.isEmpty()) {
-                        evictEldest();
-                    }
-                }
-                tableCaches.put(table, loaded);
+                publish(table, loaded);
             }
             return loaded;
         }
+    }
+
+    /**
+     * 读取 delegate 生成一份独立快照（不发布，调用方须持有该表的装载锁）。
+     *
+     * @param table       表名
+     * @param entityClass 实体类型
+     * @return 新快照，可能为旁路状态
+     */
+    private TableCache buildCache(String table, Class<?> entityClass) {
+        int rowLimit = Math.min(maxRows, maxTotalRows);
+        long total = delegate.queryCount(delegate.query(entityClass));
+        if (total > rowLimit) {
+            return new TableCache(clamp(total), true, entityClass, null);
+        }
+        // COUNT 与 SELECT 之间可能增长，最多读取阈值 + 1 行并再次校验。
+        int fetchLimit = rowLimit == Integer.MAX_VALUE ? rowLimit : rowLimit + 1;
+        List<?> rows = delegate.query(entityClass).limit(fetchLimit).list();
+        if (rows.size() > rowLimit) {
+            return new TableCache(rows.size(), true, entityClass, null);
+        }
+        InMemoryEngine snapshot = new InMemoryEngine();
+        snapshot.store(table, rows);
+        snapshot.index();
+        return new TableCache(rows.size(), false, entityClass, snapshot);
+    }
+
+    /**
+     * 用新快照替换旧快照，必要时先按 LRU 腾出总行数配额（调用方须持有 cacheLock）。
+     *
+     * @param table  表名
+     * @param loaded 新快照
+     */
+    private void publish(String table, TableCache loaded) {
+        tableCaches.remove(table);
+        if (!loaded.bypass()) {
+            while ((long) cachedRows() + loaded.rowCount() > maxTotalRows && !tableCaches.isEmpty()) {
+                evictEldest();
+            }
+        }
+        tableCaches.put(table, loaded);
     }
 
     /**
@@ -1231,6 +1562,9 @@ public class CachingEngine extends AbstractEngine {
         try {
             delegate.close();
         } finally {
+            synchronized (refreshLock) {
+                stopRefresher();
+            }
             invalidators.clear();
         }
     }
@@ -1241,13 +1575,15 @@ public class CachingEngine extends AbstractEngine {
      * @param rowCount       装载时的行数
      * @param bypass         是否因超限被旁路
      * @param loadedAtNanos  装载时刻（单调时间）
+     * @param entityClass    装载时使用的实体类型，后台刷新按它重装载
      * @param replica        完整发布的独立只读副本，旁路表为 null
      * @param lastAccessNanos 最近访问时刻，用于装载时逐出最久未使用的表
      */
-    private record TableCache(int rowCount, boolean bypass, long loadedAtNanos,
+    private record TableCache(int rowCount, boolean bypass, long loadedAtNanos, Class<?> entityClass,
                               InMemoryEngine replica, AtomicLong lastAccessNanos) {
-        private TableCache(int rowCount, boolean bypass, InMemoryEngine replica) {
-            this(rowCount, bypass, System.nanoTime(), replica, new AtomicLong(System.nanoTime()));
+        private TableCache(int rowCount, boolean bypass, Class<?> entityClass, InMemoryEngine replica) {
+            this(rowCount, bypass, System.nanoTime(), entityClass, replica,
+                    new AtomicLong(System.nanoTime()));
         }
     }
 

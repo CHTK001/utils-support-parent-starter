@@ -515,6 +515,15 @@ public class OpencodeServerAgent implements Agent {
      */
     private final List<String> skillPaths = new CopyOnWriteArrayList<>();
 
+    /** 当前调用方托管的 MCP 名单；null 表示保持追加语义，空名单表示全部关闭。 */
+    private List<String> selectedMcpServers;
+
+    /** 当前调用方托管的技能 ID；null 表示不接管，空名单表示全部关闭。 */
+    private List<String> selectedSkills;
+
+    /** 原生委派开关；null 表示不接管。 */
+    private Boolean delegationEnabled;
+
     /**
      * 子 agent 专属模型：agent 标识 -> ChatClient
      */
@@ -901,6 +910,39 @@ public class OpencodeServerAgent implements Agent {
         }
         Map<String, Object> copy = new LinkedHashMap<>(spec);
         mcpServerSpecs.put(name.trim(), copy);
+        return this;
+    }
+
+    /**
+     * 限定本轮使用的原生 MCP 服务，关闭工作目录中上一轮遗留的未选服务。
+     *
+     * @param names 服务配置键；空名单表示全部关闭，null 表示不接管
+     * @return 当前实例
+     */
+    public OpencodeServerAgent mcpSelection(List<String> names) {
+        selectedMcpServers = names == null ? null : List.copyOf(names);
+        return this;
+    }
+
+    /**
+     * 限定可发现和加载的原生技能，避免自动发现目录绕过上层选择。
+     *
+     * @param names 技能 ID；空名单表示全部关闭，null 表示不接管
+     * @return 当前实例
+     */
+    public OpencodeServerAgent skillSelection(List<String> names) {
+        selectedSkills = names == null ? null : List.copyOf(names);
+        return this;
+    }
+
+    /**
+     * 控制原生委派工具，开启时清除本生成器写入的关闭项。
+     *
+     * @param enabled 是否允许委派
+     * @return 当前实例
+     */
+    public OpencodeServerAgent delegation(boolean enabled) {
+        delegationEnabled = enabled;
         return this;
     }
 
@@ -2174,11 +2216,12 @@ public class OpencodeServerAgent implements Agent {
                 ? compressionConfig
                 : (definition == null ? null : definition.getCompressionConfig());
         boolean disableMcp = !mcpEnabled || (definition != null && !definition.isMcp());
-        boolean manageMcp = disableMcp || !mcpServerSpecs.isEmpty();
+        boolean manageMcp = disableMcp || !mcpServerSpecs.isEmpty() || selectedMcpServers != null;
         boolean managePlan = planRequested();
         boolean hasManaged = !specs.isEmpty() || globalModel != null || hasText(instructions)
                 || manageMcp || managePlan || shellEnabled != null
-                || compression != null || !skillPaths.isEmpty() || !disabledTools.isEmpty()
+                || compression != null || !skillPaths.isEmpty() || selectedSkills != null
+                || delegationEnabled != null || !disabledTools.isEmpty()
                 || !providers.isEmpty();
         if (!hasManaged) {
             return;
@@ -2203,11 +2246,14 @@ public class OpencodeServerAgent implements Agent {
         if (manageMcp) {
             config.mcpEnabled(!disableMcp);
             mcpServerSpecs.forEach(config::mcpServer);
+            config.mcpSelection(selectedMcpServers);
         }
         if (compression != null) {
             config.compaction(compression.isEnabled());
         }
         skillPaths.forEach(config::skillPath);
+        config.skillSelection(selectedSkills);
+        config.delegation(delegationEnabled);
         if (hasText(instructions)) {
             config.instructions(instructions);
         }

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="从真实源码生成的功能、参数、返回值和调用示例手册。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>源码使用手册</title>
+  <link rel="stylesheet" href="site.css">
+  <script src="data.js" defer></script>
+  <script src="site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <aside id="sidebar" class="sidebar" aria-label="文档目录">
+    <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">{ }</span><span id="brand-title">源码使用手册</span></a>
+    <span class="eyebrow">SOURCE REFERENCE</span>
+    <label class="search-label" for="search">搜索功能、方法和参数</label>
+    <input id="search" type="search" placeholder="搜索文档…" autocomplete="off" aria-controls="file-nav">
+    <p id="search-count" class="muted" aria-live="polite"></p>
+    <nav id="file-nav" aria-label="文件与模块"></nav>
+    <div class="sidebar-foot"><a href="#issues" id="issues-link">生成记录</a><button id="theme" type="button" aria-label="切换明暗主题">切换主题</button></div>
+  </aside>
+  <div class="document">
+    <div class="mobile-bar"><button id="menu" type="button" aria-controls="sidebar" aria-expanded="false">文档目录</button></div>
+    <main id="main" tabindex="-1"><p>正在载入文档…</p></main>
+    <aside class="toc" aria-label="本页章节"><span class="eyebrow">ON THIS PAGE</span><nav id="toc"></nav></aside>
+  </div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <noscript>本地文档站需要 JavaScript。请启用后重新打开 index.html。</noscript>
+</body>
+</html>

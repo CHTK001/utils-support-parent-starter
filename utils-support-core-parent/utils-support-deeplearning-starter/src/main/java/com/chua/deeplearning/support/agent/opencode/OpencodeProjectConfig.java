@@ -161,6 +161,15 @@ public final class OpencodeProjectConfig {
      */
     private final List<String> skillPaths = new ArrayList<>();
 
+    /** 托管 MCP 名单；null 保持原来的追加行为。 */
+    private List<String> selectedMcpServers;
+
+    /** 托管技能 ID；null 表示不改动技能权限。 */
+    private List<String> selectedSkills;
+
+    /** 原生委派开关；null 表示不接管。 */
+    private Boolean delegationEnabled;
+
     /**
      * 待写入的 provider 定义，键为 provider 标识
      */
@@ -255,6 +264,43 @@ public final class OpencodeProjectConfig {
         }
         validateMcpSpec(name, spec);
         mcpServers.put(name.trim(), spec);
+        return this;
+    }
+
+    /**
+     * 限定工作目录中可启用的 MCP 配置键。
+     *
+     * @param names 当前选择；空名单表示全部关闭，null 表示不接管
+     * @return 当前生成器
+     */
+    public OpencodeProjectConfig mcpSelection(List<String> names) {
+        selectedMcpServers = names == null ? null : List.copyOf(names);
+        return this;
+    }
+
+    /**
+     * 限定本次生成的 Agent 可加载的技能 ID。
+     *
+     * @param names 当前选择；空名单表示全部关闭，null 表示不接管
+     * @return 当前生成器
+     */
+    public OpencodeProjectConfig skillSelection(List<String> names) {
+        if (names != null && names.stream().anyMatch(name -> name == null || name.isBlank()
+                || name.indexOf('*') >= 0 || name.indexOf('?') >= 0)) {
+            throw new IllegalArgumentException("技能 ID 必须是非空的精确名称，不能包含通配符");
+        }
+        selectedSkills = names == null ? null : List.copyOf(names);
+        return this;
+    }
+
+    /**
+     * 设置托管 Agent 的原生委派权限。
+     *
+     * @param enabled true 清除关闭项，false 禁用，null 不接管
+     * @return 当前生成器
+     */
+    public OpencodeProjectConfig delegation(Boolean enabled) {
+        delegationEnabled = enabled;
         return this;
     }
 
@@ -422,6 +468,7 @@ public final class OpencodeProjectConfig {
                 applyProviders(root);
                 applyMcp(root, v2);
                 applyPermissions(root);
+                applySkillSelection(root, v2);
                 if (defaultModel != null) {
                     root.put("model", defaultModel);
                 }
@@ -431,7 +478,7 @@ public final class OpencodeProjectConfig {
                 if (compactionAuto != null) {
                     childObject(root, "compaction").put("auto", compactionAuto.booleanValue());
                 }
-                applySkills(root);
+                applySkills(root, v2);
                 boolean configChanged = writeIfChanged(configPath, toJson(root));
                 Path instructionsPath = workspace.resolve(INSTRUCTIONS_FILE);
                 boolean instructionsChanged = false;
@@ -532,6 +579,30 @@ public final class OpencodeProjectConfig {
                 ObjectNode toolsNode = childObject(node, "tools");
                 spec.tools().forEach(toolsNode::put);
             }
+            if (delegationEnabled != null) {
+                if (v2) {
+                    ArrayNode rules = mapper.createArrayNode();
+                    if (node.get("permissions") instanceof ArrayNode existingRules) {
+                        for (JsonNode rule : existingRules) {
+                            if (!("subagent".equals(rule.path("action").asText())
+                                    && "*".equals(rule.path("resource").asText())
+                                    && "deny".equals(rule.path("effect").asText()))) {
+                                rules.add(rule);
+                            }
+                        }
+                    }
+                    if (!delegationEnabled) {
+                        rules.addObject().put("action", "subagent").put("resource", "*").put("effect", "deny");
+                    }
+                    node.set("permissions", rules);
+                }
+                ObjectNode toolsNode = childObject(node, "tools");
+                if (delegationEnabled || v2) {
+                    toolsNode.remove("task");
+                } else {
+                    toolsNode.put("task", false);
+                }
+            }
         }
     }
 
@@ -629,7 +700,7 @@ public final class OpencodeProjectConfig {
      * @param v2   是否 2.x 写法
      */
     private void applyMcp(ObjectNode root, boolean v2) {
-        if (mcpServers.isEmpty() && mcpEnabled) {
+        if (mcpServers.isEmpty() && mcpEnabled && selectedMcpServers == null) {
             return;
         }
         ObjectNode container;
@@ -642,12 +713,16 @@ public final class OpencodeProjectConfig {
             JsonNode existing = container.get(entry.getKey());
             ObjectNode node = existing instanceof ObjectNode object ? object : container.putObject(entry.getKey());
             node.setAll(asObjectNode(mapper.valueToTree(entry.getValue())));
-            node.put("enabled", mcpEnabled);
+            node.remove(v2 ? "enabled" : "disabled");
+            node.put(v2 ? "disabled" : "enabled", v2 ? !mcpEnabled : mcpEnabled);
         }
-        if (!mcpEnabled) {
+        if (!mcpEnabled || selectedMcpServers != null) {
             container.properties().forEach(item -> {
                 if (item.getValue() instanceof ObjectNode node) {
-                    node.put("enabled", false);
+                    boolean enabled = mcpEnabled && selectedMcpServers != null
+                            && selectedMcpServers.contains(item.getKey());
+                    node.remove(v2 ? "enabled" : "disabled");
+                    node.put(v2 ? "disabled" : "enabled", v2 ? !enabled : enabled);
                 }
             });
         }
@@ -670,8 +745,9 @@ public final class OpencodeProjectConfig {
      * 追加技能目录。
      *
      * @param root 配置根节点
+     * @param v2 是否使用 2.x 配置形状
      */
-    private void applySkills(ObjectNode root) {
+    private void applySkills(ObjectNode root, boolean v2) {
         if (skillPaths.isEmpty()) {
             return;
         }
@@ -681,6 +757,8 @@ public final class OpencodeProjectConfig {
             array = items;
         } else if (existing instanceof ObjectNode object && object.get("paths") instanceof ArrayNode paths) {
             array = paths;
+        } else if (v2) {
+            array = root.putArray("skills");
         } else {
             array = childObject(root, "skills").putArray("paths");
         }
@@ -694,6 +772,45 @@ public final class OpencodeProjectConfig {
             }
             if (!present) {
                 array.add(path);
+            }
+        }
+    }
+
+    /**
+     * 在本次托管的 Agent 上替换技能权限；其它动作与手写 Agent 保持原状。
+     *
+     * @param root 配置根节点
+     * @param v2   是否使用 2.x 配置形状
+     */
+    private void applySkillSelection(ObjectNode root, boolean v2) {
+        if (selectedSkills == null || agents.isEmpty()) {
+            return;
+        }
+        ObjectNode container = childObject(root, v2 ? "agents" : "agent");
+        for (String name : agents.keySet()) {
+            ObjectNode node = childObject(container, name);
+            if (node.get("tools") instanceof ObjectNode tools) {
+                // 旧工具布尔值可覆盖 permission，必须让当前技能名单成为唯一来源。
+                tools.remove("skill");
+            }
+            if (v2) {
+                ArrayNode rules = mapper.createArrayNode();
+                if (node.get("permissions") instanceof ArrayNode existing) {
+                    for (JsonNode rule : existing) {
+                        if (!"skill".equals(rule.path("action").asText())) {
+                            rules.add(rule);
+                        }
+                    }
+                }
+                rules.addObject().put("action", "skill").put("resource", "*").put("effect", "deny");
+                for (String skill : selectedSkills) {
+                    rules.addObject().put("action", "skill").put("resource", skill).put("effect", "allow");
+                }
+                node.set("permissions", rules);
+            } else {
+                ObjectNode skills = childObject(node, "permission").putObject("skill");
+                skills.put("*", "deny");
+                selectedSkills.forEach(skill -> skills.put(skill, "allow"));
             }
         }
     }
