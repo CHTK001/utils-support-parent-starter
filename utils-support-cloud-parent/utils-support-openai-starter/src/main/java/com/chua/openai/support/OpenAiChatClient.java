@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 打开AI 大模型对话客户端
@@ -684,7 +685,7 @@ public class OpenAiChatClient implements ChatClient {
         }
 
         // 工具（函数调用）定义
-        if (tools != null && !tools.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(tools)) {
             List<ChatCompletionTool> toolDefs = Wraps.list();
             for (ChatTool tool : tools) {
                 ChatCompletionTool def = toOpenAiTool(tool);
@@ -709,7 +710,7 @@ public class OpenAiChatClient implements ChatClient {
         if (topP != null) {
             paramsBuilder.topP(topP);
         }
-        if (stop != null && !stop.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(stop)) {
             paramsBuilder.stopOfStrings(stop);
         }
         if (seed != null) {
@@ -783,7 +784,7 @@ public class OpenAiChatClient implements ChatClient {
             if (headers != null) {
                 String authName = customAuth && auth != null ? auth.getKey() : null;
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    if (authName != null && authName.equalsIgnoreCase(entry.getKey())) {
+                    if (StringUtils.equalsIgnoreCase(authName, entry.getKey())) {
                         continue;
                     }
                     clientBuilder.putHeader(entry.getKey(), entry.getValue());
@@ -828,7 +829,7 @@ public class OpenAiChatClient implements ChatClient {
                                 .cacheTokens(extractCacheTokens(usage));
                     }
                     List<ChatCompletionChunk.Choice> choices = chunk.choices();
-                    if (choices != null && !choices.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(choices)) {
                         ChatCompletionChunk.Choice choice = choices.getFirst();
 
                         // 检查是否完成：不提前 break，末尾还有 usage 帧要读
@@ -889,7 +890,7 @@ public class OpenAiChatClient implements ChatClient {
                 // 非流式请求：一次返回完整结果，避免部分中转服务商流式长连接挂起
                 ChatCompletion completion;
                 List<String> passthrough = setting == null ? null : setting.getPassthroughResponseHeaders();
-                if (passthrough != null && !passthrough.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(passthrough)) {
                     // 透传响应头：只有非流式能拿到上游响应头（SSE 开流后头已发出）
                     ResponseHeaderCapture.begin();
                     try (com.openai.core.http.HttpResponseFor<ChatCompletion> raw =
@@ -897,7 +898,7 @@ public class OpenAiChatClient implements ChatClient {
                         completion = raw.parse();
                         for (String name : passthrough) {
                             List<String> values = raw.headers().values(name);
-                            if (values != null && !values.isEmpty()) {
+                            if (CollectionUtils.isNotEmpty(values)) {
                                 ResponseHeaderCapture.put(name, String.join(", ", values));
                             }
                         }
@@ -1101,7 +1102,7 @@ public class OpenAiChatClient implements ChatClient {
      * @param extraBody 额外请求体参数
      */
     private static void applyExtraBody(ChatCompletionCreateParams.Builder builder, Map<String, Object> extraBody) {
-        if (extraBody == null || extraBody.isEmpty()) {
+        if (CollectionUtils.isEmpty(extraBody)) {
             return;
         }
         for (Map.Entry<String, Object> entry : extraBody.entrySet()) {
@@ -1207,7 +1208,7 @@ public class OpenAiChatClient implements ChatClient {
      * @return extractReasonML的结果
      */
     private static String extractReasoning(Map<String, JsonValue> additionalProps) {
-        if (additionalProps == null || additionalProps.isEmpty()) {
+        if (CollectionUtils.isEmpty(additionalProps)) {
             return null;
         }
         for (String key : new String[]{"reasoning_content", "reasoning"}) {

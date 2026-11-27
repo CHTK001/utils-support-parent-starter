@@ -13,6 +13,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 /**
  * 基于 NIO {@link SocketChannel} 的 {@link ServerResponse} 实现。
  *
@@ -109,7 +110,7 @@ public class NioServerResponse implements ServerResponse {
      * @return 无自定义头时返回 true
      */
     private boolean headersEmpty() {
-        return headers == null || headers.isEmpty();
+        return CollectionUtils.isEmpty(headers);
     }
     /**
      * 请求体

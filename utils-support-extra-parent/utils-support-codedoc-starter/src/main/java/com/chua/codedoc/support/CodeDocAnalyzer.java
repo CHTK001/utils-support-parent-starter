@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 分块分析、结构校验和内容寻址缓存。单文件内按块串行，多文件并发由 {@link CodeDocs} 调度；
@@ -211,7 +212,7 @@ final class CodeDocAnalyzer {
     }
 
     private static void validateSections(List<CodeDocPage.Section> sections, int start, int end) throws IOException {
-        if (sections == null || sections.isEmpty()) {
+        if (CollectionUtils.isEmpty(sections)) {
             throw new IOException("缺少功能指南章节");
         }
         for (CodeDocPage.Section section : sections) {
