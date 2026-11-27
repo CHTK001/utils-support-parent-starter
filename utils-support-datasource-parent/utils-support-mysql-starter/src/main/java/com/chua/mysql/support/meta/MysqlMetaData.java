@@ -27,6 +27,7 @@ import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * MySQL 元数据入口。
@@ -362,7 +363,7 @@ public class MysqlMetaData extends JdbcMetaData {
      * @throws SQLException 绑定失败
      */
     private static void bind(PreparedStatement ps, List<?> args) throws SQLException {
-        if (args == null || args.isEmpty()) {
+        if (CollectionUtils.isEmpty(args)) {
             return;
         }
         for (int i = 0; i < args.size(); i++) {
@@ -386,7 +387,7 @@ public class MysqlMetaData extends JdbcMetaData {
      */
     private static IllegalStateException describe(Throwable cause, String context, String sql, List<?> args) {
         StringBuilder msg = new StringBuilder("MySQL 元数据操作失败[").append(context).append("]: ");
-        if (args != null && !args.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(args)) {
             msg.append(Arrays.toString(args.toArray(new Object[0]))).append(" | ");
         }
         msg.append(sql);
@@ -409,7 +410,7 @@ public class MysqlMetaData extends JdbcMetaData {
      */
     static String addIndexClause(String quotedTable, String indexName, List<String> columns, boolean unique,
                                  String type, String comment, boolean visible) {
-        if (columns == null || columns.isEmpty()) {
+        if (CollectionUtils.isEmpty(columns)) {
             throw new IllegalStateException("索引列不能为空");
         }
         if (quotedTable == null) {

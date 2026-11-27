@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * tshark 命令行工具装配器：按三级策略把可执行的 tshark 交到调用方手上。
@@ -509,7 +510,7 @@ public final class TsharkCliProvider {
             return TsharkProvisioningReport.Source.EXPLICIT;
         }
         String env = System.getenv("TSHARK_BIN");
-        return env != null && env.equalsIgnoreCase(executable.toString())
+        return StringUtils.equalsIgnoreCase(env, executable.toString())
                 ? TsharkProvisioningReport.Source.EXPLICIT
                 : TsharkProvisioningReport.Source.LOCATED;
     }

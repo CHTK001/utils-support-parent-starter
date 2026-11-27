@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JSON 文件系统 SPI 实现。
@@ -105,7 +106,7 @@ public class JsonFileSystem implements FileSystem {
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
                 List<?> raw = Json.toList(content);
-                if (raw == null || raw.isEmpty()) {
+                if (CollectionUtils.isEmpty(raw)) {
                     if (callback != null) {
                         callback.onComplete(EMPTY_RESULT_ROW_COUNT);
                     }

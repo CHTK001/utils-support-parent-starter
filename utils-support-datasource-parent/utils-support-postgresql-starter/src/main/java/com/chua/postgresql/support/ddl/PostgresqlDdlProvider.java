@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 import java.util.Set;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * PostgreSQL 方言 DDL 生成器。
@@ -71,7 +72,7 @@ public class PostgresqlDdlProvider implements DdlProvider {
      */
     @Override
     public String createTable(String tableName, List<ColumnDef> columns) {
-        if (columns == null || columns.isEmpty()) {
+        if (CollectionUtils.isEmpty(columns)) {
             throw new IllegalArgumentException("建表列定义不能为空: " + tableName);
         }
         StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ")

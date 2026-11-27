@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import ai.djl.modality.cv.ImageFactory;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * YOLO-World zero-shot detector with 打开-vocabulary 支持.
@@ -388,7 +389,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
      * @return 读取参数的结果
      */
     private static String readArgument(Map<String, ?> args, String key) {
-        if (args == null || args.isEmpty()) {
+        if (CollectionUtils.isEmpty(args)) {
             return null;
         }
         Object v = args.get(key);

@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 CDP 的浏览器页面
@@ -449,7 +450,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void type(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return;
         }
         for (int i = 0; i < text.length(); ) {
@@ -470,7 +471,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void insertText(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return;
         }
         connection.call("Input.insertText", Map.of("text", text), sessionId, commandTimeout);
@@ -817,7 +818,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void setCookies(Map<String, String> cookies, String domain) {
-        if (cookies == null || cookies.isEmpty()) {
+        if (CollectionUtils.isEmpty(cookies)) {
             return;
         }
         List<Map<String, Object>> list = new ArrayList<>(cookies.size());
@@ -834,7 +835,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void setCookiesForUrl(Map<String, String> cookies, String url) {
-        if (cookies == null || cookies.isEmpty()) {
+        if (CollectionUtils.isEmpty(cookies)) {
             return;
         }
         List<Map<String, Object>> list = new ArrayList<>(cookies.size());
@@ -850,7 +851,7 @@ final class CdpPage implements BrowserPage {
 
     @Override
     public void setExtraHeaders(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return;
         }
         connection.call("Network.setExtraHTTPHeaders",

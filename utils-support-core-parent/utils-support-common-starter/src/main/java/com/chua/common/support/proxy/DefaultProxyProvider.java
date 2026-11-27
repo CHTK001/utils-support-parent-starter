@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认代理提供者实现，采用建造者模式构建代理对象。
@@ -494,7 +495,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
  // SPI 名称 在注册时被 转为大写大小写，需大写化后查找
         String spiName = annotationTypeName.toUpperCase(Locale.ROOT);
         List<MethodAnnotationIntercept> intercepts = provider.getNewExtensions(spiName);
-        if (intercepts == null || intercepts.isEmpty()) {
+        if (CollectionUtils.isEmpty(intercepts)) {
             annotationInterceptCache.put(annotationTypeName, List.of());
             return List.of();
         }
@@ -708,7 +709,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
                 return null;
             }
             String[] patterns = mapping.value();
-            if (patterns != null && patterns.length > 0) {
+            if (ArrayUtils.isNotEmpty(patterns)) {
                 patterns = Arrays.stream(patterns)
                         .filter(s -> s != null && !s.isEmpty())
                         .toArray(String[]::new);

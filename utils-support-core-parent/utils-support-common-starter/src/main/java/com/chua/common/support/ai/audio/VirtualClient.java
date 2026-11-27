@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 语音识别（ASR）客户端接口
@@ -353,7 +354,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

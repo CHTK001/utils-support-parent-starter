@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 模型注册表。
@@ -1110,7 +1111,7 @@ public final class ModelRegistry {
      */
     private static void downloadDeclaredFiles(String modelId, Entry entry, String preferredBaseUrl, Path downloadDir) {
         List<String> files = entry == null ? null : entry.downloadFiles();
-        if (files == null || files.isEmpty() || downloadDir == null) {
+        if (CollectionUtils.isEmpty(files) || downloadDir == null) {
             return;
         }
         // 相对路径候选基地址：实际下载成功地址优先，其次主地址的各候选地址与镜像（去重、保持顺序）
@@ -1524,7 +1525,7 @@ public final class ModelRegistry {
          */
         @Override
         public void configure(Map<String, Object> options) {
-            if (options == null || options.isEmpty()) {
+            if (CollectionUtils.isEmpty(options)) {
                 return;
             }
             synchronized (this) {
@@ -1661,7 +1662,7 @@ public final class ModelRegistry {
  // 新版 reflect工具.for名称 吞掉 CNFE 返回 空；此处转译以维持原异常路径
                 throw new ClassNotFoundException(translatorClassName);
             }
-            if (options != null && !options.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(options)) {
                 com.chua.deeplearning.support.ai.DetectionConfiguration cfg =
                         new com.chua.deeplearning.support.ai.DetectionConfiguration.DetectionConfigurationBuilder()
                                 .systemOption(Wraps.linkedMap(options))
@@ -1721,7 +1722,7 @@ public final class ModelRegistry {
                 configurable.configure(options);
                 return;
             }
-            if (options != null && !options.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(options)) {
                 ModelParams.applyTo(translator, options);
             }
         }

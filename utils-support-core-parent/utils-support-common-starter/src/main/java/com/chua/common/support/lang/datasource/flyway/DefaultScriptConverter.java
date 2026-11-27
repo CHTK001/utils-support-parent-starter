@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认脚本方言转换器（兜底实现，支持全部协议）。
@@ -427,7 +428,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      */
     @Override
     public List<String> convertAll(List<String> statements, String protocol) {
-        if (statements == null || statements.isEmpty() || protocol == null) {
+        if (CollectionUtils.isEmpty(statements) || protocol == null) {
             return List.of();
         }
         // MySQL 系：脚本按 MySQL 风格编写，原样执行（不生成任何附加语句）
@@ -1468,7 +1469,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * @return 定界方式与建表一致的列清单
      */
     private String alignColumnQuoting(String columns, java.util.Map<String, String> declaredColumns) {
-        if (declaredColumns == null || declaredColumns.isEmpty()) {
+        if (CollectionUtils.isEmpty(declaredColumns)) {
             return columns;
         }
         var out = new StringBuilder(columns.length());

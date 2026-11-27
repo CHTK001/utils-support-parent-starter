@@ -1,5 +1,7 @@
 package com.chua.common.support.wal;
 
+import com.chua.common.support.utils.CollectionUtils;
+
 /**
  * WAL 文件系统扩展接口，在 {@link com.chua.common.support.file.FileSystem} 基础上
  * 增加 WAL 专用能力：按 LSN 追加写、按偏移精确读、分片管理、compaction。
@@ -57,7 +59,7 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
      * @return 最后一条的 LSN
      */
     default long appendBatch(java.util.List<WalBatchEntry> entries) throws java.io.IOException {
-        if (entries == null || entries.isEmpty()) {
+        if (CollectionUtils.isEmpty(entries)) {
             return 0L;
         }
         long lastLsn = 0;

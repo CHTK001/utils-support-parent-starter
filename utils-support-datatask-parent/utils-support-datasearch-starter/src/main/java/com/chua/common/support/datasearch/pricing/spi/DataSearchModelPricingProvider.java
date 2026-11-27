@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据搜索 模型定价桥接实现。
@@ -278,7 +279,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             log.debug("[datasearch-pricing] 加载定价数据源失败: {}", e.getMessage());
             return Collections.emptyList();
         }
-        if (providers == null || providers.isEmpty()) {
+        if (CollectionUtils.isEmpty(providers)) {
             return Collections.emptyList();
         }
         List<ModelMetricsProvider> ordered = Wraps.list(providers.size());
@@ -441,7 +442,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
      * @return 合并后的能力标签列表
      */
     private List<String> unionCapabilities(List<String> target, List<String> src) {
-        if (target == null || target.isEmpty()) {
+        if (CollectionUtils.isEmpty(target)) {
             return Wraps.list(src);
         }
         List<String> merged = Wraps.list(target);

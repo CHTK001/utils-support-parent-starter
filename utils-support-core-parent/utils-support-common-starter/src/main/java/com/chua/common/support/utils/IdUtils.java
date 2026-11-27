@@ -554,7 +554,7 @@ public class IdUtils {
         }
         String idA = getId(a);
         String idB = getId(b);
-        return idA != null && idA.equals(idB);
+        return ObjectUtils.nullSafeEquals(idA, idB);
     }
 
     /**
@@ -577,7 +577,7 @@ public class IdUtils {
         }
         String idA = getPartialId(a, ratio);
         String idB = getPartialId(b, ratio);
-        return idA != null && idA.equals(idB);
+        return ObjectUtils.nullSafeEquals(idA, idB);
     }
 
     /**

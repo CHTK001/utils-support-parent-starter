@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 文本提取器接口，用于从各种文件格式中提取纯文本内容。
@@ -93,7 +94,7 @@ public interface TextExtractor {
      */
     default String extractFullText(File file) {
         List<TextExtractResult> results = extractText(file);
-        if (results == null || results.isEmpty()) {
+        if (CollectionUtils.isEmpty(results)) {
             return "";
         }
         StringBuilder sb = new StringBuilder();

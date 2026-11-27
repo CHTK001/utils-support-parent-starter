@@ -316,7 +316,7 @@ public class CsvFileSystem implements FileSystem {
                     cols = CollectionUtils.newArrayList(rows.getFirst().keySet());
                 }
                 long written = 0L;
-                if (withHeader && cols != null && !cols.isEmpty()) {
+                if (withHeader && CollectionUtils.isNotEmpty(cols)) {
                     String headerLine = String.join(String.valueOf(delimiter), cols);
                     writer.write(headerLine);
                     writer.newLine();

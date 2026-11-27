@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 
 /**
@@ -301,7 +302,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      * @param map 映射
      */
     public void setStorageMap(Map<String, FileStorage> map) {
-        if (map == null || map.isEmpty()) {
+        if (CollectionUtils.isEmpty(map)) {
             throw new IllegalArgumentException("FileStorageMap must not be empty");
         }
         this.storageMap.putAll(map);

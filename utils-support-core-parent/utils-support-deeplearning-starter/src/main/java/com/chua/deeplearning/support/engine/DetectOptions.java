@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 检测/识别门面运行参数工具。
@@ -142,7 +143,7 @@ public final class DetectOptions {
          * @return 当前构造器
          */
         public Builder putAll(Map<String, Object> params) {
-            if (params == null || params.isEmpty()) {
+            if (CollectionUtils.isEmpty(params)) {
                 return this;
             }
             params.forEach(this::put);

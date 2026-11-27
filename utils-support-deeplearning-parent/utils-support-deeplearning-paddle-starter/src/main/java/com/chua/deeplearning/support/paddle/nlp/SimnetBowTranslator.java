@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 飞桨 simnet BOW 文本相似度 Translator。
@@ -91,7 +92,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     @Override
     public NDList processInput(TranslatorContext ctx, String[][] input) {
         NDManager manager = ctx.getNDManager();
-        String[] query = input != null && input.length > 0 ? input[0] : new String[0];
+        String[] query = ArrayUtils.isNotEmpty(input) ? input[0] : new String[0];
         String[] title = input != null && input.length > 1 ? input[1] : new String[0];
         NDArray q = toIds(manager, query, "query");
         NDArray t = toIds(manager, title, "title");

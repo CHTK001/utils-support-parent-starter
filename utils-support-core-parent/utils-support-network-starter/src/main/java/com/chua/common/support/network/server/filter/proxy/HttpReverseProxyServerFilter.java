@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * HTTP 反向代理过滤器，将请求转发到后端服务器。
@@ -162,7 +163,7 @@ public class HttpReverseProxyServerFilter implements ServerFilter, ReactiveServe
                     req.putHeader("Host", host + ":" + port)
                             .putHeader("Connection", "close");
 
-                    Buffer content = reqBody != null && reqBody.length > 0
+                    Buffer content = ArrayUtils.isNotEmpty(reqBody)
                             ? Buffer.buffer(reqBody) : Buffer.buffer();
                     req.send(content)
                             .onSuccess(resp -> handleBackendResponse(resp, response, completionFuture))

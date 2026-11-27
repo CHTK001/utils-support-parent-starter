@@ -7,6 +7,7 @@ import com.chua.common.support.utils.StringUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_ASTERISK;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_ASTERISK_ANY;
@@ -98,7 +99,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
      * @return 命中排除规则返回 true
      */
     protected boolean isExclude(String absolutePath) {
-        if (excludes == null || excludes.isEmpty()) {
+        if (CollectionUtils.isEmpty(excludes)) {
             return false;
         }
         for (String exclude : excludes) {

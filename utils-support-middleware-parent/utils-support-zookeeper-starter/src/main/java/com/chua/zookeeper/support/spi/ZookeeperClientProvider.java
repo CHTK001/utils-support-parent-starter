@@ -23,6 +23,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.data.Stat;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * ZooKeeper 中间件管理面 SPI 实现。
@@ -209,7 +210,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
                 return List.of();
             }
             List<String> children = client.getChildren().forPath(path);
-            if (children == null || children.isEmpty()) {
+            if (CollectionUtils.isEmpty(children)) {
                 return List.of();
             }
             children.sort(String::compareTo);

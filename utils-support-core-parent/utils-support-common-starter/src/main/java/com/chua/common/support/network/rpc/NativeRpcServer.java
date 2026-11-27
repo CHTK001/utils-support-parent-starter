@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 原生 TCP NIO RPC 服务端，复用 {@link JdkTcpServer} 长度帧传输层。
@@ -171,7 +172,7 @@ public class NativeRpcServer implements RpcServer {
      * 初始化ServiceDiscovery
      */
     private void initServiceDiscovery() {
-        if (registryConfigs == null || registryConfigs.isEmpty()) {
+        if (CollectionUtils.isEmpty(registryConfigs)) {
             return;
         }
         for (RpcRegistryConfig config : registryConfigs) {

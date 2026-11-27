@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 应用层载荷的通用解码工具：给「自研/私有协议」的还原器共用。
@@ -194,7 +195,7 @@ public final class AppTrafficDecoder {
      * @return 形如 {@code "a" | "b"}；空列表返回空串
      */
     public static String join(List<String> values) {
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return "";
         }
         return String.join(" | ", values);

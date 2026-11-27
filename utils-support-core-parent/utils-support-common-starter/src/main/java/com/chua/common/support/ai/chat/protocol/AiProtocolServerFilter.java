@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 协议 ServerFilter — 在 ProtocolServer 中直接处理 OpenAI / Claude / CCS RESTful 请求。
@@ -537,7 +538,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private boolean noModelAvailable() {
         try {
             List<?> models = chatClient.models();
-            return models == null || models.isEmpty();
+            return CollectionUtils.isEmpty(models);
         } catch (Exception e) {
             log.warn("{}读取模型清单失败，按无可用模型处理: {}", LOG_PROTOCOL_PREFIX, e.getMessage());
             return true;

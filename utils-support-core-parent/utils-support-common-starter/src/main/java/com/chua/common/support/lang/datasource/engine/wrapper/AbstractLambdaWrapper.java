@@ -9,6 +9,7 @@ import com.chua.common.support.lang.datasource.engine.EngineOrm;
 import java.util.*;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
@@ -626,7 +627,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
-            if (nested == null || nested.isEmpty()) {
+            if (CollectionUtils.isEmpty(nested)) {
                 sb.append("1 = 1");
                 return;
             }
@@ -653,7 +654,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
             case "IN":
             case "NOT IN": {
                 Collection<?> vals = (Collection<?>) c.getValue();
-                if (vals == null || vals.isEmpty()) {
+                if (CollectionUtils.isEmpty(vals)) {
                     sb.append("IN".equals(operator) ? "1 = 0" : "1 = 1");
                     break;
                 }

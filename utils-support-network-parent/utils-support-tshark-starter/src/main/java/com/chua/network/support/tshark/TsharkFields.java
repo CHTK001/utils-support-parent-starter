@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * tshark {@code -T json -x} 输出的字段取值工具。
@@ -56,18 +58,18 @@ public final class TsharkFields {
      * @return 载荷字节，无法提取返回 {@code null}
      */
     public static byte[] payload(Map<String, Object> layers) {
-        if (layers == null || layers.isEmpty()) {
+        if (CollectionUtils.isEmpty(layers)) {
             return null;
         }
         for (String key : PAYLOAD_KEYS) {
             byte[] decoded = decode(findDeep(layers, key));
-            if (decoded != null && decoded.length > 0) {
+            if (ArrayUtils.isNotEmpty(decoded)) {
                 return decoded;
             }
         }
         for (String key : FRAME_KEYS) {
             byte[] decoded = decode(findDeep(layers, key));
-            if (decoded != null && decoded.length > 0) {
+            if (ArrayUtils.isNotEmpty(decoded)) {
                 return decoded;
             }
         }
@@ -93,14 +95,14 @@ public final class TsharkFields {
         for (String key : new String[]{layerName + "_raw", layerName + ".data",
                 layerName + "_data", layerName + ".raw_data"}) {
             byte[] decoded = decode(scope.get(key));
-            if (decoded != null && decoded.length > 0) {
+            if (ArrayUtils.isNotEmpty(decoded)) {
                 return decoded;
             }
         }
         // 退回全局查找，兼容嵌套层级
         for (String key : new String[]{layerName + "_raw", layerName + ".data"}) {
             byte[] decoded = decode(findDeep(layers, key));
-            if (decoded != null && decoded.length > 0) {
+            if (ArrayUtils.isNotEmpty(decoded)) {
                 return decoded;
             }
         }

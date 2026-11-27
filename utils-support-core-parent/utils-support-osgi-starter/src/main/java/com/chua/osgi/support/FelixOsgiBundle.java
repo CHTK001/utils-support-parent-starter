@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Felix Bundle 实现，包装 OSGI 的 Bundle 对象。
@@ -385,7 +386,7 @@ public class FelixOsgiBundle implements OsgiBundle {
      * @return 服务属性字典，入参为空时返回 {@code null}
      */
     static Dictionary<String, Object> toDictionary(Map<String, Object> properties) {
-        if (properties == null || properties.isEmpty()) {
+        if (CollectionUtils.isEmpty(properties)) {
             return null;
         }
         java.util.Hashtable<String, Object> dictionary = new java.util.Hashtable<>();

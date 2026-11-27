@@ -19,6 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 {@link ProcessBuilder} 的默认命令执行器实现。
@@ -353,7 +354,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             } else if (workDirectory != null) {
                 pb.directory(workDirectory);
             }
-            if (environment != null && !environment.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(environment)) {
                 pb.environment().putAll(environment);
             }
             pb.redirectErrorStream(false);
@@ -698,7 +699,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             } else if (workDirectory != null) {
                 pb.directory(workDirectory);
             }
-            if (environment != null && !environment.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(environment)) {
                 pb.environment().putAll(environment);
             }
             pb.redirectErrorStream(true);

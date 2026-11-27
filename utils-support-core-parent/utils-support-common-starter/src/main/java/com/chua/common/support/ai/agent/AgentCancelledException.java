@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.agent;
 
+import com.chua.common.support.utils.StringUtils;
+
 /**
  * 运行被取消异常。
  *
@@ -23,6 +25,6 @@ public class AgentCancelledException extends RuntimeException {
      * @param reason 取消原因，可为 null
      */
     public AgentCancelledException(String reason) {
-        super(reason == null || reason.isEmpty() ? "运行已被取消" : ("运行已被取消: " + reason));
+        super(StringUtils.isEmpty(reason) ? "运行已被取消" : ("运行已被取消: " + reason));
     }
 }

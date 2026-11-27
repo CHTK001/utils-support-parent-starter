@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 人脸统一能力门面。
@@ -1305,7 +1307,7 @@ public class FacePipeline {
                         continue;
                     }
                     List<float[]> keypoints = b.keypoints();
-                    if (keypoints != null && !keypoints.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(keypoints)) {
                         List<float[]> moved = Wraps.list(keypoints.size());
                         for (float[] p : keypoints) {
                             float kx = Math.min(imgW - 1f, Math.max(0f, p[0] - pad));
@@ -1400,7 +1402,7 @@ public class FacePipeline {
         FaceContext fc = new FaceContext(imageData, boxes);
         while (fc.advance()) {
             runSingle(fc, identifyPipeline);
-            if (fc.currentFeature() != null && fc.currentFeature().length > 0) {
+            if (ArrayUtils.isNotEmpty(fc.currentFeature())) {
                 return fc.currentFeature();
             }
         }
@@ -2005,7 +2007,7 @@ public class FacePipeline {
             return List.of();
         }
         List<com.chua.common.support.vector.Vector> vectors = vectorStorage.search(feature, k);
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<FaceSearchHit> hits = Wraps.list(vectors.size());

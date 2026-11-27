@@ -50,7 +50,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
         try (InputStream is = openVocab(model)) {
             List<String> words = Utils.readLines(is, true);
             for (String word : words) {
-                if (word == null || word.isEmpty()) {
+                if (StringUtils.isEmpty(word)) {
                     continue;
                 }
                 String[] ws = word.split("\t");

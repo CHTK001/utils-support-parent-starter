@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 定价同步工具。
@@ -51,7 +52,7 @@ public final class PricingSyncer {
      */
     public static int syncAllFromOnline(ConfigSaveOrLoader loader) {
         Map<String, ModelMetricsProvider> providers = ServiceProvider.of(ModelMetricsProvider.class).list();
-        if (providers == null || providers.isEmpty()) {
+        if (CollectionUtils.isEmpty(providers)) {
             return 0;
         }
         int total = 0;
@@ -110,7 +111,7 @@ public final class PricingSyncer {
      */
     public static List<ModelDefinition> loadAll(ConfigSaveOrLoader loader) {
         Map<String, ModelMetricsProvider> providers = ServiceProvider.of(ModelMetricsProvider.class).list();
-        if (providers == null || providers.isEmpty()) {
+        if (CollectionUtils.isEmpty(providers)) {
             return Collections.emptyList();
         }
         List<ModelDefinition> result = Wraps.list();

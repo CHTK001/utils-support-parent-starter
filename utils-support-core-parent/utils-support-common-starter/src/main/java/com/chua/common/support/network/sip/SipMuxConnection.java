@@ -18,6 +18,7 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SIP 多路复用数据面共享连接（客户端侧）。
@@ -155,7 +156,7 @@ class SipMuxConnection {
     void attach(SipMuxStream stream) {
         streams.put(stream.channelId(), stream);
         List<byte[]> early = earlyFrames.remove(stream.channelId());
-        if (early != null && !early.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(early)) {
             SipMetrics.get().onMuxFlush(early.size());
         }
         if (early != null) {

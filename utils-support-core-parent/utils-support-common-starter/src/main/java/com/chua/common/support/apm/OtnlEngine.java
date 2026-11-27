@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Otnl（Open Telemetry Native Layer）引擎 SPI。
@@ -245,7 +246,7 @@ public interface OtnlEngine extends Engine {
      * @return 时序列表，与入参顺序一致（失败项返回空时序）
      */
     default List<OtnlMetricSeries> metricsBatch(List<OtnlMetricQuery> queries) {
-        if (queries == null || queries.isEmpty()) {
+        if (CollectionUtils.isEmpty(queries)) {
             return List.of();
         }
         var result = new ArrayList<OtnlMetricSeries>(queries.size());
@@ -272,7 +273,7 @@ public interface OtnlEngine extends Engine {
      * @return 合并后的拓扑
      */
     default OtnlTopology multiTopology(List<String> serviceNames, OtnlQuery query) {
-        if (serviceNames == null || serviceNames.isEmpty() || query == null) {
+        if (CollectionUtils.isEmpty(serviceNames) || query == null) {
             return OtnlTopology.empty();
         }
         Map<String, OtnlTopology.OtnlTopologyNode> nodes = new LinkedHashMap<>();

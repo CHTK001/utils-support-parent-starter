@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 引导期加解密工具（打包注入专用，零第三方依赖）
@@ -164,7 +165,7 @@ public final class PayloadCipher {
         String password;
         if (serverBound) {
             StringBuilder sb = new StringBuilder(fingerprint(serverId));
-            if (secret != null && secret.length > 0) {
+            if (ArrayUtils.isNotEmpty(secret)) {
                 sb.append("::").append(secret);
             }
             password = sb.toString();

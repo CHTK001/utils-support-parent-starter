@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * rSocket Agent 数据源
@@ -134,7 +135,7 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
-            if (rows == null || rows.isEmpty()) {
+            if (CollectionUtils.isEmpty(rows)) {
                 return;
             }
             RSocket rSocket = RSocketConnector.create()

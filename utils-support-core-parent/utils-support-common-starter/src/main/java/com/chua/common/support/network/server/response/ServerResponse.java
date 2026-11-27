@@ -158,6 +158,21 @@ public interface ServerResponse {
     boolean isEnded();
 
     /**
+     * 判断响应是否处于 SSE 流式模式。
+     *
+     * <p>流式响应在 {@link #sseClose()} 之前不能被 {@link #end()} 收尾：
+     * {@code end()} 会把响应标记为「已结束」，服务端随后的 keep-alive 判定
+     * 认为该连接可以立即关闭（例如请求头带 {@code Connection: close}，或代理
+     * 默认以 close 复用上游连接时），连接会在第一帧之后被断开，后续事件全部丢失。
+     * 框架统一在响应链收尾处跳过 SSE 响应的 {@code end()}。</p>
+     *
+     * @return 流式响应返回 true，普通响应默认 false
+     */
+    default boolean isSseMode() {
+        return false;
+    }
+
+    /**
      * 设置返回的原始结果对象（未转换），由尾部 ResponseConverter 统一转换。
      *
      * @param result bean 方法返回的原始对象

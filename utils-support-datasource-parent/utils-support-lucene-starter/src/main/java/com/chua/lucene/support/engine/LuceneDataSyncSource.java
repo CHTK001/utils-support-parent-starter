@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Lucene 引擎的 数据同步 输出 提供者。
@@ -148,7 +149,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
     @Override
     public void write(Flux<Map<String, Object>> data) {
         List<Map<String, Object>> rows = data.collectList().block();
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return;
         }
         Directory directory = engine.getOrCreateDirectory(tableName);

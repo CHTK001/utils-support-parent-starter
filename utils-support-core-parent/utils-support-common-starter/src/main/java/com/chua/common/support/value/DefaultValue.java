@@ -1,6 +1,7 @@
 package com.chua.common.support.value;
 
 import lombok.AllArgsConstructor;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 默认值实现，包装一个具体值并支持携带可选的默认值和异常信息。
@@ -98,6 +99,6 @@ class DefaultValue<T> implements Value<T> {
      */
     @Override
     public boolean is(T value) {
-        return this.value == value || (this.value != null && this.value.equals(value));
+        return this.value == value || (ObjectUtils.nullSafeEquals(this.value, value));
     }
 }

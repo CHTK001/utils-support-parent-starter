@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * MySQL 系迁移脚本方言转换器（{@code ScriptConverter} 的 mysql 协议实现）。
@@ -92,7 +93,7 @@ public class MysqlScriptConverter extends DefaultScriptConverter {
     @Override
     public List<String> convertAll(List<String> statements, String protocol) {
         List<String> result = Wraps.list();
-        if (statements == null || statements.isEmpty()) {
+        if (CollectionUtils.isEmpty(statements)) {
             return result;
         }
         for (String statement : statements) {

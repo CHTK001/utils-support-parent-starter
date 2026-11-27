@@ -12,6 +12,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * oshc mem — 内存明细：物理内存条、虚拟内存/交换分区。
@@ -53,7 +54,7 @@ public final class MemCommand extends AbstractCommand {
 
  // ── Physical 内存 modules ──
         List<PhysicalMemory> modules = globalMemory.getPhysicalMemory();
-        if (modules != null && !modules.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(modules)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Physical Memory Modules (" + modules.size() + "):"); // [P3C E1 豁免]
             List<String[]> rows = Wraps.list();

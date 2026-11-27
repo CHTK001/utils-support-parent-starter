@@ -4,6 +4,7 @@ package com.chua.image.support.heif;
 import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * HEIF 原生解码器 — 解析 box 结构，提取 JPEG 数据后由 JDK 解码。
@@ -52,7 +53,7 @@ public class HeifNativeDecoder {
         // 再次重置，提取 JPEG
         input.seek(0);
         byte[] jpegData = extractJpegFromHeif(input, 0);
-        if (jpegData != null && jpegData.length > 0) {
+        if (ArrayUtils.isNotEmpty(jpegData)) {
             return decodeJpegToRgba(jpegData);
         }
         return null;

@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 服务发现抽象基类。
@@ -324,7 +325,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
                 list = new CopyOnWriteArrayList<>();
             }
             for (int i = 0; i < list.size(); i++) {
-                if (discovery.getServerId() != null && discovery.getServerId().equals(list.get(i).getServerId())) {
+                if (ObjectUtils.nullSafeEquals(discovery.getServerId(), list.get(i).getServerId())) {
                     Discovery old = list.get(i);
                     list.set(i, discovery);
                     doUpdate(prefixed, old, discovery);

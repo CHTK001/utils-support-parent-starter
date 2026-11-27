@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 打开AI 语音识别（ASR / STT）客户端。
@@ -265,7 +266,7 @@ public class OpenAiAudioClient implements VirtualClient {
      * @throws IOException 读取失败时抛出
      */
     private byte[] resolveAudioBytes(Path path) throws IOException {
-        if (audio != null && audio.length > 0) {
+        if (ArrayUtils.isNotEmpty(audio)) {
             return audio;
         }
         if (audioInput != null) {

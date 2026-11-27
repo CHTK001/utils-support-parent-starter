@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 图片生成客户端接口
@@ -306,7 +307,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

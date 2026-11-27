@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * MySQL 搜索引擎元数据操作实现，索引即表上的 FULLTEXT 索引。
@@ -187,7 +188,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
 
         @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
-            if (mappings != null && !mappings.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(mappings)) {
                 throw new UnsupportedOperationException(
                         "MySQL 全文索引直接建在表列上，没有独立映射；列类型由表结构决定，"
                                 + "解析器请用 settings 的 " + MysqlSearchEngineImpl.SETTING_PARSER + " 指定，索引名: " + indexName);

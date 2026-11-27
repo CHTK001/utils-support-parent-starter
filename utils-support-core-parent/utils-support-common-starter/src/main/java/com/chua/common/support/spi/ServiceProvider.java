@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 服务提供者接口，提供 SPI（服务 提供者 接口）机制的核心功能。
@@ -686,7 +687,7 @@ public interface ServiceProvider<T> {
      */
     @Nullable
     default T proxyFactory(@Nonnull List<T> instances) {
-        if (instances == null || instances.isEmpty()) {
+        if (CollectionUtils.isEmpty(instances)) {
             return null;
         }
         List<T> unique = Wraps.list(instances.size());

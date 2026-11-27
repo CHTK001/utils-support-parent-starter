@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * skills.sh 在线技能市场提供器。
@@ -73,7 +74,7 @@ public class SkillShSkillProvider extends SkillShProvider implements SkillOnline
         try {
             Map<String, Object> apiResult = callApi(keyword == null ? "" : keyword, size, offset);
             List<Map<String, Object>> items = (List<Map<String, Object>>) apiResult.get("items");
-            if (items == null || items.isEmpty()) {
+            if (CollectionUtils.isEmpty(items)) {
                 return Collections.emptyList();
             }
             List<SkillMarketListing> listings = Wraps.list(items.size());

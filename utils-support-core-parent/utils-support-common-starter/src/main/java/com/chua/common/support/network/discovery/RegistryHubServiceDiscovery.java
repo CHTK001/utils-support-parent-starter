@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 内嵌注册中心实现（{@code registry-hub}）。
@@ -170,7 +172,7 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         Discovery existing = findSameServerId(prefixed, discovery.getServerId());
-        if (existing != null && existing.equals(discovery)) {
+        if (ObjectUtils.nullSafeEquals(existing, discovery)) {
             return this;
         }
         // upsert：同 serverId 先移除旧条目，避免重复堆积
@@ -224,7 +226,7 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
     public ServiceDiscovery updateService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         Discovery existing = findSameServerId(prefixed, discovery.getServerId());
-        if (existing != null && existing.equals(discovery)) {
+        if (ObjectUtils.nullSafeEquals(existing, discovery)) {
             return this;
         }
         ServiceDiscovery result = super.updateService(path, discovery);
@@ -293,7 +295,7 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
         }
         String normalizedPath = StringUtils.startWithAppend(path, "/");
         Discovery existing = findSameServerId(normalizedPath, discovery.getServerId());
-        if (existing != null && existing.equals(discovery)) {
+        if (ObjectUtils.nullSafeEquals(existing, discovery)) {
             // 幂等重申：内容未变化，仅确保归属仍在（掉线回收后重连重申会走到新增分支）
             ownedByClient.computeIfAbsent(clientId, k -> new ConcurrentHashMap<>())
                     .put(normalizedPath, discovery.getServerId());
@@ -379,7 +381,7 @@ public class RegistryHubServiceDiscovery extends DefaultServiceDiscovery {
      */
     private void purgeClient(String clientId) {
         Map<String, String> owned = ownedByClient.remove(clientId);
-        if (owned == null || owned.isEmpty()) {
+        if (CollectionUtils.isEmpty(owned)) {
             return;
         }
         for (Map.Entry<String, String> entry : owned.entrySet()) {

@@ -15,6 +15,8 @@ import org.redisson.config.Config;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * Redis 服务发现实现。
@@ -126,7 +128,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
             }
             boolean replaced = false;
             for (int i = 0; i < list.size(); i++) {
-                if (discovery.getServerId() != null && discovery.getServerId().equals(list.get(i).getServerId())) {
+                if (ObjectUtils.nullSafeEquals(discovery.getServerId(), list.get(i).getServerId())) {
                     list.set(i, discovery);
                     replaced = true;
                     break;
@@ -190,7 +192,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
         }
         RMapCache<String, String> map = redissonClient.getMapCache("discovery:" + path);
         Collection<String> values = map.readAllValues();
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return Collections.emptySet();
         }
         Set<Discovery> result = new LinkedHashSet<>();

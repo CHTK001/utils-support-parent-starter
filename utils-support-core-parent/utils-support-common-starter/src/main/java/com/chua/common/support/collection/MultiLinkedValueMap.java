@@ -65,7 +65,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
     @Override
     public V getFirst(K key) {
         List<V> values = this.targetMap.get(key);
-        return (values != null && !values.isEmpty() ? values.getFirst() : null);
+        return (CollectionUtils.isNotEmpty(values) ? values.getFirst() : null);
     }
 
     /**
@@ -137,7 +137,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
     public Map<K, V> toSingleValueMap() {
         Map<K, V> singleValueMap = Wraps.linkedMap();
         this.targetMap.forEach((key, values) -> {
-            if (values != null && !values.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(values)) {
                 singleValueMap.put(key, values.getFirst());
             }
         });

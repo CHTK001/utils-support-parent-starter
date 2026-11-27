@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 通义千问浏览器会话。
@@ -159,7 +160,7 @@ public class QwenBrowserSession implements AutoCloseable {
                         }
                         rawEvents.add(obj);
                         List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
-                        if (choices == null || choices.isEmpty()) {
+                        if (CollectionUtils.isEmpty(choices)) {
                             continue;
                         }
                         Map<String, Object> delta = (Map<String, Object>) choices.getFirst().get("delta");

@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 链式 HTTP 请求规格，绑定到 {@link HttpClient} 实例的轻量级请求构建器。
@@ -895,7 +896,7 @@ public class RequestSpec {
      * @return 完整的 URL 字符串
      */
     private String buildUrl() {
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return url;
         }
         StringBuilder sb = new StringBuilder(url);

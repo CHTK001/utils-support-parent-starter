@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 文件引擎实现，支持 CSV、Excel、JSON、DBF 等表格文件的 Lambda ORM 查询。
@@ -212,7 +213,7 @@ public class FileEngine extends AbstractEngine {
         List<Map<String, Object>> normalized = normalizeEmptyStrings(rows);
         TableMeta meta = new TableMeta(file, type, defaultAutoPersist);
         // 记录列顺序：空表写回时必须靠它保留表头
-        if (normalized != null && !normalized.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(normalized)) {
             meta.columns = new ArrayList<>(normalized.getFirst().keySet());
         }
         tableMetas.put(name, meta);
@@ -350,7 +351,7 @@ public class FileEngine extends AbstractEngine {
         if (raw == null && !dataStores.isEmpty()) {
  // 优先取实体列表（非 映射 行）
             for (List<?> list : dataStores.values()) {
-                if (list != null && !list.isEmpty() && !(list.getFirst() instanceof Map)) {
+                if (CollectionUtils.isNotEmpty(list) && !(list.getFirst() instanceof Map)) {
                     return list;
                 }
             }
@@ -646,7 +647,7 @@ public class FileEngine extends AbstractEngine {
      * @return normalize空字符串的结果
      */
     private static List<Map<String, Object>> normalizeEmptyStrings(List<Map<String, Object>> rows) {
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return rows;
         }
         List<Map<String, Object>> result = Wraps.list(rows.size());

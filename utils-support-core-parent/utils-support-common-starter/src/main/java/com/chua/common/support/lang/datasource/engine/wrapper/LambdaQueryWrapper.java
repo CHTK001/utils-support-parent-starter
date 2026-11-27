@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.page.Page;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Lambda 查询包装器，提供类似 MyBatis-Plus 的链式查询条件构建和 SQL 生成功能。
@@ -448,7 +449,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return this
      */
     public LambdaQueryWrapper<T> cursor(List<Object> cursorValues) {
-        this.cursorValues = (cursorValues == null || cursorValues.isEmpty())
+        this.cursorValues = (CollectionUtils.isEmpty(cursorValues))
                 ? null : List.copyOf(cursorValues);
         return this;
     }

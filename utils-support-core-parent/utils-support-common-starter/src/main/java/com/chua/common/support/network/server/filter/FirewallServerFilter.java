@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 防火墙过滤器：IP 黑白名单 + 每 IP 限流。
@@ -96,7 +97,7 @@ public class FirewallServerFilter implements ServerFilter {
      */
     @Override
     public void updateConfig(Map<String, Object> config) {
-        if (config == null || config.isEmpty()) {
+        if (CollectionUtils.isEmpty(config)) {
             return;
         }
         applyParams(toStringValue(config.get("mode")), toStringValue(config.get("ips")),

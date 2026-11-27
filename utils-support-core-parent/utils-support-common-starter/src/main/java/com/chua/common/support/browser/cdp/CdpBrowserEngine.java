@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 JDK 的轻量 CDP 浏览器引擎
@@ -667,7 +668,7 @@ public class CdpBrowserEngine implements BrowserEngine {
                 || Boolean.parseBoolean(System.getenv("CHUA_ROTATE_UA"));
         if (rotate) {
             List<String> pool = options.getUserAgentPool();
-            if (pool == null || pool.isEmpty()) {
+            if (CollectionUtils.isEmpty(pool)) {
                 pool = defaultUserAgentPool();
             }
             if (!pool.isEmpty()) {

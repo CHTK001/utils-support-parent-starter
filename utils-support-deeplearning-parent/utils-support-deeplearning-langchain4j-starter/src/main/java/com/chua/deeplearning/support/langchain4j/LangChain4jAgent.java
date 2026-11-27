@@ -103,6 +103,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 基于 langchain4j 实现的 ReAct Agent。
@@ -2544,7 +2546,7 @@ public class LangChain4jAgent implements Agent {
         for (AgentDefinition sub : subAgentDefinitions) {
             boolean exists = false;
             for (AgentDefinition agent : declared) {
-                if (agent.getId() != null && agent.getId().equals(sub.getId())) {
+                if (ObjectUtils.nullSafeEquals(agent.getId(), sub.getId())) {
                     exists = true;
                     break;
                 }
@@ -2570,7 +2572,7 @@ public class LangChain4jAgent implements Agent {
         }
         try {
             List<MemoryEntry> entries = manager.search(input, MEMORY_SEARCH_LIMIT);
-            if (entries == null || entries.isEmpty()) {
+            if (CollectionUtils.isEmpty(entries)) {
                 return systemPrompt;
             }
             StringBuilder sb = new StringBuilder(systemPrompt);
@@ -2711,7 +2713,7 @@ public class LangChain4jAgent implements Agent {
             if (service.shouldTriggerDeviationCorrection()) {
                 List<com.chua.common.support.ai.chat.ChatMessage> corrected =
                         service.onDeviationCompression(service.loadBaseline(), common);
-                if (corrected != null && !corrected.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(corrected)) {
                     common = corrected;
                 }
             }
@@ -3059,7 +3061,7 @@ public class LangChain4jAgent implements Agent {
      */
     @SuppressWarnings("unchecked")
     private static JsonObjectSchema buildParametersFromSchema(Map<String, Object> schema) {
-        if (schema == null || schema.isEmpty()) {
+        if (CollectionUtils.isEmpty(schema)) {
             return JsonObjectSchema.builder().additionalProperties(true).build();
         }
 

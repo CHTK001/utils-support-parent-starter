@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * sensevoice-small ONNX 推理器（音频文件 → 转写文本，支持中/英/日/韩/粤）。
@@ -156,7 +157,7 @@ public class SenseVoiceTranslator {
     */
     private void applyModelMetadata(OrtSession session) throws OrtException {
         Map<String, String> meta = session.getMetadata().getCustomMetadata();
-        if (meta == null || meta.isEmpty()) {
+        if (CollectionUtils.isEmpty(meta)) {
             return;
         }
         ObjectMapper mapper =

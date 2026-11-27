@@ -17,6 +17,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 打开AI 兼容接口真伪探测器。
@@ -222,7 +223,7 @@ public class OpenAiProbeStation {
         String baseUrl = resolveBaseUrl();
         String apiKey = setting.getAppKey();
         List<String> sniffModels = Wraps.list();
-        if (scannedModels != null && !scannedModels.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(scannedModels)) {
             sniffModels.addAll(scannedModels);
         } else {
             sniffModels.add("gpt-4");

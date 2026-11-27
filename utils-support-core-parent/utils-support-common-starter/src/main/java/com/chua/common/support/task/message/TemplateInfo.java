@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 模板信息
@@ -55,7 +56,7 @@ public record TemplateInfo(String id, String name, String content, String type, 
      * @return 填充后的模板内容
      */
     public String render(Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return content;
         }
         String result = content;

@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * RocksDB ORM 存储辅助类，提供实体（entity）在 RocksDB 中的存取能力。
@@ -141,7 +142,7 @@ public class RocksDbOrmStore {
      * @return 写入 行数
      */
     public <T> int store(String table, List<T> entities) {
-        if (entities == null || entities.isEmpty()) {
+        if (CollectionUtils.isEmpty(entities)) {
             return 0;
         }
         synchronized (tableLock(table)) {

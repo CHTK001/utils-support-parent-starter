@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 迁移插件抽象基类：提供插件注解解析、迁移会话管理与 Parquet 本地 IO 公共能力。
@@ -273,7 +274,7 @@ public abstract class AbstractPluginMigrator implements DataMigrator {
      * @return 模式推断结果
      */
     protected static SchemaMapping inferSchema(List<Map<String, Object>> rows) {
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             throw new IllegalArgumentException("无法从空数据推断 Parquet 模式");
         }
         List<String> columns = new ArrayList<>(rows.get(0).keySet());

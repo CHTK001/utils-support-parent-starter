@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 同 JVM 直调（inline）进程级服务注册表。
@@ -113,7 +114,7 @@ public final class LocalServiceRegistry {
             return null;
         }
         List<Object> list = services.get(name);
-        if (list == null || list.isEmpty()) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         return list.getFirst();
@@ -130,7 +131,7 @@ public final class LocalServiceRegistry {
             return false;
         }
         List<Object> list = services.get(name);
-        return list != null && !list.isEmpty();
+        return CollectionUtils.isNotEmpty(list);
     }
 
     /**

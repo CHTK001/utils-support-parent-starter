@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 内置迁移插件：Parquet 文件 -&gt; RDBMS 表。
@@ -67,7 +68,7 @@ public class ParquetToRdbmsMigrator extends AbstractPluginMigrator {
 
     @Override
     public long write(Object target, MigrateRequest request, List<Map<String, Object>> batch) {
-        if (batch == null || batch.isEmpty()) {
+        if (CollectionUtils.isEmpty(batch)) {
             return 0L;
         }
         String table = sanitizeTable(request.getTargetTable());

@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Models.dev 公开聚合端点的 {@link ChatClientIndicator} 实现。
@@ -355,10 +356,10 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
                     }
                 }
             }
-            if (efforts != null && !efforts.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(efforts)) {
                 metrics.put("reasoning_efforts", dedupe(efforts));
             }
-            if (types != null && !types.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(types)) {
                 metrics.put("reasoning_option_types", dedupe(types));
             }
         }

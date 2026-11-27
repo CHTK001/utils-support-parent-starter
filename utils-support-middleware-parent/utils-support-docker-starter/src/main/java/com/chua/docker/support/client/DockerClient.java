@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -830,10 +831,10 @@ public class DockerClient implements Closeable {
                             .toList();
                     create.withEnv(envList);
                 }
-                if (command != null && !command.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(command)) {
                     create.withCmd(command);
                 }
-                if (entrypoint != null && !entrypoint.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(entrypoint)) {
                     create.withEntrypoint(entrypoint);
                 }
                 if (!portBindings.isEmpty()) {

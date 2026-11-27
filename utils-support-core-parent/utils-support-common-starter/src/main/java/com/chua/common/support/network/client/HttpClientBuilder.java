@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 链式 HTTP 客户端请求构建器。
@@ -509,7 +510,7 @@ public class HttpClientBuilder {
         if (multipartBody == null) {
             multipartBody = new MultipartBody();
             // 迁移已有的纯文本字段到 multipart
-            if (formData != null && !formData.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(formData)) {
                 for (Map.Entry<String, String> entry : formData.entrySet()) {
                     multipartBody.addField(entry.getKey(), entry.getValue());
                 }
@@ -885,7 +886,7 @@ public class HttpClientBuilder {
         }
 
         // 纯文本字段模式（向后兼容），使用 URL 编码处理特殊字符
-        if (formData != null && !formData.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(formData)) {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : formData.entrySet()) {
                 if (sb.length() > 0) {
@@ -1142,7 +1143,7 @@ public class HttpClientBuilder {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
         }
         // 拼接查询参数（与执行时底层执行器行为一致）
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             StringBuilder sb = new StringBuilder(url);
             sb.append(url.contains("?") ? '&' : '?');
             boolean first = true;

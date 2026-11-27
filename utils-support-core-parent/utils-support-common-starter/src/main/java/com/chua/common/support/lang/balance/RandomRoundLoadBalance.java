@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -67,7 +68,7 @@ public class RandomRoundLoadBalance implements LoadBalance {
   */
  @Override
  public <T> T select(List<T> values) {
- if (values == null || values.isEmpty()) {
+ if (CollectionUtils.isEmpty(values)) {
  return null;
  }
  if (values.size() == 1) {

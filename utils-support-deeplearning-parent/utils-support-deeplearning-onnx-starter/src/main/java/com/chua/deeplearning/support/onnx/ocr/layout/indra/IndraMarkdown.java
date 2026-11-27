@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * indra 版面 Markdown 渲染，忠实复刻 {@code indra_ocr/layout_post.py} 的 {@code page_markdown}。
@@ -58,7 +59,7 @@ public final class IndraMarkdown {
         }
         StringBuilder sb = new StringBuilder();
         for (String p : parts) {
-            if (p == null || p.isEmpty()) {
+            if (StringUtils.isEmpty(p)) {
                 continue;
             }
             if (!sb.isEmpty()) {

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -178,7 +179,7 @@ public class RedisSearchSink implements DataSink {
         }
         try (Jedis jedis = pool.getResource()) {
             Map<String, Object> data = envelope.getParsed();
-            if (data == null || data.isEmpty()) {
+            if (CollectionUtils.isEmpty(data)) {
                 return false;
             }
             String topic = Precondition.ifTrue(envelope.getTopics() != null && !envelope.getTopics().isEmpty())

@@ -17,6 +17,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 智谱（CogVideoX）视频生成客户端。
@@ -238,7 +239,7 @@ public class ZhipuVideoClient implements VideoClient {
             if (status == VideoResponse.Status.SUCCESS) {
                 List<Map<String, Object>> results = root.containsKey("video_result")
                         ? (List<Map<String, Object>>) root.get("video_result") : null;
-                if (results != null && !results.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(results)) {
                     builder.videoUrl((String) results.getFirst().get("url"));
                 }
                 if (builder.build().getVideoUrl() == null && root.containsKey("url")) {

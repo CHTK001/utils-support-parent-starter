@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 蓝奏云专用 HTTP 客户端。
@@ -374,7 +375,7 @@ class LanzouHttp {
      * @return 编码结果
      */
     private String encodeForm(Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return "";
         }
         StringBuilder builder = new StringBuilder();

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Calcite 数据源转换器实现类。
@@ -54,7 +55,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
      */
     @Override
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment environment) {
-        if (dataSources == null || dataSources.isEmpty()) {
+        if (CollectionUtils.isEmpty(dataSources)) {
             throw new IllegalArgumentException("至少需要一个数据源");
         }
         return new CalciteDataSource(dataSources);
@@ -71,7 +72,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
      * @return Calcite 聚合数据源
      */
     public DataSource convertNamed(Map<String, DataSource> namedDelegates) {
-        if (namedDelegates == null || namedDelegates.isEmpty()) {
+        if (CollectionUtils.isEmpty(namedDelegates)) {
             throw new IllegalArgumentException("至少需要一个数据源");
         }
         return new CalciteDataSource(new LinkedHashMap<>(namedDelegates));

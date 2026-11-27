@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Socket.IO Agent 数据源
@@ -125,7 +126,7 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
-            if (rows == null || rows.isEmpty()) {
+            if (CollectionUtils.isEmpty(rows)) {
                 return;
             }
             String requestId = java.util.UUID.randomUUID().toString();

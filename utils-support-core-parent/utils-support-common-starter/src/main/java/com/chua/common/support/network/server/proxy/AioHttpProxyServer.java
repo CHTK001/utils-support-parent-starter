@@ -18,6 +18,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * AIO 正向 HTTP 代理 —— 纯非阻塞响应式实现(Proactor/IOCP)。
@@ -412,7 +414,7 @@ public class AioHttpProxyServer extends AbstractServer {
         // p50 ≈ 1s（TCP 重传档）。复用后这条连接由 finishClient 统一关闭。
         AsynchronousSocketChannel reused = ctx.backend;
         if (reused != null && reused.isOpen()
-                && head.host != null && head.host.equals(ctx.backendHost)
+                && ObjectUtils.nullSafeEquals(head.host, ctx.backendHost)
                 && head.port == ctx.backendPort) {
             sendRequest(ctx, reused, head, leftover);
             return;
@@ -468,7 +470,7 @@ public class AioHttpProxyServer extends AbstractServer {
                     + "\r\n").getBytes(StandardCharsets.US_ASCII));
         }
         req.write("\r\n".getBytes(StandardCharsets.US_ASCII));
-        if (leftover != null && leftover.length > 0) {
+        if (ArrayUtils.isNotEmpty(leftover)) {
             int take = (int) Math.min(leftover.length, bodyLen);
             req.write(leftover, 0, take);
             ctx.reqBodySent = take;

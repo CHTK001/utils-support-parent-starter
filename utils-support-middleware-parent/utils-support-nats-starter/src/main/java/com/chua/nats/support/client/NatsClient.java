@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * NATS 全功能链式客户端。
@@ -669,7 +670,7 @@ public class NatsClient implements AutoCloseable {
                     .subject(subject)
                     .replyTo(replyTo)
                     .data(body);
-            if (headers != null && !headers.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(headers)) {
                 io.nats.client.impl.Headers h = new io.nats.client.impl.Headers();
                 headers.forEach(h::add);
                 builder.headers(h);
@@ -996,7 +997,7 @@ public class NatsClient implements AutoCloseable {
                 io.nats.client.impl.NatsMessage.Builder builder = io.nats.client.impl.NatsMessage.builder()
                         .subject(streamName)
                         .data(body);
-                if (headers != null && !headers.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(headers)) {
                     io.nats.client.impl.Headers h = new io.nats.client.impl.Headers();
                     headers.forEach(h::add);
                     builder.headers(h);

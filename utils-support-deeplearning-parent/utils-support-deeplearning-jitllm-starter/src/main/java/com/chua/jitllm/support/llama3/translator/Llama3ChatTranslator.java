@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Llama 3 GPU 对话翻译器。
@@ -140,7 +141,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
      */
     @Override
     public void configure(Map<String, Object> options) {
-        if (options == null || options.isEmpty()) {
+        if (CollectionUtils.isEmpty(options)) {
             return;
         }
         synchronized (this) {

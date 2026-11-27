@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 阿里云通义万相图片生成客户端
@@ -344,7 +345,7 @@ public class AlibabaImageClient implements ImageClient {
             String taskStatus = (String) output.get("task_status");
             if ("SUCCEEDED".equals(taskStatus)) {
                 List<Map<String, Object>> results = (List<Map<String, Object>>) output.get("results");
-                if (results != null && !results.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(results)) {
                     String imageUrl = (String) results.getFirst().get("url");
                     return ImageResponse.builder()
                             .taskId(taskId)

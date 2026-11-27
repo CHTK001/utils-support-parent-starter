@@ -215,6 +215,9 @@ public BufferedImage generate(String prompt) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "imagen-3.0-generate-001";
+        if (isGeminiImageModel(actualModel)) {
+            return generateGeminiImage(actualModel, actualPrompt);
+        }
         // 构建请求体
         var bodyBuilder = new StringBuilder();
         bodyBuilder.append("{\"instances\":[{\"prompt\":\"")
@@ -246,6 +249,83 @@ public BufferedImage generate(String prompt) {
         } catch (IOException e) {
             throw new RuntimeException("Google Imagen 图片生成请求失败", e);
         }
+    }
+
+    /**
+     * 通过 Gemini generateContent 生成图片。
+     *
+     * @param actualModel 模型名
+     * @param actualPrompt 提示词
+     * @return 图片
+     */
+    private BufferedImage generateGeminiImage(String actualModel, String actualPrompt) {
+        String requestBody = "{\"contents\":[{\"parts\":[{\"text\":\""
+                + escapeJson(actualPrompt)
+                + "\"}]}],\"generationConfig\":{\"responseModalities\":[\"TEXT\",\"IMAGE\"]}}";
+        var request = HttpClientFactory.of(normalizeBaseUrl())
+                .path("/models/" + actualModel + ":generateContent")
+                .header("Authorization", "Bearer " + setting.getAppKey())
+                .json()
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .body(requestBody);
+        ClientResponse response = isOpenCodeInference()
+                ? request.post()
+                : HttpClientFactory.of(normalizeBaseUrl())
+                .path("/models/" + actualModel + ":generateContent?key=" + setting.getAppKey())
+                .json()
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("Google Gemini 图片生成请求失败: " + response.getStatusCode() + " - " +
+                    response.getBodyString());
+        }
+        try {
+            return parseGeminiImage(response.getBodyString());
+        } catch (IOException e) {
+            throw new RuntimeException("Google Gemini 图片生成请求失败", e);
+        }
+    }
+
+    /**
+     * 解析 Gemini 响应中的 inlineData 图片。
+     *
+     * @param json Gemini 返回的 JSON 响应
+     * @return 图片
+     * @throws IOException 图片解码失败
+     */
+    @SuppressWarnings("unchecked")
+    private BufferedImage parseGeminiImage(String json) throws IOException {
+        Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
+        List<Map<String, Object>> candidates = (List<Map<String, Object>>) root.get("candidates");
+        if (CollectionUtils.isEmpty(candidates)) {
+            throw new RuntimeException("Google Gemini 返回的候选结果为空");
+        }
+        for (Map<String, Object> candidate : candidates) {
+            Map<String, Object> content = candidate.get("content") instanceof Map<?, ?> value
+                    ? (Map<String, Object>) value : null;
+            if (content == null || !(content.get("parts") instanceof List<?> parts)) {
+                continue;
+            }
+            for (Object partValue : parts) {
+                if (!(partValue instanceof Map<?, ?> part)) {
+                    continue;
+                }
+                Object inlineValue = part.get("inlineData");
+                if (!(inlineValue instanceof Map<?, ?>)) {
+                    inlineValue = part.get("inline_data");
+                }
+                if (inlineValue instanceof Map<?, ?> inlineData) {
+                    String base64Data = String.valueOf(inlineData.get("data"));
+                    if (StringUtils.isNotBlank(base64Data) && !"null".equals(base64Data)) {
+                        return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(base64Data)));
+                    }
+                }
+            }
+        }
+        throw new RuntimeException("Google Gemini 返回的图片数据为空");
     }
 
     /**
@@ -316,6 +396,27 @@ public BufferedImage generate(String prompt) {
             url = url.substring(0, url.length() - 1);
         }
         return url;
+    }
+
+    /**
+     * 判断是否为 OpenCode Gemini 兼容网关。
+     *
+     * @return true 表示使用 Bearer 鉴权
+     */
+    private boolean isOpenCodeInference() {
+        String url = normalizeBaseUrl().toLowerCase(java.util.Locale.ROOT);
+        return url.contains("://opencode.ai/inference");
+    }
+
+    /**
+     * 判断模型是否使用 Gemini 图片生成协议。
+     *
+     * @param modelName 模型名
+     * @return true 表示使用 generateContent
+     */
+    private static boolean isGeminiImageModel(String modelName) {
+        return modelName != null && modelName.toLowerCase(java.util.Locale.ROOT)
+                .startsWith("gemini-nano-banana");
     }
 
     /**

@@ -38,6 +38,7 @@ import java.util.List;
 import com.chua.common.support.network.server.ServerAttribute;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
@@ -1089,7 +1090,7 @@ public class VertxHttpServer extends AbstractServer {
                     ctx.request().getHeader("Content-Type"),
                     uploads == null ? "null" : uploads.size(),
                     ctx.body() == null ? -1 : ctx.body().length());
-            if (uploads == null || uploads.isEmpty()) {
+            if (CollectionUtils.isEmpty(uploads)) {
                 return java.util.Collections.emptyList();
             }
             List<FormFile> files = Wraps.list();

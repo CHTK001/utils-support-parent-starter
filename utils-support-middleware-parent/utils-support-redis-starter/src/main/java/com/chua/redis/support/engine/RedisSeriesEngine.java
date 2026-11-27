@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 Redis（Lettuce）的时序存储实现。
@@ -203,7 +204,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
         }
         try {
             Set<String> found = commands().smembers(metricsIndexKey(target, monitorId));
-            if (found == null || found.isEmpty()) {
+            if (CollectionUtils.isEmpty(found)) {
                 return List.of();
             }
             List<String> sorted = Wraps.list(found);
@@ -300,7 +301,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
             return metricName;
         }
         Set<String> found = sync.smembers(metricsIndexKey(target, monitorId));
-        if (found == null || found.isEmpty()) {
+        if (CollectionUtils.isEmpty(found)) {
             return null;
         }
         if (found.size() == 1) {

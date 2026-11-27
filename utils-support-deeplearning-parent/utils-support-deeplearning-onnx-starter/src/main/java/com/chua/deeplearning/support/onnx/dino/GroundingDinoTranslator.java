@@ -36,6 +36,7 @@ import java.util.*;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import java.io.InputStream;
 import java.nio.file.StandardCopyOption;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Grounding DINO Tiny ONNX
@@ -551,7 +552,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
      * @return 读取参数的结果
      */
     private String readArgument(Map<String, ?> arguments, String key) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return null;
         }
         Object value = arguments.get(key);

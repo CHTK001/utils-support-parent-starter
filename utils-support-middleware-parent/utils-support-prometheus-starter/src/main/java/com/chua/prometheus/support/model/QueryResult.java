@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Prometheus 查询结果
@@ -40,6 +41,6 @@ public class QueryResult {
      * @return 是否
      */
     public boolean hasData() {
-        return result != null && !result.isEmpty();
+        return CollectionUtils.isNotEmpty(result);
     }
 }

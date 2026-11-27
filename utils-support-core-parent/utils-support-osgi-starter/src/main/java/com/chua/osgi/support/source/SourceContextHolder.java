@@ -3,6 +3,7 @@ package com.chua.osgi.support.source;
 import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * {@link SourceContext} 的全局持有者，供源码扩展点静态取用容器 Bean。
@@ -39,7 +40,7 @@ public final class SourceContextHolder {
      * @param beans 已就绪的 Bean；为 {@code null} 时清空
      */
     public static void install(Map<String, Object> beans) {
-        current = beans == null || beans.isEmpty() ? null : new MapSourceContext(beans);
+        current = CollectionUtils.isEmpty(beans) ? null : new MapSourceContext(beans);
         log.debug("[osgi-source] 容器上下文已安装，共 {} 个 Bean", current == null ? 0 : current.size());
     }
 

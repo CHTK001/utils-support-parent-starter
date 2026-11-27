@@ -3,6 +3,7 @@ package com.chua.maven.support;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Maven 编译结果。
@@ -210,7 +211,7 @@ public class MavenCompileResult {
      * @return 主产物路径，无产物时返回 空
      */
     public String getMainArtifact() {
-        if (artifacts != null && !artifacts.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(artifacts)) {
             return artifacts.getFirst();
         }
         return null;
@@ -235,7 +236,7 @@ public class MavenCompileResult {
      * @return true 有至少一个产物
      */
     public boolean hasArtifacts() {
-        return artifacts != null && !artifacts.isEmpty();
+        return CollectionUtils.isNotEmpty(artifacts);
     }
 
     // ==================== 工厂方法 ====================

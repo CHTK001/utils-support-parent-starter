@@ -8,6 +8,7 @@ import com.chua.common.support.wal.SegmentWalLog;
 import com.chua.common.support.wal.WalException;
 import java.io.IOException;
 import java.util.*;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 简化 SQL 解析器。
@@ -110,7 +111,7 @@ public class SimpleSqlParser {
     @SuppressWarnings("unchecked")
     private Map<String, Object> decodeRow(byte[] payload, String tableName, WalSegmentInfo seg, long lsn) {
         Map<String, Object> row = (Map<String, Object>) store.decodeValue(null, payload);
-        if (row == null || row.isEmpty()) {
+        if (CollectionUtils.isEmpty(row)) {
             throw new WalException("WAL 记录无法解码为行数据: 表=" + tableName + ", 分段=" + seg.path()
                     + ", lsn=" + lsn);
         }

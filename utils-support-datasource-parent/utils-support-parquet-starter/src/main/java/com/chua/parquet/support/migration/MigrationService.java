@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据迁移服务：在两类存储之间按批搬迁数据，是 {@link DataMigrator} 插件的统一入口。
@@ -120,7 +121,7 @@ public class MigrationService {
             }
             while (true) {
                 List<Map<String, Object>> batch = plugin.read(source, request, totalRead, request.getBatchSize());
-                if (batch == null || batch.isEmpty()) {
+                if (CollectionUtils.isEmpty(batch)) {
                     break;
                 }
                 totalWritten += plugin.write(target, request, batch);

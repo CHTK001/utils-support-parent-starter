@@ -7,6 +7,7 @@ import com.chua.common.support.utils.StringUtils;
 
 import java.util.Map;
 import java.util.UUID;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SkyWalking 兼容传播器 — 生成/解析 {@code sw8} 链路头。
@@ -209,11 +210,11 @@ public final class SkyWalkingPropagator {
      * @return 是否恢复成功
      */
     public static boolean extract(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return false;
         }
         for (Map.Entry<String, String> e : headers.entrySet()) {
-            if (e.getKey() != null && e.getKey().equalsIgnoreCase(HEADER_SW8) && StringUtils.isNotEmpty(e.getValue())) {
+            if (StringUtils.equalsIgnoreCase(e.getKey(), HEADER_SW8) && StringUtils.isNotEmpty(e.getValue())) {
                 return extractAndRestore(e.getValue());
             }
         }

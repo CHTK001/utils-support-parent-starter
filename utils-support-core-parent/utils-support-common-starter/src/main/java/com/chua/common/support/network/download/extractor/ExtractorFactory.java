@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 解压文件工厂类。
@@ -168,7 +169,7 @@ public class ExtractorFactory {
             return false;
         }
         File[] files = dir.listFiles();
-        return files != null && files.length > 0;
+        return ArrayUtils.isNotEmpty(files);
     }
 
     /**

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * TCP 流重组器：把乱序、重传、分片的 TCP 段拼回连续的应用层字节流。
@@ -298,7 +299,7 @@ public final class TcpStreamAssembler {
         TcpStreamKey client = stream.client != null ? stream.client : lowerPortSide(canonical);
         // 必须与报文的"原始方向"比较：keyOf 返回的是归一化键，
         // 已丢失谁是源端，用它比较会把客户端发出的包判成服务端方向
-        return raw != null && raw.equals(client);
+        return ObjectUtils.nullSafeEquals(raw, client);
     }
 
     /**

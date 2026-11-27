@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Nitrite 文档数据库引擎，基于内存过滤和文件存储。
@@ -200,7 +201,7 @@ import java.util.concurrent.ConcurrentHashMap;
             String name, List<T> data) {
         super.store(name, data);
         Nitrite nitrite = currentDatabase();
-        if (nitrite == null || data == null || data.isEmpty()) {
+        if (nitrite == null || CollectionUtils.isEmpty(data)) {
             return this;
         }
         Class<T> entityClass = (Class<T>) data.get(0).getClass();

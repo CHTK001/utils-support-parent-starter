@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 内存引擎实现，基于 并发哈希映射 提供表级别的轻量数据存储与查询。
@@ -1040,7 +1041,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @param data 数据
      */
     private <T> void buildIndex(String name, List<T> data) {
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             return;
         }
         @SuppressWarnings("unchecked")
@@ -1569,7 +1570,7 @@ public class InMemoryEngine extends AbstractEngine {
         // 必须先按 nestedOperator 折叠子条件，否则 switch(null) 抛 NPE。
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
-            if (nested == null || nested.isEmpty()) {
+            if (CollectionUtils.isEmpty(nested)) {
                 return t -> true;
             }
             boolean any = "OR".equalsIgnoreCase(c.getNestedOperator());

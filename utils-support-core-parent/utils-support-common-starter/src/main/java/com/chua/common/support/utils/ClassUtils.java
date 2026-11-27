@@ -3521,7 +3521,7 @@ public class ClassUtils {
         try {
             Type[] types = resolveGenericTypes(clazz);
             // 缓存解析结果
-            if (types != null && types.length > 0) {
+            if (ArrayUtils.isNotEmpty(types)) {
                 ACTUAL.put(clazz, types);
             } else {
                 // 无泛型信息也缓存空数组避免重复解析
@@ -3551,14 +3551,14 @@ public class ClassUtils {
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {
             Type[] types = extractGenericTypes(genericInterface);
-            if (types != null && types.length > 0) {
+            if (ArrayUtils.isNotEmpty(types)) {
                 return types;
             }
         }
         // 回退到泛型父类
         Type genericSuperclass = clazz.getGenericSuperclass();
         Type[] types = extractGenericTypes(genericSuperclass);
-        if (types != null && types.length > 0) {
+        if (ArrayUtils.isNotEmpty(types)) {
             return types;
         }
         return new Type[0];
@@ -3573,7 +3573,7 @@ public class ClassUtils {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-            if (actualTypeArguments != null && actualTypeArguments.length > 0) {
+            if (ArrayUtils.isNotEmpty(actualTypeArguments)) {
                 return actualTypeArguments;
             }
         }

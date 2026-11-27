@@ -3,6 +3,7 @@ package com.chua.common.support.ai.chat;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 对话客户端指标能力接口。
@@ -144,7 +145,7 @@ public interface ChatClientIndicator {
             return Map.of();
         }
         Map<String, Map<String, Object>> all = modelMetrics();
-        if (all == null || all.isEmpty()) {
+        if (CollectionUtils.isEmpty(all)) {
             return Map.of();
         }
         Map<String, Object> hit = all.get(modelId);

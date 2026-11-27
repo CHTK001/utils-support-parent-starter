@@ -55,6 +55,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 Solr 的检索引擎实现。
@@ -112,7 +113,7 @@ public class SolrEngine extends AbstractEngine {
     */
     @Override
     public <T> Engine store(String name, List<T> data) {
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             return this;
         }
         SolrClient sc = getClient();
@@ -226,7 +227,7 @@ public class SolrEngine extends AbstractEngine {
             } else {
                 query.setQuery(where);
             }
-            if (params != null && params.length > 0) {
+            if (ArrayUtils.isNotEmpty(params)) {
                 for (Object param : params) {
                     query.addFilterQuery(String.valueOf(param));
                 }
@@ -412,7 +413,7 @@ public class SolrEngine extends AbstractEngine {
             this.entityClass = entityClass;
             if (groupByCols != null) {
                 for (String c : groupByCols) {
-                    if (c != null && !c.isEmpty()) {
+                    if (StringUtils.isNotEmpty(c)) {
                         this.groupByCols.add(c);
                     }
                 }
@@ -522,7 +523,7 @@ public class SolrEngine extends AbstractEngine {
          * @return 入的结果
          */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
-            if (vals == null || vals.isEmpty()) {
+            if (CollectionUtils.isEmpty(vals)) {
                 where.add("-*:*");
                 return this;
             }
@@ -1026,7 +1027,7 @@ public class SolrEngine extends AbstractEngine {
      */
     private static void applySorts(org.apache.solr.client.solrj.SolrQuery solrQuery,
                                    List<String> orderBys) {
-        if (orderBys == null || orderBys.isEmpty()) {
+        if (CollectionUtils.isEmpty(orderBys)) {
             return;
         }
         for (String orderBy : orderBys) {

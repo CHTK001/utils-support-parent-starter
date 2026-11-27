@@ -12,6 +12,7 @@ import com.chua.common.support.vector.VectorStorage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 行人重识别（Person reid）管线 — 基于特征提取模型。
@@ -172,7 +173,7 @@ public class PersonReidPipeline {
      * @return 排序结果
      */
     public List<SearchResult> search(float[] queryFeat, List<GalleryEntry> gallery, int topK) {
-        if (queryFeat == null || gallery == null || gallery.isEmpty()) {
+        if (queryFeat == null || CollectionUtils.isEmpty(gallery)) {
             return List.of();
         }
         float[] qNorm = normalize(queryFeat);

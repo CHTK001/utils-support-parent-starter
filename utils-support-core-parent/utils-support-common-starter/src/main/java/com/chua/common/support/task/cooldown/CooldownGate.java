@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 冷却门面 —— 「失败先排除一段时间、到期自动恢复」的统一入口。
@@ -340,7 +341,7 @@ public final class CooldownGate {
      * @return 可参与本次调用的元素列表
      */
     public <T> List<T> filterOpen(List<T> items, Function<T, String> keyOf) {
-        if (items == null || items.isEmpty() || keyOf == null) {
+        if (CollectionUtils.isEmpty(items) || keyOf == null) {
             return items;
         }
         List<T> healthy = new ArrayList<>(items.size());

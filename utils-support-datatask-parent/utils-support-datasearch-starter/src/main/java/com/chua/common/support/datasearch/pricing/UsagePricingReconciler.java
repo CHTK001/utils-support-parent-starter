@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 用量 / 定价对账器 —— 比对「已发生的用量」与「可用的模型指标」，找出计费与能力缺口。
@@ -224,7 +225,7 @@ public final class UsagePricingReconciler {
             }
             try {
                 List<ModelDefinition> metrics = provider.getMetrics();
-                if (metrics != null && !metrics.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(metrics)) {
                     result.add(metrics);
                 }
             } catch (Exception e) {

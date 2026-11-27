@@ -9,6 +9,7 @@ import com.chua.common.support.task.pipeline.node.ParallelNode;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 并行子流水线节点定义 — 类型安全的并行子流水线配置构建器。
@@ -135,14 +136,14 @@ public class TaskParallelDefinition {
         if (startNode != null) {
             node.start(startNode);
         }
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             node.params(params);
         }
-        if (env != null && !env.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(env)) {
             node.setEnv(env);
         }
  // 环境 注入到 参数 中（与 任务definition 的 环境 语义一致）
-        if (environment != null && !environment.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(environment)) {
             Map<String, Object> mergedParams = Wraps.linkedMap();
             if (node.getParams() != null && !node.getParams().isEmpty()) {
                 mergedParams.putAll(node.getParams());

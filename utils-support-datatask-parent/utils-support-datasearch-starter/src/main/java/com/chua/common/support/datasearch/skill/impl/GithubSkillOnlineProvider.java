@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * GitHub 技能仓库在线技能提供器。
@@ -73,7 +74,7 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
         try {
             Map<String, Object> apiResult = discoverSkills(keyword);
             List<Map<String, Object>> items = (List<Map<String, Object>>) apiResult.get("items");
-            if (items == null || items.isEmpty()) {
+            if (CollectionUtils.isEmpty(items)) {
                 return Collections.emptyList();
             }
             List<SkillMarketListing> listings = Wraps.list(size);

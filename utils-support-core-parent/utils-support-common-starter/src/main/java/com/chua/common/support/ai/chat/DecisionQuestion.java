@@ -6,6 +6,7 @@ import com.chua.common.support.ai.decision.DecisionType;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 决策问题的定义。
@@ -233,7 +234,7 @@ public record DecisionQuestion(
      * @param levels 等级列表
      */
     private static void rejectLevels(DecisionType type, List<String> levels) {
-        if (levels != null && !levels.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(levels)) {
             throw new IllegalArgumentException(type + " 类型不应携带 levels");
         }
     }
@@ -245,7 +246,7 @@ public record DecisionQuestion(
      * @param criteria 选项表
      */
     private static void rejectOptions(DecisionType type, Map<String, String> criteria) {
-        if (criteria != null && !criteria.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(criteria)) {
             throw new IllegalArgumentException(type + " 类型不应携带 criteria");
         }
     }

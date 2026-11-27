@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 对话客户端接口
@@ -730,7 +731,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

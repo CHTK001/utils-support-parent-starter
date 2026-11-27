@@ -11,6 +11,7 @@ import com.chua.common.support.spi.annotations.SpiParam;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Mock 响应过滤器（联调打桩）。
@@ -75,7 +76,7 @@ public class MockServerFilter implements ServerFilter {
      */
     @Override
     public void updateConfig(Map<String, Object> config) {
-        if (config == null || config.isEmpty()) {
+        if (CollectionUtils.isEmpty(config)) {
             return;
         }
         applyParams(toStringValue(config.get("rules")), toStringValue(config.get("defaultStatus")));

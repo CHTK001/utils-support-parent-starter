@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 训练数据（三个目录的分数）。
@@ -38,9 +39,9 @@ public class TrainingData {
      * @return true 表示三个目录均无数据
      */
     public boolean isEmpty() {
-        return (notSimilarScores == null || notSimilarScores.isEmpty())
-                && (lookSimilarScores == null || lookSimilarScores.isEmpty())
-                && (samePersonScores == null || samePersonScores.isEmpty());
+        return (CollectionUtils.isEmpty(notSimilarScores))
+                && (CollectionUtils.isEmpty(lookSimilarScores))
+                && (CollectionUtils.isEmpty(samePersonScores));
     }
 
     /**

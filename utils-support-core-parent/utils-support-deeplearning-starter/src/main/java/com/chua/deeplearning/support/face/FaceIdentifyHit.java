@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 单个人脸识别结果（检测框 + 活体 + 检索命中）。
@@ -69,7 +70,7 @@ public record FaceIdentifyHit(
      * @return id 或 空
      */
     public String bestId() {
-        if (hits == null || hits.isEmpty()) {
+        if (CollectionUtils.isEmpty(hits)) {
             return null;
         }
         return hits.getFirst().id();
@@ -81,7 +82,7 @@ public record FaceIdentifyHit(
      * @return score
      */
     public double bestScore() {
-        if (hits == null || hits.isEmpty()) {
+        if (CollectionUtils.isEmpty(hits)) {
             return 0d;
         }
         return hits.getFirst().score();
@@ -93,7 +94,7 @@ public record FaceIdentifyHit(
      * @return metadata
      */
     public Map<String, Object> bestMetadata() {
-        if (hits == null || hits.isEmpty() || hits.getFirst().metadata() == null) {
+        if (CollectionUtils.isEmpty(hits) || hits.getFirst().metadata() == null) {
             return Collections.emptyMap();
         }
         return hits.getFirst().metadata();

@@ -43,6 +43,7 @@ import io.agentscope.core.model.ChatUsage;
 import com.openai.models.completions.CompletionUsage;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 对话客户端模型适配器类。
@@ -150,7 +151,7 @@ public class ChatClientModelAdapter implements Model {
         // 在订阅时才发出（Flux.create 的 lambda 内），异常也在那时才抛。用同步
         // try/catch 包住方法调用结构性地抓不到它 —— 这条兜底曾因此永不生效，
         // 表现为 run() 只拿到空输出、注入的 ChatClient 一次都没被调用。
-        if (tools != null && !tools.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(tools)) {
             final List<ChatMessage> fallbackHistory = history;
             final String fallbackPrompt = prompt;
             final String fallbackSystemPrompt = systemPrompt;
@@ -501,7 +502,7 @@ public class ChatClientModelAdapter implements Model {
      * @return 结果字符串
      */
     private String buildToolsPrompt(List<ToolSchema> tools) {
-        if (tools == null || tools.isEmpty()) {
+        if (CollectionUtils.isEmpty(tools)) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
@@ -551,7 +552,7 @@ public class ChatClientModelAdapter implements Model {
             return content;
         }
         Map<String, Object> input = call.getInput();
-        if (input == null || input.isEmpty()) {
+        if (CollectionUtils.isEmpty(input)) {
             return "{}";
         }
         try {
@@ -672,7 +673,7 @@ public class ChatClientModelAdapter implements Model {
      */
     private static String extractReasoning(ChatCompletionChunk.Choice.Delta delta) {
         Map<String, JsonValue> extra = delta._additionalProperties();
-        if (extra == null || extra.isEmpty()) {
+        if (CollectionUtils.isEmpty(extra)) {
             return null;
         }
         String[] knownKeys = {"reasoning_content", "reasoning", "reasoning_text", "thinking"};

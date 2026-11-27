@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 密钥保护器（KEK 派生与密钥封装）
@@ -116,7 +117,7 @@ public final class KeyProtector {
                 ? ServerFingerprint.of(serverId)
                 : ServerFingerprint.capture();
         StringBuilder sb = new StringBuilder(fingerprint.value());
-        if (setting.getSecret() != null && setting.getSecret().length > 0) {
+        if (ArrayUtils.isNotEmpty(setting.getSecret())) {
             // 口令作为 pepper 叠加：即使指纹被仿造，仍需口令才能解锁
             sb.append(SEP).append(new String(setting.getSecret()));
         }

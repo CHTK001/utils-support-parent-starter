@@ -100,7 +100,7 @@ public class ImageSupportUtils {
             // 也加入文件后缀名
             String[] fileSuffixes = spi.getFileSuffixes();
             for (String suffix : fileSuffixes) {
-                if (suffix != null && !suffix.isEmpty()) {
+                if (StringUtils.isNotEmpty(suffix)) {
                     suffixes.add(suffix.toLowerCase());
                 }
             }
@@ -129,7 +129,7 @@ public class ImageSupportUtils {
             }
             String[] fileSuffixes = spi.getFileSuffixes();
             for (String suffix : fileSuffixes) {
-                if (suffix != null && !suffix.isEmpty()) {
+                if (StringUtils.isNotEmpty(suffix)) {
                     suffixes.add(suffix.toLowerCase());
                 }
             }

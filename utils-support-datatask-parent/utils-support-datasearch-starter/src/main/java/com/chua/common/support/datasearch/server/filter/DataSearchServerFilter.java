@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据搜索服务过滤器。
@@ -521,7 +522,7 @@ public class DataSearchServerFilter implements ServerFilter {
     */
     private void handleEmoji(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         Map<String, EmojiProvider> providers = ServiceProvider.of(EmojiProvider.class).list();
-        if (providers == null || providers.isEmpty()) {
+        if (CollectionUtils.isEmpty(providers)) {
             write(response, 404, "emoji provider not found", null);
             return;
         }
@@ -651,7 +652,7 @@ public class DataSearchServerFilter implements ServerFilter {
      */
     private static <T> T loadFirst(Class<T> type) {
         Map<String, T> list = ServiceProvider.of(type).list();
-        if (list == null || list.isEmpty()) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         return list.values().iterator().next();

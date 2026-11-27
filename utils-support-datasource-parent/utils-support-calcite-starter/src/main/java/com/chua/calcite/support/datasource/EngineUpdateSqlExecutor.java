@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 将简单 SQL 更新 路由到 {@link Engine}（Calcite modifiabletable 不支持 更新）。
@@ -115,7 +116,7 @@ public final class EngineUpdateSqlExecutor {
         String wherePart = m.group(6);
 
         Map<String, Object> sets = parseAssignments(setPart);
-        if (sets == null || sets.isEmpty()) {
+        if (CollectionUtils.isEmpty(sets)) {
             log.debug("[calcite] UPDATE 的 SET 含无法解析的赋值，不路由: {}", sql);
             return null;
         }
@@ -216,7 +217,7 @@ public final class EngineUpdateSqlExecutor {
             DataTable t = scheme.getTable(table);
             if (t == null && tableKey != null) {
                 for (String name : scheme.getTableNames()) {
-                    if (name != null && name.equalsIgnoreCase(table)) {
+                    if (StringUtils.equalsIgnoreCase(name, table)) {
                         t = scheme.getTable(name);
                         break;
                     }

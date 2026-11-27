@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * MySQL 搜索引擎实现，把「索引」映射到表上的 FULLTEXT 索引。
@@ -138,7 +139,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
         }
         String indexName = indexDef.getName();
         List<SearchFieldDef> source = indexDef.getFields();
-        if (source == null || source.isEmpty()) {
+        if (CollectionUtils.isEmpty(source)) {
             throw new IllegalArgumentException("MySQL 全文索引至少需要一个列, 索引名: " + indexName);
         }
         StringBuilder columns = new StringBuilder();
@@ -282,7 +283,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
      */
     private static String parserOf(SearchIndexDef indexDef) {
         Map<String, Object> settings = indexDef.getSettings();
-        if (settings == null || settings.isEmpty()) {
+        if (CollectionUtils.isEmpty(settings)) {
             return null;
         }
         for (Map.Entry<String, Object> entry : settings.entrySet()) {

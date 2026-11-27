@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 集群节点：组合 Scatter 服务发现 + HTTP/TCP 双入口代理。
@@ -154,7 +155,7 @@ public class ClusterNode implements AutoCloseable {
      */
     private List<String> resolveServicePaths() {
         List<String> paths = clusterSetting.getServicePaths();
-        if (paths == null || paths.isEmpty()) {
+        if (CollectionUtils.isEmpty(paths)) {
             return List.of("/");
         }
         return paths;
@@ -190,7 +191,7 @@ public class ClusterNode implements AutoCloseable {
     private void registerExternalServers() {
  // cluster服务端 构建器 会在启动前把 entry 传给 clustersetting
         List<ServerEntry> entries = clusterSetting.getServerEntries();
-        if (entries == null || entries.isEmpty()) {
+        if (CollectionUtils.isEmpty(entries)) {
             return;
         }
         for (ServerEntry entry : entries) {

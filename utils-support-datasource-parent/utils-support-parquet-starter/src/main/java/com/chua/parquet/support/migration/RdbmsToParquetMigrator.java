@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 内置迁移插件：RDBMS 表 -&gt; Parquet 文件。
@@ -66,7 +67,7 @@ public class RdbmsToParquetMigrator extends AbstractPluginMigrator {
             throw new IllegalArgumentException("rdbms->parquet 迁移要求目标端为 Engine 实例，实际为: "
                     + (target == null ? "null" : target.getClass().getName()));
         }
-        if (batch == null || batch.isEmpty()) {
+        if (CollectionUtils.isEmpty(batch)) {
             return 0L;
         }
         File file = parquetFile(engine, request.getTargetTable());

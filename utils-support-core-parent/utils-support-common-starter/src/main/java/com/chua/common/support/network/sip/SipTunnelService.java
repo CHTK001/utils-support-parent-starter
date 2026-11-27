@@ -10,6 +10,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 服务侧隧道代理，将本机的 TCP 服务暴露为 SIP 隧道服务，供对端访问。
@@ -136,7 +138,7 @@ public class SipTunnelService {
         client.connect().registerTunnel(serviceName);
         if (wildcard) {
             log.info("SIP 动态目标中继已暴露: [{}] 白名单={}", serviceName,
-                    allowPrefixes == null || allowPrefixes.isEmpty() ? "不限制" : allowPrefixes);
+                    CollectionUtils.isEmpty(allowPrefixes) ? "不限制" : allowPrefixes);
         } else {
             log.info("SIP 隧道服务已暴露: [{}] -> {}:{}", serviceName, localHost, localPort);
         }
@@ -170,12 +172,12 @@ public class SipTunnelService {
      * @return true 表示允许拨号
      */
     private boolean allowTarget(String targetName) {
-        if (allowPrefixes == null || allowPrefixes.isEmpty()) {
+        if (CollectionUtils.isEmpty(allowPrefixes)) {
             return true;
         }
         String host = hostPart(targetName);
         for (String prefix : allowPrefixes) {
-            if (prefix != null && !prefix.isEmpty() && host.startsWith(prefix)) {
+            if (StringUtils.isNotEmpty(prefix) && host.startsWith(prefix)) {
                 return true;
             }
         }

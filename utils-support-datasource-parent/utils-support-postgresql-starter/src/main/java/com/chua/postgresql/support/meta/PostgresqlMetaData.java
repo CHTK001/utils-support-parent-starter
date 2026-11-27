@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * PostgreSQL 元数据入口。
@@ -374,7 +375,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
      * @throws SQLException 绑定失败
      */
     private static void bind(PreparedStatement ps, List<?> args) throws SQLException {
-        if (args == null || args.isEmpty()) {
+        if (CollectionUtils.isEmpty(args)) {
             return;
         }
         for (int i = 0; i < args.size(); i++) {
@@ -416,7 +417,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
      */
     private static IllegalStateException describe(Throwable cause, String context, String sql, List<?> args) {
         StringBuilder msg = new StringBuilder("PostgreSQL 元数据操作失败[").append(context).append("]: ");
-        if (args != null && !args.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(args)) {
             msg.append(Arrays.toString(args.toArray(new Object[0]))).append(" | ");
         }
         msg.append(sql);

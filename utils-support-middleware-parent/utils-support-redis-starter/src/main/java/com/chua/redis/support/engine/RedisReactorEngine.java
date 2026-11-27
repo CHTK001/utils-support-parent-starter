@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 Lettuce 的 Redis 响应式引擎，实现 reactorengine 接口。
@@ -396,7 +397,7 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     @Override
     public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
-        if (batchParams == null || batchParams.isEmpty()) {
+        if (CollectionUtils.isEmpty(batchParams)) {
             return Flux.empty();
         }
         String name = defaultDataSourceName;
@@ -932,7 +933,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 结果列表 Flux
      */
     public Flux<Object> execBatch(List<String> commands) {
-        if (commands == null || commands.isEmpty()) {
+        if (CollectionUtils.isEmpty(commands)) {
             return Flux.empty();
         }
         return Flux.fromIterable(commands)

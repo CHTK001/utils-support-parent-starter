@@ -269,7 +269,7 @@ public class NativeLoader {
 
             if (!extractOnly) {
                 java.io.File[] toLoad = targetDir.toFile().listFiles((d, name) -> match(name, glob));
-                if (toLoad != null && toLoad.length > 0) {
+                if (ArrayUtils.isNotEmpty(toLoad)) {
                     Arrays.sort(toLoad, (a, b) -> a.getName().compareTo(b.getName()));
                     for (java.io.File f : toLoad) {
                         NativeUtils.loadFromPathInternal(null, f.getAbsolutePath());

@@ -4,6 +4,7 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.StringUtils;
 
 import java.util.List;
+import com.chua.common.support.utils.ObjectUtils;
 
 
 /**
@@ -65,7 +66,7 @@ public class NumberValue implements Value<Number> {
     @Override
     public boolean is(Number value) {
         // 比较数值是否相等
-        return null != value && value.equals(getValue());
+        return ObjectUtils.nullSafeEquals(value, getValue());
     }
 
     /**

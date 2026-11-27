@@ -69,6 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于单个 {@code opencode serve} + HTTP/SSE 的 Agent 实现。
@@ -905,7 +906,7 @@ public class OpencodeServerAgent implements Agent {
      * @return 当前实例
      */
     public OpencodeServerAgent mcpServer(String name, Map<String, Object> spec) {
-        if (StringUtils.isBlank(name) || spec == null || spec.isEmpty()) {
+        if (StringUtils.isBlank(name) || CollectionUtils.isEmpty(spec)) {
             throw new IllegalArgumentException("MCP 服务名与配置不能为空");
         }
         Map<String, Object> copy = new LinkedHashMap<>(spec);
@@ -1689,7 +1690,7 @@ public class OpencodeServerAgent implements Agent {
     private void replyPermissions(SessionContext context, String replyId,
                                   List<ConfirmationDecision> decisions, String feedback) {
         List<ConfirmationDecision> effective;
-        if (decisions == null || decisions.isEmpty()) {
+        if (CollectionUtils.isEmpty(decisions)) {
             effective = List.of(ConfirmationDecision.builder()
                     .toolCallId(replyId)
                     .confirmed(true)
@@ -1799,7 +1800,7 @@ public class OpencodeServerAgent implements Agent {
                         answer.getAnswers() == null ? List.of() : answer.getAnswers());
             }
         }
-        if (questionIds == null || questionIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(questionIds)) {
             return answers == null ? List.of()
                     : answers.stream()
                     .map(item -> item == null || item.getAnswers() == null ? List.<String>of() : item.getAnswers())
@@ -3350,7 +3351,7 @@ public class OpencodeServerAgent implements Agent {
          * @return 归一化事件名
          */
         private String canonicalType(String type) {
-            if (type == null || type.isEmpty()) {
+            if (StringUtils.isEmpty(type)) {
                 return "";
             }
             if (type.startsWith(LEGACY_EVENT_PREFIX)) {

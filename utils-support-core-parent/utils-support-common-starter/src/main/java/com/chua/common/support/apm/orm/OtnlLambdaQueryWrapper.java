@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.page.Page;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Otnl 引擎的 Lambda 查询包装器（ORM 通道执行端）。
@@ -103,7 +104,7 @@ public class OtnlLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
      */
     private List<T> select() {
         List<T> rows = engine == null ? List.of() : engine.dataset(getEntityClass());
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return List.of();
         }
         List<Condition> conditions = getConditions();
@@ -124,7 +125,7 @@ public class OtnlLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
      */
     private void sort(List<T> rows) {
         List<String> orderBys = getOrderBys();
-        if (orderBys == null || orderBys.isEmpty() || rows.size() < 2) {
+        if (CollectionUtils.isEmpty(orderBys) || rows.size() < 2) {
             return;
         }
         var keys = new ArrayList<OtnlOrmSupport.OrderKey>(orderBys.size());

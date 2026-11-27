@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * captcha运行 验证码解析服务客户端
@@ -103,7 +104,7 @@ public class CaptchaRunClient implements CaptchaParser {
         putIfNotBlank(body, "anchor", opts.get("anchor"));
         putIfNotBlank(body, "reload", opts.get("reload"));
         String imageBody = opts.get("body");
-        if (StringUtils.isBlank(imageBody) && imageData != null && imageData.length > 0) {
+        if (StringUtils.isBlank(imageBody) && ArrayUtils.isNotEmpty(imageData)) {
             imageBody = Base64.getEncoder().encodeToString(imageData);
         }
         putIfNotBlank(body, "body", imageBody);

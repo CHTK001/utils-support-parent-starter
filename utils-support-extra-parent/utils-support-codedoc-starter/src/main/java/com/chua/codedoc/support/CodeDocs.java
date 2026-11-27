@@ -3,24 +3,36 @@ package com.chua.codedoc.support;
 import com.chua.common.support.ai.chat.ChatClient;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
  * 源码到离线工具文档站的统一入口。
  *
  * <p>仅依赖 utils common 的 ChatClient、JSON 和路径匹配契约；不启动服务器、
- * 不执行源码或示例、不关闭调用方提供的客户端。模型调用按文件顺序串行执行。
+ * 不执行源码或示例、不关闭调用方提供的客户端。默认按文件顺序串行分析；
+ * 设置 {@code concurrency > 1} 后每个文件占用一个虚拟线程，同时在飞的模型调用数受该值限制，
+ * 站点与进度仍按扫描顺序输出。并发模式要求 {@link ChatClient} 可被多个线程同时调用。
  *
  * <pre>{@code
  * CodeDocResult result = CodeDocs.builder(chatClient)
@@ -87,6 +99,7 @@ public final class CodeDocs {
         private long maxFileBytes = 1_048_576;
         private int chunkChars = 16_000;
         private int retries = 1;
+        private int concurrency = 1;
         private Consumer<Progress> progress = event -> { };
 
         private Builder(ChatClient chatClient) {
@@ -222,6 +235,22 @@ public final class CodeDocs {
             return this;
         }
 
+        /**
+         * 并发度：同时在飞的模型调用数，范围 1..64，默认 1（串行）。
+         * 大于 1 时每个文件占用一个虚拟线程，站点与进度仍按扫描顺序输出；
+         * 要求传入的 {@link ChatClient} 可被多个线程同时调用。
+         *
+         * @param value 并发度
+         * @return 当前构建器
+         */
+        public Builder concurrency(int value) {
+            if (value < 1 || value > 64) {
+                throw new IllegalArgumentException("concurrency 必须在 1..64 之间");
+            }
+            concurrency = value;
+            return this;
+        }
+
         /** @param value 同步进度回调；回调抛出异常会中止任务 @return 当前构建器 */
         public Builder onProgress(Consumer<Progress> value) {
             progress = Objects.requireNonNull(value, "progress");
@@ -251,7 +280,7 @@ public final class CodeDocs {
             }
             return new CodeDocOptions(chatClient, root, output, includeTypes, excludeTypes, includes, excludes,
                     charset, title, prompt, instructions, cacheNamespace, incremental, failFast, maxDepth, maxFiles,
-                    maxFileBytes, chunkChars, retries, progress);
+                    maxFileBytes, chunkChars, retries, concurrency, progress);
         }
 
         private static Set<String> types(String[] values) {
@@ -303,44 +332,155 @@ public final class CodeDocs {
     private static CodeDocResult generateSite(CodeDocOptions options) throws IOException {
         List<CodeDocResult.Issue> issues = new ArrayList<>();
         List<Path> files = SourceScanner.scan(options, issues);
-        List<CodeDocPage> pages = new ArrayList<>();
         CodeDocAnalyzer analyzer = new CodeDocAnalyzer(options);
+        List<FileResult> results = options.concurrency() > 1
+                ? analyzeConcurrently(files, options, analyzer)
+                : analyzeSequentially(files, options, analyzer);
+        List<CodeDocPage> pages = new ArrayList<>(results.size());
         int cached = 0;
-        int completed = 0;
-        for (Path file : files) {
-            String relative = SourceScanner.relative(options.directory(), file);
-            String stage = "READ";
-            String status;
-            try {
-                String source = SourceScanner.read(file, options);
-                stage = "ANALYZE";
-                CodeDocAnalyzer.Analysis analysis = analyzer.analyze(relative, SourceScanner.extension(file), source);
-                pages.add(analysis.page());
-                if (analysis.cached()) {
-                    cached++;
-                }
-                if (analysis.cacheWriteFailed()) {
-                    issues.add(new CodeDocResult.Issue(relative, "CACHE", "分析成功，但增量缓存未能写入"));
-                }
-                status = analysis.cached() ? "CACHED" : "GENERATED";
-            } catch (IOException | RuntimeException exception) {
-                if (Thread.currentThread().isInterrupted()) {
-                    throw new IOException("文档生成已中断", exception);
-                }
-                if (options.failFast()) {
-                    throw new IOException("文件处理失败: " + relative + " (" + stage + ")", exception);
-                }
-                String message = "READ".equals(stage)
-                        ? "文件过大、不是合法文本或不可读取，请检查文件及编码配置"
-                        : "模型分析或结构校验失败；未生成该文件的文档";
-                issues.add(new CodeDocResult.Issue(relative, stage, message));
-                status = "FAILED";
+        for (FileResult result : results) {
+            if (result.page() != null) {
+                pages.add(result.page());
             }
-            options.progress().accept(new Progress(relative, ++completed, files.size(), status));
+            if (result.cached()) {
+                cached++;
+            }
+            if (result.issue() != null) {
+                issues.add(result.issue());
+            }
         }
         CodeDocResult result = new CodeDocResult(options.outputDirectory().resolve("index.html"),
                 files.size(), pages.size(), cached, analyzer.modelCalls(), issues);
         CodeDocSite.write(options, pages, result);
         return result;
+    }
+
+    private static List<FileResult> analyzeSequentially(List<Path> files, CodeDocOptions options,
+                                                        CodeDocAnalyzer analyzer) throws IOException {
+        List<FileResult> results = new ArrayList<>(files.size());
+        for (Path file : files) {
+            FileResult result = analyzeFile(file, options, analyzer);
+            results.add(result);
+            options.progress().accept(new Progress(result.relative(), results.size(), files.size(), result.status()));
+        }
+        return results;
+    }
+
+    /**
+     * 每个文件一个虚拟线程，用信号量限制同时在飞的模型调用数；结果与进度按扫描顺序输出，
+     * 使并发与串行产生相同的统计口径。
+     */
+    private static List<FileResult> analyzeConcurrently(List<Path> files, CodeDocOptions options,
+                                                        CodeDocAnalyzer analyzer) throws IOException {
+        int total = files.size();
+        FileResult[] slots = new FileResult[total];
+        List<FileResult> results = new ArrayList<>(total);
+        int[] next = {0};
+        Semaphore permits = new Semaphore(options.concurrency());
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        List<Future<?>> futures = new ArrayList<>(total);
+        try {
+            for (int index = 0; index < total; index++) {
+                Path file = files.get(index);
+                int position = index;
+                futures.add(executor.submit(() -> {
+                    try {
+                        permits.acquire();
+                    } catch (InterruptedException exception) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+                    try {
+                        FileResult result = analyzeFile(file, options, analyzer);
+                        synchronized (slots) {
+                            slots[position] = result;
+                            drain(slots, next, results, options);
+                        }
+                    } finally {
+                        permits.release();
+                    }
+                    return null;
+                }));
+            }
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("文档生成已中断", exception);
+                } catch (ExecutionException exception) {
+                    throw unwrap(exception);
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+        return results;
+    }
+
+    /** 调用方持有 slots 锁，按扫描顺序连续发布已完成的文件。 */
+    private static void drain(FileResult[] slots, int[] next, List<FileResult> results, CodeDocOptions options) {
+        while (next[0] < slots.length && slots[next[0]] != null) {
+            FileResult result = slots[next[0]];
+            slots[next[0]] = null;
+            results.add(result);
+            options.progress().accept(new Progress(result.relative(), results.size(), slots.length, result.status()));
+            next[0]++;
+        }
+    }
+
+    private static IOException unwrap(ExecutionException exception) throws IOException {
+        Throwable cause = exception.getCause();
+        if (cause instanceof IOException ioException) {
+            return ioException;
+        }
+        if (cause instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (cause instanceof Error error) {
+            throw error;
+        }
+        return new IOException("文件分析线程异常结束", cause);
+    }
+
+    private static FileResult analyzeFile(Path file, CodeDocOptions options,
+                                          CodeDocAnalyzer analyzer) throws IOException {
+        String relative = SourceScanner.relative(options.directory(), file);
+        String stage = "READ";
+        try {
+            String source = SourceScanner.read(file, options);
+            stage = "ANALYZE";
+            CodeDocAnalyzer.Analysis analysis = analyzer.analyze(relative, SourceScanner.extension(file), source);
+            CodeDocResult.Issue issue = analysis.cacheWriteFailed()
+                    ? new CodeDocResult.Issue(relative, "CACHE", "分析成功，但增量缓存未能写入")
+                    : null;
+            return new FileResult(relative, analysis.page(), analysis.cached(), issue,
+                    analysis.cached() ? "CACHED" : "GENERATED");
+        } catch (IOException | RuntimeException exception) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new IOException("文档生成已中断", exception);
+            }
+            if (options.failFast()) {
+                throw new IOException("文件处理失败: " + relative + " (" + stage + ")", exception);
+            }
+            String message = "READ".equals(stage)
+                    ? "文件过大、不是合法文本或不可读取，请检查文件及编码配置"
+                    : "模型分析或结构校验失败；未生成该文件的文档";
+            return new FileResult(relative, null, false,
+                    new CodeDocResult.Issue(relative, stage, message), "FAILED");
+        }
+    }
+
+    /**
+     * 单个文件的处理结果，page 为空表示该文件失败并已记入 issue。
+     *
+     * @param relative 相对源码路径
+     * @param page 生成的页面，失败时为 null
+     * @param cached 是否命中增量缓存
+     * @param issue 该文件的问题，无问题或失败以外的情形为 null
+     * @param status GENERATED、CACHED 或 FAILED
+     */
+    private record FileResult(String relative, CodeDocPage page, boolean cached,
+                              CodeDocResult.Issue issue, String status) {
     }
 }

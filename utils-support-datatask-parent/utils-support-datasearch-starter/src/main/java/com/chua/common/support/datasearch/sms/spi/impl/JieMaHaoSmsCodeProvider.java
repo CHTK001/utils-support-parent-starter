@@ -32,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.ExecutorService;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 「接码号」平台虚拟号码接码实现。
@@ -183,7 +184,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
         log.info("[jiemahao] 号码轮询启动: interval={} {}", environment.getPollingInterval(), environment.getTimeUnit());
         // 初始化基线快照，避免把历史号码误报为新增
         List<SmsPhoneInfo> current = fetchSnapshot();
-        if (current != null && !current.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(current)) {
             for (SmsPhoneInfo info : current) {
                 snapshot.putIfAbsent(info.getId(), changeToken(info));
             }
@@ -205,7 +206,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
             support.fireError(BASE_URL, null, e);
             return;
         }
-        if (current == null || current.isEmpty()) {
+        if (CollectionUtils.isEmpty(current)) {
             return;
         }
 
@@ -271,7 +272,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
      */
     private List<SmsPhoneInfo> fetchSnapshot() {
         List<SmsPhoneInfo> fromBrowser = browserSession.listPhones(BASE_URL);
-        if (fromBrowser != null && !fromBrowser.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(fromBrowser)) {
             return fromBrowser;
         }
         // 回退：列表页无 Turnstile，HTTP 直连亦可解析
@@ -311,7 +312,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
             smsExecutor.submit(() -> {
                 try {
                     List<SmsMessageInfo> messages = browserSession.fetchMessages(info, 12);
-                    if (messages != null && !messages.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(messages)) {
                         fire(WatcherEvent.MODIFY, info, messages);
                     }
                 } catch (Throwable e) {

@@ -1,5 +1,7 @@
 package com.chua.common.support.wal;
 
+import com.chua.common.support.utils.CollectionUtils;
+
 
 /**
  * WAL 回放结果。
@@ -48,7 +50,7 @@ public record WalReplayResult(
      * @return LSN
      */
     public long firstLsn() {
-        if (records == null || records.isEmpty()) {
+        if (CollectionUtils.isEmpty(records)) {
             return 0L;
         }
         return records.getFirst().lsn();
@@ -60,7 +62,7 @@ public record WalReplayResult(
      * @return LSN
      */
     public long lastLsn() {
-        if (records == null || records.isEmpty()) {
+        if (CollectionUtils.isEmpty(records)) {
             return 0L;
         }
         return records.get(records.size() - 1).lsn();

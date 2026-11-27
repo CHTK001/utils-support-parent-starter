@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DHT 协议引擎。
@@ -796,7 +797,7 @@ public class DhtProtocol implements AutoCloseable {
             return List.of();
         }
         List<AnnouncedPeer> peers = announcedPeers.get(infohash);
-        if (peers == null || peers.isEmpty()) {
+        if (CollectionUtils.isEmpty(peers)) {
             return List.of();
         }
         peers.removeIf(AnnouncedPeer::isExpired);

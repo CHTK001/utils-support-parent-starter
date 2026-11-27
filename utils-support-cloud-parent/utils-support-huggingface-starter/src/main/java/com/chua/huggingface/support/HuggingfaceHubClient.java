@@ -641,7 +641,7 @@ public class HuggingfaceHubClient {
             return direct;
         }
         for (Map.Entry<String, String> entry : resp.getHeaders().toMap().entrySet()) {
-            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(headerName)) {
+            if (StringUtils.equalsIgnoreCase(entry.getKey(), headerName)) {
                 String v = entry.getValue();
                 return StringUtils.isBlank(v) ? null : v;
             }

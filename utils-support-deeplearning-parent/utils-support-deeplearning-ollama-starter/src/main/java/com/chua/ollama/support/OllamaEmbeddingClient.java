@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Ollama 本地嵌入向量客户端（SPI provider="ollama"）。
@@ -105,7 +106,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     public float[] embedding(String text) {
         OllamaEmbedResult result = doEmbed(List.of(text));
         List<List<Double>> embeddings = result.getEmbeddings();
-        if (embeddings == null || embeddings.isEmpty()) {
+        if (CollectionUtils.isEmpty(embeddings)) {
             return new float[0];
         }
         return toFloats(embeddings.getFirst());

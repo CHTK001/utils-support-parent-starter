@@ -177,7 +177,7 @@ public class ElasticsearchEngine implements Engine {
         if (client == null) {
             throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
         }
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             return this;
         }
         // 请求与「部分失败」判定分开：若把 errors() 的抛出放在 try 内，
@@ -579,7 +579,7 @@ public class ElasticsearchEngine implements Engine {
     private static void applySorts(
             co.elastic.clients.elasticsearch.core.SearchRequest.Builder builder,
             List<String> orderBys) {
-        if (orderBys == null || orderBys.isEmpty()) {
+        if (CollectionUtils.isEmpty(orderBys)) {
             return;
         }
         for (String orderBy : orderBys) {

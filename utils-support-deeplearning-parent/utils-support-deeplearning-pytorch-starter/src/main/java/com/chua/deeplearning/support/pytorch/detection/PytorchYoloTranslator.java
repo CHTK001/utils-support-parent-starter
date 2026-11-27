@@ -14,6 +14,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.LetterBoxUtils;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * pytorch YOLO 目标检测 Translator。
@@ -96,7 +97,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         this.inputSize = inputSize;
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
-        this.classes = (classes == null || classes.isEmpty()) ? List.of("object") : classes;
+        this.classes = (CollectionUtils.isEmpty(classes)) ? List.of("object") : classes;
     }
 
     /**

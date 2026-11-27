@@ -8,6 +8,7 @@ import com.chua.common.support.task.pipeline.core.SubPipelineResult;
 
 import java.util.Collections;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 子流水线节点。
@@ -249,7 +250,7 @@ public class SubPipelineNode implements PipelineNode {
         if (startNode != null) {
             subCtx.setNextNodeId(startNode);
         }
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             Map<String, Object> localData = subCtx.getNodeLocalData();
             localData.putAll(params);
         }

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * opencode 项目级配置生成器。
@@ -259,7 +260,7 @@ public final class OpencodeProjectConfig {
      * @return 当前生成器
      */
     public OpencodeProjectConfig mcpServer(String name, Map<String, Object> spec) {
-        if (StringUtils.isBlank(name) || spec == null || spec.isEmpty()) {
+        if (StringUtils.isBlank(name) || CollectionUtils.isEmpty(spec)) {
             return this;
         }
         validateMcpSpec(name, spec);

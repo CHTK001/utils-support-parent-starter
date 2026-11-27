@@ -5,6 +5,7 @@ import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 视频生成客户端接口
@@ -262,7 +263,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

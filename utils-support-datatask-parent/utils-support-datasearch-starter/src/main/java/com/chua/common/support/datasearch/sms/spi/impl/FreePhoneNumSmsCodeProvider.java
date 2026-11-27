@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 「FreePhoneNum」平台虚拟号码接码实现。
@@ -231,7 +232,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
         log.info("[freephonenum] 号码轮询启动: interval={} {}", environment.getPollingInterval(), environment.getTimeUnit());
         // 初始化基线快照，避免把历史号码误报为新增
         List<SmsPhoneInfo> current = fetchPhones();
-        if (current != null && !current.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(current)) {
             for (SmsPhoneInfo info : current) {
                 snapshot.putIfAbsent(info.getId(), changeToken(info));
             }
@@ -253,7 +254,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
             support.fireError(LIST_URL, null, e);
             return;
         }
-        if (current == null || current.isEmpty()) {
+        if (CollectionUtils.isEmpty(current)) {
             return;
         }
 
@@ -297,7 +298,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
      * @param phones 当前号码列表（号码 ID -> 号码信息）
      */
     private void spotCheckMessages(Map<String, SmsPhoneInfo> phones) {
-        if (phones == null || phones.isEmpty()) {
+        if (CollectionUtils.isEmpty(phones)) {
             return;
         }
         List<String> ids = Wraps.list(phones.keySet());
@@ -314,7 +315,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
                 log.debug("[freephonenum] 抽查 {} 失败: {}", info.getPhone(), e.getMessage());
                 continue;
             }
-            if (messages == null || messages.isEmpty()) {
+            if (CollectionUtils.isEmpty(messages)) {
                 continue;
             }
             Integer prev = lastMessageCount.get(id);

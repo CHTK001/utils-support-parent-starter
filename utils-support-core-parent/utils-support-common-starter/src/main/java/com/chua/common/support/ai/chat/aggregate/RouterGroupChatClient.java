@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 路由组对话客户端：一个「模型」背后是模型库里的一组成员模型，选谁由组内策略决定。
@@ -184,7 +185,7 @@ public class RouterGroupChatClient extends SwitchingChatClient {
      * @param orderedLabels 新顺序（{@code providerId:model}）
      */
     public void reorder(List<String> orderedLabels) {
-        if (orderedLabels == null || orderedLabels.isEmpty()) {
+        if (CollectionUtils.isEmpty(orderedLabels)) {
             return;
         }
         Map<String, RouterGroupSetting.Member> byLabel = new HashMap<>();

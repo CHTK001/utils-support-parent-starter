@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 本地引擎文本对话客户端抽象基类。
@@ -309,7 +310,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
      * @return 渲染后的文本
      */
     protected String renderLegacyPrompt(List<ChatMessage> messages) {
-        if (messages == null || messages.isEmpty()) {
+        if (CollectionUtils.isEmpty(messages)) {
             return "";
         }
         if (messages.size() == 1 && "user".equalsIgnoreCase(messages.getFirst().getRole())) {

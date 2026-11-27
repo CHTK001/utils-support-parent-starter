@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 系统日志轮询监听器 - 实时监听系统日志变更
@@ -206,7 +207,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
                     .build();
 
             List<LogEntry> entries = logService.search(query);
-            if (entries == null || entries.isEmpty()) {
+            if (CollectionUtils.isEmpty(entries)) {
                 return;
             }
 

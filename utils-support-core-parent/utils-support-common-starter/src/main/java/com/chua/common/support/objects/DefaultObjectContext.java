@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认对象容器实现。
@@ -303,7 +304,7 @@ public class DefaultObjectContext implements ObjectContext {
         for (BeanDefinitionGenerator gen : generators) {
             if (Boolean.TRUE.equals(gen.isSupport(bean.getClass()))) {
                 List<BeanDefinition> defs = gen.generate(bean.getClass());
-                if (defs != null && !defs.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(defs)) {
                     // 注册被拒时保持原语义：不抛异常，落空后走下方类型兜底
                     if (registerSingletonDefinition(registry, defs.getFirst(), bean, false)) {
                         registered = true;

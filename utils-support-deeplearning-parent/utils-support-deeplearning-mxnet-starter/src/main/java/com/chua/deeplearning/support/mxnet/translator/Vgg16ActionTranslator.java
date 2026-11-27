@@ -9,6 +9,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * mxnet VGG16 图像分类 Translator。
@@ -52,7 +53,7 @@ public class Vgg16ActionTranslator implements Translator<Image, Classifications>
      */
     public Vgg16ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = Wraps.linkedMap();
-        if (arguments != null && !arguments.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(arguments)) {
             options.putAll(arguments);
         }
         options.putIfAbsent("width", DEFAULT_WIDTH);

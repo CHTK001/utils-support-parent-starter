@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * Kafka 实现的无限制 WAL。
@@ -413,7 +414,7 @@ public class KafkaWalLog implements WalLog {
                     long cur = extractLsn(r);
                     if (cur == lsn) {
                         byte[] value = r.value();
-                        if (value != null && value.length > 0) {
+                        if (ArrayUtils.isNotEmpty(value)) {
                             byte op = value[0];
                             byte[] payload = new byte[value.length - 1];
                             System.arraycopy(value, 1, payload, 0, payload.length);

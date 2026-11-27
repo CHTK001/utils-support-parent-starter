@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 内部 DHT 与标准 KRPC 协议之间的桥接器。
@@ -225,7 +226,7 @@ public class KrpcDhtBridge {
      * @return 如果以 '{' 开头返回 true
      */
     public static boolean isJsonMessage(byte[] data) {
-        return data != null && data.length > 0 && data[0] == '{';
+        return ArrayUtils.isNotEmpty(data) && data[0] == '{';
     }
 
     /**

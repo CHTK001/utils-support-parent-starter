@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Excel 文件系统 SPI 实现（基于 Apache POI）。
@@ -242,7 +243,7 @@ public class ExcelFileSystem implements FileSystem {
 
                 // 列投影：确定实际读取的列索引
                 List<Integer> projectedIndices;
-                if (selectedColumns != null && !selectedColumns.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(selectedColumns)) {
                     projectedIndices = Wraps.list();
                     for (int i = 0; i < allHeaders.size(); i++) {
                         if (selectedColumns.contains(allHeaders.get(i))) {

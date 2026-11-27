@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 音频识别管线，聚合说话人分离（Diarization）与语音识别（ASR）的完整流程。
@@ -590,7 +591,7 @@ public class AudioRecognitionPipeline {
         String[] assignments = ctx.getSpeakerAssignments();
         String[] transcripts = ctx.getTranscripts();
 
-        if (vadSegs == null || vadSegs.isEmpty()) {
+        if (CollectionUtils.isEmpty(vadSegs)) {
             return List.of();
         }
 

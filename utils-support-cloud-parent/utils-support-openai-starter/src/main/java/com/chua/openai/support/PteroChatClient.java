@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Ptero.pro 对话客户端
@@ -719,7 +720,7 @@ public class PteroChatClient implements ChatClient {
         if (topP != null) {
             body.put("top_p", topP);
         }
-        if (stop != null && !stop.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(stop)) {
             body.put("stop", stop);
         }
         if (seed != null) {
@@ -936,7 +937,7 @@ public class PteroChatClient implements ChatClient {
             return null;
         }
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name)) {
+            if (StringUtils.equalsIgnoreCase(entry.getKey(), name)) {
                 return entry.getValue();
             }
         }

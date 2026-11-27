@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据库备份策略（type = "database"）
@@ -281,7 +282,7 @@ public class DatabaseBackupStrategy implements BackupStrategy {
      */
     private void fire(DatabaseBackupConfig config, BackupEvent event) {
         List<BackupListener> listeners = config.getListeners();
-        if (listeners == null || listeners.isEmpty()) {
+        if (CollectionUtils.isEmpty(listeners)) {
             return;
         }
         for (BackupListener listener : listeners) {

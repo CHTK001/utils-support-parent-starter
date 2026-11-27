@@ -734,7 +734,7 @@ public class TablesawEngine implements Engine {
         wrapper.buildSql();
         Table table = requireTable(wrapper.getEntityClass(), "更新");
         Map<String, Object> setValues = wrapper.getSetValues();
-        if (setValues == null || setValues.isEmpty()) {
+        if (CollectionUtils.isEmpty(setValues)) {
             throw new IllegalStateException("Tablesaw 更新失败：SET 列为空: "
                     + wrapper.getEntityClass().getSimpleName());
         }

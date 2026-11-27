@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 键值对（KV）引擎统一契约，替代 {@link KvOperations} 和 {@link KvTemplate}。
@@ -174,7 +175,7 @@ public interface KvEngine extends KvOperations {
      */
     default Map<String, String> findAllByPrefix(String prefix, String afterKeyExclusive, int maxRows) {
         NavigableMap<String, String> sorted = new TreeMap<>(findAllByPrefix(prefix));
-        if (afterKeyExclusive != null && !afterKeyExclusive.isEmpty()) {
+        if (StringUtils.isNotEmpty(afterKeyExclusive)) {
             sorted = sorted.tailMap(afterKeyExclusive, false);
         }
         int rows = Math.max(1, maxRows);
@@ -209,7 +210,7 @@ public interface KvEngine extends KvOperations {
      */
     default Map<String, String> findAllByPrefixDesc(String prefix, String beforeKeyExclusive, int maxRows) {
         NavigableMap<String, String> sorted = new TreeMap<>(findAllByPrefix(prefix));
-        if (beforeKeyExclusive != null && !beforeKeyExclusive.isEmpty()) {
+        if (StringUtils.isNotEmpty(beforeKeyExclusive)) {
             sorted = sorted.headMap(beforeKeyExclusive, false);
         }
         int rows = Math.max(1, maxRows);

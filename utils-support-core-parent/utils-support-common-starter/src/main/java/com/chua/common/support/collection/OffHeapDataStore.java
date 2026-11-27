@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 堆外内存数据存储，基于 {@link Arena} + {@link MemorySegment} 实现。
@@ -141,7 +142,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     @Override
     public int appendAll(Collection<? extends E> elements) {
         ensureOpen();
-        if (elements == null || elements.isEmpty()) {
+        if (CollectionUtils.isEmpty(elements)) {
             return 0;
         }
 

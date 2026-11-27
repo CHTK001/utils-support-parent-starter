@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Bean 定义注册中心，统一管理所有 Beandefinition注册。
@@ -353,7 +354,7 @@ public class BeanDefinitionRegistry {
         }
         String typeName = type.getName();
         Set<String> beanNames = typeToBeanNames.get(typeName);
-        if (beanNames != null && !beanNames.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(beanNames)) {
             typeCacheLock.readLock().lock();
             try {
                 List<BeanDefinition> result = Wraps.list();
@@ -586,7 +587,7 @@ public class BeanDefinitionRegistry {
             Boolean isSupport = generator.isSupport(beanClass);
             if (Boolean.TRUE.equals(isSupport)) {
                 List<BeanDefinition> generated = generator.generate(beanClass);
-                if (generated != null && !generated.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(generated)) {
                     definitions.addAll(generated);
                     break;
                 }

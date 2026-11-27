@@ -31,6 +31,7 @@ import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 个人微信机器人客户端，实现 {@link BotClient} 接口。
@@ -814,7 +815,7 @@ public class WechatPersonalBotClient implements BotClient {
      * @return 拼接 @ 前缀后的文本
      */
     private static String withMentions(String content, List<String> mentionedUserIds) {
-        if (mentionedUserIds == null || mentionedUserIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(mentionedUserIds)) {
             return content;
         }
         StringBuilder builder = new StringBuilder();

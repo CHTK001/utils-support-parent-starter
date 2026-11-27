@@ -14,6 +14,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * oshc 状态 — 全局仪表盘：系统概况、CPU、内存、磁盘、网络一览。
@@ -122,7 +124,7 @@ public final class StatusCommand extends AbstractCommand {
         System.out.println("Network Interfaces (" + nets.size() + "):"); // [P3C E1 豁免]
         for (Network net : nets) {
             String[] ipv4 = net.getIpv4();
-            String ip = (ipv4 != null && ipv4.length > 0) ? ipv4[0] : "N/A";
+            String ip = (ArrayUtils.isNotEmpty(ipv4)) ? ipv4[0] : "N/A";
             System.out.printf("  %-16s  %-20s  tx:%8s  rx:%8s%n", // [P3C E1 豁免]
                     net.getName(), ip,
                     Formatter.formatBytes(net.getTransmitBytes()),
@@ -152,7 +154,7 @@ public final class StatusCommand extends AbstractCommand {
 
         // ── Power supply ──
         List<oshi.hardware.PowerSource> ps = hw.getPowerSources();
-        if (ps != null && !ps.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(ps)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Power Sources (" + ps.size() + "):"); // [P3C E1 豁免]
             for (oshi.hardware.PowerSource p : ps) {

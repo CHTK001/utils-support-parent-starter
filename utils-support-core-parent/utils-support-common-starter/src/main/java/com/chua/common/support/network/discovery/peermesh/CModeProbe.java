@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * C 模式探针：并发扫描网段，发现存活节点。
@@ -72,7 +73,7 @@ public class CModeProbe implements ProbeStrategy {
     @Override
     public void start() throws Exception {
         List<String> subnets = config.getScanSubnets();
-        if (subnets == null || subnets.isEmpty()) {
+        if (CollectionUtils.isEmpty(subnets)) {
             return;
         }
         List<String> allHosts = Wraps.list();

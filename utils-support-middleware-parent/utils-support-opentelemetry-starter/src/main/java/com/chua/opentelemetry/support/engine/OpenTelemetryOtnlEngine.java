@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * OpenTelemetry 的 {@link OtnlEngine} 实现（SPI 名 {@code opentelemetry}）。
@@ -185,7 +186,7 @@ public class OpenTelemetryOtnlEngine implements OtnlEngine {
             return null;
         }
         List<Span> spans = Precondition.tryGet(() -> client.spansByTraceId(traceId)).orElseGet(e -> null);
-        if (spans == null || spans.isEmpty()) {
+        if (CollectionUtils.isEmpty(spans)) {
             return null;
         }
         List<OtnlSpan> converted = new ArrayList<>(spans.size());

@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 支付宝支付渠道实现
@@ -303,7 +304,7 @@ public class AlipayProvider implements PaymentChannel {
      * @return 转为urlstr的结果
      */
     private static String toUrlStr(Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return null;
         }
         StringBuilder sb = new StringBuilder();

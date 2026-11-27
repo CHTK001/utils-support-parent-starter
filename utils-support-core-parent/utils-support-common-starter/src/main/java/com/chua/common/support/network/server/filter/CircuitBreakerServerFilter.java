@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 熔断过滤器。
@@ -88,7 +89,7 @@ public class CircuitBreakerServerFilter implements ServerFilter {
      */
     @Override
     public void updateConfig(Map<String, Object> config) {
-        if (config == null || config.isEmpty()) {
+        if (CollectionUtils.isEmpty(config)) {
             return;
         }
         applyParams(toStringValue(config.get("failureThreshold")), toStringValue(config.get("openMs")),

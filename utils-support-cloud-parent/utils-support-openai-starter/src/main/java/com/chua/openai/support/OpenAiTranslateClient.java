@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * OpenAI 翻译客户端
@@ -341,7 +342,7 @@ public class OpenAiTranslateClient implements TranslateClient {
             if (headers != null) {
                 String authName = customAuth && auth != null ? auth.getKey() : null;
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    if (authName != null && authName.equalsIgnoreCase(entry.getKey())) {
+                    if (StringUtils.equalsIgnoreCase(authName, entry.getKey())) {
                         continue;
                     }
                     clientBuilder.putHeader(entry.getKey(), entry.getValue());
@@ -385,7 +386,7 @@ public class OpenAiTranslateClient implements TranslateClient {
                                 .cacheTokens(extractCacheTokens(usage));
                     }
                     List<ChatCompletionChunk.Choice> choices = chunk.choices();
-                    if (choices != null && !choices.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(choices)) {
                         ChatCompletionChunk.Choice choice = choices.getFirst();
 
                         Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = choice.finishReason();

@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collections;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * VIP 解析服务。
@@ -25,7 +26,7 @@ public class VipParseService {
      */
     public com.chua.common.support.datasearch.video.model.VipParseResult parse(String source, String url) {
         Map<String, VipParser> parsers = ServiceProvider.of(VipParser.class).list();
-        if (parsers == null || parsers.isEmpty()) {
+        if (CollectionUtils.isEmpty(parsers)) {
             return com.chua.common.support.datasearch.video.model.VipParseResult.error("无可用 VIP 解析器");
         }
         VipParser parser = parsers.get(source);

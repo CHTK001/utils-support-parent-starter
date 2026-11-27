@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * Tar 文件工具类，用于计算 TAR 归档的大小。
@@ -43,7 +44,7 @@ public class TarUtils {
         } else {
             File[] subFiles = dir.listFiles();
 
-            if (subFiles != null && subFiles.length > 0) {
+            if (ArrayUtils.isNotEmpty(subFiles)) {
                 for (File file : subFiles) {
                     if (file.isFile()) {
                         size += entrySize(file.length());

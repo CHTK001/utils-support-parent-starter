@@ -214,7 +214,7 @@ public final class AuthHeaders {
         }
         if (!DEFAULT_HEADER.equalsIgnoreCase(auth.getKey())) {
             // 头名大小写不敏感，先清掉其它大小写的同名残留
-            headers.keySet().removeIf(k -> k != null && k.equalsIgnoreCase(auth.getKey()));
+            headers.keySet().removeIf(k -> StringUtils.equalsIgnoreCase(k, auth.getKey()));
         }
         headers.put(auth.getKey(), auth.getValue());
     }

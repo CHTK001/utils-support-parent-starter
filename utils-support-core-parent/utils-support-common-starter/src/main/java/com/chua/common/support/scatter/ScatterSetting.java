@@ -9,6 +9,7 @@ import com.chua.common.support.network.tcp.TcpServer;
 import lombok.Data;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * scatter 配置。
@@ -196,7 +197,7 @@ public class ScatterSetting {
      * @return 是否成功（true 表示成功）
      */
     public boolean isSeedMode() {
-        return seeds != null && !seeds.isEmpty();
+        return CollectionUtils.isNotEmpty(seeds);
     }
 
     /**

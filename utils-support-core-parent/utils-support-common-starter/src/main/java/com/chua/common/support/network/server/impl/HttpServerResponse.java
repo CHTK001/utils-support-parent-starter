@@ -238,6 +238,16 @@ public class HttpServerResponse implements ServerResponse {
     }
 
     /**
+     * 是否处于 SSE 流式模式（流式响应由 sseClose 收尾，链尾不得 end()）。
+     *
+     * @return sseMode
+     */
+    @Override
+    public boolean isSseMode() {
+        return sseMode;
+    }
+
+    /**
      * 设置Result
      */
     @Override

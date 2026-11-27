@@ -268,6 +268,7 @@ public class NioHttpServer extends AbstractServer {
         public void accept(byte[] bytes) {
             enqueueStream(st, key, bytes);
             flushInlineWrite(st, key);
+            finishSseIfClosed(st, key, st.writeQueue.isEmpty());
         }
     }
 
@@ -306,10 +307,42 @@ public class NioHttpServer extends AbstractServer {
         @Override
         public void accept(byte[] bytes) {
             enqueueStream(st, key, bytes);
+            boolean drained;
             synchronized (st.writeQueue) {
-                drainWriteQueue(st, key);
+                drained = drainWriteQueue(st, key);
             }
+            finishSseIfClosed(st, key, drained);
         }
+    }
+
+    /**
+     * SSE 收尾：{@code sseClose()} 之后（终止块已入队）释放连接。
+     *
+     * <p>流式响应没有 handler 收尾——{@code sseClose()} 只写入终止块并标记通道关闭，
+     * 若不在这里释放，连接会一直挂在 selector 上（浏览器复用连接时尤为明显）。
+     * 两条路径都交给事件循环线程执行 close，避免跨线程操作 interestOps：</p>
+     * <ul>
+     *   <li>队列已排空：投递 rearm 队列，事件循环按 {@code keepAlive=false} 关闭；</li>
+     *   <li>仍有残留（对端背压）：投递 OP_WRITE 续写，写完后同样按 {@code keepAlive=false} 关闭。</li>
+     * </ul>
+     *
+     * @param st       连接状态
+     * @param key      选择键
+     * @param drained  待写队列是否已排空
+     */
+    private void finishSseIfClosed(ConnectionState st, SelectionKey key, boolean drained) {
+        NioServerResponse sse = st.sseResponse;
+        if (sse == null || !sse.isChannelClosed()) {
+            return;
+        }
+        st.keepAlive = false;
+        st.sseResponse = null;
+        if (drained) {
+            rearmReadQueues[st.shard].add(key);
+        } else {
+            pendingWriteQueues[st.shard].add(key);
+        }
+        selectors[st.shard].wakeup();
     }
 
     /**
@@ -326,6 +359,15 @@ public class NioHttpServer extends AbstractServer {
      */
     private void enqueueStream(ConnectionState st, SelectionKey key, byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
+            return;
+        }
+        // 连接已关闭(客户端断开 / 首帧写失败):标记流式响应已收尾,让推流与保活线程
+        // 看到 isChannelClosed() 后自行退出,否则帧会无止境地堆进无人排空的队列。
+        if (st.closed.get()) {
+            NioServerResponse sse = st.sseResponse;
+            if (sse != null) {
+                sse.markChannelClosed();
+            }
             return;
         }
         long max = setting.getMaxPendingWriteBytes();
@@ -892,11 +934,21 @@ public class NioHttpServer extends AbstractServer {
                 }
                 // 请求头在 handleRequest 前后不变，复用上面的 keep-alive 判定，
                 // 仅补判 handler 期间 channel 是否被关闭（channelClosed 单调 false→true）
-                st.keepAlive = keepAlive && !response.isChannelClosed();
+                // SSE 例外：Connection: close 只约束「响应写完再关」，流式响应在
+                // sseClose 之前必须保持连接（vite/http-proxy 等代理默认发 close，
+                // 按普通响应断链会把第 1 帧之后的内容全部截断）。
+                boolean sseStreaming = response.isSseStreaming();
+                st.keepAlive = (keepAlive || sseStreaming) && !response.isChannelClosed();
                 st.request.resetForNextRequest();
                 // 响应字节已交付写队列，此刻归位实例供下一条请求复用
                 recycle(st, response);
                 depth++;
+                if (sseStreaming) {
+                    // 推流线程继续写这条连接，不能再处理 pipeline 里的后续请求：
+                    // 否则普通响应会被写进进行中的 chunked 流里。保留 OP_READ 只为感知断链。
+                    st.sseResponse = response;
+                    break;
+                }
                 synchronized (st.writeQueue) {
                     hasPending = !st.writeQueue.isEmpty();
                 }
@@ -1132,7 +1184,10 @@ public class NioHttpServer extends AbstractServer {
                 }
                 // 请求头在 handleRequest 前后不变，复用上面的 keep-alive 判定，
                 // 仅补判 handler 期间 channel 是否被关闭（channelClosed 单调 false→true）
-                st.keepAlive = keepAlive && !response.isChannelClosed();
+                // SSE 例外：Connection: close 只约束「响应写完再关」，流式响应在
+                // sseClose 之前必须保持连接，否则第 1 帧之后的内容会被截断。
+                boolean sseStreaming = response.isSseStreaming();
+                st.keepAlive = (keepAlive || sseStreaming) && !response.isChannelClosed();
                 st.request.resetForNextRequest();
                 // 直写:worker 线程同步排空 writeQueue(与事件循环 handleWrite 同锁)。
                 // 未写完(对端背压)时剩余字节交由事件循环 OP_WRITE 续写。
@@ -1159,6 +1214,10 @@ public class NioHttpServer extends AbstractServer {
                 recycle(st, response);
                 depth++;
                 allWritten = true;
+                if (sseStreaming) {
+                    // 推流线程继续写这条连接，不能再处理后续 pipeline 请求
+                    break;
+                }
                 if (depth >= MAX_PIPELINE_DEPTH) {
                     // 超长 pipeline 视为滥用，明确关闭而不是静默挂住
                     closeConn(key, st);
@@ -1376,6 +1435,18 @@ public class NioHttpServer extends AbstractServer {
          * worker 直写路径的写出回调（连接级复用），语义见 {@link DirectWriter}。
          */
         DirectWriter directWriter;
+
+        /**
+         * 当前连接上仍在推送的 SSE 响应。
+         *
+         * <p>SSE 响应的生命周期跨越 handler：handler 返回后由推流线程继续写帧，
+         * 直到 {@code sseClose()} 才结束。连接因此不能按普通响应回收，也不能
+         * 在 handler 收尾时按 {@code Connection: close} 断开。这里保留一份引用，
+         * 写出回调据此判断「流已收尾 → 关闭连接」，避免流结束后 socket 悬挂。</p>
+         *
+         * <p>写线程（worker）赋值、推流线程读取，故为 volatile。</p>
+         */
+        volatile NioServerResponse sseResponse;
 
         /**
          * 头体合并缓冲（连接级复用）。

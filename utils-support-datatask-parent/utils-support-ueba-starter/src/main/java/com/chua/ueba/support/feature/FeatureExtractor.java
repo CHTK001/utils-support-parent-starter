@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 特征提取器。
@@ -107,7 +108,7 @@ public class FeatureExtractor {
             throw new IllegalArgumentException("seqLen 必须大于 0, 实际: " + seqLen);
         }
         var ids = new int[seqLen];
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return ids;
         }
         int count = Math.min(window.size(), seqLen);
@@ -141,7 +142,7 @@ public class FeatureExtractor {
             throw new IllegalArgumentException("numNumeric 必须大于 0, 实际: " + numNumeric);
         }
         var numeric = new float[seqLen][numNumeric];
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return numeric;
         }
         int count = Math.min(window.size(), seqLen);
@@ -201,7 +202,7 @@ public class FeatureExtractor {
             case "avg_response_time" -> avgResponseTime(window);
             case "max_response_time" -> maxResponseTime(window);
             case "avg_body_size" -> avgBodySize(window);
-            case "time_of_day" -> window == null || window.isEmpty()
+            case "time_of_day" -> CollectionUtils.isEmpty(window)
                     ? 0.0d
                     : hourPhase(window.get(window.size() - 1).getTimestamp());
             default -> {
@@ -219,7 +220,7 @@ public class FeatureExtractor {
      * @return 每秒请求数，窗口为空时返回 0
      */
     private double requestRate(List<TrafficEvent> window, long windowSeconds) {
-        if (window == null || window.isEmpty() || windowSeconds <= 0L) {
+        if (CollectionUtils.isEmpty(window) || windowSeconds <= 0L) {
             return 0.0d;
         }
         return (double) window.size() / windowSeconds;
@@ -232,7 +233,7 @@ public class FeatureExtractor {
      * @return 熵值（比特），范围 [0, 日志2(不同路径数)]，窗口为空时返回 0
      */
     private double pathEntropy(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         Map<String, Integer> counts = Wraps.map(Math.max(16, window.size()));
@@ -256,7 +257,7 @@ public class FeatureExtractor {
      * @return 去重路径数，窗口为空时返回 0
      */
     private double uniquePathsCount(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         Map<String, Integer> counts = Wraps.map(Math.max(16, window.size()));
@@ -274,7 +275,7 @@ public class FeatureExtractor {
      * @return 错误率，范围 [0, 1]，窗口为空时返回 0
      */
     private double errorRate(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         long errors = 0L;
@@ -293,7 +294,7 @@ public class FeatureExtractor {
      * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
      */
     private double methodDiversity(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         Map<String, Integer> counts = Wraps.map(8);
@@ -310,7 +311,7 @@ public class FeatureExtractor {
      * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
      */
     private double uaDiversity(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         Map<String, Integer> counts = Wraps.map(Math.max(8, window.size()));
@@ -329,7 +330,7 @@ public class FeatureExtractor {
      * @return 平均响应耗时，窗口为空时返回 0
      */
     private double avgResponseTime(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         long sum = 0L;
@@ -346,7 +347,7 @@ public class FeatureExtractor {
      * @return 最大响应耗时，窗口为空时返回 0
      */
     private double maxResponseTime(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         int max = 0;
@@ -363,7 +364,7 @@ public class FeatureExtractor {
      * @return 平均响应体大小，窗口为空时返回 0
      */
     private double avgBodySize(List<TrafficEvent> window) {
-        if (window == null || window.isEmpty()) {
+        if (CollectionUtils.isEmpty(window)) {
             return 0.0d;
         }
         long sum = 0L;
@@ -431,7 +432,7 @@ public class FeatureExtractor {
      * @return 上界，至少为 2
      */
     private int vocabBound(Map<String, Integer> vocab) {
-        if (vocab != null && !vocab.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(vocab)) {
             int maxId = 1;
             for (int value : vocab.values()) {
                 maxId = Math.max(maxId, value);

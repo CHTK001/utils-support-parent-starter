@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JDBC Sink — 落盘到关系型数据库。
@@ -58,7 +59,7 @@ public class JdbcSink implements DataSink {
     @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         Map<String, Object> row = envelope == null ? null : envelope.getParsed();
-        if (row == null || row.isEmpty()) {
+        if (CollectionUtils.isEmpty(row)) {
             log.warn("[datalake-sink] JdbcSink 跳过空数据: traceId={}",
                     envelope == null ? null : envelope.getTraceId());
             return false;

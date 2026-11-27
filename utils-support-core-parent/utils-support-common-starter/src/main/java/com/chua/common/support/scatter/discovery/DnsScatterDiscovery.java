@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DNS 服务发现：以 DNS SRV/TXT/A 记录承载 scatter 节点表。
@@ -140,7 +141,7 @@ public class DnsScatterDiscovery extends AbstractScatterDiscovery {
             log.debug("DNS 发现 SRV 解析失败: {} - {}", srvName, e.getMessage());
             return;
         }
-        if (srvRecords == null || srvRecords.isEmpty()) {
+        if (CollectionUtils.isEmpty(srvRecords)) {
             return;
         }
         List<Discovery> remote = new ArrayList<>(srvRecords.size());
@@ -212,11 +213,11 @@ public class DnsScatterDiscovery extends AbstractScatterDiscovery {
         }
         try {
             List<DnsRecord> aRecords = resolver.resolve(target, "A");
-            if (aRecords != null && !aRecords.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(aRecords)) {
                 return aRecords.get(0).getContent();
             }
             List<DnsRecord> aaaaRecords = resolver.resolve(target, "AAAA");
-            if (aaaaRecords != null && !aaaaRecords.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(aaaaRecords)) {
                 return aaaaRecords.get(0).getContent();
             }
         } catch (Exception e) {
@@ -238,7 +239,7 @@ public class DnsScatterDiscovery extends AbstractScatterDiscovery {
         } catch (Exception e) {
             return null;
         }
-        if (txtRecords == null || txtRecords.isEmpty()) {
+        if (CollectionUtils.isEmpty(txtRecords)) {
             return null;
         }
         Map<String, String> metadata = new LinkedHashMap<>();
@@ -312,7 +313,7 @@ public class DnsScatterDiscovery extends AbstractScatterDiscovery {
     private void unpublishSelf() {
         List<DnsRecord> records = selfRecords;
         selfRecords = null;
-        if (records == null || records.isEmpty()) {
+        if (CollectionUtils.isEmpty(records)) {
             return;
         }
         try {

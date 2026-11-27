@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 试卷识别管线 —— 统一能力门面，对一个扫描卷提供两条识别路径：
@@ -221,7 +222,7 @@ public class PaperPipeline {
      * @return 各区域识别结果
      */
     public List<OcrResult> recognizeRegions(byte[] imageData, List<PredictRectangle> regions) {
-        if (regions == null || regions.isEmpty()) {
+        if (CollectionUtils.isEmpty(regions)) {
             return List.of();
         }
         List<OcrResult> out = new ArrayList<>();
@@ -400,7 +401,7 @@ public class PaperPipeline {
      * @return 排序后的不可变列表
      */
     private static List<OcrResult> sorted(List<OcrResult> results) {
-        if (results == null || results.isEmpty()) {
+        if (CollectionUtils.isEmpty(results)) {
             return results == null ? List.of() : results;
         }
         return results.stream()
@@ -418,7 +419,7 @@ public class PaperPipeline {
      * @return 有效字符数
      */
     private static long chars(List<OcrResult> results) {
-        if (results == null || results.isEmpty()) {
+        if (CollectionUtils.isEmpty(results)) {
             return 0L;
         }
         return results.stream()

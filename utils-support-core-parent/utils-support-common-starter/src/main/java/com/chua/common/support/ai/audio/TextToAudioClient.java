@@ -5,6 +5,7 @@ import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 文字转语音（TTS）客户端接口。
@@ -260,7 +261,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

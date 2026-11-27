@@ -6,6 +6,7 @@ import com.chua.common.support.ai.chat.DecisionsClient;
 import com.chua.common.support.ai.chat.DecisionsResult;
 
 import java.util.List;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于决策模型（{@link DecisionsClient}）的 AI 辅助风险裁决器。
@@ -151,7 +152,7 @@ public class DecisionsAgentRiskAdjudicator implements AgentRiskAdjudicator {
         sb.append("风险等级: ").append(level).append('\n');
         sb.append("入参: ");
         String input = request.toolInput();
-        if (input == null || input.isEmpty()) {
+        if (StringUtils.isEmpty(input)) {
             sb.append("(无)");
         } else if (input.length() <= MAX_EVIDENCE_CHARS) {
             sb.append(input);

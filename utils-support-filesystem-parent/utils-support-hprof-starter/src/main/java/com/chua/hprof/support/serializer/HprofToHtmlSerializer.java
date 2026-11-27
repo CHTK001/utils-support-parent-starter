@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 将解析出的 hprof 结果序列化为自包含的 HTML 报告。
@@ -511,7 +512,7 @@ public final class HprofToHtmlSerializer {
      */
     private static void appendDetails(StringBuilder sb, HprofParser.Result result) {
         Map<String, HprofClassDetail> details = result.classDetails();
-        if (details == null || details.isEmpty()) {
+        if (CollectionUtils.isEmpty(details)) {
             return;
         }
         sb.append("<h2>内存持有明细（点开看是谁存了什么）</h2>\n");

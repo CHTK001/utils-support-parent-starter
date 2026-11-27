@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认 HTTP 客户端实现，采用<b>委托模式（Delegation Pattern）</b>转发给 {@link HttpClientExecutor}。
@@ -176,11 +178,11 @@ public class DefaultHttpClient implements HttpClient {
      */
     private static void appendParamsToUrl(ClientRequest request) {
         Map<String, String> params = request.getParams();
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return;
         }
         String url = request.getUrl();
-        if (url == null || url.isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             return;
         }
         int fragmentIndex = url.indexOf('#');

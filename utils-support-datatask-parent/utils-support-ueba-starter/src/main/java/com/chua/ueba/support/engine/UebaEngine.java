@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * UEBA 综合分析引擎。
@@ -459,7 +460,7 @@ public class UebaEngine implements AutoCloseable {
      */
     private String classLabel(int classIndex) {
         List<String> labels = config.getLstm().getClassLabels();
-        if (labels != null && !labels.isEmpty() && classIndex >= 0 && classIndex < labels.size()) {
+        if (CollectionUtils.isNotEmpty(labels) && classIndex >= 0 && classIndex < labels.size()) {
             return labels.get(classIndex);
         }
         return "normal";

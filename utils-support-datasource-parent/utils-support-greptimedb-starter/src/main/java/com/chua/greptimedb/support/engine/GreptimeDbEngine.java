@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * greptimedb 时序数据库引擎实现。
@@ -484,7 +485,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return 投影片段，形如 {@code *} 或 {@code host, AVG(cpu_util)}
      */
     static String buildProjection(List<String> selectColumns, String groupColumns, Class<?> entityClass) {
-        if (selectColumns != null && !selectColumns.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(selectColumns)) {
             List<String> normalized = Wraps.list(selectColumns.size());
             for (String column : selectColumns) {
                 String fragment = normalizeColumns(nz(column), entityClass);
@@ -507,7 +508,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return 以 {@code ", "} 开头的片段串，无排序时返回空串
      */
     static String buildOrderBy(List<String> orderBys, Class<?> entityClass) {
-        if (orderBys == null || orderBys.isEmpty()) {
+        if (CollectionUtils.isEmpty(orderBys)) {
             return "";
         }
         StringBuilder orderBy = new StringBuilder();

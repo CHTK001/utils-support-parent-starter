@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 用量持久化 ChatClient 包装器 — 为任意 {@link ChatClient} 添加异步 AiUsage 持久化能力。
@@ -292,7 +293,7 @@ public class UsagePersistChatClient implements ChatClient {
      * @param externalUsage 外部来源的用量数据列表
      */
     public void syncUsage(List<AiUsage> externalUsage) {
-        if (externalUsage == null || externalUsage.isEmpty() || engine == null) {
+        if (CollectionUtils.isEmpty(externalUsage) || engine == null) {
             return;
         }
         for (AiUsage usage : externalUsage) {

@@ -3,6 +3,7 @@ package com.chua.network.support.tshark;
 
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * tshark 数据包解析结果记录。
@@ -132,7 +133,7 @@ public record PacketRecord(
      * @return 有载荷返回 true
      */
     public boolean hasPayload() {
-        return payload != null && payload.length > 0;
+        return ArrayUtils.isNotEmpty(payload);
     }
 
     /**

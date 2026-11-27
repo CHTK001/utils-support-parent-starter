@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * sherpa-onnx 语音活动检测（Silero VAD）封装。
@@ -151,7 +152,7 @@ public final class SherpaVadSegmenter implements AutoCloseable {
                 break;
             }
             float[] data = segment.getSamples();
-            if (data != null && data.length > 0) {
+            if (ArrayUtils.isNotEmpty(data)) {
                 into.add(new VoiceSegment(Math.max(0, segment.getStart()), data));
             }
             vad.pop();

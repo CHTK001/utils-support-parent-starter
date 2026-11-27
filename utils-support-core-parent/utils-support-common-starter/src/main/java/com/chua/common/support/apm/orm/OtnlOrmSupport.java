@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Otnl 引擎 ORM 通道的内存求值器。
@@ -82,7 +83,7 @@ public final class OtnlOrmSupport {
      * @return 命中返回 true
      */
     public static boolean matches(Object row, List<Condition> conditions) {
-        if (conditions == null || conditions.isEmpty()) {
+        if (CollectionUtils.isEmpty(conditions)) {
             return true;
         }
         for (Condition condition : conditions) {
@@ -124,7 +125,7 @@ public final class OtnlOrmSupport {
      */
     private static boolean matchNested(Object row, Condition condition) {
         List<Condition> children = condition.getNested();
-        if (children == null || children.isEmpty()) {
+        if (CollectionUtils.isEmpty(children)) {
             return true;
         }
         boolean or = "OR".equalsIgnoreCase(condition.getNestedOperator());

@@ -76,7 +76,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
             List<Instance> instances = StringUtils.isNotEmpty(clusterName)
                     ? namingService.getAllInstances(clusterName, name)
                     : namingService.getAllInstances(name);
-            if (instances == null || instances.isEmpty()) {
+            if (CollectionUtils.isEmpty(instances)) {
                 return Collections.emptySet();
             }
             Set<Discovery> result = instances.stream().map(it -> Discovery.builder()

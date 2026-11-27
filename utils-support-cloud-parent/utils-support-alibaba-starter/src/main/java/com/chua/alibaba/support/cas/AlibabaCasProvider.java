@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 阿里云数字证书管理服务（CAS 2020-04-07）的 acme提供者 SPI 实现。
@@ -154,7 +155,7 @@ public class AlibabaCasProvider implements AcmeProvider {
             log.warn("未连接阿里云 CAS");
             return Collections.emptyList();
         }
-        if (domains == null || domains.isEmpty()) {
+        if (CollectionUtils.isEmpty(domains)) {
             log.warn("域名列表为空");
             return Collections.emptyList();
         }
@@ -204,7 +205,7 @@ public class AlibabaCasProvider implements AcmeProvider {
         if (client == null) {
             return AcmeCertificateResult.fail("未连接阿里云 CAS");
         }
-        if (domains == null || domains.isEmpty()) {
+        if (CollectionUtils.isEmpty(domains)) {
             return AcmeCertificateResult.fail("域名列表为空");
         }
         String domain = domains.getFirst();
@@ -265,7 +266,7 @@ public class AlibabaCasProvider implements AcmeProvider {
         if (client == null) {
             return AcmeCertificateResult.fail("未连接阿里云 CAS");
         }
-        if (domains == null || domains.isEmpty()) {
+        if (CollectionUtils.isEmpty(domains)) {
             return AcmeCertificateResult.fail("域名列表为空");
         }
         if (!isCsrPem(challengeType)) {

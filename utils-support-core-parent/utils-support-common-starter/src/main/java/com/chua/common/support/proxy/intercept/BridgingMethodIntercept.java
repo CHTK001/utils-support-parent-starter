@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.ArrayUtils;
 
 
 /**
@@ -44,7 +45,7 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 
         if (MethodIntercept.isEquals(method)) {
             return ObjectUtils.withNull(bridging, () -> false,
-                                        a -> a.equals(args != null && args.length > 0 ? args[0] : null));
+                                        a -> a.equals(ArrayUtils.isNotEmpty(args) ? args[0] : null));
         }
 
         if (MethodIntercept.isHashCode(method)) {

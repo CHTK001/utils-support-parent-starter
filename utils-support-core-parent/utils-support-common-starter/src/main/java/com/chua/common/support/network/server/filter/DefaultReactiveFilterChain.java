@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认响应式过滤器链实现。
@@ -175,7 +176,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
      * @return 去重后的列表
      */
     static List<ReactiveServerFilter> dedupe(List<ReactiveServerFilter> filters) {
-        if (filters == null || filters.isEmpty()) {
+        if (CollectionUtils.isEmpty(filters)) {
             return List.of();
         }
         Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());

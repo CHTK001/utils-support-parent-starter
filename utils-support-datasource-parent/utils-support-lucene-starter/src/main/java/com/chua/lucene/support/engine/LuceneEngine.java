@@ -49,6 +49,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 Apache Lucene 的内存搜索引擎。
@@ -505,7 +506,7 @@ import java.util.concurrent.ConcurrentHashMap;
             this.entityClass = entityClass;
             if (groupByCols != null) {
                 for (String c : groupByCols) {
-                    if (c != null && !c.isEmpty()) {
+                    if (StringUtils.isNotEmpty(c)) {
                         this.groupByCols.add(c);
                     }
                 }

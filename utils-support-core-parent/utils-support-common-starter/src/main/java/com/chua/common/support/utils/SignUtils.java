@@ -611,7 +611,7 @@ public class SignUtils {
      * @return 归一化后的小写键集合；入参为 null 或空时返回空集合
      */
     private static Set<String> normalizeExcludeKeys(Set<String> excludeKeys) {
-        if (excludeKeys == null || excludeKeys.isEmpty()) {
+        if (CollectionUtils.isEmpty(excludeKeys)) {
             return Collections.emptySet();
         }
         Set<String> result = Wraps.set(excludeKeys.size());

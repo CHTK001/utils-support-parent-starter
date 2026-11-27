@@ -13,9 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 串行分块分析、结构校验和内容寻址缓存。源码文本始终作为数据传入。
+ * 分块分析、结构校验和内容寻址缓存。单文件内按块串行，多文件并发由 {@link CodeDocs} 调度；
+ * 除模型调用计数外不持有可变状态。源码文本始终作为数据传入。
  *
  * @author CH
  * @since 4.0.0.51
@@ -45,14 +47,14 @@ final class CodeDocAnalyzer {
             所有章节和 API 的行号须指向本块实际源码；示意结构中的 1、2 必须替换成真实行号。
             """;
     private final CodeDocOptions options;
-    private int modelCalls;
+    private final AtomicInteger modelCalls = new AtomicInteger();
 
     CodeDocAnalyzer(CodeDocOptions options) {
         this.options = options;
     }
 
     int modelCalls() {
-        return modelCalls;
+        return modelCalls.get();
     }
 
     Analysis analyze(String path, String language, String source) throws IOException {
@@ -155,7 +157,7 @@ final class CodeDocAnalyzer {
         for (int attempt = 0; attempt <= options.retries(); attempt++) {
             checkInterrupted();
             try {
-                modelCalls++;
+                modelCalls.incrementAndGet();
                 String response = options.chatClient().chatSync(prompt);
                 Fragment fragment = parse(response, chunk);
                 return fragment;

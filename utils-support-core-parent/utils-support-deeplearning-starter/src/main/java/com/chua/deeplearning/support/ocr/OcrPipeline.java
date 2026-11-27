@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * OCR 统一能力门面：检测 → 裁剪 → 方向矫正 → 修复 → 识别。
@@ -730,7 +731,7 @@ public class OcrPipeline {
     private List<OcrResult> recognizeFrom(byte[] imageData) {
         byte[] prepared = autoInvertIfDark(imageData);
         List<DetectionInfo> boxes = detector.detect(prepared);
-        if (boxes == null || boxes.isEmpty()) {
+        if (CollectionUtils.isEmpty(boxes)) {
             return List.of();
         }
         // 检测置信度阈值过滤

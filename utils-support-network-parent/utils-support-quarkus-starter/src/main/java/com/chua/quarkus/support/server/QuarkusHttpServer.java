@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 Vert.x 的 Quarkus 风格 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
@@ -764,7 +765,7 @@ public class QuarkusHttpServer extends AbstractServer {
         @Override
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
-            if (uploads == null || uploads.isEmpty()) {
+            if (CollectionUtils.isEmpty(uploads)) {
                 return java.util.Collections.emptyList();
             }
             List<FormFile> files = Wraps.list();

@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.email.spi;
 import com.chua.common.support.datasearch.email.model.EmailInfo;
 
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 临时邮箱服务 SPI 接口。
@@ -46,6 +47,6 @@ public interface EmailProvider {
      */
     default EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
-        return emails != null && !emails.isEmpty() ? emails.getFirst() : null;
+        return CollectionUtils.isNotEmpty(emails) ? emails.getFirst() : null;
     }
 }

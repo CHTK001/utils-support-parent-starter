@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.nio.charset.StandardCharsets;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * zeromq 消息分发器提供者（jeromq，纯 Java 无需原生依赖）。
@@ -197,7 +198,7 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     private void dispatch(byte[] topicBytes, byte[] bodyBytes) {
         String topic = new String(topicBytes, StandardCharsets.UTF_8);
         List<DispatcherDefinition> definitions = definitionMap.get(topic);
-        if (definitions == null || definitions.isEmpty()) {
+        if (CollectionUtils.isEmpty(definitions)) {
             return;
         }
         Object body = readBody(bodyBytes);

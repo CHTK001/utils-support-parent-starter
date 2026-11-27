@@ -462,7 +462,7 @@ public final class WechatMemoryPageParser {
         }
         int nonEmpty = 0;
         for (String value : values) {
-            if (value != null && !value.isEmpty()) {
+            if (StringUtils.isNotEmpty(value)) {
                 nonEmpty++;
             }
         }

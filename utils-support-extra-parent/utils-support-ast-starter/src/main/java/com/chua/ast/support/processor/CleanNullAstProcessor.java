@@ -14,6 +14,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeKind;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * {@link CleanNull} 注解的 AST 处理器
@@ -123,7 +124,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
  // 只有引用类型需要 空 检查，基本类型不需要
         JCTree.JCExpression condition = null;
         for (String keyword : keywords) {
-            if (keyword == null || keyword.isEmpty()) {
+            if (StringUtils.isEmpty(keyword)) {
                 continue;
             }
             // 对于基本类型，直接比较字面量

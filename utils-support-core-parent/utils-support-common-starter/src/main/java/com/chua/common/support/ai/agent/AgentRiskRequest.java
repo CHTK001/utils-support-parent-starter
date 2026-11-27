@@ -3,6 +3,7 @@ package com.chua.common.support.ai.agent;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 风险裁决请求。
@@ -67,7 +68,7 @@ public record AgentRiskRequest(
      * @return 风险等级（low / medium / high / dangerous）
      */
     public String effectiveRiskLevel() {
-        return riskLevel != null && !riskLevel.isEmpty()
+        return StringUtils.isNotEmpty(riskLevel)
                 ? riskLevel
                 : ToolRiskPolicy.classify(toolName, toolInput);
     }

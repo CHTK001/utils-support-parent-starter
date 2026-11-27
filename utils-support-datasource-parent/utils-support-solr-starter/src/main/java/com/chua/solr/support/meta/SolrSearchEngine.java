@@ -14,6 +14,7 @@ import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.NamedList;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Solr 搜索引擎实现。
@@ -156,7 +157,7 @@ public class SolrSearchEngine implements SearchEngine {
      */
     private void applySchemaFields(SolrClient client, SearchIndexDef indexDef) throws Exception {
         List<SearchFieldDef> fields = indexDef.getFields();
-        if (fields == null || fields.isEmpty()) {
+        if (CollectionUtils.isEmpty(fields)) {
             return;
         }
         List<SchemaRequest.Update> updates = Wraps.list();

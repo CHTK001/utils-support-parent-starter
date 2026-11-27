@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 通义千问浏览器会话（Jvppeteer 实现）。
@@ -181,7 +182,7 @@ public class QwenBrowserSession implements AutoCloseable {
                     rawEvents.add(obj);
                     @SuppressWarnings("unchecked")
                     List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
-                    if (choices == null || choices.isEmpty()) {
+                    if (CollectionUtils.isEmpty(choices)) {
                         continue;
                     }
                     @SuppressWarnings("unchecked")

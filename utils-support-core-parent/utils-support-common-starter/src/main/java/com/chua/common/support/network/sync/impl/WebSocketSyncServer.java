@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.network.server.AbstractServer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDK Socket 的 WebSocket 同步服务端实现。
@@ -534,7 +535,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * @param clientId 客户端标识，空则忽略
      */
     private void registerConnection(Connection conn, String clientId) {
-        if (clientId == null || clientId.isEmpty()) {
+        if (StringUtils.isEmpty(clientId)) {
             return;
         }
         String old = conn.sessionId;

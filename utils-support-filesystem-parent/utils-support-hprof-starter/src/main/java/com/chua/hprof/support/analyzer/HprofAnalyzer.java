@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于规则的堆转储分析引擎。
@@ -479,7 +480,7 @@ public final class HprofAnalyzer {
         long nonJdk = analysis.nonJdkRetainedBytes;
 
         // 0. 崩溃语境判定
-        if (crashSignals != null && !crashSignals.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(crashSignals)) {
             CrashSignal dominant = crashSignals.stream()
                     .filter(CrashSignal::oomLikely)
                     .findFirst().orElse(crashSignals.get(0));
@@ -556,7 +557,7 @@ public final class HprofAnalyzer {
                 : primarySource;
         analysis.rootCauseHeadline = (analysis.oomLikely
                 ? "高度疑似 OOM 崩溃"
-                : (crashSignals != null && !crashSignals.isEmpty()
+                : (CollectionUtils.isNotEmpty(crashSignals)
                 ? "崩溃原因不确定（无明确 OOM 证据）"
                 : "未发现崩溃信号")) + "；内存主要来自 " + sourceDesc;
 

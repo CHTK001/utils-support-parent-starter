@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * WebDAV 客户端（基于 {@link HttpClientFactory} SPI HTTP 客户端）。
@@ -332,7 +333,7 @@ public class WebDavClient implements AutoCloseable {
      */
     private List<WebDavResource> parseMultistatus(String xml) {
         List<WebDavResource> resources = new ArrayList<>();
-        if (xml == null || xml.isEmpty()) {
+        if (StringUtils.isEmpty(xml)) {
             return resources;
         }
         Matcher responses = Pattern.compile("<[a-zA-Z0-9]*:?response[\\s\\S]*?</[a-zA-Z0-9]*:?response>")

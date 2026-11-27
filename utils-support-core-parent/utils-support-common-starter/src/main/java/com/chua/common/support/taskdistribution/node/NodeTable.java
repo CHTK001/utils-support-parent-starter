@@ -16,6 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 节点注册表。
@@ -163,7 +164,7 @@ public class NodeTable {
      * @return 匹配的在线节点列表
      */
     public List<NodeMeta> matchByTags(Map<String, String> tags) {
-        if (tags == null || tags.isEmpty()) {
+        if (CollectionUtils.isEmpty(tags)) {
             return getAllNodes();
         }
         return nodes.values().stream()
@@ -205,7 +206,7 @@ public class NodeTable {
      * @return 选中的节点，无可选节点返回 空
      */
     public NodeMeta select(List<NodeMeta> candidates, DispatchStrategy strategy) {
-        if (candidates == null || candidates.isEmpty()) {
+        if (CollectionUtils.isEmpty(candidates)) {
             return null;
         }
         if (candidates.size() == 1) {

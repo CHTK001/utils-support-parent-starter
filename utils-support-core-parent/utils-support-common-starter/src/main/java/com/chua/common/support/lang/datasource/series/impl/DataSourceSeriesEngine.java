@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于 JDBC DataSource 的时序存储实现。
@@ -226,7 +227,7 @@ public class DataSourceSeriesEngine implements SeriesEngine {
             return value;
         }
         for (Map.Entry<String, Object> entry : row.entrySet()) {
-            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(column)) {
+            if (StringUtils.equalsIgnoreCase(entry.getKey(), column)) {
                 return entry.getValue();
             }
         }

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.awt.image.BufferedImage;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -261,7 +262,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      * @return extract阈值的结果
      */
     private Float extractThreshold(Map<String, ?> arguments) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return null;
         }
         Object value = arguments.get("threshold");

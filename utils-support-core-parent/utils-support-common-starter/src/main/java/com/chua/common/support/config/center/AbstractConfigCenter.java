@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 配置中心抽象基类。
@@ -90,7 +91,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
      */
     @Override
     public boolean publishBatch(String dataId, Map<String, String> configs) {
-        if (configs == null || configs.isEmpty()) {
+        if (CollectionUtils.isEmpty(configs)) {
             return true;
         }
         boolean success = true;

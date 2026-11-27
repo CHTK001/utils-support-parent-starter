@@ -523,7 +523,7 @@ public abstract class SqlFormatter implements Formatter {
      * 找不到安全断点（如单个超长字面量）时整行保留，绝不截断字面量。
      */
     protected String wrapLines(String formatted) {
-        if (maxLineLength <= 0 || formatted == null || formatted.isEmpty()) {
+        if (maxLineLength <= 0 || StringUtils.isEmpty(formatted)) {
             return formatted;
         }
         String[] lines = formatted.split("\n", -1);

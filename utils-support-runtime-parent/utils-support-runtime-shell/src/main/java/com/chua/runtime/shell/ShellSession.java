@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Shell 会话 — 处理单个 Telnet 连接的命令交互。
@@ -175,7 +176,7 @@ public class ShellSession implements Runnable {
      * @param writer  输出
      */
     private void printCompletions(List<String> matches, PrintWriter writer) {
-        if (matches == null || matches.isEmpty()) {
+        if (CollectionUtils.isEmpty(matches)) {
             return;
         }
         writer.println();

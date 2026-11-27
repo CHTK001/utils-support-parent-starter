@@ -27,6 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 ZooKeeper 的服务发现实现。
@@ -114,12 +117,12 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
                 List<String> children = client.getChildren().forPath(zkPath);
                 for (String child : children) {
                     byte[] data = client.getData().forPath(zkPath + "/" + child);
-                    if (data != null && data.length > 0) {
+                    if (ArrayUtils.isNotEmpty(data)) {
                         String json = new String(data, StandardCharsets.UTF_8);
                         Map<String, Object> map = Json.fromJson(json,
                                 new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
                         String serverId = (String) map.get("serverId");
-                        if (serverId != null && serverId.equals(discovery.getServerId())) {
+                        if (ObjectUtils.nullSafeEquals(serverId, discovery.getServerId())) {
                             host = (String) map.get("host");
                             port = ((Number) map.get("port")).intValue();
                             break;
@@ -136,7 +139,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         String zkPath = root + path + "/" + host + ":" + port;
         // 捕获删除前的 ZK 状态
         List<Discovery> preDelete = fetchAllInstances(root + path);
-        if (preDelete != null && !preDelete.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(preDelete)) {
             preDeleteState.put(path, Wraps.set(preDelete));
         }
         try {
@@ -324,7 +327,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
      */
     private void notifyListeners(String path, Set<Discovery> oldSet, List<Discovery> newList) {
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
-        if (pathListeners == null || pathListeners.isEmpty()) {
+        if (CollectionUtils.isEmpty(pathListeners)) {
             return;
         }
         Set<String> oldIds = Wraps.set();

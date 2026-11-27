@@ -16,6 +16,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 webrtc-java 的桌面采集实现。
@@ -203,7 +204,7 @@ public class JavaScreenCaptureService implements ScreenCaptureService {
      */
     private long defaultSourceId() {
         List<DesktopSource> sources = screenCapturer().getDesktopSources();
-        if (sources == null || sources.isEmpty()) {
+        if (CollectionUtils.isEmpty(sources)) {
             throw new IllegalStateException("No desktop source available");
         }
         return sources.get(0).id;

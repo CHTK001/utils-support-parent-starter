@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 模型级运行参数存储。
@@ -176,7 +177,7 @@ public final class ModelParams {
         if (StringUtils.isBlank(modelId)) {
             return;
         }
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             STORE.remove(modelId);
             return;
         }
@@ -190,7 +191,7 @@ public final class ModelParams {
      * @param params  待合并参数
      */
     public static void putAll(String modelId, Map<String, Object> params) {
-        if (StringUtils.isBlank(modelId) || params == null || params.isEmpty()) {
+        if (StringUtils.isBlank(modelId) || CollectionUtils.isEmpty(params)) {
             return;
         }
         STORE.compute(modelId, (key, old) -> {
@@ -325,7 +326,7 @@ public final class ModelParams {
      * @return 实际成功应用的键数量
      */
     public static int applyTo(Object target, Map<String, Object> options) {
-        if (target == null || options == null || options.isEmpty()) {
+        if (target == null || CollectionUtils.isEmpty(options)) {
             return 0;
         }
         int applied = 0;

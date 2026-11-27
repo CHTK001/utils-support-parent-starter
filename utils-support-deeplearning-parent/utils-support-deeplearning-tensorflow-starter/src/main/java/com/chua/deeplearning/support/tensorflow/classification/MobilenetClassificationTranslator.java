@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * tensor流 mobilenet / 镜像net 分类 Translator。
@@ -115,7 +116,7 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray probabilities = list.singletonOrThrow();
-        if (classes == null || classes.isEmpty()) {
+        if (CollectionUtils.isEmpty(classes)) {
             long n = probabilities.size();
             List<String> synthetic = Wraps.list((int) n);
             for (int i = 0; i < n; i++) {

@@ -38,6 +38,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 聚合 AI 对话客户端。
@@ -266,7 +268,7 @@ public class AggregateChatClient implements ChatClient {
      */
     private static SkillManager buildSkillManager(AggregateChatClientSetting config, Engine engine) {
         List<String> paths = config.getSkillPaths();
-        if (paths == null || paths.isEmpty()) {
+        if (CollectionUtils.isEmpty(paths)) {
             return null;
         }
         SkillManager manager = new DefaultSkillManager();
@@ -431,7 +433,7 @@ public class AggregateChatClient implements ChatClient {
 
     @Override
     public ChatClient tools(List<com.chua.common.support.ai.chat.ChatTool> tools) {
-        return tools == null || tools.isEmpty() ? this : broadcast(c -> c.tools(tools));
+        return CollectionUtils.isEmpty(tools) ? this : broadcast(c -> c.tools(tools));
     }
 
     @Override
@@ -704,7 +706,7 @@ public class AggregateChatClient implements ChatClient {
      * @param externalUsage 外部来源的用量数据列表
      */
     public void syncUsage(List<AiUsage> externalUsage) {
-        if (externalUsage == null || externalUsage.isEmpty()) {
+        if (CollectionUtils.isEmpty(externalUsage)) {
             return;
         }
         if (engine == null) {
@@ -856,7 +858,7 @@ public class AggregateChatClient implements ChatClient {
      * @return 是否成功移除
      */
     public boolean removeClient(String provider) {
-        boolean removed = allClients.removeIf(wc -> provider != null && provider.equals(wc.provider()));
+        boolean removed = allClients.removeIf(wc -> ObjectUtils.nullSafeEquals(provider, wc.provider()));
         if (removed) {
             log.info("[Aggregate] 已移除聚合客户端: provider={}", provider);
         } else {
@@ -1049,9 +1051,9 @@ public class AggregateChatClient implements ChatClient {
         List<HybridStrategy.GroupRouter> groupRouters = Wraps.list(); // [P3C 3.15 豁免] 配置解析，组数量运行期决定
 
         List<AggregateChatClientSetting.GroupConfig> groups = config.getGroups();
-        if (groups == null || groups.isEmpty()) {
+        if (CollectionUtils.isEmpty(groups)) {
             List<AggregateChatClientSetting.ClientConfig> top = config.getClients();
-            if (top != null && !top.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(top)) {
                 List<RouterStrategy.WeightedClient> gClients = buildClients(top, skillManager);
                 allClients.addAll(gClients);
                 RouterStrategy s = createFlatStrategy(config.getStrategy());

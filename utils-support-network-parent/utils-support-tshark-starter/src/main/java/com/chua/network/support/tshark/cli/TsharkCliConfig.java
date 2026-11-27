@@ -622,7 +622,7 @@ public final class TsharkCliConfig {
          */
         @Nonnull
         public Builder mirrors(@Nonnull List<String> mirrors) {
-            this.mirrors = mirrors == null || mirrors.isEmpty() ? TsharkSettings.DEFAULT_MIRRORS : List.copyOf(mirrors);
+            this.mirrors = CollectionUtils.isEmpty(mirrors) ? TsharkSettings.DEFAULT_MIRRORS : List.copyOf(mirrors);
             return this;
         }
 

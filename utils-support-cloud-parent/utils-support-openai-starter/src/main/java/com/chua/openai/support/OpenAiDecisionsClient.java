@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 打开AI 决策客户端
@@ -258,7 +259,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
 
     @Override
     public DecisionsClient questions(List<DecisionQuestion> questions) {
-        if (questions != null && !questions.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(questions)) {
             this.questions.addAll(questions);
         }
         return this;
@@ -299,7 +300,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             actualInput = this.input;
         }
         List<DecisionQuestion> actualQuestions = questions;
-        if (actualQuestions == null || actualQuestions.isEmpty()) {
+        if (CollectionUtils.isEmpty(actualQuestions)) {
             actualQuestions = this.questions;
         }
         DecisionsRequest request = DecisionsRequest.create(actualInput, actualQuestions);
@@ -319,7 +320,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             throw new IllegalArgumentException("input / state 不能为 null 或空白");
         }
         List<DecisionQuestion> questions = request.questions();
-        if (questions == null || questions.isEmpty()) {
+        if (CollectionUtils.isEmpty(questions)) {
             throw new IllegalArgumentException("questions 不能为 null 或空");
         }
         return execute(request);
@@ -855,7 +856,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
             if (StringUtils.isBlank(label)) {
                 label = probability >= 0.5d ? DecisionAnswer.YES_LABEL : DecisionAnswer.NO_LABEL;
             }
-            if (probabilities == null || probabilities.isEmpty()) {
+            if (CollectionUtils.isEmpty(probabilities)) {
                 probabilities = new LinkedHashMap<>();
                 probabilities.put(DecisionAnswer.YES_LABEL, probability);
                 probabilities.put(DecisionAnswer.NO_LABEL, 1 - probability);
@@ -865,7 +866,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         }
         // CHOICE → choice
         if (answerType == DecisionType.CHOICE) {
-            if (choice == null && probabilities != null && !probabilities.isEmpty()) {
+            if (choice == null && CollectionUtils.isNotEmpty(probabilities)) {
                 String best = null;
                 Double bestProbability = null;
                 for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
@@ -918,7 +919,7 @@ public class OpenAiDecisionsClient implements DecisionsClient {
                 || DecisionAnswer.NO_LABEL.equalsIgnoreCase(label))) {
             return DecisionType.NOUL;
         }
-        if (probabilities != null && !probabilities.isEmpty()
+        if (CollectionUtils.isNotEmpty(probabilities)
                 && probabilities.containsKey(DecisionAnswer.YES_LABEL)) {
             return DecisionType.NOUL;
         }

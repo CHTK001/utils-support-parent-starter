@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Inception Labs Mercury 对话客户端
@@ -628,7 +629,7 @@ public class InceptionChatClient implements ChatClient {
         payload.put("id", conversationId());
         payload.put("messages", buildMessages(prompt));
         payload.put("trigger", "submit-message");
-        if (extraBody != null && !extraBody.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(extraBody)) {
             payload.putAll(extraBody);
         }
         return payload;
@@ -850,7 +851,7 @@ public class InceptionChatClient implements ChatClient {
      * @return 头值，未设置返回 null
      */
     private static String headerValue(Map<String, String> headers, String name) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return null;
         }
         for (Map.Entry<String, String> entry : headers.entrySet()) {

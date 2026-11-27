@@ -18,6 +18,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * Microsoft Mage 多模态理解客户端（SPI provider="mage"）。
@@ -360,7 +362,7 @@ public class MageChatClient implements ChatClient {
                     .fluentPut("video_url", JsonObject.create().fluentPut("url", toRequestUrl(videoUrl))));
         }
         for (Attachment attachment : attachments) {
-            if (attachment.data() != null && attachment.data().length > 0) {
+            if (ArrayUtils.isNotEmpty(attachment.data())) {
                 String mime = attachment.mimeType() != null ? attachment.mimeType() : "image/png";
                 String dataUri = "data:" + mime + ";base64,"
                         + Base64.getEncoder().encodeToString(attachment.data());
@@ -419,7 +421,7 @@ public class MageChatClient implements ChatClient {
      */
     private AiUsage parseUsage(Object usageObj) {
         Map<String, Object> usage = castMap(usageObj);
-        if (usage == null || usage.isEmpty()) {
+        if (CollectionUtils.isEmpty(usage)) {
             return null;
         }
         return AiUsage.builder()

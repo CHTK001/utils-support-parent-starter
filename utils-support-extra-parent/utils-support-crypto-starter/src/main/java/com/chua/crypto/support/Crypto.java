@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 系统加密门面（链式 API）
@@ -238,7 +239,7 @@ public class Crypto implements AutoCloseable {
      */
     public Crypto configFile(String... files) {
         setting.addConfigFiles(files);
-        if (files != null && files.length > 0) {
+        if (ArrayUtils.isNotEmpty(files)) {
             setting.setEncryptConfigFiles(true);
         }
         return this;

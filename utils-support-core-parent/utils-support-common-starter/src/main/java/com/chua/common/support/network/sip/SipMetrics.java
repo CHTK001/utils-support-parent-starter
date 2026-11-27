@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
@@ -221,7 +222,7 @@ public class SipMetrics {
         });
         @SuppressWarnings("unchecked")
         Map<String, Long> errs = (Map<String, Long>) s.get("errors_by_category");
-        if (errs != null && !errs.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(errs)) {
             sb.append(' ').append("errors");
             errs.forEach((k, v) -> sb.append('[').append(k).append('=').append(v).append(']'));
         }

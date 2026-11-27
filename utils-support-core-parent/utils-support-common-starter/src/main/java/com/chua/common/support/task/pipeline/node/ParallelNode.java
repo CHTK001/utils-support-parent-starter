@@ -9,6 +9,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 并行子流水线节点 — 基于结构化并发（Structured Streaming任务scope）的非阻塞并行执行。
@@ -366,7 +367,7 @@ public class ParallelNode implements PipelineNode {
         if (startNode != null) {
             subCtx.setNextNodeId(startNode);
         }
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             Map<String, Object> localData = subCtx.getNodeLocalData();
             localData.putAll(params);
         }

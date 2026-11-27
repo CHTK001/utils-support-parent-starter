@@ -10,6 +10,7 @@ import com.chua.deeplearning.support.utils.ImageCropUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 人脸识别组合：检测 → 裁剪 →（可选）活体 → 特征 → {@link VectorStorage} 检索。
@@ -299,7 +300,7 @@ public class FaceIdentify {
      */
     public List<FaceIdentifyHit> identify(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        if (CollectionUtils.isEmpty(boxes)) {
             return List.of();
         }
         List<FaceIdentifyHit> results = Wraps.list(boxes.size());
@@ -317,7 +318,7 @@ public class FaceIdentify {
      */
     public FaceIdentifyHit identifyLargest(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        if (CollectionUtils.isEmpty(boxes)) {
             return null;
         }
         return identifyOne(imageData, pickLargest(boxes));
@@ -367,7 +368,7 @@ public class FaceIdentify {
      */
     public boolean enrollLargest(String id, byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        if (CollectionUtils.isEmpty(boxes)) {
             return false;
         }
         byte[] face = ImageCropUtils.crop(imageData, pickLargest(boxes));
@@ -426,7 +427,7 @@ public class FaceIdentify {
      */
     private List<FaceSearchHit> searchFeature(float[] feature, int k) {
         List<com.chua.common.support.vector.Vector> vectors = vectorStorage.search(feature, k);
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<FaceSearchHit> hits = Wraps.list(vectors.size());

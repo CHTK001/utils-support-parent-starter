@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * OTP（一次性密码）消息推送实现
@@ -210,7 +211,7 @@ public class OptClient implements MessagePush {
         }
         expire(toUser);
         List<OptMessage> list = store.get(toUser);
-        if (list == null || list.isEmpty()) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         return list.stream()
@@ -231,7 +232,7 @@ public class OptClient implements MessagePush {
         }
         expire(toUser);
         List<OptMessage> list = store.get(toUser);
-        if (list == null || list.isEmpty()) {
+        if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
         return copy(list);
@@ -328,7 +329,7 @@ public class OptClient implements MessagePush {
      */
     private void expire(String toUser) {
         store.compute(toUser, (key, list) -> {
-            if (list == null || list.isEmpty()) {
+            if (CollectionUtils.isEmpty(list)) {
                 return null;
             }
             List<OptMessage> result = list.stream()

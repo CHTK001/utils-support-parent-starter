@@ -19,6 +19,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 7z 压缩文件系统 SPI 实现。
@@ -216,7 +217,7 @@ public class SevenZFileSystem implements FileSystem {
                 }
                 SevenZArchiveEntry entry;
                 while ((entry = szFile.getNextEntry()) != null) {
-                    if (entryNames != null && entryNames.length > 0) {
+                    if (ArrayUtils.isNotEmpty(entryNames)) {
                         boolean matched = false;
                         for (String name : entryNames) {
                             if (entry.getName().equals(name) || entry.getName().startsWith(name + "/")) {

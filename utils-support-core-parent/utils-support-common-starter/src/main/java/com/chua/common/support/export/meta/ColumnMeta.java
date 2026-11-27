@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 列元数据 —— 由多个 {@code MetaResolver} 按优先级叠加构建的不可变视图。
@@ -285,7 +286,7 @@ public final class ColumnMeta {
      * @return 当前对象
      */
     public ColumnMeta enumNames(Map<String, String> mapping) {
-        if (mapping != null && !mapping.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(mapping)) {
             this.enumNames.clear();
             this.enumNames.putAll(mapping);
             this.defined.add(Attribute.ENUM_NAMES);

@@ -25,6 +25,7 @@ import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认流水线实现。
@@ -497,7 +498,7 @@ public class DefaultPipeline implements Pipeline {
      */
     private <T> void injectUnitData(PipelineContext<T> ctx, PipelineNode node, String nodeId) {
         Set<String> units = node.getUnits();
-        if (units == null || units.isEmpty()) {
+        if (CollectionUtils.isEmpty(units)) {
             return;
         }
         for (String unitId : units) {
@@ -1092,7 +1093,7 @@ public class DefaultPipeline implements Pipeline {
 
  // 普通节点 — 沿 流树 边递归打印子节点
         List<Edge> edges = flowTree.get(nodeId);
-        if (edges == null || edges.isEmpty()) {
+        if (CollectionUtils.isEmpty(edges)) {
             return;
         }
 
@@ -1114,7 +1115,7 @@ public class DefaultPipeline implements Pipeline {
         sb.append(orderedNodes.stream().map(n -> {
             String nid = nodeId(n);
             List<Edge> edges = flowTree.get(nid);
-            if (edges != null && !edges.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(edges)) {
                 return nid + " -> " + edges.stream()
                     .map(e -> e.to + (e.label.isEmpty() ? "" : "[" + e.label + "]"))
                     .collect(Collectors.joining(", "));

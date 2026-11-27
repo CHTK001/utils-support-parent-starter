@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * tshark JSON 数据包解析工具。
@@ -279,7 +280,7 @@ public final class PacketParserService {
         }
         try {
             Map<String, Object> layers = toMap(node);
-            if (layers == null || layers.isEmpty()) {
+            if (CollectionUtils.isEmpty(layers)) {
                 return null;
             }
 
@@ -647,7 +648,7 @@ public final class PacketParserService {
      */
     @Nonnull
     private static List<String> restoreAll(@Nullable Map<String, Object> layers) {
-        if (RESTORERS.isEmpty() || layers == null || layers.isEmpty()) {
+        if (RESTORERS.isEmpty() || CollectionUtils.isEmpty(layers)) {
             return List.of();
         }
         byte[] rawBytes = TsharkFields.payload(layers);
@@ -720,7 +721,7 @@ public final class PacketParserService {
     private static List<String> layerNames(String protocolName) {
         String name = protocolName.toLowerCase(Locale.ROOT);
         List<String> alias = RESTORER_LAYER_ALIASES.get(name);
-        if (alias == null || alias.isEmpty()) {
+        if (CollectionUtils.isEmpty(alias)) {
             return List.of(name);
         }
         List<String> names = Wraps.list(alias.size() + 1);

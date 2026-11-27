@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 切换型对话客户端基类：管理多个成员客户端，并在每次调用时挑一个转发。
@@ -535,7 +536,7 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient tools(List<ChatTool> tools) {
-        return tools == null || tools.isEmpty() ? this : broadcast(c -> c.tools(tools));
+        return CollectionUtils.isEmpty(tools) ? this : broadcast(c -> c.tools(tools));
     }
 
     @Override
@@ -560,7 +561,7 @@ public abstract class SwitchingChatClient implements ChatClient {
 
     @Override
     public ChatClient extraBody(Map<String, Object> extraBody) {
-        return extraBody == null || extraBody.isEmpty() ? this : broadcast(c -> c.extraBody(extraBody));
+        return CollectionUtils.isEmpty(extraBody) ? this : broadcast(c -> c.extraBody(extraBody));
     }
 
     // ======================== 生命周期 ========================

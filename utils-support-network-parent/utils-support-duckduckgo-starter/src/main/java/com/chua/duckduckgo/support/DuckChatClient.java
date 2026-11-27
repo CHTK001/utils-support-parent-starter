@@ -432,7 +432,7 @@ public class DuckChatClient implements ChatClient {
     private String control(Map<String, String> headers, String headerName, String property, String env) {
         if (headers != null) {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
-                if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(headerName)) {
+                if (StringUtils.equalsIgnoreCase(entry.getKey(), headerName)) {
                     return entry.getValue();
                 }
             }

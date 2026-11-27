@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * sqlite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
@@ -111,7 +112,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
         }
         String indexName = indexDef.getName();
         List<SearchFieldDef> fields = indexDef.getFields();
-        if (fields == null || fields.isEmpty()) {
+        if (CollectionUtils.isEmpty(fields)) {
             throw new IllegalArgumentException("FTS5 虚表至少需要一个文本列，索引名: " + indexName);
         }
         StringBuilder sql = new StringBuilder();
@@ -210,7 +211,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
      */
     private static Map<String, Object> checkSettings(String indexName, Map<String, Object> settings) {
         Map<String, Object> options = Wraps.linkedMap();
-        if (settings == null || settings.isEmpty()) {
+        if (CollectionUtils.isEmpty(settings)) {
             return options;
         }
         for (Map.Entry<String, Object> entry : settings.entrySet()) {

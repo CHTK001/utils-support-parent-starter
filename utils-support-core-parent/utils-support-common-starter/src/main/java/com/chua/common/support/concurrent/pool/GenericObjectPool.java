@@ -5,6 +5,8 @@ import com.chua.common.support.utils.ThreadUtils;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -122,8 +124,14 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
      * @param factory 对象工厂（必须实现 create/initObject/destroy/validate）
      */
     public GenericObjectPool(ObjectPoolConfig config, ObjectFactory<T> factory) {
-        this.config = config;
-        this.factory = factory;
+        this.config = Objects.requireNonNull(config, "config");
+        this.factory = Objects.requireNonNull(factory, "factory");
+        if (config.getMaxTotal() < 1 || config.getMinIdle() < 0
+                || config.getMinIdle() > config.getMaxTotal() || config.getMaxIdle() < 0
+                || config.getBorrowTimeoutMillis() < 0
+                || (config.isIdleEvictionEnabled() && config.getIdleEvictionIntervalMillis() < 1)) {
+            throw new IllegalArgumentException("对象池容量、等待时间或清扫间隔无效");
+        }
         if (config.getMaxIdle() == 0) {
             this.config.setMaxIdle(config.getMaxTotal());
         }
@@ -145,11 +153,14 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         if (closed) {
             throw new IllegalStateException("对象池已关闭");
         }
-        lock.lock();
+        lock.lockInterruptibly();
         try {
-            long deadline = System.currentTimeMillis() + config.getBorrowTimeoutMillis();
+            long remaining = TimeUnit.MILLISECONDS.toNanos(config.getBorrowTimeoutMillis());
 
             while (true) {
+                if (closed) {
+                    throw new IllegalStateException("对象池已关闭");
+                }
                 // 1. 尝试从空闲队列获取
                 PooledObject<T> pooled = pollIdleObject();
                 if (pooled != null) {
@@ -166,13 +177,12 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 }
 
                 // 3. 池已满，等待归还
-                long remaining = deadline - System.currentTimeMillis();
                 if (remaining <= 0) {
                     throw new PoolTimeoutException("等待借出超时: " + config.getBorrowTimeoutMillis() + "ms"
                             + "，池容量: " + config.getMaxTotal()
                             + "，已借出: " + getNumActive());
                 }
-                borrowCondition.await(remaining, java.util.concurrent.TimeUnit.MILLISECONDS);
+                remaining = borrowCondition.awaitNanos(remaining);
             }
         } finally {
             lock.unlock();
@@ -190,12 +200,12 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         lock.lock();
         try {
             PooledObject<T> pooled = findPooled(object);
-            if (pooled == null) {
+            if (pooled == null || pooled.getStatus() != PooledObject.Status.BORROWED) {
                 return;
             }
 
             // 验证有效性
-            if (config.isTestOnReturn() && !factory.validate(object)) {
+            if (closed || (config.isTestOnReturn() && !validateQuietly(object))) {
                 destroyPooled(pooled);
                 signalBorrowers();
                 return;
@@ -281,9 +291,11 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
             while (it.hasNext()) {
                 PooledObject<T> p = it.next();
                 it.remove();
+                allObjects.remove(p);
+                p.setStatus(PooledObject.Status.INVALID);
                 destroyObjectQuietly(p);
             }
-            allObjects.clear();
+            signalBorrowers();
         } finally {
             lock.unlock();
         }
@@ -296,12 +308,16 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     public void close() {
         lock.lock();
         try {
+            if (closed) {
+                return;
+            }
             closed = true;
             // 停止空闲检测线程
             if (evictionThread != null) {
                 evictionThread.interrupt();
             }
             clear();
+            signalBorrowers();
         } finally {
             lock.unlock();
         }
@@ -339,13 +355,13 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
             // 检查空闲超时
             if (config.getIdleTimeoutMillis() > 0
                     && p.getIdleTimeMillis() > config.getIdleTimeoutMillis()) {
-                destroyObjectQuietly(p);
+                destroyPooled(p);
                 continue;
             }
 
             // 验证有效性
-            if (config.isTestOnBorrow() && !factory.validate(p.getObject())) {
-                destroyObjectQuietly(p);
+            if (config.isTestOnBorrow() && !validateQuietly(p.getObject())) {
+                destroyPooled(p);
                 continue;
             }
 
@@ -375,8 +391,24 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
      */
     private void destroyPooled(PooledObject<T> pooled) {
         pooled.setStatus(PooledObject.Status.INVALID);
+        idleObjects.remove(pooled);
         allObjects.remove(pooled);
         destroyObjectQuietly(pooled);
+    }
+
+    /**
+     * 校验器异常同失效处理，保证对象不会脱离队列后占住容量。
+     *
+     * @param object 池化对象
+     * @return 是否有效
+     */
+    private boolean validateQuietly(T object) {
+        try {
+            return factory.validate(object);
+        } catch (RuntimeException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[pool] 校验失败: " + e.getMessage(), e);
+            return false;
+        }
     }
 
     /**
@@ -410,6 +442,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 allObjects.add(pooled);
             }
         } catch (Exception e) {
+            clear();
             throw new RuntimeException("预分配对象失败", e);
         }
     }
@@ -424,7 +457,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
      * @throws Exception 创建或初始化失败
      */
     private T createAndInit() throws Exception {
-        T obj = factory.create();
+        T obj = Objects.requireNonNull(factory.create(), "对象工厂返回了 null");
         try {
             factory.initObject(obj);
         } catch (Exception e) {
@@ -456,18 +489,23 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     /**
      * 清理超时空闲对象
      */
-    private void evictIdleObjects() {
+    public void evictIdleObjects() {
         lock.lock();
         try {
+            if (closed || config.getIdleTimeoutMillis() <= 0) {
+                return;
+            }
             Iterator<PooledObject<T>> it = idleObjects.iterator();
             while (it.hasNext()) {
                 PooledObject<T> p = it.next();
                 if (p.getIdleTimeMillis() > config.getIdleTimeoutMillis()) {
                     it.remove();
-                    destroyObjectQuietly(p);
                     allObjects.remove(p);
+                    p.setStatus(PooledObject.Status.INVALID);
+                    destroyObjectQuietly(p);
                 }
             }
+            signalBorrowers();
         } finally {
             lock.unlock();
         }

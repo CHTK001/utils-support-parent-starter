@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * RabbitMQ 全功能链式客户端。
@@ -495,7 +496,7 @@ public class RabbitmqClient implements AutoCloseable {
          * @return 构建的结果
          */
         public RabbitmqClient build() {
-            if (password == null || password.isEmpty()) {
+            if (StringUtils.isEmpty(password)) {
                 throw new IllegalArgumentException("RabbitMQ 口令必须显式配置（Builder.password），禁止依赖默认 guest 口令");
             }
             return new RabbitmqClient(this);

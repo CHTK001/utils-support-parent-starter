@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * scatter 同步辅助工具：集中处理 TCP 短连接、超时、重试与 requestId 生成。
@@ -171,7 +173,7 @@ public final class ScatterSyncHelper {
      * @return 载荷字节
      */
     private static byte[] encodeAnnounce(List<Discovery> announce) {
-        if (announce == null || announce.isEmpty()) {
+        if (CollectionUtils.isEmpty(announce)) {
             return new byte[0];
         }
         try {
@@ -200,7 +202,7 @@ public final class ScatterSyncHelper {
             } else {
                 response = sendTcp(node.getHost(), node.getPort(), signed, timeoutMillis);
             }
-            if (response != null && response.length > 0) {
+            if (ArrayUtils.isNotEmpty(response)) {
                 byte[] verified = verify(response);
                 if (verified == null) {
                     log.debug("scatter 推送响应验签失败: {}", node.getNodeId());
@@ -224,7 +226,7 @@ public final class ScatterSyncHelper {
      * @param timeoutMillis 超时毫秒
      */
     public static void broadcast(List<ScatterNode> nodes, ScatterFrame frame, long timeoutMillis) {
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
         byte[] signed = sign(frame.encode());

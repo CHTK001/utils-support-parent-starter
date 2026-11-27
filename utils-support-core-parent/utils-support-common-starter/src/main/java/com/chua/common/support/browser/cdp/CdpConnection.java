@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 极简 Chrome DevTools Protocol 客户端
@@ -238,7 +239,7 @@ final class CdpConnection implements AutoCloseable {
             return;
         }
         List<Consumer<Map<String, Object>>> list = handlers.get(name);
-        if (list == null || list.isEmpty()) {
+        if (CollectionUtils.isEmpty(list)) {
             return;
         }
         List<Consumer<Map<String, Object>>> snapshot;

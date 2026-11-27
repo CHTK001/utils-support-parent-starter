@@ -10,6 +10,7 @@ import com.xkzhangsan.time.nlp.TimeNLPUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 xk-time Time-NLP 的中文自然语言时间解析器。
@@ -47,7 +48,7 @@ public class TimeNlpDateTimeParser implements DateTimeParser {
     private LocalDateTime parseByTimeNlp(String timeStr) {
         List<TimeNLP> result = Precondition.tryGet(() -> TimeNLPUtil.parse(timeStr))
                 .orElseGet(ex -> null);
-        if (result == null || result.isEmpty()) {
+        if (CollectionUtils.isEmpty(result)) {
             return null;
         }
         for (TimeNLP timeNLP : result) {

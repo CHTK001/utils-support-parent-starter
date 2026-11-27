@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
@@ -330,7 +331,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                 response.end();
             }
             byte[] respFrame = response.getReadyBytes();
-            if (respFrame != null && respFrame.length > 0) {
+            if (ArrayUtils.isNotEmpty(respFrame)) {
                 writeFrame(out, respFrame);
             }
         } catch (Exception e) {

@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 {@link AsynchronousSocketChannel} 的 TCP 服务器(Proactor/IOCP)。
@@ -546,7 +547,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             response.end();
         }
         byte[] respFrame = response.getReadyBytes();
-        if (respFrame != null && respFrame.length > 0) {
+        if (ArrayUtils.isNotEmpty(respFrame)) {
             writeFrame(channel, respFrame, dec);
         } else {
             writeEmptyFrame(channel, dec);

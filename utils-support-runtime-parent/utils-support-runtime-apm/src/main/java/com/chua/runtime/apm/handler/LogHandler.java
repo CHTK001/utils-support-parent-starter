@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 日志拦截器 — 劫持 SLF4J/Jul/APCL 日志框架和 系统.出/err。
@@ -462,7 +463,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         List<LogEntry> result = Wraps.list();
         String lv = level.toUpperCase();
         for (LogEntry entry : logEntries) {
-            if (entry.getLevel() != null && entry.getLevel().equals(lv)) {
+            if (ObjectUtils.nullSafeEquals(entry.getLevel(), lv)) {
                 result.add(entry);
             }
         }

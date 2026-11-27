@@ -12,6 +12,7 @@ import org.opencv.core.Mat;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DL4J Rnet50 推理模型（有状态，OOP 风格）。
@@ -88,7 +89,7 @@ public class ResNet50InferenceModel {
      * @throws IOException 图片处理异常
      */
     public ClassPrediction classify(Mat image) throws IOException {
-        if (labels == null || labels.isEmpty()) {
+        if (CollectionUtils.isEmpty(labels)) {
             throw new IllegalStateException("分类需要标签列表，构造时未指定");
         }
         INDArray ds = loader.asMatrix(image);

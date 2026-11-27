@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.time.Duration;
 import com.chua.datasync.agent.support.model.SyncDataOffset;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认数据同步调度器管理器。
@@ -411,7 +412,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             // 一源多目标：解析全部 sink，任何一项缺失或方向不对就整条映射跳过，
             // 避免「一部分目标写了、一部分没写」造成目标间数据不一致。
             java.util.List<String> sinkIds = mapping.sinkIds();
-            if (sinkIds == null || sinkIds.isEmpty()) {
+            if (CollectionUtils.isEmpty(sinkIds)) {
                 log.warn("映射缺少 sinkId: mappingId={}", mapping.mappingId());
                 return;
             }

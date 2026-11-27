@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Bean 定义抽象基类。
@@ -888,7 +889,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @return 注入的值，null 表示不适配
      */
     protected Object injectService(Field field, Object instance, List<BeanDefinitionServiceInjector> serviceInjectors) {
-        if (serviceInjectors == null || serviceInjectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(serviceInjectors)) {
             return null;
         }
         for (BeanDefinitionServiceInjector injector : serviceInjectors) {
@@ -910,7 +911,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @return 注入的值，null 表示不适配
      */
     protected Object injectConfig(Field field, Object instance, List<BeanDefinitionConfigInjector> configInjectors) {
-        if (configInjectors == null || configInjectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(configInjectors)) {
             return null;
         }
         if (environment == null) {

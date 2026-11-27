@@ -5,6 +5,8 @@ import com.chua.network.support.tshark.TsharkFields;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 协议还原器抽象基类。
@@ -36,7 +38,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
             return new byte[0];
         }
         byte[] direct = TsharkFields.decode(protocolInfo.get("rawData"));
-        if (direct != null && direct.length > 0) {
+        if (ArrayUtils.isNotEmpty(direct)) {
             return direct;
         }
         byte[] payload = TsharkFields.payload(protocolInfo);
@@ -126,6 +128,6 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
      */
     @Override
     public boolean canRestore(Map<String, Object> protocolInfo, byte[] rawData) {
-        return protocolInfo != null && !protocolInfo.isEmpty();
+        return CollectionUtils.isNotEmpty(protocolInfo);
     }
 }

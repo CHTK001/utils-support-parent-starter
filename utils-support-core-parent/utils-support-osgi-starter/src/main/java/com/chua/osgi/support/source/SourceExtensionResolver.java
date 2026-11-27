@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 源码扩展点解析器：把编译产物中的 {@link SourceExtensionFactory} 声明翻译为
@@ -60,7 +61,7 @@ public class SourceExtensionResolver implements ServiceResolver {
     @Override
     public List<ServiceDefinition> resolve(Class<?> type, ClassLoader classLoader) {
         List<SourceExtensionFactory> declared = factories.get(type);
-        if (declared == null || declared.isEmpty()) {
+        if (CollectionUtils.isEmpty(declared)) {
             return List.of();
         }
         List<ServiceDefinition> result = Wraps.list(declared.size());

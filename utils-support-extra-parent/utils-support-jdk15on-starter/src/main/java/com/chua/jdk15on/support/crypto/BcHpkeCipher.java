@@ -15,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 bouncycastle 原语的 HPKE（RFC 9180）混合公钥加密实现。
@@ -129,7 +130,7 @@ public class BcHpkeCipher implements HpkeCipher {
             random.nextBytes(nonce);
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());
             gcm.init(true, new ParametersWithIV(new KeyParameter(Arrays.copyOfRange(ek, 0, SYM_KEY_LEN)), nonce));
-            if (aad != null && aad.length > 0) {
+            if (ArrayUtils.isNotEmpty(aad)) {
                 gcm.processAADBytes(aad, 0, aad.length);
             }
             byte[] out = new byte[gcm.getOutputSize(plaintext.length)];
@@ -156,7 +157,7 @@ public class BcHpkeCipher implements HpkeCipher {
             byte[] nonce = Arrays.copyOfRange(ciphertext, 0, GCM_NONCE_LEN);
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());
             gcm.init(false, new ParametersWithIV(new KeyParameter(Arrays.copyOfRange(ek, 0, SYM_KEY_LEN)), nonce));
-            if (aad != null && aad.length > 0) {
+            if (ArrayUtils.isNotEmpty(aad)) {
                 gcm.processAADBytes(aad, 0, aad.length);
             }
             int body = ciphertext.length - GCM_NONCE_LEN;

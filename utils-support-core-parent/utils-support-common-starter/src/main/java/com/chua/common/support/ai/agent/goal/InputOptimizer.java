@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 输入优化器：在用户发送前，结合会话上下文与当前目标，把原始输入改写成更明确的指令。
@@ -106,7 +107,7 @@ public final class InputOptimizer {
      * @return 拼接后的文本（可能为空串）
      */
     private static String joinContext(List<String> recentContext) {
-        if (recentContext == null || recentContext.isEmpty()) {
+        if (CollectionUtils.isEmpty(recentContext)) {
             return "";
         }
         StringBuilder reversed = new StringBuilder(256);

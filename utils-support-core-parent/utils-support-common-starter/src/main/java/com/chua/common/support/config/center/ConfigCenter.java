@@ -1,6 +1,7 @@
 package com.chua.common.support.config.center;
 
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -41,7 +42,7 @@ public interface ConfigCenter extends AutoCloseable {
      */
     default String getValue(String dataId, String key) {
         Map<String, Object> config = get(dataId);
-        if (config == null || config.isEmpty()) {
+        if (CollectionUtils.isEmpty(config)) {
             return null;
         }
         Object value = config.get(key);

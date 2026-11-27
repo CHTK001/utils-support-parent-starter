@@ -5,6 +5,7 @@ import com.chua.common.support.datasearch.sms.model.SmsPhoneInfo;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 接码（虚拟号码接收短信）数据提供者 SPI 接口。
@@ -45,7 +46,7 @@ public interface SmsCodeProvider {
      */
     default SmsPhoneInfo randomPhone() {
         List<SmsPhoneInfo> phones = listPhones();
-        if (phones == null || phones.isEmpty()) {
+        if (CollectionUtils.isEmpty(phones)) {
             return null;
         }
         return phones.get(ThreadLocalRandom.current().nextInt(phones.size()));

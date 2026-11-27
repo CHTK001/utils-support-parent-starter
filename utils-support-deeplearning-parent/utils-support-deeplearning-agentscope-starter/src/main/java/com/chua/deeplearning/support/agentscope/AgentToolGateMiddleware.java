@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Agent 工具风险闸门中间件（acting 阶段统一裁决）。
@@ -139,7 +140,7 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
     public Flux<AgentEvent> onActing(Agent agent, RuntimeContext ctx, ActingInput input,
                                      Function<ActingInput, Flux<AgentEvent>> next) {
         List<ToolUseBlock> toolCalls = input == null ? null : input.toolCalls();
-        if (toolCalls == null || toolCalls.isEmpty()) {
+        if (CollectionUtils.isEmpty(toolCalls)) {
             return next.apply(input);
         }
         // 幂等：全拒后 SDK 携同一批调用二次进入，这批调用已带 DENIED 结果——
@@ -328,7 +329,7 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
      */
     public List<AgentTrace> drainTraces() {
         Queue<AgentTrace> queue = this.traceQueue;
-        if (queue == null || queue.isEmpty()) {
+        if (CollectionUtils.isEmpty(queue)) {
             return List.of();
         }
         List<AgentTrace> drained = new ArrayList<>(queue.size());

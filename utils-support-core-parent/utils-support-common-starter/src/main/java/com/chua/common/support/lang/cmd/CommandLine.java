@@ -9,6 +9,8 @@ import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 命令行参数解析器，支持 POSIX 风格和 GNU 风格参数解析与组装。
@@ -508,7 +510,7 @@ public final class CommandLine {
             case DOUBLE:  return "<double>";
             case PATH:    return "<path>";
             case ENUM:
-                if (opt.enumConstants() != null && opt.enumConstants().length > 0) {
+                if (ArrayUtils.isNotEmpty(opt.enumConstants())) {
                     return "<" + String.join("|", opt.enumConstants()) + ">";
                 }
                 return "<enum>";
@@ -752,7 +754,7 @@ public final class CommandLine {
                 if (existing.longName().equals(option.longName())) {
                     throw new IllegalArgumentException("重复的选项名称: --" + option.longName());
                 }
-                if (option.shortName() != null && option.shortName().equals(existing.shortName())) {
+                if (ObjectUtils.nullSafeEquals(option.shortName(), existing.shortName())) {
                     throw new IllegalArgumentException("重复的短选项名称: -" + option.shortName());
                 }
             }

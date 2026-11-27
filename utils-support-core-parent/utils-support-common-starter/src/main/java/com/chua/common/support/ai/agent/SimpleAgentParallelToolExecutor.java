@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * {@link AgentParallelToolExecutor} 默认实现：固定大小守护线程池。
@@ -53,7 +54,7 @@ public class SimpleAgentParallelToolExecutor implements AgentParallelToolExecuto
 
     @Override
     public <T> List<T> execute(List<Callable<T>> tasks) {
-        if (tasks == null || tasks.isEmpty()) {
+        if (CollectionUtils.isEmpty(tasks)) {
             return List.of();
         }
         List<Future<T>> futures = new ArrayList<>(tasks.size());

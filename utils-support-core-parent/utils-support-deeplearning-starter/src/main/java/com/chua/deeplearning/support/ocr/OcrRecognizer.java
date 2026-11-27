@@ -10,6 +10,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * OCR 文字识别器，从图像中提取文字内容和位置信息。
@@ -289,7 +290,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
             }
         }
         List<OcrResult> results = recognizeDetail(imageData);
-        if (results == null || results.isEmpty()) {
+        if (CollectionUtils.isEmpty(results)) {
             return "";
         }
         // 拼接所有识别结果文本

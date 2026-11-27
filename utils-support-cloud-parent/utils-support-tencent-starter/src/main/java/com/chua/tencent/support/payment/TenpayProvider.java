@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 微信支付渠道实现
@@ -288,7 +289,7 @@ public class TenpayProvider implements PaymentChannel {
      * @return 转为json的结果
      */
     private static String toJson(Map<String, String> map) {
-        if (map == null || map.isEmpty()) {
+        if (CollectionUtils.isEmpty(map)) {
             return "{}";
         }
         StringBuilder sb = new StringBuilder();

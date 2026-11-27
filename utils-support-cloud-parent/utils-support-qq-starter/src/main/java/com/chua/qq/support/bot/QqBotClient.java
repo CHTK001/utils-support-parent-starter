@@ -54,6 +54,7 @@ import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * QQ 机器人客户端，实现 {@link BotClient}。
@@ -1154,7 +1155,7 @@ public class QqBotClient implements BotClient {
     @Override
     public BotSendResult sendToGroupMention(String groupId, String content,
                                             List<String> mentionedUserIds) {
-        if (mentionedUserIds == null || mentionedUserIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(mentionedUserIds)) {
             return sendTextInternal(groupId, content, true, null);
         }
         return BotSendResult.fail(-1, "QQ 机器人消息接口无 @ 提及参数, 无法定向提醒成员");

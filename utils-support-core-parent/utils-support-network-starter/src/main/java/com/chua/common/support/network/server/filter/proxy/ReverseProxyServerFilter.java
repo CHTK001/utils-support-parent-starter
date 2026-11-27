@@ -27,6 +27,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 反向代理过滤器，支持 HTTP 和 WebSocket 双向代理。
@@ -165,7 +167,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         }
 
         String upgradeHeader = request.getHeader("Upgrade");
-        if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+        if (StringUtils.equalsIgnoreCase(upgradeHeader, "websocket")) {
             handleHttpProxy(request, response, host, port, scheme);
             return;
         }
@@ -195,7 +197,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
             return chain.doFilter(request, response);
         }
         String upgradeHeader = request.getHeader("Upgrade");
-        if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+        if (StringUtils.equalsIgnoreCase(upgradeHeader, "websocket")) {
             return handleHttpProxyAsync(request, response,
                     discovery.getHost(), discovery.getPort(), discovery.getProtocol());
         }
@@ -229,17 +231,17 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
 
         switch (method) {
             case "GET" -> reqBuilder.GET();
-            case "POST" -> reqBuilder.POST(body != null && body.length > 0
+            case "POST" -> reqBuilder.POST(ArrayUtils.isNotEmpty(body)
                     ? HttpRequest.BodyPublishers.ofByteArray(body)
                     : HttpRequest.BodyPublishers.noBody());
-            case "PUT" -> reqBuilder.PUT(body != null && body.length > 0
+            case "PUT" -> reqBuilder.PUT(ArrayUtils.isNotEmpty(body)
                     ? HttpRequest.BodyPublishers.ofByteArray(body)
                     : HttpRequest.BodyPublishers.noBody());
             case "DELETE" -> reqBuilder.DELETE();
-            case "PATCH" -> reqBuilder.method("PATCH", body != null && body.length > 0
+            case "PATCH" -> reqBuilder.method("PATCH", ArrayUtils.isNotEmpty(body)
                     ? HttpRequest.BodyPublishers.ofByteArray(body)
                     : HttpRequest.BodyPublishers.noBody());
-            default -> reqBuilder.method(method, body != null && body.length > 0
+            default -> reqBuilder.method(method, ArrayUtils.isNotEmpty(body)
                     ? HttpRequest.BodyPublishers.ofByteArray(body)
                     : HttpRequest.BodyPublishers.noBody());
         }
@@ -273,7 +275,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
                                 }
                             }
                             byte[] respBody = resp.body();
-                            if (respBody != null && respBody.length > 0) {
+                            if (ArrayUtils.isNotEmpty(respBody)) {
                                 response.setBody(respBody);
                             }
                             response.end();

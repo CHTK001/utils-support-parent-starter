@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * sherpa-onnx 音频编解码工具。
@@ -255,7 +257,7 @@ public final class SherpaWavUtils {
      * @return 拼接后的采样
      */
     public static float[] concat(List<float[]> segments, int gapSamples) {
-        if (segments == null || segments.isEmpty()) {
+        if (CollectionUtils.isEmpty(segments)) {
             return new float[0];
         }
         int total = 0;
@@ -267,7 +269,7 @@ public final class SherpaWavUtils {
         int cursor = 0;
         for (int i = 0; i < segments.size(); i++) {
             float[] segment = segments.get(i);
-            if (segment != null && segment.length > 0) {
+            if (ArrayUtils.isNotEmpty(segment)) {
                 System.arraycopy(segment, 0, out, cursor, segment.length);
                 cursor += segment.length;
             }

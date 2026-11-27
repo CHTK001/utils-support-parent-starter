@@ -39,6 +39,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * owlv2                                   Translator
@@ -596,7 +597,7 @@ finally {
      * @return 读取参数的结果
      */
     private String readArgument(Map<String, ?> arguments, String key) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return null;
         }
         Object value = arguments.get(key);

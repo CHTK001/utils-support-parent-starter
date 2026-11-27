@@ -11,6 +11,7 @@ import org.apache.commons.net.ftp.FTPSClient;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * FTP/FTPS 链式客户端，基于 Apache Commons Net。
@@ -316,7 +317,7 @@ public class FtpClient implements AutoCloseable {
     public boolean exists(String path) {
         try {
             FTPFile[] files = ftpClient.listFiles(path);
-            return files != null && files.length > 0;
+            return ArrayUtils.isNotEmpty(files);
         } catch (Exception e) {
             return false;
         }

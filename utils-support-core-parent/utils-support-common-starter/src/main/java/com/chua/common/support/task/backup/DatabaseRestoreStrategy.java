@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据库恢复策略
@@ -379,7 +380,7 @@ public class DatabaseRestoreStrategy {
      */
     private void fire(DatabaseRestoreConfig config, RestoreEvent event) {
         List<RestoreListener> listeners = config == null ? null : config.getListeners();
-        if (listeners == null || listeners.isEmpty()) {
+        if (CollectionUtils.isEmpty(listeners)) {
             return;
         }
         for (RestoreListener listener : listeners) {

@@ -18,6 +18,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * llama-server 独立进程（sidecar）对话翻译器。
@@ -154,7 +156,7 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
      */
     @Override
     public void configure(Map<String, Object> options) {
-        if (options == null || options.isEmpty()) {
+        if (CollectionUtils.isEmpty(options)) {
             return;
         }
         Object v = options.get("baseUrl");
@@ -211,7 +213,7 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
      */
     @Override
     public String translate(List<ChatMessage> messages) {
-        if (messages == null || messages.isEmpty()) {
+        if (CollectionUtils.isEmpty(messages)) {
             return "";
         }
         String url = resolveBaseUrl() + "/v1/chat/completions";
@@ -322,7 +324,7 @@ public class LlamaServerChatTranslator implements ITranslator<String, String>, C
      * @return 剥离后的回答
      */
     private static String stripThinking(String text) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return "";
         }
         String out = text.replaceAll("(?s)" + java.util.regex.Pattern.quote(THINK_OPEN)

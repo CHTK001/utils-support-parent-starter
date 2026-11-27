@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 统一上下文压缩入口 — Agent / 普通 ChatClient 共用。
@@ -131,7 +132,7 @@ public final class ContextCompressor {
 
         if (delegate.shouldTriggerDeviationCorrection()) {
             List<ChatMessage> baseline = delegate.loadBaseline();
-            if (baseline == null || baseline.isEmpty()) {
+            if (CollectionUtils.isEmpty(baseline)) {
                 log.warn("[ContextCompressor] Baseline empty, skip deviation correction");
                 return messages;
             }
@@ -170,7 +171,7 @@ public final class ContextCompressor {
         }
         List<ChatMessage> compressed = maybeCompress(
                 List.of(ChatMessage.builder().role("user").content(prompt).build()));
-        if (compressed == null || compressed.isEmpty()) {
+        if (CollectionUtils.isEmpty(compressed)) {
             return prompt;
         }
         return compressed.getFirst().getContent();

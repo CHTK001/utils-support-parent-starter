@@ -9,6 +9,7 @@ import lombok.Data;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据恢复结果
@@ -182,6 +183,6 @@ public class RestoreResult {
      * @return 是否包含警告的结果
      */
     public boolean hasWarnings() {
-        return warnings != null && !warnings.isEmpty();
+        return CollectionUtils.isNotEmpty(warnings);
     }
 }

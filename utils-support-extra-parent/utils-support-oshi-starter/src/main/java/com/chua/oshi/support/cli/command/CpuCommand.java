@@ -10,6 +10,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSProcess;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * oshc cpu — CPU 明细：每核使用率、频率、上下文切换、进程 top。
@@ -103,7 +104,7 @@ public final class CpuCommand extends AbstractCommand {
         if (procs.size() > 10) {
             procs = procs.subList(0, 10);
         }
-        if (procs != null && !procs.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(procs)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Top 10 Processes by CPU:"); // [P3C E1 豁免]
             List<String[]> procs2 = Wraps.list();

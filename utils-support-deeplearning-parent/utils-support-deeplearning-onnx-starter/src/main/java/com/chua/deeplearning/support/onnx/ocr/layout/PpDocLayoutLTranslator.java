@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * PP-doclayout-L / PP-doclayout_plus-L  ONNX Translator
@@ -182,7 +183,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      */
     @Override
     public void configure(Map<String, Object> options) {
-        if (options == null || options.isEmpty()) {
+        if (CollectionUtils.isEmpty(options)) {
             return;
         }
         Float threshold = extractThreshold(options);
@@ -372,7 +373,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      * @return 阈值或 空
      */
     private Float extractThreshold(Map<String, ?> arguments) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return null;
         }
         Object value = arguments.get("threshold");

@@ -264,7 +264,7 @@ class CodeDocsTest {
                                    int maxDepth, int maxFiles, long maxFileBytes) {
         return new CodeDocOptions(null, source, output, includeTypes, excludeTypes, includes, excludes,
                 StandardCharsets.UTF_8, "工具文档", CodeDocPrompts.HUTOOL_GUIDE, "中文", "test", true, false,
-                maxDepth, maxFiles, maxFileBytes, 1024, 0, event -> { });
+                maxDepth, maxFiles, maxFileBytes, 1024, 0, 1, event -> { });
     }
 
     private static String fragment(int start, int end) {

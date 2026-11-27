@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 JDK NIO 多 Selector Reactor 的 TCP 服务器实现。
@@ -782,7 +783,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             response.end();
         }
         byte[] respFrame = response.getReadyBytes();
-        if (respFrame != null && respFrame.length > 0) {
+        if (ArrayUtils.isNotEmpty(respFrame)) {
             writeResponse(sc, att, respFrame);
         } else {
             writeEmptyResponse(sc, att);

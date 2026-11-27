@@ -15,6 +15,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.Deflater;
 import java.util.zip.ZipOutputStream;
 import java.util.zip.ZipInputStream;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * ZIP 压缩文件系统 SPI 实现。
@@ -329,7 +330,7 @@ public class ZipFileSystem implements FileSystem {
 
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
-                    if (entryNames != null && entryNames.length > 0) {
+                    if (ArrayUtils.isNotEmpty(entryNames)) {
                         boolean matched = false;
                         for (String name : entryNames) {
                             if (entry.getName().equals(name) || entry.getName().startsWith(name + "/")) {
@@ -383,7 +384,7 @@ public class ZipFileSystem implements FileSystem {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
 
-                    if (entryNames != null && entryNames.length > 0) {
+                    if (ArrayUtils.isNotEmpty(entryNames)) {
                         boolean matched = false;
                         for (String name : entryNames) {
                             if (entry.getName().equals(name) || entry.getName().startsWith(name + "/")) {

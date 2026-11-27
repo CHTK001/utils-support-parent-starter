@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.page;
 
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 通用分页结果封装，将数据库分页查询的结果统一包装为带分页信息的对象。
@@ -64,7 +65,7 @@ public record Page<T>(int pageNum, int pageSize, long total, List<T> records, Li
     public Page {
         records = records != null ? records : Collections.emptyList();
         // 游标键值是绑定值，做防御性拷贝避免调用方后续修改影响翻页
-        nextCursor = (nextCursor == null || nextCursor.isEmpty())
+        nextCursor = (CollectionUtils.isEmpty(nextCursor))
                 ? null : List.copyOf(nextCursor);
     }
 

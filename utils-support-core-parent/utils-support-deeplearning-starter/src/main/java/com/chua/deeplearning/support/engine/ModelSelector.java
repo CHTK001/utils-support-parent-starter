@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.model.HardwareConfig;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 模型推荐选择器。
@@ -57,7 +58,7 @@ public final class ModelSelector {
         List<String> candidates = Wraps.list();
         for (ModelRegistry.Entry e : ModelRegistry.getAll()) {
             String label = ModelCapabilities.labelOf(e.capabilityInterface());
-            if (label != null && label.equalsIgnoreCase(capability)) {
+            if (StringUtils.equalsIgnoreCase(label, capability)) {
                 candidates.add(e.modelId());
             }
         }
@@ -75,7 +76,7 @@ public final class ModelSelector {
      * @return 选中的模型 标识；候选为空返回 空
      */
     public static String selectRecommended(List<String> candidates, String deviceSetting) {
-        if (candidates == null || candidates.isEmpty()) {
+        if (CollectionUtils.isEmpty(candidates)) {
             return null;
         }
         String device = DeviceSelector.resolve(deviceSetting);

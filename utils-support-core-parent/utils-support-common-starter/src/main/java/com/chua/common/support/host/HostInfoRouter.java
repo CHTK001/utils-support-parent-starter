@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 主机不可变信息采集路由器：按优先级选出当前平台上最合适的
@@ -148,7 +149,7 @@ public final class HostInfoRouter {
             log.debug("[host] SPI 发现 HostInfoProvider 失败: {}", e.getMessage());
             return List.of();
         }
-        if (all == null || all.isEmpty()) {
+        if (CollectionUtils.isEmpty(all)) {
             return List.of();
         }
         List<HostInfoProvider> list = new ArrayList<>(all.size());

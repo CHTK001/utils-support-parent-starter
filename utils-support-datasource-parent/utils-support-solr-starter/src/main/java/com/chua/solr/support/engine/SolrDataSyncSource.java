@@ -8,6 +8,7 @@ import org.apache.solr.common.SolrInputDocument;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Solr 引擎的 数据同步 输出 提供者。
@@ -133,7 +134,7 @@ public class SolrDataSyncSource implements DataSyncSource {
     @Override
     public void write(Flux<Map<String, Object>> data) {
         List<Map<String, Object>> rows = data.collectList().block();
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return;
         }
         org.apache.solr.client.solrj.SolrClient sc = engine.getClient();

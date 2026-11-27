@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SQLite 迁移脚本方言转换器（{@code ScriptConverter} 的 sqlite 协议实现）。
@@ -160,7 +161,7 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
      */
     @Override
     public List<String> convertAll(List<String> statements, String protocol) {
-        if (statements == null || statements.isEmpty()) {
+        if (CollectionUtils.isEmpty(statements)) {
             return super.convertAll(statements, protocol);
         }
         List<String> prepared = new ArrayList<String>(statements.size());

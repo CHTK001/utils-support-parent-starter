@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 特征提取客户端接口。
@@ -145,7 +146,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

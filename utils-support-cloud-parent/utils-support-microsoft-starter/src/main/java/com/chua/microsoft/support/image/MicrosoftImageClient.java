@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Azure 打开AI DALL-E 图片生成客户端
@@ -264,7 +265,7 @@ public BufferedImage generate(String prompt) {
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<Map<String, Object>> data = (List<Map<String, Object>>) root.get("data");
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             throw new RuntimeException("Azure OpenAI 返回的图片数据为空");
         }
         String imageUrl = (String) data.getFirst().get("url");

@@ -320,10 +320,10 @@ public final class PhotoMetadataUtils {
         if (contentCredentials) {
             signals.add("存在 C2PA 内容凭证（JUMBF）");
         }
-        if (digitalSourceType != null && !digitalSourceType.isEmpty()) {
+        if (StringUtils.isNotEmpty(digitalSourceType)) {
             signals.add("IPTC DigitalSourceType = " + digitalSourceType);
         }
-        if (generator != null && !generator.isEmpty()) {
+        if (StringUtils.isNotEmpty(generator)) {
             signals.add("生成器信息（" + generatorSource + "）：" + generator);
         }
         if (generationParams) {
@@ -352,7 +352,7 @@ public final class PhotoMetadataUtils {
                     contentCredentials, digitalSourceType, generator, generatorSource,
                     generationParams, signals);
         }
-        if (generator != null && !generator.isEmpty()) {
+        if (StringUtils.isNotEmpty(generator)) {
             return new Report(format, VERDICT_AI_GENERATED, CONFIDENCE_MEDIUM,
                     contentCredentials, digitalSourceType, generator, generatorSource,
                     generationParams, signals);
@@ -2310,7 +2310,7 @@ public final class PhotoMetadataUtils {
      * 首字母大写（用于展示生成器名称）。
      */
     private static String capitalize(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
+        if (StringUtils.isEmpty(keyword)) {
             return keyword;
         }
         return Character.toUpperCase(keyword.charAt(0)) + keyword.substring(1);

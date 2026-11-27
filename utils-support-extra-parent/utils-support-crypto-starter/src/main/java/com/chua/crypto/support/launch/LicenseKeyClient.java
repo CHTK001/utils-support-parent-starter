@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 校验服务器密钥下发客户端（零依赖，基于 JDK HTTP客户端）
@@ -141,7 +142,7 @@ public final class LicenseKeyClient {
         String text = new String(body, StandardCharsets.UTF_8).trim();
         boolean signed = text.startsWith(SIGNED_PREFIX);
 
-        if (!signed && secret != null && secret.length > 0) {
+        if (!signed && ArrayUtils.isNotEmpty(secret)) {
             throw new IllegalStateException("校验服务器响应未签名，但客户端已启用签名校验");
         }
         if (signed) {

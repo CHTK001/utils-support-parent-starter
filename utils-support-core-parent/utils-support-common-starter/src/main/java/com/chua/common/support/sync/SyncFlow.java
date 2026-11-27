@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 同步流
@@ -275,7 +276,7 @@ public class SyncFlow implements AutoCloseable {
                 continue;
             }
             List<SyncContext> batch = input.readBatch(batchSize);
-            if (batch == null || batch.isEmpty()) {
+            if (CollectionUtils.isEmpty(batch)) {
                 if (!input.hasNext()) {
                     break;
                 }

@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * WebDAV 请求处理器（纯 JDK 实现，基于文件系统存储）。
@@ -410,12 +412,12 @@ class WebDavFileHandler implements ReactiveServerFilter {
         String username = sep < 0 ? decoded : decoded.substring(0, sep);
         String password = sep < 0 ? "" : decoded.substring(sep + 1);
         Map<String, String> users = config.getUsers();
-        if (users == null || users.isEmpty()) {
+        if (CollectionUtils.isEmpty(users)) {
             // 无用户数据库：任意凭据放行（仅建议开发/测试环境使用）
             return username;
         }
         String expected = users.get(username);
-        return expected != null && expected.equals(password) ? username : null;
+        return ObjectUtils.nullSafeEquals(expected, password) ? username : null;
     }
 
     /**

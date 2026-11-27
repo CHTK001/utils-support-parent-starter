@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * TAR 归档文件系统 SPI 实现。
@@ -380,7 +381,7 @@ public class TarFileSystem implements FileSystem {
 
                 TarEntry entry;
                 while ((entry = tis.getNextEntry()) != null) {
-                    if (entryNames != null && entryNames.length > 0) {
+                    if (ArrayUtils.isNotEmpty(entryNames)) {
                         boolean matched = false;
                         for (String name : entryNames) {
                             String prefix = name + ENTRY_NAME_SEPARATOR;

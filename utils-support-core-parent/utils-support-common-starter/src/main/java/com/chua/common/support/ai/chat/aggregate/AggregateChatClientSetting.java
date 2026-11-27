@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 聚合 ChatClient 配置（JSON 格式）
@@ -166,7 +167,7 @@ public class AggregateChatClientSetting {
      * @return token → AiToken 映射，无 token 配置返回空 Map
      */
     public Map<String, AiToken> toTokenMap() {
-        if (tokens == null || tokens.isEmpty()) {
+        if (CollectionUtils.isEmpty(tokens)) {
             return Map.of();
         }
         Map<String, AiToken> map = Wraps.linkedMap((int) (tokens.size() / 0.75f) + 1);
@@ -259,7 +260,7 @@ public class AggregateChatClientSetting {
          * @return true 允许访问
          */
         public boolean isTokenGroupAllowed(String tokenGroup) {
-            if (tokenGroups == null || tokenGroups.isEmpty()) {
+            if (CollectionUtils.isEmpty(tokenGroups)) {
                 return true;
             }
             if (tokenGroup == null) {

@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 通用图像标注管线 — 一键产生标注结果。
@@ -226,6 +227,6 @@ public class DrawerPipeline {
      * @return true 已设置
      */
     public boolean hasTarget() {
-        return targetImage != null && targetImage.length > 0;
+        return ArrayUtils.isNotEmpty(targetImage);
     }
 }

@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 import com.chua.vertx.support.server.WebSocketDataSyncAgentServer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * WebSocket Agent 数据源
@@ -103,7 +104,7 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
-            if (rows == null || rows.isEmpty()) {
+            if (CollectionUtils.isEmpty(rows)) {
                 return;
             }
             String request = Json.toJson(Map.of(

@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -73,7 +74,7 @@ public class RoundLoadBalance implements LoadBalance {
   */
  @Override
  public <T> T select(List<T> values) {
- if (values == null || values.isEmpty()) {
+ if (CollectionUtils.isEmpty(values)) {
  return null;
  }
  if (values.size() == 1) {

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Locale;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * jitLLM 本地文本嵌入翻译器（llama.cpp 进程内 GGUF 推理）。
@@ -113,7 +114,7 @@ public class JitllmEmbeddingTranslator implements ITranslator<String, float[]>, 
      */
     @Override
     public void configure(Map<String, Object> options) {
-        if (options == null || options.isEmpty()) {
+        if (CollectionUtils.isEmpty(options)) {
             return;
         }
         synchronized (this) {

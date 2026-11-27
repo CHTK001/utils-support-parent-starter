@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DJL 模型工厂。
@@ -309,7 +310,7 @@ public class DjlModelFactory implements AutoCloseable {
      * @return 已成功转发到 Translator 时返回 true
      */
     public boolean configure(Map<String, Object> options) {
-        if (options == null || options.isEmpty()) {
+        if (CollectionUtils.isEmpty(options)) {
             return false;
         }
         Object target = this.translatorInstance;

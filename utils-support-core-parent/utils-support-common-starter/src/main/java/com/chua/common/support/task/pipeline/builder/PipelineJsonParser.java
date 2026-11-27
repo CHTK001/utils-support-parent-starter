@@ -9,6 +9,7 @@ import com.chua.common.support.task.pipeline.node.TaskNode;
 
 import java.util.*;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JSON 流水线解析器。
@@ -111,7 +112,7 @@ public class PipelineJsonParser {
 
         // 解析 nodes 数组
         List<JsonNode> nodes = root.getArray("nodes");
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodes)) {
             throw new IllegalArgumentException("JSON must contain 'nodes' array with at least one node");
         }
 
@@ -129,7 +130,7 @@ public class PipelineJsonParser {
                 case "task": {
                     // 创建占位 TaskNode（回调返回 null，后续可通过代码覆盖注入逻辑）
                     var taskNode = new TaskNode(nodeId, ctx -> null);
-                    if (params != null && !params.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(params)) {
                         taskNode.setParams(params);
                     }
                     builder.getNodes().add(taskNode);
@@ -141,10 +142,10 @@ public class PipelineJsonParser {
                     Map<String, String> branches = node.getObjectAsStringMap("branches");
                     // 创建占位 DecisionNode（回调返回 null，后续可通过代码覆盖注入路由逻辑）
                     var decisionNode = new DecisionNode(nodeId, ctx -> null);
-                    if (branches != null && !branches.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(branches)) {
                         decisionNode.branches(branches);
                     }
-                    if (params != null && !params.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(params)) {
                         decisionNode.setParams(params);
                     }
                     // 手动添加到 builder

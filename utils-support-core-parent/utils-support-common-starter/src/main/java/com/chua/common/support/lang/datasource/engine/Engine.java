@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 引擎接口，是数据源管理和 Lambda 链式操作的核心入口。
@@ -370,7 +371,7 @@ public interface Engine extends AutoCloseable {
      */
     default <T> T queryOne(String ql, Class<T> rowType, Object... params) {
         List<T> rows = querySql(ql, rowType, params);
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return null;
         }
         return rows.getFirst();
@@ -388,11 +389,11 @@ public interface Engine extends AutoCloseable {
      */
     default Object queryValue(String ql, Object... params) {
         var rows = querySql(ql, params);
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return null;
         }
         Map<String, Object> first = rows.getFirst();
-        if (first == null || first.isEmpty()) {
+        if (CollectionUtils.isEmpty(first)) {
             return null;
         }
         return first.values().iterator().next();
@@ -434,7 +435,7 @@ public interface Engine extends AutoCloseable {
      */
     default boolean exists(String ql, Object... params) {
         var rows = querySql(ql, params);
-        return rows != null && !rows.isEmpty();
+        return CollectionUtils.isNotEmpty(rows);
     }
 
     /**
@@ -449,7 +450,7 @@ public interface Engine extends AutoCloseable {
      * @throws UnsupportedOperationException 引擎不支持原生写入时抛出
      */
     default int[] batchSql(String ql, List<Object[]> batchParams) {
-        if (batchParams == null || batchParams.isEmpty()) {
+        if (CollectionUtils.isEmpty(batchParams)) {
             return new int[0];
         }
         int[] affected = new int[batchParams.size()];

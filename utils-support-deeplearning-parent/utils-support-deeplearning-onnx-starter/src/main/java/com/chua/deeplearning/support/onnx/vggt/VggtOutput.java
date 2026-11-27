@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.onnx.vggt;
 
 import lombok.Data;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * VGGT
@@ -72,7 +73,7 @@ public class VggtOutput {
      * @return true                       3D
      */
     public boolean isValid() {
-        return gaussianData != null && gaussianData.length > 0 && numGaussians > 0;
+        return ArrayUtils.isNotEmpty(gaussianData) && numGaussians > 0;
     }
 
     /**

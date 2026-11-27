@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 模型硬件过滤器：按本机硬件（GPU 显存 / 系统内存）判断注册模型是否可运行。
@@ -107,7 +108,7 @@ public final class ModelHardwareFilter {
      * @return 可运行条目列表（保持入参顺序）
      */
     public static List<ModelRegistry.Entry> filterSupported(Collection<ModelRegistry.Entry> entries) {
-        if (entries == null || entries.isEmpty()) {
+        if (CollectionUtils.isEmpty(entries)) {
             return List.of();
         }
         return entries.stream().filter(ModelHardwareFilter::isSupported).collect(Collectors.toList());

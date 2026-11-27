@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 内存 WHERE 条件解析器。
@@ -268,7 +269,7 @@ public class MemoryWhereParser {
                     Object fv = getFieldValue(t, field);
                     Object cv = convertToMatch(fv, val);
                     return switch (op) {
-                        case "=" -> fv != null && fv.equals(cv);
+                        case "=" -> ObjectUtils.nullSafeEquals(fv, cv);
                         // SQL 语义：NULL 参与比较结果为 unknown，不命中
                         case "!=", "<>" -> fv != null && !fv.equals(cv);
                         case ">" -> comparableWith(fv, cv) && ((Comparable) fv).compareTo(cv) > 0;

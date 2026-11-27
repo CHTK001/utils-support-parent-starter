@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 基于关系型数据库（JDBC {@link DataSource}）的 {@link KvEngine} 实现。
@@ -255,7 +256,7 @@ public class JdbcKvEngine implements KvEngine {
         // 范围扫描 + LIMIT 下推：kv_key 为主键，ORDER BY 走索引范围扫描，
         // 供调用方分批流式消费，避免大前缀一次性物化全量数据把堆打爆
         String upper = prefix + Character.MAX_VALUE;
-        boolean hasAfter = afterKeyExclusive != null && !afterKeyExclusive.isEmpty();
+        boolean hasAfter = StringUtils.isNotEmpty(afterKeyExclusive);
         String sql = "SELECT kv_key, kv_value, expires_at FROM " + TABLE
                 + " WHERE kv_key >= ? AND kv_key < ?"
                 + (hasAfter ? " AND kv_key > ?" : "")
@@ -297,7 +298,7 @@ public class JdbcKvEngine implements KvEngine {
         // 范围扫描 + LIMIT 下推（降序）：kv_key 为主键，ORDER BY DESC 走索引范围扫描，
         // 供调用方从最大键开始分批流式消费（如「取最新 N 条」），避免大前缀一次性物化全量数据
         String upper = prefix + Character.MAX_VALUE;
-        boolean hasBefore = beforeKeyExclusive != null && !beforeKeyExclusive.isEmpty();
+        boolean hasBefore = StringUtils.isNotEmpty(beforeKeyExclusive);
         String sql = "SELECT kv_key, kv_value, expires_at FROM " + TABLE
                 + " WHERE kv_key >= ? AND kv_key < ?"
                 + (hasBefore ? " AND kv_key < ?" : "")

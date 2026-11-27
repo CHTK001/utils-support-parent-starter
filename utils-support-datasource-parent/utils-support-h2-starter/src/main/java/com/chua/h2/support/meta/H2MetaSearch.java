@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * H2 搜索引擎元数据操作实现（H2 2.x）。
@@ -241,7 +242,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
 
         @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
-            if (mappings != null && !mappings.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(mappings)) {
                 throw new UnsupportedOperationException(
                         "H2 普通索引没有字段映射层，被索引列的类型与约束由表 DDL 决定；请改用 field(...) 声明索引列，"
                                 + "需要全文检索请自建 FTS 表或使用 Elasticsearch/Lucene 门面，索引名: " + indexName);

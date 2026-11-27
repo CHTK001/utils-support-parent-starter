@@ -110,7 +110,7 @@ public class WeightLoadBalance implements LoadBalance {
   */
  @Override
  public <T> T select(List<T> values) {
- if (values == null || values.isEmpty()) {
+ if (CollectionUtils.isEmpty(values)) {
  return null;
  }
  Node node = selectNode();

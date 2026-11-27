@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 带过期时间的值包装，是 {@link Value} 的有状态实现。
@@ -372,6 +373,6 @@ public class ExpireValue<T> implements Value<T> {
     @Override
     public boolean is(T target) {
         var current = value;
-        return current == target || (current != null && current.equals(target));
+        return current == target || (ObjectUtils.nullSafeEquals(current, target));
     }
 }

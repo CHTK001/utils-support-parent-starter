@@ -9,6 +9,7 @@ import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.retry.RetryConfig;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 判断节点定义 — 类型安全的分支配置构建器。
@@ -160,10 +161,10 @@ public class TaskDecisionDefinition {
         if (defaultBranch != null) {
             node.defaultBranch(defaultBranch);
         }
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             node.setParams(params);
         }
-        if (env != null && !env.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(env)) {
             node.setEnv(env);
         }
         if (retryConfig != null) {

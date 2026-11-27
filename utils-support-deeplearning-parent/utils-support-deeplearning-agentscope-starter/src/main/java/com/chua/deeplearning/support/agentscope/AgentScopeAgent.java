@@ -88,6 +88,8 @@ import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * Agentscope 实现：将项目通用 {@link ChatClient} 桥接到 Agentscope Harness，
@@ -943,7 +945,7 @@ public class AgentScopeAgent implements Agent {
         }
         try {
             List<MemoryEntry> entries = manager.search(input, MEMORY_SEARCH_LIMIT);
-            if (entries == null || entries.isEmpty()) {
+            if (CollectionUtils.isEmpty(entries)) {
                 return systemPrompt;
             }
             StringBuilder sb = new StringBuilder(systemPrompt);
@@ -1241,7 +1243,7 @@ public class AgentScopeAgent implements Agent {
         for (AgentDefinition sub : subAgentDefinitions) {
             boolean exists = false;
             for (AgentDefinition agent : declared) {
-                if (agent.getId() != null && agent.getId().equals(sub.getId())) {
+                if (ObjectUtils.nullSafeEquals(agent.getId(), sub.getId())) {
                     exists = true;
                     break;
                 }
@@ -1417,7 +1419,7 @@ public class AgentScopeAgent implements Agent {
      * @param traces 轨迹队列
      */
     private void logGateTraces(Queue<AgentTrace> traces) {
-        if (traces == null || traces.isEmpty()) {
+        if (CollectionUtils.isEmpty(traces)) {
             return;
         }
         AgentTrace t;
@@ -1748,7 +1750,7 @@ public class AgentScopeAgent implements Agent {
      * @param blocks  完整工具块表
      */
     private void cachePendingBlocks(String replyId, String agentId, Map<String, ToolUseBlock> blocks) {
-        if (replyId == null || blocks == null || blocks.isEmpty()) {
+        if (replyId == null || CollectionUtils.isEmpty(blocks)) {
             return;
         }
         // TTL 传 0：交由存储套用默认 TTL 与条目上限（与旧 PENDING_BLOCKS_LIMIT 口径一致）
@@ -1786,7 +1788,7 @@ public class AgentScopeAgent implements Agent {
      * @param blocks  完整工具块表
      */
     static void cachePendingBlocksForTest(String replyId, Map<String, ToolUseBlock> blocks) {
-        if (replyId == null || blocks == null || blocks.isEmpty()) {
+        if (replyId == null || CollectionUtils.isEmpty(blocks)) {
             return;
         }
         AgentSuspendStore.globalDefault().put(AgentSuspendState.of(replyId, null, blocks, 0L));
@@ -2686,7 +2688,7 @@ public class AgentScopeAgent implements Agent {
             return "";
         }
         Map<String, Object> in = tb.getInput();
-        if (in == null || in.isEmpty()) {
+        if (CollectionUtils.isEmpty(in)) {
             return tb.getContent() != null ? tb.getContent() : "";
         }
         Object summary = in.get("summary");
@@ -3213,9 +3215,9 @@ public class AgentScopeAgent implements Agent {
                 ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
         // ask_user 未被禁用时始终可用：即使业务工具为空，agent 也应能向用户提问
         boolean askUserEnabled = !disabledNames.contains(ASK_USER_TOOL);
-        boolean empty = (skills == null || skills.isEmpty())
-                && (localTools == null || localTools.isEmpty())
-                && (mcpTools == null || mcpTools.isEmpty())
+        boolean empty = (CollectionUtils.isEmpty(skills))
+                && (CollectionUtils.isEmpty(localTools))
+                && (CollectionUtils.isEmpty(mcpTools))
                 && !askUserEnabled;
         if (empty) {
             return null;
@@ -3415,7 +3417,7 @@ public class AgentScopeAgent implements Agent {
         @Override
         public Map<String, Object> getParameters() {
             Map<String, Object> schema = descriptor.getInputSchema();
-            if (schema != null && !schema.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(schema)) {
                 return schema;
             }
             return Wraps.map(Map.of("type", "object", "properties", Map.of()));

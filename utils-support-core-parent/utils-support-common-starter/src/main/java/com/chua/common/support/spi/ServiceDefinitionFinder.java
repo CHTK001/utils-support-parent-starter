@@ -308,7 +308,7 @@ public class ServiceDefinitionFinder {
                 }
 
                 String converted = Converter.convertIfNecessary(obj, String.class);
-                if (converted != null && converted.equalsIgnoreCase(name)) {
+                if (StringUtils.equalsIgnoreCase(converted, name)) {
                     return serviceDefinition;
                 }
             }

@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * Microsoft Mage 图像生成客户端（SPI 提供者="mage"）。
@@ -158,7 +159,7 @@ public class MageImageClient implements ImageClient {
         this.negativePrompt = setting.getNegativePrompt();
         this.seed = setting.getSeed();
         this.steps = setting.getSteps();
-        if (setting.getReferenceImage() != null && setting.getReferenceImage().length > 0) {
+        if (ArrayUtils.isNotEmpty(setting.getReferenceImage())) {
             this.referenceImages.add(setting.getReferenceImage());
         }
     }
@@ -236,7 +237,7 @@ public class MageImageClient implements ImageClient {
     */
     @Override
     public ImageClient referenceImage(byte[] image) {
-        if (image != null && image.length > 0) {
+        if (ArrayUtils.isNotEmpty(image)) {
             this.referenceImages.add(image);
         }
         return this;

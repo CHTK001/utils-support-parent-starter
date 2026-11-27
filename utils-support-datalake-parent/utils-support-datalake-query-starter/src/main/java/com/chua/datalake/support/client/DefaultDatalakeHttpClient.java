@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 默认 HTTP客户端 实现，基于 JDK HTTP客户端 调用 api服务端 /query 路由。
@@ -53,7 +54,7 @@ public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
      * @throws Exception 请求失败
      */
     public String queryWithArgs(String sql, Object... args) throws Exception {
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.isNotEmpty(args)) {
             throw new UnsupportedOperationException("数据湖查询端点未定义参数通道，拒绝静默丢弃绑定参数");
         }
         return query(sql);

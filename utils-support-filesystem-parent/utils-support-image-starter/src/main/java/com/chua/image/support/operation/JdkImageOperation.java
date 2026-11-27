@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.utils.SubImageOptions;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 
 /**
@@ -335,7 +336,7 @@ public class JdkImageOperation implements ImageOperation {
 
             // 解析水印图片
             BufferedImage watermarkImage = null;
-            if (params.getWatermarkImageBytes() != null && params.getWatermarkImageBytes().length > 0) {
+            if (ArrayUtils.isNotEmpty(params.getWatermarkImageBytes())) {
                 var watermarkFormat = params.getWatermarkFormat() != null ? params.getWatermarkFormat() : format;
                 watermarkImage = BufferedImageUtils.getBufferedImage(params.getWatermarkImageBytes());
             }

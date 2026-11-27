@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Map;
+import com.chua.common.support.utils.ObjectUtils;
 
 /**
  * 文件-viewer 静态资源过滤器。
@@ -123,7 +124,7 @@ public class FileViewerStaticServerFilter implements ServerFilter {
  // 计算 e标签（基于文件内容 MD5）
             String etag = computeEtag(bytes);
             String ifNoneMatch = request.getHeader("If-None-Match");
-            if (ifNoneMatch != null && ifNoneMatch.equals(etag)) {
+            if (ObjectUtils.nullSafeEquals(ifNoneMatch, etag)) {
                 response.setStatus(304)
                         .setHeader("ETag", etag)
                         .end();

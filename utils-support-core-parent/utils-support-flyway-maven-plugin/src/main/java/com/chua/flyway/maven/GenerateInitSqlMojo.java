@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 递归扫描项目目录下的初始化脚本，合并生成完整初始化 SQL 并覆盖旧文件.
@@ -183,8 +184,8 @@ public class GenerateInitSqlMojo extends AbstractMojo {
         final Path root = sourceRoot.toPath();
         final Path output = outputFile.toPath();
         final Charset charset = resolveCharset(encoding);
-        final List<String> effectiveIncludes = includes == null || includes.isEmpty() ? DEFAULT_INCLUDES : includes;
-        final List<String> effectiveExcludes = excludes == null || excludes.isEmpty() ? DEFAULT_EXCLUDES : excludes;
+        final List<String> effectiveIncludes = CollectionUtils.isEmpty(includes) ? DEFAULT_INCLUDES : includes;
+        final List<String> effectiveExcludes = CollectionUtils.isEmpty(excludes) ? DEFAULT_EXCLUDES : excludes;
         if (MODE_INIT_DATA.equalsIgnoreCase(mode)) {
             generateInitDataFiles(root, output, effectiveIncludes, effectiveExcludes, charset);
             return;

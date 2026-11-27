@@ -12,6 +12,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * oshc sys — 系统信息：OS、主机、CPU、磁盘、网络、进程统计一览。
@@ -130,7 +131,7 @@ public final class SysCommand extends AbstractCommand {
 
  // ── Display 适配器 ──
         List<oshi.hardware.Display> displays = hw.getDisplays();
-        if (displays != null && !displays.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(displays)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Displays (" + displays.size() + "):"); // [P3C E1 豁免]
             for (oshi.hardware.Display d : displays) {
@@ -147,7 +148,7 @@ public final class SysCommand extends AbstractCommand {
 
  // ── Sound 卡片 ──
         List<SoundCard> sounds = hw.getSoundCards();
-        if (sounds != null && !sounds.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(sounds)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Sound Cards (" + sounds.size() + "):"); // [P3C E1 豁免]
             for (SoundCard s : sounds) {
@@ -157,7 +158,7 @@ public final class SysCommand extends AbstractCommand {
 
         // ── Battery ──
         List<oshi.hardware.PowerSource> ps = hw.getPowerSources();
-        if (ps != null && !ps.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(ps)) {
             System.out.println(); // [P3C E1 豁免]
             System.out.println("Power Sources (" + ps.size() + "):"); // [P3C E1 豁免]
             for (oshi.hardware.PowerSource p : ps) {
@@ -170,7 +171,7 @@ public final class SysCommand extends AbstractCommand {
  // ── 服务 ──
         if (options.has("services")) {
             List<OSService> svcs = os.getServices();
-            if (svcs != null && !svcs.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(svcs)) {
                 System.out.println(); // [P3C E1 豁免]
                 System.out.println("Running Services (" + svcs.size() + "):"); // [P3C E1 豁免]
                 List<String[]> srow = Wraps.list();

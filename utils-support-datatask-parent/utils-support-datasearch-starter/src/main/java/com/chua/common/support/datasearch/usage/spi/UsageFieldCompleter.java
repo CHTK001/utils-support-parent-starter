@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * {@link AiUsage} 字段补全器 —— 把各 {@link UsageParser} 只解析了原始 Token 计数的记录，
@@ -323,7 +324,7 @@ public final class UsageFieldCompleter {
             log.debug("[datasearch] 定价提供者加载失败: {}", e.getMessage());
             providers = null;
         }
-        if (providers == null || providers.isEmpty()) {
+        if (CollectionUtils.isEmpty(providers)) {
             pricingUnavailable = true;
             log.info("[datasearch] 未发现 ModelPricingProvider 实现, 用量费用字段不补全");
             return null;

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * D1 SQL 参数绑定（同时支持 ? 占位符与 :名称 命名参数）。
@@ -93,7 +95,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
      * @return 参数数组
      */
     public Object toJson(String sql) {
-        if (named != null && !named.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(named)) {
             return resolveNamedOrder(sql);
         }
         return getPositional();
@@ -123,7 +125,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
      * @return true 表示有位置或命名参数
      */
     public boolean hasParams() {
-        return (positional != null && positional.length > 0)
-                || (named != null && !named.isEmpty());
+        return (ArrayUtils.isNotEmpty(positional))
+                || (CollectionUtils.isNotEmpty(named));
     }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * PDF AcroForm 模板填充器 —— 接口二在 PDF 侧的实现。
@@ -126,7 +127,7 @@ public class PdfAcroFormTemplateFiller implements TemplateFiller {
      */
     private void collect(PDField field, List<PDField> sink) {
         List<PDField> children = field instanceof PDNonTerminalField form ? form.getChildren() : null;
-        if (children == null || children.isEmpty()) {
+        if (CollectionUtils.isEmpty(children)) {
             sink.add(field);
             return;
         }

@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 import java.sql.SQLFeatureNotSupportedException;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JDBC 统一响应式引擎，根据数据源数量和类型自动选择执行路径。
@@ -701,7 +702,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        if (batchParams == null || batchParams.isEmpty()) {
+        if (CollectionUtils.isEmpty(batchParams)) {
             return Flux.empty();
         }
         return Flux.usingWhen(
@@ -807,7 +808,7 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @return 返回值
     */
     private Flux<Integer> batchViaJdbc(DataSource ds, String sql, List<Object[]> batchParams) {
-        if (batchParams == null || batchParams.isEmpty()) {
+        if (CollectionUtils.isEmpty(batchParams)) {
             return Flux.empty();
         }
         return Mono.fromCallable(() -> {

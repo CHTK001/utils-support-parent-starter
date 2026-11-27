@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Syslog 消息模型，支持 RFC 5424（IETF 新格式）与 RFC 3164（BSD 旧格式）的编码与解析。
@@ -174,7 +176,7 @@ public class SyslogMessage {
         sb.append(nilIfEmpty(procId)).append(' ');
         sb.append(nilIfEmpty(msgId)).append(' ');
         sb.append(formatStructuredData());
-        if (message != null && !message.isEmpty()) {
+        if (StringUtils.isNotEmpty(message)) {
             sb.append(' ').append(message);
         }
         return sb.toString();
@@ -186,7 +188,7 @@ public class SyslogMessage {
      * @return SD 段
      */
     private String formatStructuredData() {
-        if (structuredData == null || structuredData.isEmpty()) {
+        if (CollectionUtils.isEmpty(structuredData)) {
             return "-";
         }
         StringBuilder sb = new StringBuilder(64);
@@ -590,7 +592,7 @@ public class SyslogMessage {
      * @return NIL 或原文
      */
     private static String nilIfEmpty(String value) {
-        return value == null || value.isEmpty() ? "-" : value;
+        return StringUtils.isEmpty(value) ? "-" : value;
     }
 
     /**

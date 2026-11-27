@@ -5,6 +5,7 @@ import com.chua.common.support.ai.AiUsage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 一次决策请求的完整返回。
@@ -46,7 +47,7 @@ public record DecisionsResult(
      * @return true 表示所有问题均未返回结论
      */
     public boolean allRefused() {
-        if (answers == null || answers.isEmpty()) {
+        if (CollectionUtils.isEmpty(answers)) {
             return true;
         }
         return answers.values().stream().allMatch(DecisionAnswer::isRefusal);

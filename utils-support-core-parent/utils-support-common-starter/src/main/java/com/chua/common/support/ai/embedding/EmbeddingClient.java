@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 嵌入向量客户端接口。
@@ -214,7 +215,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
      */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
-        if (defs == null || defs.isEmpty()) {
+        if (CollectionUtils.isEmpty(defs)) {
             return List.of();
         }
         return defs.stream()

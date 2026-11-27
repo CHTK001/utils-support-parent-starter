@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * scatter 发现基类：本地服务 hash 表（按 serverId 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
@@ -692,7 +693,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         try {
             List<Discovery> announced = Json.fromJsonToList(
                     new String(payload, StandardCharsets.UTF_8), Discovery.class);
-            if (announced == null || announced.isEmpty()) {
+            if (CollectionUtils.isEmpty(announced)) {
                 return List.of();
             }
             return mergeRemote(announced);

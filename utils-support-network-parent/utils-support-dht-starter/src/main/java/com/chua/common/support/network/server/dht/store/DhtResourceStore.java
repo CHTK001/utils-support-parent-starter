@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DHT 资源（信息哈希）对等节点存储。
@@ -46,7 +47,7 @@ public class DhtResourceStore {
      * @param peers    peer 列表
      */
     public void recordPeersFromResponse(String infohash, List<DiscoveredPeer> peers) {
-        if (peers == null || peers.isEmpty()) {
+        if (CollectionUtils.isEmpty(peers)) {
             return;
         }
         store.computeIfAbsent(infohash, k -> new CopyOnWriteArrayList<>()).addAll(peers);

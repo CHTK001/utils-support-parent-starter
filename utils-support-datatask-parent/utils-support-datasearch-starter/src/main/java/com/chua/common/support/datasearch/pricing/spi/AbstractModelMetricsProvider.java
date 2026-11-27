@@ -154,7 +154,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     @Override
     public void syncFromOnline() {
         List<ModelDefinition> pricing = fetchOnlinePricing();
-        if (pricing == null || pricing.isEmpty()) {
+        if (CollectionUtils.isEmpty(pricing)) {
             return;
         }
         memoryCache = pricing;

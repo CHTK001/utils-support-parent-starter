@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 图片写入文件系统
@@ -161,7 +162,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     */
     @Override
     protected void doWrite(Map<String, Object> data) throws IOException {
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             return;
         }
 

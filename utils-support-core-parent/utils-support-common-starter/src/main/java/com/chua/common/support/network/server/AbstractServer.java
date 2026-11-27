@@ -433,6 +433,12 @@ public abstract class AbstractServer implements ConfigServer {
         if (response.isEnded()) {
             return;
         }
+        // SSE 流式响应由 sseClose 收尾：这里 end() 会把流标记成「已结束」，
+        // 服务端随后的 keep-alive 判定据此立即断链，第 1 帧之后的内容全丢
+        // （代理常以 Connection: close 复用上游连接，必现）。
+        if (response.isSseMode()) {
+            return;
+        }
         // 路径变量 / 查询参数尚未在此处理，交由具体 Handler 负责
         if (response.getResult() != null) {
             convertResult(response);

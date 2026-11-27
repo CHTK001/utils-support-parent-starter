@@ -7,6 +7,7 @@ import com.chua.common.support.utils.ObjectUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 分词器接口，定义中文分词的核心 SPI 契约。
@@ -131,7 +132,7 @@ public interface Tokenizer {
      */
     default String toFirstSegment(String word) {
         List<Word> result = segment(word);
-        if (result == null || result.isEmpty()) {
+        if (CollectionUtils.isEmpty(result)) {
             return null;
         }
         return result.getFirst().getWord();

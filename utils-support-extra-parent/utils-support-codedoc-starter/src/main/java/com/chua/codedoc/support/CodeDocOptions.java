@@ -19,12 +19,15 @@ record CodeDocOptions(ChatClient chatClient, Path directory, Path outputDirector
                       List<String> includes, List<String> excludes, Charset charset,
                       String title, String prompt, String instructions, String cacheNamespace,
                       boolean incremental, boolean failFast, int maxDepth,
-                      int maxFiles, long maxFileBytes, int chunkChars, int retries,
+                      int maxFiles, long maxFileBytes, int chunkChars, int retries, int concurrency,
                       Consumer<CodeDocs.Progress> progress) {
     CodeDocOptions {
         includeTypes = Set.copyOf(includeTypes);
         excludeTypes = Set.copyOf(excludeTypes);
         includes = List.copyOf(includes);
         excludes = List.copyOf(excludes);
+        if (concurrency < 1) {
+            throw new IllegalArgumentException("concurrency 必须 > 0");
+        }
     }
 }

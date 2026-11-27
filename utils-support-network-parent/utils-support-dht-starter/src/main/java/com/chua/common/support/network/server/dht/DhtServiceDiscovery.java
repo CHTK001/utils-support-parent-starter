@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 DHT 的服务发现实现。
@@ -129,7 +130,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     public Set<Discovery> getServiceAll(String path) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         Set<Discovery> cached = registeredServices.get(fullPath);
-        if (cached != null && !cached.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(cached)) {
             return cached;
         }
 

@@ -13,6 +13,8 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
@@ -70,7 +72,7 @@ public class EngineMemoryStore implements MemoryStore {
         }
         try {
             List<MemoryEntryEntity> loaded = engine.query(MemoryEntryEntity.class).list();
-            if (loaded == null || loaded.isEmpty()) {
+            if (CollectionUtils.isEmpty(loaded)) {
                 return;
             }
             rows.clear();
@@ -103,7 +105,7 @@ public class EngineMemoryStore implements MemoryStore {
     @Override
     public void save(MemoryEntry entry) {
         MemoryEntryEntity entity = MemoryEntryEntity.from(normalize(entry));
-        rows.removeIf(r -> entity.getId() != null && entity.getId().equals(r.getId()));
+        rows.removeIf(r -> ObjectUtils.nullSafeEquals(entity.getId(), r.getId()));
         rows.add(entity);
         evictIfNeeded();
         syncToEngine();
@@ -156,7 +158,7 @@ public class EngineMemoryStore implements MemoryStore {
     public List<MemoryEntry> listByType(String type, int limit) {
         return rows.stream()
                 .map(MemoryEntryEntity::toEntry)
-                .filter(e -> type != null && type.equals(e.getType()))
+                .filter(e -> ObjectUtils.nullSafeEquals(type, e.getType()))
                 .sorted(Comparator.comparing(MemoryEntry::getCreatedAt, Comparator.reverseOrder()))
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -169,7 +171,7 @@ public class EngineMemoryStore implements MemoryStore {
     public List<MemoryEntry> listBySession(String sessionId) {
         return rows.stream()
                 .map(MemoryEntryEntity::toEntry)
-                .filter(e -> sessionId != null && sessionId.equals(e.getSessionId()))
+                .filter(e -> ObjectUtils.nullSafeEquals(sessionId, e.getSessionId()))
                 .sorted(Comparator.comparing(MemoryEntry::getCreatedAt, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
@@ -179,7 +181,7 @@ public class EngineMemoryStore implements MemoryStore {
      */
     @Override
     public boolean delete(String id) {
-        boolean removed = rows.removeIf(r -> id != null && id.equals(r.getId()));
+        boolean removed = rows.removeIf(r -> ObjectUtils.nullSafeEquals(id, r.getId()));
         if (removed) {
             syncToEngine();
         }
@@ -260,7 +262,7 @@ public class EngineMemoryStore implements MemoryStore {
         int toRemove = rows.size() - max;
         for (int i = 0; i < toRemove && i < sorted.size(); i++) {
             String id = sorted.get(i).getId();
-            rows.removeIf(r -> id != null && id.equals(r.getId()));
+            rows.removeIf(r -> ObjectUtils.nullSafeEquals(id, r.getId()));
         }
     }
 }

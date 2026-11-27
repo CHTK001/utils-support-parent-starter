@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -52,7 +53,7 @@ public class CompositePropertyResolver implements PropertyResolver {
      * @throws IllegalArgumentException 当 resolvers 为 null 或为空时抛出
      */
     private CompositePropertyResolver(List<PropertyResolver> resolvers) {
-        if (resolvers == null || resolvers.isEmpty()) {
+        if (CollectionUtils.isEmpty(resolvers)) {
             throw new IllegalArgumentException("resolvers cannot be null or empty");
         }
         this.resolvers = Wraps.list(resolvers);

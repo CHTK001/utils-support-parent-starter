@@ -7,6 +7,7 @@ import com.chua.oshi.support.Network;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.cli.display.Formatter;
 import java.util.List;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * oshc net — 网络接口明细：IP/MAC、收发字节、速率、状态。
@@ -48,7 +49,7 @@ public final class NetworkCommand extends AbstractCommand {
         // [P3C E1 豁免] CLI 命令输出：网络接口列表展示
         for (Network net : nets) {
             String[] ipv4 = net.getIpv4();
-            String ip = (ipv4 != null && ipv4.length > 0) ? String.join(", ", ipv4) : "N/A";
+            String ip = (ArrayUtils.isNotEmpty(ipv4)) ? String.join(", ", ipv4) : "N/A";
             rows.add(new String[]{
                     net.getName() == null ? "" : net.getName(),
                     net.getDisplayName() == null ? "" : net.getDisplayName(),

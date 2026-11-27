@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 IPC 协议的调用器实现。
@@ -233,7 +234,7 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             ctx.setAttribute("javaArgs", args);
             ctx.setAttribute("targetClass", method.getDeclaringClass());
             ctx.setAttribute("sharedContext", sharedContext);
-            if (args != null && args.length > 0) {
+            if (ArrayUtils.isNotEmpty(args)) {
                 ctx.setBody(com.chua.common.support.lang.json.Json.toJson(args[0]));
             }
 

@@ -14,6 +14,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * UDP 自动发现：多播 + 广播宣告。
@@ -78,7 +79,7 @@ public class UdpBroadcastDiscovery extends AbstractScatterDiscovery {
      */
     @Override
     protected void onNewMemberDiscovered(InetSocketAddress sender, List<Discovery> added) {
-        if (added == null || added.isEmpty()) {
+        if (CollectionUtils.isEmpty(added)) {
             return;
         }
         Discovery target = null;

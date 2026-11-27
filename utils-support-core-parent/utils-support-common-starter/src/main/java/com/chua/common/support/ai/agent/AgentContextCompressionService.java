@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 上下文压缩服务——两阶段策略。
@@ -179,7 +180,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
      * @return 结果列表，无数据时为空列表
      */
     public List<ChatMessage> compressContext(List<ChatMessage> fullContext) {
-        if (fullContext == null || fullContext.isEmpty()) {
+        if (CollectionUtils.isEmpty(fullContext)) {
             return fullContext;
         }
         int threshold = config.getContextCompressionThreshold();
@@ -282,7 +283,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             }
             List<MemoryEntry> entries = memoryManager.getStore().listByType(BASELINE_TYPE, 1);
             memoryManager.close();
-            if (entries != null && !entries.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(entries)) {
                 String json = entries.getFirst().getContent();
                 List<ChatMessage> result = Json.fromJsonToList(json, ChatMessage.class);
                 if (result != null) {
@@ -330,7 +331,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             }
             List<MemoryEntry> entries = memoryManager.getStore().listByType(BASELINE_SUMMARY_TYPE, 1);
             memoryManager.close();
-            if (entries != null && !entries.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(entries)) {
                 return entries.getFirst().getContent();
             }
         } catch (Exception e) {
@@ -373,7 +374,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             }
             List<MemoryEntry> entries = memoryManager.getStore().listByType(ROUNDS_COUNTER_TYPE, 1);
             memoryManager.close();
-            if (entries != null && !entries.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(entries)) {
                 String value = entries.getFirst().getContent();
                 try {
                     return Integer.parseInt(value);

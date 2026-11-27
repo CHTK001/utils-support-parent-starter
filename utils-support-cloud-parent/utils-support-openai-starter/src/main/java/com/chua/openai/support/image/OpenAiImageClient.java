@@ -19,6 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 打开AI 图片生成客户端。
@@ -295,7 +296,7 @@ public class OpenAiImageClient implements ImageClient {
         // 解析 JSON 响应，提取图片 URL
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<Map<String, Object>> data = (List<Map<String, Object>>) root.get("data");
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             throw new RuntimeException("返回的图片数据为空");
         }
         Map<String, Object> first = data.getFirst();

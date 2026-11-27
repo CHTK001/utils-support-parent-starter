@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 通用图片检索：{@link FeatureExtractor} 提特征 + {@link VectorStorage} 检索。
@@ -188,7 +189,7 @@ public class ImageSearcher {
      */
     public List<ImageSearchHit> search(byte[] imageData, int topK) {
         List<Vector> vectors = searchPipeline.search(imageData, topK);
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<ImageSearchHit> hits = Wraps.list(vectors.size());
@@ -216,7 +217,7 @@ public class ImageSearcher {
      */
     public List<ImageSearchHit> search(float[] feature, int topK) {
         List<Vector> vectors = vectorStorage.search(feature, Math.max(1, topK));
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<ImageSearchHit> hits = Wraps.list(vectors.size());

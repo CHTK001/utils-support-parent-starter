@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 默认启发式内容护栏：提示注入检测 + 隐私脱敏 + 凭据拦截 + 自定义敏感词审计。
@@ -273,7 +274,7 @@ public class HeuristicAgentContentGuard implements AgentContentGuard {
         if (!sensitiveKeywords.isEmpty()) {
             String lowered = content.toLowerCase(Locale.ROOT);
             for (String keyword : sensitiveKeywords) {
-                if (keyword == null || keyword.isEmpty()) {
+                if (StringUtils.isEmpty(keyword)) {
                     continue;
                 }
                 if (lowered.contains(keyword.toLowerCase(Locale.ROOT))) {
@@ -424,7 +425,7 @@ public class HeuristicAgentContentGuard implements AgentContentGuard {
          * 追加自定义注入检测正则（高严重度）。
          */
         public Builder extraInjectionPattern(String regex) {
-            if (regex != null && !regex.isEmpty()) {
+            if (StringUtils.isNotEmpty(regex)) {
                 extraInjectionPatterns.add(regex);
             }
             return this;
@@ -434,7 +435,7 @@ public class HeuristicAgentContentGuard implements AgentContentGuard {
          * 追加自定义隐私检测正则（中严重度，保留前 2 位掩码）。
          */
         public Builder extraPiiPattern(String regex) {
-            if (regex != null && !regex.isEmpty()) {
+            if (StringUtils.isNotEmpty(regex)) {
                 extraPiiPatterns.add(regex);
             }
             return this;
@@ -444,7 +445,7 @@ public class HeuristicAgentContentGuard implements AgentContentGuard {
          * 追加自定义凭据检测正则（中严重度，保留前 4 位掩码）。
          */
         public Builder extraSecretPattern(String regex) {
-            if (regex != null && !regex.isEmpty()) {
+            if (StringUtils.isNotEmpty(regex)) {
                 extraSecretPatterns.add(regex);
             }
             return this;
@@ -456,7 +457,7 @@ public class HeuristicAgentContentGuard implements AgentContentGuard {
         public Builder sensitiveKeyword(String... keywords) {
             if (keywords != null) {
                 for (String keyword : keywords) {
-                    if (keyword != null && !keyword.isEmpty()) {
+                    if (StringUtils.isNotEmpty(keyword)) {
                         sensitiveKeywords.add(keyword);
                     }
                 }

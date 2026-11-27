@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Bean 生命周期管理器，统一调度所有 Beandefinitionlifecycle SPI 实现。
@@ -76,7 +77,7 @@ public class BeanDefinitionLifecycleManager {
      * @param beanDefinitions Bean 定义集合
      */
     public static void destroyAll(Collection<BeanDefinition> beanDefinitions) {
-        if (beanDefinitions == null || beanDefinitions.isEmpty()) {
+        if (CollectionUtils.isEmpty(beanDefinitions)) {
             return;
         }
         for (BeanDefinition def : beanDefinitions) {

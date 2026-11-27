@@ -1074,7 +1074,7 @@ public final class DetectorUtils {
      * 忽略大小写的包含判断（对中文短语同样适用）
      */
     private static boolean containsIgnoreCase(String source, String phrase) {
-        if (source == null || phrase == null || phrase.isEmpty()) {
+        if (source == null || StringUtils.isEmpty(phrase)) {
             return false;
         }
         return source.regionMatches(true, 0, phrase, 0, phrase.length())
@@ -1402,7 +1402,7 @@ public final class DetectorUtils {
 
         // ---- 1. User-Agent 分析 ----
         String ua = lowerHeaders.get("user-agent");
-        if (ua == null || ua.isEmpty()) {
+        if (StringUtils.isEmpty(ua)) {
             signals.add(new BotSignal(BotSignalCategory.USER_AGENT, "User-Agent", "(missing)", 30,
                     "缺少 User-Agent 头，强烈暗示非浏览器客户端"));
             botScore += 30;
@@ -1460,7 +1460,7 @@ public final class DetectorUtils {
         }
 
         // ---- 3. TLS 指纹分析 ----
-        if (tlsFingerprint != null && !tlsFingerprint.isEmpty()) {
+        if (StringUtils.isNotEmpty(tlsFingerprint)) {
             tlsFingerprintOut = tlsFingerprint;
             if (isKnownBotTlsFingerprint(tlsFingerprint)) {
                 signals.add(new BotSignal(BotSignalCategory.TLS, "tlsFingerprint",
@@ -1481,7 +1481,7 @@ public final class DetectorUtils {
 
         // ---- 判定 ----
         // hardBlock：确定性信号（HTTP 头 / TLS 层面不可伪造），可直接触发 BLOCK。
-        boolean hardBlock = (ua == null || ua.isEmpty())  // 缺少 User-Agent
+        boolean hardBlock = (StringUtils.isEmpty(ua))  // 缺少 User-Agent
                 || uaBotMatch                               // 已知机器人 UA 模式
                 || tlsBotMatch                              // 已知 TLS 指纹
                 || uaHeadlessMatch                          // 无头浏览器 UA（真实浏览器永不含）
@@ -1505,7 +1505,7 @@ public final class DetectorUtils {
 
         BotAnalysisDetails details = new BotAnalysisDetails(
                 botScore, signals.size(), hardBlock,
-                (ua == null || ua.isEmpty()) ? "missing" : "present",
+                (StringUtils.isEmpty(ua)) ? "missing" : "present",
                 ua == null ? 0 : ua.length(),
                 uaBotMatch, uaHeadlessMatch, uaPlaywrightMatch, uaApiDebugMatch,
                 uaBrowserMatch,
@@ -1604,7 +1604,7 @@ public final class DetectorUtils {
      * @return 签名有效返回 true，任一参数为空返回 false
      */
     public static boolean verifyWebBotAuth(String signature, String payload, String publicKey) {
-        if (signature == null || signature.isEmpty()
+        if (StringUtils.isEmpty(signature)
                 || payload == null || publicKey == null) {
             return false;
         }
@@ -1770,7 +1770,7 @@ public final class DetectorUtils {
 
         // 3. Web Bot Auth 密码学验证
         Boolean webBotAuthValid = null;
-        if (webBotAuthSignature != null && !webBotAuthSignature.isEmpty()
+        if (StringUtils.isNotEmpty(webBotAuthSignature)
                 && webBotAuthPayload != null && webBotAuthPublicKey != null) {
             webBotAuthValid = verifyWebBotAuth(webBotAuthSignature,
                     webBotAuthPayload, webBotAuthPublicKey);

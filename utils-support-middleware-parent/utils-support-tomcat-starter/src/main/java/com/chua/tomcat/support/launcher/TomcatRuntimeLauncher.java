@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Tomcat 运行时启动器 — 通过 {@link WebContainer} SPI 内嵌部署 WAR。
@@ -67,7 +68,7 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
             }
 
             List<String> args = artifact.getArgs();
-            String contextPath = (args != null && args.size() > 0 && args.getFirst() != null)
+            String contextPath = (CollectionUtils.isNotEmpty(args) && args.getFirst() != null)
                     ? args.getFirst() : "/";
             int port = (args != null && args.size() > 1 && args.get(1) != null)
                     ? Integer.parseInt(args.get(1)) : 8080;

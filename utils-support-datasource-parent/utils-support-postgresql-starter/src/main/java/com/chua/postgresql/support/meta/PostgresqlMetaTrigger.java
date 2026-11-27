@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * PostgreSQL 触发器元数据操作。
@@ -302,7 +303,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
         }
         for (Map.Entry<String, TriggerDef> entry : defs.entrySet()) {
             Set<String> set = events.get(entry.getKey());
-            entry.getValue().setEvent(set == null || set.isEmpty() ? null : String.join(" OR ", set));
+            entry.getValue().setEvent(CollectionUtils.isEmpty(set) ? null : String.join(" OR ", set));
         }
         return Wraps.list(defs.values());
     }

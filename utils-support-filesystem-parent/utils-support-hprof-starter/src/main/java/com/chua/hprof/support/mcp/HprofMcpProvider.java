@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * HPROF 堆转储的 MCP 提供者。
@@ -338,7 +339,7 @@ public class HprofMcpProvider implements McpProvider {
                 .append(" / ").append(analysis.collectionInstances).append(" 实例\n");
         sb.append("  · 类加载器 ").append(analysis.classLoaderClassCount).append(" 个\n");
         Map<String, Long> roots = analysis.gcRootsByKind;
-        if (roots != null && !roots.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(roots)) {
             StringBuilder rs = new StringBuilder("  · GC 根：");
             boolean first = true;
             for (Map.Entry<String, Long> e : roots.entrySet()) {

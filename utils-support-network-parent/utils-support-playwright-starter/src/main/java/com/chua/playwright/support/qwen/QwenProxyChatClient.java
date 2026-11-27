@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 通义千问逆向代理对话客户端。
@@ -531,7 +532,7 @@ public class QwenProxyChatClient implements ChatClient {
             for (Map<String, Object> event : rawEvents) {
                 try {
                     List<Map<String, Object>> choices = (List<Map<String, Object>>) event.get("choices");
-                    if (choices == null || choices.isEmpty()) {
+                    if (CollectionUtils.isEmpty(choices)) {
                         continue;
                     }
                     Map<String, Object> delta = (Map<String, Object>) choices.getFirst().get("delta");

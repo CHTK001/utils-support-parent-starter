@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Apollo 配置中心实现。
@@ -88,7 +89,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
 
         // 获取该命名空间下的所有配置项
         Set<String> propertyNames = config.getPropertyNames();
-        if (propertyNames == null || propertyNames.isEmpty()) {
+        if (CollectionUtils.isEmpty(propertyNames)) {
             return Collections.emptyMap();
         }
 

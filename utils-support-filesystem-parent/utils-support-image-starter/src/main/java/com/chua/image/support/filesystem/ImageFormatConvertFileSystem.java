@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
+import com.chua.common.support.utils.StringUtils;
 
 
 /**
@@ -114,7 +115,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
      */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
-        if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {
+        if (StringUtils.equalsIgnoreCase(sourceFormat, targetFormat)) {
             return false;
         }
 

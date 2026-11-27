@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -545,7 +546,7 @@ public abstract class AbstractEngine implements Engine {
      * @return 后处理后的查询结果
      */
     private <T> List<T> processQueryResult(QuerySql<T> sql, List<T> result) {
-        if (result == null || result.isEmpty()) {
+        if (CollectionUtils.isEmpty(result)) {
             return result;
         }
  // 过滤 空 元素，避免排序引发 NPE
@@ -1101,7 +1102,7 @@ public abstract class AbstractEngine implements Engine {
         if (entityClass == null) {
             throw new IllegalArgumentException("实体类不能为空");
         }
-        if (entities == null || entities.isEmpty()) {
+        if (CollectionUtils.isEmpty(entities)) {
             return 0;
         }
         ensureOpen("批量插入 " + getTableName(entityClass));
@@ -1140,7 +1141,7 @@ public abstract class AbstractEngine implements Engine {
             return false;
         }
         List<?> rows = dataStores.get(getTableName(entityClass));
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return true;
         }
         Object first = rows.getFirst();

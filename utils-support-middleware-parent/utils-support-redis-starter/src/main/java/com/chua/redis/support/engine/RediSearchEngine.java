@@ -25,6 +25,7 @@ import redis.clients.jedis.util.SafeEncoder;
 import java.lang.reflect.Method;
 import java.util.*;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Redis redi搜索 引擎实现。
@@ -381,7 +382,7 @@ import com.chua.common.support.utils.StringUtils;
             this.entityClass = entityClass;
             if (groupByCols != null) {
                 for (String c : groupByCols) {
-                    if (c != null && !c.isEmpty()) {
+                    if (StringUtils.isNotEmpty(c)) {
                         this.groupByCols.add(c);
                     }
                 }
@@ -918,7 +919,7 @@ import com.chua.common.support.utils.StringUtils;
         List<byte[]> args = Wraps.list();
         args.add(SafeEncoder.encode(index));
         args.add(SafeEncoder.encode(query));
-        if (groupByCols != null && !groupByCols.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(groupByCols)) {
             args.add(SafeEncoder.encode("GROUPBY"));
             args.add(SafeEncoder.encode(String.valueOf(groupByCols.size())));
             for (String col : groupByCols) {

@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Quick 默认实现。
@@ -716,7 +717,7 @@ public class DefaultQuick implements Quick {
                 return compiler;
             }
             List<Compiler> all = provider.collect();
-            if (all != null && !all.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(all)) {
                 return all.getFirst();
             }
         } catch (Exception e) {

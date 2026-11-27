@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 路由目标：一次请求要打到的上游与凭据。
@@ -173,7 +174,7 @@ public class RouteTarget {
      * @return 账号 Key 列表；无任何 key 时为空列表
      */
     public List<String> accountKeys() {
-        if (apiKeys != null && !apiKeys.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(apiKeys)) {
             var cleaned = new java.util.ArrayList<String>(apiKeys.size());
             for (String key : apiKeys) {
                 if (key != null) {

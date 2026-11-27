@@ -45,6 +45,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Apache SkyWalking 的 {@link OtnlEngine} 实现（SPI 名 {@code skywalking}）。
@@ -667,7 +668,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      */
     @Override
     public OtnlTopology multiTopology(List<String> serviceNames, OtnlQuery query) {
-        if (serviceNames == null || serviceNames.isEmpty()) {
+        if (CollectionUtils.isEmpty(serviceNames)) {
             return OtnlTopology.empty();
         }
         OtnlQuery safe = query == null ? OtnlQuery.empty() : query;
@@ -1077,7 +1078,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 for (JsonNode element : elements) {
                     String id = element.path("id").asText("");
                     List<OtnlProfileAnalysis.OtnlProfileStack> children = childrenByParent.get(id);
-                    if (children == null || children.isEmpty()) {
+                    if (CollectionUtils.isEmpty(children)) {
                         continue;
                     }
                     String parentId = element.path("parentId").asText("");

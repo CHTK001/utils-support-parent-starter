@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JSON-RPC 2.0 客户端实现。
@@ -68,7 +69,7 @@ public class JsonRpcClient implements RpcClient {
      */
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
-        String address = rpcRegistryConfigs != null && !rpcRegistryConfigs.isEmpty()
+        String address = CollectionUtils.isNotEmpty(rpcRegistryConfigs)
                 ? rpcRegistryConfigs.getFirst().getAddress() : "http://localhost:8080";
         String urlStr = address.startsWith("http") ? address : "http://" + address;
         try {

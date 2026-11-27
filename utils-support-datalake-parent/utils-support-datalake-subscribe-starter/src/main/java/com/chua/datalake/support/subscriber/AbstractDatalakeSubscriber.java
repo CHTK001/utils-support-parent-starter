@@ -5,6 +5,7 @@ import com.chua.common.support.concurrent.offset.OffsetFlow;
 
 import java.util.Collections;
 import java.util.Set;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 数据订阅器抽象类。每个订阅器绑定一个 {@code subscriberId}，
@@ -52,7 +53,7 @@ public abstract class AbstractDatalakeSubscriber implements Subscriber {
     protected AbstractDatalakeSubscriber(String subscriberId, OffsetFlow offsetFlow, Set<String> topics) {
         this.subscriberId = subscriberId;
         this.offsetFlow = offsetFlow;
-        this.topics = topics == null || topics.isEmpty()
+        this.topics = CollectionUtils.isEmpty(topics)
                 ? Collections.emptySet()
                 : Collections.unmodifiableSet(Wraps.linkedSet(topics));
     }

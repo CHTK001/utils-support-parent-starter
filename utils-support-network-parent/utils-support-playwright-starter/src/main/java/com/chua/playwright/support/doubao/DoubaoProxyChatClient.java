@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 豆包逆向代理对话客户端。
@@ -463,7 +464,7 @@ public class DoubaoProxyChatClient implements ChatClient {
             String url = baseUrl + DoubaoConstants.CHAT_COMPLETION_PATH
                     + "?aid=" + DoubaoConstants.AID + "&device_platform=" + DoubaoConstants.DEVICE_PLATFORM;
 
-            if (tools != null && !tools.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(tools)) {
                 StringBuilder toolPrompt = new StringBuilder();
                 toolPrompt.append("可用的工具：\n");
                 for (ChatTool tool : tools) {
@@ -576,7 +577,7 @@ public void close() {
         if (topP != null) {
             completionOption.fluent("top_p", topP);
         }
-        if (stop != null && !stop.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(stop)) {
             JsonArray stopArr = new JsonArray();
             for (String s : stop) {
                 stopArr.add(s);
@@ -590,7 +591,7 @@ public void close() {
             completionOption.fluent("response_format", responseFormat);
         }
 
-        if (extraBody != null && !extraBody.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(extraBody)) {
             Object dt = extraBody.get("use_deep_think");
             if (dt != null) {
                 completionOption.fluentPut("use_deep_think", dt);

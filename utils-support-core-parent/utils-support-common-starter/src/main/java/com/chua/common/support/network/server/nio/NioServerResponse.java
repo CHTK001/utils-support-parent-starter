@@ -768,6 +768,41 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
+     * 是否处于 SSE 模式。
+     *
+     * <p>响应链收尾处据此跳过 {@code end()}：流式响应由 {@link #sseClose()} 收尾。</p>
+     *
+     * @return sseMode
+     */
+    @Override
+    public boolean isSseMode() {
+        return sseMode;
+    }
+
+    /**
+     * 标记通道已不可写（连接被对端关闭、写失败或流已收尾）。
+     *
+     * <p>推流线程与保活线程据此判定客户端已离开并自行退出，
+     * 避免向已断开的连接持续堆积帧。</p>
+     */
+    public void markChannelClosed() {
+        this.channelClosed = true;
+    }
+
+    /**
+     * SSE 流是否仍在推送：已开启、未 {@code sseClose}、通道仍可写。
+     *
+     * <p>流式响应的连接生命周期与普通响应不同——请求头里的 {@code Connection: close}
+     * 只约束「整条响应写完之后关闭」，不能在第 1 帧写完后立即断链。传输层据此在
+     * handler 返回后继续保留连接，直到 {@link #sseClose()} 收尾。</p>
+     *
+     * @return 是否处于 SSE 推流中
+     */
+    public boolean isSseStreaming() {
+        return sseMode && !ended && !channelClosed;
+    }
+
+    /**
      * 解析Body
      * @return 结果值
      */

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 腾讯云短信推送实现
@@ -150,7 +151,7 @@ public class TencentSmsMessagePush implements MessagePush {
         long duration = System.currentTimeMillis() - start;
 
         SendStatus[] statusSet = resp.getSendStatusSet();
-        if (statusSet != null && statusSet.length > 0) {
+        if (ArrayUtils.isNotEmpty(statusSet)) {
             SendStatus status = statusSet[0];
             String code = status.getCode();
             if ("Ok".equals(code)) {

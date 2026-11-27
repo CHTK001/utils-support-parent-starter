@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * zeromq RPC 服务端实现（jeromq，纯 Java 无需原生依赖）。
@@ -242,7 +243,7 @@ public class ZmqRpcServer implements RpcServer {
      * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
      */
     private void initServiceDiscovery() {
-        if (registryConfigs == null || registryConfigs.isEmpty()) {
+        if (CollectionUtils.isEmpty(registryConfigs)) {
             return;
         }
         for (RpcRegistryConfig config : registryConfigs) {

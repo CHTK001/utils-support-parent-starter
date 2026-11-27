@@ -542,43 +542,35 @@ public class OpenAiChatClient implements ChatClient {
     */
     @Override
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
-        // 同步方法强制使用非流式，不受外部 stream(true) 影响
-        boolean savedStream = this.stream;
-        this.stream = false;
-        try {
-            var result = new StringBuilder();
-            var reasoning = new StringBuilder();
-            final AiUsage[] usage = new AiUsage[1];
-            /**
-             * chat
-             * @param prompt 参数
-             * @param { 参数
-             * @return 返回值
-            */
-            chat(prompt, response -> {
-                if (response.getState() == ChatResponse.State.STOP) {
-                    if (response.getUsage() != null) {
-                        usage[0] = response.getUsage();
-                    }
-                    return;
+        // 同步方法强制使用非流式：以参数下传而不是改写共享字段，
+        // 否则多个线程并发调用同一客户端时会互相覆盖 stream，导致偶发走流式分支。
+        var result = new StringBuilder();
+        var reasoning = new StringBuilder();
+        final AiUsage[] usage = new AiUsage[1];
+        doChat(prompt, response -> {
+            if (response.getState() == ChatResponse.State.STOP) {
+                if (response.getUsage() != null) {
+                    usage[0] = response.getUsage();
                 }
-                if (response.getState() == ChatResponse.State.STREAMING) {
-                    if (response.getContent() != null) {
-                        result.append(response.getContent());
-                    }
-                    if (response.getReasoningContent() != null) {
-                        reasoning.append(response.getReasoningContent());
-                    }
+                return;
+            }
+            if (response.getState() == ChatResponse.State.STREAMING) {
+                if (response.getContent() != null) {
+                    result.append(response.getContent());
                 }
-            });
-            // 只返回正式回答；思维链（reasoning_content）绝不混入返回文本 ——
-            // 推理模型思考过程中可能输出含花括号的 JSON 片段，下游结构化解析（extractJson）
-            // 会误抓为最终结果（实测补题干因此拿到无 stems 的 JSON 而被判定「数量不符」）。
-            String text = result.toString();
-            return ChatSyncResponse.builder().text(text).usage(usage[0]).build();
-        } finally {
-            this.stream = savedStream;
-        }
+                if (response.getReasoningContent() != null) {
+                    reasoning.append(response.getReasoningContent());
+                }
+            }
+        }, () -> {
+        }, failure -> {
+            throw new RuntimeException("对话请求失败: " + failure.getMessage(), failure);
+        }, false);
+        // 只返回正式回答；思维链（reasoning_content）绝不混入返回文本 ——
+        // 推理模型思考过程中可能输出含花括号的 JSON 片段，下游结构化解析（extractJson）
+        // 会误抓为最终结果（实测补题干因此拿到无 stems 的 JSON 而被判定「数量不符」）。
+        String text = result.toString();
+        return ChatSyncResponse.builder().text(text).usage(usage[0]).build();
     }
 
     /**
@@ -609,6 +601,21 @@ public class OpenAiChatClient implements ChatClient {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
+        doChat(prompt, consumer, onComplete, onError, stream);
+    }
+
+    /**
+     * 对话实现。本次是否流式以参数传入，不读取可变字段，
+     * 因此同一客户端可被多个线程并发调用（同步接口固定传 false）。
+     *
+     * @param prompt     提示符
+     * @param consumer   响应消费者
+     * @param onComplete 完成回调
+     * @param onError    异常回调
+     * @param streaming  本次是否使用流式请求
+     */
+    private void doChat(String prompt, Consumer<ChatResponse> consumer,
+                        Runnable onComplete, Consumer<Throwable> onError, boolean streaming) {
         String actualBaseUrl = normalizeBaseUrl();
         String actualApiKey = setting.getAppKey();
 
@@ -725,7 +732,7 @@ public class OpenAiChatClient implements ChatClient {
                     .searchContextSize(ChatCompletionCreateParams.WebSearchOptions.SearchContextSize.MEDIUM)
                     .build());
         }
-        if (stream) {
+        if (streaming) {
             // OpenAI 兼容协议默认不在流式分片回 usage，须显式声明后末帧才带 token 统计，
             // 否则下游计量只能记到 0
             paramsBuilder.streamOptions(ChatCompletionStreamOptions.builder()
@@ -804,7 +811,7 @@ public class OpenAiChatClient implements ChatClient {
             */
             long firstTokenAt = 0;
 
-            if (stream) {
+            if (streaming) {
                 // 进行流式请求
                 streamResponse = client.chat().completions().createStreaming(params);
                 Iterator<ChatCompletionChunk> it = streamResponse.stream().iterator();
@@ -959,7 +966,7 @@ public class OpenAiChatClient implements ChatClient {
             usageBuilder.durationMillis(duration);
             if (firstTokenAt > 0) {
                 usageBuilder.firstTokenLatencyMillis(firstTokenAt - startTime);
-            } else if (!stream) {
+            } else if (!streaming) {
                 // 非流式请求无法观测首包，用户看到首字的时间即完整响应到达时间
                 usageBuilder.firstTokenLatencyMillis(duration);
             }

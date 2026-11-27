@@ -16,6 +16,7 @@ import com.chua.common.support.objects.scanner.ObjectContextScanner;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 对象容器上下文接口。
@@ -410,7 +411,7 @@ public interface ObjectContext {
         for (BeanDefinitionGenerator gen : generators) {
             if (Boolean.TRUE.equals(gen.isSupport(bean.getClass()))) {
                 List<BeanDefinition> defs = gen.generate(bean.getClass());
-                if (defs != null && !defs.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(defs)) {
                     BeanDefinition def = defs.getFirst();
                     SingletonBeanDefinition singletonDef = new SingletonBeanDefinition(def, bean);
                     if (!registry.register(singletonDef)) {

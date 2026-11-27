@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * XSS 防护过滤器，对请求参数和请求体进行 XSS 特殊字符转义。
@@ -49,7 +50,7 @@ public class XssServerFilter implements ServerFilter {
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         byte[] body = request.getBody();
-        if (body != null && body.length > 0) {
+        if (ArrayUtils.isNotEmpty(body)) {
             String contentType = request.getContentType();
             if (isTextContent(contentType)) {
                 String bodyStr = new String(body, StandardCharsets.UTF_8);

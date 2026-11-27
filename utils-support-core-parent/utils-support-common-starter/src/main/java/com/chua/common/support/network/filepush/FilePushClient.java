@@ -31,6 +31,7 @@ import static com.chua.common.support.network.filepush.FilePushConfig.MAGIC;
 import static com.chua.common.support.network.filepush.FilePushConfig.PROTOCOL_VERSION;
 import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskExecutor;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 目录推送客户端：扫描本地目录，将全部文件高并发推送到服务端。
@@ -566,7 +567,7 @@ public class FilePushClient implements AutoCloseable {
      * @return 是否成功（true 表示成功）
      */
     private boolean matchesIncludes(Path sourceDir, Path file, List<String> includes) {
-        if (includes == null || includes.isEmpty()) {
+        if (CollectionUtils.isEmpty(includes)) {
             return true;
         }
         String rel = sourceDir.relativize(file).toString().replace('\\', '/');
@@ -586,7 +587,7 @@ public class FilePushClient implements AutoCloseable {
      * @return 是否成功（true 表示成功）
      */
     private boolean matchesExcludes(Path sourceDir, Path file, List<String> excludes) {
-        if (excludes == null || excludes.isEmpty()) {
+        if (CollectionUtils.isEmpty(excludes)) {
             return false;
         }
         String rel = sourceDir.relativize(file).toString().replace('\\', '/');

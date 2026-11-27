@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SEED 模式探针：连接种子节点列表。
@@ -75,7 +76,7 @@ public class SeedModeProbe implements ProbeStrategy {
     @Override
     public void start() throws Exception {
         List<String> seeds = config.getSeeds();
-        if (seeds == null || seeds.isEmpty()) {
+        if (CollectionUtils.isEmpty(seeds)) {
             return;
         }
         for (String seed : seeds) {

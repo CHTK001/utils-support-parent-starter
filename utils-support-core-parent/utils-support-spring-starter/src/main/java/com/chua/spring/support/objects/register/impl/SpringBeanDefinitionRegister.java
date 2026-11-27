@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Spring Bean 定义注册器（只读）。
@@ -146,7 +147,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
             return Collections.emptyList();
         }
         Map<String, ?> beans = ctx.getBeansOfType(type);
-        if (beans == null || beans.isEmpty()) {
+        if (CollectionUtils.isEmpty(beans)) {
             return Collections.emptyList();
         }
         List<BeanDefinition> result = Wraps.list(beans.size());

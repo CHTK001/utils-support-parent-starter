@@ -5,6 +5,7 @@ import com.chua.common.support.lang.directory.WatcherEvent;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 目录轮询器环境配置，承载监听参数和自定义属性。
@@ -62,7 +63,7 @@ public class DirectoryPollerEnvironment {
      * @return true 表示需要监听
      */
     public boolean hasEvent(WatcherEvent event) {
-        return events == null || events.isEmpty() || events.contains(WatcherEvent.ALL_KIND) || events.contains(event);
+        return CollectionUtils.isEmpty(events) || events.contains(WatcherEvent.ALL_KIND) || events.contains(event);
     }
 
     /**

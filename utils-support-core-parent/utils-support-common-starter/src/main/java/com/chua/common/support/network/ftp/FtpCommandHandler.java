@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * FTP 命令处理器，负责解析和执行 FTP 协议命令。
@@ -285,7 +286,7 @@ class FtpCommandHandler {
         if (session.getUsername() != null && !session.getUsername().isBlank()) {
             Map<String, String> users = session.getConfig().getUsers();
             String expected = users == null ? null : users.get(session.getUsername());
-            if (users != null && !users.isEmpty() && expected == null) {
+            if (CollectionUtils.isNotEmpty(users) && expected == null) {
                 session.reply(CODE_LOGIN_FAILED, "Login incorrect.");
                 return true;
             }

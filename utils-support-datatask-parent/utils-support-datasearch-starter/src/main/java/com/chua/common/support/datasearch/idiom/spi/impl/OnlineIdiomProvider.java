@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 chinese-xinhua 语料库的成语提供器（在线 JSON + 内置兜底）。
@@ -163,7 +164,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
             return Collections.emptyList();
         }
         List<IdiomInfo> candidates = loadFirstCharIndex().get(firstChar.trim().substring(0, 1));
-        if (candidates == null || candidates.isEmpty()) {
+        if (CollectionUtils.isEmpty(candidates)) {
             return Collections.emptyList();
         }
         if (limit <= 0 || candidates.size() <= limit) {

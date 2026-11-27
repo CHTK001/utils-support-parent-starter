@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Agent 内容护栏中间件（工具返回边界统一脱敏 / 摘除）。
@@ -103,7 +104,7 @@ public class AgentContentGuardMiddleware implements MiddlewareBase {
             return message;
         }
         List<ContentBlock> content = message.getContent();
-        if (content == null || content.isEmpty()) {
+        if (CollectionUtils.isEmpty(content)) {
             return message;
         }
         List<ContentBlock> rebuilt = new ArrayList<>(content.size());
@@ -127,7 +128,7 @@ public class AgentContentGuardMiddleware implements MiddlewareBase {
      */
     private ToolResultBlock sanitizeToolResult(ToolResultBlock toolResult) {
         List<ContentBlock> output = toolResult.getOutput();
-        if (output == null || output.isEmpty()) {
+        if (CollectionUtils.isEmpty(output)) {
             return toolResult;
         }
         List<ContentBlock> rebuilt = new ArrayList<>(output.size());

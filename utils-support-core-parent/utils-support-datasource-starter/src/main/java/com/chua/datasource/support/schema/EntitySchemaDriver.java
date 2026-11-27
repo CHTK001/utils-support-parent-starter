@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 实体驱动的结构初始化实现，作为 {@link SchemaDriver} SPI 的 {@code entity} 扩展。
@@ -110,7 +111,7 @@ public class EntitySchemaDriver implements SchemaDriver {
             throw new IllegalArgumentException("SchemaDriverContext.dataSource 不能为空");
         }
         List<Class<?>> entityClasses = context.getEntityClasses();
-        if (entityClasses == null || entityClasses.isEmpty()) {
+        if (CollectionUtils.isEmpty(entityClasses)) {
             if (context.isVerbose()) {
                 log.info("[EntitySchemaDriver] 未配置实体类，跳过结构初始化");
             }

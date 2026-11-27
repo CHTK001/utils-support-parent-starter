@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -338,7 +339,7 @@ public class ConfigValueBindingManager implements ConfigListener {
     @Override
     public void onDelete(String key, String oldValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
-        if (bindings == null || bindings.isEmpty()) {
+        if (CollectionUtils.isEmpty(bindings)) {
             return;
         }
 
@@ -361,7 +362,7 @@ public class ConfigValueBindingManager implements ConfigListener {
     @Override
     public void onUpdate(String key, String oldValue, String newValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
-        if (bindings == null || bindings.isEmpty()) {
+        if (CollectionUtils.isEmpty(bindings)) {
             return;
         }
 

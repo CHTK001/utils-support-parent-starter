@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * AI 决策客户端接口
@@ -284,7 +285,7 @@ public interface DecisionsClient extends AutoCloseable, PooledObjectClient<Decis
             throw new IllegalArgumentException("input / state 不能为 null 或空白");
         }
         List<DecisionQuestion> questions = request.questions();
-        if (questions == null || questions.isEmpty()) {
+        if (CollectionUtils.isEmpty(questions)) {
             throw new IllegalArgumentException("questions 不能为 null 或空");
         }
         return decide(input, questions);

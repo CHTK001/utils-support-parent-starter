@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * sqlite 搜索引擎元数据操作实现。
@@ -183,7 +184,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
 
         @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
-            if (mappings != null && !mappings.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(mappings)) {
                 throw new UnsupportedOperationException(
                         "SQLite FTS5 虚表没有字段映射层，列一律按文本索引；请改用 field(...) 声明列，"
                                 + "数值/日期条件请放在普通表列上，索引名: " + indexName);

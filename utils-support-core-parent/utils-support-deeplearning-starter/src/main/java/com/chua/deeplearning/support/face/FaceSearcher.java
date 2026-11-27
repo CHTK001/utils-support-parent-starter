@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 人脸检索：{@link FeatureExtractor} 提特征 + {@link VectorStorage} 检索。
@@ -187,7 +188,7 @@ public class FaceSearcher {
      */
     public List<FaceSearchHit> search(byte[] imageData, int topK) {
         List<Vector> vectors = searchPipeline.search(imageData, topK);
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<FaceSearchHit> hits = Wraps.list(vectors.size());
@@ -215,7 +216,7 @@ public class FaceSearcher {
      */
     public List<FaceSearchHit> search(float[] feature, int topK) {
         List<Vector> vectors = vectorStorage.search(feature, Math.max(1, topK));
-        if (vectors == null || vectors.isEmpty()) {
+        if (CollectionUtils.isEmpty(vectors)) {
             return List.of();
         }
         List<FaceSearchHit> hits = Wraps.list(vectors.size());

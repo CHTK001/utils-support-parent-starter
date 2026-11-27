@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 健康检查过滤器。
@@ -87,7 +88,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     public HealthCheckServerFilter(ServerSetting.ManagementConfig config) {
         this.config = config;
         Set<String> configured = config != null ? config.getHealthPaths() : null;
-        this.healthPaths = (configured != null && !configured.isEmpty())
+        this.healthPaths = (CollectionUtils.isNotEmpty(configured))
                 ? Set.copyOf(configured) : DEFAULT_HEALTH_PATHS;
     }
 

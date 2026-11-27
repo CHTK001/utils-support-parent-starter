@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 Netty 的 HTTP 同步服务端实现。
@@ -200,7 +201,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         while (System.currentTimeMillis() < deadline) {
             for (String topic : topics) {
                 java.util.Queue<String> queue = messageQueues.get(topic);
-                if (queue != null && !queue.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(queue)) {
                     return queue.poll();
                 }
             }

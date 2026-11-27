@@ -11,6 +11,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * deepghs anime/real                    translator
@@ -44,7 +45,7 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
      */
     public AnimeRealClsTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = Wraps.linkedMap();
-        if (arguments != null && !arguments.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(arguments)) {
             options.putAll(arguments);
         }
         options.putIfAbsent("width", 384);

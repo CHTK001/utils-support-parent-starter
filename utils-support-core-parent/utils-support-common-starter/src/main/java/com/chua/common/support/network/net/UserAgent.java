@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * User-Agent 解析工具对象。
@@ -230,7 +231,7 @@ public class UserAgent implements Serializable {
      * @return 缺少任意基础请求头返回 {@code true}；四项齐全返回 {@code false}
      */
     public static boolean missingBasicHeaders(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return true;
         }
         for (String header : BASIC_HEADERS) {
@@ -251,7 +252,7 @@ public class UserAgent implements Serializable {
      * @return 缺少任意 Sec-Fetch 头返回 {@code true}；三项齐全返回 {@code false}
      */
     public static boolean missingSecFetchHeaders(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return true;
         }
         for (String header : SEC_FETCH_HEADERS) {
@@ -767,7 +768,7 @@ public class UserAgent implements Serializable {
             return null;
         }
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name)) {
+            if (StringUtils.equalsIgnoreCase(entry.getKey(), name)) {
                 return entry.getValue();
             }
         }

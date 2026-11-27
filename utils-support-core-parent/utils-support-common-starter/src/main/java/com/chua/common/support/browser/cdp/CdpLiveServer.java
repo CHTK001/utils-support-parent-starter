@@ -702,7 +702,7 @@ public final class CdpLiveServer implements AutoCloseable {
      */
     private static Map<String, String> parseForm(String raw) {
         var result = new LinkedHashMap<String, String>();
-        if (raw == null || raw.isEmpty()) {
+        if (StringUtils.isEmpty(raw)) {
             return result;
         }
         for (String pair : raw.split("&")) {

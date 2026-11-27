@@ -288,7 +288,7 @@ public class RedisEngine {
                 String legacy = toCamelCase(entry.getKey());
                 String keptCase = snakeToCamelKeepCase(entry.getKey());
                 for (String propName : new String[]{keptCase, legacy}) {
-                    if (propName == null || propName.isEmpty()) {
+                    if (StringUtils.isEmpty(propName)) {
                         continue;
                     }
                     String setterName = "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);

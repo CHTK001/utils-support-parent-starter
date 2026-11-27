@@ -11,6 +11,7 @@ import ai.djl.translate.TranslatorContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -72,7 +73,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
  // past_键_值
         Map<String, NDArray> pastKeyValues = input.getPastKeyValues();
-        if (pastKeyValues == null || pastKeyValues.isEmpty()) {
+        if (CollectionUtils.isEmpty(pastKeyValues)) {
  // past_键_值
  // 30                 键     值
  // past_键_值                    [批量_大小, num_heads, past_seq_len, head_dim]

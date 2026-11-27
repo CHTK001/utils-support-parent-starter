@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * DJL 翻译器包装。
@@ -248,7 +249,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         if (result instanceof ai.djl.modality.Classifications classifications) {
  // 分类输出 → 最可能类别名（业务接口 镜像classifier 期望 字符串）
             List<ai.djl.modality.Classifications.Classification> items = classifications.items();
-            if (items != null && !items.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(items)) {
                 String top = String.valueOf(items.getFirst().getClassName());
                 log.debug("[deeplearning-engine] DJL 模型 {} 分类结果: {}", modelName, top);
                 return top;

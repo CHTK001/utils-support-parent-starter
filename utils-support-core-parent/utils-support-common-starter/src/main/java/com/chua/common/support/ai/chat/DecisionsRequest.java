@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 一次决策请求的完整参数。
@@ -60,7 +61,7 @@ public record DecisionsRequest(
      * @return 问题标识列表
      */
     public List<String> questionNames() {
-        if (questions == null || questions.isEmpty()) {
+        if (CollectionUtils.isEmpty(questions)) {
             return Wraps.list();
         }
         return questions.stream().map(DecisionQuestion::name).toList();

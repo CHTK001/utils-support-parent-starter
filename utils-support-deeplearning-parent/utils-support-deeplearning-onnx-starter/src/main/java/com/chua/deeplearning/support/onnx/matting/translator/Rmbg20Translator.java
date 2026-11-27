@@ -16,6 +16,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -278,7 +279,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
      * @return resolveMode的结果
      */
     private static MattingTranslator.MattingMode resolveMode(Map<String, ?> arguments) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return MattingTranslator.MattingMode.RGBA;
         }
 

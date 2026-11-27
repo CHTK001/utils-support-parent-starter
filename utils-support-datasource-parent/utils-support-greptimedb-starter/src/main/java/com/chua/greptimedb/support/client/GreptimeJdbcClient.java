@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * greptimedb JDBC 客户端：经 MySQL 协议（默认 {@value #DEFAULT_MYSQL_PORT} 端口）执行真实 SQL。
@@ -304,7 +305,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
         if (StringUtils.isBlank(sql)) {
             throw new SQLException("GreptimeDB 批量执行 SQL 不能为空");
         }
-        if (paramList == null || paramList.isEmpty()) {
+        if (CollectionUtils.isEmpty(paramList)) {
             return new int[0];
         }
         try {

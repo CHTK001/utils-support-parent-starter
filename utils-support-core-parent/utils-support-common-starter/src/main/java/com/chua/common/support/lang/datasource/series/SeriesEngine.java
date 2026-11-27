@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 时序（Series）引擎统一契约。
@@ -95,7 +96,7 @@ public interface SeriesEngine {
      * @throws IllegalStateException    引擎不可用或已关闭
      */
     default void writeBatch(String target, Long monitorId, Map<String, Double> metrics, long timestamp) {
-        if (metrics == null || metrics.isEmpty()) {
+        if (CollectionUtils.isEmpty(metrics)) {
             return;
         }
         for (Map.Entry<String, Double> entry : metrics.entrySet()) {
@@ -281,7 +282,7 @@ public interface SeriesEngine {
      */
     static List<List<Object>> downsample(List<Object[]> points, long windowMs, int maxPoints) {
         List<List<Object>> result = Wraps.list();
-        if (points == null || points.isEmpty()) {
+        if (CollectionUtils.isEmpty(points)) {
             return result;
         }
         Map<Long, double[]> buckets = Wraps.linkedMap();

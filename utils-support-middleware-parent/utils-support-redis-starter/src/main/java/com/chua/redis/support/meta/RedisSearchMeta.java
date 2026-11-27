@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Redis redi搜索 元数据操作实现。
@@ -267,7 +268,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         */
         @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
-            if (mappings != null && !mappings.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(mappings)) {
                 throw new UnsupportedOperationException(
                         "RediSearch 没有字段映射层，索引结构由 FT.CREATE 的 SCHEMA 决定；请改用 field(name, type)"
                                 + "（type 取 TEXT/NUMERIC/TAG/GEO/VECTOR）声明字段，索引名: " + indexName);

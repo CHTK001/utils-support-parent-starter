@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 链路追踪上下文 —— 线程级别的 追踪id 生命周期管理器
@@ -468,7 +469,7 @@ public final class TraceContext {
      */
     private static void flushTree(String traceId) {
         List<TraceNode> nodes = SHARED_NODES.get(traceId);
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
 

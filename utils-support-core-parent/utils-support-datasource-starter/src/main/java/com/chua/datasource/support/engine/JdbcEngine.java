@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import com.chua.common.support.lang.datasource.engine.ddl.ColumnDef;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * JDBC 引擎基类，提供基于 JDBC 的数据库查询实现。
@@ -214,7 +215,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
         // 内存存储中存在数据时走内存链路（executeNewQuery 内存分支 + 内存排序/分页后处理）
         List<T> memoryData = getData(sql.entityClass());
-        if (memoryData != null && !memoryData.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(memoryData)) {
             return super.executeQueryFull(sql);
         }
         String fullSql = buildSelectSql(sql, true);
@@ -314,7 +315,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             sb.append(projectionOverride);
         } else {
             List<String> columns = sql.selectColumns();
-            if (columns != null && !columns.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(columns)) {
                 sb.append(String.join(", ", columns));
             } else if (sql.hasGroupBy()) {
                 // 有 GROUP BY 但无显式投影列时，只选择分组列，兼容 ONLY_FULL_GROUP_BY 严格模式
@@ -523,7 +524,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     protected boolean supportsNativePaging(Class<?> entityClass) {
         // 内存存储中存在数据时回退内存分页，保证 store() 语义不被绕过
         List<?> memoryData = getData(entityClass);
-        if (memoryData != null && !memoryData.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(memoryData)) {
             return false;
         }
         EngineDataSource<?> ds = getDataSource();
@@ -549,7 +550,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
         QuerySql<T> sql = wrapper.buildSql();
         List<String> orderBys = sql.orderBys();
-        if (orderBys == null || orderBys.isEmpty()) {
+        if (CollectionUtils.isEmpty(orderBys)) {
             return null;
         }
         // 与 buildSelectSql 的 keyset 判定同口径：开关关闭 / GROUP BY / JOIN / 方言无 LIMIT
@@ -740,7 +741,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     @Override
     public int[] batchSql(String ql, List<Object[]> batchParams) {
-        if (batchParams == null || batchParams.isEmpty()) {
+        if (CollectionUtils.isEmpty(batchParams)) {
             return new int[0];
         }
         Object[] firstParams = batchParams.get(0) == null ? new Object[0] : batchParams.get(0);
@@ -1301,7 +1302,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (StringUtils.isBlank(tableName)) {
             throw new IllegalArgumentException("表名不能为空");
         }
-        if (columns == null || columns.isEmpty()) {
+        if (CollectionUtils.isEmpty(columns)) {
             throw new IllegalArgumentException("列定义不能为空");
         }
         String protocol = currentDialectProtocol();

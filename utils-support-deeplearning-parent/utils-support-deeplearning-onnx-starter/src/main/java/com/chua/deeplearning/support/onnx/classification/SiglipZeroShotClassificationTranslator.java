@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * siglip                 Translator
@@ -309,7 +310,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
      * @return 读取参数的结果
      */
     private String readArgument(Map<String, ?> arguments, String key) {
-        if (arguments == null || arguments.isEmpty()) {
+        if (CollectionUtils.isEmpty(arguments)) {
             return null;
         }
         Object value = arguments.get(key);

@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 腾讯混元生图图片生成客户端
@@ -209,7 +210,7 @@ public BufferedImage generate(String prompt) {
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<Map<String, Object>> choices = (List<Map<String, Object>>) root.get("choices");
-        if (choices == null || choices.isEmpty()) {
+        if (CollectionUtils.isEmpty(choices)) {
             throw new RuntimeException("混元生图返回的结果为空");
         }
         Map<String, Object> message = (Map<String, Object>) choices.getFirst().get("message");

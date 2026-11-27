@@ -23,6 +23,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SSL/TLS 工具类，统一 KeyStore 加载、SSLContext 创建、自签名证书生成等逻辑。
@@ -250,7 +251,7 @@ public final class SslUtils {
 
         try {
             List<String> domains = ssl.getSelfSignedDomains();
-            if (domains == null || domains.isEmpty()) {
+            if (CollectionUtils.isEmpty(domains)) {
                 domains = List.of("localhost", "127.0.0.1");
             }
 

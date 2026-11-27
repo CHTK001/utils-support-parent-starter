@@ -19,6 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * Ollama 本地语音识别（ASR）客户端（SPI provider="ollama"）。
@@ -221,7 +222,7 @@ public class OllamaAudioClient implements VirtualClient {
      * @return 音频 字节 数组
      */
     private byte[] readAudio(Path path, byte[] audio) {
-        if (audio != null && audio.length > 0) {
+        if (ArrayUtils.isNotEmpty(audio)) {
             return audio;
         }
         if (path == null) {

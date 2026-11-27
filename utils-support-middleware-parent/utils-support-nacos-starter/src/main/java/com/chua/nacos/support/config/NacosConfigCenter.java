@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * Nacos 配置中心实现。
@@ -219,7 +220,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
             Map<String, Object> currentConfig = configContentCache.get(cacheKey);
             if (currentConfig == null) {
                 currentConfig = get(dataId, DEFAULT_GROUP);
-                if (currentConfig == null || currentConfig.isEmpty()) {
+                if (CollectionUtils.isEmpty(currentConfig)) {
                     return true;
                 }
                 currentConfig = Wraps.linkedMap(currentConfig);

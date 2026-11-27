@@ -16,6 +16,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 响应式 Lambda 查询包装器，条件 API 与 {@code LambdaQueryWrapper} 一致，
@@ -482,7 +483,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         // [P3C 1.4 豁免] core SQL 由 buildCoreSql 内部生成（表/列名来自实体元数据，值已 ? 参数化），无外部输入
         String countSql = "SELECT COUNT(*) FROM (" + buildCoreSql(sql, false) + ") t_count";
         List<Map<String, Object>> rows = engine.getExecutor().query(countSql, mergedParams(sql));
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return 0L;
         }
         Object value = rows.getFirst().values().iterator().next();

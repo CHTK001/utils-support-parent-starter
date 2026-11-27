@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Map;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -125,7 +126,7 @@ public class DuckDbLogSink implements DataSink {
         }
         try {
             Map<String, Object> data = envelope.getParsed();
-            if (data == null || data.isEmpty()) {
+            if (CollectionUtils.isEmpty(data)) {
                 return true;
             }
             String topic = envelope.getTopics() != null && !envelope.getTopics().isEmpty()

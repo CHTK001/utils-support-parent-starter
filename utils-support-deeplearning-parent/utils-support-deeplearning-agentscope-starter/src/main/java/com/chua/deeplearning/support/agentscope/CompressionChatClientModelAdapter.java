@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 将压缩专用 {@link ChatClient} 适配为 Agentscope 的 {@link Model} 接口。
@@ -86,7 +87,7 @@ public class CompressionChatClientModelAdapter implements Model {
      * @return extract最后一个用户提示符的结果
      */
     private static String extractLastUserPrompt(List<Msg> messages) {
-        if (messages == null || messages.isEmpty()) {
+        if (CollectionUtils.isEmpty(messages)) {
             return "";
         }
         for (int i = messages.size() - 1; i >= 0; i--) {

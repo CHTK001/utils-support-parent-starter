@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 任务节点定义 — 类型安全的流水线节点构建器。
@@ -167,13 +168,13 @@ public class TaskDefinition {
     public PipelineBuilder taskEnd() {
         PipelineNode effectiveHandler = endAfterExecute ? wrapWithEnd(handler) : handler;
         TaskNode node = new TaskNode(id, effectiveHandler);
-        if (env != null && !env.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(env)) {
             node.setEnv(env);
         }
         if (retryConfig != null) {
             node.setRetryConfig(retryConfig);
         }
-        if (units != null && !units.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(units)) {
             node.setUnits(units);
         }
         builder.addNodeInternal(node);

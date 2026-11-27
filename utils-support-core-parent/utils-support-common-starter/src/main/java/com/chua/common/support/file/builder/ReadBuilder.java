@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 文件读取构建器抽象基类。
@@ -157,7 +158,7 @@ public abstract class ReadBuilder {
      * @return 过滤后的行数据（若 rowFilter 为 null 则原样返回）
      */
     protected List<Map<String, Object>> applyFilter(List<Map<String, Object>> rows) {
-        if (rowFilter == null || rows == null || rows.isEmpty()) {
+        if (rowFilter == null || CollectionUtils.isEmpty(rows)) {
             return rows;
         }
         return rows.stream()
@@ -193,7 +194,7 @@ public abstract class ReadBuilder {
      * @return 转换后的行数据（若 rowMapper 为 null 则原样返回）
      */
     protected List<Map<String, Object>> applyRowMapping(List<Map<String, Object>> rows) {
-        if (rowMapper == null || rows == null || rows.isEmpty()) {
+        if (rowMapper == null || CollectionUtils.isEmpty(rows)) {
             return rows;
         }
         return rows.stream()

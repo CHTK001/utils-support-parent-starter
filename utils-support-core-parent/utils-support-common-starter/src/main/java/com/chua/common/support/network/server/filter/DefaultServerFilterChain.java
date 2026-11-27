@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 默认过滤器链实现。
@@ -98,7 +99,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
             // 监听器每步只解析一次：getListeners 走请求属性表查找，旧实现在
             // before、主流程、after 各查一次（每过滤器步 2~3 次属性查找）。
             List<FilterChainListener> chainListeners = getListeners(request);
-            boolean hasListeners = chainListeners != null && !chainListeners.isEmpty();
+            boolean hasListeners = CollectionUtils.isNotEmpty(chainListeners);
             long start = hasListeners ? System.nanoTime() : 0L;
             if (hasListeners) {
                 notifyBefore(filter, chainListeners, request, response);

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 存储管理器 — SPI 加载 / 全局访问 / 写入分发。
@@ -203,7 +204,7 @@ public final class StorageManager {
     private static boolean sameConfig(StorageConfig a, StorageConfig b) {
         Map<String, String> x = a.getProperties();
         Map<String, String> y = b.getProperties();
-        return x == null ? y == null || y.isEmpty() : x.equals(y);
+        return x == null ? CollectionUtils.isEmpty(y) : x.equals(y);
     }
 
     /**

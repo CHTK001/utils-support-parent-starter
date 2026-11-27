@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * SQL 文本查询构建器，提供"拼接即执行"的链式查询能力。
@@ -685,7 +686,7 @@ public final class SqlQueryBuilder {
      */
     public Map<String, Object> map() {
         var rows = list();
-        if (rows == null || rows.isEmpty() || rows.getFirst() == null) {
+        if (CollectionUtils.isEmpty(rows) || rows.getFirst() == null) {
             return null;
         }
         return rows.getFirst();
@@ -702,7 +703,7 @@ public final class SqlQueryBuilder {
     public <R> R map(Class<R> rowType) {
         requireRowType(rowType);
         List<R> rows = list(rowType);
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             return null;
         }
         return rows.getFirst();

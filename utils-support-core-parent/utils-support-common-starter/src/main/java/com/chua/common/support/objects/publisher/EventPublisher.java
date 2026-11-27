@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 事件发布器。
@@ -83,7 +84,7 @@ public class EventPublisher {
             return false;
         }
         List<EventListener> removed = listeners.remove(type);
-        return removed != null && !removed.isEmpty();
+        return CollectionUtils.isNotEmpty(removed);
     }
 
     /**

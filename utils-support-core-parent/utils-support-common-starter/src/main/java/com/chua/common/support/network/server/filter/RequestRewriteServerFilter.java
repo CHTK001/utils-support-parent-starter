@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 请求改写过滤器（网关类节点常用）。
@@ -108,7 +109,7 @@ public class RequestRewriteServerFilter implements ServerFilter {
             addPrefix = normalizeAddPrefix(prefix);
         }
         Map<String, String> params = config.getInitParameters();
-        if (params == null || params.isEmpty()) {
+        if (CollectionUtils.isEmpty(params)) {
             return;
         }
         setHeaders.clear();

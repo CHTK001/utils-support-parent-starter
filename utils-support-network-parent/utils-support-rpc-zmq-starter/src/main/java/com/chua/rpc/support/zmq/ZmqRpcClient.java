@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * zeromq RPC 客户端实现（jeromq，纯 Java 无需原生依赖）。
@@ -142,7 +143,7 @@ public class ZmqRpcClient implements RpcClient {
         this.registryConfigs = registryConfigs;
         this.appName = name;
         this.inlineEnabled = consumerConfig != null && Boolean.TRUE.equals(consumerConfig.getInline());
-        String address = registryConfigs != null && !registryConfigs.isEmpty()
+        String address = CollectionUtils.isNotEmpty(registryConfigs)
                 ? registryConfigs.getFirst().getAddress() : null;
         this.serviceDiscovery = initServiceDiscovery();
         // 直连地址仅在无服务发现或地址显式指定时使用；服务发现模式下地址可为空
@@ -162,7 +163,7 @@ public class ZmqRpcClient implements RpcClient {
      * @return 服务发现实例，纯直连模式下返回 {@code null}
      */
     private ServiceDiscovery initServiceDiscovery() {
-        if (registryConfigs == null || registryConfigs.isEmpty()) {
+        if (CollectionUtils.isEmpty(registryConfigs)) {
             return null;
         }
         for (RpcRegistryConfig config : registryConfigs) {

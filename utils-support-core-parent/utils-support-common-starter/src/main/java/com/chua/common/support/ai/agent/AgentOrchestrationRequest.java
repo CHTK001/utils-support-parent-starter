@@ -3,6 +3,7 @@ package com.chua.common.support.ai.agent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 多 Agent 编排请求。
@@ -51,7 +52,7 @@ public record AgentOrchestrationRequest(
         if (mode == null) {
             throw new NullPointerException("mode 不能为 null");
         }
-        if (agents == null || agents.isEmpty()) {
+        if (CollectionUtils.isEmpty(agents)) {
             throw new IllegalArgumentException("agents 不能为空");
         }
         agents = Collections.unmodifiableList(new ArrayList<>(agents));

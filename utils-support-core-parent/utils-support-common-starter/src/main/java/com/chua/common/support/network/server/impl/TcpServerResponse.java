@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import lombok.ToString;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * TCP 帧式协议的 {@link ServerResponse} 实现。
@@ -68,10 +69,10 @@ public class TcpServerResponse implements ServerResponse,
      */
     @Override
     public void write(byte[] header, byte[] body) {
-        if (header != null && header.length > 0) {
+        if (ArrayUtils.isNotEmpty(header)) {
             ready.write(header, 0, header.length);
         }
-        if (body != null && body.length > 0) {
+        if (ArrayUtils.isNotEmpty(body)) {
             ready.write(body, 0, body.length);
         }
     }

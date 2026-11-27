@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import com.chua.common.support.lang.balance.LoadBalance;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 原生 TCP NIO RPC 客户端，复用 {@link TcpClient} 长度帧传输层。
@@ -351,7 +352,7 @@ public class NativeRpcClient implements RpcClient {
      * @return 选中的端点，无候选或均衡器不可用时返回 {@code null}
      */
     private String selectFirst(List<String> targets) {
-        if (loadBalance == null || targets == null || targets.isEmpty()) {
+        if (loadBalance == null || CollectionUtils.isEmpty(targets)) {
             return null;
         }
         return loadBalance.select(Wraps.list(targets));

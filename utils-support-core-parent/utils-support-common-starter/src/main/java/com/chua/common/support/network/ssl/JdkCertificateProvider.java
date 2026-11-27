@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 JDK keytool 的证书生成提供者实现。
@@ -134,7 +135,7 @@ public class JdkCertificateProvider implements AcmeProvider {
      */
     @Override
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
-        if (domains == null || domains.isEmpty()) {
+        if (CollectionUtils.isEmpty(domains)) {
             return AcmeCertificateResult.fail("域名列表不能为空");
         }
 

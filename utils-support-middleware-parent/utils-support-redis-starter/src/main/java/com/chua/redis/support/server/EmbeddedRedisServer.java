@@ -4,6 +4,7 @@ package com.chua.redis.support.server;
 import com.chua.common.support.condition.Precondition;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 嵌入式 Redis 服务器，用于本地开发和测试。
@@ -208,7 +209,7 @@ public class EmbeddedRedisServer {
                     redisBuilder = redisBuilder.setting("maxmemory " + maxMemory);
                 }
 
-                if (args != null && args.length > 0) {
+                if (ArrayUtils.isNotEmpty(args)) {
                     for (String arg : args) {
                         redisBuilder = redisBuilder.setting(arg);
                     }

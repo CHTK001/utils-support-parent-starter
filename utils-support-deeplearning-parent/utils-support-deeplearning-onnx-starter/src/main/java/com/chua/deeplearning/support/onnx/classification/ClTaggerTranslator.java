@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 
 /**
@@ -228,8 +229,7 @@ finally {
      * @return lookslike默认类的结果
      */
     private static boolean looksLikeDefaultClasses(List<String> classes) {
-        return classes != null
-                && !classes.isEmpty()
+        return CollectionUtils.isNotEmpty(classes)
                 && classes.stream().limit(Math.min(16, classes.size()))
                         .allMatch(value -> value != null && value.startsWith("tag-"));
     }
@@ -274,7 +274,7 @@ finally {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
                 new TypeReference<Map<String, TagMappingEntry>>() {
                 });
-        if (rawMapping == null || rawMapping.isEmpty()) {
+        if (CollectionUtils.isEmpty(rawMapping)) {
             return List.of();
         }
         return rawMapping.entrySet().stream()

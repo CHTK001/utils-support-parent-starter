@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * skillsmp 技能市场在线提供器。
@@ -61,7 +62,7 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnli
         try {
             Map<String, Object> apiResult = callApi(keyword, Math.max(1, page), Math.max(1, limit), sortBy);
             List<Map<String, Object>> items = (List<Map<String, Object>>) apiResult.get("items");
-            if (items == null || items.isEmpty()) {
+            if (CollectionUtils.isEmpty(items)) {
                 return Collections.emptyList();
             }
             List<SkillMarketListing> listings = Wraps.list(items.size());

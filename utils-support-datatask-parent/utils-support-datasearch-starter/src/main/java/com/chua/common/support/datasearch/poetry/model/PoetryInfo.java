@@ -3,6 +3,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import lombok.ToString;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 古诗词信息模型。
@@ -93,7 +94,7 @@ public class PoetryInfo {
      * @return 全文
      */
     public String getContent() {
-        if (paragraphs == null || paragraphs.isEmpty()) {
+        if (CollectionUtils.isEmpty(paragraphs)) {
             return "";
         }
         return String.join("\n", paragraphs);

@@ -8,6 +8,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 import java.util.Map;
 import java.util.function.Consumer;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 子流水线节点定义 — 类型安全的子流水线配置构建器。
@@ -150,10 +151,10 @@ public class TaskSubPipelineDefinition {
         if (startNode != null) {
             node.start(startNode);
         }
-        if (params != null && !params.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(params)) {
             node.params(params);
         }
-        if (env != null && !env.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(env)) {
             node.setEnv(env);
         }
         PipelineNode finalNode = node;

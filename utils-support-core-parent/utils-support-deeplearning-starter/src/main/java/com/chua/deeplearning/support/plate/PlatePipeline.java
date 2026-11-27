@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 车牌识别流水线，组合车牌检测和车牌识别两个步骤完成端到端识别。
@@ -206,7 +207,7 @@ public class PlatePipeline {
      */
     public List<PlateDetectHit> detect(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        if (CollectionUtils.isEmpty(boxes)) {
             return List.of();
         }
         PlateContext pc = new PlateContext(imageData, boxes);

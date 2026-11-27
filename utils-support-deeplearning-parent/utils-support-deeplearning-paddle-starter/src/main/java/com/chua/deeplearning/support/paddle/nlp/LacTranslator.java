@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 飞桨 LAC 中文分词/词性标注 Translator。
@@ -76,7 +77,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
-                if (word == null || word.isEmpty()) {
+                if (StringUtils.isEmpty(word)) {
                     continue;
                 }
                 String[] ws = word.split("\t");
@@ -98,7 +99,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
-                if (word == null || word.isEmpty()) {
+                if (StringUtils.isEmpty(word)) {
                     continue;
                 }
                 String[] ws = word.split("\t");

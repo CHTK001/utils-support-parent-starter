@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.utils.ArrayUtils;
 
 /**
  * 基于 JDK DatagramSocket 的 UDP 服务器实现。
@@ -170,7 +171,7 @@ public class JdkUdpServer extends AbstractServer {
         if (handler != null) {
             try {
                 byte[] response = handler.handle(data, sender);
-                if (response != null && response.length > 0) {
+                if (ArrayUtils.isNotEmpty(response)) {
                     DatagramPacket responsePacket = new DatagramPacket(
                             response, response.length, sender);
                     datagramSocket.send(responsePacket);

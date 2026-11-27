@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 订阅器注册表 —— 实时投递的落点。
@@ -146,11 +147,11 @@ public final class SubscriberRegistry {
      */
     private static boolean interests(Subscriber subscriber, DataEnvelope envelope) {
         Set<String> wanted = subscriber.topics();
-        if (wanted == null || wanted.isEmpty()) {
+        if (CollectionUtils.isEmpty(wanted)) {
             return true;
         }
         Set<String> owned = envelope.getTopics();
-        if (owned == null || owned.isEmpty()) {
+        if (CollectionUtils.isEmpty(owned)) {
             return false;
         }
         for (String topic : owned) {

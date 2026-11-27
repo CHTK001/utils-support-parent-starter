@@ -10,6 +10,7 @@ import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
 import com.arcsoft.face.FaceEngine;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * arcsoft 模型提供者
@@ -91,6 +92,6 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     @Override
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
-        return all != null && !all.isEmpty() ? all.getFirst() : null;
+        return CollectionUtils.isNotEmpty(all) ? all.getFirst() : null;
     }
 }

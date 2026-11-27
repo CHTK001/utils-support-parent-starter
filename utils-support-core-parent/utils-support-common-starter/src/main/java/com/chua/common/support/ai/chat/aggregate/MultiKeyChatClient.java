@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 多 Key 对话客户端：同一个供应商、同一个模型、多个 API Key，Key 的维护全在本类内部。
@@ -133,7 +134,7 @@ public class MultiKeyChatClient extends SwitchingChatClient {
      */
     public static MultiKeyChatClient multiKey(String provider, String model, Strategy strategy,
                                               boolean autoSwitch, Map<String, ChatClient> keyedClients) {
-        if (keyedClients == null || keyedClients.isEmpty()) {
+        if (CollectionUtils.isEmpty(keyedClients)) {
             return null;
         }
         String prefix = (provider == null ? "" : provider) + "|" + (model == null ? "" : model);

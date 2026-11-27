@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 上游登录页反向代理服务器。
@@ -396,7 +398,7 @@ public class LiveProxyServer {
      * （去 Domain/Secure/HttpOnly/SameSite，Path 固定为 /，保留 Max-Age/Expires）。
      */
     private String storeCookie(Session session, String setCookie) {
-        if (setCookie == null || setCookie.isEmpty()) {
+        if (StringUtils.isEmpty(setCookie)) {
             return null;
         }
         String pair = setCookie.split(";", 2)[0];
@@ -500,7 +502,7 @@ public class LiveProxyServer {
 
     private static String firstHeader(Map<String, List<String>> headers, String name, String def) {
         List<String> values = headers.get(name);
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             for (Map.Entry<String, List<String>> en : headers.entrySet()) {
                 if (en.getKey().toLowerCase(Locale.ROOT).equals(name)) {
                     values = en.getValue();
@@ -508,7 +510,7 @@ public class LiveProxyServer {
                 }
             }
         }
-        return values == null || values.isEmpty() ? def : values.get(0);
+        return CollectionUtils.isEmpty(values) ? def : values.get(0);
     }
 
     private static byte[] inflate(byte[] gz) throws IOException {

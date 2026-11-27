@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 对象上下文 配置，控制 SPI 发现、注解扫描等行为。
@@ -77,8 +78,7 @@ public class ObjectContextConfig {
      * @return true 表示需要扫描
      */
     public boolean shouldScan() {
-        return (annotationScanEnabled || (scanPackages != null && !scanPackages.isEmpty()))
-                && scanPackages != null
-                && !scanPackages.isEmpty();
+        return (annotationScanEnabled || (CollectionUtils.isNotEmpty(scanPackages)))
+                && CollectionUtils.isNotEmpty(scanPackages);
     }
 }

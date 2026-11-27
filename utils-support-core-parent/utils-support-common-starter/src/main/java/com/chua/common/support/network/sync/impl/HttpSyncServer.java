@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 基于 JDK HttpServer 的 HTTP 同步服务端实现。
@@ -488,7 +489,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     private String pollFromTopics(String[] topics) {
         for (String topic : topics) {
             java.util.Queue<String> queue = messageQueues.get(topic);
-            if (queue != null && !queue.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(queue)) {
                 return queue.poll();
             }
         }

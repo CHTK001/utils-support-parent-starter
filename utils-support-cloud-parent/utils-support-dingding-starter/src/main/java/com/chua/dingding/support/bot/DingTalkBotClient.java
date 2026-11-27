@@ -56,6 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
+import com.chua.common.support.utils.CollectionUtils;
 
 /**
  * 钉钉机器人客户端，实现 {@link BotClient}。
@@ -615,7 +616,7 @@ public class DingTalkBotClient implements BotClient {
      */
     public DingTalkBotClient topics(List<String> topics) {
         subscriptions.clear();
-        if (topics == null || topics.isEmpty()) {
+        if (CollectionUtils.isEmpty(topics)) {
             subscriptions.add(subscription(SUBSCRIPTION_CALLBACK, BOT_MESSAGE_TOPIC));
             return this;
         }
@@ -1508,7 +1509,7 @@ public class DingTalkBotClient implements BotClient {
         switch (type) {
             case TEXT:
                 if (message.isToGroup()) {
-                    return mentioned == null || mentioned.isEmpty()
+                    return CollectionUtils.isEmpty(mentioned)
                             ? sendToGroup(toUser, message.getContent())
                             : sendToGroupMention(toUser, message.getContent(), mentioned);
                 }
@@ -1707,7 +1708,7 @@ public class DingTalkBotClient implements BotClient {
      * @return 带 @ 占位的文本内容
      */
     private String withMention(String content, List<String> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(userIds)) {
             return content;
         }
         StringBuilder builder = new StringBuilder();

@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.utils.StringUtils;
 
 /**
  * 内置轻量 DNS 服务端（UDP，内存 zone）。
@@ -443,7 +444,7 @@ public class SimpleDnsServer implements DnsServerProvider {
      * @param name 域名（不含末尾点）
      */
     private static void writeName(DataOutputStream out, String name) throws IOException {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             out.writeByte(0);
             return;
         }
