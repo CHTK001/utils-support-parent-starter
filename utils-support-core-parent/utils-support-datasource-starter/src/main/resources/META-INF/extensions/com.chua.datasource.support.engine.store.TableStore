@@ -1,0 +1,2 @@
+heap=com.chua.datasource.support.engine.store.HeapTableStore
+mmap=com.chua.datasource.support.engine.store.MappedFileTableStore

@@ -12,15 +12,45 @@ import java.util.List;
  * @param apis 功能和 API
  * @param notes 注意事项
  * @param source 扫描时的源码快照
+ * @param title 功能指南标题
+ * @param category 功能分类
+ * @param sections 按任务组织的指南章节
  * @author CH
  * @since 4.0.0.51
  */
 public record CodeDocPage(String id, String path, String language, String summary,
-                          List<Api> apis, List<String> notes, String source) {
+                          List<Api> apis, List<String> notes, String source,
+                          String title, String category, List<Section> sections) {
     /** 创建不可变页面。 */
     public CodeDocPage {
         apis = apis == null ? List.of() : List.copyOf(apis);
         notes = notes == null ? List.of() : List.copyOf(notes);
+        sections = sections == null ? List.of() : List.copyOf(sections);
+    }
+
+    /** 兼容原有七参数页面构造；新分析结果使用功能指南字段。 */
+    public CodeDocPage(String id, String path, String language, String summary,
+                       List<Api> apis, List<String> notes, String source) {
+        this(id, path, language, summary, apis, notes, source, path, "未分类", List.of());
+    }
+
+    /**
+     * 面向使用者的任务章节，正文为纯文本，示例单独承载。
+     *
+     * @param title 章节名称
+     * @param content 用途、操作步骤和解释，可包含空行分段
+     * @param examples 完整示例及其前置条件
+     * @param notes 章节注意事项
+     * @param startLine 对应源码起始行
+     * @param endLine 对应源码结束行
+     */
+    public record Section(String title, String content, List<Example> examples,
+                          List<String> notes, int startLine, int endLine) {
+        /** 创建不可变章节。 */
+        public Section {
+            examples = examples == null ? List.of() : List.copyOf(examples);
+            notes = notes == null ? List.of() : List.copyOf(notes);
+        }
     }
 
     /**

@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 record CodeDocOptions(ChatClient chatClient, Path directory, Path outputDirectory,
                       Set<String> includeTypes, Set<String> excludeTypes,
                       List<String> includes, List<String> excludes, Charset charset,
-                      String title, String instructions, String cacheNamespace,
+                      String title, String prompt, String instructions, String cacheNamespace,
                       boolean incremental, boolean failFast, int maxDepth,
                       int maxFiles, long maxFileBytes, int chunkChars, int retries,
                       Consumer<CodeDocs.Progress> progress) {

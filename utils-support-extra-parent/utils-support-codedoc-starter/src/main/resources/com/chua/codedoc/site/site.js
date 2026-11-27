@@ -17,7 +17,8 @@
   const menu = document.getElementById('menu');
   const pageMap = new Map(data.pages.map(page => [page.id, page]));
   const searchIndex = new Map(data.pages.map(page => [page.id, JSON.stringify({
-    path: page.path, summary: page.summary, apis: page.apis, notes: page.notes
+    path: page.path, title: page.title, category: page.category, sections: page.sections,
+    summary: page.summary, apis: page.apis, notes: page.notes
   }).toLocaleLowerCase()]));
   let currentPage = null;
   let sourceDetails = null;
@@ -86,7 +87,7 @@
     document.getElementById('search-count').textContent = `${matches.length} / ${data.pages.length} 个文档文件`;
     const groups = new Map();
     for (const page of matches) {
-      const group = page.path.includes('/') ? page.path.split('/')[0] : '根目录';
+      const group = page.category || '未分类';
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group).push(page);
     }
@@ -95,7 +96,7 @@
       group.open = Boolean(query) || pages.some(page => page.id === currentPage?.id) || groups.size <= 4;
       group.append(element('summary', `${name} · ${pages.length}`));
       for (const page of pages) {
-        const item = link(page.path.split('/').pop(), `#${page.id}`, 'file-link');
+        const item = link(page.title || page.path.split('/').pop(), `#${page.id}`, 'file-link');
         item.title = page.path;
         item.append(element('small', page.path.includes('/') ? page.path.slice(0, page.path.lastIndexOf('/')) : page.language));
         if (page.id === currentPage?.id) item.setAttribute('aria-current', 'page');
@@ -112,23 +113,30 @@
   }
   function renderOverview() {
     currentPage = null;
-    main.append(element('div', 'CODE / REFERENCE / OVERVIEW', 'breadcrumb'), element('h1', data.title),
+    main.append(element('div', '功能指南', 'breadcrumb'), element('h1', data.title),
       paragraph('从源码出发，查找功能、理解参数，带着示例开始使用。', 'lead'));
     const stats = element('div', null, 'stats');
     stats.append(stat(data.scannedFiles, '匹配文件'), stat(data.documentedFiles, '已生成文档'),
       stat(data.pages.reduce((sum, page) => sum + page.apis.length, 0), '功能条目'), stat(data.cachedFiles, '命中缓存'));
     main.append(stats, notice());
-    main.append(element('h2', '开始查阅'), paragraph('通过左侧目录按文件浏览，或搜索方法名、用途、参数。每个功能保留源码行号，可展开生成时的源码快照。'));
+    main.append(element('h2', '功能目录'), paragraph('按功能分类选择指南，依次了解用途、使用方法、完整示例和注意事项。API 参数参考和源码快照位于指南末尾。'));
     const list = element('ul', null, 'overview-list');
     const groups = new Map();
     for (const page of data.pages) {
-      const group = page.path.includes('/') ? page.path.split('/')[0] : '根目录';
+      const group = page.category || '未分类';
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group).push(page);
     }
     for (const [name, pages] of groups) {
       const item = element('li');
-      item.append(link(name, `#${pages[0].id}`), element('span', ` · ${pages.length} 个文件`, 'meta'));
+      item.append(element('h3', name));
+      const entries = element('ul');
+      for (const page of pages) {
+        const entry = element('li');
+        entry.append(link(page.title || page.path, `#${page.id}`), paragraph(page.summary, 'muted'));
+        entries.append(entry);
+      }
+      item.append(entries);
       list.append(item);
     }
     if (!data.pages.length) main.append(paragraph('尚无成功生成的文档。请查看生成记录中的问题和扫描统计。', 'notice'));
@@ -174,11 +182,30 @@
   }
   function renderPage(page) {
     currentPage = page;
-    main.append(element('div', page.path, 'breadcrumb'), element('h1', page.path.split('/').pop()));
+    main.append(element('div', `${page.category || '未分类'} / ${page.path}`, 'breadcrumb'),
+      element('h1', page.title || page.path.split('/').pop()));
     const intro = paragraph(page.summary);
     intro.id = 'summary';
     main.append(intro, notice());
     addToc('功能概览', 'summary');
+    (page.sections || []).forEach((guide, index) => {
+      const section = element('section', null, 'guide-section');
+      section.id = `guide-${index}`;
+      const heading = element('div', null, 'api-head');
+      heading.append(element('h2', guide.title),
+        link(`源码 L${guide.startLine}–${guide.endLine}`, `#${page.id}/source-L${guide.startLine}`, 'source-link'));
+      section.append(heading);
+      for (const text of guide.content.split(/\n\s*\n/)) section.append(paragraph(text));
+      for (const example of guide.examples) {
+        section.append(element('h3', example.title), codeBlock(example.code, '完整示例 · 未执行验证'), paragraph(example.explanation));
+      }
+      if (guide.notes.length) section.append(notes(guide.notes));
+      main.append(section);
+      addToc(guide.title, section.id);
+    });
+    const reference = element('details', null, 'api-reference');
+    reference.id = 'api-reference';
+    reference.append(element('summary', `API 参数与返回值参考 · ${page.apis.length} 项`));
     page.apis.forEach((api, index) => {
       const section = element('section', null, 'api');
       section.id = `api-${index}`;
@@ -193,9 +220,9 @@
         section.append(element('h3', example.title || '调用示例'), codeBlock(example.code, 'AI 生成示例 · 未执行验证'), paragraph(example.explanation));
       });
       if (api.notes.length) section.append(element('h3', '异常与注意事项'), notes(api.notes));
-      main.append(section);
-      addToc(api.name, section.id);
+      reference.append(section);
     });
+    if (page.apis.length) { main.append(reference); addToc('API 参数与返回值参考', reference.id); }
     if (!page.apis.length) main.append(paragraph('该文件未提取到独立的公开功能条目，可查阅文件概述和源码。', 'muted'));
     if (page.notes.length) {
       const section = element('section');

@@ -23,6 +23,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.autowire.AutoServiceAutowire;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.datasource.support.meta.DefaultMetaData;
+import com.chua.datasource.support.engine.store.TableStoreMap;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserManager;
 import com.chua.common.support.lang.datasource.page.Page;
@@ -60,9 +61,16 @@ public abstract class AbstractEngine implements Engine {
             org.slf4j.LoggerFactory.getLogger(AbstractEngine.class);
 
     /**
+     * 内存表的承载容器，默认把行放在进程堆内（与历史行为一致）。
+     * <p>显式切换存储实现（如 {@code mmap}）后，行字节改由内存映射文件承载，
+     * 容器本身仍保持 {@link Map} 契约，引擎侧调用点无需改动。</p>
+     */
+    protected final TableStoreMap tableStoreMap = new TableStoreMap();
+
+    /**
      * 内存数据存储映射表，键为表名，值为数据列表。
      */
-    protected final Map<String, List<?>> dataStores = new ConcurrentHashMap<>();
+    protected final Map<String, List<?>> dataStores = tableStoreMap;
 
     /**
      * 数据源映射表，存储所有注册的数据源。
@@ -806,13 +814,21 @@ public abstract class AbstractEngine implements Engine {
         MemoryWhereParser parser = new MemoryWhereParser();
         List<Object> whereParamList = Wraps.list(whereParams);
         var predicate = parser.parse(where, whereParamList);
-        List<T> updated = data.stream().filter(predicate).toList();
-        for (T item : updated) {
+        // 按下标就地改写并写回：文件映射存储的 get(i) 是反序列化副本，
+        // 只改字段不写回就不会落盘（堆内存储 set 同行实例，行为不变）。
+        int updated = 0;
+        for (int i = 0; i < data.size(); i++) {
+            T item = data.get(i);
+            if (!predicate.test(item)) {
+                continue;
+            }
             for (Map.Entry<String, Object> entry : setValues.entrySet()) {
                 setFieldValue(item, entry.getKey(), entry.getValue());
             }
+            data.set(i, item);
+            updated++;
         }
-        return updated.size();
+        return updated;
     }
 
     /**

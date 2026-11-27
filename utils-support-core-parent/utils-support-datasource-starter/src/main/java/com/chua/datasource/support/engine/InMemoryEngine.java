@@ -13,6 +13,9 @@ import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.datasource.support.engine.store.HeapTableStore;
+import com.chua.datasource.support.engine.store.TableStore;
 import com.chua.datasource.support.engine.MemorySqlAst.DeletePlan;
 import com.chua.datasource.support.engine.MemorySqlAst.DmlPlan;
 import com.chua.datasource.support.engine.MemorySqlAst.InsertPlan;
@@ -135,6 +138,18 @@ public class InMemoryEngine extends AbstractEngine {
     /** 空闲回收默认值：不回收。 */
     public static final long DEFAULT_TTL_SECONDS = 0L;
 
+    /* ==================== 表存储 ==================== */
+
+    /**
+     * 表存储实现系统属性，默认 {@code heap}（与历史行为一致）。
+     * <p>可选 {@code mmap}：行序列化进内存映射文件，堆内只留偏移索引，
+     * 目录由 {@code engine.memory.store.dir} 指定。</p>
+     */
+    public static final String TABLE_STORE_PROPERTY = "engine.memory.store";
+
+    /** 默认表存储实现名。 */
+    public static final String DEFAULT_TABLE_STORE = HeapTableStore.SPI_NAME;
+
     /** 容量保护总开关的当前值。 */
     private volatile boolean guardEnabled = booleanProperty(GUARD_ENABLED_PROPERTY, false);
 
@@ -213,6 +228,67 @@ public class InMemoryEngine extends AbstractEngine {
      * @param skipped 无行可写而跳过的表数
      */
     public record RestoreStats(int tables, long rows, int skipped) {
+    }
+
+    /* ==================== 表存储 ==================== */
+
+    /**
+     * 构造引擎并按系统属性配置表存储实现。
+     *
+     * <p>默认堆存储（{@value #DEFAULT_TABLE_STORE}），与历史行为一致；
+     * 配置了 {@code mmap} 或实现类名以外的未知名字时，未知名字直接抛
+     * {@link IllegalStateException}，不静默回退——容量诉求被悄悄降级比启动失败更难发现。</p>
+     */
+    public InMemoryEngine() {
+        String configured = System.getProperty(TABLE_STORE_PROPERTY);
+        if (configured != null && !configured.isBlank()
+                && !DEFAULT_TABLE_STORE.equalsIgnoreCase(configured.trim())) {
+            setTableStore(configured.trim());
+        }
+    }
+
+    /**
+     * 切换表存储实现（SPI 名），已装载的表数据整体迁移过去。
+     *
+     * @param name 存储实现名，如 {@code heap} / {@code mmap}
+     * @return 当前引擎实例
+     * @throws IllegalStateException 名字未命中任何实现
+     */
+    public InMemoryEngine setTableStore(String name) {
+        Objects.requireNonNull(name, "name");
+        TableStore target = ServiceProvider.of(TableStore.class).getExtension(name);
+        if (target == null || !name.equalsIgnoreCase(target.name())) {
+            throw new IllegalStateException("未知的引擎表存储实现: " + name
+                    + "（已知: " + ServiceProvider.of(TableStore.class).getExtensions()
+                    + "），请检查 META-INF/extensions 索引");
+        }
+        return setTableStore(target);
+    }
+
+    /**
+     * 切换表存储实现，已装载的表数据整体迁移过去。
+     *
+     * <p>迁移期间摘除全部二级索引：索引与旧存储的行引用绑定，迁移后必须重建。</p>
+     *
+     * @param store 存储实现
+     * @return 当前引擎实例
+     */
+    public InMemoryEngine setTableStore(TableStore store) {
+        Objects.requireNonNull(store, "store");
+        synchronized (indexMutationLock) {
+            tableStoreMap.switchStore(store);
+            indexes.clear();
+        }
+        return this;
+    }
+
+    /**
+     * 当前表存储实现名。
+     *
+     * @return 实现名，如 {@code heap} / {@code mmap}
+     */
+    public String getTableStoreName() {
+        return tableStoreMap.store().name();
     }
 
     /* ==================== 容量保护：判定 / 降级 / 观测 ==================== */
@@ -1385,11 +1461,15 @@ public class InMemoryEngine extends AbstractEngine {
             return 0;
         }
         int count = 0;
-        for (T item : data) {
+        // 按下标就地改写并写回：文件映射存储的 get(i) 是反序列化副本，
+        // 只改字段不写回就不会落盘；迭代时 set 会推进 modCount，必须用下标循环。
+        for (int i = 0; i < data.size(); i++) {
+            T item = data.get(i);
             if (predicate.test(item)) {
                 for (Map.Entry<String, Object> e : setValues.entrySet()) {
                     MethodCache.setValue(item, e.getKey(), e.getValue());
                 }
+                data.set(i, item);
                 count++;
             }
         }

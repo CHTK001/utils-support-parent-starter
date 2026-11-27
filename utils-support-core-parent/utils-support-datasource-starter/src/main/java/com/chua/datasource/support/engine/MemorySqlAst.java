@@ -833,7 +833,10 @@ final class MemorySqlAst {
      */
     public static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
         int affected = 0;
-        for (Object row : rows) {
+        // 按下标就地改写并写回：文件映射存储的 get(i) 返回反序列化副本，
+        // 只改字段不写回不会落盘；下标循环也避免迭代中 set 触发 modCount 失败。
+        for (int i = 0; i < rows.size(); i++) {
+            Object row = rows.get(i);
             /* 每行重置参数游标：绑定值不随行变化 */
             if (plan.where() != null && !plan.where().eval(row, rowProvider(params))) {
                 continue;
@@ -843,6 +846,7 @@ final class MemorySqlAst {
                 touched |= RowAccessor.setValue(row, e.getKey(), e.getValue());
             }
             if (touched) {
+                rows.set(i, row);
                 affected++;
             }
         }

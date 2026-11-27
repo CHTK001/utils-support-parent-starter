@@ -144,6 +144,9 @@ class CodeDocsTest {
             var parsed = CodeDocAnalyzer.parse(response, chunk);
             assertEquals("size", parsed.apis().getFirst().name());
             assertEquals("int", parsed.apis().getFirst().returns());
+            assertEquals("长度查询-Tools", parsed.title());
+            assertEquals("集合工具", parsed.category());
+            assertEquals("使用", parsed.sections().getFirst().title());
         }
     }
 
@@ -164,12 +167,28 @@ class CodeDocsTest {
     }
 
     @Test
+    void requiresGuideSectionsButAllowsCustomSectionNames() throws IOException {
+        var chunk = new CodeDocAnalyzer.Chunk("line", 4, 4);
+        String custom = fragment(4, 4).replace("\"使用\"", "\"排查步骤\"");
+        assertEquals("排查步骤", CodeDocAnalyzer.parse(custom, chunk).sections().getFirst().title());
+        for (String field : List.of("title", "category", "content")) {
+            String invalid = custom.replaceFirst("\"" + field + "\":\"[^\"]+\"", "\"" + field + "\":\"\"");
+            assertThrows(IOException.class, () -> CodeDocAnalyzer.parse(invalid, chunk), field);
+        }
+        var decoded = Json.fromJson(custom, java.util.Map.class);
+        decoded.put("sections", List.of());
+        assertThrows(IOException.class, () -> CodeDocAnalyzer.parse(Json.toJson(decoded), chunk));
+    }
+
+    @Test
     void recordCacheRoundTripPreservesNestedDocumentation() {
         var parameter = new CodeDocPage.Parameter("input", "String", "不可空");
         var example = new CodeDocPage.Example("调用", "Tools.size(input);", "未执行验证");
         var api = new CodeDocPage.Api("size", "size(String input)", "长度", List.of(parameter),
                 "int", List.of(example), List.of("边界"), 1, 1);
-        var page = new CodeDocPage("id", "工具.java", "java", "概览", List.of(api), List.of(), "source\n");
+        var section = new CodeDocPage.Section("完整示例", "按任务讲解。", List.of(example), List.of("边界"), 1, 1);
+        var page = new CodeDocPage("id", "工具.java", "java", "概览", List.of(api), List.of(), "source\n",
+                "长度查询-Tools", "集合工具", List.of(section));
         assertEquals(page, Json.fromJson(Json.toJson(page), CodeDocPage.class));
     }
 
@@ -212,6 +231,20 @@ class CodeDocsTest {
                 List.of(new CodeDocResult.Issue("A.java", "CACHE", "failed"))).complete());
     }
 
+    @Test
+    void exportsTaskGuideBeforeApiReferenceAndPreservesCodeFences() throws IOException {
+        var example = new CodeDocPage.Example("完整示例", "```literal\nclass Demo {}", "预期说明");
+        var section = new CodeDocPage.Section("先学会使用", "功能说明", List.of(example), List.of("边界"), 1, 1);
+        var page = new CodeDocPage("guide", "Tools.java", "java", "概览", List.of(), List.of(), "class Tools {}",
+                "工具指南", "工具分类", List.of(section));
+        CodeDocSite.write(options(), List.of(page), new CodeDocResult(output.resolve("index.html"), 1, 1, 0, 1, List.of()));
+        String markdown = Files.readString(output.resolve("guides/guide.md"));
+        assertTrue(markdown.startsWith("# 工具指南\n"));
+        assertTrue(markdown.indexOf("## 先学会使用") < markdown.indexOf("## API 参数与返回值参考"));
+        assertTrue(markdown.contains("````java\n```literal\nclass Demo {}\n````"));
+        assertTrue(markdown.contains("Tools.java:1"));
+    }
+
     private Path file(String relative, String text) throws IOException {
         Path path = source.resolve(relative);
         Files.createDirectories(path.getParent());
@@ -230,16 +263,18 @@ class CodeDocsTest {
                                    List<String> includes, List<String> excludes,
                                    int maxDepth, int maxFiles, long maxFileBytes) {
         return new CodeDocOptions(null, source, output, includeTypes, excludeTypes, includes, excludes,
-                StandardCharsets.UTF_8, "工具文档", "中文", "test", true, false,
+                StandardCharsets.UTF_8, "工具文档", CodeDocPrompts.HUTOOL_GUIDE, "中文", "test", true, false,
                 maxDepth, maxFiles, maxFileBytes, 1024, 0, event -> { });
     }
 
     private static String fragment(int start, int end) {
         return """
-                {"summary":"用途","apis":[{"name":"size","signature":"public int size()",
+                {"title":"长度查询-Tools","category":"集合工具","summary":"用途",
+                "sections":[{"title":"使用","content":"通过 size 查询长度。","examples":[],"notes":[],
+                "startLine":%d,"endLine":%d}],"apis":[{"name":"size","signature":"public int size()",
                 "description":"长度","parameters":[],"returns":"int","examples":[],
                 "notes":[],"startLine":%d,"endLine":%d}],"notes":[]}
-                """.formatted(start, end);
+                """.formatted(start, end, start, end);
     }
 
     /** 临时测试文件始终落工作区 temp，JUnit 负责用后清理。 */

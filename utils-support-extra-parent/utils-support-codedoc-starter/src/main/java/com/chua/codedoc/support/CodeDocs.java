@@ -77,6 +77,7 @@ public final class CodeDocs {
                 "**/.env", "**/.env.*", "**/*.pem", "**/*.key", "**/secrets.*"));
         private Charset charset = StandardCharsets.UTF_8;
         private String title = "源码使用手册";
+        private String prompt = CodeDocPrompts.HUTOOL_GUIDE;
         private String instructions = "使用简体中文编写文档。";
         private String cacheNamespace = "default";
         private boolean incremental = true;
@@ -135,7 +136,21 @@ public final class CodeDocs {
             return this;
         }
 
-        /** @param value 文档语言、目标读者等补充要求 @return 当前构建器 */
+        /**
+         * 替换文档写作提示词；默认是 {@link CodeDocPrompts#HUTOOL_GUIDE}。
+         * JSON 输出结构与源码范围限制仍由生成器附加，改变提示词会使旧缓存失效。
+         *
+         * @param value 非空写作要求，可从外部 UTF-8 文件读取
+         * @return 当前构建器
+         */
+        public Builder prompt(String value) {
+            required(value, "prompt");
+            // 保留实际提示词及尾部换行，使显式传入内置值与默认配置共用缓存键。
+            prompt = value;
+            return this;
+        }
+
+        /** @param value 在 prompt 之后追加的语言、读者等补充要求 @return 当前构建器 */
         public Builder instructions(String value) {
             instructions = required(value, "instructions");
             return this;
@@ -235,7 +250,7 @@ public final class CodeDocs {
                 throw new IllegalArgumentException("输出目录不能等于源码目录或是其上级目录");
             }
             return new CodeDocOptions(chatClient, root, output, includeTypes, excludeTypes, includes, excludes,
-                    charset, title, instructions, cacheNamespace, incremental, failFast, maxDepth, maxFiles,
+                    charset, title, prompt, instructions, cacheNamespace, incremental, failFast, maxDepth, maxFiles,
                     maxFileBytes, chunkChars, retries, progress);
         }
 

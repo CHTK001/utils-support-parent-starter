@@ -221,7 +221,15 @@ public class BotSniffGuard {
     private final Map<String, Long> challengeNonces = new ConcurrentHashMap<>();
 
     /**
-     * 默认豁免路径：设置水合通道（前端靠它读取开关本身）与登录/登出。
+     * 默认豁免路径：设置水合通道（前端靠它读取开关本身）、登录/登出/验证码，以及第三方单点登录回跳。
+     *
+     * <p><b>为什么第三方单点登录必须豁免</b>：{@code /v2/third/**} 下只有各平台的
+     * {@code callback}（授权码回跳）与 {@code binder}（回跳中转页），两者都是<b>从第三方站点发起的
+     * 浏览器顶层导航</b>——请求既没有前端包装器注入的 ticket，也无法先执行挑战脚本再重放
+     * （导航拿到的就是挑战 JS 本体）。若不豁免，嗅探开关一打开，GitHub / Gitee / 微信 / OIDC 等
+     * 全部单点登录会以 {@code 428} 卡死在回调上（2026-11-27 真实故障）。
+     * 取码 / 换票 / 绑定等 XHR 端点都不在这个前缀下（它们在 {@code /v2/user/third/**}），
+     * 因此本豁免不放宽任何可编程接口。</p>
      *
      * @return 豁免模式
      */
@@ -231,6 +239,7 @@ public class BotSniffGuard {
         patterns.add("/v2/user/login");
         patterns.add("/v2/user/logout");
         patterns.add("/v2/captcha/**");
+        patterns.add("/v2/third/**");
         return Collections.unmodifiableList(patterns);
     }
 

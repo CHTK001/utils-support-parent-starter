@@ -12,13 +12,18 @@
   --warning-bg: #fbf2dc;
   --shadow: 0 12px 36px #12281a12;
   font-family: "Segoe UI Variable Text", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  font-size: 15px;
+  font-size: 16px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { color-scheme: dark; --paper: #181e1a; --rail: #1d2520; --ink: #e0e7de; --muted: #a9b6a7; --line: #354438; --accent: #8fd2aa; --active: #293f31; --code: #212b24; --warning: #eed197; --warning-bg: #352d1d; }
 }
 :root[data-theme="dark"] { color-scheme: dark; --paper: #181e1a; --rail: #1d2520; --ink: #e0e7de; --muted: #a9b6a7; --line: #354438; --accent: #8fd2aa; --active: #293f31; --code: #212b24; --warning: #eed197; --warning-bg: #352d1d; }
 * { box-sizing: border-box; }
+.guide-section { margin-block: 2.5rem; }
+.guide-section .description { max-width: 70ch; line-height: 1.85; text-wrap: pretty; }
+.guide-section h2 { text-wrap: balance; }
+.api-reference { margin-block: 2rem; padding: 1rem; background: var(--rail); border-radius: .4rem; }
+.api-reference > summary { cursor: pointer; font-weight: 600; }
 body { margin: 0; color: var(--ink); background: var(--paper); line-height: 1.8; }
 a { color: var(--accent); text-underline-offset: 3px; }
 button, input { font: inherit; }

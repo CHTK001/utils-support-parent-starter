@@ -1,6 +1,6 @@
 # utils-support-codedoc-starter
 
-从指定源码目录生成可离线浏览的工具文档站。模块扫描源码文件、调用现有 `ChatClient` 生成结构化说明，并输出功能概览、参数与返回值、调用示例、生成问题记录和源码定位。
+从指定源码目录生成 Hutool 风格的功能使用指南：按功能分类，正文依次讲解介绍、使用、完整示例和注意事项，参数与返回值放在文末参考区。模块深度扫描源码，通过现有 `ChatClient` 生成指南，输出可离线浏览的站点及 Markdown。
 
 ## 引入
 
@@ -29,7 +29,6 @@ void generateDocs(ChatClient chatClient) throws IOException {
             .directory(Path.of("D:/workspace/my-tools"))
             .outputDirectory(Path.of("D:/workspace/my-tools-docs"))
             .includeTypes("java", "kt", "js", "ts", "vue", "py")
-            .include("**/*Utils.java", "**/api/**")
             .exclude("**/generated/**", "**/target/**")
             .title("工具使用手册")
             .instructions("使用简体中文，面向 Java 开发者说明调用方式。")
@@ -42,20 +41,39 @@ void generateDocs(ChatClient chatClient) throws IOException {
 }
 ```
 
-打开 `result.indexFile()` 指向的 `index.html` 即可浏览，无需启动 HTTP 服务、安装前端依赖或访问 CDN。生成目录还包含 `data.js`、`site.css`、`site.js` 和 `manifest.json`；请整体保留这些文件。
+打开 `result.indexFile()` 指向的 `index.html` 即可浏览，无需启动 HTTP 服务、安装前端依赖或访问 CDN。左侧按功能分类搜索，中间阅读指南，右侧跳转章节。生成目录还包含 `data.js`、`site.css`、`site.js`、`manifest.json` 和 `guides/<页面ID>.md`；请整体保留这些文件。
+
+## 配置写作提示词
+
+内置 `CodeDocPrompts.HUTOOL_GUIDE` 参照 [Hutool 功能指南](https://doc.hutool.cn/pages/index/) 的内容组织方式，按任务解释用途与做法，不是逐方法堆叠的 API 清单。导航仍以源码文件为页面单元，大文件按块分析；不会自动分析全仓跨文件调用图。
+
+`.prompt(...)` **替换**写作要求，`.instructions(...)` 在后面**追加**补充说明。可以从外部文件读取提示词：
+
+```java
+String prompt = java.nio.file.Files.readString(
+        Path.of("guide-prompt.txt"), java.nio.charset.StandardCharsets.UTF_8);
+CodeDocResult result = CodeDocs.builder(chatClient)
+        .directory(Path.of("D:/workspace/my-tools"))
+        .prompt(prompt)
+        .instructions("面向初次接入的 Java 开发者，使用简体中文。")
+        .generate();
+```
+
+生成器始终附加 JSON 字段协议、源码边界与行号规则；自定义 prompt 改变指南内容和章节，但不能改输出协议。实际 prompt（包括首尾空白）原样参与缓存键，改动后自动重新分析；恢复旧 prompt 可以命中原缓存。显式传入 `CodeDocPrompts.HUTOOL_GUIDE` 与不调用 `.prompt(...)` 的默认配置一致。
 
 ## 过滤规则
 
 - `includeTypes(...)` 覆盖默认源码扩展名列表，大小写不敏感；传入空参数表示不按扩展名筛选。扩展名可写 `java`、`.java` 或 `*.java`。
 - `excludeTypes(...)` 添加排除扩展名，优先于包含类型。
 - `include(...)` 与 `exclude(...)` 接受相对于源码根目录的 Ant 风格路径模式。排除的目录在遍历前剪枝；不跟随符号链接。
+- 指定目录全量生成时不调用 `include(...)`，默认包含所有符合类型规则的源码文件。只有用户明确要求局部生成时才添加路径包含规则，不能把个别样本当成整个目录的文档交付。
 - 默认排除常见构建/依赖目录以及 `.env`、`.env.*`、`*.pem`、`*.key` 和 `secrets.*`。生成输出目录也不会被扫描。
 - `maxDepth(0)` 只处理根目录文件；`maxFiles(...)` 超限会中止扫描；`maxFileBytes(...)` 限制单文件读取大小。
 - 默认按严格 UTF-8 解码、统一换行并拒绝含 NUL 的文件。可通过 `charset(...)` 显式更换字符集。
 
 ## 增量、失败和进度
 
-- 默认按源码、提示版本、路径、模型客户端标识、补充说明和分块大小生成内容寻址缓存，缓存位于输出目录的 `.codedoc-cache/`。缓存命中时不调用模型。
+- 默认按源码、提示协议版本、实际 prompt、路径、模型客户端标识、补充说明和分块大小生成内容寻址缓存，缓存位于输出目录的 `.codedoc-cache/`。缓存命中时不调用模型；重启进程后仍可复用已经成功完成的文件。一个文件的全部块成功后才写入缓存，中途中断的文件会重新分析。
 - 如更改客户端隐藏的系统提示、路由或其他未暴露配置，请修改 `cacheNamespace(...)`；也可用 `incremental(false)` 禁用缓存。
 - 每个文件按有重叠的源码块串行调用模型；JSON 结构和源码行号通过校验后才纳入站点。失败默认记录在站点的生成记录中并继续；`failFast(true)` 会在文件失败时中止。
 - `retries(n)` 是每块失败后的额外尝试次数。客户端调用仍是同步 `chatSync`；超时由 `ChatClient` 自身配置控制，本模块不保证对现有客户端强制设置超时。
@@ -80,6 +98,7 @@ void generateDocs(ChatClient chatClient) throws IOException {
 | 每块字符上限 | 16000 | 可设范围 1024 至 262144；不是模型 token 上限 |
 | 额外重试次数 | 1 | 可设范围 0 至 5 |
 | 增量缓存 | 开启 | 由 `incremental(false)` 关闭 |
+| 写作提示词 | `CodeDocPrompts.HUTOOL_GUIDE` | `.prompt(...)` 替换，`.instructions(...)` 追加 |
 
 ## 运行回归测试
 
