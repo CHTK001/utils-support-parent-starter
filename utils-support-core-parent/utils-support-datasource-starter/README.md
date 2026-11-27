@@ -146,6 +146,7 @@ while (page.hasNext()) {
 本模块**零 Spring 配置**：引擎与方言完全由 SPI 自动装配，引入依赖即可使用。配置输入有两类：**JVM 系统属性**与**类路径资源**，没有 application 配置文件。
 
 - **JVM 系统属性**（JDBC 引擎专属）：`-Dengine.jdbc.cursor-paging=true`（常量 `JdbcEngine.CURSOR_PAGING_PROPERTY`）开启 keyset 游标分页实验能力，缺省 `false`；实例级 `setCursorPagingEnabled(boolean)` 优先于该属性。
+- **JVM 系统属性**（内存引擎容量保护，全部缺省关闭/不限制，关闭时行为零变化）：`-Dengine.memory.guard=true`（总开关，缺省 `false`）、`-Dengine.memory.max-rows=`（单表，缺省 50000）、`-Dengine.memory.max-total-rows=`（合计，缺省 200000）、`-Dengine.memory.max-tables=`（表数，缺省 64）、`-Dengine.memory.ttl-seconds=`（空闲回收，缺省 0 即不回收）、`-Dengine.memory.bypass-on-overflow=true`（超限软旁路到 `setFallbackEngine(...)`，缺省 `false` 即拒绝抛 `IllegalArgumentException`）。常量见 `InMemoryEngine.*_PROPERTY`，实例级 setter 优先于系统属性；阈值 `<=0` 表示该项不限制。
 - **方言资源文件**：`META-INF/dialect-env/{protocol}.env`，例如 `MysqlDialect` → `mysql.env`、`PostgresqlDialect` → `postgresql.env`。模块内置 24 个文件：mysql、postgresql（env9/10）、oracle（11g/12c）、sqlserver（2008/2012）、sqlite（2）、h2（h2v1）、mariadb（103）、hive（2）、derby（1014）、duckdb（06）、clickhouse（20）。
 - **资源加载规则**（`AbstractDialect.loadDefaultEnv`）：按类路径 `getResources` 合并同名资源——类路径靠前的 jar 逐键优先，后续 jar 只补缺失键，全部按 UTF-8 读取。
 - **代码级覆盖**：`withProperties(Properties)` 传入的外部 properties 优先级高于内置 `.env`；`config(key, defaultValue)` 三级读取为「外部注入 → 内置 .env → 默认值」。
@@ -198,4 +199,5 @@ utils-support-datasource-starter
 - 方言不支持标准 LIMIT 时（SQL Server / Oracle 族），分页走 `Dialect.processSql(sql, Pagination)` 的页码模型，`offset` 必须为 `limit` 的整数倍，否则 `wrapPagination` 显式抛出 `UnsupportedOperationException`。
 - 引擎关闭后任何写操作抛 `IllegalStateException`（`ensureOpen`）；`getDataSource(name)` 对不存在/未设置返回 null。
 - 内存引擎数据仅存于进程内 `ConcurrentHashMap`，进程退出即丢失；文件引擎仅白名单类型（`SUPPORTED_TYPES`）可加载。
+- 内存引擎容量保护默认关闭；开启后超限只有**拒绝**（默认）或**软旁路到回落引擎**（`bypass-on-overflow=true` + `setFallbackEngine(...)`）两种口径，**不做静默截断**。旁路是单向的（`spill`/TTL 回收/`close` 推出），回内存必须 `clearBypass(table)` + 重新 `store`；`restore()` 是显式的 append-only 回写（按表分批 `INSERT`，不清内存副本、不动旁路标记），不是容量超限的自动补偿。
 - 具体数据库连接串组装时的安全校验由 `url.JdbcUrl` 负责，限定主机名/IPv4/方括号 IPv6 与单段库名（允许 `_ $ -` 与一层 schema 限定），拒绝 `? & ; =` 等分隔符注入驱动属性。
