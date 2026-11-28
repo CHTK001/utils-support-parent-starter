@@ -1255,6 +1255,13 @@
                 <artifactId>aspose-pub</artifactId>
                 <version>20.8</version>
             </dependency>
+            <!-- HTML 转文档：jdk11 classifier 变体（utils-support-html-starter 使用） -->
+            <dependency>
+                <groupId>com.aspose</groupId>
+                <artifactId>aspose-html</artifactId>
+                <version>23.1</version>
+                <classifier>jdk11</classifier>
+            </dependency>
             <dependency>
                 <groupId>com.azure</groupId>
                 <artifactId>azure-storage-blob</artifactId>

@@ -21,7 +21,6 @@
         <dependency>
             <groupId>com.aspose</groupId>
             <artifactId>aspose-html</artifactId>
-            <version>23.1</version>
             <classifier>jdk11</classifier>
         </dependency>
     </dependencies>

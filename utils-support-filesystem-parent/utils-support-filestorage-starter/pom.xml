@@ -14,6 +14,7 @@
     <packaging>jar</packaging>
     <name>Utils Support FileStorage Starter</name>
     <description>文件存储基础模块，提供文件存储服务器过滤器、配置及 SPI 扩展</description>
+    <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -92,6 +93,5 @@
             <groupId>org.benf</groupId>
             <artifactId>cfr</artifactId>
         </dependency>
-          <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
 </project>

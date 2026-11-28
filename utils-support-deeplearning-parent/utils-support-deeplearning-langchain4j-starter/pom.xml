@@ -27,9 +27,6 @@
             <artifactId>langchain4j-embeddings-bge-small-zh-v15-q</artifactId>
             <version>1.12.2-beta22</version>
         </dependency>
-        <!-- LangChain4jGoalWiringTest 使用 JUnit 5 注解；本模块原本未声明 junit，
-             版本取全局 junit-jupiter 的 5.13.0-M3 -->
-
     </dependencies>
     <build>
         <plugins>

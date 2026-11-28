@@ -42,6 +42,5 @@
             <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 单元测试：Quarkus(Vert.x) 服务端启动期拒绝 encrypt -->
     </dependencies>
 </project>

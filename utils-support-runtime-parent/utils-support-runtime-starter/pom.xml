@@ -34,6 +34,5 @@
             <artifactId>utils-support-runtime-shell</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 单元测试 -->
     </dependencies>
 </project>

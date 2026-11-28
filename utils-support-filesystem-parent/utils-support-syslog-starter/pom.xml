@@ -19,13 +19,13 @@
         - ResourceProvider 集成：支持 syslog: 协议统一查询
         - SPI 可扩展：自定义 SystemLogProvider 实现
     </description>
+    <!-- NTFS MFT 等原生文件检索由 utils-support-filesearch-starter 承载，本模块不再依赖 native 包 -->
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- NTFS MFT 等原生文件检索由 utils-support-filesearch-starter 承载，本模块不再依赖 native 包 -->
     </dependencies>
     <build>
         <plugins>

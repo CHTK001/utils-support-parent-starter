@@ -32,7 +32,6 @@
         <dependency>
             <groupId>com.ngrok</groupId>
             <artifactId>ngrok-java-native</artifactId>
-            <version>${ngrok.version}</version>
             <classifier>${os.detected.classifier}</classifier>
             <scope>runtime</scope>
         </dependency>

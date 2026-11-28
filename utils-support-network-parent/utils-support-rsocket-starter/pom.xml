@@ -38,6 +38,5 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- 单元测试：用 RSocket 客户端验证 requestResponse/fireAndForget/requestStream -->
     </dependencies>
 </project>

@@ -99,6 +99,11 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
             if (Files.exists(manifestPath)) {
                 readManifest();
             } else {
+                try (var paths = Files.list(this.directory)) {
+                    if (paths.anyMatch(path -> path.getFileName().toString().matches("shard-\\d{20}\\.pages"))) {
+                        throw new IOException("磁盘树清单缺失但分片文件仍存在，拒绝覆盖: " + this.directory);
+                    }
+                }
                 initializeEmpty();
             }
         } catch (IOException | RuntimeException e) {
@@ -452,9 +457,14 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
         closed = true;
         try {
             directoryLock.release();
-            lockChannel.close();
         } catch (IOException e) {
             throw new UncheckedIOException("关闭磁盘树目录锁失败", e);
+        } finally {
+            try {
+                lockChannel.close();
+            } catch (IOException e) {
+                throw new UncheckedIOException("关闭磁盘树锁文件失败", e);
+            }
         }
     }
 
@@ -473,7 +483,7 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
             try (FileChannel channel = FileChannel.open(path, StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.READ,
                     StandardOpenOption.WRITE)) {
-                writeFully(channel, encodePage(new Page(true)), 0);
+                writeFully(channel, ByteBuffer.wrap(encodePage(new Page(true))), 0);
                 channel.force(true);
             }
             return shard;
@@ -621,7 +631,7 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
                 changed.values.add(index, value);
             }
             if (changed.keys.size() <= order - 1) {
-                return new InsertResult(appendPage(shard, changed), -1, -1, existed, old);
+                return new InsertResult(appendPage(shard, changed), null, -1, existed, old);
             }
             int middle = changed.keys.size() / 2;
             Page left = new Page(true);
@@ -640,14 +650,15 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
         changed.children.set(index, child.pageId);
         if (child.splitKey != null) {
             if (index < changed.keys.size()) {
-                changed.keys.set(index, child.splitKey);
+                K oldBoundary = changed.keys.set(index, child.splitKey);
+                changed.keys.add(index + 1, oldBoundary);
             } else {
                 changed.keys.add(child.splitKey);
             }
             changed.children.add(index + 1, child.rightPageId);
         }
         if (changed.keys.size() <= order - 1) {
-            return new InsertResult(appendPage(shard, changed), -1, -1, child.existed, child.oldValue);
+            return new InsertResult(appendPage(shard, changed), null, -1, child.existed, child.oldValue);
         }
         int middle = changed.keys.size() / 2;
         K promoted = changed.keys.get(middle);
@@ -679,8 +690,35 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
             return new DeleteResult(false, pageId, null);
         }
         Page changed = copy(page);
-        changed.children.set(index, child.pageId);
+        Page childPage = readPage(shard, child.pageId);
+        boolean emptyChild = childPage.leaf && childPage.keys.isEmpty();
+        if (emptyChild) {
+            changed.children.remove(index);
+        } else {
+            changed.children.set(index, child.pageId);
+        }
+        if (changed.children.isEmpty()) {
+            return new DeleteResult(true, appendPage(shard, new Page(true)), child.value);
+        }
+        if (changed.children.size() == 1) {
+            return new DeleteResult(true, changed.children.getFirst(), child.value);
+        }
+        changed.keys.clear();
+        for (int childIndex = 0; childIndex < changed.children.size() - 1; childIndex++) {
+            changed.keys.add(maxKey(shard, changed.children.get(childIndex)));
+        }
         return new DeleteResult(true, appendPage(shard, changed), child.value);
+    }
+
+    private K maxKey(Shard shard, long pageId) {
+        Page page = readPage(shard, pageId);
+        while (!page.leaf) {
+            page = readPage(shard, page.children.getLast());
+        }
+        if (page.keys.isEmpty()) {
+            throw new IllegalStateException("非空磁盘树子节点缺少最大键: shard=" + shard.id);
+        }
+        return page.keys.getLast();
     }
 
     private void collectRange(Shard shard, long pageId, K from, K to,
@@ -953,7 +991,12 @@ public final class FileTreeEngine<K extends Comparable<K>, V>
 
     private static void writeFully(FileChannel channel, ByteBuffer buffer, long position) throws IOException {
         while (buffer.hasRemaining()) {
-            position += channel.write(buffer, position);
+            int written = channel.write(buffer, position);
+            if (written == 0) {
+                Thread.onSpinWait();
+                continue;
+            }
+            position += written;
         }
     }
 

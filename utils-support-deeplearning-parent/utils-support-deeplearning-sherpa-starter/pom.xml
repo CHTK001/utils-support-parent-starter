@@ -24,6 +24,7 @@
         <skipTests>false</skipTests>
     </properties>
 
+    <!-- 纠错验收用的 macbert4csc 模型（约 452MB）不在本 starter 声明；SherpaCorrectorTest 需要时由使用方自行添加 utils-support-models-onnx-macbert4csc，缺失时用例 skip -->
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -58,8 +59,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 纠错验收用的 macbert4csc 模型（约 452MB）不在本 starter 声明；
-             SherpaCorrectorTest 需要时由使用方自行添加 utils-support-models-onnx-macbert4csc，缺失时用例 skip -->
     </dependencies>
 
     <profiles>

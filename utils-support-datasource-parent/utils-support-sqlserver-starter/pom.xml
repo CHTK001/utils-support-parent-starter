@@ -10,6 +10,7 @@
     <artifactId>utils-support-sqlserver-starter</artifactId>
     <name>SQL Server Starter</name>
     <description>SQL Server 数据库适配：JDBC、R2DBC 驱动</description>
+    <!-- jTDS：SQL Server 2000/2005 等老版本的兼容驱动，本模块不声明（JDBC 驱动由部署侧按需引入） -->
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -40,6 +41,5 @@
             <version>${mssql-jdbc.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- jTDS：SQL Server 2000/2005 等老版本的兼容驱动，本模块不声明（JDBC 驱动由部署侧按需引入） -->
     </dependencies>
 </project>

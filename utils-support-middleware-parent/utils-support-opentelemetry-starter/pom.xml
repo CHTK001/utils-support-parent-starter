@@ -58,6 +58,5 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 单元测试：仅使用 InMemorySpanExporter 缓存，不依赖外部服务 -->
     </dependencies>
 </project>

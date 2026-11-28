@@ -28,7 +28,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasource-starter</artifactId>
         </dependency>
-        <!-- SPI 装配自测：验证实现能被 ServiceProvider 按 name() 找到 -->
     </dependencies>
 </project>
 

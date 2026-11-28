@@ -51,8 +51,6 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-toml</artifactId>
         </dependency>
-        <!-- 路径穿越是文件系统存储最要紧的失败模式，没有测试框架就无法回归；
-             版本与 utils-support-common-starter 保持一致 -->
     </dependencies>
 
     <build>

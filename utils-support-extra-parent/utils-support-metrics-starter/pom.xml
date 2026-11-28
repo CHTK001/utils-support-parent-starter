@@ -17,12 +17,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
-            <version>4.0.0.51</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasync-agent-starter</artifactId>
-            <version>4.0.0.51</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

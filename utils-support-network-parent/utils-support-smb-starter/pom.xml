@@ -30,6 +30,5 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        <!-- 单元测试：SMB 服务端启动期拒绝 encrypt -->
     </dependencies>
 </project>

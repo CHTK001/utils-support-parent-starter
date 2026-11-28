@@ -2,6 +2,7 @@
 package com.chua.redis.support.server;
 
 import com.chua.common.support.condition.Precondition;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.utils.ArrayUtils;
@@ -9,8 +10,8 @@ import com.chua.common.support.utils.ArrayUtils;
 /**
  * 嵌入式 Redis 服务器，用于本地开发和测试。
  *
- * <p>封装 {@code redis.embedded.RedisServer}，提供便捷的启动/停止管理。
- * 依赖 scope 为 provided，生产环境不包含。</p>
+ * <p>封装可选的 {@code redis.embedded.RedisServer}，提供便捷的启动/停止管理。
+ * 未安装嵌入式实现时构建阶段给出明确错误，生产环境不携带该依赖。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -39,7 +40,7 @@ public class EmbeddedRedisServer {
 /**
  * 底层嵌入式 Redis 服务器
  */
-    private final redis.embedded.RedisServer delegate;
+    private final Object delegate;
 
     /**
      * 服务器端口
@@ -51,7 +52,7 @@ public class EmbeddedRedisServer {
      * @param delegate delegate
      * @param port int
      */
-    private EmbeddedRedisServer(redis.embedded.RedisServer delegate, int port) {
+    private EmbeddedRedisServer(Object delegate, int port) {
         this.delegate = delegate;
         this.port = port;
     }
@@ -91,7 +92,7 @@ public class EmbeddedRedisServer {
      */
     public EmbeddedRedisServer start() {
         try {
-            delegate.start();
+            ReflectUtils.invoke(delegate, "start", void.class);
             log.info("嵌入式 Redis 启动: port={}", port);
         } catch (Exception e) {
             throw new RuntimeException("嵌入式 Redis 启动失败: " + e.getMessage(), e);
@@ -106,7 +107,7 @@ public class EmbeddedRedisServer {
      */
     public EmbeddedRedisServer stop() {
         Precondition.tryRun(() -> {
-            delegate.stop();
+            ReflectUtils.invoke(delegate, "stop", void.class);
             log.info("嵌入式 Redis 停止: port={}", port);
         }).orElse(e -> log.warn("嵌入式 Redis 停止异常: {}", e.getMessage(), e));
         return this;
@@ -118,7 +119,7 @@ public class EmbeddedRedisServer {
      * @return 运行中返回 true
      */
     public boolean isActive() {
-        return delegate.isActive();
+        return Boolean.TRUE.equals(ReflectUtils.invoke(delegate, "isActive", boolean.class));
     }
 
     /**
@@ -202,20 +203,29 @@ public class EmbeddedRedisServer {
          */
         public EmbeddedRedisServer build() {
             try {
-                redis.embedded.RedisServerBuilder redisBuilder = redis.embedded.RedisServer.builder()
-                        .port(port);
+                Class<?> serverClass = ReflectUtils.forName("redis.embedded.RedisServer");
+                if (serverClass == null) {
+                    throw new IllegalStateException("未安装嵌入式 Redis 实现，请仅在测试环境加入 embedded-redis");
+                }
+                Object redisBuilder = ReflectUtils.invokeStatic(serverClass, "builder", Object.class, new Class<?>[0]);
+                ReflectUtils.invoke(redisBuilder, "port", Object.class, int.class, port);
 
                 if (maxMemory != null) {
-                    redisBuilder = redisBuilder.setting("maxmemory " + maxMemory);
+                    ReflectUtils.invoke(redisBuilder, "setting", Object.class, String.class,
+                            "maxmemory " + maxMemory);
                 }
 
                 if (ArrayUtils.isNotEmpty(args)) {
                     for (String arg : args) {
-                        redisBuilder = redisBuilder.setting(arg);
+                        ReflectUtils.invoke(redisBuilder, "setting", Object.class, String.class, arg);
                     }
                 }
 
-                return new EmbeddedRedisServer(redisBuilder.build(), port);
+                Object delegate = ReflectUtils.invoke(redisBuilder, "build", Object.class);
+                if (delegate == null) {
+                    throw new IllegalStateException("嵌入式 Redis 构建失败");
+                }
+                return new EmbeddedRedisServer(delegate, port);
             } catch (Exception e) {
                 throw new RuntimeException("创建嵌入式 Redis 失败: " + e.getMessage(), e);
             }

@@ -18,7 +18,5 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->
-
     </dependencies>
 </project>

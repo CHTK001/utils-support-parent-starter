@@ -32,6 +32,5 @@
             <version>${weka.version}</version>
         </dependency>
 
-        <!-- Lombok：由 utils-support-parent-starter 统一配置 annotationProcessorPaths，本模块无需重复声明 -->
     </dependencies>
 </project>

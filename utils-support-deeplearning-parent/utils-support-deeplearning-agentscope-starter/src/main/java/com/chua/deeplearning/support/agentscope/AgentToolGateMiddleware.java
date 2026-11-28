@@ -194,7 +194,7 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
             // 与 SDK 一致：同批有待批调用时整批暂不执行，明确拒绝的结果先落上下文。
             appendDeniedResults(ctx, agent, denied, reasons);
             String replyId = newReplyId();
-            persistConfirmation(ctx, pending, replyId);
+            persistConfirmation(ctx, pending, allowed, replyId);
             List<AgentEvent> events = new ArrayList<>();
             for (int i = 0; i < denied.size(); i++) {
                 events.addAll(deniedResultEvents(denied.get(i), reasons.get(i), replyId));
@@ -275,9 +275,10 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
     }
 
     /**
-     * 将完整待批块与关联 ID 写入 SDK 会话状态，供下一次 call 应用 ConfirmResult。
+     * 将完整待批块、已放行状态与关联 ID 写入 SDK 会话，恢复时不重复裁决。
      */
-    private void persistConfirmation(RuntimeContext ctx, List<ToolUseBlock> pending, String replyId) {
+    private void persistConfirmation(RuntimeContext ctx, List<ToolUseBlock> pending,
+                                     List<ToolUseBlock> allowed, String replyId) {
         List<Msg> context = ctx.getAgentState().contextMutable();
         Msg assistant = MessageUtils.lastAssistantMessage(context);
         if (assistant == null) {
@@ -286,6 +287,9 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
         Map<String, ToolUseBlock> replacements = new HashMap<>();
         for (ToolUseBlock call : pending) {
             replacements.put(call.getId(), call);
+        }
+        for (ToolUseBlock call : allowed) {
+            replacements.put(call.getId(), call.withState(ToolCallState.ALLOWED));
         }
         MessageUtils.replaceToolUseBlocks(context, replacements);
         assistant = MessageUtils.lastAssistantMessage(context);

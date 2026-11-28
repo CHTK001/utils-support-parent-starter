@@ -88,6 +88,7 @@
     </profile>
     <profile>
       <id>gpu</id>
+      <!-- 模型制品（utils-support-models-parent 的 utils-support-models-onnx-*）不在本 starter 声明，需要跑对应模型用例时由使用方自行添加依赖 -->
       <dependencies>
         <dependency>
           <groupId>com.microsoft.onnxruntime</groupId>
@@ -182,34 +183,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- 测试用 SLF4J 实现 -->
-        <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
+
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        <!-- 以下三个 test 依赖的 model jar 未构建到本地仓库，临时移除以恢复编译
-        
-        
-        -->
-        
-        
-        
-        
-        
-        <!-- bge-large-zh model jar 未构建到本地仓库，临时移除以恢复编译
-        
-        -->
-        
-        
-        
-        <!-- 注：utils-support-models-onnx-randeng-t5-77m 构件从未部署到任何可达仓库且全仓零代码引用，已移除该死依赖-->
+
         
         
         
@@ -221,7 +199,7 @@
         
         
         
-        <!-- 口罩检测模型（YOLOv8，2 类：cloth/surgical，可画框）-->
+
         
         
         
@@ -240,7 +218,5 @@
         
         
         
-        <!-- 模型制品（utils-support-models-parent 的 utils-support-models-onnx-*）不在本 starter 声明，
-             需要跑对应模型用例时由使用方自行添加依赖 -->
       </dependencies>
 </project>

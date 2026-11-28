@@ -142,6 +142,7 @@
                 <groupId>com.ngrok</groupId>
                 <artifactId>ngrok-java-native</artifactId>
                 <version>${ngrok.version}</version>
+                <classifier>${os.detected.classifier}</classifier>
             </dependency>
             <dependency>
                 <groupId>io.github.kcp-jvm</groupId>

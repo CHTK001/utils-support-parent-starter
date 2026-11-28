@@ -40,7 +40,6 @@
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
         </dependency>
-        <!-- SPI 装配自测 -->
     </dependencies>
 </project>
 

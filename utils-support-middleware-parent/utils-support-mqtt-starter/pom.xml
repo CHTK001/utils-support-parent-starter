@@ -22,6 +22,5 @@
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>1.2.5</version>
         </dependency>
-        <!-- 单元测试：用 Paho 真实客户端验证手写 MQTT 服务端 -->
     </dependencies>
 </project>

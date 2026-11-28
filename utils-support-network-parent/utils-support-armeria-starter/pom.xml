@@ -26,6 +26,5 @@
             <artifactId>netty-all</artifactId>
         </dependency>
 
-        <!-- 单元测试：Armeria 服务端启动期拒绝 encrypt -->
     </dependencies>
 </project>
