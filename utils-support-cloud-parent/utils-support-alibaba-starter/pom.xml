@@ -51,16 +51,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>endpoint-util</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>openapiutil</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-network-starter</artifactId>
             <version>${project.version}</version>

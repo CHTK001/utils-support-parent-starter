@@ -53,22 +53,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- OSGI 模块支持 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-osgi-starter</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Actuator 端点支持（可选） -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>

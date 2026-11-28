@@ -40,12 +40,6 @@
             <version>${mssql-jdbc.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- jTDS：SQL Server 2000/2005 等老版本的兼容驱动，默认不引入，按需启用 -->
-        <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>${jtds.version}</version>
-            <scope>provided</scope>
-        </dependency>
+        <!-- jTDS：SQL Server 2000/2005 等老版本的兼容驱动，本模块不声明（JDBC 驱动由部署侧按需引入） -->
     </dependencies>
 </project>

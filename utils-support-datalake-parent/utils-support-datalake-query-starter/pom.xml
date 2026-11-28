@@ -17,12 +17,6 @@
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datalake-sink-starter</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>

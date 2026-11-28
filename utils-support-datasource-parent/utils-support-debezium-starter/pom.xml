@@ -18,12 +18,6 @@
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datasource-starter</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-api</artifactId>
             <version>3.6.3.Final</version>

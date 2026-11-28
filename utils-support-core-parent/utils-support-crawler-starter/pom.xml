@@ -75,12 +75,6 @@
         </dependency>
 
         <!-- HTTP 抓取备选（核心实现使用 JDK HttpClient），未在代码中直接 import -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- JSON 序列化（运行时 new ObjectMapper） -->
         <dependency>

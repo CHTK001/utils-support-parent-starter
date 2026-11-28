@@ -36,12 +36,6 @@
         <!-- 内存型 JDBC 数据库：JDBC 引擎链路（物理分页 / 原生 SQL / 类型映射）验收用 -->
         <!-- H2 的 R2DBC 驱动：响应式 JDBC 引擎（真非阻塞路径）验收用 -->
         <!-- SQL 解析器 -->
-        <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>5.4</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- 单元测试 -->
     </dependencies>
 </project>

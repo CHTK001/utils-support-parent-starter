@@ -15,11 +15,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datasource-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- QuestDB 官方 Java 客户端：内含 ILP over HTTP/TCP Sender，无运行期传递依赖 -->
         <dependency>

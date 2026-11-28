@@ -130,7 +130,7 @@ AI 给出通俗语言的结论
 
 底层实现 `HprofParseContext` 直接使用 `HeapFactory.createHeap(File)` / `getAllClasses()` / `getRetainedSizeByClass()` / `getGCRoots()`；`byte[]` 入参会先写入临时文件 `hprof-*.hprof`（hprof-heap 只接受 `File` 输入）。**转储较大时，调用方应把解析放到工作线程中执行。**
 
-引用链由 `HprofRefChainWalker` 产出：第 1 层持有者实例 → 第 2 层按保留量排序的子引用 → 第 3 层子对象类名 + 保留量（每链最多 5 个子引用），例如 `ConcurrentHashMap(58MB) -> ConcurrentHashMap$Node[](58MB)`。
+引用链由 `HprofRefChainWalker` 产出：第 1 层持有者实例 → 第 2 层按保留量排序的子引用 → 第 3 层子对象类名 + 保留量（每链最多 5 个子引用），例如 `ConcurrentHashMap(58MB) -> ConcurrentHashMap$Node 数组(58MB)`。
 
 ### 3.3 规则分析引擎 HprofAnalyzer
 

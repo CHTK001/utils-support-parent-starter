@@ -90,7 +90,7 @@ Java 通用工具与 SPI 实现集合。公共契约和基础实现位于 `utils
 
 - [utils-support-collapse-starter](utils-support-datatask-parent/utils-support-collapse-starter/README.md)：请求合并与虚拟线程批量执行。
 - [utils-support-datarecovery-starter](utils-support-datatask-parent/utils-support-datarecovery-starter/README.md)：Rust JNI 数据恢复绑定的依赖入口。
-- [utils-support-datasearch-starter](utils-support-datatask-parent/utils-support-datasearch-starter/README.md)：搜索、数据同步输入、技能/MCP 与模型目录适配。
+- [utils-support-datasearch-starter](utils-support-datatask-parent/utils-support-datasearch-starter/README.md)：视频/音乐搜索、用量与会话解析、技能/插件/MCP、模型目录，以及天气和地理等查询适配。
 - [utils-support-datasync-agent-starter](utils-support-datatask-parent/utils-support-datasync-agent-starter/README.md)：同步 Agent 的 Source/Sink 与传输协议。
 - [utils-support-datasync-starter](utils-support-datatask-parent/utils-support-datasync-starter/README.md)：同步映射、调度、执行器与 Agent 管理。
 - [utils-support-quartz-starter](utils-support-datatask-parent/utils-support-quartz-starter/README.md)：Quartz 调度实现。

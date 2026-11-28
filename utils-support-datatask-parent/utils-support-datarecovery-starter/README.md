@@ -146,9 +146,16 @@
     <artifactId>utils-support-datarecovery-starter</artifactId>
     <version>4.0.0.51</version>
 </dependency>
+
+<!-- DataRecovery 门面类与平台 native 资源；版本跟随 native-parent 发布线。 -->
+<dependency>
+    <groupId>com.chua</groupId>
+    <artifactId>utils-support-native-datarecovery</artifactId>
+    <version>4.0.0.43</version>
+</dependency>
 ```
 
-`DataRecovery` 类与四平台动态库由 `utils-support-native-datarecovery` 提供（见第 6 节），确保其 jar 在 classpath 上。
+`DataRecovery` 类与四平台动态库由同级仓库 `utils-support-native-datarecovery` 提供（见第 6 节）。两个依赖都需要位于 classpath；本 starter 只提供装配资源和 native-image 反射配置。native artifact 当前版本为 `4.0.0.43`，不要将其机械替换为 starter 的 `4.0.0.51`。
 
 ### 3.2 最短可运行示例：目录树扫描
 

@@ -54,11 +54,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datasource-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
         
         <dependency>
             <groupId>io.milvus</groupId>
