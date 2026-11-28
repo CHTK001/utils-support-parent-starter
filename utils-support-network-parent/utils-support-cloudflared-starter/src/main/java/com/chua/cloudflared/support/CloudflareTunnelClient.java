@@ -40,7 +40,7 @@ import com.chua.common.support.utils.StringUtils;
  * <pre>{@code
  * try (CloudflareTunnelClient client = CloudflareTunnelClient.create()
  *         .token(System.getenv("CLOUDFLARE_TUNNEL_TOKEN"))
- *         .url("http://127.0.0.1:8080")
+ *         .hostname("tunnel.example.com")
  *         .start()) {
 // [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
@@ -75,13 +75,10 @@ public class CloudflareTunnelClient implements AutoCloseable {
      * Quick Tunnel 公网 URL 正则：{@code https://xxx-xxx-xxx.trycloudflare.com}
      */
     private static final Pattern TRYCLOUDFLARE_URL =
-            Pattern.compile("https://[a-z0-9-]+\\.trycloudflare\\.com");
+            Pattern.compile("https://[a-z0-9-]+\\.trycloudflare\\.com(?![a-z0-9.-])");
 
-    /**
-     * 自定义域名 URL 正则：{@code https://tunnel.example.com}
-     */
-    private static final Pattern HTTP_URL =
-            Pattern.compile("https://[a-z0-9][a-z0-9.-]*\\.[a-z]{2,}(?:/\\S*)?");
+    /** 是否已注册 Cloudflare 边缘连接。 */
+    private volatile boolean connected;
 
     /**
      * 默认启动等待超时（秒）
@@ -262,7 +259,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
     }
 
     /**
-     * 设置 cloudflared 日志级别。
+     * 设置 cloudflared 日志级别；为接收连接就绪事件，子进程最低保留 info 输出。
      *
      * @param logLevel debug / info / warn / error / fatal
      * @return 当前客户端
@@ -288,7 +285,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
     }
 
     /**
-     * 启动隧道，等待公网 URL 输出后返回。
+     * 启动隧道，等待 Cloudflare 边缘连接注册后返回；Quick 模式还须取得随机公网地址。
      *
      * <p>根据是否配置 {@link #token} 自动选择启动方式：
      * <ul>
@@ -299,7 +296,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
      * 仅 Quick Tunnel 模式下 {@link #hostname} 生效，会追加 {@code --hostname}。</p>
      *
      * @return 当前客户端
-     * @throws IllegalStateException 启动失败、超时未输出公网地址时抛出
+     * @throws IllegalStateException 启动失败或等待连接就绪超时时抛出
      */
     @Nonnull
     public CloudflareTunnelClient start() {
@@ -308,10 +305,11 @@ public class CloudflareTunnelClient implements AutoCloseable {
             return this;
         }
         urls.clear();
+        connected = false;
+        exitCode = -1;
         List<String> command = buildCommand();
         log.info("[Cloudflared] 启动命令: {}", String.join(" ", maskToken(command)));
 
-        String executable = binary != null ? binary.toString() : "cloudflared";
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         try {
@@ -444,16 +442,17 @@ public class CloudflareTunnelClient implements AutoCloseable {
         } else {
             command.add("tunnel");
         }
-        if (StringUtils.isNotBlank(url)) {
+        if (StringUtils.isBlank(token) && StringUtils.isNotBlank(url)) {
             command.add("--url");
             command.add(url);
         }
-        if (StringUtils.isNotBlank(hostname)) {
+        if (StringUtils.isBlank(token) && StringUtils.isNotBlank(hostname)) {
             command.add("--hostname");
             command.add(hostname);
         }
         command.add("--loglevel");
-        command.add(logLevel);
+        // 连接就绪事件仅在 info 及以上详细级别输出，warn/error/fatal 会屏蔽该事件。
+        command.add("debug".equalsIgnoreCase(logLevel) ? "debug" : "info");
         return command;
     }
 
@@ -481,6 +480,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
                     exitCode = p.exitValue();
                     log.debug("[Cloudflared] 进程退出，退出码={}", exitCode);
                 }
+                urlReady.countDown();
             }
         }, OUTPUT_THREAD_NAME);
         outputThread = consumer;
@@ -498,22 +498,32 @@ public class CloudflareTunnelClient implements AutoCloseable {
         if (StringUtils.isBlank(line)) {
             return;
         }
-        String urlCandidate = extractUrl(line);
+        String urlCandidate = StringUtils.isBlank(token) ? extractUrl(line) : null;
         if (urlCandidate != null && !urls.contains(urlCandidate)) {
             synchronized (urls) {
                 if (!urls.contains(urlCandidate)) {
                     urls.add(urlCandidate);
                     log.info("[Cloudflared] 发现公网 URL: {}", urlCandidate);
-                    urlReady.countDown();
-                    return;
                 }
             }
+        }
+        if (line.contains("Registered tunnel connection")) {
+            connected = true;
+            if (StringUtils.isNotBlank(token) && StringUtils.isNotBlank(hostname)) {
+                String address = hostname.startsWith("https://") ? hostname : "https://" + hostname;
+                if (!urls.contains(address)) {
+                    urls.add(address);
+                }
+            }
+        }
+        if (connected && (!urls.isEmpty() || StringUtils.isNotBlank(token))) {
+            urlReady.countDown();
         }
         log.debug("[Cloudflared] {}", line.trim());
     }
 
     /**
-     * 从一行输出中提取公网 URL：优先 Quick Tunnel 随机域名，其次自定义域名。
+     * 从一行输出中提取 Quick Tunnel 地址，不把帮助链接或回源地址当作公网入口。
      *
      * @param line 输出行
      * @return URL，未匹配返回 null
@@ -524,46 +534,37 @@ public class CloudflareTunnelClient implements AutoCloseable {
         if (quick.find()) {
             return quick.group();
         }
-        Matcher http = HTTP_URL.matcher(line);
-        if (http.find()) {
-            String candidate = http.group();
-            // 排除日志中出现的 curl 帮助地址等干扰项
-            if (candidate.contains("://")
-                    && !candidate.contains("developers.cloudflare.com")
-                    && !candidate.contains("github.com")
-                    && !candidate.contains("cloudflare.com/")) {
-                return candidate;
-            }
-        }
         return null;
     }
 
     /**
-     * 等待公网 URL 输出，超时则终止进程并抛错。
+     * 等待边缘连接和对应模式的地址就绪，超时则终止进程并抛错。
      *
      * @param urlReady 就绪信号
-     * @throws IllegalStateException 超时且未获得 URL 时抛出
+     * @throws IllegalStateException 进程退出或启动超时时抛出
      */
     private void waitForUrl(CountDownLatch urlReady) {
         long timeoutMillis = startTimeout.toMillis();
         try {
             boolean ready = urlReady.await(timeoutMillis, TimeUnit.MILLISECONDS);
-            if (ready) {
+            if (ready && connected && isRunning()
+                    && (!urls.isEmpty() || StringUtils.isNotBlank(token))) {
                 return;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             close();
-            throw new IllegalStateException("等待 cloudflared 输出公网地址被中断");
+            throw new IllegalStateException("等待 cloudflared 隧道就绪被中断");
         }
         // 超时：区分进程已退出与仍未输出
         if (process != null && !process.isAlive()) {
+            exitCode = process.exitValue();
             close();
             throw new IllegalStateException("cloudflared 进程提前退出，退出码=" + exitCode
                     + "：请检查 cloudflared 是否安装、认证是否有效、本地服务是否可达");
         }
         close();
-        throw new IllegalStateException("cloudflared 启动超时（" + timeoutMillis + "ms），未输出公网地址"
+        throw new IllegalStateException("cloudflared 启动超时（" + timeoutMillis + "ms），隧道尚未就绪"
                 + "：请检查网络（需能访问 Cloudflare 边缘）、token/hostname 配置是否正确");
     }
 

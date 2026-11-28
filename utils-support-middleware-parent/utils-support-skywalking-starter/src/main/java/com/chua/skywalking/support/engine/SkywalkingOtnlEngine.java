@@ -1,6 +1,7 @@
 // [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.skywalking.support.engine;
 
+import com.chua.common.support.apm.OtnlBackend;
 import com.chua.common.support.apm.OtnlEngine;
 import com.chua.common.support.apm.OtnlMetricQuery;
 import com.chua.common.support.apm.OtnlQuery;
@@ -185,6 +186,26 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
     @Override
     public String name() {
         return "skywalking";
+    }
+
+    @Override
+    public void configure(OtnlBackend endpoint) {
+        if (endpoint == null) {
+            return;
+        }
+        String url = SkywalkingSettings.normalize(endpoint.url());
+        boolean changed = !url.equals(SkywalkingSettings.url());
+        SkywalkingSettings.apply(endpoint.url(), endpoint.username(), endpoint.password(),
+                endpoint.timeoutMs(), endpoint.enabled());
+        if (changed) {
+            // OAP 地址变更：按旧地址建立的服务目录 / 状态 / 版本缓存全部作废
+            serviceIds = Map.of();
+            serviceNames = Map.of();
+            serviceCacheExpireAt = 0L;
+            cachedStatus = null;
+            statusExpireAt = 0L;
+            oapVersion = SkywalkingVersion.UNKNOWN;
+        }
     }
 
     @Override

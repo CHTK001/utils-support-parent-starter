@@ -22,6 +22,7 @@
         <module>utils-support-redis-starter</module>
         <module>utils-support-nacos-starter</module>
         <module>utils-support-zookeeper-starter</module>
+        <module>utils-support-mongodb-starter</module>
         <module>utils-support-opentelemetry-starter</module>
     <module>utils-support-skywalking-starter</module>
         <module>utils-support-apollo-starter</module>

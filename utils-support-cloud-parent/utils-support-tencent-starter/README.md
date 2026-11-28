@@ -1,294 +1,82 @@
-# Utils Support Tencent Starter
+# utils-support-tencent-starter
 
-微信开放平台集成模块，提供小程序/公众号/APP 的 unionid-openid 映射管理与转换能力。
+微信支付渠道实现。源码包含 `TenpayConfig` 和 `TenpayProvider`，基于 WxJava 的 `WxPayService` 实现公共 `PaymentChannel` 契约，SPI 名为 `tenpay`。
 
----
-
-## 功能概览
-
-| 功能 | 说明 |
-|------|------|
-| unionid-openid 映射管理 | 存储同一微信开放平台下所有应用的用户映射关系 |
-| 通过 unionid 查询所有 openid | 根据 unionid 查找用户在各平台的 openid |
-| 通过 openid 反查 unionid | 根据任意平台的 openid 查找用户信息 |
-| 小程序 openid → 公众号 openid | 基于已存储映射或调用微信 API 进行转换 |
-| 平台类型标记 | 每条映射记录标识来源平台（小程序/公众号/APP/企业微信） |
-| 持久化存储 | 基于 FileEngine 自动持久化到 JSON 文件 |
-
----
-
-## 快速开始
-
-### 1. 添加依赖
+## 安装
 
 ```xml
 <dependency>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-tencent-starter</artifactId>
-    <version>${project.version}</version>
+    <version>4.0.0.51</version>
 </dependency>
 ```
 
-### 2. 配置
+支付请求与响应契约由传递依赖的 [payment-starter](../../utils-support-core-parent/utils-support-payment-starter/README.md) 提供。
 
-```yaml
-plugin:
-  tencent:
-    open-platform:
-      enable: true
-      component-app-id: wx1234567890abcdef
-      component-app-secret: your_component_app_secret
-      default-mini-app-id: wx_mini_appid
-      storage-path: data/wechat-openid-mapping.json
-```
+## 创建渠道并发起支付
 
-### 3. 注入使用
+使用有配置的构造器。无参构造器仅供 SPI 发现，内部支付服务为 `null`，不能直接用于实际下单。
 
 ```java
-@Autowired
-private WechatOpenPlatformService wechatOpenPlatformService;
+import com.chua.payment.spi.PaymentChannel;
+import com.chua.payment.support.PaymentRequest;
+import com.chua.payment.support.PaymentResponse;
+import com.chua.payment.support.Scene;
+import com.chua.tencent.support.payment.TenpayConfig;
+import com.chua.tencent.support.payment.TenpayProvider;
+import java.math.BigDecimal;
+import java.util.Map;
+
+TenpayConfig config = TenpayConfig.builder()
+        .appId(System.getenv("WECHAT_APP_ID"))
+        .mchId(System.getenv("WECHAT_MCH_ID"))
+        .mchKey(System.getenv("WECHAT_MCH_KEY"))
+        .notifyUrl(System.getenv("WECHAT_PAY_NOTIFY_URL"))
+        .build();
+PaymentChannel channel = new TenpayProvider(config);
+
+PaymentResponse result = channel.pay(PaymentRequest.builder()
+        .outTradeNo("ORDER-10001")
+        .amount(new BigDecimal("0.01"))
+        .subject("订单支付")
+        .scene(Scene.JSAPI)
+        .extParams(Map.of("openid", System.getenv("WECHAT_OPEN_ID")))
+        .build());
+// 返回客户端调起支付所需的参数；下单成功不代表用户已完成付款。
+Map<String, String> clientParameters = result.getExtParams();
 ```
 
----
+示例会请求微信商户接口，应由调用方提供自己的商户配置、订单号和已获取的用户 openid。
 
-## 配置说明
+## 支付场景与结果
 
-### 配置前缀
+| `Scene` | 实现行为 | 主要结果/扩展参数 |
+| --- | --- | --- |
+| `JSAPI`、`MINI_APP` | 以 `JSAPI` 统一下单并获取支付参数 | `extParams.openid` 必须由调用方提供，返回 `PaymentResponse.extParams` |
+| `APP` | 以 `APP` 统一下单并获取支付参数 | 返回客户端参数 `extParams` |
+| `H5` | 以 `MWEB` 统一下单 | `codeUrl` 为跳转 URL；传入 `extParams.sceneInfo` 使用自己的站点信息 |
+| `NATIVE` | 以 `NATIVE` 统一下单 | `codeUrl` 为二维码内容；可传 `extParams.productId` |
+| `BAR_CODE` | 调用付款码 `micropay` | `extParams.authCode` 为付款码，结果包含微信交易号 `tradeNo` |
 
-```
-plugin.tencent.open-platform
-```
+其它场景抛出 `PayException`。金额以元传入，内部乘以 100 后转为整数分；调用方必须先约束金额精度与范围。支付异常包装为 `PayException("WXPAY_ERROR", ...)`，由业务方处理。
 
-### 字段详解
+## 配置与请求覆盖
 
-| 字段 | 类型 | 默认值 | 必填 | 说明 |
-|------|------|--------|------|------|
-| `enable` | `boolean` | `false` | 是 | 是否启用微信开放平台服务。设为 `true` 后自动注册 `WechatOpenPlatformService` 和 `OpenIdConvertService` Bean |
-| `component-app-id` | `String` | `null` | 是 | 微信开放平台第三方平台的 AppID。在[微信开放平台](https://open.weixin.qq.com/)创建第三方平台后获取 |
-| `component-app-secret` | `String` | `null` | 是 | 微信开放平台第三方平台的 AppSecret |
-| `default-mini-app-id` | `String` | `null` | 否 | 默认小程序 AppID。配置后调用转换接口时可省略 `miniAppId` 参数 |
-| `storage-path` | `String` | `wechat-openid-mapping.json` | 否 | 映射数据持久化文件路径。支持相对路径和绝对路径，文件格式为 JSON |
+| 配置 | 用途 |
+| --- | --- |
+| `appId`、`mchId`、`mchKey` | 应用、商户与 API 密钥 |
+| `subAppId`、`subMchId` | 服务商子应用与子商户配置 |
+| `notifyUrl` | 默认通知地址；请求的 `notifyUrl` 非空时覆盖 |
+| `certPath` | 映射为 WxJava 的 `keyPath` |
+| `certSerialNo`、`apiV3Key`、`appSecret` | 配置对象提供的字段；当前下单代码仍调用 XML 支付接口，不能据此视为完整 API v3 实现 |
 
-### 完整配置示例
+`timeoutExpress` 直接传给 WxJava 的 `timeExpire`，本实现不把 `30m` 等相对表达式转为微信绝对时间格式。`spbillCreateIp` 当前固定为 `127.0.0.1`。H5 未传 `sceneInfo` 时存在示例站点兜底，实际使用请显式传入真实站点信息。
 
-```yaml
-plugin:
-  tencent:
-    # 小程序配置（已有）
-    mini-app:
-      enable: true
-      app-id: wx_mini_appid
-      app-secret: wx_mini_secret
+## 能力边界
 
-    # 微信支付配置（已有）
-    wechat-pay:
-      enable: true
-      app-id: wx_pay_appid
-      merchant-id: 1234567890
-      # ... 其他支付配置
+本模块只覆写 `pay()`，没有实现退款、关闭、查单、通知验签或订单状态入库；公共接口的其它操作保留默认不支持行为。支付通知接收与支付完成的业务确认由调用方负责。
 
-    # 微信开放平台配置（新增）
-    open-platform:
-      enable: true
-      component-app-id: wx_open_platform_appid
-      component-app-secret: open_platform_secret
-      default-mini-app-id: wx_mini_appid
-      storage-path: data/wechat-openid-mapping.json
-```
+本目录没有微信登录、unionid/openid 映射、用户表或管理接口。腾讯云短信见 [tencentcloud-starter](../utils-support-tencentcloud-starter/README.md)，混元/COS 见 [hunyuan-starter](../utils-support-hunyuan-starter/README.md)，微信消息推送见 [wechat-starter](../utils-support-wechat-starter/README.md)。
 
----
-
-## 使用方式
-
-### 1. 保存/更新用户映射
-
-当用户通过任意应用（小程序、公众号、APP）登录时，调用 `saveOrUpdate` 记录映射关系。
-
-```java
-// 用户通过小程序登录
-wechatOpenPlatformService.saveOrUpdate(WechatPlatformUser.builder()
-    .unionId("oU5xxx")                    // 用户的 unionid
-    .appId("wx_mini_appid")               // 小程序 appId
-    .openId("oMiniXxx")                   // 小程序 openid
-    .platformType(PlatformType.MINI_APP)  // 平台类型
-    .nickname("用户昵称")                  // 可选
-    .avatar("https://...")                // 可选
-    .build());
-
-// 用户通过公众号关注/登录
-wechatOpenPlatformService.saveOrUpdate(WechatPlatformUser.builder()
-    .unionId("oU5xxx")                            // 同一个 unionid
-    .appId("wx_mp_appid")                         // 公众号 appId
-    .openId("oMpXxx")                             // 公众号 openid
-    .platformType(PlatformType.OFFICIAL_ACCOUNT)
-    .build());
-```
-
-### 2. 通过 unionid 查询所有 openid
-
-```java
-// 获取用户在所有平台的 openid 列表
-List<WechatPlatformUser> allUsers = wechatOpenPlatformService
-    .getAllOpenIdsByUnionId("oU5xxx");
-
-for (WechatPlatformUser user : allUsers) {
-    System.out.println(user.getPlatformType() + ": " + user.getOpenId());
-}
-// 输出:
-// MINI_APP: oMiniXxx
-// OFFICIAL_ACCOUNT: oMpXxx
-```
-
-### 3. 查询指定平台的 openid
-
-```java
-// 获取公众号 openid
-String mpOpenId = wechatOpenPlatformService
-    .getOfficialAccountOpenId("oU5xxx");
-
-// 获取小程序 openid
-String miniOpenId = wechatOpenPlatformService
-    .getMiniAppOpenId("oU5xxx");
-
-// 获取指定平台类型
-WechatPlatformUser user = wechatOpenPlatformService
-    .getOpenIdByUnionId("oU5xxx", PlatformType.OFFICIAL_ACCOUNT);
-```
-
-### 4. 小程序 openid 转公众号 openid
-
-```java
-// 方式一：基于本地映射（快速，无需网络请求）
-String mpOpenId = wechatOpenPlatformService
-    .convertToOfficialOpenId("oMiniXxx");
-
-// 方式二：调用微信 API 获取 unionid 后转换（需要网络请求）
-String mpOpenId = wechatOpenPlatformService
-    .convertToOfficialOpenId("wx_mini_appid", "oMiniXxx");
-```
-
-### 5. 使用 OpenIdConvertService（SPI 方式）
-
-```java
-@Autowired
-private OpenIdConvertService openIdConvertService;
-
-// 直接调用微信开放平台 API 转换
-String mpOpenId = openIdConvertService.convertToOfficialOpenId(
-    "wx_mini_appid",    // 小程序 appId
-    "wx_mp_appid",      // 公众号 appId
-    "oMiniXxx"          // 小程序 openid
-);
-```
-
----
-
-## 平台类型枚举
-
-`WechatPlatformUser.PlatformType` 枚举值：
-
-| 枚举值 | 说明 | 对应场景 |
-|--------|------|----------|
-| `MINI_APP` | 微信小程序 | 小程序登录、小程序支付 |
-| `OFFICIAL_ACCOUNT` | 微信公众号 | 公众号 OAuth 登录、模板消息 |
-| `OPEN_APP` | 微信开放平台 APP | 第三方 APP 登录 |
-| `ENTERPRISE` | 企业微信 | 企业微信登录、企业微信消息 |
-
----
-
-## 数据存储
-
-### 存储格式
-
-映射数据以 JSON 格式持久化到 `storage-path` 指定的文件：
-
-```json
-[["id","unionId","appId","openId","platformType","nickname","avatar"],
- [1,"oU5xxx","wx_mini_appid","oMiniXxx","MINI_APP","张三",null],
- [2,"oU5xxx","wx_mp_appid","oMpXxx","OFFICIAL_ACCOUNT","张三",null],
- [3,"oU6yyy","wx_mini_appid","oMiniYyy","MINI_APP","李四",null]]
-```
-
-### 存储机制
-
-- **内存索引**：启动时从文件加载到内存，查询走内存索引（O(1) 复杂度）
-- **自动持久化**：每次 `saveOrUpdate` 操作后自动写回文件
-- **双索引**：同时维护 `unionId → List<User>` 和 `openId → User` 两个索引
-
----
-
-## 前提条件
-
-使用 openid 转换功能需要满足：
-
-1. **小程序和公众号已绑定到同一个微信开放平台第三方平台**
-   - 在[微信开放平台](https://open.weixin.qq.com/)创建第三方平台
-   - 将小程序和公众号都关联到该第三方平台
-
-2. **用户已在两端产生过行为**
-   - 微信通过 unionid 机制关联同一用户在不同应用的身份
-   - 用户需要在小程序和公众号都完成过授权登录
-
-3. **配置第三方平台凭证**
-   - `component-app-id`：第三方平台 AppID
-   - `component-app-secret`：第三方平台 AppSecret
-
----
-
-## API 参考
-
-### WechatOpenPlatformService
-
-| 方法 | 返回值 | 说明 |
-|------|--------|------|
-| `getAllOpenIdsByUnionId(unionId)` | `List<WechatPlatformUser>` | 查询用户在所有平台的 openid |
-| `getOpenIdByUnionId(unionId, platformType)` | `WechatPlatformUser` | 查询指定平台类型的用户信息 |
-| `getOfficialAccountOpenId(unionId)` | `String` | 获取公众号 openid |
-| `getMiniAppOpenId(unionId)` | `String` | 获取小程序 openid |
-| `saveOrUpdate(user)` | `void` | 保存或更新用户映射 |
-| `convertToOfficialOpenId(miniAppOpenId)` | `String` | 小程序 openid 转公众号 openid（本地映射） |
-| `convertToOfficialOpenId(miniAppId, miniAppOpenId)` | `String` | 小程序 openid 转公众号 openid（含 API 调用） |
-
-### OpenIdConvertService
-
-| 方法 | 返回值 | 说明 |
-|------|--------|------|
-| `convertToOfficialOpenId(miniAppId, officialAppId, miniAppOpenId)` | `String` | 调用微信 API 转换 openid |
-| `convertToOfficialOpenId(officialAppId, miniAppOpenId)` | `String` | 使用默认小程序 appId 转换 |
-
-### WechatPlatformUser
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `id` | `Long` | 主键 ID |
-| `unionId` | `String` | 用户 unionid |
-| `appId` | `String` | 应用 appId |
-| `openId` | `String` | 用户在该应用下的 openid |
-| `platformType` | `PlatformType` | 平台类型枚举 |
-| `nickname` | `String` | 用户昵称 |
-| `avatar` | `String` | 用户头像 URL |
-
----
-
-## 依赖关系
-
-```
-utils-support-tencent-starter
-├── utils-support-common-starter      # 通用工具
-├── utils-support-datasource-starter  # FileEngine 存储引擎
-├── utils-support-payment-starter     # 支付通道
-├── utils-support-auth-starter        # 认证框架
-├── weixin-java-open 4.7.3.B         # 微信开放平台 SDK
-├── weixin-java-miniapp 4.7.3.B      # 微信小程序 SDK
-├── weixin-java-mp 4.7.3.B           # 微信公众号 SDK
-└── weixin-java-pay 4.7.3.B          # 微信支付 SDK
-```
-
----
-
-## 注意事项
-
-1. **内存存储**：当前实现使用内存索引 + 文件持久化，适合中小规模应用。大规模场景建议替换为数据库存储
-2. **并发安全**：索引操作使用 `ConcurrentHashMap`，文件写入由 FileEngine 保证
-3. **文件格式**：FileEngine 默认保存为二维数组格式，加载时自动兼容对象数组格式
-4. **Enum 序列化**：`PlatformType` 枚举使用 `@JsonValue`/`@JsonCreator` 注解，确保 JSON 序列化/反序列化正确
+源码：[TenpayProvider](src/main/java/com/chua/tencent/support/payment/TenpayProvider.java)、[TenpayConfig](src/main/java/com/chua/tencent/support/payment/TenpayConfig.java)。返回 [云平台目录](../README.md)。

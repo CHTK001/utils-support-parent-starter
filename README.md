@@ -1,591 +1,337 @@
 # Utils Support Parent Starter
 
-[![Java Version](https://img.shields.io/badge/Java-25%2B-blue)](https://openjdk.java.net/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
+Java 通用工具与 SPI 实现集合。公共契约和基础实现位于 `utils-support-common-starter`，数据库、文件格式、网络协议、云平台和推理引擎由各模块扩展。按所需能力引入叶子模块；父模块的 `packaging` 为 `pom`，用于聚合构建与管理依赖。
 
-一个功能强大、高度可扩展的 Java 工具包集合，通过 SPI 机制实现插件化架构，提供丰富的可复用工具能力。
+当前源码目录包含 **237 个 Maven 模块：本根模块、12 个分组父模块、224 个叶子模块**。下列索引覆盖全部模块，每个链接都指向对应目录的 README，安装、常用调用、配置与实现边界在模块文档中说明。
 
-## 目录
+## 安装与选择
 
-- [项目简介](#项目简介)
-- [模块总览](#模块总览)
-- [核心模块说明](#核心模块说明)
-- [已添加依赖及位置](#已添加依赖及位置)
-- [快速开始](#快速开始)
-- [高级使用示例](#高级使用示例)
-- [构建说明](#构建说明)
-- [文档索引](#文档索引)
-- [GraalVM 支持](#graalvm-支持)
-- [贡献](#贡献)
-
----
-
-## 项目简介
-
-企业级 Java 工具包集合，模块独立封装，通过 SPI 实现可扩展能力，提供统一接口替换复杂依赖。
-
-### 核心特性
-
-- **插件化架构**：SPI 机制驱动，按需加载扩展
-- **模块零耦合**：各 starter 相互独立，可按需选用
-- **统一接口**：ProtocolServer / FileStorage / ChatClient / IdentificationEngine 等
-- **响应式支持**：集成 Netty、Vert.x、Disruptor
-- **动态配置**：支持热更新/灰度发布、Spring 集成
-
----
-
-## 模块总览
-
-```
-utils-support-parent-starter/
-├── core-parent/                              # 核心基础模块（必选）
-│   ├── common-starter                        # 类型转换、JSON、加密、HTTP 客户端
-│   ├── spring-starter                        # Spring 框架支持
-│   ├── springboot-starter                    # Spring Boot 自动装配
-│   ├── datasource-starter                    # 数据源引擎（JdbcEngine/ReactorEngine）
-│   ├── filesystem-starter                    # 文件格式处理（ZIP/TAR/CSV/JSON/XML）
-│   ├── network-starter                       # 网络工具（下载器、代理）
-│   ├── spider-starter                        # 爬虫引擎
-│   ├── auth-starter                          # 认证授权
-│   ├── flow-starter                          # 流程引擎
-│   ├── payment-starter                       # 支付接入
-│   ├── maven-starter                         # Maven 工具
-│   └── osgi-starter                          # OSGi 支持
-│
-├── datasource-parent/                        # 数据库/数据源（30+ 种）
-│   ├── mysql-starter / postgresql-starter    # 关系型：MySQL、PG、Oracle、SQL Server
-│   ├── redis-starter / mongodb-starter       # NoSQL：Redis、MongoDB
-│   ├── milvus-starter / jvector-starter      # 向量库：Milvus、JVector
-│   ├── zvec-starter                          # 向量库：Zvec（嵌入式，zvec-java JNI）
-│   ├── clickhouse-starter / duckdb-starter   # 分析型：ClickHouse、DuckDB
-│   ├── hbase-starter / neo4j-starter         # 宽表/图：HBase、Neo4j
-│   ├── hibernate-starter                     # ORM：Hibernate
-│   ├── calcite-starter / shardingv5-starter  # SQL引擎：Calcite、ShardingSphere
-│   ├── debezium-starter                      # CDC：Debezium
-│   ├── elasticsearch-starter                 # 搜索引擎：Elasticsearch
-│   ├── lucene-starter                        # 全文检索：Lucene
-│   ├── parquet-starter / oracle-starter      # 列式存储 / Oracle
-│   ├── influxdb-starter / greptimedb-starter # 时序数据库
-│   ├── sqlite-starter                        # 嵌入式 SQLite（含 Reactor 引擎）
-│   ├── h2-starter                            # H2 内存数据库
-│   ├── clickhouse-starter / mysql-starter    # 专用引擎
-│   ├── duckdb-starter / postgresql-starter
-│   ├── sqlserver-starter / oracle-starter
-│   └── tablesaw-starter / solr-starter       # 表格计算 / Solr
-│
-├── filesystem-parent/                        # 文件系统 & 文件格式
-│   ├── excel-starter / pdf-starter           # 文档：Excel、PDF、Word、OFD
-│   ├── image-starter / image-apng-starter    # 图片：处理、APNG 动画
-│   ├── ffmpeg-starter / ffmpeg-javacv-starter # 音视频：FFmpeg、JavaCV
-│   ├── ffmpeg-rust-starter                   # FFmpeg Rust 绑定
-│   ├── email-starter                         # 邮件：SMTP/IMAP
-│   ├── aspose-starter / libreoffice-starter  # 格式转换：Aspose、LibreOffice、OnlyOffice
-│   ├── json-starter                          # JSON 处理
-│   ├── groovy-starter                        # Groovy 脚本
-│   ├── pandoc-starter                        # Markdown 转换
-│   ├── filestorage-starter                   # 文件存储（含压缩格式预览）
-│   ├── filesearch-starter                    # 文件搜索（Rust 后端）
-│   ├── zxing-starter / geoip2-starter        # 二维码、IP 定位
-│   ├── ip2region-starter / qqwry-starter     # IP 地址库
-│   ├── syslog-starter / html-starter         # 系统日志、HTML 处理
-│   ├── dbf-starter / word-starter / ofd-starter
-│   └── ibd-starter                           # MySQL IBD 文件解析
-│
-├── network-parent/                           # 网络协议（30+ 协议）
-│   ├── httpclient-starter / okhttp-starter   # HTTP 客户端
-│   ├── armeria-starter / rsocket-starter     # HTTP/2 响应式 RPC
-│   ├── rpc-dubbo-starter / rpc-sofa-starter  # RPC 框架
-│   ├── ssh-starter / ftp-starter / smb-starter # 远程文件传输
-│   ├── git-starter                           # Git 操作
-│   ├── vertx-starter                         # Vert.x 异步框架
-│   ├── playwright-starter                    # 浏览器自动化
-│   ├── webview-starter / webview-jcef-starter # 嵌入式 WebView
-│   ├── acme-starter / ngrok-starter          # 证书申请 / 内网穿透
-│   ├── docker-starter / quarkus-starter      # Docker / Quarkus
-│   ├── socketio-starter / sinch-starter      # Socket.IO / 短信
-│   └── tshark-starter / kcp-starter          # 抓包分析 / KCP 协议
-│
-├── cloud-parent/                             # 云服务商集成
-│   ├── alibaba-starter / tencent-starter     # 阿里云 OSS / 腾讯云 COS
-│   ├── huawei-starter / baidu-starter        # 华为 OBS / 百度 BOS
-│   ├── amazon-starter / google-starter       # AWS S3 / Google Cloud
-│   ├── openai-starter / claude-starter       # AI 大模型 API（统一 ChatClient）
-│   ├── zhipu-starter / doubao-starter        # 智谱 GLM / 豆包
-│   ├── ollama-starter / xunfei-starter       # 本地模型 / 讯飞
-│   ├── huggingface-starter / modelscope-starter # HuggingFace / ModelScope
-│   ├── dingding-starter / feishu-starter     # 钉钉 / 飞书机器人
-│   ├── hikvision-starter / uniview-starter   # 海康威视 / 宇视摄像头
-│   └── qiniu-starter / wechat-starter        # 七牛云 / 微信
-│
-├── deeplearning-parent/                      # 深度学习
-│   ├── deeplearning-onnx-starter             # ONNX Runtime 推理
-│   ├── deeplearning-pytorch-starter          # PyTorch
-│   ├── deeplearning-tensorflow-starter       # TensorFlow
-│   ├── deeplearning-opencv-starter           # OpenCV 计算机视觉
-│   ├── deeplearning-arcsoft-starter          # ArcSoft 人脸检测
-│   ├── deeplearning-tesseract-starter        # Tesseract OCR
-│   ├── deeplearning-agentscope-starter       # AgentScope 多 Agent 协作
-│   ├── deeplearning-langchain4j-starter      # LangChain4j
-│   └── deeplearning-safetensors-starter      # Safetensors 模型加载
-│
-├── middleware-parent/                        # 中间件
-│   ├── kafka-starter / rabbitmq-starter      # 消息队列
-│   ├── nacos-starter / zookeeper-starter     # 注册中心 / 配置中心
-│   ├── redis-starter                         # Redis 客户端
-│   ├── prometheus-starter / sentinel-starter # 监控 / 限流
-│   ├── chronicle-starter                     # Chronicle Queue 高性能日志
-│   ├── docker-starter                        # Docker 管理
-│   ├── mqtt-starter / minio-starter          # MQTT / MinIO
-│   └── apollo-starter / undertow-starter     # Apollo 配置 / Undertow
-│
-├── datatask-parent/                          # 数据任务
-│   ├── datasearch-starter                    # 数据搜索（音乐/视频/汇率/IP）
-│   ├── datarecovery-starter                  # 数据恢复
-│   ├── datasync-starter / datasync-agent-starter # 数据同步
-│   ├── quartz-starter                        # 定时任务
-│   └── retry-starter                         # 重试机制
-│
-├── datalake-parent/                          # 数据湖
-│   ├── datalake-starter                      # 数据湖核心（服务器）
-│   ├── datalake-sink-starter                 # 数据湖写入（Sink SPI）
-│   ├── datalake-subscribe-starter            # 数据湖订阅器
-│   ├── datalake-query-starter                # 数据湖 HTTP 查询
-│   ├── datalake-cdc-starter                  # CDC MySQL 变更捕获
-│   ├── datalake-mqtt-starter                 # MQTT 5.0 入站适配器
-│   └── datalake-webhook-starter              # HTTP Webhook 入站适配器
-│
-├── extra-parent/                             # 扩展组件
-│   ├── fastjson-starter / gson-starter / serialize-starter # JSON 序列化
-│   ├── crypto-starter / captcha-starter      # 加密 / 验证码
-│   ├── desktop-starter / oshi-starter        # 桌面 / 系统信息
-│   ├── metrics-starter                       # 指标采集
-│   ├── tika-starter                          # 文档内容提取
-│   └── fory-starter                          # Fory 序列化
-│
-└── runtime-parent/                           # 运行时增强
-    ├── runtime-starter                       # 运行时核心
-    ├── runtime-agent                         # Agent 注入
-    ├── runtime-apm                           # APM 监控
-    └── runtime-shell                         # 命令行工具
-```
-
----
-
-## 核心模块说明
-
-### utils-support-common-starter（核心基础）
-
-`utils-support-common-starter` 是本项目的基础工具集，提供 Java 项目日常开发常用工具。
-
-#### 类型转换 — Converter
-
-```java
-Integer num = Converter.convertIfNecessary("123", Integer.class);
-Long longVal = Converter.convertIfNecessary("999999", Long.class);
-Date date = Converter.convertIfNecessary("2024-01-01", Date.class);
-User user = Converter.convertIfNecessary(map, User.class);
-```
-
-#### JSON 处理 — Json
-
-```java
-String json = Json.toJson(user);
-User user = Json.fromJson(json, User.class);
-String pretty = Json.toPrettyJson(user);
-List<User> users = Json.fromJson(jsonArr, new TypeReference<List<User>>(){});
-```
-
-#### 加解密 — CipherFlow / DigestUtils
-
-统一入口是 `CipherFlow`：所有算法都按提供者走 SPI 解析（JDK 内置实现别名 `jdk`，
-其余实现需要 `utils-support-jdk15on-starter`，别名 `bc`）。
-
-| 入口 | 能力 | 实现来源 |
-|---|---|---|
-| `aes()` / `des()` | AES、DES 对称加解密 | JDK 内置（SPI 别名 `jdk`） |
-| `sm4()` / `desede()` / `twofish()` / `noekeon()` | 对称加解密 | `jdk15on-starter`（`bc`） |
-| `rsa()` / `sm2()` | 非对称：加解密 + 签名验签 + 生成密钥对 | `jdk15on-starter`（`bc`） |
-| `ecies()` / `hpke()` | 混合加密（KEM + AEAD，HPKE 遵循 RFC 9180） | `jdk15on-starter`（`bc`） |
-
-算法接口在 `com.chua.common.support.lang.algorithm.cipher`，文本编解码 SPI（`Codec` 及
-`aes` / `aes-gcm` / `sm4` / `des` / `hex` / `keylog` 实现）与 `Hex` 在
-`com.chua.common.support.lang.algorithm.crypto`，摘要在 `com.chua.common.support.utils`，
-流加密与会话加密（`AesGcmUtils` / `Hkdf` / `SessionCipher`）在 `com.chua.common.support.network.crypto`。
-
-文本编解码按类型名解析，未知类型直接抛异常，不会静默退化成十六进制：
-
-```java
-Codec codec = Codec.build("aes-gcm", "密钥");
-String cipher = codec.encodeHex("明文");
-String plain = codec.decodeHex(cipher);
-```
-
-`keylog` 是一次性会话密钥算法（临时 ECDH 密钥交换）：客户端只持服务端公钥、每次现场生成
-临时 X25519 密钥对，经 HKDF-SHA256 派生一次性 AES-256-GCM 密钥；临时公钥随密文传递，
-服务端凭长期私钥即可无状态解密。会话密钥只在内存、用完清零、不落盘。
-
-密文格式 `k2:` + hex(`[8B 时间戳][8B 消息ID][1B enc长度][enc][12B nonce][GCM密文+16B标签]`)；
-时间戳与消息ID一起进 AAD，服务端默认只接受 5 分钟窗口内的消息并拒绝重复消息ID。
-
-```java
-String[] pair = KeyLogCodec.generateKeyPair();      // [0]=公钥hex，[1]=私钥hex（只在服务端内存）
-
-// 客户端：可选 #指纹 钉死公钥，公钥被替换时直接拒绝
-String pin = KeyLogCodec.fingerprint(pair[0]);
-Codec client = Codec.build("keylog", "client:" + pair[0] + "#" + pin);
-
-Codec server = Codec.build("keylog", "server:" + pair[1]);
-String wire = client.encodeHex("机密数据");
-String plain = server.decodeHex(wire);
-```
-
-```java
-// 对称：byte[] 密文前 16 字节为随机 IV，字符串模式结果为 Base64
-AesCipher aes = CipherFlow.of("aes").aes();
-byte[] ciphertext = aes.encrypt(key, plaintext);
-String base64Text = aes.encryptToString(key, "hello");
-
-// 国密
-Sm4Cipher sm4 = CipherFlow.of("sm4").provider("bc").sm4();
-byte[] sm4Ct = sm4.encrypt(key16, plaintext);   // SM4 密钥固定 16 字节
-
-// 非对称
-RsaCipher rsa = CipherFlow.of("rsa").rsa();
-KeyPair kp = rsa.generateKeyPair(2048);
-byte[] ct = rsa.encrypt(kp.getPublic().getEncoded(), plaintext);
-boolean ok = rsa.verify(kp.getPublic().getEncoded(), plaintext,
-                        rsa.sign(kp.getPrivate().getEncoded(), plaintext));
-
-// 按算法名统一解析，未知算法抛 IllegalArgumentException
-Cipher cipher = CipherFlow.of("sm2").provider("bc").resolve();
-
-// 摘要 / HMAC（返回小写十六进制）
-String md5 = DigestUtils.md5Hex("hello");
-String sha256 = DigestUtils.sha256("hello");
-String sm3 = DigestUtils.sm3("hello");            // 需 BouncyCastle Provider
-String mac = DigestUtils.hmacSha256("data", "key");
-byte[] digest = DigestUtils.hash("SHA3-512", "hello");   // SHA3 需 JDK 9+
-
-// 编码
-String base64 = Base64.encode("hello");
-byte[] raw = Base64.decode(base64);
-```
-
-TCP 长连接要整段加密时用 `AesGcmUtils`：AES-256-GCM 帧式流加密，
-帧格式 `[4B 长度][12B nonce][密文+16B 认证标签]`，篡改即断链。
-
-```java
-SecretKeySpec key = AesGcmUtils.deriveKey("shared-secret");   // SHA-256 派生
-OutputStream out = AesGcmUtils.encrypting(socket.getOutputStream(), key);
-InputStream in = AesGcmUtils.decrypting(socket.getInputStream(), key);
-```
-
-要「每条连接一把钥」，用 `SessionCipher`：根密钥只在两端内存里，线路上只交换随机盐，
-子密钥经 HKDF-SHA256 按方向隔离派生，序号与 AAD 一起挡住重放、乱序与篡改。
-
-```java
-byte[] salt = SessionCipher.newSalt();                  // 随握手发送，每次连接随机
-SessionCipher client = SessionCipher.initiator(rootKey, salt);
-SessionCipher server = SessionCipher.responder(rootKey, salt);
-
-byte[] frame = client.seal("hello".getBytes(StandardCharsets.UTF_8));
-byte[] plain = server.open(frame);                       // 篡改 / 重放 / 乱序都会抛异常
-```
-
-> 配置文件整文件加密、单值 `ENC(...)`、密钥载体与程序包（FatJar）加密见
-> [crypto-starter](utils-support-extra-parent/utils-support-crypto-starter/README.md)。
-
-Server / Client 的传输层加密走 Codec 的二级接口 `StreamCodec`（与消息级 `Codec` 同族、按名字切换、不写死）：
-`aes-gcm` 为预共享口令（上述 `AesGcmUtils` 流），`keylog` 为连接建立时握手一次的
-临时密钥交换（客户端持公钥、服务端持私钥）。
-
-```java
-// 服务端（ServerSetting 只需声明类型，实现按 SPI 解析）
-ServerSetting setting = ServerSetting.defaults();
-setting.setEncrypt(true);
-setting.setEncryptType("keylog");                        // 默认 aes-gcm
-setting.setEncryptKey("server:" + privateKeyHex);
-
-// 客户端：同一类型 + 对等角色
-StreamCodec client = StreamCodec.buildStream("keylog", "client:" + publicKeyHex + "#" + pin);
-StreamCodec.Streams streams = client.open(socket.getInputStream(), socket.getOutputStream(), true);
-```
-
-不认识的类型启动即失败，不会静默退回明文；两端必须配置同一类型。
-
-#### SPI 扩展机制 — ServiceProvider
-
-```java
-@Spi("default")
-public interface MyService { void execute(); }
-
-ServiceProvider<MyService> provider = ServiceProvider.of(MyService.class);
-MyService service = provider.getExtension("default");
-```
-
-#### 工具类
-
-| 工具类 | 说明 |
-|--------|------|
-| `CollectionUtils` / `MapUtils` | 空判断、合并、遍历 |
-| `FileUtils` / `IoUtils` | 文件读写、目录操作 |
-| `IdUtils` | UUID、雪花算法 ID |
-| `DateTime` | 日期时间格式化与计算 |
-| `HttpClient` | HTTP 请求（GET/POST/文件上传） |
-| `ProgressBar` | 终端进度条 |
-| `ConnectionPool` | 通用连接池 |
-| `ExpressionParser` | EL/Groovy/Aviator 表达式 |
-| `ReturnResult` | 统一 API 响应封装 |
-| `DeadLetterQueue` | 内存/JDBC/文件死信队列 |
-
-> 详细文档见 [common-starter README](utils-support-core-parent/utils-support-common-starter/README.md)
-
----
-
-## 已添加依赖及位置
-
-以下为本次构建修复及版本适配过程中新增/调整的依赖，按模块整理：
-
-### 1. JUnit 5 测试框架（全局）
-
-| 位置 | 依赖 | 用途 |
-|------|------|------|
-| `pom.xml`（根） | `junit-jupiter-api:5.11.4` (test) | 全局测试 API |
-| `pom.xml`（根） | `junit-jupiter-engine:5.11.4` (test) | 全局测试执行引擎 |
-| `utils-support-datasource-starter/pom.xml` | `junit-jupiter-api:5.11.4` (test) | 数据源模块测试 |
-| `utils-support-datasource-starter/pom.xml` | `junit-jupiter-engine:5.11.4` (test) | 数据源模块测试执行 |
-
-### 2. Mockito 5（网络模块）
-
-| 位置 | 依赖 | 用途 |
-|------|------|------|
-| `utils-support-network-starter/pom.xml` | `mockito-core:5.14.2` (test) | 网络模块单元测试 Mock |
-
-### 3. Lombok Java 25 兼容配置
-
-| 位置 | 配置项 | 说明 |
-|------|--------|------|
-| `utils-support-filesystem-starter/pom.xml` | `<fork>true</fork>` + `<compilerArgs>` 中的 `--add-exports/--add-opens` | Java 25 下 Lombok 注解处理器需要开放编译器内部模块 |
-| `utils-support-filesystem-starter/pom.xml` | `<annotationProcessorPaths>` 显式声明 Lombok | 确保 Java 25 下注解处理器正确加载 |
-
-> 注：根 `pom.xml` 的 compiler plugin 已全局配置 `--add-exports` 和 `--add-opens` 参数（`Jdk.compiler` 模块），各子模块可继承。
-
-### 4. Reactor 响应式支持（SQLite 模块）
-
-| 位置 | 依赖 | 用途 |
-|------|------|------|
-| `utils-support-sqlite-starter/pom.xml` | `reactor-core` | `SqliteReactorEngine` 响应式查询依赖 |
-| `utils-support-sqlite-starter/pom.xml` | `reactor-test:${reactor.core.version}` (test) | 响应式测试支持 |
-| `utils-support-sqlite-starter/pom.xml` | `r2dbc-spi:0.9.1.RELEASE` (test) | R2DBC 测试接口 |
-
-新增类：`com.chua.sqlite.support.engine.SqliteReactorEngine`（继承 `JdbcReactorEngine`，提供 `boundedElastic` 线程池的非阻塞查询 API）。
-
-### 5. 压缩格式支持（FileStorage 模块）
-
-| 位置 | 依赖 | 用途 |
-|------|------|------|
-| `utils-support-filestorage-starter/pom.xml` | `xz:${tukaani.xz.version}` | `.tar.xz/.tzst` 压缩包预览 |
-| `utils-support-filestorage-starter/pom.xml` | `zstd-jni:${zstd-jni.version}` | `.tar.zst` 压缩包预览 |
-| `utils-support-filestorage-starter/pom.xml` | `dec:${brotli.dec.version}` | `.br` 压缩格式支持 |
-
-版本属性定义在根 `pom.xml`：
-- `tukaani.xz.version = 1.11`
-- `zstd-jni.version = 1.5.7-6`
-- `brotli.dec.version = 0.1.2`
-
----
-
-## 快速开始
-
-### 环境要求
-
-- JDK 25+
-- Maven 3.9+
-
-### 引入依赖
+当前根 POM 版本为 `4.0.0.51`，编译目标为 **JDK 25**。例如，只使用基础工具时引入：
 
 ```xml
 <dependency>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-common-starter</artifactId>
-    <version>${latest.version}</version>
+    <version>4.0.0.51</version>
 </dependency>
 ```
 
-### 代码示例
+使用具体能力时，将 `artifactId` 换为下列叶子模块的坐标，并阅读该模块的前置条件。需要外部服务、浏览器、原生库、模型权重或独立 Python 服务的实现，在各自 README 中单独说明。构建成功不表示这些外部条件已经具备。
 
-```java
-// 类型转换
-Integer num = Converter.convertIfNecessary("123", Integer.class);
+- 通用工具、HTTP、SPI、并发、任务、AI 公共门面：[common](utils-support-core-parent/utils-support-common-starter/README.md)。
+- ORM、多数据源与查询包装器：[datasource 核心](utils-support-core-parent/utils-support-datasource-starter/README.md)，配合具体数据库模块。
+- 文件读写与格式转换：[filesystem 核心](utils-support-core-parent/utils-support-filesystem-starter/README.md)，配合具体格式模块。
+- 本地推理与模型注册：[deeplearning 核心](utils-support-core-parent/utils-support-deeplearning-starter/README.md)，配合具体引擎和所需模型文件。
+- Spring 环境桥接：[spring](utils-support-core-parent/utils-support-spring-starter/README.md) / [springboot](utils-support-core-parent/utils-support-springboot-starter/README.md)。其它模块是否包含 Spring 适配，以各自 POM 与文档为准。
 
-// JSON
-String json = Json.toJson(object);
-MyClass obj = Json.fromJson(json, MyClass.class);
+## 完整模块目录
 
-// HTTP 请求
-HttpResponse response = HttpClient.get()
-    .url("https://api.example.com/data")
-    .header("Authorization", "Bearer xxx")
-    .execute();
+标记 **未登记** 的 8 个叶子目录有独立 POM，但没有登记在所属父 POM 的 `<modules>` 中，因此根目录默认 reactor 不构建它们。索引收录不改变构建登记。
 
-// SPI 扩展
-ServiceProvider<MyService> provider = ServiceProvider.of(MyService.class);
-MyService service = provider.getExtension("default");
-```
+### 核心工具（16）
 
----
+父模块：[utils-support-core-parent](utils-support-core-parent/README.md)。
 
-## 高级使用示例
+- [utils-support-common-starter](utils-support-core-parent/utils-support-common-starter/README.md)：SPI、工具、HTTP、并发、任务、AI、存储与公共契约。
+- [utils-support-crawler-starter](utils-support-core-parent/utils-support-crawler-starter/README.md)：可插拔抓取、解析与抓取数据模型。
+- [utils-support-datasource-starter](utils-support-core-parent/utils-support-datasource-starter/README.md)：Engine、多数据源、ORM 包装器与查询执行。
+- [utils-support-deeplearning-starter](utils-support-core-parent/utils-support-deeplearning-starter/README.md)：模型注册、下载、翻译器与推理门面。
+- [utils-support-filesystem-starter](utils-support-core-parent/utils-support-filesystem-starter/README.md)：文件系统、文本格式读写、归档与搜索。
+- [utils-support-flow-starter](utils-support-core-parent/utils-support-flow-starter/README.md)：流程编排、节点注册与 Spring Boot 装配。
+- [utils-support-flyway-maven-plugin](utils-support-core-parent/utils-support-flyway-maven-plugin/README.md)：扫描和合并数据库初始化脚本的 Maven 插件。
+- [utils-support-flyway-starter](utils-support-core-parent/utils-support-flyway-starter/README.md)：DataSource 脚本迁移、版本和校验和管理。
+- [utils-support-maven-starter](utils-support-core-parent/utils-support-maven-starter/README.md)：Maven 同步/异步构建、进度回调与 JDK 选择。
+- [utils-support-network-starter](utils-support-core-parent/utils-support-network-starter/README.md)：Vert.x HTTP/WebSocket、Socket 与服务过滤器。
+- [utils-support-osgi-bundle-starter](utils-support-core-parent/utils-support-osgi-bundle-starter/README.md)：宿主与插件共享的零依赖 OSGi 契约。
+- [utils-support-osgi-starter](utils-support-core-parent/utils-support-osgi-starter/README.md)：Apache Felix 插件容器与 SPI 桥接。
+- [utils-support-otp-starter](utils-support-core-parent/utils-support-otp-starter/README.md)：OTP 消息推送与记录查询；**未登记**。
+- [utils-support-payment-starter](utils-support-core-parent/utils-support-payment-starter/README.md)：支付渠道、请求、响应与支付场景契约。
+- [utils-support-spring-starter](utils-support-core-parent/utils-support-spring-starter/README.md)：Spring 环境、Bean、日期转换与 Web 工具桥接。
+- [utils-support-springboot-starter](utils-support-core-parent/utils-support-springboot-starter/README.md)：Spring Boot 自动配置与 API 配置桥接。
 
-### 1. 统一协议服务器 — ProtocolServer
+### 文件与格式（30）
 
-```java
-ProtocolServer server = ProtocolServer.create("http://0.0.0.0:8080");
-server.get("/api/users", (request, response) -> {
-    response.setContentType("application/json");
-    response.setBodyString("{\"users\": []}");
-});
-server.start();
-```
+父模块：[utils-support-filesystem-parent](utils-support-filesystem-parent/README.md)。
 
-### 2. 统一 OSS 存储 — FileStorage
+- [utils-support-aspose-starter](utils-support-filesystem-parent/utils-support-aspose-starter/README.md)：Aspose 文档格式转换。
+- [utils-support-cad-starter](utils-support-filesystem-parent/utils-support-cad-starter/README.md)：DXF 渲染为 SVG、DWG 头信息解析与预览。
+- [utils-support-dbf-starter](utils-support-filesystem-parent/utils-support-dbf-starter/README.md)：DBF 文件读写。
+- [utils-support-email-starter](utils-support-filesystem-parent/utils-support-email-starter/README.md)：SMTP 邮件发送与邮件解析。
+- [utils-support-excel-starter](utils-support-filesystem-parent/utils-support-excel-starter/README.md)：Apache POI Excel 文件系统与导出。
+- [utils-support-ffmpeg-javacv-starter](utils-support-filesystem-parent/utils-support-ffmpeg-javacv-starter/README.md)：JavaCV 音视频编解码实现。
+- [utils-support-ffmpeg-rust-starter](utils-support-filesystem-parent/utils-support-ffmpeg-rust-starter/README.md)：Rust 原生音视频编解码实现。
+- [utils-support-ffmpeg-starter](utils-support-filesystem-parent/utils-support-ffmpeg-starter/README.md)：FFmpeg 音视频处理与转换。
+- [utils-support-filesearch-starter](utils-support-filesystem-parent/utils-support-filesearch-starter/README.md)：Rust/FFM 文件索引与搜索。
+- [utils-support-filestorage-starter](utils-support-filesystem-parent/utils-support-filestorage-starter/README.md)：文件存储服务器、过滤器与存储扩展。
+- [utils-support-geoip2-starter](utils-support-filesystem-parent/utils-support-geoip2-starter/README.md)：MaxMind MMDB IP 地理信息查询。
+- [utils-support-groovy-starter](utils-support-filesystem-parent/utils-support-groovy-starter/README.md)：Groovy 脚本、变量绑定与模板。
+- [utils-support-hprof-starter](utils-support-filesystem-parent/utils-support-hprof-starter/README.md)：HPROF 分析、JSON/Markdown 导出与 MCP 工具。
+- [utils-support-html-starter](utils-support-filesystem-parent/utils-support-html-starter/README.md)：HTML 文件系统与文档转 HTML。
+- [utils-support-ibd-starter](utils-support-filesystem-parent/utils-support-ibd-starter/README.md)：Python 数据处理脚本与资源管理。
+- [utils-support-image-apng-starter](utils-support-filesystem-parent/utils-support-image-apng-starter/README.md)：APNG 动画帧与格式处理。
+- [utils-support-image-starter](utils-support-filesystem-parent/utils-support-image-starter/README.md)：图像转换、缩放、裁剪、滤镜与压缩。
+- [utils-support-ip2region-starter](utils-support-filesystem-parent/utils-support-ip2region-starter/README.md)：IP2Region XDB 地理信息查询。
+- [utils-support-json-starter](utils-support-filesystem-parent/utils-support-json-starter/README.md)：JSONPath 查询与数据提取。
+- [utils-support-libreoffice-starter](utils-support-filesystem-parent/utils-support-libreoffice-starter/README.md)：LibreOffice 文档转换。
+- [utils-support-log-starter](utils-support-filesystem-parent/utils-support-log-starter/README.md)：日志文件 tail、grep、过滤与追加。
+- [utils-support-ofd-starter](utils-support-filesystem-parent/utils-support-ofd-starter/README.md)：OFD 版式文件操作。
+- [utils-support-onlyoffice-starter](utils-support-filesystem-parent/utils-support-onlyoffice-starter/README.md)：OnlyOffice 文档转换。
+- [utils-support-pandoc-starter](utils-support-filesystem-parent/utils-support-pandoc-starter/README.md)：Pandoc 文档格式转换。
+- [utils-support-pdf-starter](utils-support-filesystem-parent/utils-support-pdf-starter/README.md)：PDF 文件操作与转换。
+- [utils-support-qqwry-starter](utils-support-filesystem-parent/utils-support-qqwry-starter/README.md)：纯真 IP 数据库查询；**未登记**。
+- [utils-support-syslog-starter](utils-support-filesystem-parent/utils-support-syslog-starter/README.md)：跨平台系统日志查询与监听；**未登记**。
+- [utils-support-wechat-restore-starter](utils-support-filesystem-parent/utils-support-wechat-restore-starter/README.md)：本机微信数据还原与 CSV/SQL/Excel 导出。
+- [utils-support-word-starter](utils-support-filesystem-parent/utils-support-word-starter/README.md)：Word 文件操作与导出。
+- [utils-support-zxing-starter](utils-support-filesystem-parent/utils-support-zxing-starter/README.md)：二维码、条码识别与生成。
 
-```java
-FileStorage storage = FileStorage.createStorage("aliyun",
-    FileStorageOption.builder()
-        .accessKeyId("your-key")
-        .accessKeySecret("your-secret")
-        .endpoint("oss-cn-hangzhou.aliyuncs.com")
-        .bucketName("your-bucket")
-        .build());
-PutResult result = storage.putObject("path/to/file.jpg", new File("local.jpg"));
-```
+### 数据任务与检索（8）
 
-### 3. AI 大模型对话 — ChatClient
+父模块：[utils-support-datatask-parent](utils-support-datatask-parent/README.md)。
 
-```java
-// 同步对话
-ChatClient client = ChatClient.create("openai", "your-api-key");
-String response = client.chatSync("请介绍一下你自己");
+- [utils-support-collapse-starter](utils-support-datatask-parent/utils-support-collapse-starter/README.md)：请求合并与虚拟线程批量执行。
+- [utils-support-datarecovery-starter](utils-support-datatask-parent/utils-support-datarecovery-starter/README.md)：Rust JNI 数据恢复绑定的依赖入口。
+- [utils-support-datasearch-starter](utils-support-datatask-parent/utils-support-datasearch-starter/README.md)：搜索、数据同步输入、技能/MCP 与模型目录适配。
+- [utils-support-datasync-agent-starter](utils-support-datatask-parent/utils-support-datasync-agent-starter/README.md)：同步 Agent 的 Source/Sink 与传输协议。
+- [utils-support-datasync-starter](utils-support-datatask-parent/utils-support-datasync-starter/README.md)：同步映射、调度、执行器与 Agent 管理。
+- [utils-support-quartz-starter](utils-support-datatask-parent/utils-support-quartz-starter/README.md)：Quartz 调度实现。
+- [utils-support-retry-starter](utils-support-datatask-parent/utils-support-retry-starter/README.md)：重试 SPI 实现。
+- [utils-support-ueba-starter](utils-support-datatask-parent/utils-support-ueba-starter/README.md)：异常流量、行为序列分析与语义解释。
 
-// 流式对话
-client.chat("写一首诗", chunk -> System.out.print(chunk.getContent()));
-```
+### 数据库与查询引擎（28）
 
-### 4. 深度学习推理 — IdentificationEngine
+父模块：[utils-support-datasource-parent](utils-support-datasource-parent/README.md)。
 
-```java
-IdentificationEngine engine = IdentificationEngine.builder()
-    .engine("onnx")
-    .configuration(DetectionConfiguration.builder()
-        .option("modelPath", "/path/to/yolov8.onnx")
-        .option("optDevice", "GPU")
-        .build())
-    .build();
+- [utils-support-calcite-starter](utils-support-datasource-parent/utils-support-calcite-starter/README.md)：Calcite 联邦 SQL 查询。
+- [utils-support-clickhouse-starter](utils-support-datasource-parent/utils-support-clickhouse-starter/README.md)：ClickHouse JDBC/R2DBC 适配。
+- [utils-support-debezium-starter](utils-support-datasource-parent/utils-support-debezium-starter/README.md)：Debezium CDC 数据变更采集。
+- [utils-support-duckdb-starter](utils-support-datasource-parent/utils-support-duckdb-starter/README.md)：DuckDB 嵌入式 OLAP 引擎。
+- [utils-support-elasticsearch-starter](utils-support-datasource-parent/utils-support-elasticsearch-starter/README.md)：Elasticsearch 检索与 Engine 适配。
+- [utils-support-greptimedb-starter](utils-support-datasource-parent/utils-support-greptimedb-starter/README.md)：GreptimeDB 时序写入、SQL 查询与清理。
+- [utils-support-h2-starter](utils-support-datasource-parent/utils-support-h2-starter/README.md)：H2 引擎、元数据与 LIKE 检索门面。
+- [utils-support-hbase-starter](utils-support-datasource-parent/utils-support-hbase-starter/README.md)：HBase 引擎与操作封装。
+- [utils-support-hibernate-starter](utils-support-datasource-parent/utils-support-hibernate-starter/README.md)：Hibernate DDL 生成适配。
+- [utils-support-influxdb-starter](utils-support-datasource-parent/utils-support-influxdb-starter/README.md)：InfluxDB 时序数据操作。
+- [utils-support-jvector-starter](utils-support-datasource-parent/utils-support-jvector-starter/README.md)：JVector 嵌入式向量检索。
+- [utils-support-lucene-starter](utils-support-datasource-parent/utils-support-lucene-starter/README.md)：Lucene 全文索引与检索。
+- [utils-support-milvus-starter](utils-support-datasource-parent/utils-support-milvus-starter/README.md)：Milvus 向量存储与检索。
+- [utils-support-mysql-starter](utils-support-datasource-parent/utils-support-mysql-starter/README.md)：MySQL 引擎、元数据、用户/索引管理与向量存储。
+- [utils-support-neo4j-starter](utils-support-datasource-parent/utils-support-neo4j-starter/README.md)：Neo4j 图数据库适配。
+- [utils-support-nitrite-starter](utils-support-datasource-parent/utils-support-nitrite-starter/README.md)：Nitrite 嵌入式文档数据库。
+- [utils-support-oracle-starter](utils-support-datasource-parent/utils-support-oracle-starter/README.md)：Oracle 引擎、元数据、CDC 与 R2DBC。
+- [utils-support-parquet-starter](utils-support-datasource-parent/utils-support-parquet-starter/README.md)：Parquet 列式文件读写与查询。
+- [utils-support-postgresql-starter](utils-support-datasource-parent/utils-support-postgresql-starter/README.md)：PostgreSQL 引擎、元数据与向量适配。
+- [utils-support-questdb-starter](utils-support-datasource-parent/utils-support-questdb-starter/README.md)：QuestDB 时序写入与 HTTP SQL 查询。
+- [utils-support-rocksdb-starter](utils-support-datasource-parent/utils-support-rocksdb-starter/README.md)：RocksDB KV、文档与全文检索领域 API。
+- [utils-support-shardingv5-starter](utils-support-datasource-parent/utils-support-shardingv5-starter/README.md)：ShardingSphere 分库分表适配。
+- [utils-support-solr-starter](utils-support-datasource-parent/utils-support-solr-starter/README.md)：Solr 搜索引擎适配。
+- [utils-support-sqlite-starter](utils-support-datasource-parent/utils-support-sqlite-starter/README.md)：SQLite 方言、目录轮询与响应式引擎。
+- [utils-support-sqlserver-starter](utils-support-datasource-parent/utils-support-sqlserver-starter/README.md)：SQL Server JDBC/R2DBC 适配。
+- [utils-support-tablesaw-starter](utils-support-datasource-parent/utils-support-tablesaw-starter/README.md)：CSV/Tablesaw 内存数据表与 Engine 查询。
+- [utils-support-vector-starter](utils-support-datasource-parent/utils-support-vector-starter/README.md)：cuVS GPU 向量检索与 JVector CPU 回退。
+- [utils-support-zvec-starter](utils-support-datasource-parent/utils-support-zvec-starter/README.md)：Zvec JNI 嵌入式向量数据库。
 
-List<PredictResult> results = engine.predict(new File("image.jpg"));
-```
+### 网络、浏览器与协议（36）
 
-### 5. 分布式队列 — Disruptor
+父模块：[utils-support-network-parent](utils-support-network-parent/README.md)。
 
-```java
-DisruptorProvider<TaskEntity> provider = DisruptorProvider
-    .builder(TaskEntity.class)
-    .build();
+- [utils-support-acme-starter](utils-support-network-parent/utils-support-acme-starter/README.md)：ACME 证书申请、验证与管理。
+- [utils-support-armeria-starter](utils-support-network-parent/utils-support-armeria-starter/README.md)：Armeria HTTP 服务实现。
+- [utils-support-cdp-starter](utils-support-network-parent/utils-support-cdp-starter/README.md)：JDK CDP 浏览器抓取与截图适配。
+- [utils-support-cloudflared-starter](utils-support-network-parent/utils-support-cloudflared-starter/README.md)：cloudflared Quick Tunnel / 命名隧道进程管理。
+- [utils-support-dht-starter](utils-support-network-parent/utils-support-dht-starter/README.md)：BitTorrent DHT 协议与节点处理。
+- [utils-support-duckduckgo-starter](utils-support-network-parent/utils-support-duckduckgo-starter/README.md)：Duck.ai 浏览器通道对话。
+- [utils-support-ftp-starter](utils-support-network-parent/utils-support-ftp-starter/README.md)：Apache Commons Net FTP 客户端与存储实现。
+- [utils-support-git-starter](utils-support-network-parent/utils-support-git-starter/README.md)：JGit 链式操作、异步拉取与仓库监听。
+- [utils-support-httpclient-starter](utils-support-network-parent/utils-support-httpclient-starter/README.md)：Apache HttpClient5 HTTP 执行器。
+- [utils-support-jrebel-starter](utils-support-network-parent/utils-support-jrebel-starter/README.md)：JRebel 许可证协议服务实现。
+- [utils-support-jvppeteer-starter](utils-support-network-parent/utils-support-jvppeteer-starter/README.md)：Jvppeteer 浏览器渲染、截图与网页对话。
+- [utils-support-kcp-starter](utils-support-network-parent/utils-support-kcp-starter/README.md)：KCP 可靠 UDP 客户端与服务器。
+- [utils-support-kimi-starter](utils-support-network-parent/utils-support-kimi-starter/README.md)：Kimi 网页会话协议适配。
+- [utils-support-kitesurf-starter](utils-support-network-parent/utils-support-kitesurf-starter/README.md)：Kitesurf 截图、PDF、HTML 与 MCP 客户端。
+- [utils-support-modbus-starter](utils-support-network-parent/utils-support-modbus-starter/README.md)：Modbus TCP/UDP/RTU/ASCII 客户端与服务端。
+- [utils-support-ngrok-starter](utils-support-network-parent/utils-support-ngrok-starter/README.md)：Ngrok HTTP/TCP/TLS 隧道。
+- [utils-support-okhttp-starter](utils-support-network-parent/utils-support-okhttp-starter/README.md)：OkHttp HTTP 执行器。
+- [utils-support-playwright-starter](utils-support-network-parent/utils-support-playwright-starter/README.md)：默认 reactor 的 Playwright 抓取、解析与截图实现。
+- [utils-support-quarkus-starter](utils-support-network-parent/utils-support-quarkus-starter/README.md)：基于 Vert.x 的 Quarkus HTTP 服务适配。
+- [utils-support-retrofit-starter](utils-support-network-parent/utils-support-retrofit-starter/README.md)：Retrofit HTTP 调用器。
+- [utils-support-rpc-dubbo-starter](utils-support-network-parent/utils-support-rpc-dubbo-starter/README.md)：Dubbo RPC 适配。
+- [utils-support-rpc-json-starter](utils-support-network-parent/utils-support-rpc-json-starter/README.md)：JSON-RPC 适配。
+- [utils-support-rpc-sofa-starter](utils-support-network-parent/utils-support-rpc-sofa-starter/README.md)：SOFA-RPC 适配。
+- [utils-support-rpc-zmq-starter](utils-support-network-parent/utils-support-rpc-zmq-starter/README.md)：ZeroMQ RPC 与消息分发。
+- [utils-support-rsocket-starter](utils-support-network-parent/utils-support-rsocket-starter/README.md)：RSocket 与消息分发/订阅 SPI。
+- [utils-support-sinch-starter](utils-support-network-parent/utils-support-sinch-starter/README.md)：Sinch 语音电话。
+- [utils-support-smb-starter](utils-support-network-parent/utils-support-smb-starter/README.md)：SMB 客户端、Rust 服务端与文件存储。
+- [utils-support-socketio-starter](utils-support-network-parent/utils-support-socketio-starter/README.md)：Socket.IO 服务、消息分发与配置服务。
+- [utils-support-ssh-starter](utils-support-network-parent/utils-support-ssh-starter/README.md)：Apache MINA SSHD 的 SSH/SFTP 能力。
+- [utils-support-symmetric-starter](utils-support-network-parent/utils-support-symmetric-starter/README.md)：SymmetricDS 数据库同步。
+- [utils-support-tailscale-starter](utils-support-network-parent/utils-support-tailscale-starter/README.md)：Tailscale Funnel 进程管理。
+- [utils-support-tshark-starter](utils-support-network-parent/utils-support-tshark-starter/README.md)：TShark 抓包、过滤与协议解析。
+- [utils-support-webdav-starter](utils-support-network-parent/utils-support-webdav-starter/README.md)：Sardine WebDAV 文件存储。
+- [utils-support-webview-jcef-starter](utils-support-network-parent/utils-support-webview-jcef-starter/README.md)：JCEF WebView 与 IPC。
+- [utils-support-webview-starter](utils-support-network-parent/utils-support-webview-starter/README.md)：WebView2/WKWebView/WebKitGTK 原生窗口。
+- [utils-support-winrm-starter](utils-support-network-parent/utils-support-winrm-starter/README.md)：WinRM 远程命令执行。
 
-Arrange<TaskEntity> arrange = provider.newArrange();
-ArrangeGroup<TaskEntity> group = arrange.group();
-group.handleEventsWith(new TaskHandler("task1", 1000));
-group.after("task1").handleEventsWith(new TaskHandler("task2", 500));
-provider.start();
-provider.publish(entity -> entity.setId(UUID.randomUUID().toString()));
-```
+### WebRTC（1）
 
-### 6. SQLite 响应式查询
+父模块：[utils-support-webrtc-parent](utils-support-webrtc-parent/README.md)。
 
-```java
-SqliteReactorEngine engine = new SqliteReactorEngine();
-engine.addDataSource("mydb", "data/app.db");
+- [utils-support-webrtc-starter](utils-support-webrtc-parent/utils-support-webrtc-starter/README.md)：Java 服务端与浏览器客户端的屏幕共享、信令及数据通道控制。
 
-// 响应式查询（非阻塞）
-Flux<Map<String, Object>> rows = engine.query("SELECT * FROM users WHERE age > ?", 18);
-rows.subscribe(System.out::println);
+### 深度学习与本地推理（20）
 
-// 执行 DDL
-Mono<Integer> affected = engine.execute("CREATE TABLE IF NOT EXISTS t(id INTEGER PRIMARY KEY, v TEXT)");
-affected.block();
-```
+父模块：[utils-support-deeplearning-parent](utils-support-deeplearning-parent/README.md)。
 
----
+- [utils-support-deeplearning-3d-starter](utils-support-deeplearning-parent/utils-support-deeplearning-3d-starter/README.md)：文本/图片/草图生成 3D 模型的 HTTP 适配。
+- [utils-support-deeplearning-agentscope-starter](utils-support-deeplearning-parent/utils-support-deeplearning-agentscope-starter/README.md)：AgentScope Agent、工具、技能与编排桥接。
+- [utils-support-deeplearning-arcsoft-starter](utils-support-deeplearning-parent/utils-support-deeplearning-arcsoft-starter/README.md)：虹软人脸检测、特征与比对；**未登记**。
+- [utils-support-deeplearning-dl4j-starter](utils-support-deeplearning-parent/utils-support-deeplearning-dl4j-starter/README.md)：DL4J 迁移学习训练与 ResNet50 推理。
+- [utils-support-deeplearning-jitllm-starter](utils-support-deeplearning-parent/utils-support-deeplearning-jitllm-starter/README.md)：GGUF 对话、嵌入与 jitLLM/llama.cpp 实现。
+- [utils-support-deeplearning-langchain4j-starter](utils-support-deeplearning-parent/utils-support-deeplearning-langchain4j-starter/README.md)：LangChain4j Agent SPI 桥接。
+- [utils-support-deeplearning-laya-starter](utils-support-deeplearning-parent/utils-support-deeplearning-laya-starter/README.md)：本地概率决策与 AI 规则。
+- [utils-support-deeplearning-mage-starter](utils-support-deeplearning-parent/utils-support-deeplearning-mage-starter/README.md)：Mage 远程生图、编辑与视觉理解；**未登记**。
+- [utils-support-deeplearning-mxnet-starter](utils-support-deeplearning-parent/utils-support-deeplearning-mxnet-starter/README.md)：DJL/MXNet 分类与特征提取。
+- [utils-support-deeplearning-ollama-starter](utils-support-deeplearning-parent/utils-support-deeplearning-ollama-starter/README.md)：Ollama 对话、向量、图像、语音与模型运维。
+- [utils-support-deeplearning-onnx-starter](utils-support-deeplearning-parent/utils-support-deeplearning-onnx-starter/README.md)：ONNX 视觉、OCR、语音、嵌入与文本推理。
+- [utils-support-deeplearning-opencv-starter](utils-support-deeplearning-parent/utils-support-deeplearning-opencv-starter/README.md)：OpenCV 检测、质量评估与图像处理。
+- [utils-support-deeplearning-paddle-starter](utils-support-deeplearning-parent/utils-support-deeplearning-paddle-starter/README.md)：DJL/Paddle OCR、人脸、检测与 NLP。
+- [utils-support-deeplearning-pytorch-starter](utils-support-deeplearning-parent/utils-support-deeplearning-pytorch-starter/README.md)：DJL/PyTorch 视觉、嵌入、生成与翻译。
+- [utils-support-deeplearning-safetensors-starter](utils-support-deeplearning-parent/utils-support-deeplearning-safetensors-starter/README.md)：Python 推理服务与 Java HTTP 客户端。
+- [utils-support-deeplearning-sherpa-starter](utils-support-deeplearning-parent/utils-support-deeplearning-sherpa-starter/README.md)：sherpa-onnx 离线/流式 ASR、TTS 与 VAD。
+- [utils-support-deeplearning-tensorflow-starter](utils-support-deeplearning-parent/utils-support-deeplearning-tensorflow-starter/README.md)：DJL/TensorFlow 检测、分类与超分辨率。
+- [utils-support-deeplearning-tinyai-starter](utils-support-deeplearning-parent/utils-support-deeplearning-tinyai-starter/README.md)：纯 Java MLP 训练、预测与评估；**未登记**。
+- [utils-support-deeplearning-weka-starter](utils-support-deeplearning-parent/utils-support-deeplearning-weka-starter/README.md)：Weka 随机森林分类、回归与评估。
+- [utils-support-deeplearning-wevisone-starter](utils-support-deeplearning-parent/utils-support-deeplearning-wevisone-starter/README.md)：WeVisOne-VL HTTP 视觉任务客户端。
 
-## 构建说明
+### 云平台与 AI 服务（29）
 
-### 全量构建（跳过测试 + PMD）
+父模块：[utils-support-cloud-parent](utils-support-cloud-parent/README.md)。
+
+- [utils-support-alibaba-starter](utils-support-cloud-parent/utils-support-alibaba-starter/README.md)：阿里云存储、短信、证书、支付与 AI 接口。
+- [utils-support-amazon-starter](utils-support-cloud-parent/utils-support-amazon-starter/README.md)：S3 存储与 Bedrock 对话/图像生成。
+- [utils-support-baidu-starter](utils-support-cloud-parent/utils-support-baidu-starter/README.md)：百度 BOS、短信与文心 AI 接口。
+- [utils-support-bilibili-starter](utils-support-cloud-parent/utils-support-bilibili-starter/README.md)：Index-Translate 翻译客户端。
+- [utils-support-claude-starter](utils-support-cloud-parent/utils-support-claude-starter/README.md)：Anthropic Claude 对话。
+- [utils-support-cloudflare-starter](utils-support-cloud-parent/utils-support-cloudflare-starter/README.md)：Cloudflare D1 与 DNS 管理。
+- [utils-support-dingding-starter](utils-support-cloud-parent/utils-support-dingding-starter/README.md)：钉钉 Bot、AI 助理与消息推送。
+- [utils-support-doubao-starter](utils-support-cloud-parent/utils-support-doubao-starter/README.md)：火山方舟 Ark 对话。
+- [utils-support-feishu-starter](utils-support-cloud-parent/utils-support-feishu-starter/README.md)：飞书 Bot 与事件接收。
+- [utils-support-google-starter](utils-support-cloud-parent/utils-support-google-starter/README.md)：Gemini、Imagen、Cloud Storage 与 Colab。
+- [utils-support-huawei-starter](utils-support-cloud-parent/utils-support-huawei-starter/README.md)：华为 OBS 与盘古对话。
+- [utils-support-huggingface-starter](utils-support-cloud-parent/utils-support-huggingface-starter/README.md)：Hugging Face Hub 仓库与文件管理。
+- [utils-support-hunyuan-starter](utils-support-cloud-parent/utils-support-hunyuan-starter/README.md)：混元对话/生图、COS 存储与飞书推送实现。
+- [utils-support-ilink-starter](utils-support-cloud-parent/utils-support-ilink-starter/README.md)：微信 iLink 扫码、轮询收信与回复。
+- [utils-support-liblib-starter](utils-support-cloud-parent/utils-support-liblib-starter/README.md)：LiblibAI ultra 文生图与任务轮询。
+- [utils-support-microsoft-starter](utils-support-cloud-parent/utils-support-microsoft-starter/README.md)：Azure OpenAI 对话与生图。
+- [utils-support-modelscope-starter](utils-support-cloud-parent/utils-support-modelscope-starter/README.md)：魔搭对话、生图与 Hub 文件操作。
+- [utils-support-mosi-starter](utils-support-cloud-parent/utils-support-mosi-starter/README.md)：MOSS 图像生成与语音合成。
+- [utils-support-openai-starter](utils-support-cloud-parent/utils-support-openai-starter/README.md)：OpenAI 兼容对话、工具、嵌入、翻译、图像、视频与音频。
+- [utils-support-qiniu-starter](utils-support-cloud-parent/utils-support-qiniu-starter/README.md)：七牛 Kodo 存储；对话实现为提示桩，见模块边界。
+- [utils-support-qq-starter](utils-support-cloud-parent/utils-support-qq-starter/README.md)：QQ 开放平台 Bot。
+- [utils-support-tencent-starter](utils-support-cloud-parent/utils-support-tencent-starter/README.md)：微信支付渠道与配置。
+- [utils-support-tencentcloud-starter](utils-support-cloud-parent/utils-support-tencentcloud-starter/README.md)：腾讯云短信推送与模板查询。
+- [utils-support-webhook-starter](utils-support-cloud-parent/utils-support-webhook-starter/README.md)：通用 Webhook 消息推送。
+- [utils-support-wechat-starter](utils-support-cloud-parent/utils-support-wechat-starter/README.md)：微信模板/订阅消息、企业机器人与个人微信 Hook。
+- [utils-support-whatsapp-starter](utils-support-cloud-parent/utils-support-whatsapp-starter/README.md)：WhatsApp Cloud API Bot。
+- [utils-support-xunfei-starter](utils-support-cloud-parent/utils-support-xunfei-starter/README.md)：讯飞星火对话。
+- [utils-support-zai-starter](utils-support-cloud-parent/utils-support-zai-starter/README.md)：Z.AI 对话与图像生成。
+- [utils-support-zhipu-starter](utils-support-cloud-parent/utils-support-zhipu-starter/README.md)：智谱对话、图像与视频生成。
+
+### 数据湖与入站适配（7）
+
+父模块：[utils-support-datalake-parent](utils-support-datalake-parent/README.md)。
+
+- [utils-support-datalake-cdc-starter](utils-support-datalake-parent/utils-support-datalake-cdc-starter/README.md)：MySQL CDC 事件入站。
+- [utils-support-datalake-mqtt-starter](utils-support-datalake-parent/utils-support-datalake-mqtt-starter/README.md)：MQTT 订阅事件入站。
+- [utils-support-datalake-query-starter](utils-support-datalake-parent/utils-support-datalake-query-starter/README.md)：数据湖查询实现。
+- [utils-support-datalake-sink-starter](utils-support-datalake-parent/utils-support-datalake-sink-starter/README.md)：数据输出端与持久化适配。
+- [utils-support-datalake-starter](utils-support-datalake-parent/utils-support-datalake-starter/README.md)：数据湖运行时与公共模型。
+- [utils-support-datalake-subscribe-starter](utils-support-datalake-parent/utils-support-datalake-subscribe-starter/README.md)：数据订阅与推送处理。
+- [utils-support-datalake-webhook-starter](utils-support-datalake-parent/utils-support-datalake-webhook-starter/README.md)：HTTP Webhook 事件入站。
+
+### 中间件与可观测性（20）
+
+父模块：[utils-support-middleware-parent](utils-support-middleware-parent/README.md)。
+
+- [utils-support-apollo-starter](utils-support-middleware-parent/utils-support-apollo-starter/README.md)：Apollo 配置中心适配。
+- [utils-support-chronicle-starter](utils-support-middleware-parent/utils-support-chronicle-starter/README.md)：Chronicle Queue 分发与订阅。
+- [utils-support-docker-starter](utils-support-middleware-parent/utils-support-docker-starter/README.md)：docker-java 容器管理客户端。
+- [utils-support-guacamole-starter](utils-support-middleware-parent/utils-support-guacamole-starter/README.md)：guacd 远程会话参数与 URL 构造。
+- [utils-support-kafka-starter](utils-support-middleware-parent/utils-support-kafka-starter/README.md)：Kafka 分发与订阅。
+- [utils-support-minio-starter](utils-support-middleware-parent/utils-support-minio-starter/README.md)：MinIO/S3 文件存储实现。
+- [utils-support-mongodb-starter](utils-support-middleware-parent/utils-support-mongodb-starter/README.md)：MongoDB 连接探测、库/集合浏览与只读查询。
+- [utils-support-mqtt-starter](utils-support-middleware-parent/utils-support-mqtt-starter/README.md)：Paho MQTT 分发与订阅。
+- [utils-support-nacos-starter](utils-support-middleware-parent/utils-support-nacos-starter/README.md)：Nacos 服务发现与配置。
+- [utils-support-nats-starter](utils-support-middleware-parent/utils-support-nats-starter/README.md)：NATS、JetStream、KV 与对象存储。
+- [utils-support-opentelemetry-starter](utils-support-middleware-parent/utils-support-opentelemetry-starter/README.md)：OpenTelemetry 客户端与引擎适配。
+- [utils-support-prometheus-starter](utils-support-middleware-parent/utils-support-prometheus-starter/README.md)：Prometheus 查询与引擎适配。
+- [utils-support-rabbitmq-starter](utils-support-middleware-parent/utils-support-rabbitmq-starter/README.md)：RabbitMQ 消息分发。
+- [utils-support-redis-starter](utils-support-middleware-parent/utils-support-redis-starter/README.md)：Redis KV、缓存、锁、分发与服务发现。
+- [utils-support-resilience4j-starter](utils-support-middleware-parent/utils-support-resilience4j-starter/README.md)：Resilience4j 熔断、限流与重试。
+- [utils-support-sentinel-starter](utils-support-middleware-parent/utils-support-sentinel-starter/README.md)：Sentinel 限流。
+- [utils-support-skywalking-starter](utils-support-middleware-parent/utils-support-skywalking-starter/README.md)：SkyWalking OAP GraphQL 与 APM 查询。
+- [utils-support-tomcat-starter](utils-support-middleware-parent/utils-support-tomcat-starter/README.md)：嵌入式 Tomcat 容器。
+- [utils-support-undertow-starter](utils-support-middleware-parent/utils-support-undertow-starter/README.md)：嵌入式 Undertow 容器。
+- [utils-support-zookeeper-starter](utils-support-middleware-parent/utils-support-zookeeper-starter/README.md)：ZooKeeper 服务发现。
+
+### 扩展工具（21）
+
+父模块：[utils-support-extra-parent](utils-support-extra-parent/README.md)。
+
+- [utils-support-asm-starter](utils-support-extra-parent/utils-support-asm-starter/README.md)：ASM/Javassist 字节码代理与生成。
+- [utils-support-ast-starter](utils-support-extra-parent/utils-support-ast-starter/README.md)：javac AST 编译期注解处理。
+- [utils-support-captcha-starter](utils-support-extra-parent/utils-support-captcha-starter/README.md)：图片验证码生成。
+- [utils-support-crypto-starter](utils-support-extra-parent/utils-support-crypto-starter/README.md)：密钥策略、加密存储、配置加密与加密狗。
+- [utils-support-date-starter](utils-support-extra-parent/utils-support-date-starter/README.md)：自然语言日期时间解析。
+- [utils-support-desktop-starter](utils-support-extra-parent/utils-support-desktop-starter/README.md)：跨平台桌面通知。
+- [utils-support-enhance-starter](utils-support-extra-parent/utils-support-enhance-starter/README.md)：Emoji 与增强工具实现。
+- [utils-support-fastjson-starter](utils-support-extra-parent/utils-support-fastjson-starter/README.md)：Fastjson JSON SPI 实现。
+- [utils-support-fory-starter](utils-support-extra-parent/utils-support-fory-starter/README.md)：Apache Fory 序列化。
+- [utils-support-gson-starter](utils-support-extra-parent/utils-support-gson-starter/README.md)：Gson JSON SPI 实现。
+- [utils-support-jdk15on-starter](utils-support-extra-parent/utils-support-jdk15on-starter/README.md)：BouncyCastle 国密算法实现。
+- [utils-support-metrics-starter](utils-support-extra-parent/utils-support-metrics-starter/README.md)：Rust 原生系统指标采集。
+- [utils-support-mock-starter](utils-support-extra-parent/utils-support-mock-starter/README.md)：姓名、电话、地址等字符串生成 SPI。
+- [utils-support-multipart-starter](utils-support-extra-parent/utils-support-multipart-starter/README.md)：Multipart 请求解析。
+- [utils-support-oshi-starter](utils-support-extra-parent/utils-support-oshi-starter/README.md)：OSHI 硬件与系统指标采集。
+- [utils-support-playwright-starter](utils-support-extra-parent/utils-support-playwright-starter/README.md)：另一套 CDP/批量浏览器实现；**未登记，同名坐标说明见下文**。
+- [utils-support-protobuf-starter](utils-support-extra-parent/utils-support-protobuf-starter/README.md)：Protostuff Protobuf 序列化。
+- [utils-support-serialize-starter](utils-support-extra-parent/utils-support-serialize-starter/README.md)：Kryo、JSON、Java 序列化适配。
+- [utils-support-tika-starter](utils-support-extra-parent/utils-support-tika-starter/README.md)：Tika 文档文本提取。
+- [utils-support-video-processor-starter](utils-support-extra-parent/utils-support-video-processor-starter/README.md)：Rust JNI 视频转 HLS。
+- [utils-support-zstd-starter](utils-support-extra-parent/utils-support-zstd-starter/README.md)：Zstd 流压缩 SPI；**未登记**。
+
+`network-parent` 与 `extra-parent` 下的两个 Playwright 目录使用同一个 artifactId `utils-support-playwright-starter`。默认根 reactor 只登记 network 版本。它们的实现和依赖不同，不能把两个目录同时加入同一 reactor，也不要在本地仓把两者当作不同 Maven 坐标同时安装。
+
+### 运行时与插桩（8）
+
+父模块：[utils-support-runtime-parent](utils-support-runtime-parent/README.md)。
+
+- [utils-support-runtime-agent](utils-support-runtime-parent/utils-support-runtime-agent/README.md)：Java Agent 入口与 Instrumentation 注入。
+- [utils-support-runtime-apm](utils-support-runtime-parent/utils-support-runtime-apm/README.md)：日志、网络、文件与链路插桩。
+- [utils-support-runtime-core](utils-support-runtime-parent/utils-support-runtime-core/README.md)：运行时接口、模型与管理器。
+- [utils-support-runtime-plugin](utils-support-runtime-parent/utils-support-runtime-plugin/README.md)：插件契约、扫描与插桩扩展点。
+- [utils-support-runtime-protocol](utils-support-runtime-parent/utils-support-runtime-protocol/README.md)：Endpoint、Span、Trace 等共享协议模型。
+- [utils-support-runtime-shell](utils-support-runtime-parent/utils-support-runtime-shell/README.md)：Telnet Shell、命令与字符界面。
+- [utils-support-runtime-spy](utils-support-runtime-parent/utils-support-runtime-spy/README.md)：ASM 字节码插桩引擎。
+- [utils-support-runtime-starter](utils-support-runtime-parent/utils-support-runtime-starter/README.md)：运行时管理入口、软件管理与 Agent 注入。
+
+## 构建
+
+在仓库根目录执行默认 reactor 的离线编译（需要依赖和插件已存在于本地 Maven 仓）：
 
 ```bash
-mvn clean package -DskipTests -Dpmd.skip=true -Dmaven.test.skip=true
+mvn -o -q compile -DskipTests
 ```
 
-### 注意事项
-
-- **Java 25 编译**：根 pom.xml 已配置 `--add-exports` / `--add-opens` JVM 参数，Lombok 1.18.46 可在 Java 25 下正常工作
-- **PMD 跳过**：构建时加 `-Dpmd.skip=true` 可跳过 Alibaba P3C PMD 规则检查（避免 `aktStatus is NULL` 错误）
-- **测试跳过**：加 `-Dmaven.test.skip=true` 可完全跳过测试编译和执行
-- **部分模块重新构建**：
-  ```bash
-  mvn package -DskipTests -Dpmd.skip=true -Dmaven.test.skip=true -rf :utils-support-filestorage-starter
-  ```
-
----
-
-## 文档索引
-
-| 文档 | 说明 |
-|------|------|
-| [核心模块文档](utils-support-core-parent/utils-support-common-starter/README.md) | 工具类、SPI、Converter、JSON |
-| [数据源模块文档](utils-support-datasource-parent/README.md) | 30+ 种数据库/数据源支持 |
-| [文件系统模块文档](utils-support-filesystem-parent/README.md) | 文档/图片/音视频/邮件 |
-| [深度学习模块文档](utils-support-deeplearning-parent/README.md) | ONNX/PyTorch/TensorFlow 推理 |
-| [云服务商集成文档](utils-support-cloud-parent/README.md) | 阿里云/腾讯云/AWS/AI 大模型 |
-| [网络协议模块文档](utils-support-network-parent/README.md) | 30+ 网络协议支持 |
-| [中间件模块文档](utils-support-middleware-parent/README.md) | Kafka/Redis/Nacos 等 |
-| [CHANGELOG](CHANGELOG.md) | 版本变更记录 |
-
----
-
-## GraalVM 支持
-
-本项目针对 GraalVM / JDK 25 提供了基础支持：
-
-- **GraalVM JVM 模式**：各模块作为 Java 库使用，兼容 GraalVM for JDK 25 直接编译运行（如 `org.graalvm.js:js` GraalJS 脚本引擎）
-- **Native Image 元数据**：各模块 jar 包内 `META-INF/native-image/**` 含 reflect / resource / proxy / JNI 配置，Native 编译时自动合并
-- **native profile**：`utils-support-core-parent` 提供 `-Pnative` Maven profile，`native-maven-plugin` 1.1.1 配合 `--enable-native-access=ALL-UNNAMED` 支持 `java.lang.foreign` FFM 调用
-
-### 原生镜像构建
+只编译一个已登记模块及其 reactor 依赖：
 
 ```bash
-# 先安装所有模块到本地仓库
-mvn clean install -DskipTests
-
-# 在目标模块上执行 Native 编译（需安装 GraalVM for JDK 25，并设置 GRAALVM_HOME）
-mvn -Pnative native:compile
+mvn -o -pl utils-support-network-parent/utils-support-httpclient-starter -am compile -DskipTests
 ```
 
-### 注意事项
+父 POM 默认跳过测试；编译结果不能替代运行验收。运行使用预览特性的代码时需使用匹配的 JDK，并按模块说明携带 `--enable-preview`。未登记目录的单独构建方式、外部 SDK/原生库和环境限制，见该目录 README。
 
-- `NativeUtils` / `NativeLoader` 通过 classpath `/native/{platform}` 目录枚举加载 Rust cdylib；若目录枚举不可用，调用 `NativeUtils.load(libName, null)` 显式指定
-- 涉及 JNI 的动态链接模块（如 `utils-support-native-video-codec`）需在启动参数中设置 `java.library.path`
+## 文档维护
 
----
+模块 README 是功能说明和使用指南的入口。新增、移动或删除模块时同步更新根索引与所属父模块目录；修改 API 时同步更新示例、导入和配置。文档应描述实际代码行为，尚未实现或未验证的能力明确标注。
 
-## 贡献
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交改动 (`git commit -m 'Add: some feature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
-## 许可证
-
-Apache License 2.0
+模型资源仓库 `utils-support-models-parent` 独立维护，不在本索引范围内。既有文档站与验收报告继续保留。

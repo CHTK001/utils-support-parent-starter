@@ -153,6 +153,20 @@ public interface OtnlEngine extends Engine {
     OtnlStatus status();
 
     /**
+     * 推送后端连接参数（运行期切换目标后端）。
+     * <p>
+     * 引擎是 SPI（无参构造）实例化的，拿不到宿主的配置对象；管理页需要在同一进程内
+     * 在多个后端之间切换（例如某一行的 OAP 地址刚改过），所以由宿主在每次取数前调用本方法。
+     * 默认无动作：后端地址固定在启动配置里的引擎不需要这个入口。
+     * </p>
+     *
+     * @param endpoint 连接参数，非 null
+     */
+    default void configure(OtnlBackend endpoint) {
+        // 默认无需配置
+    }
+
+    /**
      * 能力清单，默认全支持，实现按需收窄
      *
      * @return 能力标识集合

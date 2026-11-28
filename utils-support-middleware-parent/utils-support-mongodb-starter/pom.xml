@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-middleware-parent</artifactId>
+        <version>4.0.0.51</version>
+    </parent>
+    <artifactId>utils-support-mongodb-starter</artifactId>
+    <name>Utils Support MongoDB Starter</name>
+    <description>MongoDB 官方驱动集成</description>
+    <dependencies>
+        <!-- 中间件 SPI 契约：实现 MongoManageProvider（管理面）。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <!-- 官方同步驱动：管理面要浏览逻辑库/集合、跑只读 shell 查询。
+             版本随本地仓已有制品（根 dependencyManagement 的 5.15.0 尚未落地，离线构建取不到）。 -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.13.0</version>
+        </dependency>
+    </dependencies>
+</project>

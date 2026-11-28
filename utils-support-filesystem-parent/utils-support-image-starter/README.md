@@ -35,7 +35,7 @@
 ### 2. 图片格式转换
 
 ```java
-import com.chua.common.support.io.file.system.ConvertFileSystem;
+import com.chua.common.support.file.converter.ConvertFileSystem;
 import java.io.File;
 
 // 自动检测转换器
@@ -50,7 +50,7 @@ if (convertSystem != null) {
 ### 3. 图片处理
 
 ```java
-import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.image.support.imaging.Imaging;
 import java.io.File;
 

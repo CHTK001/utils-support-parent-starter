@@ -34,6 +34,5 @@
         <module>utils-support-date-starter</module>
         <module>utils-support-tika-starter</module>
         <module>utils-support-video-processor-starter</module>
-        <module>utils-support-codedoc-starter</module>
     </modules>
 </project>
