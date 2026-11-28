@@ -205,14 +205,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <!-- 2026-10-06 依赖升级：24.1.0 → 26.1.0（低风险跨 major，注解库仅编译期 provided，
-                 26.x 向后兼容 24.x 的 @NotNull/@Contract 等注解） -->
-            <version>26.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
@@ -283,13 +275,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <!-- 2026-10-06 依赖升级：24.1.0 → 26.1.0（低风险跨 major，注解库 provided 仅编译期） -->
-                <version>26.1.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -2190,13 +2175,6 @@
             <id>github-resource</id>
             <name>GitHub Packages Resource</name>
             <url>https://maven.pkg.github.com/CHTK001/utils-support-resource-parent</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages Native</name>
-            <url>https://maven.pkg.github.com/CHTK001/utils-support-native-parent</url>
             <releases><enabled>true</enabled></releases>
             <snapshots><enabled>false</enabled></snapshots>
         </repository>

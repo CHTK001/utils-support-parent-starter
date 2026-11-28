@@ -17,6 +17,8 @@ import com.chua.common.support.utils.StringUtils;
  *
  * <p>配置项（通过 {@link DocumentConfig#getOptions()}）：</p>
  * <ul>
+ *   <li>{@code connection} — 调用方提供的 JDBC 连接；解析器不关闭它，生命周期由调用方管理</li>
+ *   <li>{@code catalog} — 元数据目标 catalog；未指定时使用连接当前 catalog</li>
  *   <li>{@code schemas} — 逗号分隔的 schema 名列表，或 {@code "*"} 表示全部（默认全部）</li>
  * </ul>
  *
@@ -27,21 +29,29 @@ import com.chua.common.support.utils.StringUtils;
 @Slf4j
 public class DatabaseDocumentParser implements DocumentParser {
 
-/**
- * 解析数据库文档。
- *
- * @param config 文档配置
- * @return 文档数据
- */
+    /**
+     * 解析数据库文档。
+     *
+     * @param config 文档配置
+     * @return 文档数据
+     */
     @Override
     public DocumentData parse(DocumentConfig config) {
+        Object supplied = config.getOptions() == null ? null : config.getOptions().get("connection");
+        if (supplied != null) {
+            if (!(supplied instanceof Connection connection)) {
+                throw new IllegalArgumentException("connection option must be a JDBC Connection");
+            }
+            try {
+                return parseMetadata(config, connection);
+            } catch (SQLException e) {
+                throw new IllegalStateException("Failed to parse database metadata from supplied connection", e);
+            }
+        }
         String url = config.getUrl();
         String username = config.getUsername();
         String password = config.getPassword();
         String driverClass = config.getDriverClass();
-
-        Set<String> schemas = resolveSchemas(config);
-        boolean allMode = isAllMode(config);
 
         if (StringUtils.isNotBlank(driverClass)) {
             if (!ClassUtils.isPresent(driverClass)) {
@@ -50,166 +60,185 @@ public class DatabaseDocumentParser implements DocumentParser {
         }
 
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            DatabaseMetaData meta = conn.getMetaData();
-            String dbVersion = meta.getDatabaseProductVersion();
-            String docVersion = resolveVersion(config);
-
-            List<TableData> tables = Wraps.list();
-            Set<String> schemaNames = Wraps.linkedSet();
-
-            List<String> catalogs = Wraps.list();
-            if (allMode) {
-                try (ResultSet rsCatalogs = meta.getCatalogs()) {
-                    while (rsCatalogs.next()) {
-                        catalogs.add(rsCatalogs.getString(1));
-                    }
-                }
-                if (catalogs.isEmpty()) {
-                    catalogs.add(null);
-                }
-            } else {
-                catalogs.add(extractCatalog(url));
-            }
-
-            for (String cat : catalogs) {
-                try (ResultSet rsTables = meta.getTables(cat, null, "%", null)) {
-                    while (rsTables.next()) {
-                        String tableName = rsTables.getString("TABLE_NAME");
-                        String tableType = rsTables.getString("TABLE_TYPE");
-                        String tableSchema = rsTables.getString("TABLE_SCHEM");
-                        String tableCatalog = rsTables.getString("TABLE_CAT");
-                        String remarks = rsTables.getString("REMARKS");
-
-                        if (tableName == null) {
-                            continue;
-                        }
-                        if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) &&
-                                !"SYSTEM TABLE".equals(tableType)) {
-                            continue;
-                        }
-
-                        if (StringUtils.isBlank(tableSchema)) {
-                            tableSchema = tableCatalog;
-                        }
-                        if (StringUtils.isBlank(tableSchema)) {
-                            tableSchema = "(unknown)";
-                        }
-
-                        if (schemas != null && !schemas.contains(tableSchema)) {
-                            continue;
-                        }
-                        if (!allMode && cat != null && !cat.isBlank()
-                                && !cat.equalsIgnoreCase(tableSchema)
-                                && !cat.equalsIgnoreCase(tableCatalog)) {
-                            continue;
-                        }
-                        schemaNames.add(tableSchema);
-
-                        TableData.TableDataBuilder builder = TableData.builder()
-                                .tableName(tableName)
-                                .schema(tableSchema)
-                                .remark(remarks != null ? remarks : "")
-                                .type(tableType);
-
-                        List<ColumnData> columns = Wraps.list();
-                        try (ResultSet cols = meta.getColumns(tableCatalog, tableSchema, tableName, "%")) {
-                            while (cols.next()) {
-                                String colName = cols.getString("COLUMN_NAME");
-                                String typeName = cols.getString("TYPE_NAME");
-                                int colSize = cols.getInt("COLUMN_SIZE");
-                                int decimalDigits = cols.getInt("DECIMAL_DIGITS");
-                                if (cols.wasNull()) {
-                                decimalDigits = -1;
-                            }
-                                int nullable = cols.getInt("NULLABLE");
-                                String defaultValue = cols.getString("COLUMN_DEF");
-                                String colRemark = cols.getString("REMARKS");
-                                int ordinal = cols.getInt("ORDINAL_POSITION");
-
-                                columns.add(ColumnData.builder()
-                                        .ordinalPosition(ordinal)
-                                        .columnName(colName)
-                                        .typeName(typeName)
-                                        .columnSize(colSize)
-                                        .decimalDigits(decimalDigits >= 0 ? decimalDigits : null)
-                                        .nullable(nullable == DatabaseMetaData.columnNullable)
-                                        .primaryKey(false)
-                                        .defaultValue(defaultValue)
-                                        .remark(colRemark != null ? colRemark : "")
-                                        .build());
-                            }
-                        }
-
-                        try (ResultSet pk = meta.getPrimaryKeys(tableCatalog, tableSchema, tableName)) {
-                            while (pk.next()) {
-                                String pkCol = pk.getString("COLUMN_NAME");
-                                for (int i = 0; i < columns.size(); i++) {
-                                    ColumnData c = columns.get(i);
-                                    if (c.getColumnName().equals(pkCol)) {
-                                        columns.set(i, toBuilder(c).primaryKey(true).build());
-                                    }
-                                }
-                            }
-                        }
-                        builder.columns(columns);
-
-                        List<RelationshipData> importedKeys = Wraps.list();
-                        try (ResultSet fk = meta.getImportedKeys(tableCatalog, tableSchema, tableName)) {
-                            while (fk.next()) {
-                                importedKeys.add(RelationshipData.builder()
-                                        .fkName(fk.getString("FK_NAME"))
-                                        .fkTableName(fk.getString("FKTABLE_NAME"))
-                                        .fkColumnName(fk.getString("FKCOLUMN_NAME"))
-                                        .pkTableName(fk.getString("PKTABLE_NAME"))
-                                        .pkColumnName(fk.getString("PKCOLUMN_NAME"))
-                                        .updateRule(resolveRule(fk.getShort("UPDATE_RULE")))
-                                        .deleteRule(resolveRule(fk.getShort("DELETE_RULE")))
-                                        .build());
-                            }
-                        }
-                        builder.importedKeys(importedKeys);
-
-                        List<RelationshipData> exportedKeys = Wraps.list();
-                        try (ResultSet fk = meta.getExportedKeys(tableCatalog, tableSchema, tableName)) {
-                            while (fk.next()) {
-                                exportedKeys.add(RelationshipData.builder()
-                                        .fkName(fk.getString("FK_NAME"))
-                                        .fkTableName(fk.getString("FKTABLE_NAME"))
-                                        .fkColumnName(fk.getString("FKCOLUMN_NAME"))
-                                        .pkTableName(fk.getString("PKTABLE_NAME"))
-                                        .pkColumnName(fk.getString("PKCOLUMN_NAME"))
-                                        .updateRule(resolveRule(fk.getShort("UPDATE_RULE")))
-                                        .deleteRule(resolveRule(fk.getShort("DELETE_RULE")))
-                                        .build());
-                            }
-                        }
-                        builder.exportedKeys(exportedKeys);
-
-                        tables.add(builder.build());
-                    }
-                }
-            }
-
-            String dbName = buildDbName(allMode ? null : extractCatalog(url), schemaNames);
-            String title = schemaNames.size() == 1
-                    ? dbName + " 数据库设计文档"
-                    : "数据库设计文档（" + schemaNames.size() + " 个 schema）";
-
-            return DocumentData.builder()
-                    .databaseName(dbName)
-                    .productName(meta.getDatabaseProductName())
-                    .productVersion(dbVersion)
-                    .url(url)
-                    .title(title)
-                    .description("共 " + schemaNames.size() + " 个 schema，"
-                            + tables.size()                     + "，共 " + schemaNames.size() + " 个 schema，"
-                            + tables.size() + " 张表")
-                    .version(docVersion)
-                    .tables(tables)
-                    .build();
+            return parseMetadata(config, conn);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to parse database metadata: " + url, e);
         }
+    }
+
+    /**
+     * 从已有连接读取元数据，不改变会话状态、不关闭调用方连接。
+     *
+     * @param config 文档配置
+     * @param conn 调用方或解析器持有的连接
+     * @return 文档数据
+     * @throws SQLException 元数据读取失败
+     */
+    private DocumentData parseMetadata(DocumentConfig config, Connection conn) throws SQLException {
+        Set<String> schemas = resolveSchemas(config);
+        boolean allMode = isAllMode(config);
+        DatabaseMetaData meta = conn.getMetaData();
+        String url = meta.getURL();
+        Object configuredCatalog = config.getOptions() == null ? null : config.getOptions().get("catalog");
+        String catalog = configuredCatalog == null ? conn.getCatalog() : configuredCatalog.toString();
+        if (StringUtils.isBlank(catalog)) {
+            catalog = extractCatalog(url);
+        }
+        String dbVersion = meta.getDatabaseProductVersion();
+        String docVersion = resolveVersion(config);
+
+        List<TableData> tables = Wraps.list();
+        Set<String> schemaNames = Wraps.linkedSet();
+
+        List<String> catalogs = Wraps.list();
+        if (allMode) {
+            try (ResultSet rsCatalogs = meta.getCatalogs()) {
+                while (rsCatalogs.next()) {
+                    catalogs.add(rsCatalogs.getString(1));
+                }
+            }
+            if (catalogs.isEmpty()) {
+                catalogs.add(null);
+            }
+        } else {
+            catalogs.add(catalog);
+        }
+
+        for (String cat : catalogs) {
+            try (ResultSet rsTables = meta.getTables(cat, null, "%", null)) {
+                while (rsTables.next()) {
+                    String tableName = rsTables.getString("TABLE_NAME");
+                    String tableType = rsTables.getString("TABLE_TYPE");
+                    String metadataSchema = rsTables.getString("TABLE_SCHEM");
+                    String tableSchema = metadataSchema;
+                    String tableCatalog = rsTables.getString("TABLE_CAT");
+                    String remarks = rsTables.getString("REMARKS");
+
+                    if (tableName == null) {
+                        continue;
+                    }
+                    if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) &&
+                            !"SYSTEM TABLE".equals(tableType)) {
+                        continue;
+                    }
+
+                    if (StringUtils.isBlank(tableSchema)) {
+                        tableSchema = tableCatalog;
+                    }
+                    if (StringUtils.isBlank(tableSchema)) {
+                        tableSchema = "(unknown)";
+                    }
+
+                    if (schemas != null && !schemas.contains(tableSchema)) {
+                        continue;
+                    }
+                    if (!allMode && cat != null && !cat.isBlank()
+                            && !cat.equalsIgnoreCase(tableSchema)
+                            && !cat.equalsIgnoreCase(tableCatalog)) {
+                        continue;
+                    }
+                    schemaNames.add(tableSchema);
+
+                    TableData.TableDataBuilder builder = TableData.builder()
+                            .tableName(tableName)
+                            .schema(tableSchema)
+                            .remark(remarks != null ? remarks : "")
+                            .type(tableType);
+
+                    List<ColumnData> columns = Wraps.list();
+                    try (ResultSet cols = meta.getColumns(tableCatalog, metadataSchema, tableName, "%")) {
+                        while (cols.next()) {
+                            String colName = cols.getString("COLUMN_NAME");
+                            String typeName = cols.getString("TYPE_NAME");
+                            int colSize = cols.getInt("COLUMN_SIZE");
+                            int decimalDigits = cols.getInt("DECIMAL_DIGITS");
+                            if (cols.wasNull()) {
+                                decimalDigits = -1;
+                            }
+                            int nullable = cols.getInt("NULLABLE");
+                            String defaultValue = cols.getString("COLUMN_DEF");
+                            String colRemark = cols.getString("REMARKS");
+                            int ordinal = cols.getInt("ORDINAL_POSITION");
+
+                            columns.add(ColumnData.builder()
+                                    .ordinalPosition(ordinal)
+                                    .columnName(colName)
+                                    .typeName(typeName)
+                                    .columnSize(colSize)
+                                    .decimalDigits(decimalDigits >= 0 ? decimalDigits : null)
+                                    .nullable(nullable == DatabaseMetaData.columnNullable)
+                                    .primaryKey(false)
+                                    .defaultValue(defaultValue)
+                                    .remark(colRemark != null ? colRemark : "")
+                                    .build());
+                        }
+                    }
+
+                    try (ResultSet pk = meta.getPrimaryKeys(tableCatalog, metadataSchema, tableName)) {
+                        while (pk.next()) {
+                            String pkCol = pk.getString("COLUMN_NAME");
+                            for (int i = 0; i < columns.size(); i++) {
+                                ColumnData c = columns.get(i);
+                                if (c.getColumnName().equals(pkCol)) {
+                                    columns.set(i, toBuilder(c).primaryKey(true).build());
+                                }
+                            }
+                        }
+                    }
+                    builder.columns(columns);
+
+                    List<RelationshipData> importedKeys = Wraps.list();
+                    try (ResultSet fk = meta.getImportedKeys(tableCatalog, metadataSchema, tableName)) {
+                        while (fk.next()) {
+                            importedKeys.add(RelationshipData.builder()
+                                    .fkName(fk.getString("FK_NAME"))
+                                    .fkTableName(fk.getString("FKTABLE_NAME"))
+                                    .fkColumnName(fk.getString("FKCOLUMN_NAME"))
+                                    .pkTableName(fk.getString("PKTABLE_NAME"))
+                                    .pkColumnName(fk.getString("PKCOLUMN_NAME"))
+                                    .updateRule(resolveRule(fk.getShort("UPDATE_RULE")))
+                                    .deleteRule(resolveRule(fk.getShort("DELETE_RULE")))
+                                    .build());
+                        }
+                    }
+                    builder.importedKeys(importedKeys);
+
+                    List<RelationshipData> exportedKeys = Wraps.list();
+                    try (ResultSet fk = meta.getExportedKeys(tableCatalog, metadataSchema, tableName)) {
+                        while (fk.next()) {
+                            exportedKeys.add(RelationshipData.builder()
+                                    .fkName(fk.getString("FK_NAME"))
+                                    .fkTableName(fk.getString("FKTABLE_NAME"))
+                                    .fkColumnName(fk.getString("FKCOLUMN_NAME"))
+                                    .pkTableName(fk.getString("PKTABLE_NAME"))
+                                    .pkColumnName(fk.getString("PKCOLUMN_NAME"))
+                                    .updateRule(resolveRule(fk.getShort("UPDATE_RULE")))
+                                    .deleteRule(resolveRule(fk.getShort("DELETE_RULE")))
+                                    .build());
+                        }
+                    }
+                    builder.exportedKeys(exportedKeys);
+
+                    tables.add(builder.build());
+                }
+            }
+        }
+
+        String dbName = buildDbName(allMode ? null : catalog, schemaNames);
+        String title = schemaNames.size() == 1
+                ? dbName + " 数据库设计文档"
+                : "数据库设计文档（" + schemaNames.size() + " 个 schema）";
+
+        return DocumentData.builder()
+                .databaseName(dbName)
+                .productName(meta.getDatabaseProductName())
+                .productVersion(dbVersion)
+                .url(url)
+                .title(title)
+                .description("共 " + schemaNames.size() + " 个 schema，" + tables.size() + " 张表")
+                .version(docVersion)
+                .tables(tables)
+                .build();
     }
 
     /**
@@ -284,6 +313,9 @@ public class DatabaseDocumentParser implements DocumentParser {
      * @return 数据库名，无法提取返回 空
      */
     private static String extractCatalog(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
         int idx = url.indexOf('?');
         String base = idx > 0 ? url.substring(0, idx) : url;
         int lastSlash = base.lastIndexOf('/');

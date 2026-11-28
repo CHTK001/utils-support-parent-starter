@@ -488,10 +488,16 @@ public class JdkCompiler implements Compiler {
          * @return 返回值
         */
         private Collection<JavaFileObject> listUnder(String packageName, URL url) {
-            File directory = new File(url.getFile());
-            // 浏览本地 .class 文件 - 适用于本地执行环境
-            if (directory.isDirectory()) {
-                return processDir(packageName, directory);
+            if ("file".equals(url.getProtocol())) {
+                try {
+                    File directory = new File(url.toURI());
+                    // 浏览本地 .class 文件 - 适用于本地执行环境
+                    if (directory.isDirectory()) {
+                        return processDir(packageName, directory);
+                    }
+                } catch (URISyntaxException ex) {
+                    throw new IllegalArgumentException("Invalid classpath directory URL: " + url, ex);
+                }
             }
             // 浏览 JAR 文件
             return processJar(url);
@@ -511,14 +517,17 @@ public class JdkCompiler implements Compiler {
 
                 JarURLConnection jarConn = (JarURLConnection) url.openConnection();
                 String rootEntryName = jarConn.getEntryName();
-                int rootEnd = rootEntryName.length() + 1;
+                // JAR 根资源（含 Spring Boot nested classes 根）的 entryName 可以为 null。
+                String rootPrefix = rootEntryName == null || rootEntryName.isEmpty() ? ""
+                        : rootEntryName.endsWith("/") ? rootEntryName : rootEntryName + "/";
+                int rootEnd = rootPrefix.length();
 
                 Enumeration<JarEntry> entryEnum = jarConn.getJarFile().entries();
                 while (entryEnum.hasMoreElements()) {
                     JarEntry jarEntry = entryEnum.nextElement();
                     String name = jarEntry.getName();
                     // 筛选条件：在根目录下且以 .class 结尾
-                    if (name.startsWith(rootEntryName) && name.indexOf('/', rootEnd) == -1 &&
+                    if (name.startsWith(rootPrefix) && name.indexOf('/', rootEnd) == -1 &&
                             name.endsWith(CLASS_FILE_EXTENSION)) {
                         URI uri = URI.create(jarUri + JAR_URL_SEPARATOR + name);
                         String binaryName = name.replace('/', '.');
@@ -547,7 +556,8 @@ public class JdkCompiler implements Compiler {
                 if (childFile.isFile()) {
                     // 只处理 .class 文件
                     if (childFile.getName().endsWith(CLASS_FILE_EXTENSION)) {
-                        String binaryName = packageName + "." + childFile.getName();
+                        String binaryName = packageName.isEmpty() ? childFile.getName()
+                                : packageName + "." + childFile.getName();
                         binaryName = binaryName.substring(0, binaryName.length() - CLASS_FILE_EXTENSION.length());
 
                         result.add(new CustomJavaFileObject(binaryName, childFile.toURI()));
