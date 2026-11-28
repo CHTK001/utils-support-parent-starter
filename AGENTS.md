@@ -39,6 +39,12 @@
 - 宿主桥与 resolver 统一复用 `ServiceDefinitionUtils.buildDefinitionAlias(...)`，保留 `SpiOrder`、`Spi.order`、`SpiDefault` 等元数据；上层不得再手工拼一套注解解析规则。
 - 真实 Felix 的普通 bundle 事件异步投递。生命周期验收须在有界时间内等待服务可见/消失，再断言实例身份与业务结果；仅等 `Bundle.start()` 返回不足以证明发布链已完成。
 
+## AgentScope 离线验证与路径边界（2026-11-28 实测）
+
+- **SDK 2.0.4 的 `LocalFilesystem` ROOTED 模式不能视为符号链接隔离边界**：根内链接指向探针自有的区外目录时，真实读写均成功；普通 `..`、区外绝对路径和兄弟目录被拒，不能抵消此缺口。产品 `SessionWorkspaceResolver` 当次仅源码审查，未做直接执行验证；不得据此宣称产品或部署路径已验收。
+- HITL 恢复必须保存完整 `ToolUseBlock` 与 replyId；同批已放行工具保存为 `ALLOWED`，避免部分批准后重复裁决。真实 SDK 参数校验读取原始 JSON `content`，离线构造调用时只有 `input` 不够；文件工具返回的 JSON 文本须解码后再比较换行内容。
+- 离线恢复验证可用仅覆写 `isReturnDirect()` 的包装器委托真实 SDK 文件工具，避免工具结束后进入模型/网络调用；此结果不代表 HTTP `/v2/chat/resume`、确认卡或 194 部署已通过。证据与未完成项见 [AI控制台Agent能力验收 §12](D:/ch/验收报告/AI控制台Agent能力验收.md)。
+
 ## 交付闸门
 不反向依赖 `spring-*`；无重复实现；`mvn -o -q compile -DskipTests` EXIT=0；编码 `BOM=0 / U+FFFD=0`。任一项不满足不得声称完成。
 

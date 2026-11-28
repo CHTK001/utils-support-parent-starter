@@ -7,7 +7,8 @@
 ## 为什么放在 `src/acceptance/`
 
 - `src/acceptance/` **不是** Maven 的标准源码根（`src/main/java`），构建时完全忽略，
-  因此不污染任何模块产物；沿用 `spring-support-monitor-starter/src/acceptance/` 的既有约定。
+  因此不污染任何模块产物；沿用 monitor 模块历史上 `src/acceptance/` 的既有约定
+  （该业务模块已迁至 `spring-api-support-common-monitor-starter`，本目录是该约定的唯一现存副本）。
 - harness 需要 **700 余个 jar** 的完整运行期 classpath（含 spring / lettuce / monitor），
   无法用模块自身的依赖声明表达，故自带 `pom.xml` 仅用于解析 classpath
   （`dependency:build-classpath`），不参与 reactor 构建。

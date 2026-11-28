@@ -76,7 +76,6 @@ import io.agentscope.harness.agent.HarnessAgent;
 import io.agentscope.harness.agent.memory.compaction.ToolResultEvictionConfig;
 import io.agentscope.harness.agent.subagent.SubagentDeclaration;
 import io.agentscope.harness.agent.subagent.WorkspaceMode;
-import io.agentscope.harness.agent.filesystem.spec.LocalFilesystemSpec;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -2984,7 +2983,7 @@ public class AgentScopeAgent implements Agent {
              * 里非空即原样返回），没有按会话解析的入口，所以 shell 只能停在账号级根；
              * 会话级隔离由 harness 自己做（文件、memory、事件都落在 `<root>/<会话id>/`）。
              */
-            builder.filesystem(new LocalFilesystemSpec()
+            builder.filesystem(new ContainedLocalFilesystemSpec()
                     .project(ws)
                     .projectWritable(true));
         }
