@@ -11,11 +11,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.agentscope.core.agent.Agent;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
+import io.agentscope.core.event.AgentEventEmitter;
+import io.agentscope.core.event.RequestStopEvent;
+import io.agentscope.core.event.RequireUserConfirmEvent;
 import io.agentscope.core.event.ToolCallStartEvent;
 import io.agentscope.core.event.ToolResultEndEvent;
 import io.agentscope.core.event.ToolResultStartEvent;
 import io.agentscope.core.event.ToolResultTextDeltaEvent;
 import io.agentscope.core.message.ToolResultBlock;
+import io.agentscope.core.message.GenerateReason;
+import io.agentscope.core.message.Msg;
+import io.agentscope.core.message.MsgRole;
+import io.agentscope.core.message.ToolCallState;
 import io.agentscope.core.message.ToolResultState;
 import io.agentscope.core.message.ToolUseBlock;
 import io.agentscope.core.middleware.ActingInput;
@@ -27,12 +34,13 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import com.chua.common.support.utils.CollectionUtils;
@@ -52,8 +60,8 @@ import com.chua.common.support.utils.CollectionUtils;
  *
  * <p><b>裁决口径</b>：入参序列化为资源文本后按 {@link ToolRiskPolicy#classify} 预分级，
  * 交 {@link AgentRiskAdjudicator} 裁决；裁决器异常按拒绝兜底（fail-close）；
- * 危险操作即使裁决放行也拦截（fail-safe）；{@code CONFIRM_REQUIRED} 不挂起等待
- * 人工确认，直接拒绝并把原因回给模型改道。{@code exemptTools} 中的工具
+ * 危险操作即使裁决放行也转人工确认（fail-safe）；{@code CONFIRM_REQUIRED} 保存
+ * 完整工具块并按 SDK 的权限确认协议暂停，批准后恢复同一次调用。{@code exemptTools} 中的工具
  * （如 ask_user 这类纯交互 / 挂起型 schema 工具）只记账、不做风险裁决。</p>
  *
  * <p><b>拒绝语义</b>：对齐 SDK 自身拒绝路径——被拒调用补一条
@@ -76,6 +84,11 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
      * 工具入参序列化器（资源文本用；writeValueAsString 线程安全）
      */
     private static final ObjectMapper INPUT_MAPPER = new ObjectMapper();
+
+    /**
+     * 随助手消息持久化已记账调用，确认恢复或 SDK 权限暂停后不重复扣预算。
+     */
+    private static final String COUNTED_TOOL_IDS = "chua.toolGate.countedToolIds";
 
     /**
      * 风险裁决器（null 表示不做风险裁决，仅记账）
@@ -150,26 +163,45 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
         }
 
         List<ToolUseBlock> allowed = new ArrayList<>();
+        List<ToolUseBlock> pending = new ArrayList<>();
         List<ToolUseBlock> denied = new ArrayList<>();
         List<String> reasons = new ArrayList<>();
+        recordToolCallsOnce(ctx, toolCalls);
         for (ToolUseBlock call : toolCalls) {
-            // 预算记账：工具调用次数在闸门入口单点计数（同步 / 流式同一口径，
-            // 豁免工具也计数——调用轮次本身消耗预算）
-            if (tracker != null) {
-                tracker.recordToolCall();
+            if (call.getState() == ToolCallState.ASKING) {
+                // 部分确认后剩余的待批调用继续等待，不重复裁决或提前执行。
+                pending.add(call);
+                continue;
             }
-            if (exemptTools != null && exemptTools.contains(call.getName())) {
+            if (call.getState() == ToolCallState.ALLOWED
+                    || exemptTools != null && exemptTools.contains(call.getName())) {
                 // 纯交互 / 挂起型 schema 工具（如 ask_user）不做风险裁决
+                // SDK 已应用的用户批准同样不重复询问；下游 Plan / 路径约束仍然生效。
                 allowed.add(call);
                 continue;
             }
-            String reason = adjudicate(call);
-            if (reason == null) {
+            AgentRiskDecision decision = adjudicate(call);
+            if (decision == null) {
                 allowed.add(call);
+            } else if (decision.verdict() == AgentRiskDecision.Verdict.CONFIRM_REQUIRED) {
+                pending.add(call.withState(ToolCallState.ASKING));
             } else {
                 denied.add(call);
-                reasons.add(reason);
+                reasons.add(decision.reason());
             }
+        }
+        if (!pending.isEmpty()) {
+            // 与 SDK 一致：同批有待批调用时整批暂不执行，明确拒绝的结果先落上下文。
+            appendDeniedResults(ctx, agent, denied, reasons);
+            String replyId = newReplyId();
+            persistConfirmation(ctx, pending, replyId);
+            List<AgentEvent> events = new ArrayList<>();
+            for (int i = 0; i < denied.size(); i++) {
+                events.addAll(deniedResultEvents(denied.get(i), reasons.get(i), replyId));
+            }
+            events.add(new RequireUserConfirmEvent(replyId, pending));
+            events.add(new RequestStopEvent("工具调用等待人工确认", GenerateReason.PERMISSION_ASKING));
+            return publishEvents(events);
         }
         if (denied.isEmpty()) {
             // 全部放行：原样透传（保持 input 与调用列表同一实例）
@@ -189,7 +221,7 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
             for (int i = 0; i < denied.size(); i++) {
                 events.addAll(deniedResultEvents(denied.get(i), reasons.get(i), replyId));
             }
-            return Flux.fromIterable(events);
+            return publishEvents(events);
         }
 
         // 部分拒绝：放行子集进下游；replyId 从下游首个工具事件捕获（acting 每轮新生成，
@@ -204,8 +236,78 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
                     for (int i = 0; i < denied.size(); i++) {
                         events.addAll(deniedResultEvents(denied.get(i), reasons.get(i), replyId));
                     }
-                    return Flux.fromIterable(events);
+                    return publishEvents(events);
                 }));
+    }
+
+    /**
+     * 按原始调用 ID 记账，状态保存在 SDK 会话中，跨 Agent 实例恢复仍只计一次。
+     *
+     * @param ctx 当前运行上下文
+     * @param toolCalls 本轮待执行调用
+     */
+    private void recordToolCallsOnce(RuntimeContext ctx, List<ToolUseBlock> toolCalls) {
+        if (tracker == null) {
+            return;
+        }
+        List<Msg> context = ctx.getAgentState().contextMutable();
+        Msg assistant = MessageUtils.lastAssistantMessage(context);
+        if (assistant == null) {
+            throw new IllegalStateException("无法记录工具预算：缺少助手工具调用消息");
+        }
+        Map<String, Object> metadata = assistant.getMetadata() == null
+                ? new HashMap<>() : new HashMap<>(assistant.getMetadata());
+        Set<String> counted = new HashSet<>();
+        if (metadata.get(COUNTED_TOOL_IDS) instanceof List<?> ids) {
+            for (Object id : ids) {
+                if (id instanceof String value) {
+                    counted.add(value);
+                }
+            }
+        }
+        for (ToolUseBlock call : toolCalls) {
+            if (counted.add(call.getId())) {
+                tracker.recordToolCall();
+            }
+        }
+        metadata.put(COUNTED_TOOL_IDS, new ArrayList<>(counted));
+        MessageUtils.replaceLastMessageByRole(context, MsgRole.ASSISTANT, assistant.withMetadata(metadata));
+    }
+
+    /**
+     * 将完整待批块与关联 ID 写入 SDK 会话状态，供下一次 call 应用 ConfirmResult。
+     */
+    private void persistConfirmation(RuntimeContext ctx, List<ToolUseBlock> pending, String replyId) {
+        List<Msg> context = ctx.getAgentState().contextMutable();
+        Msg assistant = MessageUtils.lastAssistantMessage(context);
+        if (assistant == null) {
+            throw new IllegalStateException("无法保存工具确认：缺少助手工具调用消息");
+        }
+        Map<String, ToolUseBlock> replacements = new HashMap<>();
+        for (ToolUseBlock call : pending) {
+            replacements.put(call.getId(), call);
+        }
+        MessageUtils.replaceToolUseBlocks(context, replacements);
+        assistant = MessageUtils.lastAssistantMessage(context);
+        Map<String, Object> metadata = assistant.getMetadata() == null
+                ? new HashMap<>() : new HashMap<>(assistant.getMetadata());
+        metadata.put(Msg.METADATA_CONFIRM_REQUEST_REPLY_ID, replyId);
+        MessageUtils.replaceLastMessageByRole(context, MsgRole.ASSISTANT, assistant.withMetadata(metadata));
+    }
+
+    /**
+     * acting 中间件新增的事件须显式发布；SDK 只自动发布核心执行链自身的事件。
+     */
+    private Flux<AgentEvent> publishEvents(List<AgentEvent> events) {
+        return Flux.deferContextual(context -> {
+            AgentEventEmitter emitter = AgentEventEmitter.fromForwardingContext(context)
+                    .or(() -> AgentEventEmitter.fromContext(context)).orElse(null);
+            return Flux.fromIterable(events).doOnNext(event -> {
+                if (emitter != null) {
+                    emitter.emit(event);
+                }
+            });
+        });
     }
 
     /**
@@ -224,9 +326,9 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
      * 裁决单个工具调用。
      *
      * @param call 待裁决的工具调用
-     * @return null 表示放行；否则返回应回给模型的拒绝原因
+     * @return null 表示放行；否则为拒绝或待确认结论
      */
-    private String adjudicate(ToolUseBlock call) {
+    private AgentRiskDecision adjudicate(ToolUseBlock call) {
         if (riskAdjudicator == null) {
             return null;
         }
@@ -266,11 +368,11 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
                     // 危险操作即使裁决放行也拦截（fail-safe：必须走人工强确认链路）
                     log.warn("[AgentScope] 危险操作被风险闸门拦截: agentId={}, tool={}, risk={}",
                             agentId, toolName, effectiveLevel);
-                    outcome = "拦截(危险操作需人工确认)";
+                    outcome = "等待人工确认(危险操作)";
                     denyReason = "危险操作已拦截（风险等级 " + effectiveLevel + "），需人工确认后重试";
-                    recordAdjudication(toolName, effectiveLevel, "BLOCKED",
+                    recordAdjudication(toolName, effectiveLevel, "CONFIRM_REQUIRED",
                             outcome + "；裁决原因: " + (reason != null ? reason : "-"));
-                    return denyReason;
+                    return AgentRiskDecision.confirmRequired(denyReason);
                 }
                 recordAdjudication(toolName, effectiveLevel, "ALLOW",
                         reason != null ? "放行；裁决原因: " + reason : "放行");
@@ -282,18 +384,17 @@ public class AgentToolGateMiddleware implements MiddlewareBase {
                 denyReason = "工具调用被风险裁决拒绝: " + (reason != null ? reason : "不允许执行该操作");
                 recordAdjudication(toolName, effectiveLevel, "DENY",
                         "拒绝；裁决原因: " + (reason != null ? reason : "-"));
-                return denyReason;
+                return AgentRiskDecision.deny(denyReason);
             case CONFIRM_REQUIRED:
             default:
-                // 不挂起等待人工确认：fail-safe 跳过执行，把原因回给模型改道
-                log.info("[AgentScope] 工具调用需人工确认，本次跳过执行: agentId={}, tool={}, risk={}, reason={}",
+                log.info("[AgentScope] 工具调用等待人工确认: agentId={}, tool={}, risk={}, reason={}",
                         agentId, toolName, effectiveLevel, reason);
-                outcome = "需人工确认(本次跳过)";
-                denyReason = "工具调用需人工确认，本次已跳过执行（风险等级 "
+                outcome = "等待人工确认";
+                denyReason = "工具调用需人工确认（风险等级 "
                         + effectiveLevel + (reason != null ? "：" + reason : "") + "）";
                 recordAdjudication(toolName, effectiveLevel, "CONFIRM_REQUIRED",
                         outcome + "；裁决原因: " + (reason != null ? reason : "-"));
-                return denyReason;
+                return AgentRiskDecision.confirmRequired(denyReason);
         }
     }
 

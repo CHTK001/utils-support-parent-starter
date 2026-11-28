@@ -1893,6 +1893,26 @@ try (VectorStorage storage = VectorStorageProvider.createDynamic(
 
 `BTree` / `BPlusTree` 统一由 `TreeEngine` 抽象，`BinaryTreeConverter` 支持 B/B+ 树与二叉树互转，`TreeNode` 为转换节点。
 
+`FileTreeEngine<K,V>` 是 `TreeEngine` 的文件型实现：使用按键范围划分的分片，每个分片使用磁盘 B+ 树页；点查只读取目录定位的分片及索引路径，范围查询只读取与范围相交的页。达到分片容量后，在下一次插入新键前拆分该分片；拆分和显式 `compact()` 会扫描各自的一个分片，普通操作不会扫描整个数据目录。页追加写入、CRC 校验并由原子清单切换根页；过期页通过 `compact()` 回收。目录采用独占文件锁，同一时间只允许一个打开实例。
+
+键和值须提供稳定版本号的 `Codec`，避免对磁盘文件执行 Java 原生对象反序列化。内置 `stringCodec()`、`integerCodec()`、`longCodec()` 可直接使用；自定义编码器的 `id()` 需在重开时保持一致。页大小固定为 64 KiB，页或条目超出容量会明确抛错，不会截断。
+
+```java
+import com.chua.common.support.tree.FileTreeEngine;
+import java.nio.file.Path;
+
+try (var tree = FileTreeEngine.open(Path.of("data/users-tree"), 64, 1024,
+        FileTreeEngine.stringCodec(), FileTreeEngine.stringCodec())) {
+    tree.put("user-001", "张三");
+    var user = tree.get("user-001");
+    var users = tree.range("user-000", "user-100");
+    var binaryTree = tree.toBinaryTree();
+    tree.compact(); // 显式回收更新和删除产生的未引用页
+}
+```
+
+`toBinaryTree()` 与 `restore(TreeNode)` 遵循既有右斜有序链契约；这两个显式转换会遍历全部条目，`restore` 会将每条记录实际提交到磁盘清单。需要随机访问的大数据不要将二叉树转换作为常规查询路径。
+
 ---
 
 ## 11. 导出、文档与图像

@@ -89,6 +89,32 @@ public interface KvEngine extends KvOperations {
      */
     long incr(String key);
 
+    /**
+     * 是否支持跨调用方的原子比较更新（包括条件创建与条件删除）。
+     *
+     * @return 支持返回 true；不得使用进程内锁冒充共享存储的原子性
+     */
+    default boolean supportsCompareAndSet() {
+        return false;
+    }
+
+    /**
+     * 值与预期完全一致时原子更新；比较与写入必须由后端作为一个操作执行。
+     *
+     * <p>expectedValue 为 null 表示键不存在；newValue 为 null 表示删除。
+     * ttl 非空时设置新有效期，必须至少为一毫秒；ttl 为空时保留原有有效期，
+     * 因而创建新键时必须指定 ttl。空字符串是普通值，不等同于 null。</p>
+     *
+     * @param key 键，不可为空
+     * @param expectedValue 预期旧值；null 表示不存在
+     * @param newValue 新值；null 表示删除
+     * @param ttl 新有效期；更新已有键或删除时允许为 null
+     * @return 比较成功且操作完成返回 true，否则 false
+     */
+    default boolean compareAndSet(String key, String expectedValue, String newValue, Duration ttl) {
+        throw new UnsupportedOperationException("该 KV 后端不支持原子比较更新");
+    }
+
     // ==================== TTL 操作 ====================
 
     /**

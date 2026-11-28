@@ -1823,6 +1823,15 @@ public class AgentScopeAgent implements Agent {
     @Override
     public Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions,
                                               String feedback) {
+        return Flux.defer(() -> resumeConfirmedStream(replyId, decisions, feedback));
+    }
+
+    /**
+     * 订阅时消费一次确认，避免未订阅就丢失待批入参或同一流被重复执行。
+     */
+    private Flux<AgentStreamEvent> resumeConfirmedStream(String replyId,
+                                                        List<ConfirmationDecision> decisions,
+                                                        String feedback) {
         if (!this.pendingToolRecoveryEnabled) {
             // 恢复通道被显式关闭：逐出缓存块并返回错误事件，绝不静默丢弃决策
             takePendingBlocks(replyId);
@@ -1841,27 +1850,7 @@ public class AgentScopeAgent implements Agent {
             log.error("[AgentScope] resumeStream准备失败: {}", e.getMessage(), e);
             return Flux.error(e);
         }
-        List<ConfirmResult> confirmResults = Wraps.list();
-        Map<String, ToolUseBlock> cached = takePendingBlocks(replyId);
-        if (decisions != null) {
-            for (ConfirmationDecision d : decisions) {
-                ToolUseBlock full = cached != null && d.getToolCallId() != null
-                        ? cached.get(d.getToolCallId()) : null;
-                ToolUseBlock ref;
-                if (full != null) {
-                    // 原样回传完整待批块（id/name/input 齐全），harness 仅 withState 翻转允许状态
-                    ref = full;
-                } else {
-                    // 缓存缺失（如后端重启后恢复）：至少保证 name 非空，
-                    // 避免 AgentTraceMiddleware 对 null name 落盘 NPE
-                    ref = ToolUseBlock.builder()
-                            .id(d.getToolCallId())
-                            .name("pending_tool")
-                            .build();
-                }
-                confirmResults.add(new ConfirmResult(d.isConfirmed(), ref));
-            }
-        }
+        List<ConfirmResult> confirmResults = consumeConfirmResults(replyId, decisions);
         Map<String, Object> meta = Wraps.map();
         meta.put(Msg.METADATA_CONFIRM_REQUEST_REPLY_ID, replyId);
         meta.put(Msg.METADATA_CONFIRM_RESULTS, confirmResults);
@@ -1869,6 +1858,44 @@ public class AgentScopeAgent implements Agent {
         // 用户修改意见：drive 在 streamEvents 前注入 Agent 上下文，模型据此重新规划
         plan.feedback = feedback;
         return drive(plan, false);
+    }
+
+    /**
+     * 校验后一次性取走完整待批块。无效决策不消费缓存，缺失状态绝不伪造工具及入参。
+     *
+     * @param replyId 待确认批次标识
+     * @param decisions 用户对本批次的决定，可为部分决定
+     * @return 与原始工具及完整入参对应的确认结果
+     */
+    List<ConfirmResult> consumeConfirmResults(String replyId, List<ConfirmationDecision> decisions) {
+        if (StringUtils.isBlank(replyId) || CollectionUtils.isEmpty(decisions)) {
+            throw new IllegalArgumentException("恢复工具执行必须提供确认批次和至少一项决定");
+        }
+        AgentSuspendState pending = suspendStore().get(replyId);
+        if (pending == null || !(pending.payload() instanceof Map<?, ?> blocks) || blocks.isEmpty()) {
+            throw new IllegalStateException("待确认状态已过期或已被消费，请重新发起运行");
+        }
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        for (ConfirmationDecision decision : decisions) {
+            String id = decision != null ? decision.getToolCallId() : null;
+            if (StringUtils.isBlank(id) || !ids.add(id)) {
+                throw new IllegalArgumentException("确认决定的工具调用 ID 不能为空或重复");
+            }
+            if (!(blocks.get(id) instanceof ToolUseBlock block)
+                    || block.getState() != io.agentscope.core.message.ToolCallState.ASKING
+                    || StringUtils.isBlank(block.getName())) {
+                throw new IllegalArgumentException("确认决定不属于当前待批工具调用: " + id);
+            }
+        }
+        Map<String, ToolUseBlock> cached = takePendingBlocks(replyId);
+        if (cached == null) {
+            throw new IllegalStateException("待确认状态已过期或已被消费，请重新发起运行");
+        }
+        List<ConfirmResult> results = new ArrayList<>();
+        for (ConfirmationDecision decision : decisions) {
+            results.add(new ConfirmResult(decision.isConfirmed(), cached.get(decision.getToolCallId())));
+        }
+        return results;
     }
 
     /**
@@ -2362,7 +2389,8 @@ public class AgentScopeAgent implements Agent {
                                     Map<String, ToolUseBlock> blockById = Wraps.linkedMap();
                                     for (ToolUseBlock tb : pending) {
                                         if (tb.getId() != null) {
-                                            blockById.put(tb.getId(), tb);
+                                            blockById.put(tb.getId(), tb.withState(
+                                                    io.agentscope.core.message.ToolCallState.ASKING));
                                         }
                                         confirmItems.add(ConfirmationItem.builder()
                                                 .toolCallId(tb.getId())
@@ -3457,4 +3485,3 @@ public class AgentScopeAgent implements Agent {
         }
     }
 }
-
