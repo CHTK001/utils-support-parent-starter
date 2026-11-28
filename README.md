@@ -183,12 +183,10 @@ Java 通用工具与 SPI 实现集合。公共契约和基础实现位于 `utils
 
 - [utils-support-deeplearning-3d-starter](utils-support-deeplearning-parent/utils-support-deeplearning-3d-starter/README.md)：文本/图片/草图生成 3D 模型的 HTTP 适配。
 - [utils-support-deeplearning-agentscope-starter](utils-support-deeplearning-parent/utils-support-deeplearning-agentscope-starter/README.md)：AgentScope Agent、工具、技能与编排桥接。
-- [utils-support-deeplearning-arcsoft-starter](utils-support-deeplearning-parent/utils-support-deeplearning-arcsoft-starter/README.md)：虹软人脸检测、特征与比对；**未登记**。
 - [utils-support-deeplearning-dl4j-starter](utils-support-deeplearning-parent/utils-support-deeplearning-dl4j-starter/README.md)：DL4J 迁移学习训练与 ResNet50 推理。
 - [utils-support-deeplearning-jitllm-starter](utils-support-deeplearning-parent/utils-support-deeplearning-jitllm-starter/README.md)：GGUF 对话、嵌入与 jitLLM/llama.cpp 实现。
 - [utils-support-deeplearning-langchain4j-starter](utils-support-deeplearning-parent/utils-support-deeplearning-langchain4j-starter/README.md)：LangChain4j Agent SPI 桥接。
 - [utils-support-deeplearning-laya-starter](utils-support-deeplearning-parent/utils-support-deeplearning-laya-starter/README.md)：本地概率决策与 AI 规则。
-- [utils-support-deeplearning-mage-starter](utils-support-deeplearning-parent/utils-support-deeplearning-mage-starter/README.md)：Mage 远程生图、编辑与视觉理解；**未登记**。
 - [utils-support-deeplearning-mxnet-starter](utils-support-deeplearning-parent/utils-support-deeplearning-mxnet-starter/README.md)：DJL/MXNet 分类与特征提取。
 - [utils-support-deeplearning-ollama-starter](utils-support-deeplearning-parent/utils-support-deeplearning-ollama-starter/README.md)：Ollama 对话、向量、图像、语音与模型运维。
 - [utils-support-deeplearning-onnx-starter](utils-support-deeplearning-parent/utils-support-deeplearning-onnx-starter/README.md)：ONNX 视觉、OCR、语音、嵌入与文本推理。
@@ -198,7 +196,6 @@ Java 通用工具与 SPI 实现集合。公共契约和基础实现位于 `utils
 - [utils-support-deeplearning-safetensors-starter](utils-support-deeplearning-parent/utils-support-deeplearning-safetensors-starter/README.md)：Python 推理服务与 Java HTTP 客户端。
 - [utils-support-deeplearning-sherpa-starter](utils-support-deeplearning-parent/utils-support-deeplearning-sherpa-starter/README.md)：sherpa-onnx 离线/流式 ASR、TTS 与 VAD。
 - [utils-support-deeplearning-tensorflow-starter](utils-support-deeplearning-parent/utils-support-deeplearning-tensorflow-starter/README.md)：DJL/TensorFlow 检测、分类与超分辨率。
-- [utils-support-deeplearning-tinyai-starter](utils-support-deeplearning-parent/utils-support-deeplearning-tinyai-starter/README.md)：纯 Java MLP 训练、预测与评估；**未登记**。
 - [utils-support-deeplearning-weka-starter](utils-support-deeplearning-parent/utils-support-deeplearning-weka-starter/README.md)：Weka 随机森林分类、回归与评估。
 - [utils-support-deeplearning-wevisone-starter](utils-support-deeplearning-parent/utils-support-deeplearning-wevisone-starter/README.md)：WeVisOne-VL HTTP 视觉任务客户端。
 

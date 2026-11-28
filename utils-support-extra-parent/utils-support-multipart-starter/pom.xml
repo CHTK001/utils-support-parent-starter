@@ -29,5 +29,14 @@
             <version>${commons.fileupload2.version}</version>
         </dependency>
 
+        <!-- Servlet 契约：ApacheMultipartParser 直接以 HttpServletRequest 为入口，
+             容器运行时自带，编译期以 provided 引入。 -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 </project>

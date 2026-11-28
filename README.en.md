@@ -112,7 +112,6 @@ utils-support-parent-starter/\r\n
 |   |   deeplearning-pytorch-starter              # PyTorch\r\n
 |   |   deeplearning-tensorflow-starter           # TensorFlow\r\n
 |   |   deeplearning-opencv-starter               # CV\r\n
-|   |   deeplearning-arcsoft-starter              # Face detection\r\n
 |   |   deeplearning-agentscope-starter           # Multi-agent collaboration\r\n
 |   |   deeplearning-langchain4j-starter          # LangChain4j\r\n
 |   |   deeplearning-safetensors-starter          # Safetensors model loader\r\n
@@ -120,12 +119,10 @@ utils-support-parent-starter/\r\n
 |   |   deeplearning-dl4j-starter                 # Deeplearning4j\r\n
 |   |   deeplearning-jitllm-starter               # JIT LLM (llama.cpp / GGUF / sidecar)\r\n
 |   |   deeplearning-laya-starter                 # Lays\r\n
-|   |   deeplearning-mage-starter                 # Mage\r\n
 |   |   deeplearning-mxnet-starter                # MXNet\r\n
 |   |   deeplearning-ollama-starter               # Ollama\r\n
 |   |   deeplearning-paddle-starter               # PaddlePaddle\r\n
 |   |   deeplearning-sherpa-starter               # Sherpa\r\n
-|   |   deeplearning-tinyai-starter               # TinyAI\r\n
 |   |   deeplearning-weka-starter                 # Weka\r\n
 |\r\n
 |   utils-support-extra-parent/                   # Extra components (21)\r\n

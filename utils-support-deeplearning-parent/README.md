@@ -23,9 +23,6 @@
 | [weka](utils-support-deeplearning-weka-starter/README.md) | 随机森林分类/回归及评估 |
 | [jitllm](utils-support-deeplearning-jitllm-starter/README.md) | GGUF 对话/嵌入、TornadoVM 与 llama.cpp/llama-server 路径 |
 | [wevisone](utils-support-deeplearning-wevisone-starter/README.md) | WeVisOne-VL HTTP 指令式视觉推理 |
-| [arcsoft](utils-support-deeplearning-arcsoft-starter/README.md) | 虹软人脸特征/比对；未登记到本父 POM，需 SDK/授权 |
-| [mage](utils-support-deeplearning-mage-starter/README.md) | Mage-VL/Mage-Flow 远程推理；未登记到本父 POM |
-| [tinyai](utils-support-deeplearning-tinyai-starter/README.md) | TinyAI MLP 分类训练；未登记到本父 POM |
 
 ## 安装与运行条件
 

@@ -281,7 +281,7 @@ mvn -o -q compile -DskipTests
 | 流式对话（SSE） | 未实现：`ModelscopeChatClient` 请求体固定 `stream=false`，仅提供同步 `chatSync` / `chatSyncWithResponse` |
 | ControlNet | `controlType(...)` 直接抛 `UnsupportedOperationException` |
 | `imageStrength` / `quality` / `style` 参数 | 调用后被忽略并打 warn 日志（ModelScope 文生图端点不支持） |
-| 微软 Mage 文生图/编辑/多模态 | 在 `utils-support-deeplearning-mage-starter`（SPI `mage`），本模块不重复 |
+| 微软 Mage 文生图/编辑/多模态 | 原 `utils-support-deeplearning-mage-starter` 已退役，本模块不提供该能力 |
 | 工具调用（function calling）、JSON 模式、路由、Agent、RAG、Embedding 客户端 | 属于 common 层或其它 starter 的能力；本模块对话实现未覆盖 tools/工具相关 Setting 字段 |
 | 渠道管理、账户、凭据等业务 | 属于上层业务 starter（如 `spring-support-account-starter`）；本模块只做对 ModelScope 的技术对接 |
 | git / git-lfs 可执行文件 | 运行环境需自行安装；缺失或失败时 `downloadSnapshot`/`uploadSnapshot` 抛 `RuntimeException` |

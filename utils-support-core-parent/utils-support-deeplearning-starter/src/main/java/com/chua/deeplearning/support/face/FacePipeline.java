@@ -1027,7 +1027,8 @@ public class FacePipeline {
                     }
                     return null;
                 }).taskEnd()
-                .decision("hasFeature", ctx -> current(ctx).currentFeature() != null && vectorStorage != null
+                .decision("hasFeature", ctx -> !Boolean.TRUE.equals(ctx.getAttribute("skipSearch"))
+                        && current(ctx).currentFeature() != null && vectorStorage != null
                         ? NODE_SEARCH
                         : NODE_COLLECT_IDENTIFY)
                 .task(NODE_SEARCH, ctx -> {
@@ -1149,8 +1150,20 @@ public class FacePipeline {
      * @param pipeline 管线
      */
     private void runSingle(FaceContext fc, Pipeline pipeline) {
+        runSingle(fc, pipeline, false);
+    }
+
+    /**
+     * 对单张人脸执行管线，独立特征能力可跳过底库检索。
+     *
+     * @param fc 人脸上下文
+     * @param pipeline 执行管线
+     * @param skipSearch 是否跳过与特征提取无关的底库检索
+     */
+    private void runSingle(FaceContext fc, Pipeline pipeline, boolean skipSearch) {
         var ctx = new PipelineContext<FaceContext>(pipeline.getId(), fc);
         ctx.setAttribute("face", fc);
+        ctx.setAttribute("skipSearch", skipSearch);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);
     }
@@ -1401,7 +1414,7 @@ public class FacePipeline {
         }
         FaceContext fc = new FaceContext(imageData, boxes);
         while (fc.advance()) {
-            runSingle(fc, identifyPipeline);
+            runSingle(fc, identifyPipeline, true);
             if (ArrayUtils.isNotEmpty(fc.currentFeature())) {
                 return fc.currentFeature();
             }
@@ -1426,7 +1439,7 @@ public class FacePipeline {
         PredictRectangle largest = pickLargest(boxes);
         FaceContext fc = new FaceContext(imageData, List.of(largest));
         fc.advance();
-        runSingle(fc, identifyPipeline);
+        runSingle(fc, identifyPipeline, true);
         byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
         if (callback != null && aligned != null) {
             callback.onAlign(0, fc.currentBox(), aligned);
@@ -1457,7 +1470,7 @@ public class FacePipeline {
         PredictRectangle largest = pickLargest(boxes);
         FaceContext fc = new FaceContext(imageData, List.of(largest));
         fc.advance();
-        runSingle(fc, identifyPipeline);
+        runSingle(fc, identifyPipeline, true);
         float[] feature = fc.currentFeature();
         byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
         return new FaceFeaturePipelineResult(

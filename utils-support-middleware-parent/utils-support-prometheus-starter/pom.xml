@@ -34,11 +34,6 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- 单元测试：仅使用 JDK 内置 HttpServer 模拟 Prometheus API, 不依赖外部服务 -->
     </dependencies>
 </project>

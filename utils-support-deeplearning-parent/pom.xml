@@ -30,7 +30,6 @@
         <module>utils-support-deeplearning-3d-starter</module>
         <module>utils-support-deeplearning-ollama-starter</module>
         <module>utils-support-deeplearning-laya-starter</module>
-        <!-- utils-support-deeplearning-tinyai-starter: 依赖 Aliyun 私服 tinyai:1.0-SNAPSHOT（401 不可达），暂不构建 -->
         <module>utils-support-deeplearning-dl4j-starter</module>
         <module>utils-support-deeplearning-weka-starter</module>
         <module>utils-support-deeplearning-jitllm-starter</module>
@@ -40,14 +39,7 @@
              com.chua.common.support.ai.decision 包下，可独立使用，不依赖本模块。
              如需恢复，源码见 D:\ch\project\backups\jev-retire-20260927（该模块从未受 git 跟踪，
              备份目录是唯一还原源）。 -->
-        <!-- utils-support-deeplearning-arcsoft-starter 依赖商业闭源 SDK (com.arcsoft.face:arcsoft-sdk-face)，
-             离线仓库不可用，暂从聚合移除；如需使用请手动安装 SDK 后恢复此模块。 -->
         </modules>
     <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

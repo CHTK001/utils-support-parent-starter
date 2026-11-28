@@ -16,12 +16,6 @@
     <description>CAD 图纸预览模块：DXF 真渲染（纯 Java 解析转 SVG）与 DWG 头信息解析</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- 预览结果与 SPI 接口来自 filestorage 模块，本模块只提供 CAD 解析实现 -->
         <dependency>
             <groupId>com.chua</groupId>

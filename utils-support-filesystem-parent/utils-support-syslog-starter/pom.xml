@@ -26,11 +26,6 @@
             <version>${project.version}</version>
         </dependency>
         <!-- NTFS MFT 等原生文件检索由 utils-support-filesearch-starter 承载，本模块不再依赖 native 包 -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

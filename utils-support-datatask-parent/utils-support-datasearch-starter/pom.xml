@@ -32,10 +32,12 @@
             <artifactId>utils-support-datasource-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 各 Usage/Conversation 解析器直接使用 SqliteReactorEngine 读取本地 sqlite 库，
+             引擎实现必须由本模块显式声明，不能再依赖 datasource-starter 的传递依赖。 -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-sqlite-starter</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
